@@ -1,0 +1,26 @@
+version: "3.3"
+services:
+  dev: # 
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+    - .:/go/src/github.com/Azure/azure-service-broker
+  test: # Like dev, but linked to redis
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+    - .:/go/src/github.com/Azure/azure-service-broker
+    links:
+    - test-redis:redis
+  broker:
+    build: .
+    environment:
+      REDIS_HOST: redis
+    links:
+    - broker-redis:redis
+  test-redis:
+    image: redis:3.2.4
+  broker-redis:
+    image: redis:3.2.4

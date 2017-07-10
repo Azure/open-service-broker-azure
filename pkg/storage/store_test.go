@@ -12,7 +12,7 @@ import (
 
 var (
 	redisClient = redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("192.168.99.100:6379"),
+		Addr: "redis:6379",
 	})
 	testStore = NewStore(redisClient)
 )
