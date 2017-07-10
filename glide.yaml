@@ -4,9 +4,5 @@ import:
 - package: github.com/go-redis/redis
 - package: github.com/RichardKnop/machinery/v1
 - package: github.com/gorilla/mux
-- package: github.com/Azure/go-autorest
-- package: github.com/Azure/azure-sdk-for-go
-- package: github.com/lib/pq
 - package: github.com/stretchr/testify
 - package: github.com/satori/go.uuid
-# TODO: Pick a logging framework

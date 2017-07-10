@@ -1,22 +1,10 @@
-hash: b189dcef39e18580f83d2aaf2d6585f3839870b15d5cd32b004b435dbcb5ce3d
-updated: 2017-06-26T16:26:38.344507933-04:00
+hash: d1014b3b40f24c85c12e35d9b68d61587ade39e4712a8d301818553d9dd15ee4
+updated: 2017-07-10T20:33:40.510286182Z
 imports:
-- name: github.com/Azure/azure-sdk-for-go
-  version: b558f7a651d50f9b2256b1f45abfef9e92efdfae
-- name: github.com/Azure/go-autorest
-  version: 10791a4516e77c53ab10f198f144804cca3d5b43
-  subpackages:
-  - autorest
-  - autorest/adal
-  - autorest/azure
-  - autorest/date
-  - autorest/validation
 - name: github.com/bradfitz/gomemcache
   version: 1952afaa557dc08e8e0d89eafab110fb501c1a2b
   subpackages:
   - memcache
-- name: github.com/dgrijalva/jwt-go
-  version: 01aeca54ebda6e0fbfafd0a524d234159c05ec20
 - name: github.com/garyburd/redigo
   version: ac91d6ff49bd0d278a90201de77a4f8ad9628e25
   subpackages:
@@ -36,8 +24,6 @@ imports:
   version: 8c683ee571b6ee7ffc9f1cafd13103c422e71cbf
 - name: github.com/kelseyhightower/envconfig
   version: 70f0258d44cbaa3b6a2581d82f58da01a38e4de4
-- name: github.com/lib/pq
-  version: 8837942c3e09574accbc5f150e2c5e057189cace
 - name: github.com/RichardKnop/logging
   version: 8692ae85bb7c50aadb496ffd6fb58a76300eaab1
 - name: github.com/RichardKnop/machinery
