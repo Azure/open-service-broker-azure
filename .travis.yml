@@ -1,0 +1,21 @@
+language: generic
+cache:
+  directories:
+  - .glide
+services:
+- docker
+- docker-compose
+sudo: required
+before_script:
+- make dev-bootstrap
+script:
+- make clean test docker-build
+after_script:
+- make clean
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: scripts/deploy.sh
+  on:
+    repo: Azure/azure-service-broker
+    all_branches: true
