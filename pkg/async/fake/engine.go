@@ -34,6 +34,5 @@ func (e *Engine) Start(context.Context) error {
 }
 
 func defaultRunBehavior() error {
-	for {
-	}
+	select {}
 }

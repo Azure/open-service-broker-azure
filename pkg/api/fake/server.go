@@ -23,6 +23,5 @@ func (s *Server) Start(context.Context) error {
 }
 
 func defaultRunBehavior() error {
-	for {
-	}
+	select {}
 }

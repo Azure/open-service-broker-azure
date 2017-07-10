@@ -49,6 +49,5 @@ func (w *Worker) Launch() error {
 }
 
 func defaultRunBehavior() error {
-	for {
-	}
+	select {}
 }
