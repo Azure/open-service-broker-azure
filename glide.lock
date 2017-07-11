@@ -1,15 +1,6 @@
-hash: d1014b3b40f24c85c12e35d9b68d61587ade39e4712a8d301818553d9dd15ee4
-updated: 2017-07-10T20:33:40.510286182Z
+hash: 00229d380db120ece39bf2848fac94ba8e71c79bdb29b234972ea3add393ba06
+updated: 2017-07-11T18:13:14.978051333Z
 imports:
-- name: github.com/bradfitz/gomemcache
-  version: 1952afaa557dc08e8e0d89eafab110fb501c1a2b
-  subpackages:
-  - memcache
-- name: github.com/garyburd/redigo
-  version: ac91d6ff49bd0d278a90201de77a4f8ad9628e25
-  subpackages:
-  - internal
-  - redis
 - name: github.com/go-redis/redis
   version: e14976b254c5bc5f399dd0ae9314b1d02a176897
   subpackages:
@@ -24,23 +15,8 @@ imports:
   version: 8c683ee571b6ee7ffc9f1cafd13103c422e71cbf
 - name: github.com/kelseyhightower/envconfig
   version: 70f0258d44cbaa3b6a2581d82f58da01a38e4de4
-- name: github.com/RichardKnop/logging
-  version: 8692ae85bb7c50aadb496ffd6fb58a76300eaab1
-- name: github.com/RichardKnop/machinery
-  version: bbdc469fc5ec89871a303ef2f6e33ad3f4ba89bd
-  subpackages:
-  - v1
-  - v1/backends
-  - v1/brokers
-  - v1/common
-  - v1/config
-  - v1/log
-  - v1/retry
-  - v1/tasks
 - name: github.com/satori/go.uuid
   version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
-- name: github.com/streadway/amqp
-  version: afe8eee29a74d213b1f3fb2586058157c397da60
 - name: github.com/stretchr/testify
   version: e3a8ff8ce36581f87a15341206f205b1da467059
   subpackages:
@@ -49,17 +25,6 @@ imports:
   version: 034d17a462f7b2dcd1a4a73553ec5357ff6e6c6e
   subpackages:
   - syncutil
-- name: gopkg.in/mgo.v2
-  version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
-  subpackages:
-  - bson
-  - internal/json
-  - internal/sasl
-  - internal/scram
-- name: gopkg.in/redsync.v1
-  version: 98dabdf1c8574561bf976911c14ff652c47b1ddf
-- name: gopkg.in/yaml.v2
-  version: cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b
 testImports:
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76

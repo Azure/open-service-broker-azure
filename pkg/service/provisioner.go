@@ -1,19 +1,32 @@
 package service
 
 import (
+	"context"
 	"fmt"
 )
+
+// ProvisioningStepFunction is the signature for functions that implement a
+// provisioning step
+type ProvisioningStepFunction func(
+	ctx context.Context,
+	provisioningResult interface{},
+	params interface{},
+) (interface{}, error)
 
 // ProvisioningStep is an interface to be implemented by types that represent
 // a single step in a chain of steps that defines a provisioning process
 type ProvisioningStep interface {
 	GetName() string
-	Execute(provisioningResult, params interface{}) (interface{}, error)
+	Execute(
+		ctx context.Context,
+		provisioningResult,
+		params interface{},
+	) (interface{}, error)
 }
 
 type provisioningStep struct {
-	name     string
-	function func(provisioningResult, params interface{}) (interface{}, error)
+	name string
+	fn   ProvisioningStepFunction
 }
 
 // Provisioner is an interface to be implemented by types that model a declared
@@ -33,11 +46,11 @@ type provisioner struct {
 // NewProvisioningStep returns a new ProvisioningStep
 func NewProvisioningStep(
 	name string,
-	function func(provisioningResult, params interface{}) (interface{}, error),
+	fn ProvisioningStepFunction,
 ) ProvisioningStep {
 	return &provisioningStep{
-		name:     name,
-		function: function,
+		name: name,
+		fn:   fn,
 	}
 }
 
@@ -48,10 +61,13 @@ func (p *provisioningStep) GetName() string {
 
 // Execute executes a step
 func (p *provisioningStep) Execute(
+	ctx context.Context,
 	provisioningResult interface{},
 	params interface{},
 ) (interface{}, error) {
-	return p.function(provisioningResult, params)
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	return p.fn(ctx, provisioningResult, params)
 }
 
 // NewProvisioner returns a new provisioner

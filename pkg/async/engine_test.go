@@ -2,48 +2,129 @@ package async
 
 import (
 	"context"
-	"errors"
-	"reflect"
 	"testing"
 	"time"
 
-	machinery "github.com/Azure/azure-service-broker/pkg/machinery"
-	fakeMachinery "github.com/Azure/azure-service-broker/pkg/machinery/fake"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	fakeStorage "github.com/Azure/azure-service-broker/pkg/storage/fake"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
 	s = fakeStorage.NewStore()
-	m = fakeMachinery.NewServer()
 )
 
-func TestStartEngineBlocks(t *testing.T) {
-	e, err := NewEngine(s, m, []service.Module{})
-	assert.Nil(t, err)
-	eng := e.(*engine)
-	eng.getWorker = func(machinery.Server) machinery.Worker {
-		return fakeMachinery.NewWorker()
+func TestEngineStartBlocksUntilCleanerErrors(t *testing.T) {
+	e := NewEngine(redisClient).(*engine)
+	c := fakeAsync.NewCleaner()
+	c.RunBehavior = func(context.Context) error {
+		return errSome
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	e.cleaner = c
+	var workerStopped bool
+	w := fakeAsync.NewWorker()
+	w.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		workerStopped = true
+		return ctx.Err()
+	}
+	e.worker = w
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = e.Start(ctx)
-	assert.Equal(t, "context.deadlineExceededError", reflect.TypeOf(err).String())
+	err := e.Start(ctx)
+	assert.Equal(t, &errCleanerStopped{err: errSome}, err)
+	time.Sleep(time.Second)
+	assert.True(t, workerStopped)
 }
 
-func TestErrorShutsDownEngine(t *testing.T) {
-	e, err := NewEngine(s, m, []service.Module{})
-	assert.Nil(t, err)
-	eng := e.(*engine)
-	someErr := errors.New("an error")
-	eng.getWorker = func(machinery.Server) machinery.Worker {
-		worker := fakeMachinery.NewWorker()
-		worker.RunBehavior = func() error {
-			return someErr
-		}
-		return worker
+func TestEngineStartBlocksUntilCleanerReturns(t *testing.T) {
+	e := NewEngine(redisClient).(*engine)
+	c := fakeAsync.NewCleaner()
+	c.RunBehavior = func(context.Context) error {
+		return nil
 	}
-	err = e.Start(context.Background())
-	assert.Equal(t, someErr, err)
+	e.cleaner = c
+	var workerStopped bool
+	w := fakeAsync.NewWorker()
+	w.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		workerStopped = true
+		return ctx.Err()
+	}
+	e.worker = w
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	err := e.Start(ctx)
+	assert.Equal(t, &errCleanerStopped{}, err)
+	time.Sleep(time.Second)
+	assert.True(t, workerStopped)
+}
+
+func TestEngineStartBlocksUntilWorkerErrors(t *testing.T) {
+	e := NewEngine(redisClient).(*engine)
+	var cleanerStopped bool
+	c := fakeAsync.NewCleaner()
+	c.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		cleanerStopped = true
+		return ctx.Err()
+	}
+	e.cleaner = c
+	w := fakeAsync.NewWorker()
+	w.RunBehavior = func(context.Context) error {
+		return errSome
+	}
+	e.worker = w
+	err := e.Start(context.Background())
+	assert.Equal(t, &errWorkerStopped{workerID: w.GetID(), err: errSome}, err)
+	time.Sleep(time.Second)
+	assert.True(t, cleanerStopped)
+}
+
+func TestEngineStartBlocksUntilWorkerReturns(t *testing.T) {
+	e := NewEngine(redisClient).(*engine)
+	var cleanerStopped bool
+	c := fakeAsync.NewCleaner()
+	c.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		cleanerStopped = true
+		return ctx.Err()
+	}
+	e.cleaner = c
+	w := fakeAsync.NewWorker()
+	w.RunBehavior = func(context.Context) error {
+		return nil
+	}
+	e.worker = w
+	err := e.Start(context.Background())
+	assert.Equal(t, &errWorkerStopped{workerID: w.GetID()}, err)
+	time.Sleep(time.Second)
+	assert.True(t, cleanerStopped)
+}
+
+func TestEngineStartBlocksUntilContextCanceled(t *testing.T) {
+	e := NewEngine(redisClient).(*engine)
+	var cleanerStopped bool
+	c := fakeAsync.NewCleaner()
+	c.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		cleanerStopped = true
+		return ctx.Err()
+	}
+	e.cleaner = c
+	var workerStopped bool
+	w := fakeAsync.NewWorker()
+	w.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		workerStopped = true
+		return ctx.Err()
+	}
+	e.worker = w
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	err := e.Start(ctx)
+	assert.Equal(t, ctx.Err(), err)
+	time.Sleep(time.Second)
+	assert.True(t, cleanerStopped)
+	assert.True(t, workerStopped)
 }

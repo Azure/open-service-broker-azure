@@ -3,36 +3,38 @@ package fake
 import (
 	"context"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/azure-service-broker/pkg/async/model"
 )
 
 // Engine is a fake implementation of async.Engine used for testing
 type Engine struct {
-	RunBehavior func() error
+	RunBehavior func(context.Context) error
 }
 
 // NewEngine returns a new, fake implementation of async.Engine used for testing
 func NewEngine() *Engine {
 	return &Engine{
-		RunBehavior: defaultRunBehavior,
+		RunBehavior: defaultEngineRunBehavior,
 	}
 }
 
-// Provision kicks off asynchronous provisioning for the given instance
-func (e *Engine) Provision(instance *service.Instance) error {
+// RegisterJob registers a new Job with the async engine
+func (e *Engine) RegisterJob(name string, fn model.JobFunction) error {
 	return nil
 }
 
-// Deprovision kicks off asynchronous deprovisioning for the given instance
-func (e *Engine) Deprovision(instance *service.Instance) error {
+// SubmitTask submits an idempotent task to the async engine for reliable,
+// asynchronous completion
+func (e *Engine) SubmitTask(model.Task) error {
 	return nil
 }
 
 // Start causes the async engine to begin executing queued tasks
-func (e *Engine) Start(context.Context) error {
-	return e.RunBehavior()
+func (e *Engine) Start(ctx context.Context) error {
+	return e.RunBehavior(ctx)
 }
 
-func defaultRunBehavior() error {
-	select {}
+func defaultEngineRunBehavior(ctx context.Context) error {
+	<-ctx.Done()
+	return ctx.Err()
 }

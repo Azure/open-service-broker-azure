@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"context"
 
@@ -12,6 +13,17 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/storage"
 	"github.com/gorilla/mux"
 )
+
+type errHTTPServerStopped struct {
+	err error
+}
+
+func (e *errHTTPServerStopped) Error() string {
+	if e.err == nil {
+		return "http server stopped"
+	}
+	return fmt.Sprintf("http server stopped: %s", e.err)
+}
 
 // Server is an interface for components that respond to HTTP requests on behalf
 // of the broker
@@ -22,15 +34,20 @@ type Server interface {
 }
 
 type server struct {
-	port            int
-	store           storage.Store
-	asyncEngine     async.Engine
-	router          *mux.Router
-	modules         map[string]service.Module
+	port        int
+	store       storage.Store
+	asyncEngine async.Engine
+	router      *mux.Router
+	// Modules indexed by service
+	modules map[string]service.Module
+	// Provisioners indexed by service
+	provisioners map[string]service.Provisioner
+	// Deprovisioners indexed by service
+	deprovisioners  map[string]service.Deprovisioner
 	catalog         service.Catalog
 	catalogResponse []byte
 	// This allows tests to inject an alternative implementation of this function
-	listenAndServe func(string, http.Handler) error
+	listenAndServe func(context.Context) error
 }
 
 // NewServer returns an HTTP router
@@ -38,14 +55,17 @@ func NewServer(
 	port int,
 	store storage.Store,
 	asyncEngine async.Engine,
-	modules []service.Module,
+	modules map[string]service.Module,
+	provisioners map[string]service.Provisioner,
+	deprovisioners map[string]service.Deprovisioner,
 ) (Server, error) {
 	s := &server{
 		port:           port,
 		store:          store,
-		modules:        make(map[string]service.Module),
 		asyncEngine:    asyncEngine,
-		listenAndServe: listenAndServe,
+		modules:        modules,
+		provisioners:   provisioners,
+		deprovisioners: deprovisioners,
 	}
 	router := mux.NewRouter()
 	router.StrictSlash(true)
@@ -86,20 +106,6 @@ func NewServer(
 		if err != nil {
 			return nil, err
 		}
-		for _, svc := range catalog.GetServices() {
-			existingModule, ok := s.modules[svc.GetID()]
-			if ok {
-				// This means we have more than one module claiming to provide services
-				// with an ID in common. This is a SERIOUS problem.
-				return nil, fmt.Errorf(
-					"module %s and module %s BOTH provide a service with the id %s",
-					existingModule.GetName(),
-					module.GetName(),
-					svc.GetID(),
-				)
-			}
-			s.modules[svc.GetID()] = module
-		}
 		services = append(services, catalog.GetServices()...)
 	}
 	s.catalog = service.NewCatalog(services)
@@ -109,16 +115,23 @@ func NewServer(
 	}
 	s.catalogResponse = []byte(catalogJSONStr)
 
+	s.listenAndServe = s.defaultListenAndServe
+
 	return s, nil
 }
 
 func (s *server) Start(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	errChan := make(chan error)
-	defer close(errChan)
 	go func() {
 		log.Printf("Listening on http://0.0.0.0:%d", s.port)
-		// Start listening. This blocks until it errors or is interrupted.
-		errChan <- s.listenAndServe(fmt.Sprintf(":%d", s.port), s.router)
+		err := s.listenAndServe(ctx)
+		hss := &errHTTPServerStopped{err: err}
+		select {
+		case errChan <- hss:
+		case <-ctx.Done():
+		}
 	}()
 	select {
 	case <-ctx.Done():
@@ -128,6 +141,29 @@ func (s *server) Start(ctx context.Context) error {
 	}
 }
 
-var listenAndServe = func(addr string, handler http.Handler) error {
-	return http.ListenAndServe(addr, handler)
+func (s *server) defaultListenAndServe(ctx context.Context) error {
+	errChan := make(chan error)
+	svr := http.Server{
+		Addr:    fmt.Sprintf(":%d", s.port),
+		Handler: s.router,
+	}
+	go func() {
+		err := svr.ListenAndServe()
+		select {
+		case errChan <- err:
+		case <-ctx.Done():
+		}
+	}()
+	select {
+	case err := <-errChan:
+		return err
+	case <-ctx.Done():
+		shutdownCtx, cancel := context.WithTimeout(
+			context.Background(),
+			time.Second*5,
+		)
+		defer cancel()
+		svr.Shutdown(shutdownCtx)
+		return ctx.Err()
+	}
 }

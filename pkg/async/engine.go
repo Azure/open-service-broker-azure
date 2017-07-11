@@ -2,11 +2,11 @@ package async
 
 import (
 	"context"
+
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/machinery"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/storage"
+	"github.com/Azure/azure-service-broker/pkg/async/model"
+	"github.com/go-redis/redis"
 )
 
 const (
@@ -16,84 +16,75 @@ const (
 
 // Engine is an interface for a broker-specifc framework for submitting and
 // asynchronously completing provisioning and deprovisioning tasks.
-// Implementations of the Enginer interface are abstractions over the
-// complexities of the underlying async task execution library.
 type Engine interface {
-	// Provision kicks off asynchronous provisioning for the given instance
-	Provision(*service.Instance) error
-	// Deprovision kicks off asynchronous deprovisioning for the given instance
-	Deprovision(*service.Instance) error
+	// RegisterJob registers a new Job with the async engine
+	RegisterJob(name string, fn model.JobFunction) error
+	// SubmitTask submits an idempotent task to the async engine for reliable,
+	// asynchronous completion
+	SubmitTask(model.Task) error
 	// Start causes the async engine to begin executing queued tasks
 	Start(context.Context) error
 }
 
-// engine is a machinery-based implementation of the Engine interface.
+// engine is a Redis-based implementation of the Engine interface.
 type engine struct {
-	store           storage.Store
-	machineryServer machinery.Server
-	modules         map[string]service.Module
-	provisioners    map[string]service.Provisioner
-	deprovisioners  map[string]service.Deprovisioner
-	// This allows tests to inject an alternative implementation of this function
-	getWorker func(machinery.Server) machinery.Worker
+	redisClient *redis.Client
+	// This allows tests to inject an alternative implementation of Worker
+	worker Worker
+	// This allows tests to inject an alternative implementation of Cleaner
+	cleaner Cleaner
 }
 
-// NewEngine returns a new machinery-based implementation of the Engine
+// NewEngine returns a new Redis-based implementation of the Engine
 // interface
-func NewEngine(
-	store storage.Store,
-	machineryServer machinery.Server,
-	modules []service.Module,
-) (Engine, error) {
-	e := &engine{
-		store:           store,
-		machineryServer: machineryServer,
-		modules:         make(map[string]service.Module),
-		provisioners:    make(map[string]service.Provisioner),
-		deprovisioners:  make(map[string]service.Deprovisioner),
-		getWorker:       getWorker,
+func NewEngine(redisClient *redis.Client) Engine {
+	return &engine{
+		redisClient: redisClient,
+		cleaner:     newCleaner(redisClient),
+		worker:      newWorker(redisClient),
 	}
-	machineryServer.RegisterTask("work", e.doWork)
+}
 
-	for _, module := range modules {
-		catalog, err := module.GetCatalog()
-		if err != nil {
-			return nil, err
-		}
-		for _, svc := range catalog.GetServices() {
-			existingModule, ok := e.modules[svc.GetID()]
-			if ok {
-				// This means we have more than one module claiming to provide services
-				// with an ID in common. This is a SERIOUS problem.
-				return nil, fmt.Errorf(
-					"module %s and module %s BOTH provide a service with the id %s",
-					existingModule.GetName(),
-					module.GetName(),
-					svc.GetID())
-			}
-			e.modules[svc.GetID()] = module
-			provisioner, err := module.GetProvisioner()
-			if err != nil {
-				return nil, err
-			}
-			e.provisioners[svc.GetID()] = provisioner
-			deprovisioner, err := module.GetDeprovisioner()
-			if err != nil {
-				return nil, err
-			}
-			e.deprovisioners[svc.GetID()] = deprovisioner
-		}
+// RegisterJob registers a new Job with the async engine
+func (e *engine) RegisterJob(name string, fn model.JobFunction) error {
+	return e.worker.RegisterJob(name, fn)
+}
+
+// SubmitTask submits an idempotent task to the async engine for reliable,
+// asynchronous completion
+func (e *engine) SubmitTask(task model.Task) error {
+	taskJSON, err := task.ToJSONString()
+	if err != nil {
+		return fmt.Errorf("error encoding task %#v: %s", task, err)
 	}
-
-	return e, nil
+	intCmd := e.redisClient.LPush(mainWorkQueueName, taskJSON)
+	if intCmd.Err() != nil {
+		return fmt.Errorf("error encoding task %#v: %s", task, err)
+	}
+	return nil
 }
 
 func (e *engine) Start(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	errChan := make(chan error)
-	defer close(errChan)
+	// Start the cleaner
 	go func() {
-		worker := e.getWorker(e.machineryServer)
-		errChan <- worker.Launch()
+		err := e.cleaner.Clean(ctx)
+		cse := &errCleanerStopped{err: err}
+		select {
+		case errChan <- cse:
+		case <-ctx.Done():
+		}
+	}()
+	// Start the worker
+	go func() {
+		err := e.worker.Work(ctx)
+		wse := &errWorkerStopped{workerID: e.worker.GetID(), err: err}
+		select {
+		case errChan <- wse:
+		case <-ctx.Done():
+		}
 	}()
 	select {
 	case <-ctx.Done():
@@ -101,8 +92,4 @@ func (e *engine) Start(ctx context.Context) error {
 	case err := <-errChan:
 		return err
 	}
-}
-
-func getWorker(machineryServer machinery.Server) machinery.Worker {
-	return machineryServer.NewWorker("worker")
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"reflect"
 	"testing"
 	"time"
 
@@ -13,36 +12,128 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestStartBrokerBlocks(t *testing.T) {
-	s := fakeAPI.NewServer()
+var errSome = errors.New("an error")
+
+func TestBrokerStartBlocksUntilAsyncEngineErrors(t *testing.T) {
+	var apiServerStopped bool
+	svr := fakeAPI.NewServer()
+	svr.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		apiServerStopped = true
+		return ctx.Err()
+	}
 	e := fakeAsync.NewEngine()
-	b := newBroker(s, e)
+	e.RunBehavior = func(context.Context) error {
+		return errSome
+	}
+	b, err := newBroker(nil, nil)
+	assert.Nil(t, err)
+	b.asyncEngine = e
+	b.apiServer = svr
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	err = b.start(ctx)
+	assert.Equal(t, &errAsyncEngineStopped{err: errSome}, err)
+	time.Sleep(time.Second)
+	assert.True(t, apiServerStopped)
+}
+
+func TestBrokerStartBlocksUntilAsyncEngineReturns(t *testing.T) {
+	var apiServerStopped bool
+	svr := fakeAPI.NewServer()
+	svr.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		apiServerStopped = true
+		return ctx.Err()
+	}
+	e := fakeAsync.NewEngine()
+	e.RunBehavior = func(context.Context) error {
+		return nil
+	}
+	b, err := newBroker(nil, nil)
+	assert.Nil(t, err)
+	b.asyncEngine = e
+	b.apiServer = svr
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	err = b.start(ctx)
+	assert.Equal(t, &errAsyncEngineStopped{}, err)
+	time.Sleep(time.Second)
+	assert.True(t, apiServerStopped)
+}
+
+func TestBrokerStartBlocksUntilAPIServerErrors(t *testing.T) {
+	svr := fakeAPI.NewServer()
+	svr.RunBehavior = func(context.Context) error {
+		return errSome
+	}
+	var asyncEngineStopped bool
+	e := fakeAsync.NewEngine()
+	e.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		asyncEngineStopped = true
+		return ctx.Err()
+	}
+	b, err := newBroker(nil, nil)
+	assert.Nil(t, err)
+	b.asyncEngine = e
+	b.apiServer = svr
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	err = b.start(ctx)
+	assert.Equal(t, &errAPIServerStopped{err: errSome}, err)
+	time.Sleep(time.Second)
+	assert.True(t, asyncEngineStopped)
+}
+
+func TestBrokerStartBlocksUntilAPIServerReturns(t *testing.T) {
+	svr := fakeAPI.NewServer()
+	svr.RunBehavior = func(context.Context) error {
+		return nil
+	}
+	var asyncEngineStopped bool
+	e := fakeAsync.NewEngine()
+	e.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		asyncEngineStopped = true
+		return ctx.Err()
+	}
+	b, err := newBroker(nil, nil)
+	assert.Nil(t, err)
+	b.asyncEngine = e
+	b.apiServer = svr
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	err = b.start(ctx)
+	assert.Equal(t, &errAPIServerStopped{}, err)
+	time.Sleep(time.Second)
+	assert.True(t, asyncEngineStopped)
+}
+
+func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
+	var apiServerStopped bool
+	svr := fakeAPI.NewServer()
+	svr.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		apiServerStopped = true
+		return ctx.Err()
+	}
+	var asyncEngineStopped bool
+	e := fakeAsync.NewEngine()
+	e.RunBehavior = func(ctx context.Context) error {
+		<-ctx.Done()
+		asyncEngineStopped = true
+		return ctx.Err()
+	}
+	b, err := newBroker(nil, nil)
+	assert.Nil(t, err)
+	b.asyncEngine = e
+	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	err := b.start(ctx)
-	assert.Equal(t, "context.deadlineExceededError", reflect.TypeOf(err).String())
-}
-
-func TestAPIServerErrorShutsDownBroker(t *testing.T) {
-	s := fakeAPI.NewServer()
-	someErr := errors.New("an error")
-	s.RunBehavior = func() error {
-		return someErr
-	}
-	e := fakeAsync.NewEngine()
-	b := newBroker(s, e)
-	err := b.start(context.Background())
-	assert.Equal(t, someErr, err)
-}
-
-func TestAsyncEngineErrorShutsDownBroker(t *testing.T) {
-	s := fakeAPI.NewServer()
-	e := fakeAsync.NewEngine()
-	someErr := errors.New("an error")
-	e.RunBehavior = func() error {
-		return someErr
-	}
-	b := newBroker(s, e)
-	err := b.start(context.Background())
-	assert.Equal(t, someErr, err)
+	err = b.start(ctx)
+	assert.Equal(t, ctx.Err(), err)
+	time.Sleep(time.Second)
+	assert.True(t, apiServerStopped)
+	assert.True(t, asyncEngineStopped)
 }

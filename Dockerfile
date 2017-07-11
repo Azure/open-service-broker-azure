@@ -17,3 +17,5 @@ USER asb
 WORKDIR /var/lib/azure-service-broker
 
 CMD ["/opt/azure-service-broker/bin/asb"]
+
+EXPOSE 8080

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Azure/azure-service-broker/pkg/async/model"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/echo"
 )
@@ -35,7 +36,30 @@ func (s *server) test(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	err = s.asyncEngine.Provision(instance)
+
+	provisioner, ok := s.provisioners[instance.ServiceID]
+	if !ok {
+		log.Printf(`provisioner not found for service "%s"`, instance.ServiceID)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	firstStepName, ok := provisioner.GetFirstStepName()
+	if !ok {
+		log.Printf(
+			`no provisioning steps found for service "%s"`,
+			instance.ServiceID,
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	task := model.NewTask(
+		"provisionStep",
+		map[string]string{
+			"stepName":   firstStepName,
+			"instanceID": instance.InstanceID,
+		},
+	)
+	err = s.asyncEngine.SubmitTask(task)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

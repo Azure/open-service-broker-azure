@@ -5,6 +5,8 @@ import (
 
 	"time"
 
+	"context"
+
 	"github.com/Azure/azure-service-broker/pkg/service"
 	uuid "github.com/satori/go.uuid"
 )
@@ -40,6 +42,7 @@ func (m *module) GetProvisioner() (service.Provisioner, error) {
 }
 
 func (m *module) generateProvisioningMessageID(
+	ctx context.Context,
 	provisioningResult interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
@@ -50,15 +53,21 @@ func (m *module) generateProvisioningMessageID(
 }
 
 func (m *module) pause(
+	ctx context.Context,
 	provisioningResult interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
 	log.Println("Executing pause...")
-	time.Sleep(time.Minute)
+	select {
+	case <-time.NewTimer(time.Minute).C:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 	return provisioningResult, nil
 }
 
 func (m *module) logProvisioningMessage(
+	ctx context.Context,
 	provisioningResult interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
@@ -114,6 +123,7 @@ func (m *module) GetDeprovisioner() (service.Deprovisioner, error) {
 }
 
 func (m *module) logDeprovisioningMessage(
+	ctx context.Context,
 	provisioningResult interface{},
 ) (interface{}, error) {
 	log.Println("Executing logDeprovisioningMessage...")

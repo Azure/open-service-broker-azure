@@ -14,19 +14,8 @@ type redisConfig struct {
 	DB       int    `envconfig:"REDIS_DB" default:"0"`
 }
 
-// webConfig represents configuration options for the broker's HTTP server
-type webConfig struct {
-	Port int `envconfig:"PORT" default:"8080"`
-}
-
 func getRedisConfig() (redisConfig, error) {
 	redisConfig := redisConfig{}
 	err := envconfig.Process("", &redisConfig)
 	return redisConfig, err
-}
-
-func getWebConfig() (webConfig, error) {
-	webConfig := webConfig{}
-	err := envconfig.Process("", &webConfig)
-	return webConfig, err
 }

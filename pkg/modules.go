@@ -5,8 +5,6 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/echo"
 )
 
-func getModules() []service.Module {
-	return []service.Module{
-		echo.New(),
-	}
+var modules = []service.Module{
+	echo.New(),
 }

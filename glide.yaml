@@ -2,7 +2,6 @@ package: github.com/Azure/azure-service-broker
 import:
 - package: github.com/kelseyhightower/envconfig
 - package: github.com/go-redis/redis
-- package: github.com/RichardKnop/machinery/v1
 - package: github.com/gorilla/mux
 - package: github.com/stretchr/testify
 - package: github.com/satori/go.uuid

@@ -8,6 +8,7 @@ import (
 
 	"reflect"
 
+	"github.com/Azure/azure-service-broker/pkg/async/model"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/gorilla/mux"
 )
@@ -192,7 +193,33 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = s.asyncEngine.Provision(instance)
+	provisioner, ok := s.provisioners[provisioningRequest.ServiceID]
+	if !ok {
+		log.Printf(
+			`no provisioner found for service "%s"`,
+			provisioningRequest.ServiceID,
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	firstStepName, ok := provisioner.GetFirstStepName()
+	if !ok {
+		log.Printf(
+			`no steps found for provisioning service "%s"`,
+			provisioningRequest.ServiceID,
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	task := model.NewTask(
+		"provisionStep",
+		map[string]string{
+			"stepName":   firstStepName,
+			"instanceID": instanceID,
+		},
+	)
+	err = s.asyncEngine.SubmitTask(task)
 	if err != nil {
 		log.Println("error submitting provisioning task")
 		w.WriteHeader(http.StatusInternalServerError)

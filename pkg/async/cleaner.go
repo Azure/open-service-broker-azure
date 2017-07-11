@@ -1,0 +1,112 @@
+package async
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/go-redis/redis"
+)
+
+// Cleaner is an interface to be implemented by components that re-queue work
+// assigned to dead workers
+type Cleaner interface {
+	Clean(context.Context) error
+}
+
+// cleaner is a Redis-based implementation of the Cleaner interface
+type cleaner struct {
+	redisClient *redis.Client
+	// This allows tests to inject an alternative implementation of this function
+	clean func() error
+	// This allows tests to inject an alternative implementation of this function
+	cleanWorker func(workerID string) error
+}
+
+func newCleaner(redisClient *redis.Client) Cleaner {
+	c := &cleaner{
+		redisClient: redisClient,
+	}
+	c.clean = c.defaultClean
+	c.cleanWorker = c.defaultCleanWorker
+	return c
+}
+
+func (c *cleaner) Clean(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	ticker := time.NewTicker(time.Second * 10)
+	for {
+		err := c.clean()
+		if err != nil {
+			return &errCleaning{err: err}
+		}
+		select {
+		case <-ticker.C:
+		case <-ctx.Done():
+			return ctx.Err()
+		}
+	}
+}
+
+func (c *cleaner) defaultClean() error {
+	strsCmd := c.redisClient.SMembers("workers")
+	if strsCmd.Err() == nil {
+		workerIDs, err := strsCmd.Result()
+		if err != nil {
+			return fmt.Errorf("error retrieving workers: %s", err)
+		}
+		for _, workerID := range workerIDs {
+			strCmd := c.redisClient.Get(workerID)
+			if strCmd.Err() == nil {
+				continue
+			}
+			if strCmd.Err() != redis.Nil {
+				return fmt.Errorf(
+					`error checking health of worker: "%s": %s`,
+					workerID,
+					strCmd.Err(),
+				)
+			}
+			// If we get to here, we have a dead worker on our hands
+			err := c.cleanWorker(workerID)
+			if err != nil {
+				return fmt.Errorf(
+					`error cleaning up after dead worker "%s": %s`,
+					workerID,
+					err,
+				)
+			}
+			intCmd := c.redisClient.SRem("workers", workerID)
+			if intCmd.Err() != nil && intCmd.Err() != redis.Nil {
+				return fmt.Errorf(
+					`error removing dead worker "%s" from worker set: %s`,
+					workerID,
+					intCmd.Err(),
+				)
+			}
+		}
+	} else if strsCmd.Err() != redis.Nil {
+		return fmt.Errorf("error retrieving workers: %s", strsCmd.Err())
+	}
+	return nil
+}
+
+func (c *cleaner) defaultCleanWorker(workerID string) error {
+	for {
+		strCmd := c.redisClient.RPopLPush(
+			getWorkerQueueName(workerID),
+			mainWorkQueueName,
+		)
+		if strCmd.Err() == redis.Nil {
+			return nil
+		}
+		if strCmd.Err() != nil {
+			return fmt.Errorf(
+				`error cleaning up after dead worker "%s": %s`,
+				workerID,
+				strCmd.Err(),
+			)
+		}
+	}
+}

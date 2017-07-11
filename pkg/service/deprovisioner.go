@@ -1,19 +1,30 @@
 package service
 
 import (
+	"context"
 	"fmt"
 )
+
+// DeprovisioningStepFunction is the signature for functions that implement a
+// deprovisioning step
+type DeprovisioningStepFunction func(
+	ctx context.Context,
+	provisioningResult interface{},
+) (interface{}, error)
 
 // DeprovisioningStep is an interface to be implemented by types that represent
 // a single step in a chain of steps that defines a deprovisioning process
 type DeprovisioningStep interface {
 	GetName() string
-	Execute(provisioningResult interface{}) (interface{}, error)
+	Execute(
+		ctx context.Context,
+		provisioningResult interface{},
+	) (interface{}, error)
 }
 
 type deprovisioningStep struct {
-	name     string
-	function func(provisioningResult interface{}) (interface{}, error)
+	name string
+	fn   DeprovisioningStepFunction
 }
 
 // Deprovisioner is an interface to be implemented by types that model a
@@ -33,11 +44,11 @@ type deprovisioner struct {
 // NewDeprovisioningStep returns a new DeprovisioningStep
 func NewDeprovisioningStep(
 	name string,
-	function func(provisioningResult interface{}) (interface{}, error),
+	fn DeprovisioningStepFunction,
 ) DeprovisioningStep {
 	return &deprovisioningStep{
-		name:     name,
-		function: function,
+		name: name,
+		fn:   fn,
 	}
 }
 
@@ -48,9 +59,12 @@ func (d *deprovisioningStep) GetName() string {
 
 // Execute executes a step
 func (d *deprovisioningStep) Execute(
+	ctx context.Context,
 	provisioningResult interface{},
 ) (interface{}, error) {
-	return d.function(provisioningResult)
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	return d.fn(ctx, provisioningResult)
 }
 
 // NewDeprovisioner returns a new deprovisioner
