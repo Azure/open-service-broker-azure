@@ -26,7 +26,7 @@ func (m *module) GetName() string {
 func (m *module) ValidateProvisioningParameters(
 	provisioningParameters interface{},
 ) error {
-	params := provisioningParameters.(echoProvisioningParameters)
+	params := provisioningParameters.(*echoProvisioningParameters)
 	if params.Message == "bad message" {
 		return service.NewValidationError("message", "message is a bad message!")
 	}
