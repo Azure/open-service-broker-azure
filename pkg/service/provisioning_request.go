@@ -21,3 +21,13 @@ func GetProvisioningRequestFromJSONString(
 	}
 	return nil
 }
+
+// ToJSONString returns a string containing a JSON representation of the
+// provisioning request
+func (p *ProvisioningRequest) ToJSONString() (string, error) {
+	bytes, err := json.Marshal(p)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
+}

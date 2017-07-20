@@ -48,3 +48,9 @@ func TestGetProvisioningRequestFromJSONString(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, testProvisioningRequest, provisioningRequest)
 }
+
+func TestProvisioningRequestToJSON(t *testing.T) {
+	jsonStr, err := testProvisioningRequest.ToJSONString()
+	assert.Nil(t, err)
+	assert.Equal(t, testProvisioningRequestJSON, jsonStr)
+}
