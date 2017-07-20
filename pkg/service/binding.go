@@ -48,6 +48,9 @@ func (b *Binding) SetBindingParameters(params interface{}) error {
 // GetBindingParameters unmarshals the EncodedBindingParameters into the
 // provided object
 func (b *Binding) GetBindingParameters(params interface{}) error {
+	if b.EncodedBindingParameters == "" {
+		return nil
+	}
 	err := json.Unmarshal([]byte(b.EncodedBindingParameters), params)
 	if err != nil {
 		return err
@@ -68,6 +71,9 @@ func (b *Binding) SetBindingResult(result interface{}) error {
 
 // GetBindingResult unmarshals the EncodedBindingResult into the provided object
 func (b *Binding) GetBindingResult(result interface{}) error {
+	if b.EncodedBindingResult == "" {
+		return nil
+	}
 	err := json.Unmarshal([]byte(b.EncodedBindingResult), result)
 	if err != nil {
 		return err

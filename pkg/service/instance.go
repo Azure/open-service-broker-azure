@@ -50,6 +50,9 @@ func (i *Instance) SetProvisioningParameters(params interface{}) error {
 // GetProvisioningParameters unmarshals the EncodedProvisioningParameters into
 // the provided object
 func (i *Instance) GetProvisioningParameters(params interface{}) error {
+	if i.EncodedProvisioningParameters == "" {
+		return nil
+	}
 	err := json.Unmarshal([]byte(i.EncodedProvisioningParameters), params)
 	if err != nil {
 		return err
@@ -71,6 +74,9 @@ func (i *Instance) SetProvisioningResult(result interface{}) error {
 // GetProvisioningResult unmarshals the EncodedProvisioningResult into the
 // provided object
 func (i *Instance) GetProvisioningResult(result interface{}) error {
+	if i.EncodedProvisioningResult == "" {
+		return nil
+	}
 	err := json.Unmarshal([]byte(i.EncodedProvisioningResult), result)
 	if err != nil {
 		return err
