@@ -5,3 +5,4 @@ import:
 - package: github.com/gorilla/mux
 - package: github.com/stretchr/testify
 - package: github.com/satori/go.uuid
+- package: github.com/urfave/cli

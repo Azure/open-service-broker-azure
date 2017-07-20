@@ -1,5 +1,5 @@
-hash: 00229d380db120ece39bf2848fac94ba8e71c79bdb29b234972ea3add393ba06
-updated: 2017-07-11T18:13:14.978051333Z
+hash: 4ab2dfad21c117ccef6cea5108f087268fdb0b37621262874802d9675fd64bed
+updated: 2017-07-20T00:42:03.949658815Z
 imports:
 - name: github.com/go-redis/redis
   version: e14976b254c5bc5f399dd0ae9314b1d02a176897
@@ -21,6 +21,8 @@ imports:
   version: e3a8ff8ce36581f87a15341206f205b1da467059
   subpackages:
   - assert
+- name: github.com/urfave/cli
+  version: 4b90d79a682b4bf685762c7452db20f2a676ecb2
 - name: go4.org
   version: 034d17a462f7b2dcd1a4a73553ec5357ff6e6c6e
   subpackages:
