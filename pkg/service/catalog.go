@@ -35,6 +35,7 @@ type ServiceProperties struct {
 type Service interface {
 	ToJSONString() (string, error)
 	GetID() string
+	GetName() string
 	GetPlans() []Plan
 	GetPlan(planID string) (Plan, bool)
 }
@@ -62,6 +63,7 @@ type PlanProperties struct {
 type Plan interface {
 	ToJSONString() (string, error)
 	GetID() string
+	GetName() string
 }
 
 type plan struct {
@@ -199,6 +201,10 @@ func (s *service) GetID() string {
 	return s.ID
 }
 
+func (s *service) GetName() string {
+	return s.Name
+}
+
 // GetPlans returns all of the service's plans
 func (s *service) GetPlans() []Plan {
 	return s.plans
@@ -238,4 +244,8 @@ func (p *plan) ToJSONString() (string, error) {
 
 func (p *plan) GetID() string {
 	return p.ID
+}
+
+func (p *plan) GetName() string {
+	return p.Name
 }
