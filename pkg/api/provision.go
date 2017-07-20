@@ -158,6 +158,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if provisioningRequest.Parameters == nil {
+		provisioningRequest.Parameters = module.GetEmptyProvisioningParameters()
+	}
+
 	// If we get to here, we need to provision a new instance.
 	// Start by carrying out module-specific request validation
 	err = module.ValidateProvisioningParameters(provisioningRequest.Parameters)
