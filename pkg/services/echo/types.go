@@ -6,7 +6,7 @@ type echoProvisioningParameters struct {
 
 type echoProvisioningResult struct {
 	MessageID string `json:"messageId"`
-	Message   string
+	Message   string `json:"message"`
 }
 
 type echoBindingParameters struct {
@@ -15,7 +15,7 @@ type echoBindingParameters struct {
 
 type echoBindingResult struct {
 	MessageID string `json:"messageId"`
-	Message   string
+	Message   string `json:"message"`
 }
 
 func (m *module) GetEmptyProvisioningParameters() interface{} {
