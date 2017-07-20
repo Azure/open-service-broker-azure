@@ -73,7 +73,7 @@ stop-test-redis: check-docker-compose
 .PHONY: build
 build: check-docker-compose
 	docker-compose run --rm dev \
-		go build -o ${BINARY_DIR}/${BINARY_NAME} ./pkg
+		go build -o ${BINARY_DIR}/${BINARY_NAME} ./cmd/broker
 
 # (Re)Build the Docker image for the asb and run it
 .PHONY: run

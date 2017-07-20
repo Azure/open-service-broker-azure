@@ -1,4 +1,4 @@
-package main
+package broker
 
 import (
 	"errors"
@@ -26,13 +26,14 @@ func TestBrokerStartBlocksUntilAsyncEngineErrors(t *testing.T) {
 	e.RunBehavior = func(context.Context) error {
 		return errSome
 	}
-	b, err := newBroker(nil, nil)
+	b, err := NewBroker(nil, nil)
 	assert.Nil(t, err)
-	b.asyncEngine = e
-	b.apiServer = svr
+	brk := b.(*broker)
+	brk.asyncEngine = e
+	brk.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = b.start(ctx)
+	err = b.Start(ctx)
 	assert.Equal(t, &errAsyncEngineStopped{err: errSome}, err)
 	time.Sleep(time.Second)
 	assert.True(t, apiServerStopped)
@@ -50,13 +51,14 @@ func TestBrokerStartBlocksUntilAsyncEngineReturns(t *testing.T) {
 	e.RunBehavior = func(context.Context) error {
 		return nil
 	}
-	b, err := newBroker(nil, nil)
+	b, err := NewBroker(nil, nil)
 	assert.Nil(t, err)
-	b.asyncEngine = e
-	b.apiServer = svr
+	brk := b.(*broker)
+	brk.asyncEngine = e
+	brk.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = b.start(ctx)
+	err = b.Start(ctx)
 	assert.Equal(t, &errAsyncEngineStopped{}, err)
 	time.Sleep(time.Second)
 	assert.True(t, apiServerStopped)
@@ -74,13 +76,14 @@ func TestBrokerStartBlocksUntilAPIServerErrors(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := newBroker(nil, nil)
+	b, err := NewBroker(nil, nil)
 	assert.Nil(t, err)
-	b.asyncEngine = e
-	b.apiServer = svr
+	brk := b.(*broker)
+	brk.asyncEngine = e
+	brk.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = b.start(ctx)
+	err = b.Start(ctx)
 	assert.Equal(t, &errAPIServerStopped{err: errSome}, err)
 	time.Sleep(time.Second)
 	assert.True(t, asyncEngineStopped)
@@ -98,13 +101,14 @@ func TestBrokerStartBlocksUntilAPIServerReturns(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := newBroker(nil, nil)
+	b, err := NewBroker(nil, nil)
 	assert.Nil(t, err)
-	b.asyncEngine = e
-	b.apiServer = svr
+	brk := b.(*broker)
+	brk.asyncEngine = e
+	brk.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = b.start(ctx)
+	err = b.Start(ctx)
 	assert.Equal(t, &errAPIServerStopped{}, err)
 	time.Sleep(time.Second)
 	assert.True(t, asyncEngineStopped)
@@ -125,13 +129,14 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := newBroker(nil, nil)
+	b, err := NewBroker(nil, nil)
 	assert.Nil(t, err)
-	b.asyncEngine = e
-	b.apiServer = svr
+	brk := b.(*broker)
+	brk.asyncEngine = e
+	brk.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	err = b.start(ctx)
+	err = b.Start(ctx)
 	assert.Equal(t, ctx.Err(), err)
 	time.Sleep(time.Second)
 	assert.True(t, apiServerStopped)

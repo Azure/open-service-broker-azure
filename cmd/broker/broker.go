@@ -6,6 +6,7 @@ import (
 
 	"context"
 
+	"github.com/Azure/azure-service-broker/pkg/broker"
 	"github.com/go-redis/redis"
 )
 
@@ -19,11 +20,11 @@ func main() {
 		Password: redisConfig.Password,
 		DB:       redisConfig.DB,
 	})
-	broker, err := newBroker(redisClient, modules)
+	broker, err := broker.NewBroker(redisClient, modules)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := broker.start(context.Background()); err != nil {
+	if err := broker.Start(context.Background()); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -1,4 +1,4 @@
-package main
+package broker
 
 import (
 	"context"
@@ -27,6 +27,14 @@ func (e *errAPIServerStopped) Error() string {
 	return fmt.Sprintf("api server stopped: %s", e.err)
 }
 
+// Broker is an interface to be implemented by components that implement full
+// OSB functionality.
+type Broker interface {
+	// Start starts all broker components (e.g. API server and async execution
+	// engine) and blocks until one of those components returns or fails.
+	Start(context.Context) error
+}
+
 type broker struct {
 	store       storage.Store
 	apiServer   api.Server
@@ -39,10 +47,11 @@ type broker struct {
 	deprovisioners map[string]service.Deprovisioner
 }
 
-func newBroker(
+// NewBroker returns a new Broker
+func NewBroker(
 	redisClient *redis.Client,
 	modules []service.Module,
-) (*broker, error) {
+) (Broker, error) {
 	b := &broker{
 		store:          storage.NewStore(redisClient),
 		asyncEngine:    async.NewEngine(redisClient),
@@ -100,7 +109,9 @@ func newBroker(
 	return b, nil
 }
 
-func (b *broker) start(ctx context.Context) error {
+// Start starts all broker components (e.g. API server and async execution
+// engine) and blocks until one of those components returns or fails.
+func (b *broker) Start(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	errChan := make(chan error)
