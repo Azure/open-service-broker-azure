@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/go-redis/redis"
+	uuid "github.com/satori/go.uuid"
 )
 
 var (
@@ -13,3 +14,7 @@ var (
 	})
 	errSome = errors.New("an error")
 )
+
+func getDisposableQueueName() string {
+	return uuid.NewV4().String()
+}

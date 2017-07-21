@@ -12,6 +12,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+type receiveAndWorkFunction func(ctx context.Context, queueName string) error
+type workFunction func(ctx context.Context, task model.Task) error
+
 // Worker is an interface to be implemented by components that receive and
 // asynchronously complete provisioning and deprovisioning tasks
 type Worker interface {
@@ -33,9 +36,9 @@ type worker struct {
 	jobsFnsMutex sync.RWMutex
 	// TODO: Split this into two functions for better testability
 	// This allows tests to inject an alternative implementation of this function
-	receiveAndWork func(context.Context) error
+	receiveAndWork receiveAndWorkFunction
 	// This allows tests to inject an alternative implementation of this function
-	work func(context.Context, model.Task) error
+	work workFunction
 }
 
 // newWorker returns a new Reids-based implementation of the Worker interface
@@ -104,7 +107,7 @@ func (w *worker) Work(ctx context.Context) error {
 	// Receive and do work
 	for range [5]struct{}{} {
 		go func() {
-			err := w.receiveAndWork(ctx)
+			err := w.receiveAndWork(ctx, mainWorkQueueName)
 			rawse := &errReceiveAndWorkStopped{workerID: w.id, err: err}
 			select {
 			case errChan <- rawse:
@@ -123,12 +126,15 @@ func (w *worker) Work(ctx context.Context) error {
 // defaultReceiveAndWork synchronously receives and completes work. By combining
 // these two operations, a worker never receives more work than it currently
 // has the capacity to process.
-func (w *worker) defaultReceiveAndWork(ctx context.Context) error {
+func (w *worker) defaultReceiveAndWork(
+	ctx context.Context,
+	queueName string,
+) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	for {
 		strCmd := w.redisClient.BRPopLPush(
-			mainWorkQueueName,
+			queueName,
 			getWorkerQueueName(w.id),
 			time.Second*5,
 		)
@@ -142,7 +148,24 @@ func (w *worker) defaultReceiveAndWork(ctx context.Context) error {
 			}
 			task, err := model.NewTaskFromJSONString(taskJSON)
 			if err != nil {
-				return fmt.Errorf("error decoding task %s: %s", taskJSON, err)
+				// If the JSON is invalid, remove the message from this worker's queue,
+				// log this and move on. No other worker is going to be able to process
+				// this-- there's notthing we can do and there's no sense letting this
+				// whole process die over this.
+				log.Printf("error decoding task %s: %s", taskJSON, err)
+				intCmd := w.redisClient.LRem(
+					getWorkerQueueName(w.id),
+					0,
+					taskJSON,
+				)
+				if intCmd.Err() != nil {
+					return fmt.Errorf(
+						"error removing malformed task from the worker's work queue; task: %s: %s",
+						taskJSON,
+						err,
+					)
+				}
+				continue
 			}
 			if err := w.work(ctx, task); err != nil {
 				if _, ok := err.(*errJobNotFound); ok {
@@ -163,7 +186,7 @@ func (w *worker) defaultReceiveAndWork(ctx context.Context) error {
 						)
 					}
 					pipeline := w.redisClient.TxPipeline()
-					pipeline.LPush(mainWorkQueueName, newTaskJSON)
+					pipeline.LPush(queueName, newTaskJSON)
 					pipeline.LRem(
 						getWorkerQueueName(w.id),
 						0,
@@ -177,18 +200,18 @@ func (w *worker) defaultReceiveAndWork(ctx context.Context) error {
 							err,
 						)
 					}
-				} else {
-					// If we get to here, we have a legitimate failure executing the task.
-					// This isn't the worker's fault. Simply log this.
-					// NB: This behavior is something we can revisit in the future if and
-					// when we extract the async package into its own library.
-					log.Printf(
-						`error running job "%s" for task: %#v: %s`,
-						task.GetJobName(),
-						task,
-						err,
-					)
+					continue
 				}
+				// If we get to here, we have a legitimate failure executing the task.
+				// This isn't the worker's fault. Simply log this.
+				// NB: This behavior is something we can revisit in the future if and
+				// when we extract the async package into its own library.
+				log.Printf(
+					`error running job "%s" for task: %#v: %s`,
+					task.GetJobName(),
+					task,
+					err,
+				)
 			}
 			intCmd := w.redisClient.LRem(
 				getWorkerQueueName(w.id),
