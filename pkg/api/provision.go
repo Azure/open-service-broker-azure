@@ -122,7 +122,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// engineer a request from the existing instance then compare it to the
 		// current request.
 		previousProvisioningRequestParams := module.GetEmptyProvisioningParameters()
-		err = instance.GetProvisioningParameters(previousProvisioningRequestParams)
+		err = instance.GetProvisioningParameters(
+			previousProvisioningRequestParams,
+			s.codec,
+		)
 		if err != nil {
 			log.Println("error decoding persisted provisioningParameters")
 			w.WriteHeader(http.StatusInternalServerError)
@@ -184,13 +187,19 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		PlanID:     provisioningRequest.PlanID,
 		Status:     service.InstanceStateProvisioning,
 	}
-	err = instance.SetProvisioningParameters(provisioningRequest.Parameters)
+	err = instance.SetProvisioningParameters(
+		provisioningRequest.Parameters,
+		s.codec,
+	)
 	if err != nil {
 		log.Println("error encoding provisioningParameters")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	err = instance.SetProvisioningContext(module.GetEmptyProvisioningContext())
+	err = instance.SetProvisioningContext(
+		module.GetEmptyProvisioningContext(),
+		s.codec,
+	)
 	if err != nil {
 		log.Println("error encoding empty provisioningContext")
 		w.WriteHeader(http.StatusInternalServerError)

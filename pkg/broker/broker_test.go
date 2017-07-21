@@ -26,7 +26,7 @@ func TestBrokerStartBlocksUntilAsyncEngineErrors(t *testing.T) {
 	e.RunBehavior = func(context.Context) error {
 		return errSome
 	}
-	b, err := NewBroker(nil, nil)
+	b, err := NewBroker(nil, nil, nil)
 	assert.Nil(t, err)
 	brk := b.(*broker)
 	brk.asyncEngine = e
@@ -51,7 +51,7 @@ func TestBrokerStartBlocksUntilAsyncEngineReturns(t *testing.T) {
 	e.RunBehavior = func(context.Context) error {
 		return nil
 	}
-	b, err := NewBroker(nil, nil)
+	b, err := NewBroker(nil, nil, nil)
 	assert.Nil(t, err)
 	brk := b.(*broker)
 	brk.asyncEngine = e
@@ -76,7 +76,7 @@ func TestBrokerStartBlocksUntilAPIServerErrors(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := NewBroker(nil, nil)
+	b, err := NewBroker(nil, nil, nil)
 	assert.Nil(t, err)
 	brk := b.(*broker)
 	brk.asyncEngine = e
@@ -101,7 +101,7 @@ func TestBrokerStartBlocksUntilAPIServerReturns(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := NewBroker(nil, nil)
+	b, err := NewBroker(nil, nil, nil)
 	assert.Nil(t, err)
 	brk := b.(*broker)
 	brk.asyncEngine = e
@@ -129,7 +129,7 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := NewBroker(nil, nil)
+	b, err := NewBroker(nil, nil, nil)
 	assert.Nil(t, err)
 	brk := b.(*broker)
 	brk.asyncEngine = e

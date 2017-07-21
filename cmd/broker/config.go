@@ -14,8 +14,20 @@ type redisConfig struct {
 	DB       int    `envconfig:"REDIS_DB" default:"0"`
 }
 
+// cryptoConfig represents details (e.g. key) for encrypting and decrypting any
+// (potentially) sensitive information
+type cryptoConfig struct {
+	AES256Key string `envconfig:"AES256_KEY" required:"true"`
+}
+
 func getRedisConfig() (redisConfig, error) {
 	redisConfig := redisConfig{}
 	err := envconfig.Process("", &redisConfig)
 	return redisConfig, err
+}
+
+func getCryptoConfig() (cryptoConfig, error) {
+	cryptoConfig := cryptoConfig{}
+	err := envconfig.Process("", &cryptoConfig)
+	return cryptoConfig, err
 }

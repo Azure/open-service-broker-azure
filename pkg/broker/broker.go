@@ -6,6 +6,7 @@ import (
 
 	"github.com/Azure/azure-service-broker/pkg/api"
 	"github.com/Azure/azure-service-broker/pkg/async"
+	"github.com/Azure/azure-service-broker/pkg/crypto"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/storage"
 	"github.com/go-redis/redis"
@@ -39,6 +40,7 @@ type broker struct {
 	store       storage.Store
 	apiServer   api.Server
 	asyncEngine async.Engine
+	codec       crypto.Codec
 	// Modules indexed by service
 	modules map[string]service.Module
 	// Provisioners indexed by service
@@ -50,11 +52,13 @@ type broker struct {
 // NewBroker returns a new Broker
 func NewBroker(
 	redisClient *redis.Client,
+	codec crypto.Codec,
 	modules []service.Module,
 ) (Broker, error) {
 	b := &broker{
 		store:          storage.NewStore(redisClient),
 		asyncEngine:    async.NewEngine(redisClient),
+		codec:          codec,
 		modules:        make(map[string]service.Module),
 		provisioners:   make(map[string]service.Provisioner),
 		deprovisioners: make(map[string]service.Deprovisioner),
@@ -98,6 +102,7 @@ func NewBroker(
 		8080,
 		storage.NewStore(redisClient),
 		b.asyncEngine,
+		b.codec,
 		b.modules,
 		b.provisioners,
 		b.deprovisioners,

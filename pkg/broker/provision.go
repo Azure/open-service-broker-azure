@@ -54,7 +54,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		)
 	}
 	provisioningContext := module.GetEmptyProvisioningContext()
-	err = instance.GetProvisioningContext(provisioningContext)
+	err = instance.GetProvisioningContext(provisioningContext, b.codec)
 	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,
@@ -63,7 +63,8 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		)
 	}
 	provisioningParams := module.GetEmptyProvisioningParameters()
-	if err := instance.GetProvisioningParameters(provisioningParams); err != nil {
+	err = instance.GetProvisioningParameters(provisioningParams, b.codec)
+	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
@@ -101,7 +102,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			fmt.Sprintf("error executing provisioning step: %s", err),
 		)
 	}
-	err = instance.SetProvisioningContext(updatedProvisioningContext)
+	err = instance.SetProvisioningContext(updatedProvisioningContext, b.codec)
 	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,

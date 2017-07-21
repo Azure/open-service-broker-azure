@@ -19,7 +19,7 @@ var (
 )
 
 func TestServerStartBlocksUntilListenAndServeErrors(t *testing.T) {
-	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil)
+	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil, nil)
 	assert.Nil(t, err)
 	server := s.(*server)
 	server.listenAndServe = func(context.Context) error {
@@ -32,7 +32,7 @@ func TestServerStartBlocksUntilListenAndServeErrors(t *testing.T) {
 }
 
 func TestServerStartBlocksUntilListenAndServeReturns(t *testing.T) {
-	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil)
+	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil, nil)
 	assert.Nil(t, err)
 	server := s.(*server)
 	server.listenAndServe = func(context.Context) error {
@@ -45,7 +45,7 @@ func TestServerStartBlocksUntilListenAndServeReturns(t *testing.T) {
 }
 
 func TestServerStartBlocksUntilContextCanceled(t *testing.T) {
-	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil)
+	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil, nil)
 	assert.Nil(t, err)
 	server := s.(*server)
 	server.listenAndServe = func(ctx context.Context) error {
@@ -59,7 +59,7 @@ func TestServerStartBlocksUntilContextCanceled(t *testing.T) {
 }
 
 func TestServerListenAndServeBlocksUntilContextCanceled(t *testing.T) {
-	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil)
+	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil, nil)
 	server := s.(*server)
 	assert.Nil(t, err)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)

@@ -1,6 +1,10 @@
 package service
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
+)
 
 type ArbitraryType struct {
 	Foo string `json:"foo"`
@@ -13,4 +17,5 @@ var (
 		Foo: fooValue,
 	}
 	testArbitraryObjectJSON = fmt.Sprintf(`{"foo":"%s"}`, fooValue)
+	noopCodec               = noop.NewCodec()
 )
