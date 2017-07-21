@@ -10,7 +10,7 @@ type Binding struct {
 	EncodedBindingParameters string `json:"bindingParameters"`
 	Status                   string `json:"status"`
 	// TODO: These should be encrypted as well
-	EncodedBindingResult string `json:"bindingResult"`
+	EncodedBindingContext string `json:"bindingContext"`
 }
 
 // NewBindingFromJSONString returns a new Binding unmarshalled from the
@@ -34,7 +34,7 @@ func (b *Binding) ToJSONString() (string, error) {
 	return string(bytes), nil
 }
 
-// SetBindingParameters marshals the provided parameters and stores them in the
+// SetBindingParameters marshals the providedParameters and stores them in the
 // EncodedBindingParameters field
 func (b *Binding) SetBindingParameters(params interface{}) error {
 	bytes, err := json.Marshal(params)
@@ -58,35 +58,26 @@ func (b *Binding) GetBindingParameters(params interface{}) error {
 	return nil
 }
 
-// SetBindingResult marshals the provided binding result and stores it in the
-// EncodedBindingResult field
-func (b *Binding) SetBindingResult(result interface{}) error {
-	bytes, err := json.Marshal(result)
+// SetBindingContext marshals the provided bindingContext and stores it in the
+// EncodedBindingContext field
+func (b *Binding) SetBindingContext(context interface{}) error {
+	bytes, err := json.Marshal(context)
 	if err != nil {
 		return err
 	}
-	b.EncodedBindingResult = string(bytes)
+	b.EncodedBindingContext = string(bytes)
 	return nil
 }
 
-// GetBindingResult unmarshals the EncodedBindingResult into the provided object
-func (b *Binding) GetBindingResult(result interface{}) error {
-	if b.EncodedBindingResult == "" {
+// GetBindingContext unmarshals the EncodedBindingContext into the provided
+// object
+func (b *Binding) GetBindingContext(context interface{}) error {
+	if b.EncodedBindingContext == "" {
 		return nil
 	}
-	err := json.Unmarshal([]byte(b.EncodedBindingResult), result)
+	err := json.Unmarshal([]byte(b.EncodedBindingContext), context)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
-// CREATE TABLE bindings (
-// 	bindingId char(36) PRIMARY KEY,
-// 	instanceId char(36) FOREIGN KEY REFERENCES instances(instanceId),
-// 	timestamp DATETIME DEFAULT (GETDATE()),
-// 	serviceId char(36) NOT NULL,
-// 	planId char(36) NOT NULL,
-// 	parameters text,
-// 	bindingResult text
-// );

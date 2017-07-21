@@ -12,7 +12,7 @@ type Instance struct {
 	Status                        string `json:"status"`
 	StatusReason                  string `json:"statusReason"`
 	// TODO: These should be encrypted as well
-	EncodedProvisioningResult string `json:"provisioningResult"`
+	EncodedProvisioningContext string `json:"provisioningContext"`
 }
 
 // NewInstanceFromJSONString returns a new Instance unmarshalled from the
@@ -36,7 +36,7 @@ func (i *Instance) ToJSONString() (string, error) {
 	return string(bytes), nil
 }
 
-// SetProvisioningParameters marshals the provided parameters and stores them in
+// SetProvisioningParameters marshals the providedParameters and stores them in
 // the EncodedProvisioningParameters field
 func (i *Instance) SetProvisioningParameters(params interface{}) error {
 	bytes, err := json.Marshal(params)
@@ -60,40 +60,26 @@ func (i *Instance) GetProvisioningParameters(params interface{}) error {
 	return nil
 }
 
-// SetProvisioningResult marshals the provided provisioning result and stores it
-// in the EncodedProvisioningResult field
-func (i *Instance) SetProvisioningResult(result interface{}) error {
-	bytes, err := json.Marshal(result)
+// SetProvisioningContext marshals the provided object and stores it in the
+// EncodedProvisioningContext field
+func (i *Instance) SetProvisioningContext(context interface{}) error {
+	bytes, err := json.Marshal(context)
 	if err != nil {
 		return err
 	}
-	i.EncodedProvisioningResult = string(bytes)
+	i.EncodedProvisioningContext = string(bytes)
 	return nil
 }
 
-// GetProvisioningResult unmarshals the EncodedProvisioningResult into the
+// GetProvisioningContext unmarshals the EncodedProvisioningContext into the
 // provided object
-func (i *Instance) GetProvisioningResult(result interface{}) error {
-	if i.EncodedProvisioningResult == "" {
+func (i *Instance) GetProvisioningContext(context interface{}) error {
+	if i.EncodedProvisioningContext == "" {
 		return nil
 	}
-	err := json.Unmarshal([]byte(i.EncodedProvisioningResult), result)
+	err := json.Unmarshal([]byte(i.EncodedProvisioningContext), context)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-
-// CREATE TABLE instances (
-// 	azureInstanceId varchar(256) NOT NULL UNIQUE,
-// 	status varchar(18),
-// 	timestamp DATETIME DEFAULT (GETDATE()),
-// 	instanceId char(36) PRIMARY KEY,
-// 	serviceId char(36) NOT NULL,
-// 	planId char(36) NOT NULL,
-// 	organizationGuid char(36) NOT NULL,
-// 	spaceGuid char(36) NOT NULL,
-// 	parameters text,
-// 	lastOperation text,
-// 	provisioningResult text
-// );

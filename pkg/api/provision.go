@@ -93,7 +93,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Now that we know what module we're dealing with, we can get an instance
-	// of the module-specific type for provisioning parameters and take a second
+	// of the module-specific type for provisioningParameters and take a second
 	// pass at parsing the request body
 	provisioningRequest.Parameters = module.GetEmptyProvisioningParameters()
 	err = service.GetProvisioningRequestFromJSONString(
@@ -118,13 +118,13 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// obligates us to compare this instance to the one that was requested and
 		// respond with 200 if they're identical or 409 otherwise. It actually seems
 		// best to compare REQUESTS instead because instance objects also contain
-		// provisioning results and other status information. So, let's reverse
+		// provisioning context and other status information. So, let's reverse
 		// engineer a request from the existing instance then compare it to the
 		// current request.
 		previousProvisioningRequestParams := module.GetEmptyProvisioningParameters()
 		err = instance.GetProvisioningParameters(previousProvisioningRequestParams)
 		if err != nil {
-			log.Println("error decoding persisted provisioning parameters")
+			log.Println("error decoding persisted provisioningParameters")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -186,13 +186,13 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 	err = instance.SetProvisioningParameters(provisioningRequest.Parameters)
 	if err != nil {
-		log.Println("error encoding provisioning parameters")
+		log.Println("error encoding provisioningParameters")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	err = instance.SetProvisioningResult(module.GetEmptyProvisioningResult())
+	err = instance.SetProvisioningContext(module.GetEmptyProvisioningContext())
 	if err != nil {
-		log.Println("error encoding empty provisioning result")
+		log.Println("error encoding empty provisioningContext")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

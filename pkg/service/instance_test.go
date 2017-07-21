@@ -20,16 +20,16 @@ func init() {
 	planID := "test-plan-id"
 	encodedProvisiongingParameters := `{"foo":"bar"}`
 	statusReason := "in-progress"
-	encodedProvisiongingResult := `{"baz":"bat"}`
+	encodedProvisiongingContext := `{"baz":"bat"}`
 
 	testInstance = &Instance{
 		InstanceID: instanceID,
 		ServiceID:  serviceID,
 		PlanID:     planID,
 		EncodedProvisioningParameters: encodedProvisiongingParameters,
-		Status:                    InstanceStateProvisioning,
-		StatusReason:              statusReason,
-		EncodedProvisioningResult: encodedProvisiongingResult,
+		Status:                     InstanceStateProvisioning,
+		StatusReason:               statusReason,
+		EncodedProvisioningContext: encodedProvisiongingContext,
 	}
 
 	testInstanceJSON = fmt.Sprintf(
@@ -40,7 +40,7 @@ func init() {
 			"provisioningParameters":%s,
 			"status":"%s",
 			"statusReason":"%s",
-			"provisioningResult":%s
+			"provisioningContext":%s
 		}`,
 		instanceID,
 		serviceID,
@@ -48,7 +48,7 @@ func init() {
 		strconv.Quote(encodedProvisiongingParameters),
 		InstanceStateProvisioning,
 		statusReason,
-		strconv.Quote(encodedProvisiongingResult),
+		strconv.Quote(encodedProvisiongingContext),
 	)
 	testInstanceJSON = strings.Replace(testInstanceJSON, " ", "", -1)
 	testInstanceJSON = strings.Replace(testInstanceJSON, "\n", "", -1)
@@ -85,20 +85,20 @@ func TestGetProvisioningParametersOnInstance(t *testing.T) {
 	assert.Equal(t, testArbitraryObject, pp)
 }
 
-func TestSetProvisioningResultOnInstance(t *testing.T) {
-	err := testInstance.SetProvisioningResult(testArbitraryObject)
+func TestSetProvisioningContextOnInstance(t *testing.T) {
+	err := testInstance.SetProvisioningContext(testArbitraryObject)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		testInstance.EncodedProvisioningResult,
+		testInstance.EncodedProvisioningContext,
 		testArbitraryObjectJSON,
 	)
 }
 
-func TestGetProvisioningResultOnInstance(t *testing.T) {
-	testInstance.EncodedProvisioningResult = testArbitraryObjectJSON
-	pr := &ArbitraryType{}
-	err := testInstance.GetProvisioningResult(pr)
+func TestGetProvisioningContextOnInstance(t *testing.T) {
+	testInstance.EncodedProvisioningContext = testArbitraryObjectJSON
+	pc := &ArbitraryType{}
+	err := testInstance.GetProvisioningContext(pc)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, pr)
+	assert.Equal(t, testArbitraryObject, pc)
 }

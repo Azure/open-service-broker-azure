@@ -53,13 +53,13 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			),
 		)
 	}
-	provisioningResult := module.GetEmptyProvisioningResult()
-	err = instance.GetProvisioningResult(provisioningResult)
+	provisioningContext := module.GetEmptyProvisioningContext()
+	err = instance.GetProvisioningContext(provisioningContext)
 	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
-			"error decoding provisioning result from persisted instance",
+			"error decoding provisioningContext from persisted instance",
 		)
 	}
 	provisioningParams := module.GetEmptyProvisioningParameters()
@@ -67,7 +67,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
-			"error decoding provisioning parameters from persisted instance",
+			"error decoding provisioningParameters from persisted instance",
 		)
 	}
 	provisioner, ok := b.provisioners[instance.ServiceID]
@@ -89,9 +89,9 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			`provisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedProvisioningResult, err := step.Execute(
+	updatedProvisioningContext, err := step.Execute(
 		ctx,
-		provisioningResult,
+		provisioningContext,
 		provisioningParams,
 	)
 	if err != nil {
@@ -101,12 +101,12 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			fmt.Sprintf("error executing provisioning step: %s", err),
 		)
 	}
-	err = instance.SetProvisioningResult(updatedProvisioningResult)
+	err = instance.SetProvisioningContext(updatedProvisioningContext)
 	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
-			fmt.Sprintf("error encoding modified provisioning result: %s", err),
+			fmt.Sprintf("error encoding modified provisioningContext: %s", err),
 		)
 	}
 	if nextStepName, ok := provisioner.GetNextStepName(step.GetName()); ok {

@@ -18,14 +18,14 @@ func init() {
 	bindingID := "test-binding-id"
 	instanceID := "test-instance-id"
 	encodedBindingParameters := `{"foo":"bar"}`
-	encodedBindingResult := `{"baz":"bat"}`
+	encodedBindingContext := `{"baz":"bat"}`
 
 	testBinding = &Binding{
 		BindingID:                bindingID,
 		InstanceID:               instanceID,
 		EncodedBindingParameters: encodedBindingParameters,
-		Status:               BindingStateBinding,
-		EncodedBindingResult: encodedBindingResult,
+		Status:                BindingStateBinding,
+		EncodedBindingContext: encodedBindingContext,
 	}
 
 	testBindingJSON = fmt.Sprintf(
@@ -34,13 +34,13 @@ func init() {
 			"instanceId":"%s",
 			"bindingParameters":%s,
 			"status":"%s",
-			"bindingResult":%s
+			"bindingContext":%s
 		}`,
 		bindingID,
 		instanceID,
 		strconv.Quote(encodedBindingParameters),
 		BindingStateBinding,
-		strconv.Quote(encodedBindingResult),
+		strconv.Quote(encodedBindingContext),
 	)
 	testBindingJSON = strings.Replace(testBindingJSON, " ", "", -1)
 	testBindingJSON = strings.Replace(testBindingJSON, "\n", "", -1)
@@ -76,23 +76,23 @@ func TestGetBindingParametersOnBinding(t *testing.T) {
 	assert.Equal(t, testArbitraryObject, bp)
 }
 
-func TestSetBindingResultOnBinding(t *testing.T) {
+func TestSetBindingContextOnBinding(t *testing.T) {
 	b := Binding{}
-	err := b.SetBindingResult(testArbitraryObject)
+	err := b.SetBindingContext(testArbitraryObject)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		b.EncodedBindingResult,
+		b.EncodedBindingContext,
 	)
 }
 
-func TestGetBindingResultOnBinding(t *testing.T) {
+func TestGetBindingContextOnBinding(t *testing.T) {
 	b := Binding{
-		EncodedBindingResult: testArbitraryObjectJSON,
+		EncodedBindingContext: testArbitraryObjectJSON,
 	}
-	br := &ArbitraryType{}
-	err := b.GetBindingResult(br)
+	bc := &ArbitraryType{}
+	err := b.GetBindingContext(bc)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, br)
+	assert.Equal(t, testArbitraryObject, bc)
 }

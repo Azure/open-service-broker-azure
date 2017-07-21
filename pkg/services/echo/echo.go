@@ -43,18 +43,18 @@ func (m *module) GetProvisioner() (service.Provisioner, error) {
 
 func (m *module) generateProvisioningMessageID(
 	ctx context.Context,
-	provisioningResult interface{},
+	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
 	log.Println("Executing generateProvisioningMessageID...")
-	result := provisioningResult.(*echoProvisioningResult)
-	result.MessageID = uuid.NewV4().String()
-	return result, nil
+	pc := provisioningContext.(*echoProvisioningContext)
+	pc.MessageID = uuid.NewV4().String()
+	return pc, nil
 }
 
 func (m *module) pause(
 	ctx context.Context,
-	provisioningResult interface{},
+	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
 	log.Println("Executing pause...")
@@ -63,20 +63,20 @@ func (m *module) pause(
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	}
-	return provisioningResult, nil
+	return provisioningContext, nil
 }
 
 func (m *module) logProvisioningMessage(
 	ctx context.Context,
-	provisioningResult interface{},
+	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
 	log.Println("Executing logProvisioningMessage...")
-	result := provisioningResult.(*echoProvisioningResult)
+	pc := provisioningContext.(*echoProvisioningContext)
 	params := provisioningParameters.(*echoProvisioningParameters)
-	result.Message = params.Message
-	log.Printf("Provisioning %s: %s", result.MessageID, params.Message)
-	return result, nil
+	pc.Message = params.Message
+	log.Printf("Provisioning %s: %s", pc.MessageID, params.Message)
+	return pc, nil
 }
 
 func (m *module) ValidateBindingParameters(
@@ -90,26 +90,26 @@ func (m *module) ValidateBindingParameters(
 }
 
 func (m *module) Bind(
-	provisioningResult interface{},
+	provisioningContext interface{},
 	bindingParameters interface{},
 ) (interface{}, error) {
 	log.Println("Executing Bind...")
 	params := bindingParameters.(*echoBindingParameters)
-	result := &echoBindingResult{
+	bc := &echoBindingContext{
 		MessageID: uuid.NewV4().String(),
 		Message:   params.Message,
 	}
-	log.Printf("Binding %s: %s", result.MessageID, params.Message)
-	return result, nil
+	log.Printf("Binding %s: %s", bc.MessageID, params.Message)
+	return bc, nil
 }
 
 func (m *module) Unbind(
-	provisioningResult interface{},
-	bindingResult interface{},
+	provisioningContext interface{},
+	bindingContext interface{},
 ) error {
 	log.Println("Executing Unbind...")
-	result := bindingResult.(*echoBindingResult)
-	log.Printf("Unbinding %s: %s", result.MessageID, result.Message)
+	bc := bindingContext.(*echoBindingContext)
+	log.Printf("Unbinding %s: %s", bc.MessageID, bc.Message)
 	return nil
 }
 
@@ -124,10 +124,10 @@ func (m *module) GetDeprovisioner() (service.Deprovisioner, error) {
 
 func (m *module) logDeprovisioningMessage(
 	ctx context.Context,
-	provisioningResult interface{},
+	provisioningContext interface{},
 ) (interface{}, error) {
 	log.Println("Executing logDeprovisioningMessage...")
-	result := provisioningResult.(*echoProvisioningResult)
-	log.Printf("Deprovisioning %s: %s", result.MessageID, result.Message)
-	return result, nil
+	pc := provisioningContext.(*echoProvisioningContext)
+	log.Printf("Deprovisioning %s: %s", pc.MessageID, pc.Message)
+	return pc, nil
 }
