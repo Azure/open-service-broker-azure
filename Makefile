@@ -30,7 +30,8 @@ check-docker-compose: check-docker
 # destroys the dev environment image.
 .PHONY: clean
 clean: check-docker-compose
-	rm -rf bin
+	rm -rf ${BINARY_DIR}
+	rm -rf ${CONTRIB_BINARY_DIR}
 	docker-compose down --rmi local &> /dev/null
 
 # Containerized project bootstrapping-- requires docker-compose
@@ -105,3 +106,16 @@ docker-build: check-docker build
 docker-push: check-docker docker-build
 	docker push $(IMAGE_NAME)
 	docker push $(MUTABLE_IMAGE_NAME)
+
+# ---------------------------------------------------------------------------- #
+# contrib/                                                                     #
+# ---------------------------------------------------------------------------- #
+
+CONTRIB_BINARY_DIR := contrib/bin
+CLI_BINARY_NAME := broker-cli
+
+.PHONY: build-mac-broker-cli
+build-mac-broker-cli: check-docker-compose
+	docker-compose run --rm -e GOOS=darwin -e GOARCH=amd64 dev \
+		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
+		./contrib/cmd/cli

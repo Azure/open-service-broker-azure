@@ -78,6 +78,12 @@ func init() {
 	testCatalogJSON = strings.Replace(testCatalogJSON, "\t", "", -1)
 }
 
+func TestNewCatalogFromJSONString(t *testing.T) {
+	catalog, err := NewCatalogFromJSONString(testCatalogJSON)
+	assert.Nil(t, err)
+	assert.Equal(t, testCatalog, catalog)
+}
+
 func TestCatalogToJSON(t *testing.T) {
 	jsonStr, err := testCatalog.ToJSONString()
 	assert.Nil(t, err)

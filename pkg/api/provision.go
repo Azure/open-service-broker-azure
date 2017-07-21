@@ -158,6 +158,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if provisioningRequest.Parameters == nil {
+		provisioningRequest.Parameters = module.GetEmptyProvisioningParameters()
+	}
+
 	// If we get to here, we need to provision a new instance.
 	// Start by carrying out module-specific request validation
 	err = module.ValidateProvisioningParameters(provisioningRequest.Parameters)
@@ -179,6 +183,12 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		ServiceID:  provisioningRequest.ServiceID,
 		PlanID:     provisioningRequest.PlanID,
 		Status:     service.InstanceStateProvisioning,
+	}
+	err = instance.SetProvisioningParameters(provisioningRequest.Parameters)
+	if err != nil {
+		log.Println("error encoding provisioning parameters")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	err = instance.SetProvisioningResult(module.GetEmptyProvisioningResult())
 	if err != nil {

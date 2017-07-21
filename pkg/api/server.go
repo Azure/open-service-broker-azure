@@ -93,11 +93,6 @@ func NewServer(
 		"/v2/service_instances/{instance_id}",
 		s.deprovision,
 	).Methods(http.MethodDelete)
-	// TODO: Delete this later-- this is just to aid in hacking
-	router.HandleFunc(
-		"/v2/test",
-		s.test,
-	).Methods(http.MethodGet)
 	s.router = router
 
 	services := []service.Service{}
