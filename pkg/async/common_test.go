@@ -18,3 +18,11 @@ var (
 func getDisposableQueueName() string {
 	return uuid.NewV4().String()
 }
+
+func getDisposableWorkerID() string {
+	return uuid.NewV4().String()
+}
+
+func getDisposableWorkerSetName() string {
+	return uuid.NewV4().String()
+}

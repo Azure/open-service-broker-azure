@@ -8,6 +8,10 @@ import (
 	"github.com/go-redis/redis"
 )
 
+type cleanFunction func(workerSetName, mainWorkQueueName string) error
+
+type cleanWorkerFunction func(workerID, mainWorkQueueName string) error
+
 // Cleaner is an interface to be implemented by components that re-queue work
 // assigned to dead workers
 type Cleaner interface {
@@ -18,9 +22,9 @@ type Cleaner interface {
 type cleaner struct {
 	redisClient *redis.Client
 	// This allows tests to inject an alternative implementation of this function
-	clean func() error
+	clean cleanFunction
 	// This allows tests to inject an alternative implementation of this function
-	cleanWorker func(workerID string) error
+	cleanWorker cleanWorkerFunction
 }
 
 func newCleaner(redisClient *redis.Client) Cleaner {
@@ -37,7 +41,7 @@ func (c *cleaner) Clean(ctx context.Context) error {
 	defer cancel()
 	ticker := time.NewTicker(time.Second * 10)
 	for {
-		err := c.clean()
+		err := c.clean("workers", mainWorkQueueName)
 		if err != nil {
 			return &errCleaning{err: err}
 		}
@@ -49,8 +53,8 @@ func (c *cleaner) Clean(ctx context.Context) error {
 	}
 }
 
-func (c *cleaner) defaultClean() error {
-	strsCmd := c.redisClient.SMembers("workers")
+func (c *cleaner) defaultClean(workerSetName, mainWorkQueueName string) error {
+	strsCmd := c.redisClient.SMembers(workerSetName)
 	if strsCmd.Err() == nil {
 		workerIDs, err := strsCmd.Result()
 		if err != nil {
@@ -69,7 +73,7 @@ func (c *cleaner) defaultClean() error {
 				)
 			}
 			// If we get to here, we have a dead worker on our hands
-			err := c.cleanWorker(workerID)
+			err := c.cleanWorker(workerID, mainWorkQueueName)
 			if err != nil {
 				return fmt.Errorf(
 					`error cleaning up after dead worker "%s": %s`,
@@ -92,7 +96,7 @@ func (c *cleaner) defaultClean() error {
 	return nil
 }
 
-func (c *cleaner) defaultCleanWorker(workerID string) error {
+func (c *cleaner) defaultCleanWorker(workerID, mainWorkQueueName string) error {
 	for {
 		strCmd := c.redisClient.RPopLPush(
 			getWorkerQueueName(workerID),

@@ -165,14 +165,14 @@ func TestReceiveAndWorkCallsWorkOncePerTask(t *testing.T) {
 	assert.Equal(t, expectedCount, workCount)
 	intCmd := redisClient.LLen(queueName)
 	assert.Nil(t, intCmd.Err())
-	currentMainQueueTaskCount, err := intCmd.Result()
+	currentMainQueueDepth, err := intCmd.Result()
 	assert.Nil(t, err)
-	assert.Empty(t, 0, currentMainQueueTaskCount)
+	assert.Empty(t, currentMainQueueDepth)
 	intCmd = redisClient.LLen(getWorkerQueueName(w.id))
 	assert.Nil(t, intCmd.Err())
-	currentWorkerQueueTaskCount, err := intCmd.Result()
+	currentWorkerQueueDepth, err := intCmd.Result()
 	assert.Nil(t, err)
-	assert.Empty(t, 0, currentWorkerQueueTaskCount)
+	assert.Empty(t, currentWorkerQueueDepth)
 }
 
 func TestWorkerReceiveAndWorkBlocksEvenAfterInvalidTask(t *testing.T) {
@@ -192,14 +192,14 @@ func TestWorkerReceiveAndWorkBlocksEvenAfterInvalidTask(t *testing.T) {
 	assert.False(t, workCalled)
 	intCmd = redisClient.LLen(queueName)
 	assert.Nil(t, intCmd.Err())
-	currentMainQueueTaskCount, err := intCmd.Result()
+	currentMainQueueDepth, err := intCmd.Result()
 	assert.Nil(t, err)
-	assert.Empty(t, 0, currentMainQueueTaskCount)
+	assert.Empty(t, currentMainQueueDepth)
 	intCmd = redisClient.LLen(getWorkerQueueName(w.id))
 	assert.Nil(t, intCmd.Err())
-	currentWorkerQueueTaskCount, err := intCmd.Result()
+	currentWorkerQueueDepth, err := intCmd.Result()
 	assert.Nil(t, err)
-	assert.Empty(t, 0, currentWorkerQueueTaskCount)
+	assert.Empty(t, currentWorkerQueueDepth)
 }
 
 func TestWorkerReceiveAndWorkBlocksEvenAfterWorkError(t *testing.T) {

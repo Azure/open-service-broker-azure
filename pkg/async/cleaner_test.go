@@ -5,9 +5,9 @@ import "context"
 import "time"
 import "github.com/stretchr/testify/assert"
 
-func TestCleanerCleanBlocksUntilCleanErrors(t *testing.T) {
+func TestCleanerCleanBlocksUntilCleanInternalErrors(t *testing.T) {
 	c := newCleaner(redisClient).(*cleaner)
-	c.clean = func() error {
+	c.clean = func(string, string) error {
 		return errSome
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -18,7 +18,7 @@ func TestCleanerCleanBlocksUntilCleanErrors(t *testing.T) {
 
 func TestCleanerCleanBlocksUntilContextCanceled(t *testing.T) {
 	c := newCleaner(redisClient).(*cleaner)
-	c.clean = func() error {
+	c.clean = func(string, string) error {
 		return nil
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -27,10 +27,66 @@ func TestCleanerCleanBlocksUntilContextCanceled(t *testing.T) {
 	assert.Equal(t, ctx.Err(), err)
 }
 
-func TestCleanerClean(t *testing.T) {
-	// TODO: Implement this
+func TestCleanerCleanInternalCleansDeadWorkers(t *testing.T) {
+	queueName := getDisposableQueueName()
+	workerSetName := getDisposableWorkerSetName()
+	const expectedCount = 5
+	for range [expectedCount]struct{}{} {
+		intCmd := redisClient.SAdd(workerSetName, getDisposableWorkerID())
+		assert.Nil(t, intCmd.Err())
+	}
+	c := newCleaner(redisClient).(*cleaner)
+	var cleanWorkerCallCount int
+	c.cleanWorker = func(string, string) error {
+		cleanWorkerCallCount++
+		return nil
+	}
+	err := c.clean(workerSetName, queueName)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedCount, cleanWorkerCallCount)
+}
+
+func TestCleanerCleanInternalDoesNotCleansLiveWorkers(t *testing.T) {
+	queueName := getDisposableQueueName()
+	workerSetName := getDisposableWorkerSetName()
+	for range [5]struct{}{} {
+		workerID := getDisposableWorkerID()
+		intCmd := redisClient.SAdd(workerSetName, workerID)
+		assert.Nil(t, intCmd.Err())
+		statusCmd := redisClient.Set(workerID, aliveIndicator, 0)
+		assert.Nil(t, statusCmd.Err())
+	}
+	c := newCleaner(redisClient).(*cleaner)
+	var cleanWorkerCallCount int
+	c.cleanWorker = func(string, string) error {
+		cleanWorkerCallCount++
+		return nil
+	}
+	err := c.clean(workerSetName, queueName)
+	assert.Nil(t, err)
+	assert.Equal(t, 0, cleanWorkerCallCount)
 }
 
 func TestCleanerCleanWorker(t *testing.T) {
-	// TODO: Implement this
+	mainQueueName := getDisposableQueueName()
+	workerID := getDisposableWorkerID()
+	workerQueueName := getWorkerQueueName(workerID)
+	const taskCount = 5
+	for range [taskCount]struct{}{} {
+		intCmd := redisClient.LPush(workerQueueName, "foo")
+		assert.Nil(t, intCmd.Err())
+	}
+	c := newCleaner(redisClient).(*cleaner)
+	err := c.cleanWorker(workerID, mainQueueName)
+	assert.Nil(t, err)
+	intCmd := redisClient.LLen(mainQueueName)
+	assert.Nil(t, intCmd.Err())
+	mainQueueDepth, err := intCmd.Result()
+	assert.Nil(t, err)
+	assert.Equal(t, int64(taskCount), mainQueueDepth)
+	intCmd = redisClient.LLen(workerQueueName)
+	assert.Nil(t, intCmd.Err())
+	workerQueueDepth, err := intCmd.Result()
+	assert.Nil(t, err)
+	assert.Empty(t, workerQueueDepth)
 }
