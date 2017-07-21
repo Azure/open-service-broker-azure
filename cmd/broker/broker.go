@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/Azure/azure-service-broker/pkg/broker"
+	"github.com/Azure/azure-service-broker/pkg/crypto/aes256"
 	"github.com/go-redis/redis"
 )
 
@@ -20,7 +21,15 @@ func main() {
 		Password: redisConfig.Password,
 		DB:       redisConfig.DB,
 	})
-	broker, err := broker.NewBroker(redisClient, modules)
+	cryptoConfig, err := getCryptoConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	codec, err := aes256.NewCodec(cryptoConfig.AES256Key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	broker, err := broker.NewBroker(redisClient, codec, modules)
 	if err != nil {
 		log.Fatal(err)
 	}

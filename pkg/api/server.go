@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/Azure/azure-service-broker/pkg/async"
+	"github.com/Azure/azure-service-broker/pkg/crypto"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/storage"
 	"github.com/gorilla/mux"
@@ -37,6 +38,7 @@ type server struct {
 	port        int
 	store       storage.Store
 	asyncEngine async.Engine
+	codec       crypto.Codec
 	router      *mux.Router
 	// Modules indexed by service
 	modules map[string]service.Module
@@ -55,6 +57,7 @@ func NewServer(
 	port int,
 	store storage.Store,
 	asyncEngine async.Engine,
+	codec crypto.Codec,
 	modules map[string]service.Module,
 	provisioners map[string]service.Provisioner,
 	deprovisioners map[string]service.Deprovisioner,
@@ -63,6 +66,7 @@ func NewServer(
 		port:           port,
 		store:          store,
 		asyncEngine:    asyncEngine,
+		codec:          codec,
 		modules:        modules,
 		provisioners:   provisioners,
 		deprovisioners: deprovisioners,

@@ -18,18 +18,18 @@ func init() {
 	instanceID := "test-instance-id"
 	serviceID := "test-service-id"
 	planID := "test-plan-id"
-	encodedProvisiongingParameters := `{"foo":"bar"}`
+	encryptedProvisiongingParameters := `{"foo":"bar"}`
 	statusReason := "in-progress"
-	encodedProvisiongingContext := `{"baz":"bat"}`
+	encryptedProvisiongingContext := `{"baz":"bat"}`
 
 	testInstance = &Instance{
 		InstanceID: instanceID,
 		ServiceID:  serviceID,
 		PlanID:     planID,
-		EncodedProvisioningParameters: encodedProvisiongingParameters,
-		Status:                     InstanceStateProvisioning,
-		StatusReason:               statusReason,
-		EncodedProvisioningContext: encodedProvisiongingContext,
+		EncryptedProvisioningParameters: encryptedProvisiongingParameters,
+		Status:                       InstanceStateProvisioning,
+		StatusReason:                 statusReason,
+		EncryptedProvisioningContext: encryptedProvisiongingContext,
 	}
 
 	testInstanceJSON = fmt.Sprintf(
@@ -45,10 +45,10 @@ func init() {
 		instanceID,
 		serviceID,
 		planID,
-		strconv.Quote(encodedProvisiongingParameters),
+		strconv.Quote(encryptedProvisiongingParameters),
 		InstanceStateProvisioning,
 		statusReason,
-		strconv.Quote(encodedProvisiongingContext),
+		strconv.Quote(encryptedProvisiongingContext),
 	)
 	testInstanceJSON = strings.Replace(testInstanceJSON, " ", "", -1)
 	testInstanceJSON = strings.Replace(testInstanceJSON, "\n", "", -1)
@@ -68,37 +68,37 @@ func TestInstanceToJSON(t *testing.T) {
 }
 
 func TestSetProvisioningParametersOnInstance(t *testing.T) {
-	err := testInstance.SetProvisioningParameters(testArbitraryObject)
+	err := testInstance.SetProvisioningParameters(testArbitraryObject, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		testInstance.EncodedProvisioningParameters,
+		testInstance.EncryptedProvisioningParameters,
 	)
 }
 
 func TestGetProvisioningParametersOnInstance(t *testing.T) {
-	testInstance.EncodedProvisioningParameters = testArbitraryObjectJSON
+	testInstance.EncryptedProvisioningParameters = testArbitraryObjectJSON
 	pp := &ArbitraryType{}
-	err := testInstance.GetProvisioningParameters(pp)
+	err := testInstance.GetProvisioningParameters(pp, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(t, testArbitraryObject, pp)
 }
 
 func TestSetProvisioningContextOnInstance(t *testing.T) {
-	err := testInstance.SetProvisioningContext(testArbitraryObject)
+	err := testInstance.SetProvisioningContext(testArbitraryObject, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		testInstance.EncodedProvisioningContext,
+		testInstance.EncryptedProvisioningContext,
 		testArbitraryObjectJSON,
 	)
 }
 
 func TestGetProvisioningContextOnInstance(t *testing.T) {
-	testInstance.EncodedProvisioningContext = testArbitraryObjectJSON
+	testInstance.EncryptedProvisioningContext = testArbitraryObjectJSON
 	pc := &ArbitraryType{}
-	err := testInstance.GetProvisioningContext(pc)
+	err := testInstance.GetProvisioningContext(pc, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(t, testArbitraryObject, pc)
 }

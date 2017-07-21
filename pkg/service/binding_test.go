@@ -17,15 +17,15 @@ var (
 func init() {
 	bindingID := "test-binding-id"
 	instanceID := "test-instance-id"
-	encodedBindingParameters := `{"foo":"bar"}`
-	encodedBindingContext := `{"baz":"bat"}`
+	encryptedBindingParameters := `{"foo":"bar"}`
+	encryptedBindingContext := `{"baz":"bat"}`
 
 	testBinding = &Binding{
-		BindingID:                bindingID,
-		InstanceID:               instanceID,
-		EncodedBindingParameters: encodedBindingParameters,
-		Status:                BindingStateBinding,
-		EncodedBindingContext: encodedBindingContext,
+		BindingID:                  bindingID,
+		InstanceID:                 instanceID,
+		EncryptedBindingParameters: encryptedBindingParameters,
+		Status:                  BindingStateBinding,
+		EncryptedBindingContext: encryptedBindingContext,
 	}
 
 	testBindingJSON = fmt.Sprintf(
@@ -38,9 +38,9 @@ func init() {
 		}`,
 		bindingID,
 		instanceID,
-		strconv.Quote(encodedBindingParameters),
+		strconv.Quote(encryptedBindingParameters),
 		BindingStateBinding,
-		strconv.Quote(encodedBindingContext),
+		strconv.Quote(encryptedBindingContext),
 	)
 	testBindingJSON = strings.Replace(testBindingJSON, " ", "", -1)
 	testBindingJSON = strings.Replace(testBindingJSON, "\n", "", -1)
@@ -61,38 +61,38 @@ func TestBindingToJSON(t *testing.T) {
 
 func TestSetBindingParametersOnBinding(t *testing.T) {
 	b := Binding{}
-	err := b.SetBindingParameters(testArbitraryObject)
+	err := b.SetBindingParameters(testArbitraryObject, noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObjectJSON, b.EncodedBindingParameters)
+	assert.Equal(t, testArbitraryObjectJSON, b.EncryptedBindingParameters)
 }
 
 func TestGetBindingParametersOnBinding(t *testing.T) {
 	b := Binding{
-		EncodedBindingParameters: testArbitraryObjectJSON,
+		EncryptedBindingParameters: testArbitraryObjectJSON,
 	}
 	bp := &ArbitraryType{}
-	err := b.GetBindingParameters(bp)
+	err := b.GetBindingParameters(bp, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(t, testArbitraryObject, bp)
 }
 
 func TestSetBindingContextOnBinding(t *testing.T) {
 	b := Binding{}
-	err := b.SetBindingContext(testArbitraryObject)
+	err := b.SetBindingContext(testArbitraryObject, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		b.EncodedBindingContext,
+		b.EncryptedBindingContext,
 	)
 }
 
 func TestGetBindingContextOnBinding(t *testing.T) {
 	b := Binding{
-		EncodedBindingContext: testArbitraryObjectJSON,
+		EncryptedBindingContext: testArbitraryObjectJSON,
 	}
 	bc := &ArbitraryType{}
-	err := b.GetBindingContext(bc)
+	err := b.GetBindingContext(bc, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(t, testArbitraryObject, bc)
 }

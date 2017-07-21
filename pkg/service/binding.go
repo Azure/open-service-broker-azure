@@ -1,16 +1,18 @@
 package service
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/Azure/azure-service-broker/pkg/crypto"
+)
 
 // Binding represents a biding to a service
 type Binding struct {
-	BindingID  string `json:"bindingId"`
-	InstanceID string `json:"instanceId"`
-	// TODO: These should be encrypted as well
-	EncodedBindingParameters string `json:"bindingParameters"`
-	Status                   string `json:"status"`
-	// TODO: These should be encrypted as well
-	EncodedBindingContext string `json:"bindingContext"`
+	BindingID                  string `json:"bindingId"`
+	InstanceID                 string `json:"instanceId"`
+	EncryptedBindingParameters string `json:"bindingParameters"`
+	Status                     string `json:"status"`
+	EncryptedBindingContext    string `json:"bindingContext"`
 }
 
 // NewBindingFromJSONString returns a new Binding unmarshalled from the
@@ -34,48 +36,76 @@ func (b *Binding) ToJSONString() (string, error) {
 	return string(bytes), nil
 }
 
-// SetBindingParameters marshals the providedParameters and stores them in the
-// EncodedBindingParameters field
-func (b *Binding) SetBindingParameters(params interface{}) error {
-	bytes, err := json.Marshal(params)
+// SetBindingParameters marshals the provided bindingParameters object, encrypts
+// the result, and stores it in the EncryptedBindingParameters field
+func (b *Binding) SetBindingParameters(
+	params interface{},
+	codec crypto.Codec,
+) error {
+	jsonBytes, err := json.Marshal(params)
 	if err != nil {
 		return err
 	}
-	b.EncodedBindingParameters = string(bytes)
+	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	if err != nil {
+		return err
+	}
+	b.EncryptedBindingParameters = ciphertext
 	return nil
 }
 
-// GetBindingParameters unmarshals the EncodedBindingParameters into the
-// provided object
-func (b *Binding) GetBindingParameters(params interface{}) error {
-	if b.EncodedBindingParameters == "" {
+// GetBindingParameters decrypts the EncryptedBindingParameters field and
+// unmarshals the result into the provided bindingParameters object
+func (b *Binding) GetBindingParameters(
+	params interface{},
+	codec crypto.Codec,
+) error {
+	if b.EncryptedBindingParameters == "" {
 		return nil
 	}
-	err := json.Unmarshal([]byte(b.EncodedBindingParameters), params)
+	plaintext, err := codec.Decrypt(b.EncryptedBindingParameters)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(plaintext), params)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// SetBindingContext marshals the provided bindingContext and stores it in the
-// EncodedBindingContext field
-func (b *Binding) SetBindingContext(context interface{}) error {
-	bytes, err := json.Marshal(context)
+// SetBindingContext marshals the provided bindingContext object, encrypts the
+// result, and stores it in the EncryptedBindingContext field
+func (b *Binding) SetBindingContext(
+	context interface{},
+	codec crypto.Codec,
+) error {
+	jsonBytes, err := json.Marshal(context)
 	if err != nil {
 		return err
 	}
-	b.EncodedBindingContext = string(bytes)
+	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	if err != nil {
+		return err
+	}
+	b.EncryptedBindingContext = string(ciphertext)
 	return nil
 }
 
-// GetBindingContext unmarshals the EncodedBindingContext into the provided
-// object
-func (b *Binding) GetBindingContext(context interface{}) error {
-	if b.EncodedBindingContext == "" {
+// GetBindingContext decrypts the EncryptedBindingContext field and unmarshals
+// the result into the provided bindingContext object
+func (b *Binding) GetBindingContext(
+	context interface{},
+	codec crypto.Codec,
+) error {
+	if b.EncryptedBindingContext == "" {
 		return nil
 	}
-	err := json.Unmarshal([]byte(b.EncodedBindingContext), context)
+	plaintext, err := codec.Decrypt(b.EncryptedBindingContext)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(plaintext), context)
 	if err != nil {
 		return err
 	}

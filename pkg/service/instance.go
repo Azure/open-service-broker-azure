@@ -1,18 +1,20 @@
 package service
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/Azure/azure-service-broker/pkg/crypto"
+)
 
 // Instance represents an instance of a service
 type Instance struct {
-	InstanceID string `json:"instanceId"`
-	ServiceID  string `json:"serviceId"`
-	PlanID     string `json:"planId"`
-	// TODO: These should be encrypted as well
-	EncodedProvisioningParameters string `json:"provisioningParameters"`
-	Status                        string `json:"status"`
-	StatusReason                  string `json:"statusReason"`
-	// TODO: These should be encrypted as well
-	EncodedProvisioningContext string `json:"provisioningContext"`
+	InstanceID                      string `json:"instanceId"`
+	ServiceID                       string `json:"serviceId"`
+	PlanID                          string `json:"planId"`
+	EncryptedProvisioningParameters string `json:"provisioningParameters"`
+	Status                          string `json:"status"`
+	StatusReason                    string `json:"statusReason"`
+	EncryptedProvisioningContext    string `json:"provisioningContext"`
 }
 
 // NewInstanceFromJSONString returns a new Instance unmarshalled from the
@@ -36,48 +38,77 @@ func (i *Instance) ToJSONString() (string, error) {
 	return string(bytes), nil
 }
 
-// SetProvisioningParameters marshals the providedParameters and stores them in
-// the EncodedProvisioningParameters field
-func (i *Instance) SetProvisioningParameters(params interface{}) error {
-	bytes, err := json.Marshal(params)
+// SetProvisioningParameters marshals the provided provisioningParameters
+// object, encrypts the result, and stores it in the
+// EncryptedProvisioningParameters field
+func (i *Instance) SetProvisioningParameters(
+	params interface{},
+	codec crypto.Codec,
+) error {
+	jsonBytes, err := json.Marshal(params)
 	if err != nil {
 		return err
 	}
-	i.EncodedProvisioningParameters = string(bytes)
+	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	if err != nil {
+		return err
+	}
+	i.EncryptedProvisioningParameters = ciphertext
 	return nil
 }
 
-// GetProvisioningParameters unmarshals the EncodedProvisioningParameters into
-// the provided object
-func (i *Instance) GetProvisioningParameters(params interface{}) error {
-	if i.EncodedProvisioningParameters == "" {
+// GetProvisioningParameters decrypts the EncryptedProvisioningParameters field
+// and unmarshals the result into the provided provisioningParameters object
+func (i *Instance) GetProvisioningParameters(
+	params interface{},
+	codec crypto.Codec,
+) error {
+	if i.EncryptedProvisioningParameters == "" {
 		return nil
 	}
-	err := json.Unmarshal([]byte(i.EncodedProvisioningParameters), params)
+	plaintext, err := codec.Decrypt(i.EncryptedProvisioningParameters)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(plaintext), params)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// SetProvisioningContext marshals the provided object and stores it in the
-// EncodedProvisioningContext field
-func (i *Instance) SetProvisioningContext(context interface{}) error {
-	bytes, err := json.Marshal(context)
+// SetProvisioningContext marshals the provided provisioningContext object,
+// encrypts the result, and stores it in the EncrypredProvisioningContext field
+func (i *Instance) SetProvisioningContext(
+	context interface{},
+	codec crypto.Codec,
+) error {
+	jsonBytes, err := json.Marshal(context)
 	if err != nil {
 		return err
 	}
-	i.EncodedProvisioningContext = string(bytes)
+	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	if err != nil {
+		return err
+	}
+	i.EncryptedProvisioningContext = ciphertext
 	return nil
 }
 
-// GetProvisioningContext unmarshals the EncodedProvisioningContext into the
-// provided object
-func (i *Instance) GetProvisioningContext(context interface{}) error {
-	if i.EncodedProvisioningContext == "" {
+// GetProvisioningContext decrypts the EncryptedProvisioningContext field and
+// unmarshals the result into the provided provisioningContext object
+func (i *Instance) GetProvisioningContext(
+	context interface{},
+	codec crypto.Codec,
+) error {
+	if i.EncryptedProvisioningContext == "" {
 		return nil
 	}
-	err := json.Unmarshal([]byte(i.EncodedProvisioningContext), context)
+	plaintext, err := codec.Decrypt(i.EncryptedProvisioningContext)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(plaintext), context)
 	if err != nil {
 		return err
 	}

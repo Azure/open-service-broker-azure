@@ -18,6 +18,7 @@ services:
     build: .
     environment:
       REDIS_HOST: redis
+      AES256_KEY: AES256Key-32Characters1234567890
     links:
     - broker-redis:redis
   test-redis:
