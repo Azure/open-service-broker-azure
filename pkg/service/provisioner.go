@@ -9,7 +9,7 @@ import (
 // provisioning step
 type ProvisioningStepFunction func(
 	ctx context.Context,
-	provisioningResult interface{},
+	provisioningContext interface{},
 	params interface{},
 ) (interface{}, error)
 
@@ -19,7 +19,7 @@ type ProvisioningStep interface {
 	GetName() string
 	Execute(
 		ctx context.Context,
-		provisioningResult,
+		provisioningContext,
 		params interface{},
 	) (interface{}, error)
 }
@@ -62,12 +62,12 @@ func (p *provisioningStep) GetName() string {
 // Execute executes a step
 func (p *provisioningStep) Execute(
 	ctx context.Context,
-	provisioningResult interface{},
+	provisioningContext interface{},
 	params interface{},
 ) (interface{}, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	return p.fn(ctx, provisioningResult, params)
+	return p.fn(ctx, provisioningContext, params)
 }
 
 // NewProvisioner returns a new provisioner

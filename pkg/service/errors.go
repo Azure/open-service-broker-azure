@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// ValidationError represents an error validating request parameters. This
+// ValidationError represents an error validating requestParameters. This
 // specific error type should be used to allow the broker's framework to
 // differentiate between validation errors and other common, unexpected errors.
 type ValidationError struct {
