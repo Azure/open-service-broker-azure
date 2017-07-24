@@ -43,10 +43,6 @@ type broker struct {
 	codec       crypto.Codec
 	// Modules indexed by service
 	modules map[string]service.Module
-	// Provisioners indexed by service
-	provisioners map[string]service.Provisioner
-	// Deprovisioners indexed by service
-	deprovisioners map[string]service.Deprovisioner
 }
 
 // NewBroker returns a new Broker
@@ -56,12 +52,10 @@ func NewBroker(
 	modules []service.Module,
 ) (Broker, error) {
 	b := &broker{
-		store:          storage.NewStore(redisClient),
-		asyncEngine:    async.NewEngine(redisClient),
-		codec:          codec,
-		modules:        make(map[string]service.Module),
-		provisioners:   make(map[string]service.Provisioner),
-		deprovisioners: make(map[string]service.Deprovisioner),
+		store:       storage.NewStore(redisClient),
+		asyncEngine: async.NewEngine(redisClient),
+		codec:       codec,
+		modules:     make(map[string]service.Module),
 	}
 
 	for _, module := range modules {
@@ -81,16 +75,6 @@ func NewBroker(
 					svc.GetID())
 			}
 			b.modules[svc.GetID()] = module
-			provisioner, err := module.GetProvisioner()
-			if err != nil {
-				return nil, err
-			}
-			b.provisioners[svc.GetID()] = provisioner
-			deprovisioner, err := module.GetDeprovisioner()
-			if err != nil {
-				return nil, err
-			}
-			b.deprovisioners[svc.GetID()] = deprovisioner
 		}
 	}
 
@@ -104,8 +88,6 @@ func NewBroker(
 		b.asyncEngine,
 		b.codec,
 		b.modules,
-		b.provisioners,
-		b.deprovisioners,
 	)
 	if err != nil {
 		return nil, err

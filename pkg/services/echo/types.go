@@ -1,35 +1,35 @@
 package echo
 
-type echoProvisioningParameters struct {
+type ProvisioningParameters struct {
 	Message string `json:"message"`
 }
 
-type echoProvisioningContext struct {
+type ProvisioningContext struct {
 	MessageID string `json:"messageId"`
 	Message   string `json:"message"`
 }
 
-type echoBindingParameters struct {
+type BindingParameters struct {
 	Message string `json:"message"`
 }
 
-type echoBindingContext struct {
+type BindingContext struct {
 	MessageID string `json:"messageId"`
 	Message   string `json:"message"`
 }
 
 func (m *module) GetEmptyProvisioningParameters() interface{} {
-	return &echoProvisioningParameters{}
+	return &ProvisioningParameters{}
 }
 
 func (m *module) GetEmptyProvisioningContext() interface{} {
-	return &echoProvisioningContext{}
+	return &ProvisioningContext{}
 }
 
 func (m *module) GetEmptyBindingParameters() interface{} {
-	return &echoBindingParameters{}
+	return &BindingParameters{}
 }
 
 func (m *module) GetEmptyBindingContext() interface{} {
-	return &echoBindingContext{}
+	return &BindingContext{}
 }

@@ -19,14 +19,19 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// spec says to respond with a 422
 	acceptsIncompleteStr := r.URL.Query().Get("accepts_incomplete")
 	if acceptsIncompleteStr == "" {
-		log.Println("request is missing required query parameter accepts_incomplete=true")
+		log.Println(
+			"request is missing required query parameter accepts_incomplete=true",
+		)
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write(responseAsyncRequired)
 		return
 	}
 	acceptsIncomplete, err := strconv.ParseBool(acceptsIncompleteStr)
 	if err != nil || !acceptsIncomplete {
-		log.Printf("query paramater accepts_incomplete has invalid value '%s'", acceptsIncompleteStr)
+		log.Printf(
+			"query paramater accepts_incomplete has invalid value '%s'",
+			acceptsIncompleteStr,
+		)
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write(responseAsyncRequired)
 		return
@@ -105,6 +110,9 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	if provisioningRequest.Parameters == nil {
+		provisioningRequest.Parameters = module.GetEmptyProvisioningParameters()
+	}
 
 	instanceID := mux.Vars(r)["instance_id"]
 	instance, ok, err := s.store.GetInstance(instanceID)
@@ -131,15 +139,14 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		previousProvisioningRequest := service.ProvisioningRequest{
+		previousProvisioningRequest := &service.ProvisioningRequest{
 			ServiceID:  instance.ServiceID,
 			PlanID:     instance.PlanID,
 			Parameters: previousProvisioningRequestParams,
 		}
-
 		if reflect.DeepEqual(provisioningRequest, previousProvisioningRequest) {
 			// Per the spec, if fully provisioned, respond with a 200, else a 202.
-			// Filling in a gap in teh spec-- if the status is anything else, we'll
+			// Filling in a gap in the spec-- if the status is anything else, we'll
 			// choose to respond with a 409
 			switch instance.Status {
 			case service.InstanceStateProvisioning:
@@ -159,10 +166,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusConflict)
 		w.Write(responseEmptyJSON)
 		return
-	}
-
-	if provisioningRequest.Parameters == nil {
-		provisioningRequest.Parameters = module.GetEmptyProvisioningParameters()
 	}
 
 	// If we get to here, we need to provision a new instance.
@@ -212,10 +215,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provisioner, ok := s.provisioners[provisioningRequest.ServiceID]
-	if !ok {
+	provisioner, err := module.GetProvisioner()
+	if err != nil {
 		log.Printf(
-			`no provisioner found for service "%s"`,
+			`error retrieving provisioner for service "%s"`,
 			provisioningRequest.ServiceID,
 		)
 		w.WriteHeader(http.StatusInternalServerError)

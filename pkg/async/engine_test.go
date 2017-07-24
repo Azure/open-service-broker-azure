@@ -6,12 +6,7 @@ import (
 	"time"
 
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
-	fakeStorage "github.com/Azure/azure-service-broker/pkg/storage/fake"
 	"github.com/stretchr/testify/assert"
-)
-
-var (
-	s = fakeStorage.NewStore()
 )
 
 func TestEngineStartBlocksUntilCleanerErrors(t *testing.T) {

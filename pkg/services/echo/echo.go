@@ -26,7 +26,7 @@ func (m *module) GetName() string {
 func (m *module) ValidateProvisioningParameters(
 	provisioningParameters interface{},
 ) error {
-	params := provisioningParameters.(*echoProvisioningParameters)
+	params := provisioningParameters.(*ProvisioningParameters)
 	if params.Message == "bad message" {
 		return service.NewValidationError("message", "message is a bad message!")
 	}
@@ -47,7 +47,7 @@ func (m *module) generateProvisioningMessageID(
 	provisioningParameters interface{},
 ) (interface{}, error) {
 	log.Println("Executing generateProvisioningMessageID...")
-	pc := provisioningContext.(*echoProvisioningContext)
+	pc := provisioningContext.(*ProvisioningContext)
 	pc.MessageID = uuid.NewV4().String()
 	return pc, nil
 }
@@ -72,8 +72,8 @@ func (m *module) logProvisioningMessage(
 	provisioningParameters interface{},
 ) (interface{}, error) {
 	log.Println("Executing logProvisioningMessage...")
-	pc := provisioningContext.(*echoProvisioningContext)
-	params := provisioningParameters.(*echoProvisioningParameters)
+	pc := provisioningContext.(*ProvisioningContext)
+	params := provisioningParameters.(*ProvisioningParameters)
 	pc.Message = params.Message
 	log.Printf("Provisioning %s: %s", pc.MessageID, params.Message)
 	return pc, nil
@@ -82,7 +82,7 @@ func (m *module) logProvisioningMessage(
 func (m *module) ValidateBindingParameters(
 	bindingParameters interface{},
 ) error {
-	params := bindingParameters.(*echoBindingParameters)
+	params := bindingParameters.(*BindingParameters)
 	if params.Message == "bad message" {
 		return service.NewValidationError("message", "message is a bad message!")
 	}
@@ -94,8 +94,8 @@ func (m *module) Bind(
 	bindingParameters interface{},
 ) (interface{}, error) {
 	log.Println("Executing Bind...")
-	params := bindingParameters.(*echoBindingParameters)
-	bc := &echoBindingContext{
+	params := bindingParameters.(*BindingParameters)
+	bc := &BindingContext{
 		MessageID: uuid.NewV4().String(),
 		Message:   params.Message,
 	}
@@ -108,7 +108,7 @@ func (m *module) Unbind(
 	bindingContext interface{},
 ) error {
 	log.Println("Executing Unbind...")
-	bc := bindingContext.(*echoBindingContext)
+	bc := bindingContext.(*BindingContext)
 	log.Printf("Unbinding %s: %s", bc.MessageID, bc.Message)
 	return nil
 }
@@ -127,7 +127,7 @@ func (m *module) logDeprovisioningMessage(
 	provisioningContext interface{},
 ) (interface{}, error) {
 	log.Println("Executing logDeprovisioningMessage...")
-	pc := provisioningContext.(*echoProvisioningContext)
+	pc := provisioningContext.(*ProvisioningContext)
 	log.Printf("Deprovisioning %s: %s", pc.MessageID, pc.Message)
 	return pc, nil
 }

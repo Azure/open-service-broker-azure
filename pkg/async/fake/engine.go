@@ -8,13 +8,15 @@ import (
 
 // Engine is a fake implementation of async.Engine used for testing
 type Engine struct {
-	RunBehavior func(context.Context) error
+	SubmittedTasks map[string]model.Task
+	RunBehavior    func(context.Context) error
 }
 
 // NewEngine returns a new, fake implementation of async.Engine used for testing
 func NewEngine() *Engine {
 	return &Engine{
-		RunBehavior: defaultEngineRunBehavior,
+		SubmittedTasks: make(map[string]model.Task),
+		RunBehavior:    defaultEngineRunBehavior,
 	}
 }
 
@@ -25,7 +27,8 @@ func (e *Engine) RegisterJob(name string, fn model.JobFunction) error {
 
 // SubmitTask submits an idempotent task to the async engine for reliable,
 // asynchronous completion
-func (e *Engine) SubmitTask(model.Task) error {
+func (e *Engine) SubmitTask(task model.Task) error {
+	e.SubmittedTasks[task.GetID()] = task
 	return nil
 }
 
