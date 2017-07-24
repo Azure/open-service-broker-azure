@@ -2,27 +2,21 @@ package api
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
-	"errors"
-
-	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
-	fakeStorage "github.com/Azure/azure-service-broker/pkg/storage/fake"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	store       = fakeStorage.NewStore()
-	asyncEngine = fakeAsync.NewEngine()
-	errSome     = errors.New("an error")
+	errSome = errors.New("an error")
 )
 
 func TestServerStartBlocksUntilListenAndServeErrors(t *testing.T) {
-	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil, nil)
+	s, err := getTestServer()
 	assert.Nil(t, err)
-	server := s.(*server)
-	server.listenAndServe = func(context.Context) error {
+	s.listenAndServe = func(context.Context) error {
 		return errSome
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -32,10 +26,9 @@ func TestServerStartBlocksUntilListenAndServeErrors(t *testing.T) {
 }
 
 func TestServerStartBlocksUntilListenAndServeReturns(t *testing.T) {
-	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil, nil)
+	s, err := getTestServer()
 	assert.Nil(t, err)
-	server := s.(*server)
-	server.listenAndServe = func(context.Context) error {
+	s.listenAndServe = func(context.Context) error {
 		return nil
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -45,10 +38,9 @@ func TestServerStartBlocksUntilListenAndServeReturns(t *testing.T) {
 }
 
 func TestServerStartBlocksUntilContextCanceled(t *testing.T) {
-	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil, nil)
+	s, err := getTestServer()
 	assert.Nil(t, err)
-	server := s.(*server)
-	server.listenAndServe = func(ctx context.Context) error {
+	s.listenAndServe = func(ctx context.Context) error {
 		<-ctx.Done()
 		return ctx.Err()
 	}
@@ -59,11 +51,10 @@ func TestServerStartBlocksUntilContextCanceled(t *testing.T) {
 }
 
 func TestServerListenAndServeBlocksUntilContextCanceled(t *testing.T) {
-	s, err := NewServer(8080, store, asyncEngine, nil, nil, nil, nil)
-	server := s.(*server)
+	s, err := getTestServer()
 	assert.Nil(t, err)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	err = server.listenAndServe(ctx)
+	err = s.listenAndServe(ctx)
 	assert.Equal(t, ctx.Err(), err)
 }

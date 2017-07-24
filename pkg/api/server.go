@@ -41,11 +41,7 @@ type server struct {
 	codec       crypto.Codec
 	router      *mux.Router
 	// Modules indexed by service
-	modules map[string]service.Module
-	// Provisioners indexed by service
-	provisioners map[string]service.Provisioner
-	// Deprovisioners indexed by service
-	deprovisioners  map[string]service.Deprovisioner
+	modules         map[string]service.Module
 	catalog         service.Catalog
 	catalogResponse []byte
 	// This allows tests to inject an alternative implementation of this function
@@ -59,17 +55,13 @@ func NewServer(
 	asyncEngine async.Engine,
 	codec crypto.Codec,
 	modules map[string]service.Module,
-	provisioners map[string]service.Provisioner,
-	deprovisioners map[string]service.Deprovisioner,
 ) (Server, error) {
 	s := &server{
-		port:           port,
-		store:          store,
-		asyncEngine:    asyncEngine,
-		codec:          codec,
-		modules:        modules,
-		provisioners:   provisioners,
-		deprovisioners: deprovisioners,
+		port:        port,
+		store:       store,
+		asyncEngine: asyncEngine,
+		codec:       codec,
+		modules:     modules,
 	}
 	router := mux.NewRouter()
 	router.StrictSlash(true)

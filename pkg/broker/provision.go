@@ -71,13 +71,13 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			"error decoding provisioningParameters from persisted instance",
 		)
 	}
-	provisioner, ok := b.provisioners[instance.ServiceID]
-	if !ok {
+	provisioner, err := module.GetProvisioner()
+	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
 			fmt.Sprintf(
-				`no provisioner was found for handling service "%s"`,
+				`error retrieving provisioner for service "%s"`,
 				instance.ServiceID,
 			),
 		)
