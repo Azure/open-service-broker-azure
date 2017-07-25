@@ -36,11 +36,10 @@ func (b *broker) doDeprovisionStep(ctx context.Context, args map[string]string) 
 			"instance does not exist in the data store",
 		)
 	}
-	log.Printf(
-		`executing deprovisioning step "%s" for instance "%s"`,
-		stepName,
-		instance.InstanceID,
-	)
+	log.WithFields(log.Fields{
+		"step":       stepName,
+		"instanceID": instance.InstanceID,
+	}).Debug("executing deprovisioning step")
 	module, ok := b.modules[instance.ServiceID]
 	if !ok {
 		return b.handleDeprovisioningError(
@@ -152,11 +151,11 @@ func (b *broker) handleDeprovisioningError(
 		)
 		err := b.store.WriteInstance(instance)
 		if err != nil {
-			log.Fatalf(
-				"error persisting instance %s with updated status: %s",
-				instance.InstanceID,
-				err,
-			)
+			log.WithFields(log.Fields{
+				"instanceID": instance.InstanceID,
+				"status":     instance.Status,
+				"error":      err,
+			}).Fatal("error persisting instance with updated status")
 		}
 		return errors.New(instance.StatusReason)
 	}

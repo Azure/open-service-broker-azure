@@ -149,9 +149,12 @@ func (w *worker) defaultReceiveAndWork(
 			if err != nil {
 				// If the JSON is invalid, remove the message from this worker's queue,
 				// log this and move on. No other worker is going to be able to process
-				// this-- there's notthing we can do and there's no sense letting this
+				// this-- there's nothing we can do and there's no sense letting this
 				// whole process die over this.
-				log.Printf("error decoding task %s: %s", taskJSON, err)
+				log.WithFields(log.Fields{
+					"taskJSON": taskJSON,
+					"error":    err,
+				}).Error("error decoding task")
 				intCmd := w.redisClient.LRem(
 					getWorkerQueueName(w.id),
 					0,
@@ -171,8 +174,8 @@ func (w *worker) defaultReceiveAndWork(
 					// The error is that this worker doesn't know how to process this
 					// task. That doesn't mean another worker doesn't know how. Re-queue
 					// the task.
-					// NB: This behavior is something we can revisit in the future if and
-					// when we extract the async package into its own library.
+					// krancour: This behavior is something we can revisit in the future
+					// if and when we extract the async package into its own library.
 					// Construct and execute a transaction that removes the task from this
 					// worker's queue and re-queues it in the main work queue.
 					task.IncrementWorkerRejectionCount()
@@ -203,14 +206,13 @@ func (w *worker) defaultReceiveAndWork(
 				}
 				// If we get to here, we have a legitimate failure executing the task.
 				// This isn't the worker's fault. Simply log this.
-				// NB: This behavior is something we can revisit in the future if and
-				// when we extract the async package into its own library.
-				log.Printf(
-					`error running job "%s" for task: %#v: %s`,
-					task.GetJobName(),
-					task,
-					err,
-				)
+				// krancour: This behavior is something we can revisit in the future if
+				// and when we extract the async package into its own library.
+				log.WithFields(log.Fields{
+					"job":    task.GetJobName(),
+					"taskID": task.GetID(),
+					"error":  err,
+				}).Error("error executing job")
 			}
 			intCmd := w.redisClient.LRem(
 				getWorkerQueueName(w.id),
