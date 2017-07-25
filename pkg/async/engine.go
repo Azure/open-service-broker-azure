@@ -2,7 +2,6 @@ package async
 
 import (
 	"context"
-
 	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"

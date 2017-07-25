@@ -4,13 +4,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"io"
-
-	"fmt"
-
-	"strings"
-
 	"encoding/base64"
+	"fmt"
+	"io"
+	"strings"
 
 	"github.com/Azure/azure-service-broker/pkg/crypto"
 )

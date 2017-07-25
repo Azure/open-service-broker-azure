@@ -1,8 +1,6 @@
 package service
 
-import (
-	"fmt"
-)
+import "fmt"
 
 // ValidationError represents an error validating requestParameters. This
 // specific error type should be used to allow the broker's framework to

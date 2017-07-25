@@ -1,7 +1,10 @@
 package fake
 
-import "context"
-import "github.com/Azure/azure-service-broker/pkg/async/model"
+import (
+	"context"
+
+	"github.com/Azure/azure-service-broker/pkg/async/model"
+)
 
 // Worker is a fake implementation of async.Worker used for testing
 type Worker struct {

@@ -1,8 +1,6 @@
 package fake
 
-import (
-	"context"
-)
+import "context"
 
 // Server is a fake implementation of api.Server used for testing
 type Server struct {
