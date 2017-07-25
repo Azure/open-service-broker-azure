@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/Azure/azure-service-broker/contrib/pkg/client"
+	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 

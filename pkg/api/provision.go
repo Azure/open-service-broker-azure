@@ -2,14 +2,13 @@ package api
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
-	"strconv"
-
 	"reflect"
+	"strconv"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"
 	"github.com/Azure/azure-service-broker/pkg/service"
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
 

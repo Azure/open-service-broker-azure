@@ -3,11 +3,11 @@ package async
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"
+	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 	uuid "github.com/satori/go.uuid"
 )

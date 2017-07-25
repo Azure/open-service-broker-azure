@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"context"
 
 	"github.com/Azure/azure-service-broker/pkg/broker"
 	"github.com/Azure/azure-service-broker/pkg/crypto/aes256"
+	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
 

@@ -3,10 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/Azure/azure-service-broker/contrib/pkg/client"
+	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 

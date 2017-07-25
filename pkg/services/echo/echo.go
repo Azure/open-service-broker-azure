@@ -1,13 +1,11 @@
 package echo
 
 import (
-	"log"
-
+	"context"
 	"time"
 
-	"context"
-
 	"github.com/Azure/azure-service-broker/pkg/service"
+	log "github.com/Sirupsen/logrus"
 	uuid "github.com/satori/go.uuid"
 )
 

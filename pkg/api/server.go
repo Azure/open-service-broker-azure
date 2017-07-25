@@ -1,17 +1,16 @@
 package api
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
-
-	"context"
 
 	"github.com/Azure/azure-service-broker/pkg/async"
 	"github.com/Azure/azure-service-broker/pkg/crypto"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/storage"
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
 

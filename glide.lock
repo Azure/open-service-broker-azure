@@ -1,5 +1,5 @@
-hash: 4ab2dfad21c117ccef6cea5108f087268fdb0b37621262874802d9675fd64bed
-updated: 2017-07-20T00:42:03.949658815Z
+hash: 2d44c1402cd298210a45e66dbe5919549dd6e32e868ab75fb685f329fbee5fb9
+updated: 2017-07-25T21:32:36.332045756Z
 imports:
 - name: github.com/go-redis/redis
   version: e14976b254c5bc5f399dd0ae9314b1d02a176897
@@ -17,6 +17,8 @@ imports:
   version: 70f0258d44cbaa3b6a2581d82f58da01a38e4de4
 - name: github.com/satori/go.uuid
   version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
+- name: github.com/Sirupsen/logrus
+  version: 8d4f6a97d3fe8725a31e3185c7a877a5e1dc6f09
 - name: github.com/stretchr/testify
   version: e3a8ff8ce36581f87a15341206f205b1da467059
   subpackages:
