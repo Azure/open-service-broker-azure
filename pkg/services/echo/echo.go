@@ -36,7 +36,7 @@ func (m *module) ValidateProvisioningParameters(
 func (m *module) GetProvisioner() (service.Provisioner, error) {
 	return service.NewProvisioner(
 		service.NewProvisioningStep("generateMessageId", m.generateProvisioningMessageID),
-		service.NewProvisioningStep("pause", m.pause),
+		service.NewProvisioningStep("pause", m.pauseProvisioning),
 		service.NewProvisioningStep("logMessage", m.logProvisioningMessage),
 	)
 }
@@ -52,7 +52,7 @@ func (m *module) generateProvisioningMessageID(
 	return pc, nil
 }
 
-func (m *module) pause(
+func (m *module) pauseProvisioning(
 	ctx context.Context,
 	provisioningContext interface{},
 	provisioningParameters interface{},
@@ -115,11 +115,25 @@ func (m *module) Unbind(
 
 func (m *module) GetDeprovisioner() (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
+		service.NewDeprovisioningStep("pause", m.pauseDeprovisioning),
 		service.NewDeprovisioningStep(
 			"logDeprovisioningMessage",
 			m.logDeprovisioningMessage,
 		),
 	)
+}
+
+func (m *module) pauseDeprovisioning(
+	ctx context.Context,
+	provisioningContext interface{},
+) (interface{}, error) {
+	log.Println("Executing pause...")
+	select {
+	case <-time.NewTimer(time.Minute).C:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+	return provisioningContext, nil
 }
 
 func (m *module) logDeprovisioningMessage(
