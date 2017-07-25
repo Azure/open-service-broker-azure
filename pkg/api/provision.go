@@ -48,6 +48,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("error parsing request body")
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 
@@ -94,6 +95,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			provisioningRequest.ServiceID,
 		)
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 
@@ -108,6 +110,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("error parsing request body")
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 	if provisioningRequest.Parameters == nil {
@@ -119,6 +122,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("error retrieving instance with id %s", instanceID)
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 	if ok {
@@ -137,6 +141,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Println("error decoding persisted provisioningParameters")
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write(responseEmptyJSON)
 			return
 		}
 		previousProvisioningRequest := &service.ProvisioningRequest{
@@ -175,11 +180,12 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		_, ok := err.(*service.ValidationError)
 		if ok {
 			w.WriteHeader(http.StatusBadRequest)
-			// TODO: Send the correct response body
-			// w.Write(responseValidationError)
+			// TODO: Send the correct response body-- this is a placeholder
+			w.Write(responseEmptyJSON)
 			return
 		}
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 
@@ -197,6 +203,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("error encoding provisioningParameters")
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 	err = instance.SetProvisioningContext(
@@ -206,12 +213,14 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("error encoding empty provisioningContext")
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 	err = s.store.WriteInstance(instance)
 	if err != nil {
 		log.Println("error storing new instance")
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 
@@ -222,6 +231,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			provisioningRequest.ServiceID,
 		)
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 	firstStepName, ok := provisioner.GetFirstStepName()
@@ -231,6 +241,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			provisioningRequest.ServiceID,
 		)
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 
@@ -245,9 +256,11 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("error submitting provisioning task")
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
 		return
 	}
 
 	// If we get all the way to here, we've been successful!
 	w.WriteHeader(http.StatusAccepted)
+	w.Write(responseEmptyJSON)
 }

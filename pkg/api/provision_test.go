@@ -190,6 +190,7 @@ func TestProvisioningReturns200IfInstanceExistsWithSameAttributesAndFullyProvisi
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 }
 
 func TestProvisioningReturns202IfInstanceExistsWithSameAttributesAndNotFullyProvisioned(
@@ -220,6 +221,7 @@ func TestProvisioningReturns202IfInstanceExistsWithSameAttributesAndNotFullyProv
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusAccepted, rr.Code)
+	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 }
 
 func TestKickOffNewAsyncProvisioning(t *testing.T) {
@@ -242,6 +244,7 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 	assert.Equal(t, http.StatusAccepted, rr.Code)
 	e := s.asyncEngine.(*fakeAsync.Engine)
 	assert.Equal(t, 1, len(e.SubmittedTasks))
+	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 }
 
 func getProvisionRequest(
