@@ -46,7 +46,7 @@ func Provision(
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("error requesting catalog: %s", err)
+		return "", fmt.Errorf("error executing provision call: %s", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusAccepted {
