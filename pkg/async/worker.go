@@ -34,7 +34,6 @@ type worker struct {
 	heart        Heart
 	jobsFns      map[string]model.JobFunction
 	jobsFnsMutex sync.RWMutex
-	// TODO: Split this into two functions for better testability
 	// This allows tests to inject an alternative implementation of this function
 	receiveAndWork receiveAndWorkFunction
 	// This allows tests to inject an alternative implementation of this function
