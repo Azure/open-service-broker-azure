@@ -1,12 +1,12 @@
 package api
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"
 	"github.com/Azure/azure-service-broker/pkg/service"
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
 

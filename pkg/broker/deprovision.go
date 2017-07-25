@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"
 	"github.com/Azure/azure-service-broker/pkg/service"
+	log "github.com/Sirupsen/logrus"
 )
 
 func (b *broker) doDeprovisionStep(ctx context.Context, args map[string]string) error {

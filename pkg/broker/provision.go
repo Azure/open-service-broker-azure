@@ -2,13 +2,12 @@ package broker
 
 import (
 	"context"
-	"fmt"
-	"log"
-
 	"errors"
+	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"
 	"github.com/Azure/azure-service-broker/pkg/service"
+	log "github.com/Sirupsen/logrus"
 )
 
 func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) error {
