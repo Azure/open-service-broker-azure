@@ -189,7 +189,27 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Start by persisting it
+	provisioner, err := module.GetProvisioner()
+	if err != nil {
+		log.Printf(
+			`error retrieving provisioner for service "%s"`,
+			provisioningRequest.ServiceID,
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
+		return
+	}
+	firstStepName, ok := provisioner.GetFirstStepName()
+	if !ok {
+		log.Printf(
+			`no steps found for provisioning service "%s"`,
+			provisioningRequest.ServiceID,
+		)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(responseEmptyJSON)
+		return
+	}
+
 	instance = &service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  provisioningRequest.ServiceID,
@@ -219,27 +239,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	err = s.store.WriteInstance(instance)
 	if err != nil {
 		log.Println("error storing new instance")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responseEmptyJSON)
-		return
-	}
-
-	provisioner, err := module.GetProvisioner()
-	if err != nil {
-		log.Printf(
-			`error retrieving provisioner for service "%s"`,
-			provisioningRequest.ServiceID,
-		)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responseEmptyJSON)
-		return
-	}
-	firstStepName, ok := provisioner.GetFirstStepName()
-	if !ok {
-		log.Printf(
-			`no steps found for provisioning service "%s"`,
-			provisioningRequest.ServiceID,
-		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
