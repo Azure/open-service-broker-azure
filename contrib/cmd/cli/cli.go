@@ -92,7 +92,7 @@ func main() {
 					Usage: "specify the `<instance id>`; required",
 				},
 			},
-			Action: unbind,
+			Action: deprovision,
 		},
 	}
 

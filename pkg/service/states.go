@@ -13,9 +13,6 @@ const (
 	// InstanceStateDeprovisioning represents the state where service instance
 	// deprovisioning is in progress
 	InstanceStateDeprovisioning = "DEPROVISIONING"
-	// InstanceStateDeprovisioned represents the state where service instance
-	// deprovisioning has completed successfully
-	InstanceStateDeprovisioned = "DEPROVISIONED"
 	// InstanceStateDeprovisioningFailed represents the state where service
 	// instance deprovisioning has failed
 	InstanceStateDeprovisioningFailed = "DEPROVISIONING_FAILED"
