@@ -1,7 +1,10 @@
 package noop
 
-import "testing"
-import "github.com/stretchr/testify/assert"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 var testCodec = NewCodec()
 

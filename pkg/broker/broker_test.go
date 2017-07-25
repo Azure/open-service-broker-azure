@@ -1,11 +1,10 @@
 package broker
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
-
-	"context"
 
 	fakeAPI "github.com/Azure/azure-service-broker/pkg/api/fake"
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"

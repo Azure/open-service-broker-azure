@@ -1,7 +1,10 @@
 package aes256
 
-import "testing"
-import "github.com/stretchr/testify/assert"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestCodecEncryptAndDecrypt(t *testing.T) {
 	c, err := NewCodec("AES256Key-32Characters1234567890")

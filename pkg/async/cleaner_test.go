@@ -1,9 +1,12 @@
 package async
 
-import "testing"
-import "context"
-import "time"
-import "github.com/stretchr/testify/assert"
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestCleanerCleanBlocksUntilCleanInternalErrors(t *testing.T) {
 	c := newCleaner(redisClient).(*cleaner)

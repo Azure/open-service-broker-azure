@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
-
 	"context"
+	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/broker"
 	"github.com/Azure/azure-service-broker/pkg/crypto/aes256"

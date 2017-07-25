@@ -3,7 +3,6 @@ package async
 import (
 	"context"
 	"testing"
-
 	"time"
 
 	uuid "github.com/satori/go.uuid"

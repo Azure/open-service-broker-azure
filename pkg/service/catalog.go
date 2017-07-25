@@ -1,7 +1,9 @@
 package service
 
-import "encoding/json"
-import "sync"
+import (
+	"encoding/json"
+	"sync"
+)
 
 // Catalog is an interface to be implemented by types that represents the
 // service/plans offered by a service module or by the entire broker.

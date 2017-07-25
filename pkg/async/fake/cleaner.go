@@ -1,8 +1,6 @@
 package fake
 
-import (
-	"context"
-)
+import "context"
 
 // Cleaner is a fake implementation of async.Cleaner used for testing
 type Cleaner struct {
