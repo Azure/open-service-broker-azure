@@ -9,6 +9,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/crypto"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/storage"
+	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
 
@@ -122,6 +123,7 @@ func (b *broker) Start(ctx context.Context) error {
 	}()
 	select {
 	case <-ctx.Done():
+		log.Debug("context canceled; broker shutting down")
 		return ctx.Err()
 	case err := <-errChan:
 		return err

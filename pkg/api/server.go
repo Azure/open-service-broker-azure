@@ -128,6 +128,7 @@ func (s *server) Start(ctx context.Context) error {
 	}()
 	select {
 	case <-ctx.Done():
+		log.Debug("context canceled; API server shutting down")
 		return ctx.Err()
 	case err := <-errChan:
 		return err

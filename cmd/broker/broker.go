@@ -3,7 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/broker"
 	"github.com/Azure/azure-service-broker/pkg/crypto/aes256"
@@ -49,12 +53,33 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Create and start broker
+	// Create broker
 	broker, err := broker.NewBroker(redisClient, codec, modules)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := broker.Start(context.Background()); err != nil {
-		log.Fatal(err)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		signal := <-sigChan
+		log.WithField(
+			"signal",
+			signal,
+		).Debug("signal received; shutting down")
+		cancel()
+	}()
+
+	// Run broker
+	if err := broker.Start(ctx); err != nil {
+		if err == ctx.Err() {
+			// Allow some time for goroutines to shut down
+			time.Sleep(time.Second * 3)
+		} else {
+			log.Fatal(err)
+		}
 	}
 }

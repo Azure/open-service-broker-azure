@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
 
@@ -48,6 +49,7 @@ func (c *cleaner) Clean(ctx context.Context) error {
 		select {
 		case <-ticker.C:
 		case <-ctx.Done():
+			log.Debug("context canceled; async worker cleaner shutting down")
 			return ctx.Err()
 		}
 	}

@@ -116,6 +116,7 @@ func (w *worker) Work(ctx context.Context) error {
 	}
 	select {
 	case <-ctx.Done():
+		log.Debug("context canceled; async worker shutting down")
 		return ctx.Err()
 	case err := <-errChan:
 		return err
