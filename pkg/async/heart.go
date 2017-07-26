@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
 
@@ -78,6 +79,7 @@ func (h *heart) Start(ctx context.Context) error {
 		select {
 		case <-ticker.C:
 		case <-ctx.Done():
+			log.Debug("context canceled; async worker heartbeat stopping")
 			return ctx.Err()
 		}
 	}

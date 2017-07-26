@@ -57,6 +57,7 @@ func (m *module) pauseProvisioning(
 	select {
 	case <-time.NewTimer(time.Minute).C:
 	case <-ctx.Done():
+		log.Debug("context canceled; absorting pause")
 		return nil, ctx.Err()
 	}
 	return provisioningContext, nil
@@ -133,6 +134,7 @@ func (m *module) pauseDeprovisioning(
 	select {
 	case <-time.NewTimer(time.Minute).C:
 	case <-ctx.Done():
+		log.Debug("context canceled; absorting pause")
 		return nil, ctx.Err()
 	}
 	return provisioningContext, nil

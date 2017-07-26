@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"
+	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
 
@@ -87,6 +88,7 @@ func (e *engine) Start(ctx context.Context) error {
 	}()
 	select {
 	case <-ctx.Done():
+		log.Debug("context canceled; async engine shutting down")
 		return ctx.Err()
 	case err := <-errChan:
 		return err
