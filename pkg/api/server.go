@@ -115,7 +115,10 @@ func (s *server) Start(ctx context.Context) error {
 	defer cancel()
 	errChan := make(chan error)
 	go func() {
-		log.Printf("Listening on http://0.0.0.0:%d", s.port)
+		log.WithField(
+			"address",
+			fmt.Sprintf("http://0.0.0.0:%d", s.port),
+		).Info("API server is listening")
 		err := s.listenAndServe(ctx)
 		hss := &errHTTPServerStopped{err: err}
 		select {

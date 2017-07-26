@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Azure/azure-service-broker/pkg/broker"
 	"github.com/Azure/azure-service-broker/pkg/crypto/aes256"
@@ -11,6 +12,23 @@ import (
 )
 
 func main() {
+	// Logging setup
+	formatter := &log.TextFormatter{
+		FullTimestamp: true,
+	}
+	log.SetFormatter(formatter)
+	logConfig, err := getLogConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.SetLevel(log.InfoLevel)
+	log.WithField(
+		"logLevel",
+		strings.ToUpper(logConfig.Level.String()),
+	).Info("setting log level")
+	log.SetLevel(logConfig.Level)
+
+	// Redis client
 	redisConfig, err := getRedisConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -20,6 +38,8 @@ func main() {
 		Password: redisConfig.Password,
 		DB:       redisConfig.DB,
 	})
+
+	// Crypto
 	cryptoConfig, err := getCryptoConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -28,6 +48,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Create and start broker
 	broker, err := broker.NewBroker(redisClient, codec, modules)
 	if err != nil {
 		log.Fatal(err)

@@ -1,5 +1,5 @@
 hash: 2d44c1402cd298210a45e66dbe5919549dd6e32e868ab75fb685f329fbee5fb9
-updated: 2017-07-25T21:32:36.332045756Z
+updated: 2017-07-26T15:40:18.157064356Z
 imports:
 - name: github.com/go-redis/redis
   version: e14976b254c5bc5f399dd0ae9314b1d02a176897
@@ -18,7 +18,7 @@ imports:
 - name: github.com/satori/go.uuid
   version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
 - name: github.com/Sirupsen/logrus
-  version: 8d4f6a97d3fe8725a31e3185c7a877a5e1dc6f09
+  version: 259b4b7f450a330ee03d88f0d704c2cc7964cf9e
 - name: github.com/stretchr/testify
   version: e3a8ff8ce36581f87a15341206f205b1da467059
   subpackages:
@@ -29,6 +29,11 @@ imports:
   version: 034d17a462f7b2dcd1a4a73553ec5357ff6e6c6e
   subpackages:
   - syncutil
+- name: golang.org/x/sys
+  version: 14ac33bf8474b62c65cae263af2e4d3b543cc699
+  subpackages:
+  - unix
+  - windows
 testImports:
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76

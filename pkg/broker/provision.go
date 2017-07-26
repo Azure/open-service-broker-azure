@@ -36,11 +36,10 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			"instance does not exist in the data store",
 		)
 	}
-	log.Printf(
-		`executing provisioning step "%s" for instance "%s"`,
-		stepName,
-		instance.InstanceID,
-	)
+	log.WithFields(log.Fields{
+		"step":       stepName,
+		"instanceID": instance.InstanceID,
+	}).Debug("executing provisioning step")
 	module, ok := b.modules[instance.ServiceID]
 	if !ok {
 		return b.handleProvisioningError(
@@ -163,11 +162,11 @@ func (b *broker) handleProvisioningError(
 		)
 		err := b.store.WriteInstance(instance)
 		if err != nil {
-			log.Fatalf(
-				"error persisting instance %s with updated status: %s",
-				instance.InstanceID,
-				err,
-			)
+			log.WithFields(log.Fields{
+				"instanceID": instance.InstanceID,
+				"status":     instance.Status,
+				"error":      err,
+			}).Fatal("error persisting instance with updated status")
 		}
 		return errors.New(instance.StatusReason)
 	}

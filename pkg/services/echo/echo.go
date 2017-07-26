@@ -44,7 +44,6 @@ func (m *module) generateProvisioningMessageID(
 	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
-	log.Println("Executing generateProvisioningMessageID...")
 	pc := provisioningContext.(*ProvisioningContext)
 	pc.MessageID = uuid.NewV4().String()
 	return pc, nil
@@ -55,7 +54,6 @@ func (m *module) pauseProvisioning(
 	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
-	log.Println("Executing pause...")
 	select {
 	case <-time.NewTimer(time.Minute).C:
 	case <-ctx.Done():
@@ -69,11 +67,13 @@ func (m *module) logProvisioningMessage(
 	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
-	log.Println("Executing logProvisioningMessage...")
 	pc := provisioningContext.(*ProvisioningContext)
 	params := provisioningParameters.(*ProvisioningParameters)
 	pc.Message = params.Message
-	log.Printf("Provisioning %s: %s", pc.MessageID, params.Message)
+	log.WithFields(log.Fields{
+		"messageID": pc.MessageID,
+		"message":   params.Message,
+	}).Debug("provisioning instance")
 	return pc, nil
 }
 
@@ -91,13 +91,16 @@ func (m *module) Bind(
 	provisioningContext interface{},
 	bindingParameters interface{},
 ) (interface{}, error) {
-	log.Println("Executing Bind...")
+	log.Info("Executing Bind...")
 	params := bindingParameters.(*BindingParameters)
 	bc := &BindingContext{
 		MessageID: uuid.NewV4().String(),
 		Message:   params.Message,
 	}
-	log.Printf("Binding %s: %s", bc.MessageID, params.Message)
+	log.WithFields(log.Fields{
+		"messageID": bc.MessageID,
+		"message":   params.Message,
+	}).Debug("binding instance")
 	return bc, nil
 }
 
@@ -105,9 +108,11 @@ func (m *module) Unbind(
 	provisioningContext interface{},
 	bindingContext interface{},
 ) error {
-	log.Println("Executing Unbind...")
 	bc := bindingContext.(*BindingContext)
-	log.Printf("Unbinding %s: %s", bc.MessageID, bc.Message)
+	log.WithField(
+		"messageID",
+		bc.MessageID,
+	).Debug("unbinding instance")
 	return nil
 }
 
@@ -125,7 +130,6 @@ func (m *module) pauseDeprovisioning(
 	ctx context.Context,
 	provisioningContext interface{},
 ) (interface{}, error) {
-	log.Println("Executing pause...")
 	select {
 	case <-time.NewTimer(time.Minute).C:
 	case <-ctx.Done():
@@ -138,8 +142,10 @@ func (m *module) logDeprovisioningMessage(
 	ctx context.Context,
 	provisioningContext interface{},
 ) (interface{}, error) {
-	log.Println("Executing logDeprovisioningMessage...")
 	pc := provisioningContext.(*ProvisioningContext)
-	log.Printf("Deprovisioning %s: %s", pc.MessageID, pc.Message)
+	log.WithField(
+		"messageID",
+		pc.MessageID,
+	).Debug("deprovisioning instance")
 	return pc, nil
 }

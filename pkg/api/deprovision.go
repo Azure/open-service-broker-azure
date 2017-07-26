@@ -16,19 +16,20 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	// spec says to respond with a 422
 	acceptsIncompleteStr := r.URL.Query().Get("accepts_incomplete")
 	if acceptsIncompleteStr == "" {
-		log.Println(
-			"request is missing required query parameter accepts_incomplete=true",
-		)
+		log.WithField(
+			"parameter",
+			"accepts_incomplete=true",
+		).Debug("request is missing required query parameter")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write(responseAsyncRequired)
 		return
 	}
 	acceptsIncomplete, err := strconv.ParseBool(acceptsIncompleteStr)
 	if err != nil || !acceptsIncomplete {
-		log.Printf(
-			"query paramater accepts_incomplete has invalid value '%s'",
+		log.WithField(
+			"accepts_incomplete",
 			acceptsIncompleteStr,
-		)
+		).Debug(`query paramater has invalid value; only "true" is accepted`)
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write(responseAsyncRequired)
 		return
@@ -37,7 +38,10 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	instanceID := mux.Vars(r)["instance_id"]
 	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
-		log.Printf("error retrieving instance with id %s", instanceID)
+		log.WithFields(log.Fields{
+			"instanceID": instanceID,
+			"error":      err,
+		}).Error("error retrieving instance by id")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -66,7 +70,10 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 
 	module, ok := s.modules[instance.ServiceID]
 	if !ok {
-		log.Printf("error finding module for service %s", instance.ServiceID)
+		log.WithField(
+			"serviceID",
+			instance.ServiceID,
+		).Error("could not find module for service")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -74,20 +81,20 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 
 	deprovisioner, err := module.GetDeprovisioner()
 	if err != nil {
-		log.Printf(
-			`error retrieving deprovisioner for service "%s"`,
-			instance.ServiceID,
-		)
+		log.WithFields(log.Fields{
+			"serviceID": instance.ServiceID,
+			"error":     err,
+		}).Error("error retrieving deprovisioner for service")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
 	}
 	firstStepName, ok := deprovisioner.GetFirstStepName()
 	if !ok {
-		log.Printf(
-			`no steps found for deprovisioning service "%s"`,
+		log.WithField(
+			"serviceID",
 			instance.ServiceID,
-		)
+		).Error("no steps found for deprovisioning service")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -96,7 +103,10 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	instance.Status = service.InstanceStateDeprovisioning
 	err = s.store.WriteInstance(instance)
 	if err != nil {
-		log.Println("error updating instance")
+		log.WithFields(log.Fields{
+			"instanceID": instanceID,
+			"error":      err,
+		}).Error("error updating instance")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -111,7 +121,11 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	)
 	err = s.asyncEngine.SubmitTask(task)
 	if err != nil {
-		log.Println("error submitting deprovisioning task")
+		log.WithFields(log.Fields{
+			"step":       firstStepName,
+			"instanceID": instanceID,
+			"error":      err,
+		}).Error("error submitting deprovisioning task")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return

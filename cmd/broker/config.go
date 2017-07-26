@@ -1,8 +1,15 @@
 package main
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/kelseyhightower/envconfig"
 )
+
+// logConfig represents configuration options for the broker's leveled logging
+type logConfig struct {
+	LevelStr string `envconfig:"LOG_LEVEL" default:"INFO"`
+	Level    log.Level
+}
 
 // redisConfig represents details for connecting to the Redis instance that
 // the broker itself relies on for storing state and orchestrating asynchronous
@@ -18,6 +25,16 @@ type redisConfig struct {
 // (potentially) sensitive information
 type cryptoConfig struct {
 	AES256Key string `envconfig:"AES256_KEY" required:"true"`
+}
+
+func getLogConfig() (logConfig, error) {
+	logConfig := logConfig{}
+	err := envconfig.Process("", &logConfig)
+	if err != nil {
+		return logConfig, err
+	}
+	logConfig.Level, err = log.ParseLevel(logConfig.LevelStr)
+	return logConfig, err
 }
 
 func getRedisConfig() (redisConfig, error) {

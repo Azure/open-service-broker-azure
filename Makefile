@@ -83,7 +83,11 @@ run: check-docker-compose build
 	@# from the docker-build task used to produce a correctly tagged Docker image,
 	@# although both builds are based on the same Dockerfile
 	docker-compose build broker
-	docker-compose run --rm -p 8080:8080 broker
+	docker-compose run \
+		--rm \
+		-e LOG_LEVEL=DEBUG \
+		-p 8080:8080 \
+		broker
 
 # Running the broker starts a containerized Redis dedicated to that purpose (if
 # it isn't already running). It's left running afterwards (to speed up the next
