@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    environment:
+      CGO_ENABLED: 0
     volumes:
     - .:/go/src/github.com/Azure/azure-service-broker
   test: # Like dev, but linked to redis
