@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/Azure/azure-service-broker/pkg/api/authenticator/always"
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
 	"github.com/Azure/azure-service-broker/pkg/service"
@@ -37,6 +38,7 @@ func getTestServer() (*server, error) {
 		memoryStorage.NewStore(),
 		fakeAsync.NewEngine(),
 		noop.NewCodec(),
+		always.NewAuthenticator(),
 		modules,
 	)
 	if err != nil {

@@ -11,11 +11,13 @@ import (
 func deprovision(c *cli.Context) error {
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
+	username := c.GlobalString(flagUsername)
+	password := c.GlobalString(flagPassword)
 	instanceID := c.String(flagInstanceID)
 	if instanceID == "" {
 		return fmt.Errorf("--%s is a required flag", flagInstanceID)
 	}
-	err := client.Deprovision(host, port, instanceID)
+	err := client.Deprovision(host, port, username, password, instanceID)
 	if err != nil {
 		log.Fatal(err)
 	}

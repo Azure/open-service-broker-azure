@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Azure/azure-service-broker/pkg/api/authenticator/always"
 	fakeAPI "github.com/Azure/azure-service-broker/pkg/api/fake"
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/stretchr/testify/assert"
@@ -25,11 +26,10 @@ func TestBrokerStartBlocksUntilAsyncEngineErrors(t *testing.T) {
 	e.RunBehavior = func(context.Context) error {
 		return errSome
 	}
-	b, err := NewBroker(nil, nil, nil)
+	b, err := getTestBroker()
 	assert.Nil(t, err)
-	brk := b.(*broker)
-	brk.asyncEngine = e
-	brk.apiServer = svr
+	b.asyncEngine = e
+	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err = b.Start(ctx)
@@ -50,11 +50,10 @@ func TestBrokerStartBlocksUntilAsyncEngineReturns(t *testing.T) {
 	e.RunBehavior = func(context.Context) error {
 		return nil
 	}
-	b, err := NewBroker(nil, nil, nil)
+	b, err := getTestBroker()
 	assert.Nil(t, err)
-	brk := b.(*broker)
-	brk.asyncEngine = e
-	brk.apiServer = svr
+	b.asyncEngine = e
+	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err = b.Start(ctx)
@@ -75,11 +74,10 @@ func TestBrokerStartBlocksUntilAPIServerErrors(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := NewBroker(nil, nil, nil)
+	b, err := getTestBroker()
 	assert.Nil(t, err)
-	brk := b.(*broker)
-	brk.asyncEngine = e
-	brk.apiServer = svr
+	b.asyncEngine = e
+	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err = b.Start(ctx)
@@ -100,11 +98,10 @@ func TestBrokerStartBlocksUntilAPIServerReturns(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := NewBroker(nil, nil, nil)
+	b, err := getTestBroker()
 	assert.Nil(t, err)
-	brk := b.(*broker)
-	brk.asyncEngine = e
-	brk.apiServer = svr
+	b.asyncEngine = e
+	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err = b.Start(ctx)
@@ -128,11 +125,10 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 		asyncEngineStopped = true
 		return ctx.Err()
 	}
-	b, err := NewBroker(nil, nil, nil)
+	b, err := getTestBroker()
 	assert.Nil(t, err)
-	brk := b.(*broker)
-	brk.asyncEngine = e
-	brk.apiServer = svr
+	b.asyncEngine = e
+	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	err = b.Start(ctx)
@@ -140,4 +136,12 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 	time.Sleep(time.Second)
 	assert.True(t, apiServerStopped)
 	assert.True(t, asyncEngineStopped)
+}
+
+func getTestBroker() (*broker, error) {
+	b, err := NewBroker(nil, nil, always.NewAuthenticator(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return b.(*broker), nil
 }

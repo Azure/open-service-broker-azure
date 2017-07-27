@@ -27,6 +27,11 @@ type cryptoConfig struct {
 	AES256Key string `envconfig:"AES256_KEY" required:"true"`
 }
 
+type basicAuthConfig struct {
+	Username string `envconfig:"BASIC_AUTH_USERNAME" required:"true"`
+	Password string `envconfig:"BASIC_AUTH_PASSWORD" required:"true"`
+}
+
 func getLogConfig() (logConfig, error) {
 	logConfig := logConfig{}
 	err := envconfig.Process("", &logConfig)
@@ -47,4 +52,10 @@ func getCryptoConfig() (cryptoConfig, error) {
 	cryptoConfig := cryptoConfig{}
 	err := envconfig.Process("", &cryptoConfig)
 	return cryptoConfig, err
+}
+
+func getBasicAuthConfig() (basicAuthConfig, error) {
+	basicAuthConfig := basicAuthConfig{}
+	err := envconfig.Process("", &basicAuthConfig)
+	return basicAuthConfig, err
 }
