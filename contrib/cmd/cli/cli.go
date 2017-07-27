@@ -23,6 +23,14 @@ func main() {
 			Usage: "specify the broker's port",
 			Value: 8080,
 		},
+		cli.StringFlag{
+			Name:  flagsUsername,
+			Usage: "specify a username for authenticating to the broker",
+		},
+		cli.StringFlag{
+			Name:  flagsPassword,
+			Usage: "specify a password for authenticating to the broker",
+		},
 	}
 	app.Commands = []cli.Command{
 		{

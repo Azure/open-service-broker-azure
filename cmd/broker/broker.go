@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Azure/azure-service-broker/pkg/api/authenticator/basic"
 	"github.com/Azure/azure-service-broker/pkg/broker"
 	"github.com/Azure/azure-service-broker/pkg/crypto/aes256"
 	log "github.com/Sirupsen/logrus"
@@ -53,8 +54,17 @@ func main() {
 		log.Fatal(err)
 	}
 
+	basicAuthConfig, err := getBasicAuthConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	authenticator := basic.NewAuthenticator(
+		basicAuthConfig.Username,
+		basicAuthConfig.Password,
+	)
+
 	// Create broker
-	broker, err := broker.NewBroker(redisClient, codec, modules)
+	broker, err := broker.NewBroker(redisClient, codec, authenticator, modules)
 	if err != nil {
 		log.Fatal(err)
 	}

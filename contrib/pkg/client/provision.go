@@ -13,6 +13,8 @@ import (
 func Provision(
 	host string,
 	port int,
+	username string,
+	password string,
 	serviceID string,
 	planID string,
 	params map[string]string,
@@ -39,6 +41,9 @@ func Provision(
 	)
 	if err != nil {
 		return "", fmt.Errorf("error building request: %s", err)
+	}
+	if username != "" || password != "" {
+		addAuthHeader(req, username, password)
 	}
 	q := req.URL.Query()
 	q.Add("accepts_incomplete", "true")

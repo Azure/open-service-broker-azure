@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Azure/azure-service-broker/pkg/api/authenticator"
 	"github.com/Azure/azure-service-broker/pkg/async"
 	"github.com/Azure/azure-service-broker/pkg/crypto"
 	"github.com/Azure/azure-service-broker/pkg/service"
@@ -34,11 +35,12 @@ type Server interface {
 }
 
 type server struct {
-	port        int
-	store       storage.Store
-	asyncEngine async.Engine
-	codec       crypto.Codec
-	router      *mux.Router
+	port          int
+	store         storage.Store
+	asyncEngine   async.Engine
+	codec         crypto.Codec
+	authenticator authenticator.Authenticator
+	router        *mux.Router
 	// Modules indexed by service
 	modules         map[string]service.Module
 	catalog         service.Catalog
@@ -53,44 +55,46 @@ func NewServer(
 	store storage.Store,
 	asyncEngine async.Engine,
 	codec crypto.Codec,
+	authenticator authenticator.Authenticator,
 	modules map[string]service.Module,
 ) (Server, error) {
 	s := &server{
-		port:        port,
-		store:       store,
-		asyncEngine: asyncEngine,
-		codec:       codec,
-		modules:     modules,
+		port:          port,
+		store:         store,
+		asyncEngine:   asyncEngine,
+		codec:         codec,
+		authenticator: authenticator,
+		modules:       modules,
 	}
 	router := mux.NewRouter()
 	router.StrictSlash(true)
 	router.HandleFunc(
 		"/v2/catalog",
-		s.getCatalog,
+		s.authenticator.Authenticate(s.getCatalog),
 	).Methods(http.MethodGet)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}",
-		s.provision,
+		s.authenticator.Authenticate(s.provision),
 	).Methods(http.MethodPut)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/last_operation",
-		s.poll,
+		s.authenticator.Authenticate(s.poll),
 	).Methods(http.MethodGet)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/service_bindings/{binding_id}",
-		s.bind,
+		s.authenticator.Authenticate(s.bind),
 	).Methods(http.MethodPut)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/service_bindings/{binding_id}",
-		s.unbind,
+		s.authenticator.Authenticate(s.unbind),
 	).Methods(http.MethodDelete)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}",
-		s.deprovision,
+		s.authenticator.Authenticate(s.deprovision),
 	).Methods(http.MethodDelete)
 	router.HandleFunc(
 		"/healthz",
-		s.healthCheck,
+		s.healthCheck, // No authentication on this request
 	).Methods(http.MethodGet)
 	s.router = router
 

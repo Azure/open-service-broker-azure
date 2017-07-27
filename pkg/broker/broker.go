@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/api"
+	"github.com/Azure/azure-service-broker/pkg/api/authenticator"
 	"github.com/Azure/azure-service-broker/pkg/async"
 	"github.com/Azure/azure-service-broker/pkg/crypto"
 	"github.com/Azure/azure-service-broker/pkg/service"
@@ -50,6 +51,7 @@ type broker struct {
 func NewBroker(
 	redisClient *redis.Client,
 	codec crypto.Codec,
+	authenticator authenticator.Authenticator,
 	modules []service.Module,
 ) (Broker, error) {
 	b := &broker{
@@ -88,6 +90,7 @@ func NewBroker(
 		storage.NewStore(redisClient),
 		b.asyncEngine,
 		b.codec,
+		authenticator,
 		b.modules,
 	)
 	if err != nil {

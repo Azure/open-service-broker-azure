@@ -13,6 +13,8 @@ import (
 func provision(c *cli.Context) error {
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
+	username := c.GlobalString(flagUsername)
+	password := c.GlobalString(flagPassword)
 	serviceID := c.String(flagServiceID)
 	if serviceID == "" {
 		return fmt.Errorf("--%s is a required flag", flagServiceID)
@@ -33,7 +35,15 @@ func provision(c *cli.Context) error {
 		value := strings.TrimSpace(tokens[1])
 		params[key] = value
 	}
-	instanceID, err := client.Provision(host, port, serviceID, planID, params)
+	instanceID, err := client.Provision(
+		host,
+		port,
+		username,
+		password,
+		serviceID,
+		planID,
+		params,
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

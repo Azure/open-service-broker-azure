@@ -17,8 +17,11 @@ services:
   broker:
     build: .
     environment:
+      LOG_LEVEL: DEBUG
       REDIS_HOST: redis
       AES256_KEY: AES256Key-32Characters1234567890
+      BASIC_AUTH_USERNAME: username
+      BASIC_AUTH_PASSWORD: password
     links:
     - broker-redis:redis
   test-redis:
