@@ -15,5 +15,5 @@ deploy:
   provider: script
   script: scripts/deploy.sh
   on:
-    repo: Azure/azure-service-broker
+    repo: deis/azure-service-broker
     all_branches: true
