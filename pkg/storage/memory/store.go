@@ -60,3 +60,7 @@ func (s *store) DeleteBinding(bindingID string) (bool, error) {
 	delete(s.bindings, bindingID)
 	return true, nil
 }
+
+func (s *store) TestConnection() error {
+	return nil
+}

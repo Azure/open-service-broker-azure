@@ -37,3 +37,7 @@ func (s *store) GetBinding(bindingID string) (*service.Binding, bool, error) {
 func (s *store) DeleteBinding(bindingID string) (bool, error) {
 	return false, nil
 }
+
+func (s *store) TestConnection() error {
+	return nil
+}

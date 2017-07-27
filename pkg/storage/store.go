@@ -24,6 +24,9 @@ type Store interface {
 	// DeleteBinding deletes a persisted binding from the underlying storage by
 	// binding id
 	DeleteBinding(bindingID string) (bool, error)
+	// TestConnection tests the connection to the underlying database (if there
+	// is one)
+	TestConnection() error
 }
 
 type store struct {
@@ -123,4 +126,8 @@ func (s *store) DeleteBinding(bindingID string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (s *store) TestConnection() error {
+	return s.redisClient.Ping().Err()
 }

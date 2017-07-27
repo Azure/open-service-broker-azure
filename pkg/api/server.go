@@ -88,6 +88,10 @@ func NewServer(
 		"/v2/service_instances/{instance_id}",
 		s.deprovision,
 	).Methods(http.MethodDelete)
+	router.HandleFunc(
+		"/healthz",
+		s.healthCheck,
+	).Methods(http.MethodGet)
 	s.router = router
 
 	services := []service.Service{}
