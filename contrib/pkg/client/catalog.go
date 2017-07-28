@@ -10,11 +10,19 @@ import (
 
 // GetCatalog retrieves the catalog from the broker specoified by host name
 // and port number
-func GetCatalog(host string, port int) (service.Catalog, error) {
+func GetCatalog(
+	host string,
+	port int,
+	username string,
+	password string,
+) (service.Catalog, error) {
 	url := fmt.Sprintf("%s/v2/catalog", getBaseURL(host, port))
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error building request: %s", err)
+	}
+	if username != "" || password != "" {
+		addAuthHeader(req, username, password)
 	}
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)
