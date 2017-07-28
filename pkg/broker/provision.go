@@ -26,13 +26,15 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
-			fmt.Sprintf("error loading persisted instance: %s", err),
+			err,
+			"error loading persisted instance",
 		)
 	}
 	if !ok {
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
+			nil,
 			"instance does not exist in the data store",
 		)
 	}
@@ -45,6 +47,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
+			nil,
 			fmt.Sprintf(
 				`no module was found for handling service "%s"`,
 				instance.ServiceID,
@@ -57,6 +60,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
+			err,
 			"error decoding provisioningContext from persisted instance",
 		)
 	}
@@ -66,6 +70,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
+			err,
 			"error decoding provisioningParameters from persisted instance",
 		)
 	}
@@ -74,6 +79,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
+			err,
 			fmt.Sprintf(
 				`error retrieving provisioner for service "%s"`,
 				instance.ServiceID,
@@ -85,6 +91,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
+			nil,
 			`provisioner does not know how to process step "%s"`,
 		)
 	}
@@ -97,7 +104,8 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
-			fmt.Sprintf("error executing provisioning step: %s", err),
+			err,
+			"error executing provisioning step",
 		)
 	}
 	err = instance.SetProvisioningContext(updatedProvisioningContext, b.codec)
@@ -105,7 +113,8 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		return b.handleProvisioningError(
 			instanceID,
 			stepName,
-			fmt.Sprintf("error encoding modified provisioningContext: %s", err),
+			err,
+			"error encoding modified provisioningContext",
 		)
 	}
 	if nextStepName, ok := provisioner.GetNextStepName(step.GetName()); ok {
@@ -114,7 +123,8 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			return b.handleProvisioningError(
 				instanceID,
 				stepName,
-				fmt.Sprintf("error persisting instance: %s", err),
+				err,
+				"error persisting instance",
 			)
 		}
 		task := model.NewTask(
@@ -128,7 +138,8 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			return b.handleProvisioningError(
 				instanceID,
 				stepName,
-				fmt.Sprintf(`error enqueing next step "%s"`, nextStepName),
+				err,
+				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
 			)
 		}
 	} else {
@@ -139,42 +150,74 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 			return b.handleProvisioningError(
 				instanceID,
 				stepName,
-				fmt.Sprintf("error persisting instance: %s", err),
+				err,
+				"error persisting instance",
 			)
 		}
 	}
 	return nil
 }
 
+// handleProvisioningError tries to handle async provisioning errors. If an
+// instance is passed in, its status is updated and an attempt is made to
+// persist the instance with updated status. If this fails, we have a very
+// serious problem on our hands, so we log that failure and kill the process.
+// Barring such a failure, a nicely formatted error is returned to be, in-turn,
+// returned by the caller of this function. If an instanceID is passed in
+// (instead of an instance), only error formatting is handled.
 func (b *broker) handleProvisioningError(
 	instanceOrInstanceID interface{},
 	stepName string,
+	e error,
 	msg string,
 ) error {
 	instance, ok := instanceOrInstanceID.(*service.Instance)
-	if ok {
-		instance.Status = service.InstanceStateProvisioningFailed
-		instance.StatusReason = fmt.Sprintf(
+	if !ok {
+		instanceID := instanceOrInstanceID
+		if e == nil {
+			return fmt.Errorf(
+				`error executing provisioning step "%s" for instance "%s": %s`,
+				stepName,
+				instanceID,
+				msg,
+			)
+		}
+		return fmt.Errorf(
+			`error executing provisioning step "%s" for instance "%s": %s: %s`,
+			stepName,
+			instanceID,
+			msg,
+			e,
+		)
+	}
+	// If we get to here, we have an instance (not just and instanceID)
+	instance.Status = service.InstanceStateProvisioningFailed
+	var ret error
+	if e == nil {
+		ret = fmt.Errorf(
 			`error executing provisioning step "%s" for instance "%s": %s`,
 			stepName,
 			instance.InstanceID,
 			msg,
 		)
-		err := b.store.WriteInstance(instance)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"instanceID": instance.InstanceID,
-				"status":     instance.Status,
-				"error":      err,
-			}).Fatal("error persisting instance with updated status")
-		}
-		return errors.New(instance.StatusReason)
+	} else {
+		ret = fmt.Errorf(
+			`error executing provisioning step "%s" for instance "%s": %s: %s`,
+			stepName,
+			instance.InstanceID,
+			msg,
+			e,
+		)
 	}
-	instanceID := instanceOrInstanceID
-	return fmt.Errorf(
-		`error executing provisioning step "%s" for instance "%s": %s`,
-		stepName,
-		instanceID,
-		msg,
-	)
+	instance.StatusReason = ret.Error()
+	err := b.store.WriteInstance(instance)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"instanceID":       instance.InstanceID,
+			"status":           instance.Status,
+			"originalError":    ret,
+			"persistenceError": err,
+		}).Fatal("error persisting instance with updated status")
+	}
+	return ret
 }
