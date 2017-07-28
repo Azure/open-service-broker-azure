@@ -25,10 +25,17 @@ type Module interface {
 	// returns an error if there is any problem
 	ValidateBindingParameters(params interface{}) error
 	// Bind synchronously binds to a service
-	Bind(provisioningContext, params interface{}) (interface{}, error)
+	Bind(provisioningContext, params interface{}) (
+		interface{},
+		interface{},
+		error,
+	)
 	// GetEmptyBindingContext returns an empty instance of a module-specific
 	// bindingContext
 	GetEmptyBindingContext() interface{}
+	// GetEmptyCredentials returns an empty instance of module-specific
+	// credentials
+	GetEmptyCredentials() interface{}
 	// Unbind synchronously unbinds from a service
 	Unbind(provisioningContext, bindingContext interface{}) error
 	// GetDeprovisioner returns a deprovisioner that defines the steps a module

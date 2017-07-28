@@ -22,6 +22,10 @@ func getDisposablePlanID() string {
 	return uuid.NewV4().String()
 }
 
+func getDisposableBindingID() string {
+	return uuid.NewV4().String()
+}
+
 func getTestServer() (*server, error) {
 	echoModule := echo.New()
 	echoCatalog, err := echoModule.GetCatalog()

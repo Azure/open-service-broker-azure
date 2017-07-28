@@ -91,18 +91,21 @@ func (m *module) ValidateBindingParameters(
 func (m *module) Bind(
 	provisioningContext interface{},
 	bindingParameters interface{},
-) (interface{}, error) {
-	log.Info("Executing Bind...")
+) (interface{}, interface{}, error) {
+	messageID := uuid.NewV4().String()
 	params := bindingParameters.(*BindingParameters)
 	bc := &BindingContext{
-		MessageID: uuid.NewV4().String(),
+		MessageID: messageID,
 		Message:   params.Message,
+	}
+	c := &Credentials{
+		MessageID: messageID,
 	}
 	log.WithFields(log.Fields{
 		"messageID": bc.MessageID,
 		"message":   params.Message,
 	}).Debug("binding instance")
-	return bc, nil
+	return bc, c, nil
 }
 
 func (m *module) Unbind(

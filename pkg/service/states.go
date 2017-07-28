@@ -16,21 +16,12 @@ const (
 	// InstanceStateDeprovisioningFailed represents the state where service
 	// instance deprovisioning has failed
 	InstanceStateDeprovisioningFailed = "DEPROVISIONING_FAILED"
-	// BindingStateBinding represents the state where service binding is in
-	// progress
-	BindingStateBinding = "BINDING"
 	// BindingStateBound represents the state where service binding has completed
 	// successfully
 	BindingStateBound = "BOUND"
 	// BindingStateBindingFailed represents the state where service binding has
 	// failed
-	BindingStateBindingFailed = "BINDING"
-	// BindingStateUnbinding represents the state where service unbinding is in
-	// progress
-	BindingStateUnbinding = "UNBINDING"
-	// BindingStateUnbound represents the state where service unbinding has
-	// completed successfully
-	BindingStateUnbound = "UNBOUND"
+	BindingStateBindingFailed = "BINDING_FAILED"
 	// BindingStateUnbindingFailed represents the state where service unbinding
 	// has failed
 	BindingStateUnbindingFailed = "UNBINDING_FAILED"

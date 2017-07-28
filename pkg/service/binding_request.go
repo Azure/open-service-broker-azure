@@ -15,9 +15,15 @@ func GetBindingRequestFromJSONString(
 	jsonStr string,
 	bindingRequest *BindingRequest,
 ) error {
-	err := json.Unmarshal([]byte(jsonStr), bindingRequest)
+	return json.Unmarshal([]byte(jsonStr), bindingRequest)
+}
+
+// ToJSONString returns a string containing a JSON representation of the
+// binding request
+func (b *BindingRequest) ToJSONString() (string, error) {
+	bytes, err := json.Marshal(b)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return string(bytes), nil
 }
