@@ -12,7 +12,9 @@ type Binding struct {
 	InstanceID                 string `json:"instanceId"`
 	EncryptedBindingParameters string `json:"bindingParameters"`
 	Status                     string `json:"status"`
+	StatusReason               string `json:"statusReason"`
 	EncryptedBindingContext    string `json:"bindingContext"`
+	EncryptedCredentials       string `json:"credentials"`
 }
 
 // NewBindingFromJSONString returns a new Binding unmarshalled from the
@@ -106,6 +108,44 @@ func (b *Binding) GetBindingContext(
 		return err
 	}
 	err = json.Unmarshal([]byte(plaintext), context)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// SetCredentials marshals the provided credentials object, encrypts the result,
+// and stores it in the EncryptedCredentials field
+func (b *Binding) SetCredentials(
+	credentials interface{},
+	codec crypto.Codec,
+) error {
+	jsonBytes, err := json.Marshal(credentials)
+	if err != nil {
+		return err
+	}
+	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	if err != nil {
+		return err
+	}
+	b.EncryptedCredentials = string(ciphertext)
+	return nil
+}
+
+// GetCredentials decrypts the EncryptedCredentials field and unmarshals the
+// result into the provided credentials object
+func (b *Binding) GetCredentials(
+	credentials interface{},
+	codec crypto.Codec,
+) error {
+	if b.EncryptedCredentials == "" {
+		return nil
+	}
+	plaintext, err := codec.Decrypt(b.EncryptedCredentials)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal([]byte(plaintext), credentials)
 	if err != nil {
 		return err
 	}

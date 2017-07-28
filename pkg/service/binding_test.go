@@ -18,14 +18,18 @@ func init() {
 	bindingID := "test-binding-id"
 	instanceID := "test-instance-id"
 	encryptedBindingParameters := `{"foo":"bar"}`
+	statusReason := "in-progress"
 	encryptedBindingContext := `{"baz":"bat"}`
+	encryptedCredentials := `{"password":"12345"}`
 
 	testBinding = &Binding{
 		BindingID:                  bindingID,
 		InstanceID:                 instanceID,
 		EncryptedBindingParameters: encryptedBindingParameters,
-		Status:                  BindingStateBinding,
+		Status:                  BindingStateBound,
+		StatusReason:            statusReason,
 		EncryptedBindingContext: encryptedBindingContext,
+		EncryptedCredentials:    encryptedCredentials,
 	}
 
 	testBindingJSON = fmt.Sprintf(
@@ -34,13 +38,17 @@ func init() {
 			"instanceId":"%s",
 			"bindingParameters":%s,
 			"status":"%s",
-			"bindingContext":%s
+			"statusReason":"%s",
+			"bindingContext":%s,
+			"credentials":%s
 		}`,
 		bindingID,
 		instanceID,
 		strconv.Quote(encryptedBindingParameters),
-		BindingStateBinding,
+		BindingStateBound,
+		statusReason,
 		strconv.Quote(encryptedBindingContext),
+		strconv.Quote(encryptedCredentials),
 	)
 	testBindingJSON = strings.Replace(testBindingJSON, " ", "", -1)
 	testBindingJSON = strings.Replace(testBindingJSON, "\n", "", -1)

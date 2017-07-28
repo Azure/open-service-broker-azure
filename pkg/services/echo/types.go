@@ -18,6 +18,10 @@ type BindingContext struct {
 	Message   string `json:"message"`
 }
 
+type Credentials struct {
+	MessageID string `json:"messageId"`
+}
+
 func (m *module) GetEmptyProvisioningParameters() interface{} {
 	return &ProvisioningParameters{}
 }
@@ -32,4 +36,8 @@ func (m *module) GetEmptyBindingParameters() interface{} {
 
 func (m *module) GetEmptyBindingContext() interface{} {
 	return &BindingContext{}
+}
+
+func (m *module) GetEmptyCredentials() interface{} {
+	return &Credentials{}
 }

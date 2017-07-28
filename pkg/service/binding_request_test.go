@@ -48,3 +48,9 @@ func TestGetBindingRequestFromJSONString(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, testBindingRequest, bindingRequest)
 }
+
+func TestBindingRequestToJSON(t *testing.T) {
+	jsonStr, err := testBindingRequest.ToJSONString()
+	assert.Nil(t, err)
+	assert.Equal(t, testBindingRequestJSON, jsonStr)
+}
