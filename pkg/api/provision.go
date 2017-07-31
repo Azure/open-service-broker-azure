@@ -13,25 +13,33 @@ import (
 )
 
 func (s *server) provision(w http.ResponseWriter, r *http.Request) {
+	instanceID := mux.Vars(r)["instance_id"]
+
+	logFields := log.Fields{
+		"instanceID": instanceID,
+	}
+
+	log.WithFields(logFields).Debug("received provisioning request")
+
 	// This broker provisions everything asynchronously. If a client doesn't
 	// explicitly indicate that they will accept an incomplete result, the
 	// spec says to respond with a 422
 	acceptsIncompleteStr := r.URL.Query().Get("accepts_incomplete")
 	if acceptsIncompleteStr == "" {
-		log.WithField(
-			"parameter",
-			"accepts_incomplete=true",
-		).Debug("request is missing required query parameter")
+		logFields["parameter"] = "accepts_incomplete=true"
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: request is missing required query parameter",
+		)
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write(responseAsyncRequired)
 		return
 	}
 	acceptsIncomplete, err := strconv.ParseBool(acceptsIncompleteStr)
 	if err != nil || !acceptsIncomplete {
-		log.WithField(
-			"accepts_incomplete",
-			acceptsIncompleteStr,
-		).Debug(`query paramater has invalid value; only "true" is accepted`)
+		logFields["accepts_incomplete"] = acceptsIncompleteStr
+		log.WithFields(logFields).Debug(
+			`bad provisioning request: query paramater has invalid value; only "true" is accepted`,
+		)
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write(responseAsyncRequired)
 		return
@@ -46,7 +54,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		provisioningRequest,
 	)
 	if err != nil {
-		log.Debug("error parsing request body")
+		logFields["error"] = err
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: error unmarshaling request body",
+		)
 		// krancour: Choosing to interpret this scenario as a bad request, as a
 		// valid request, obviously contains valid, well-formed JSON
 		w.WriteHeader(http.StatusBadRequest)
@@ -55,21 +66,20 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instanceID := mux.Vars(r)["instance_id"]
-	log.WithFields(log.Fields{
-		"instanceID": instanceID,
-		"serviceID":  provisioningRequest.ServiceID,
-		"planID":     provisioningRequest.PlanID,
-	}).Debug("received provisioning request")
-
 	if provisioningRequest.ServiceID == "" {
-		log.Debug("request body parameter service_id is a required field")
+		logFields["field"] = "service_id"
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: required request body field is missing",
+		)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(responseServiceIDRequired)
 		return
 	}
 	if provisioningRequest.PlanID == "" {
-		log.Debug("request body parameter plan_id is a required field")
+		logFields["field"] = "plan_id"
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: required request body field is missing",
+		)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(responsePlanIDRequired)
 		return
@@ -77,11 +87,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	svc, ok := s.catalog.GetService(provisioningRequest.ServiceID)
 	if !ok {
-		log.WithFields(log.Fields{
-			"instanceID": instanceID,
-			"serviceID":  provisioningRequest.ServiceID,
-			"planID":     provisioningRequest.PlanID,
-		}).Debug("invalid serviceID")
+		logFields["serviceID"] = provisioningRequest.ServiceID
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: invalid serviceID",
+		)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(responseInvalidServiceID)
 		return
@@ -89,11 +98,11 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	_, ok = svc.GetPlan(provisioningRequest.PlanID)
 	if !ok {
-		log.WithFields(log.Fields{
-			"instanceID": instanceID,
-			"serviceID":  provisioningRequest.ServiceID,
-			"planID":     provisioningRequest.PlanID,
-		}).Debug("invalid planID for service")
+		logFields["serviceID"] = provisioningRequest.ServiceID
+		logFields["planID"] = provisioningRequest.PlanID
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: invalid planID for service",
+		)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(responseInvalidPlanID)
 		return
@@ -104,10 +113,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// We already validated that the serviceID and planID are legitimate. If
 		// we don't find a module that handles the service, something is really
 		// wrong.
-		log.WithField(
-			"serviceID",
-			provisioningRequest.ServiceID,
-		).Error("no module found for service")
+		logFields["serviceID"] = provisioningRequest.ServiceID
+		log.WithFields(logFields).Error(
+			"pre-provisioning error: no module found for service",
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -122,7 +131,9 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		provisioningRequest,
 	)
 	if err != nil {
-		log.Debug("error parsing request body")
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: error unmarshaling request body",
+		)
 		// krancour: Choosing to interpret this scenario as a bad request, as a
 		// valid request, obviously contains valid, well-formed JSON
 		w.WriteHeader(http.StatusBadRequest)
@@ -136,10 +147,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"instanceID": instanceID,
-			"error":      err,
-		}).Error("error retrieving instance by id")
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"pre-provisioning error: error retrieving instance by id",
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -158,10 +169,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			s.codec,
 		)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"instanceID": instanceID,
-				"error":      err,
-			}).Error("error decoding persisted provisioningParameters")
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"pre-provisioning error: error decoding persisted provisioningParameters",
+			)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write(responseEmptyJSON)
 			return
@@ -178,13 +189,18 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			switch instance.Status {
 			case service.InstanceStateProvisioning:
 				w.WriteHeader(http.StatusAccepted)
+				w.Write(responseEmptyJSON)
+				return
 			case service.InstanceStateProvisioned:
 				w.WriteHeader(http.StatusOK)
+				w.Write(responseEmptyJSON)
+				return
 			default:
 				w.WriteHeader(http.StatusConflict)
+				// TODO: Write a more detailed response
+				w.Write(responseEmptyJSON)
+				return
 			}
-			w.Write(responseEmptyJSON)
-			return
 		}
 
 		// We land in here if an existing instance was found, but its atrributes
@@ -199,8 +215,13 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// Start by carrying out module-specific request validation
 	err = module.ValidateProvisioningParameters(provisioningRequest.Parameters)
 	if err != nil {
-		_, ok := err.(*service.ValidationError)
+		validationErr, ok := err.(*service.ValidationError)
 		if ok {
+			logFields["field"] = validationErr.Field
+			logFields["issue"] = validationErr.Issue
+			log.WithFields(logFields).Debug(
+				"bad provisioning request: validation error",
+			)
 			w.WriteHeader(http.StatusBadRequest)
 			// TODO: Send the correct response body-- this is a placeholder
 			w.Write(responseEmptyJSON)
@@ -213,20 +234,23 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	provisioner, err := module.GetProvisioner()
 	if err != nil {
-		log.WithFields(log.Fields{
-			"serviceID": instance.ServiceID,
-			"error":     err,
-		}).Error("error retrieving provisioner for service")
+		logFields["serviceID"] = provisioningRequest.ServiceID
+		logFields["planID"] = provisioningRequest.PlanID
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"pre-provisioning error: error retrieving provisioner for service and plan",
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
 	}
 	firstStepName, ok := provisioner.GetFirstStepName()
 	if !ok {
-		log.WithField(
-			"serviceID",
-			instance.ServiceID,
-		).Error("no steps found for provisioning service")
+		logFields["serviceID"] = provisioningRequest.ServiceID
+		logFields["planID"] = provisioningRequest.PlanID
+		log.WithFields(logFields).Error(
+			"pre-provisioning error: no steps found for provisioning service and plan",
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -243,10 +267,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		s.codec,
 	)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"instanceID": instanceID,
-			"error":      err,
-		}).Error("error encoding provisioningParameters")
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"provisioning error: error encoding provisioningParameters",
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -256,20 +280,20 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		s.codec,
 	)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"instanceID": instanceID,
-			"error":      err,
-		}).Error("error encoding empty provisioningContext")
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"provisioning error: error encoding provisioningContext",
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
 	}
 	err = s.store.WriteInstance(instance)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"instanceID": instanceID,
-			"error":      err,
-		}).Error("error storing new instance")
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"provisioning error: error persisting new instance",
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -284,11 +308,11 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	)
 	err = s.asyncEngine.SubmitTask(task)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"step":       firstStepName,
-			"instanceID": instanceID,
-			"error":      err,
-		}).Error("error submitting provisioning task")
+		logFields["step"] = firstStepName
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"provisioning error: error submitting provisioning task",
+		)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write(responseEmptyJSON)
 		return
@@ -297,4 +321,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// If we get all the way to here, we've been successful!
 	w.WriteHeader(http.StatusAccepted)
 	w.Write(responseEmptyJSON)
+
+	log.WithFields(logFields).Debug("asynchronous provisioning initiated")
 }
