@@ -15,8 +15,8 @@ const (
 	flagsPlanID     = "plan-id, pid"
 	flagInstanceID  = "instance-id"
 	flagsInstanceID = "instance-id, iid"
-	flagBindingID   = "binding-id"
-	flagsBindingID  = "binding-id, bid"
-	flagParameter   = "parameter"
-	flagsParameter  = "parameter, param"
+	// flagBindingID   = "binding-id"
+	flagsBindingID = "binding-id, bid"
+	flagParameter  = "parameter"
+	flagsParameter = "parameter, param"
 )

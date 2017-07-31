@@ -11,7 +11,8 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "broker-cli"
 	app.Usage = "demo the azure service broker with ease"
-	app.UsageText = "broker-cli [global options] <command> [command options] [arguments...]"
+	app.UsageText = "broker-cli [global options] <command> [command options] " +
+		"[arguments...]"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  flagsHost,
@@ -39,9 +40,10 @@ func main() {
 			Action: catalog,
 		},
 		{
-			Name:      "provision",
-			Usage:     "provision a new service instance",
-			UsageText: "broker-cli [global options] provision --service-id <service id> --plan-id <plan id> [other command options]",
+			Name:  "provision",
+			Usage: "provision a new service instance",
+			UsageText: "broker-cli [global options] provision --service-id " +
+				"<service id> --plan-id <plan id> [other command options]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  flagsServiceID,
@@ -52,16 +54,18 @@ func main() {
 					Usage: "specify the `<plan id>`; required",
 				},
 				cli.StringSliceFlag{
-					Name:  flagsParameter,
-					Usage: "specify a service-specific provisioning parameter as a k=v pair",
+					Name: flagsParameter,
+					Usage: "specify a service-specific provisioning parameter as a k=v " +
+						"pair",
 				},
 			},
 			Action: provision,
 		},
 		{
-			Name:      "bind",
-			Usage:     "bind to a service instance",
-			UsageText: "broker-cli [global options] bind --instance-id <instance id> [other command options]",
+			Name:  "bind",
+			Usage: "bind to a service instance",
+			UsageText: "broker-cli [global options] bind --instance-id " +
+				"<instance id> [other command options]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  flagsInstanceID,
@@ -75,9 +79,10 @@ func main() {
 			Action: bind,
 		},
 		{
-			Name:      "unbind",
-			Usage:     "unbind from a service instance",
-			UsageText: "broker-cli [global options] unbind --instance-id <instance id> --binding-id <binding id> [other command options]",
+			Name:  "unbind",
+			Usage: "unbind from a service instance",
+			UsageText: "broker-cli [global options] unbind --instance-id " +
+				"<instance id> --binding-id <binding id> [other command options]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  flagsInstanceID,
@@ -91,9 +96,10 @@ func main() {
 			Action: unbind,
 		},
 		{
-			Name:      "deprovision",
-			Usage:     "deprovision a service instance",
-			UsageText: "broker-cli [global options] deprovision --instance-id <instance id> [other command options]",
+			Name:  "deprovision",
+			Usage: "deprovision a service instance",
+			UsageText: "broker-cli [global options] deprovision --instance-id " +
+				"<instance id> [other command options]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  flagsInstanceID,
@@ -104,8 +110,7 @@ func main() {
 		},
 	}
 
-	err := app.Run(os.Args)
-	if err != nil {
+	if err := app.Run(os.Args); err != nil {
 		fmt.Printf("\n%s\n\n", err)
 		os.Exit(1)
 	}

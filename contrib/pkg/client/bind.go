@@ -10,6 +10,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// Bind carries out binding to an existing service
 func Bind(
 	host string,
 	port int,
@@ -28,14 +29,14 @@ func Bind(
 	bindingRequest := &service.BindingRequest{
 		Parameters: params,
 	}
-	jsonStr, err := bindingRequest.ToJSONString()
+	json, err := bindingRequest.ToJSON()
 	if err != nil {
 		return "", nil, fmt.Errorf("error encoding request body: %s", err)
 	}
 	req, err := http.NewRequest(
 		http.MethodPut,
 		url,
-		bytes.NewBuffer([]byte(jsonStr)),
+		bytes.NewBuffer(json),
 	)
 	if err != nil {
 		return "", nil, fmt.Errorf("error building request: %s", err)
@@ -49,7 +50,10 @@ func Bind(
 		return "", nil, fmt.Errorf("error executing bind call: %s", err)
 	}
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
+	if err != nil {
+		return "", nil, fmt.Errorf("error reading response body: %s", err)
+	}
+	defer resp.Body.Close() // nolint: errcheck
 	if resp.StatusCode != http.StatusCreated {
 		return "", nil, fmt.Errorf(
 			"unanticipated http response code %d",
@@ -57,10 +61,7 @@ func Bind(
 		)
 	}
 	bindingResponse := &service.BindingResponse{}
-	err = service.GetBindingResponseFromJSONString(
-		string(bodyBytes),
-		bindingResponse,
-	)
+	err = service.GetBindingResponseFromJSON(bodyBytes, bindingResponse)
 	if err != nil {
 		return "", nil, fmt.Errorf("error decoding response body: %s", err)
 	}

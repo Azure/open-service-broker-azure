@@ -7,21 +7,17 @@ type BindingResponse struct {
 	Credentials interface{} `json:"credentials"`
 }
 
-// NewBindingResponseFromJSONString returns a new BindingResponse unmarshalled
-// from the provided JSON string
-func GetBindingResponseFromJSONString(
-	jsonStr string,
+// GetBindingResponseFromJSON returns a new BindingResponse unmarshalled from
+// the provided JSON []byte
+func GetBindingResponseFromJSON(
+	jsonBytes []byte,
 	bindingResponse *BindingResponse,
 ) error {
-	return json.Unmarshal([]byte(jsonStr), bindingResponse)
+	return json.Unmarshal(jsonBytes, bindingResponse)
 }
 
-// ToJSONString returns a string containing a JSON representation of the
-// binding response
-func (b *BindingResponse) ToJSONString() (string, error) {
-	bytes, err := json.Marshal(b)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+// ToJSON returns a []byte containing a JSON representation of the binding
+// response
+func (b *BindingResponse) ToJSON() ([]byte, error) {
+	return json.Marshal(b)
 }

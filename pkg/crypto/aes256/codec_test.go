@@ -7,9 +7,9 @@ import (
 )
 
 func TestCodecEncryptAndDecrypt(t *testing.T) {
-	c, err := NewCodec("AES256Key-32Characters1234567890")
+	c, err := NewCodec([]byte("AES256Key-32Characters1234567890"))
 	assert.Nil(t, err)
-	initialPlaintext := "foo"
+	initialPlaintext := []byte("foo")
 	ciphertext, err := c.Encrypt(initialPlaintext)
 	assert.Nil(t, err)
 	assert.NotEqual(t, initialPlaintext, ciphertext)

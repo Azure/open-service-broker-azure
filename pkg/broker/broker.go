@@ -2,6 +2,7 @@ package broker
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/api"
@@ -72,7 +73,7 @@ func NewBroker(
 				// This means we have more than one module claiming to provide services
 				// with an ID in common. This is a SERIOUS problem.
 				return nil, fmt.Errorf(
-					"module %s and module %s BOTH provide a service with the id %s",
+					`module "%s" and module "%s" BOTH provide a service with the id "%s"`,
 					existingModule.GetName(),
 					module.GetName(),
 					svc.GetID())
@@ -81,10 +82,19 @@ func NewBroker(
 		}
 	}
 
-	b.asyncEngine.RegisterJob("provisionStep", b.doProvisionStep)
-	b.asyncEngine.RegisterJob("deprovisionStep", b.doDeprovisionStep)
+	err := b.asyncEngine.RegisterJob("provisionStep", b.doProvisionStep)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing provisioning steps",
+		)
+	}
+	err = b.asyncEngine.RegisterJob("deprovisionStep", b.doDeprovisionStep)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing deprovisioning steps",
+		)
+	}
 
-	var err error
 	b.apiServer, err = api.NewServer(
 		8080,
 		storage.NewStore(redisClient),
@@ -108,19 +118,15 @@ func (b *broker) Start(ctx context.Context) error {
 	errChan := make(chan error)
 	// Start async engine
 	go func() {
-		err := b.asyncEngine.Start(ctx)
-		aes := &errAsyncEngineStopped{err: err}
 		select {
-		case errChan <- aes:
+		case errChan <- &errAsyncEngineStopped{err: b.asyncEngine.Start(ctx)}:
 		case <-ctx.Done():
 		}
 	}()
 	// Start api server
 	go func() {
-		err := b.apiServer.Start(ctx)
-		ss := &errAPIServerStopped{err: err}
 		select {
-		case errChan <- ss:
+		case errChan <- &errAPIServerStopped{err: b.apiServer.Start(ctx)}:
 		case <-ctx.Done():
 		}
 	}()

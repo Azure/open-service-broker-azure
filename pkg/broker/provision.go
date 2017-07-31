@@ -10,7 +10,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) error {
+func (b *broker) doProvisionStep(
+	ctx context.Context,
+	args map[string]string,
+) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	stepName, ok := args["stepName"]
@@ -118,8 +121,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 		)
 	}
 	if nextStepName, ok := provisioner.GetNextStepName(step.GetName()); ok {
-		err = b.store.WriteInstance(instance)
-		if err != nil {
+		if err = b.store.WriteInstance(instance); err != nil {
 			return b.handleProvisioningError(
 				instanceID,
 				stepName,
@@ -134,7 +136,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 				"instanceID": instanceID,
 			},
 		)
-		if err := b.asyncEngine.SubmitTask(task); err != nil {
+		if err = b.asyncEngine.SubmitTask(task); err != nil {
 			return b.handleProvisioningError(
 				instanceID,
 				stepName,
@@ -145,8 +147,7 @@ func (b *broker) doProvisionStep(ctx context.Context, args map[string]string) er
 	} else {
 		// No next step-- we're done provisioning!
 		instance.Status = service.InstanceStateProvisioned
-		err = b.store.WriteInstance(instance)
-		if err != nil {
+		if err = b.store.WriteInstance(instance); err != nil {
 			return b.handleProvisioningError(
 				instanceID,
 				stepName,
@@ -210,8 +211,7 @@ func (b *broker) handleProvisioningError(
 		)
 	}
 	instance.StatusReason = ret.Error()
-	err := b.store.WriteInstance(instance)
-	if err != nil {
+	if err := b.store.WriteInstance(instance); err != nil {
 		log.WithFields(log.Fields{
 			"instanceID":       instance.InstanceID,
 			"status":           instance.Status,

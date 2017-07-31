@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestProvisioningRejectsIfAcceptIncompleteNotSet(t *testing.T) {
+func TestProvisioningWithAcceptIncompleteNotSet(t *testing.T) {
 	s, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(getDisposableInstanceID(), nil, nil)
@@ -25,7 +25,7 @@ func TestProvisioningRejectsIfAcceptIncompleteNotSet(t *testing.T) {
 	assert.Equal(t, responseAsyncRequired, rr.Body.Bytes())
 }
 
-func TestProvisioningRejectsIfAcceptIncompleteNotTrue(t *testing.T) {
+func TestProvisioningWithAcceptIncompleteNotTrue(t *testing.T) {
 	s, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -42,7 +42,7 @@ func TestProvisioningRejectsIfAcceptIncompleteNotTrue(t *testing.T) {
 	assert.Equal(t, responseAsyncRequired, rr.Body.Bytes())
 }
 
-func TestProvisioningRejectsMissingServiceID(t *testing.T) {
+func TestProvisioningWithMissingServiceID(t *testing.T) {
 	s, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -62,7 +62,7 @@ func TestProvisioningRejectsMissingServiceID(t *testing.T) {
 	assert.Equal(t, responseServiceIDRequired, rr.Body.Bytes())
 }
 
-func TestProvisioningRejectsMissingPlanID(t *testing.T) {
+func TestProvisioningWithMissingPlanID(t *testing.T) {
 	s, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -82,7 +82,7 @@ func TestProvisioningRejectsMissingPlanID(t *testing.T) {
 	assert.Equal(t, responsePlanIDRequired, rr.Body.Bytes())
 }
 
-func TestProvisioningRejectsInvalidServiceID(t *testing.T) {
+func TestProvisioningWithInvalidServiceID(t *testing.T) {
 	s, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -102,7 +102,7 @@ func TestProvisioningRejectsInvalidServiceID(t *testing.T) {
 	assert.Equal(t, responseInvalidServiceID, rr.Body.Bytes())
 }
 
-func TestProvisioningRejectsInvalidPlanID(t *testing.T) {
+func TestProvisioningWithInvalidPlanID(t *testing.T) {
 	s, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -122,7 +122,7 @@ func TestProvisioningRejectsInvalidPlanID(t *testing.T) {
 	assert.Equal(t, responseInvalidPlanID, rr.Body.Bytes())
 }
 
-func TestProvisioningReturns409IfInstanceExistsWithDifferentAttributes(
+func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 	t *testing.T,
 ) {
 	s, err := getTestServer()
@@ -162,7 +162,7 @@ func TestProvisioningReturns409IfInstanceExistsWithDifferentAttributes(
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 }
 
-func TestProvisioningReturns200IfInstanceExistsWithSameAttributesAndFullyProvisioned(
+func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 	t *testing.T,
 ) {
 	s, err := getTestServer()
@@ -193,7 +193,7 @@ func TestProvisioningReturns200IfInstanceExistsWithSameAttributesAndFullyProvisi
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 }
 
-func TestProvisioningReturns202IfInstanceExistsWithSameAttributesAndNotFullyProvisioned(
+func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( // nolint: lll
 	t *testing.T,
 ) {
 	s, err := getTestServer()
@@ -252,10 +252,10 @@ func getProvisionRequest(
 	queryParams map[string]string,
 	pr *service.ProvisioningRequest,
 ) (*http.Request, error) {
-	bodyStr := ""
+	var body []byte
 	if pr != nil {
 		var err error
-		bodyStr, err = pr.ToJSONString()
+		body, err = pr.ToJSON()
 		if err != nil {
 			return nil, err
 		}
@@ -263,7 +263,7 @@ func getProvisionRequest(
 	req, err := http.NewRequest(
 		http.MethodPut,
 		fmt.Sprintf("/v2/service_instances/%s", instanceID),
-		bytes.NewBuffer([]byte(bodyStr)),
+		bytes.NewBuffer(body),
 	)
 	if err != nil {
 		return nil, err

@@ -29,7 +29,7 @@ func GetCatalog(
 	if err != nil {
 		return nil, fmt.Errorf("error requesting catalog: %s", err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // nolint: errcheck
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf(
 			"unanticipated http response code %d",
@@ -40,7 +40,7 @@ func GetCatalog(
 	if err != nil {
 		return nil, fmt.Errorf("error reading response body: %s", err)
 	}
-	catalog, err := service.NewCatalogFromJSONString(string(bodyBytes))
+	catalog, err := service.NewCatalogFromJSON(bodyBytes)
 	if err != nil {
 		return nil, fmt.Errorf("error decoding catalog: %s", err)
 	}

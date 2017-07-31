@@ -9,10 +9,10 @@ func NewCodec() crypto.Codec {
 	return &codec{}
 }
 
-func (c *codec) Encrypt(plaintext string) (string, error) {
+func (c *codec) Encrypt(plaintext []byte) ([]byte, error) {
 	return plaintext, nil
 }
 
-func (c *codec) Decrypt(ciphertext string) (string, error) {
+func (c *codec) Decrypt(ciphertext []byte) ([]byte, error) {
 	return ciphertext, nil
 }

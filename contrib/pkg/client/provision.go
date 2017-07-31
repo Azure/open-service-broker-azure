@@ -30,14 +30,14 @@ func Provision(
 		PlanID:     planID,
 		Parameters: params,
 	}
-	jsonStr, err := provisioningRequest.ToJSONString()
+	json, err := provisioningRequest.ToJSON()
 	if err != nil {
 		return "", fmt.Errorf("error encoding request body: %s", err)
 	}
 	req, err := http.NewRequest(
 		http.MethodPut,
 		url,
-		bytes.NewBuffer([]byte(jsonStr)),
+		bytes.NewBuffer(json),
 	)
 	if err != nil {
 		return "", fmt.Errorf("error building request: %s", err)
@@ -53,7 +53,7 @@ func Provision(
 	if err != nil {
 		return "", fmt.Errorf("error executing provision call: %s", err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // nolint: errcheck
 	if resp.StatusCode != http.StatusAccepted {
 		return "", fmt.Errorf(
 			"unanticipated http response code %d",

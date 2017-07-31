@@ -16,6 +16,6 @@ var (
 	testArbitraryObject = &ArbitraryType{
 		Foo: fooValue,
 	}
-	testArbitraryObjectJSON = fmt.Sprintf(`{"foo":"%s"}`, fooValue)
+	testArbitraryObjectJSON = []byte(fmt.Sprintf(`{"foo":"%s"}`, fooValue))
 	noopCodec               = noop.NewCodec()
 )

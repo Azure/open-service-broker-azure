@@ -1,8 +1,8 @@
 package service
 
 import (
+	"encoding/base64"
 	"fmt"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -11,16 +11,16 @@ import (
 
 var (
 	testInstance     *Instance
-	testInstanceJSON string
+	testInstanceJSON []byte
 )
 
 func init() {
 	instanceID := "test-instance-id"
 	serviceID := "test-service-id"
 	planID := "test-plan-id"
-	encryptedProvisiongingParameters := `{"foo":"bar"}`
+	encryptedProvisiongingParameters := []byte(`{"foo":"bar"}`)
 	statusReason := "in-progress"
-	encryptedProvisiongingContext := `{"baz":"bat"}`
+	encryptedProvisiongingContext := []byte(`{"baz":"bat"}`)
 
 	testInstance = &Instance{
 		InstanceID: instanceID,
@@ -32,39 +32,47 @@ func init() {
 		EncryptedProvisioningContext: encryptedProvisiongingContext,
 	}
 
-	testInstanceJSON = fmt.Sprintf(
+	b64EncryptedProvisioningParameters := base64.StdEncoding.EncodeToString(
+		encryptedProvisiongingParameters,
+	)
+	b64EncryptedProvisioningContext := base64.StdEncoding.EncodeToString(
+		encryptedProvisiongingContext,
+	)
+
+	testInstanceJSONStr := fmt.Sprintf(
 		`{
 			"instanceId":"%s",
 			"serviceId":"%s",
 			"planId":"%s",
-			"provisioningParameters":%s,
+			"provisioningParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
-			"provisioningContext":%s
+			"provisioningContext":"%s"
 		}`,
 		instanceID,
 		serviceID,
 		planID,
-		strconv.Quote(encryptedProvisiongingParameters),
+		b64EncryptedProvisioningParameters,
 		InstanceStateProvisioning,
 		statusReason,
-		strconv.Quote(encryptedProvisiongingContext),
+		b64EncryptedProvisioningContext,
 	)
-	testInstanceJSON = strings.Replace(testInstanceJSON, " ", "", -1)
-	testInstanceJSON = strings.Replace(testInstanceJSON, "\n", "", -1)
-	testInstanceJSON = strings.Replace(testInstanceJSON, "\t", "", -1)
+	testInstanceJSONStr = strings.Replace(testInstanceJSONStr, " ", "", -1)
+	testInstanceJSONStr = strings.Replace(testInstanceJSONStr, "\n", "", -1)
+	testInstanceJSONStr = strings.Replace(testInstanceJSONStr, "\t", "", -1)
+	testInstanceJSON = []byte(testInstanceJSONStr)
 }
 
-func TestNewInstanceFromJSONString(t *testing.T) {
-	instance, err := NewInstanceFromJSONString(testInstanceJSON)
+func TestNewInstanceFromJSON(t *testing.T) {
+	instance, err := NewInstanceFromJSON(testInstanceJSON)
 	assert.Nil(t, err)
 	assert.Equal(t, testInstance, instance)
 }
 
 func TestInstanceToJSON(t *testing.T) {
-	jsonStr, err := testInstance.ToJSONString()
+	json, err := testInstance.ToJSON()
 	assert.Nil(t, err)
-	assert.Equal(t, testInstanceJSON, jsonStr)
+	assert.Equal(t, testInstanceJSON, json)
 }
 
 func TestSetProvisioningParametersOnInstance(t *testing.T) {

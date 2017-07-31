@@ -33,29 +33,29 @@ type basicAuthConfig struct {
 }
 
 func getLogConfig() (logConfig, error) {
-	logConfig := logConfig{}
-	err := envconfig.Process("", &logConfig)
+	lc := logConfig{}
+	err := envconfig.Process("", &lc)
 	if err != nil {
-		return logConfig, err
+		return lc, err
 	}
-	logConfig.Level, err = log.ParseLevel(logConfig.LevelStr)
-	return logConfig, err
+	lc.Level, err = log.ParseLevel(lc.LevelStr)
+	return lc, err
 }
 
 func getRedisConfig() (redisConfig, error) {
-	redisConfig := redisConfig{}
-	err := envconfig.Process("", &redisConfig)
-	return redisConfig, err
+	rc := redisConfig{}
+	err := envconfig.Process("", &rc)
+	return rc, err
 }
 
 func getCryptoConfig() (cryptoConfig, error) {
-	cryptoConfig := cryptoConfig{}
-	err := envconfig.Process("", &cryptoConfig)
-	return cryptoConfig, err
+	cc := cryptoConfig{}
+	err := envconfig.Process("", &cc)
+	return cc, err
 }
 
 func getBasicAuthConfig() (basicAuthConfig, error) {
-	basicAuthConfig := basicAuthConfig{}
-	err := envconfig.Process("", &basicAuthConfig)
-	return basicAuthConfig, err
+	bac := basicAuthConfig{}
+	err := envconfig.Process("", &bac)
+	return bac, err
 }

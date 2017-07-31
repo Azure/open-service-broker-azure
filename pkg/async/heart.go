@@ -61,8 +61,7 @@ func newHeart(
 
 // Beat sends a single heartbeat
 func (h *heart) Beat() error {
-	err := h.beat()
-	if err != nil {
+	if err := h.beat(); err != nil {
 		return &errHeartbeat{workerID: h.workerID, err: err}
 	}
 	return nil
@@ -72,8 +71,7 @@ func (h *heart) Beat() error {
 func (h *heart) Start(ctx context.Context) error {
 	ticker := time.NewTicker(h.frequency)
 	for {
-		err := h.Beat()
-		if err != nil {
+		if err := h.Beat(); err != nil {
 			return err
 		}
 		select {
@@ -85,7 +83,7 @@ func (h *heart) Start(ctx context.Context) error {
 	}
 }
 
-// This is the default function for sending a heartbeart. It can be overriden
+// This is the default function for sending a heartbeat. It can be overridden
 // to facilitate testing.
 func (h *heart) defaultBeat() error {
 	statusCmd := h.redisClient.Set(h.workerID, aliveIndicator, h.ttl)

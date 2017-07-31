@@ -10,7 +10,7 @@ import (
 
 var (
 	testBindingRequest     *BindingRequest
-	testBindingRequestJSON string
+	testBindingRequestJSON []byte
 )
 
 func init() {
@@ -23,7 +23,7 @@ func init() {
 		Parameters: testArbitraryObject,
 	}
 
-	testBindingRequestJSON = fmt.Sprintf(
+	testBindingRequestJSONStr := fmt.Sprintf(
 		`{
 			"service_id":"%s",
 			"plan_id":"%s",
@@ -33,24 +33,25 @@ func init() {
 		planID,
 		testArbitraryObjectJSON,
 	)
-	whitespace := regexp.MustCompile("\\s")
-	testBindingRequestJSON = whitespace.ReplaceAllString(testBindingRequestJSON, "")
+	whitespace := regexp.MustCompile(`\s`)
+	testBindingRequestJSONStr = whitespace.ReplaceAllString(
+		testBindingRequestJSONStr,
+		"",
+	)
+	testBindingRequestJSON = []byte(testBindingRequestJSONStr)
 }
 
-func TestGetBindingRequestFromJSONString(t *testing.T) {
+func TestGetBindingRequestFromJSON(t *testing.T) {
 	bindingRequest := &BindingRequest{
 		Parameters: &ArbitraryType{},
 	}
-	err := GetBindingRequestFromJSONString(
-		testBindingRequestJSON,
-		bindingRequest,
-	)
+	err := GetBindingRequestFromJSON(testBindingRequestJSON, bindingRequest)
 	assert.Nil(t, err)
 	assert.Equal(t, testBindingRequest, bindingRequest)
 }
 
 func TestBindingRequestToJSON(t *testing.T) {
-	jsonStr, err := testBindingRequest.ToJSONString()
+	json, err := testBindingRequest.ToJSON()
 	assert.Nil(t, err)
-	assert.Equal(t, testBindingRequestJSON, jsonStr)
+	assert.Equal(t, testBindingRequestJSON, json)
 }

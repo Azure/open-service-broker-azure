@@ -1,8 +1,8 @@
 package service
 
 import (
+	"encoding/base64"
 	"fmt"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -11,16 +11,16 @@ import (
 
 var (
 	testBinding     *Binding
-	testBindingJSON string
+	testBindingJSON []byte
 )
 
 func init() {
 	bindingID := "test-binding-id"
 	instanceID := "test-instance-id"
-	encryptedBindingParameters := `{"foo":"bar"}`
+	encryptedBindingParameters := []byte(`{"foo":"bar"}`)
 	statusReason := "in-progress"
-	encryptedBindingContext := `{"baz":"bat"}`
-	encryptedCredentials := `{"password":"12345"}`
+	encryptedBindingContext := []byte(`{"baz":"bat"}`)
+	encryptedCredentials := []byte(`{"password":"12345"}`)
 
 	testBinding = &Binding{
 		BindingID:                  bindingID,
@@ -32,39 +32,50 @@ func init() {
 		EncryptedCredentials:    encryptedCredentials,
 	}
 
-	testBindingJSON = fmt.Sprintf(
+	b64EncryptedBindingParameters := base64.StdEncoding.EncodeToString(
+		encryptedBindingParameters,
+	)
+	b64EncryptedBindingContext := base64.StdEncoding.EncodeToString(
+		encryptedBindingContext,
+	)
+	b64EncryptedCredentials := base64.StdEncoding.EncodeToString(
+		encryptedCredentials,
+	)
+
+	testBindingJSONStr := fmt.Sprintf(
 		`{
 			"bindingId":"%s",
 			"instanceId":"%s",
-			"bindingParameters":%s,
+			"bindingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
-			"bindingContext":%s,
-			"credentials":%s
+			"bindingContext":"%s",
+			"credentials":"%s"
 		}`,
 		bindingID,
 		instanceID,
-		strconv.Quote(encryptedBindingParameters),
+		b64EncryptedBindingParameters,
 		BindingStateBound,
 		statusReason,
-		strconv.Quote(encryptedBindingContext),
-		strconv.Quote(encryptedCredentials),
+		b64EncryptedBindingContext,
+		b64EncryptedCredentials,
 	)
-	testBindingJSON = strings.Replace(testBindingJSON, " ", "", -1)
-	testBindingJSON = strings.Replace(testBindingJSON, "\n", "", -1)
-	testBindingJSON = strings.Replace(testBindingJSON, "\t", "", -1)
+	testBindingJSONStr = strings.Replace(testBindingJSONStr, " ", "", -1)
+	testBindingJSONStr = strings.Replace(testBindingJSONStr, "\n", "", -1)
+	testBindingJSONStr = strings.Replace(testBindingJSONStr, "\t", "", -1)
+	testBindingJSON = []byte(testBindingJSONStr)
 }
 
-func TestNewBindingFromJSONString(t *testing.T) {
-	binding, err := NewBindingFromJSONString(testBindingJSON)
+func TestNewBindingFromJSON(t *testing.T) {
+	binding, err := NewBindingFromJSON(testBindingJSON)
 	assert.Nil(t, err)
 	assert.Equal(t, testBinding, binding)
 }
 
 func TestBindingToJSON(t *testing.T) {
-	jsonStr, err := testBinding.ToJSONString()
+	json, err := testBinding.ToJSON()
 	assert.Nil(t, err)
-	assert.Equal(t, testBindingJSON, jsonStr)
+	assert.Equal(t, testBindingJSON, json)
 }
 
 func TestSetBindingParametersOnBinding(t *testing.T) {

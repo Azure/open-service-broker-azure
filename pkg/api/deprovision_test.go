@@ -57,6 +57,7 @@ func TestDeprovisioningInstanceThatIsNotFound(t *testing.T) {
 
 func TestDeprovisioningInstanceThatIsAlreadyDeprovisioning(t *testing.T) {
 	s, err := getTestServer()
+	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	existingInstance := &service.Instance{
 		InstanceID: instanceID,
@@ -64,7 +65,7 @@ func TestDeprovisioningInstanceThatIsAlreadyDeprovisioning(t *testing.T) {
 		PlanID:     echo.StandardPlanID,
 		Status:     service.InstanceStateDeprovisioning,
 	}
-	s.store.WriteInstance(existingInstance)
+	err = s.store.WriteInstance(existingInstance)
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
 		instanceID,
@@ -81,6 +82,7 @@ func TestDeprovisioningInstanceThatIsAlreadyDeprovisioning(t *testing.T) {
 
 func TestDeprovisioningInstanceThatIsStillProvisioning(t *testing.T) {
 	s, err := getTestServer()
+	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	existingInstance := &service.Instance{
 		InstanceID: instanceID,
@@ -88,7 +90,7 @@ func TestDeprovisioningInstanceThatIsStillProvisioning(t *testing.T) {
 		PlanID:     echo.StandardPlanID,
 		Status:     service.InstanceStateProvisioning,
 	}
-	s.store.WriteInstance(existingInstance)
+	err = s.store.WriteInstance(existingInstance)
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
 		instanceID,
@@ -105,6 +107,7 @@ func TestDeprovisioningInstanceThatIsStillProvisioning(t *testing.T) {
 
 func TestKickOffNewAsyncDeprovisioning(t *testing.T) {
 	s, err := getTestServer()
+	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	existingInstance := &service.Instance{
 		InstanceID: instanceID,
@@ -112,7 +115,7 @@ func TestKickOffNewAsyncDeprovisioning(t *testing.T) {
 		PlanID:     echo.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	}
-	s.store.WriteInstance(existingInstance)
+	err = s.store.WriteInstance(existingInstance)
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
 		instanceID,
