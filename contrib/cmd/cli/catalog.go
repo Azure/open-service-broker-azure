@@ -10,7 +10,9 @@ import (
 func catalog(c *cli.Context) error {
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
-	catalog, err := client.GetCatalog(host, port)
+	username := c.GlobalString(flagUsername)
+	password := c.GlobalString(flagPassword)
+	catalog, err := client.GetCatalog(host, port, username, password)
 	if err != nil {
 		return fmt.Errorf("error retrieving catalog: %s", err)
 	}
