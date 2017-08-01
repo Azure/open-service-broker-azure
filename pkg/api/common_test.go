@@ -5,7 +5,7 @@ import (
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
 	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/echo"
+	"github.com/Azure/azure-service-broker/pkg/services/fake"
 	memoryStorage "github.com/Azure/azure-service-broker/pkg/storage/memory"
 	uuid "github.com/satori/go.uuid"
 )
@@ -26,16 +26,17 @@ func getDisposableBindingID() string {
 	return uuid.NewV4().String()
 }
 
-func getTestServer() (*server, error) {
-	echoModule := echo.New()
-	echoCatalog, err := echoModule.GetCatalog()
+func getTestServer() (*server, *fake.Module, error) {
+	fakeModule, err := fake.New()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	echoServices := echoCatalog.GetServices()
-	echoServiceID := echoServices[0].GetID()
+	fakeCatalog, err := fakeModule.GetCatalog()
+	if err != nil {
+		return nil, nil, err
+	}
 	modules := map[string]service.Module{
-		echoServiceID: echoModule,
+		fakeCatalog.GetServices()[0].GetID(): fakeModule,
 	}
 	s, err := NewServer(
 		8080,
@@ -46,7 +47,7 @@ func getTestServer() (*server, error) {
 		modules,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return s.(*server), nil
+	return s.(*server), fakeModule, nil
 }

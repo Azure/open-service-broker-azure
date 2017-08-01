@@ -9,12 +9,12 @@ import (
 
 	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
 	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/echo"
+	"github.com/Azure/azure-service-broker/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestBindingWithInstanceThatDoesNotExist(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getBindingRequest(
 		getDisposableInstanceID(),
@@ -29,7 +29,7 @@ func TestBindingWithInstanceThatDoesNotExist(t *testing.T) {
 }
 
 func TestBindingWithInstanceThatIsNotFullyProvisioned(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	planID := getDisposablePlanID()
@@ -53,7 +53,7 @@ func TestBindingWithInstanceThatIsNotFullyProvisioned(t *testing.T) {
 }
 
 func TestBindingWithServiceIDDifferentFromInstanceServiceID(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	planID := getDisposablePlanID()
@@ -80,7 +80,7 @@ func TestBindingWithServiceIDDifferentFromInstanceServiceID(t *testing.T) {
 }
 
 func TestBindingWithPlanIDDifferentFromInstancePlanID(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	serviceID := getDisposableServiceID()
@@ -107,7 +107,7 @@ func TestBindingWithPlanIDDifferentFromInstancePlanID(t *testing.T) {
 }
 
 func TestBindingModuleNotFoundForServiceID(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	serviceID := getDisposableServiceID()
@@ -133,13 +133,13 @@ func TestBindingModuleNotFoundForServiceID(t *testing.T) {
 func TestBindingWithExistingBindingWithDifferentInstanceID(
 	t *testing.T,
 ) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -164,13 +164,13 @@ func TestBindingWithExistingBindingWithDifferentInstanceID(
 func TestBindingWithExistingBindingWithDifferentParameters(
 	t *testing.T,
 ) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -180,8 +180,8 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 		BindingID:  bindingID,
 	}
 	err = existingBinding.SetBindingParameters(
-		&echo.BindingParameters{
-			Message: "foo",
+		&fake.BindingParameters{
+			SomeParameter: "foo",
 		},
 		noop.NewCodec(),
 	)
@@ -192,8 +192,8 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 		instanceID,
 		bindingID,
 		&service.BindingRequest{
-			Parameters: &echo.BindingParameters{
-				Message: "bar",
+			Parameters: &fake.BindingParameters{
+				SomeParameter: "bar",
 			},
 		},
 	)
@@ -207,13 +207,13 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 func TestBindingWithExistingBoundBindingWithSameAttributes(
 	t *testing.T,
 ) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -239,13 +239,13 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 func TestBindingWithExistingFailedBindingWithSameAttributes(
 	t *testing.T,
 ) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -269,13 +269,26 @@ func TestBindingWithExistingFailedBindingWithSameAttributes(
 }
 
 func TestBrandNewBinding(t *testing.T) {
-	s, err := getTestServer()
+	s, m, err := getTestServer()
 	assert.Nil(t, err)
+	validationCalled := false
+	m.BindingValidationBehavior = func(interface{}) error {
+		validationCalled = true
+		return nil
+	}
+	bindCalled := false
+	m.BindBehavior = func(
+		interface{},
+		interface{},
+	) (interface{}, interface{}, error) {
+		bindCalled = true
+		return nil, nil, nil
+	}
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -288,6 +301,8 @@ func TestBrandNewBinding(t *testing.T) {
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusCreated, rr.Code)
+	assert.True(t, validationCalled)
+	assert.True(t, bindCalled)
 	// TODO: Test the response body
 }
 

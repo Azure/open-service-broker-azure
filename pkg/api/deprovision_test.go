@@ -8,12 +8,12 @@ import (
 
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/echo"
+	"github.com/Azure/azure-service-broker/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDeprovisioningWithAcceptIncompleteNotSet(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(getDisposableInstanceID(), nil)
 	assert.Nil(t, err)
@@ -24,7 +24,7 @@ func TestDeprovisioningWithAcceptIncompleteNotSet(t *testing.T) {
 }
 
 func TestDeprovisioningWithAcceptIncompleteNotTrue(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
 		getDisposableInstanceID(),
@@ -40,7 +40,7 @@ func TestDeprovisioningWithAcceptIncompleteNotTrue(t *testing.T) {
 }
 
 func TestDeprovisioningInstanceThatIsNotFound(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
 		getDisposableInstanceID(),
@@ -56,13 +56,13 @@ func TestDeprovisioningInstanceThatIsNotFound(t *testing.T) {
 }
 
 func TestDeprovisioningInstanceThatIsAlreadyDeprovisioning(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateDeprovisioning,
 	})
 	assert.Nil(t, err)
@@ -80,13 +80,13 @@ func TestDeprovisioningInstanceThatIsAlreadyDeprovisioning(t *testing.T) {
 }
 
 func TestDeprovisioningInstanceThatIsStillProvisioning(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioning,
 	})
 	assert.Nil(t, err)
@@ -104,13 +104,13 @@ func TestDeprovisioningInstanceThatIsStillProvisioning(t *testing.T) {
 }
 
 func TestKickOffNewAsyncDeprovisioning(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)

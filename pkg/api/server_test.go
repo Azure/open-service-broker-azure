@@ -14,7 +14,7 @@ var (
 )
 
 func TestServerStartBlocksUntilListenAndServeErrors(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	s.listenAndServe = func(context.Context) error {
 		return errSome
@@ -26,7 +26,7 @@ func TestServerStartBlocksUntilListenAndServeErrors(t *testing.T) {
 }
 
 func TestServerStartBlocksUntilListenAndServeReturns(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	s.listenAndServe = func(context.Context) error {
 		return nil
@@ -38,7 +38,7 @@ func TestServerStartBlocksUntilListenAndServeReturns(t *testing.T) {
 }
 
 func TestServerStartBlocksUntilContextCanceled(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	s.listenAndServe = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -51,7 +51,7 @@ func TestServerStartBlocksUntilContextCanceled(t *testing.T) {
 }
 
 func TestServerListenAndServeBlocksUntilContextCanceled(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
