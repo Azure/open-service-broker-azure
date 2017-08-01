@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDeprovisioningRejectsIfAcceptIncompleteNotSet(t *testing.T) {
+func TestDeprovisioningWithAcceptIncompleteNotSet(t *testing.T) {
 	s, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(getDisposableInstanceID(), nil)
@@ -23,7 +23,7 @@ func TestDeprovisioningRejectsIfAcceptIncompleteNotSet(t *testing.T) {
 	assert.Equal(t, responseAsyncRequired, rr.Body.Bytes())
 }
 
-func TestDeprovisioningRejectsIfAcceptIncompleteNotTrue(t *testing.T) {
+func TestDeprovisioningWithAcceptIncompleteNotTrue(t *testing.T) {
 	s, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
@@ -121,11 +121,12 @@ func TestKickOffNewAsyncDeprovisioning(t *testing.T) {
 		},
 	)
 	assert.Nil(t, err)
+	e := s.asyncEngine.(*fakeAsync.Engine)
+	assert.Empty(t, e.SubmittedTasks)
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusAccepted, rr.Code)
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
-	e := s.asyncEngine.(*fakeAsync.Engine)
 	assert.Equal(t, 1, len(e.SubmittedTasks))
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 }

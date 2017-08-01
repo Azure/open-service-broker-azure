@@ -237,10 +237,11 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 		},
 	)
 	assert.Nil(t, err)
+	e := s.asyncEngine.(*fakeAsync.Engine)
+	assert.Empty(t, e.SubmittedTasks)
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusAccepted, rr.Code)
-	e := s.asyncEngine.(*fakeAsync.Engine)
 	assert.Equal(t, 1, len(e.SubmittedTasks))
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 }
