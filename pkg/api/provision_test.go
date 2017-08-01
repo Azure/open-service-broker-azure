@@ -10,12 +10,12 @@ import (
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
 	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/echo"
+	"github.com/Azure/azure-service-broker/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestProvisioningWithAcceptIncompleteNotSet(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(getDisposableInstanceID(), nil, nil)
 	assert.Nil(t, err)
@@ -26,7 +26,7 @@ func TestProvisioningWithAcceptIncompleteNotSet(t *testing.T) {
 }
 
 func TestProvisioningWithAcceptIncompleteNotTrue(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
 		getDisposableInstanceID(),
@@ -43,7 +43,7 @@ func TestProvisioningWithAcceptIncompleteNotTrue(t *testing.T) {
 }
 
 func TestProvisioningWithMissingServiceID(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
 		getDisposableInstanceID(),
@@ -63,7 +63,7 @@ func TestProvisioningWithMissingServiceID(t *testing.T) {
 }
 
 func TestProvisioningWithMissingPlanID(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
 		getDisposableInstanceID(),
@@ -83,7 +83,7 @@ func TestProvisioningWithMissingPlanID(t *testing.T) {
 }
 
 func TestProvisioningWithInvalidServiceID(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
 		getDisposableInstanceID(),
@@ -103,7 +103,7 @@ func TestProvisioningWithInvalidServiceID(t *testing.T) {
 }
 
 func TestProvisioningWithInvalidPlanID(t *testing.T) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
 		getDisposableInstanceID(),
@@ -111,7 +111,7 @@ func TestProvisioningWithInvalidPlanID(t *testing.T) {
 			"accepts_incomplete": "true",
 		},
 		&service.ProvisioningRequest{
-			ServiceID: echo.ServiceID,
+			ServiceID: fake.ServiceID,
 			PlanID:    getDisposablePlanID(),
 		},
 	)
@@ -125,17 +125,17 @@ func TestProvisioningWithInvalidPlanID(t *testing.T) {
 func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 	t *testing.T,
 ) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	existingInstance := &service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 	}
 	err = existingInstance.SetProvisioningParameters(
-		&echo.ProvisioningParameters{
-			Message: "foo",
+		&fake.ProvisioningParameters{
+			SomeParameter: "foo",
 		},
 		noop.NewCodec(),
 	)
@@ -148,10 +148,10 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 			"accepts_incomplete": "true",
 		},
 		&service.ProvisioningRequest{
-			ServiceID: echo.ServiceID,
-			PlanID:    echo.StandardPlanID,
-			Parameters: &echo.ProvisioningParameters{
-				Message: "bar",
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
+			Parameters: &fake.ProvisioningParameters{
+				SomeParameter: "bar",
 			},
 		},
 	)
@@ -165,16 +165,15 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 	t *testing.T,
 ) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	existingInstance := &service.Instance{
+	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
-	}
-	err = s.store.WriteInstance(existingInstance)
+	})
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
 		instanceID,
@@ -182,8 +181,8 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 			"accepts_incomplete": "true",
 		},
 		&service.ProvisioningRequest{
-			ServiceID: echo.ServiceID,
-			PlanID:    echo.StandardPlanID,
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
 		},
 	)
 	assert.Nil(t, err)
@@ -196,16 +195,15 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( // nolint: lll
 	t *testing.T,
 ) {
-	s, err := getTestServer()
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	existingInstance := &service.Instance{
+	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  echo.ServiceID,
-		PlanID:     echo.StandardPlanID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioning,
-	}
-	err = s.store.WriteInstance(existingInstance)
+	})
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
 		instanceID,
@@ -213,8 +211,8 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 			"accepts_incomplete": "true",
 		},
 		&service.ProvisioningRequest{
-			ServiceID: echo.ServiceID,
-			PlanID:    echo.StandardPlanID,
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
 		},
 	)
 	assert.Nil(t, err)
@@ -225,8 +223,13 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 }
 
 func TestKickOffNewAsyncProvisioning(t *testing.T) {
-	s, err := getTestServer()
+	s, m, err := getTestServer()
 	assert.Nil(t, err)
+	validationCalled := false
+	m.ProvisioningValidationBehavior = func(interface{}) error {
+		validationCalled = true
+		return nil
+	}
 	instanceID := getDisposableInstanceID()
 	req, err := getProvisionRequest(
 		instanceID,
@@ -234,15 +237,17 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 			"accepts_incomplete": "true",
 		},
 		&service.ProvisioningRequest{
-			ServiceID: echo.ServiceID,
-			PlanID:    echo.StandardPlanID,
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
 		},
 	)
 	assert.Nil(t, err)
+	e := s.asyncEngine.(*fakeAsync.Engine)
+	assert.Empty(t, e.SubmittedTasks)
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusAccepted, rr.Code)
-	e := s.asyncEngine.(*fakeAsync.Engine)
+	assert.True(t, validationCalled)
 	assert.Equal(t, 1, len(e.SubmittedTasks))
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 }

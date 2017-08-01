@@ -18,13 +18,13 @@ func New() service.Module {
 }
 
 func (m *module) GetName() string {
-	return "example"
+	return "echo"
 }
 
 func (m *module) ValidateProvisioningParameters(
 	provisioningParameters interface{},
 ) error {
-	params := provisioningParameters.(*ProvisioningParameters)
+	params := provisioningParameters.(*echoProvisioningParameters)
 	if params.Message == "bad message" {
 		return service.NewValidationError("message", "message is a bad message!")
 	}
@@ -47,7 +47,7 @@ func (m *module) generateProvisioningMessageID(
 	provisioningContext interface{},
 	provisioningParameters interface{}, // nolint: unparam
 ) (interface{}, error) {
-	pc := provisioningContext.(*ProvisioningContext)
+	pc := provisioningContext.(*echoProvisioningContext)
 	pc.MessageID = uuid.NewV4().String()
 	return pc, nil
 }
@@ -71,8 +71,8 @@ func (m *module) logProvisioningMessage(
 	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
-	pc := provisioningContext.(*ProvisioningContext)
-	params := provisioningParameters.(*ProvisioningParameters)
+	pc := provisioningContext.(*echoProvisioningContext)
+	params := provisioningParameters.(*echoProvisioningParameters)
 	pc.Message = params.Message
 	log.WithFields(log.Fields{
 		"messageID": pc.MessageID,
@@ -84,7 +84,7 @@ func (m *module) logProvisioningMessage(
 func (m *module) ValidateBindingParameters(
 	bindingParameters interface{},
 ) error {
-	params := bindingParameters.(*BindingParameters)
+	params := bindingParameters.(*echoBindingParameters)
 	if params.Message == "bad message" {
 		return service.NewValidationError("message", "message is a bad message!")
 	}
@@ -96,12 +96,12 @@ func (m *module) Bind(
 	bindingParameters interface{},
 ) (interface{}, interface{}, error) {
 	messageID := uuid.NewV4().String()
-	params := bindingParameters.(*BindingParameters)
-	bc := &BindingContext{
+	params := bindingParameters.(*echoBindingParameters)
+	bc := &echoBindingContext{
 		MessageID: messageID,
 		Message:   params.Message,
 	}
-	c := &Credentials{
+	c := &echoCredentials{
 		MessageID: messageID,
 	}
 	log.WithFields(log.Fields{
@@ -115,7 +115,7 @@ func (m *module) Unbind(
 	provisioningContext interface{}, // nolint: unparam
 	bindingContext interface{},
 ) error {
-	bc := bindingContext.(*BindingContext)
+	bc := bindingContext.(*echoBindingContext)
 	log.WithField(
 		"messageID",
 		bc.MessageID,
@@ -150,7 +150,7 @@ func (m *module) logDeprovisioningMessage(
 	ctx context.Context, // nolint: unparam
 	provisioningContext interface{},
 ) (interface{}, error) {
-	pc := provisioningContext.(*ProvisioningContext)
+	pc := provisioningContext.(*echoProvisioningContext)
 	log.WithField(
 		"messageID",
 		pc.MessageID,

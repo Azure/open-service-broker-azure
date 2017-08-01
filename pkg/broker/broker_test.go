@@ -15,7 +15,7 @@ import (
 var errSome = errors.New("an error")
 
 func TestBrokerStartBlocksUntilAsyncEngineErrors(t *testing.T) {
-	var apiServerStopped bool
+	apiServerStopped := false
 	svr := fakeAPI.NewServer()
 	svr.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -39,7 +39,7 @@ func TestBrokerStartBlocksUntilAsyncEngineErrors(t *testing.T) {
 }
 
 func TestBrokerStartBlocksUntilAsyncEngineReturns(t *testing.T) {
-	var apiServerStopped bool
+	apiServerStopped := false
 	svr := fakeAPI.NewServer()
 	svr.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -67,7 +67,7 @@ func TestBrokerStartBlocksUntilAPIServerErrors(t *testing.T) {
 	svr.RunBehavior = func(context.Context) error {
 		return errSome
 	}
-	var asyncEngineStopped bool
+	asyncEngineStopped := false
 	e := fakeAsync.NewEngine()
 	e.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -91,7 +91,7 @@ func TestBrokerStartBlocksUntilAPIServerReturns(t *testing.T) {
 	svr.RunBehavior = func(context.Context) error {
 		return nil
 	}
-	var asyncEngineStopped bool
+	asyncEngineStopped := false
 	e := fakeAsync.NewEngine()
 	e.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -111,14 +111,14 @@ func TestBrokerStartBlocksUntilAPIServerReturns(t *testing.T) {
 }
 
 func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
-	var apiServerStopped bool
+	apiServerStopped := false
 	svr := fakeAPI.NewServer()
 	svr.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
 		apiServerStopped = true
 		return ctx.Err()
 	}
-	var asyncEngineStopped bool
+	asyncEngineStopped := false
 	e := fakeAsync.NewEngine()
 	e.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()

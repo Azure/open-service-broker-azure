@@ -25,7 +25,7 @@ func TestWorkerWorkBlocksUntilHeartErrors(t *testing.T) {
 	}
 	w := newWorker(redisClient).(*worker)
 	w.heart = h
-	var receiveAndWorkStopped bool
+	receiveAndWorkStopped := false
 	w.receiveAndWork = func(ctx context.Context, queueName string) error {
 		<-ctx.Done()
 		receiveAndWorkStopped = true
@@ -50,7 +50,7 @@ func TestWorkerWorkBlocksUntilHeartReturns(t *testing.T) {
 	}
 	w := newWorker(redisClient).(*worker)
 	w.heart = h
-	var receiveAndWorkStopped bool
+	receiveAndWorkStopped := false
 	w.receiveAndWork = func(ctx context.Context, queueName string) error {
 		<-ctx.Done()
 		receiveAndWorkStopped = true
@@ -70,7 +70,7 @@ func TestWorkerWorkBlocksUntilHeartReturns(t *testing.T) {
 
 func TestWorkerWorkBlocksUntilReceiveAndWorkErrors(t *testing.T) {
 	h := fakeAsync.NewHeart()
-	var heartStopped bool
+	heartStopped := false
 	h.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
 		heartStopped = true
@@ -95,7 +95,7 @@ func TestWorkerWorkBlocksUntilReceiveAndWorkErrors(t *testing.T) {
 
 func TestWorkerWorkBlocksUntilReceiveAndWorkReturns(t *testing.T) {
 	h := fakeAsync.NewHeart()
-	var heartStopped bool
+	heartStopped := false
 	h.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
 		heartStopped = true
@@ -120,7 +120,7 @@ func TestWorkerWorkBlocksUntilReceiveAndWorkReturns(t *testing.T) {
 
 func TestWorkerWorkBlocksUntilContextCanceled(t *testing.T) {
 	h := fakeAsync.NewHeart()
-	var heartStopped bool
+	heartStopped := false
 	h.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
 		heartStopped = true
@@ -128,7 +128,7 @@ func TestWorkerWorkBlocksUntilContextCanceled(t *testing.T) {
 	}
 	w := newWorker(redisClient).(*worker)
 	w.heart = h
-	var receiveAndWorkStopped bool
+	receiveAndWorkStopped := false
 	w.receiveAndWork = func(ctx context.Context, queueName string) error {
 		<-ctx.Done()
 		receiveAndWorkStopped = true
@@ -180,7 +180,7 @@ func TestWorkerReceiveAndWorkBlocksEvenAfterInvalidTask(t *testing.T) {
 	intCmd := redisClient.LPush(queueName, "bogus")
 	assert.Nil(t, intCmd.Err())
 	w := newWorker(redisClient).(*worker)
-	var workCalled bool
+	workCalled := false
 	w.work = func(context.Context, model.Task) error {
 		workCalled = true
 		return nil
@@ -209,7 +209,7 @@ func TestWorkerReceiveAndWorkBlocksEvenAfterWorkError(t *testing.T) {
 	intCmd := redisClient.LPush(queueName, taskJSON)
 	assert.Nil(t, intCmd.Err())
 	w := newWorker(redisClient).(*worker)
-	var workCalled bool
+	workCalled := false
 	w.work = func(context.Context, model.Task) error {
 		workCalled = true
 		return errSome

@@ -21,7 +21,7 @@ func TestAuthHeaderMissing(t *testing.T) {
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
-	var handlerCalled bool
+	handlerCalled := false
 	a.Authenticate(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
@@ -35,7 +35,7 @@ func TestAuthHeaderNotBasic(t *testing.T) {
 	assert.Nil(t, err)
 	req.Header.Add("Authorization", "Digest foo")
 	rr := httptest.NewRecorder()
-	var handlerCalled bool
+	handlerCalled := false
 	a.Authenticate(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
@@ -49,7 +49,7 @@ func TestAuthUsernamePasswordNotBase64(t *testing.T) {
 	assert.Nil(t, err)
 	req.Header.Add("Authorization", "Basic foo")
 	rr := httptest.NewRecorder()
-	var handlerCalled bool
+	handlerCalled := false
 	a.Authenticate(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
@@ -70,7 +70,7 @@ func TestAuthUsernamePasswordInvalid(t *testing.T) {
 		fmt.Sprintf("Basic %s", b64UsernameAndPassword),
 	)
 	rr := httptest.NewRecorder()
-	var handlerCalled bool
+	handlerCalled := false
 	a.Authenticate(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
@@ -91,7 +91,7 @@ func TestAuthUsernamePasswordValid(t *testing.T) {
 		fmt.Sprintf("Basic %s", b64UsernameAndPassword),
 	)
 	rr := httptest.NewRecorder()
-	var handlerCalled bool
+	handlerCalled := false
 	a.Authenticate(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)

@@ -16,7 +16,7 @@ func TestEngineStartBlocksUntilCleanerErrors(t *testing.T) {
 		return errSome
 	}
 	e.cleaner = c
-	var workerStopped bool
+	workerStopped := false
 	w := fakeAsync.NewWorker()
 	w.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -39,7 +39,7 @@ func TestEngineStartBlocksUntilCleanerReturns(t *testing.T) {
 		return nil
 	}
 	e.cleaner = c
-	var workerStopped bool
+	workerStopped := false
 	w := fakeAsync.NewWorker()
 	w.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -57,7 +57,7 @@ func TestEngineStartBlocksUntilCleanerReturns(t *testing.T) {
 
 func TestEngineStartBlocksUntilWorkerErrors(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
-	var cleanerStopped bool
+	cleanerStopped := false
 	c := fakeAsync.NewCleaner()
 	c.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -78,7 +78,7 @@ func TestEngineStartBlocksUntilWorkerErrors(t *testing.T) {
 
 func TestEngineStartBlocksUntilWorkerReturns(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
-	var cleanerStopped bool
+	cleanerStopped := false
 	c := fakeAsync.NewCleaner()
 	c.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -99,7 +99,7 @@ func TestEngineStartBlocksUntilWorkerReturns(t *testing.T) {
 
 func TestEngineStartBlocksUntilContextCanceled(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
-	var cleanerStopped bool
+	cleanerStopped := false
 	c := fakeAsync.NewCleaner()
 	c.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
@@ -107,7 +107,7 @@ func TestEngineStartBlocksUntilContextCanceled(t *testing.T) {
 		return ctx.Err()
 	}
 	e.cleaner = c
-	var workerStopped bool
+	workerStopped := false
 	w := fakeAsync.NewWorker()
 	w.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
