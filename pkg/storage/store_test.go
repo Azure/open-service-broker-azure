@@ -18,7 +18,7 @@ var (
 )
 
 func TestWriteInstance(t *testing.T) {
-	instanceID := uuid.NewV4().String()
+	instanceID := getDisposableInstanceID()
 	// First assert that the instance doesn't exist in Redis
 	strCmd := redisClient.Get(instanceID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
@@ -33,7 +33,7 @@ func TestWriteInstance(t *testing.T) {
 }
 
 func TestGetNonExistingInstance(t *testing.T) {
-	instanceID := uuid.NewV4().String()
+	instanceID := getDisposableInstanceID()
 	// First assert that the instance doesn't exist in Redis
 	strCmd := redisClient.Get(instanceID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
@@ -45,7 +45,7 @@ func TestGetNonExistingInstance(t *testing.T) {
 }
 
 func TestGetExistingInstance(t *testing.T) {
-	instanceID := uuid.NewV4().String()
+	instanceID := getDisposableInstanceID()
 	// First ensure the instance exists in Redis
 	statCmd := redisClient.Set(instanceID, getInstanceJSON(instanceID), 0)
 	assert.Nil(t, statCmd.Err())
@@ -58,7 +58,7 @@ func TestGetExistingInstance(t *testing.T) {
 }
 
 func TestDeleteNonExistingInstance(t *testing.T) {
-	instanceID := uuid.NewV4().String()
+	instanceID := getDisposableInstanceID()
 	// First assert that the instance doesn't exist in Redis
 	strCmd := redisClient.Get(instanceID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
@@ -70,7 +70,7 @@ func TestDeleteNonExistingInstance(t *testing.T) {
 }
 
 func TestDeleteExistingInstance(t *testing.T) {
-	instanceID := uuid.NewV4().String()
+	instanceID := getDisposableInstanceID()
 	// First ensure the instance exists in Redis
 	statCmd := redisClient.Set(instanceID, getInstanceJSON(instanceID), 0)
 	assert.Nil(t, statCmd.Err())
@@ -84,7 +84,7 @@ func TestDeleteExistingInstance(t *testing.T) {
 }
 
 func TestWriteBinding(t *testing.T) {
-	bindingID := uuid.NewV4().String()
+	bindingID := getDisposableBindingID()
 	// First assert that the binding doesn't exist in Redis
 	strCmd := redisClient.Get(bindingID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
@@ -99,7 +99,7 @@ func TestWriteBinding(t *testing.T) {
 }
 
 func TestGetNonExistingBinding(t *testing.T) {
-	bindingID := uuid.NewV4().String()
+	bindingID := getDisposableBindingID()
 	// First assert that the binding doesn't exist in Redis
 	strCmd := redisClient.Get(bindingID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
@@ -111,7 +111,7 @@ func TestGetNonExistingBinding(t *testing.T) {
 }
 
 func TestGetExistingBinding(t *testing.T) {
-	bindingID := uuid.NewV4().String()
+	bindingID := getDisposableBindingID()
 	// First ensure the binding exists in Redis
 	statCmd := redisClient.Set(bindingID, getBindingJSON(bindingID), 0)
 	assert.Nil(t, statCmd.Err())
@@ -124,7 +124,7 @@ func TestGetExistingBinding(t *testing.T) {
 }
 
 func TestDeleteNonExistingBinding(t *testing.T) {
-	bindingID := uuid.NewV4().String()
+	bindingID := getDisposableBindingID()
 	// First assert that the binding doesn't exist in Redis
 	strCmd := redisClient.Get(bindingID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
@@ -136,7 +136,7 @@ func TestDeleteNonExistingBinding(t *testing.T) {
 }
 
 func TestDeleteExistingBinding(t *testing.T) {
-	bindingID := uuid.NewV4().String()
+	bindingID := getDisposableBindingID()
 	// First ensure the binding exists in Redis
 	statCmd := redisClient.Set(bindingID, getBindingJSON(bindingID), 0)
 	assert.Nil(t, statCmd.Err())
@@ -155,4 +155,12 @@ func getInstanceJSON(instanceID string) string {
 
 func getBindingJSON(bindingID string) string {
 	return fmt.Sprintf(`{"bindingId":"%s"}`, bindingID)
+}
+
+func getDisposableInstanceID() string {
+	return uuid.NewV4().String()
+}
+
+func getDisposableBindingID() string {
+	return uuid.NewV4().String()
 }

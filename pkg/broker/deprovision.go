@@ -10,7 +10,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func (b *broker) doDeprovisionStep(ctx context.Context, args map[string]string) error {
+func (b *broker) doDeprovisionStep(
+	ctx context.Context,
+	args map[string]string,
+) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	stepName, ok := args["stepName"]
@@ -107,8 +110,7 @@ func (b *broker) doDeprovisionStep(ctx context.Context, args map[string]string) 
 		)
 	}
 	if nextStepName, ok := deprovisioner.GetNextStepName(step.GetName()); ok {
-		err = b.store.WriteInstance(instance)
-		if err != nil {
+		if err = b.store.WriteInstance(instance); err != nil {
 			return b.handleDeprovisioningError(
 				instanceID,
 				stepName,
@@ -123,7 +125,7 @@ func (b *broker) doDeprovisionStep(ctx context.Context, args map[string]string) 
 				"instanceID": instanceID,
 			},
 		)
-		if err := b.asyncEngine.SubmitTask(task); err != nil {
+		if err = b.asyncEngine.SubmitTask(task); err != nil {
 			return b.handleDeprovisioningError(
 				instanceID,
 				stepName,
@@ -198,8 +200,7 @@ func (b *broker) handleDeprovisioningError(
 		)
 	}
 	instance.StatusReason = ret.Error()
-	err := b.store.WriteInstance(instance)
-	if err != nil {
+	if err := b.store.WriteInstance(instance); err != nil {
 		log.WithFields(log.Fields{
 			"instanceID":       instance.InstanceID,
 			"status":           instance.Status,

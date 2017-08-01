@@ -10,7 +10,7 @@ import (
 
 var (
 	testProvisioningRequest     *ProvisioningRequest
-	testProvisioningRequestJSON string
+	testProvisioningRequestJSON []byte
 )
 
 func init() {
@@ -23,7 +23,7 @@ func init() {
 		Parameters: testArbitraryObject,
 	}
 
-	testProvisioningRequestJSON = fmt.Sprintf(
+	testProvisioningRequestJSONStr := fmt.Sprintf(
 		`{
 			"service_id":"%s",
 			"plan_id":"%s",
@@ -33,15 +33,17 @@ func init() {
 		planID,
 		testArbitraryObjectJSON,
 	)
-	whitespace := regexp.MustCompile("\\s")
-	testProvisioningRequestJSON = whitespace.ReplaceAllString(testProvisioningRequestJSON, "")
+	whitespace := regexp.MustCompile(`\s`)
+	testProvisioningRequestJSON = []byte(
+		whitespace.ReplaceAllString(testProvisioningRequestJSONStr, ""),
+	)
 }
 
-func TestGetProvisioningRequestFromJSONString(t *testing.T) {
+func TestGetProvisioningRequestFromJSON(t *testing.T) {
 	provisioningRequest := &ProvisioningRequest{
 		Parameters: &ArbitraryType{},
 	}
-	err := GetProvisioningRequestFromJSONString(
+	err := GetProvisioningRequestFromJSON(
 		testProvisioningRequestJSON,
 		provisioningRequest,
 	)
@@ -50,7 +52,7 @@ func TestGetProvisioningRequestFromJSONString(t *testing.T) {
 }
 
 func TestProvisioningRequestToJSON(t *testing.T) {
-	jsonStr, err := testProvisioningRequest.ToJSONString()
+	json, err := testProvisioningRequest.ToJSON()
 	assert.Nil(t, err)
-	assert.Equal(t, testProvisioningRequestJSON, jsonStr)
+	assert.Equal(t, testProvisioningRequestJSON, json)
 }

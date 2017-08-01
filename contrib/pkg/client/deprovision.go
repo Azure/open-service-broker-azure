@@ -37,7 +37,7 @@ func Deprovision(
 	if err != nil {
 		return fmt.Errorf("error executing deprovision call: %s", err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // nolint: errcheck
 	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf(
 			"unanticipated http response code %d",

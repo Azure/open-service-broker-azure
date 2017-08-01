@@ -308,10 +308,10 @@ func getBindingRequest(
 	bindingID string,
 	br *service.BindingRequest,
 ) (*http.Request, error) {
-	bodyStr := ""
+	var body []byte
 	if br != nil {
 		var err error
-		bodyStr, err = br.ToJSONString()
+		body, err = br.ToJSON()
 		if err != nil {
 			return nil, err
 		}
@@ -323,7 +323,7 @@ func getBindingRequest(
 			instanceID,
 			bindingID,
 		),
-		bytes.NewBuffer([]byte(bodyStr)),
+		bytes.NewBuffer(body),
 	)
 	if err != nil {
 		return nil, err

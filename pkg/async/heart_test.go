@@ -5,12 +5,11 @@ import (
 	"testing"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHeartBeatError(t *testing.T) {
-	workerID := uuid.NewV4().String()
+	workerID := getDisposableWorkerID()
 	h := newHeart(workerID, time.Second, redisClient).(*heart)
 	h.beat = func() error {
 		return errSome
@@ -20,7 +19,7 @@ func TestHeartBeatError(t *testing.T) {
 }
 
 func TestHeartBeat(t *testing.T) {
-	h := newHeart(uuid.NewV4().String(), time.Second, redisClient).(*heart)
+	h := newHeart(getDisposableWorkerID(), time.Second, redisClient).(*heart)
 	err := h.Beat()
 	assert.Nil(t, err)
 	strCmd := redisClient.Get(h.workerID)
@@ -31,7 +30,7 @@ func TestHeartBeat(t *testing.T) {
 }
 
 func TestHeartStartBlocksUntilBeatErrors(t *testing.T) {
-	workerID := uuid.NewV4().String()
+	workerID := getDisposableWorkerID()
 	h := newHeart(workerID, time.Second, redisClient).(*heart)
 	h.beat = func() error {
 		return errSome
@@ -43,7 +42,7 @@ func TestHeartStartBlocksUntilBeatErrors(t *testing.T) {
 }
 
 func TestHeartStartBlocksUntilContextCanceled(t *testing.T) {
-	h := newHeart(uuid.NewV4().String(), time.Second, redisClient).(*heart)
+	h := newHeart(getDisposableWorkerID(), time.Second, redisClient).(*heart)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	err := h.Start(ctx)

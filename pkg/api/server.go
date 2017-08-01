@@ -107,11 +107,11 @@ func NewServer(
 		services = append(services, catalog.GetServices()...)
 	}
 	s.catalog = service.NewCatalog(services)
-	catalogJSONStr, err := s.catalog.ToJSONString()
+	catalogJSON, err := s.catalog.ToJSON()
 	if err != nil {
 		return nil, err
 	}
-	s.catalogResponse = []byte(catalogJSONStr)
+	s.catalogResponse = catalogJSON
 
 	s.listenAndServe = s.defaultListenAndServe
 
@@ -127,10 +127,8 @@ func (s *server) Start(ctx context.Context) error {
 			"address",
 			fmt.Sprintf("http://0.0.0.0:%d", s.port),
 		).Info("API server is listening")
-		err := s.listenAndServe(ctx)
-		hss := &errHTTPServerStopped{err: err}
 		select {
-		case errChan <- hss:
+		case errChan <- &errHTTPServerStopped{err: s.listenAndServe(ctx)}:
 		case <-ctx.Done():
 		}
 	}()
@@ -150,9 +148,8 @@ func (s *server) defaultListenAndServe(ctx context.Context) error {
 		Handler: s.router,
 	}
 	go func() {
-		err := svr.ListenAndServe()
 		select {
-		case errChan <- err:
+		case errChan <- svr.ListenAndServe():
 		case <-ctx.Done():
 		}
 	}()
@@ -165,7 +162,7 @@ func (s *server) defaultListenAndServe(ctx context.Context) error {
 			time.Second*5,
 		)
 		defer cancel()
-		svr.Shutdown(shutdownCtx)
+		svr.Shutdown(shutdownCtx) // nolint: errcheck
 		return ctx.Err()
 	}
 }

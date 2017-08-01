@@ -10,32 +10,26 @@ import (
 type Binding struct {
 	BindingID                  string `json:"bindingId"`
 	InstanceID                 string `json:"instanceId"`
-	EncryptedBindingParameters string `json:"bindingParameters"`
+	EncryptedBindingParameters []byte `json:"bindingParameters"`
 	Status                     string `json:"status"`
 	StatusReason               string `json:"statusReason"`
-	EncryptedBindingContext    string `json:"bindingContext"`
-	EncryptedCredentials       string `json:"credentials"`
+	EncryptedBindingContext    []byte `json:"bindingContext"`
+	EncryptedCredentials       []byte `json:"credentials"`
 }
 
-// NewBindingFromJSONString returns a new Binding unmarshalled from the
-// provided JSON string
-func NewBindingFromJSONString(jsonStr string) (*Binding, error) {
+// NewBindingFromJSON returns a new Binding unmarshalled from the provided JSON
+// []byte
+func NewBindingFromJSON(jsonBytes []byte) (*Binding, error) {
 	binding := &Binding{}
-	err := json.Unmarshal([]byte(jsonStr), binding)
-	if err != nil {
+	if err := json.Unmarshal(jsonBytes, binding); err != nil {
 		return nil, err
 	}
 	return binding, nil
 }
 
-// ToJSONString returns a string containing a JSON representation of the
-// instance
-func (b *Binding) ToJSONString() (string, error) {
-	bytes, err := json.Marshal(b)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+// ToJSON returns a []byte containing a JSON representation of the instance
+func (b *Binding) ToJSON() ([]byte, error) {
+	return json.Marshal(b)
 }
 
 // SetBindingParameters marshals the provided bindingParameters object, encrypts
@@ -48,7 +42,7 @@ func (b *Binding) SetBindingParameters(
 	if err != nil {
 		return err
 	}
-	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	ciphertext, err := codec.Encrypt(jsonBytes)
 	if err != nil {
 		return err
 	}
@@ -62,18 +56,14 @@ func (b *Binding) GetBindingParameters(
 	params interface{},
 	codec crypto.Codec,
 ) error {
-	if b.EncryptedBindingParameters == "" {
+	if len(b.EncryptedBindingParameters) == 0 {
 		return nil
 	}
 	plaintext, err := codec.Decrypt(b.EncryptedBindingParameters)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal([]byte(plaintext), params)
-	if err != nil {
-		return err
-	}
-	return nil
+	return json.Unmarshal(plaintext, params)
 }
 
 // SetBindingContext marshals the provided bindingContext object, encrypts the
@@ -86,11 +76,11 @@ func (b *Binding) SetBindingContext(
 	if err != nil {
 		return err
 	}
-	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	ciphertext, err := codec.Encrypt(jsonBytes)
 	if err != nil {
 		return err
 	}
-	b.EncryptedBindingContext = string(ciphertext)
+	b.EncryptedBindingContext = ciphertext
 	return nil
 }
 
@@ -100,18 +90,14 @@ func (b *Binding) GetBindingContext(
 	context interface{},
 	codec crypto.Codec,
 ) error {
-	if b.EncryptedBindingContext == "" {
+	if len(b.EncryptedBindingContext) == 0 {
 		return nil
 	}
 	plaintext, err := codec.Decrypt(b.EncryptedBindingContext)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal([]byte(plaintext), context)
-	if err != nil {
-		return err
-	}
-	return nil
+	return json.Unmarshal(plaintext, context)
 }
 
 // SetCredentials marshals the provided credentials object, encrypts the result,
@@ -124,11 +110,11 @@ func (b *Binding) SetCredentials(
 	if err != nil {
 		return err
 	}
-	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	ciphertext, err := codec.Encrypt(jsonBytes)
 	if err != nil {
 		return err
 	}
-	b.EncryptedCredentials = string(ciphertext)
+	b.EncryptedCredentials = ciphertext
 	return nil
 }
 
@@ -138,16 +124,12 @@ func (b *Binding) GetCredentials(
 	credentials interface{},
 	codec crypto.Codec,
 ) error {
-	if b.EncryptedCredentials == "" {
+	if len(b.EncryptedCredentials) == 0 {
 		return nil
 	}
 	plaintext, err := codec.Decrypt(b.EncryptedCredentials)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal([]byte(plaintext), credentials)
-	if err != nil {
-		return err
-	}
-	return nil
+	return json.Unmarshal(plaintext, credentials)
 }

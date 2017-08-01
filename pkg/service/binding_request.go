@@ -9,21 +9,17 @@ type BindingRequest struct {
 	Parameters interface{} `json:"parameters"`
 }
 
-// GetBindingRequestFromJSONString populates the given BindingRequest by
-// unmarshalling the provided JSON string
-func GetBindingRequestFromJSONString(
-	jsonStr string,
+// GetBindingRequestFromJSON populates the given BindingRequest by unmarshalling
+// the provided JSON []byte
+func GetBindingRequestFromJSON(
+	jsonBytes []byte,
 	bindingRequest *BindingRequest,
 ) error {
-	return json.Unmarshal([]byte(jsonStr), bindingRequest)
+	return json.Unmarshal(jsonBytes, bindingRequest)
 }
 
-// ToJSONString returns a string containing a JSON representation of the
-// binding request
-func (b *BindingRequest) ToJSONString() (string, error) {
-	bytes, err := json.Marshal(b)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+// ToJSON returns a []byte containing a JSON representation of the binding
+// request
+func (b *BindingRequest) ToJSON() ([]byte, error) {
+	return json.Marshal(b)
 }

@@ -10,7 +10,7 @@ import (
 
 var (
 	testCatalog     Catalog
-	testCatalogJSON string
+	testCatalogJSON []byte
 )
 
 func init() {
@@ -41,7 +41,7 @@ func init() {
 		),
 	})
 
-	testCatalogJSON = fmt.Sprintf(
+	testCatalogJSONStr := fmt.Sprintf(
 		`{
 			"services":[
 				{
@@ -73,21 +73,22 @@ func init() {
 		description,
 		free,
 	)
-	testCatalogJSON = strings.Replace(testCatalogJSON, " ", "", -1)
-	testCatalogJSON = strings.Replace(testCatalogJSON, "\n", "", -1)
-	testCatalogJSON = strings.Replace(testCatalogJSON, "\t", "", -1)
+	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, " ", "", -1)
+	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, "\n", "", -1)
+	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, "\t", "", -1)
+	testCatalogJSON = []byte(testCatalogJSONStr)
 }
 
-func TestNewCatalogFromJSONString(t *testing.T) {
-	catalog, err := NewCatalogFromJSONString(testCatalogJSON)
+func TestNewCatalogFromJSON(t *testing.T) {
+	catalog, err := NewCatalogFromJSON(testCatalogJSON)
 	assert.Nil(t, err)
 	assert.Equal(t, testCatalog, catalog)
 }
 
 func TestCatalogToJSON(t *testing.T) {
-	jsonStr, err := testCatalog.ToJSONString()
+	json, err := testCatalog.ToJSON()
 	assert.Nil(t, err)
-	assert.Equal(t, testCatalogJSON, jsonStr)
+	assert.Equal(t, testCatalogJSON, json)
 }
 
 func TestGetNonExistingServiceByID(t *testing.T) {

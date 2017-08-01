@@ -33,16 +33,19 @@ func (m *module) ValidateProvisioningParameters(
 
 func (m *module) GetProvisioner() (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("generateMessageId", m.generateProvisioningMessageID),
+		service.NewProvisioningStep(
+			"generateMessageId",
+			m.generateProvisioningMessageID,
+		),
 		service.NewProvisioningStep("pause", m.pauseProvisioning),
 		service.NewProvisioningStep("logMessage", m.logProvisioningMessage),
 	)
 }
 
 func (m *module) generateProvisioningMessageID(
-	ctx context.Context,
+	ctx context.Context, // nolint: unparam
 	provisioningContext interface{},
-	provisioningParameters interface{},
+	provisioningParameters interface{}, // nolint: unparam
 ) (interface{}, error) {
 	pc := provisioningContext.(*ProvisioningContext)
 	pc.MessageID = uuid.NewV4().String()
@@ -52,7 +55,7 @@ func (m *module) generateProvisioningMessageID(
 func (m *module) pauseProvisioning(
 	ctx context.Context,
 	provisioningContext interface{},
-	provisioningParameters interface{},
+	provisioningParameters interface{}, // nolint: unparam
 ) (interface{}, error) {
 	select {
 	case <-time.NewTimer(time.Minute).C:
@@ -64,7 +67,7 @@ func (m *module) pauseProvisioning(
 }
 
 func (m *module) logProvisioningMessage(
-	ctx context.Context,
+	ctx context.Context, // nolint: unparam
 	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
@@ -109,7 +112,7 @@ func (m *module) Bind(
 }
 
 func (m *module) Unbind(
-	provisioningContext interface{},
+	provisioningContext interface{}, // nolint: unparam
 	bindingContext interface{},
 ) error {
 	bc := bindingContext.(*BindingContext)
@@ -144,7 +147,7 @@ func (m *module) pauseDeprovisioning(
 }
 
 func (m *module) logDeprovisioningMessage(
-	ctx context.Context,
+	ctx context.Context, // nolint: unparam
 	provisioningContext interface{},
 ) (interface{}, error) {
 	pc := provisioningContext.(*ProvisioningContext)

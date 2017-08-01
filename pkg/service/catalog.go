@@ -8,7 +8,7 @@ import (
 // Catalog is an interface to be implemented by types that represents the
 // service/plans offered by a service module or by the entire broker.
 type Catalog interface {
-	ToJSONString() (string, error)
+	ToJSON() ([]byte, error)
 	GetServices() []Service
 	GetService(serviceID string) (Service, bool)
 }
@@ -23,19 +23,20 @@ type catalog struct {
 // ServiceProperties represent the properties of a Service that can be directly
 // instantiated and passed to the NewService() constructor function which will
 // carry out all necessary initialization.
-type ServiceProperties struct {
+type ServiceProperties struct { // nolint: golint
 	Name          string   `json:"name"`
 	ID            string   `json:"id"`
 	Description   string   `json:"description"`
 	Tags          []string `json:"tags"`
 	Bindable      bool     `json:"bindable"`
-	PlanUpdatable bool     `json:"plan_updateable"` // Mispelling is deliberate to match the spec
+	PlanUpdatable bool     `json:"plan_updateable"` // Misspelling is deliberate
+	// to match the spec
 }
 
 // Service is an interface to be implemented by types that represent a single
 // type of service with one or more plans
 type Service interface {
-	ToJSONString() (string, error)
+	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
 	GetPlans() []Plan
@@ -63,7 +64,7 @@ type PlanProperties struct {
 // Plan is an interface to be implemented by types that represent a single
 // variant or "sku" of a service
 type Plan interface {
-	ToJSONString() (string, error)
+	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
 }
@@ -84,19 +85,18 @@ func NewCatalog(services []Service) Catalog {
 	return c
 }
 
-// NewCatalogFromJSONString returns a new Catalog unmarshalled from the
-// provided JSON string
-func NewCatalogFromJSONString(jsonStr string) (Catalog, error) {
+// NewCatalogFromJSON returns a new Catalog unmarshalled from the provided JSON
+// []byte
+func NewCatalogFromJSON(jsonBytes []byte) (Catalog, error) {
 	c := &catalog{
 		services:        []Service{},
 		indexedServices: make(map[string]Service),
 	}
-	err := json.Unmarshal([]byte(jsonStr), c)
-	if err != nil {
+	if err := json.Unmarshal(jsonBytes, c); err != nil {
 		return nil, err
 	}
 	for _, svcRawJSON := range c.Services {
-		svc, err := NewServiceFromJSONString(string(svcRawJSON))
+		svc, err := NewServiceFromJSON(svcRawJSON)
 		if err != nil {
 			return nil, err
 		}
@@ -107,9 +107,8 @@ func NewCatalogFromJSONString(jsonStr string) (Catalog, error) {
 	return c, nil
 }
 
-// ToJSONString returns a string containing a JSON representation of the
-// catalog
-func (c *catalog) ToJSONString() (string, error) {
+// ToJSON returns a []byte containing a JSON representation of the catalog
+func (c *catalog) ToJSON() ([]byte, error) {
 	c.jsonMutex.Lock()
 	defer c.jsonMutex.Unlock()
 	defer func() {
@@ -117,17 +116,13 @@ func (c *catalog) ToJSONString() (string, error) {
 	}()
 	c.Services = []json.RawMessage{}
 	for _, svc := range c.services {
-		svcJSON, err := svc.ToJSONString()
+		svcJSON, err := svc.ToJSON()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		c.Services = append(c.Services, json.RawMessage(svcJSON))
 	}
-	bytes, err := json.Marshal(c)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+	return json.Marshal(c)
 }
 
 // GetServices returns all of the catalog's services
@@ -155,19 +150,18 @@ func NewService(serviceProperties *ServiceProperties, plans ...Plan) Service {
 	return s
 }
 
-// NewServiceFromJSONString returns a new Service unmarshalled from the provided
-// JSON
-func NewServiceFromJSONString(jsonStr string) (Service, error) {
+// NewServiceFromJSON returns a new Service unmarshalled from the provided
+// JSON []byte
+func NewServiceFromJSON(jsonBytes []byte) (Service, error) {
 	s := &service{
 		plans:        []Plan{},
 		indexedPlans: make(map[string]Plan),
 	}
-	err := json.Unmarshal([]byte(jsonStr), s)
-	if err != nil {
+	if err := json.Unmarshal(jsonBytes, s); err != nil {
 		return nil, err
 	}
 	for _, planRawJSON := range s.Plans {
-		plan, err := NewPlanFromJSONString(string(planRawJSON))
+		plan, err := NewPlanFromJSON(planRawJSON)
 		if err != nil {
 			return nil, err
 		}
@@ -178,7 +172,7 @@ func NewServiceFromJSONString(jsonStr string) (Service, error) {
 	return s, nil
 }
 
-func (s *service) ToJSONString() (string, error) {
+func (s *service) ToJSON() ([]byte, error) {
 	s.jsonMutex.Lock()
 	defer s.jsonMutex.Unlock()
 	defer func() {
@@ -186,17 +180,13 @@ func (s *service) ToJSONString() (string, error) {
 	}()
 	s.Plans = []json.RawMessage{}
 	for _, plan := range s.plans {
-		planJSON, err := plan.ToJSONString()
+		planJSON, err := plan.ToJSON()
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 		s.Plans = append(s.Plans, json.RawMessage(planJSON))
 	}
-	bytes, err := json.Marshal(s)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+	return json.Marshal(s)
 }
 
 func (s *service) GetID() string {
@@ -226,22 +216,17 @@ func NewPlan(planProperties *PlanProperties) Plan {
 	}
 }
 
-// NewPlanFromJSONString returns a new Plan unmarshalled from the provided JSON
-func NewPlanFromJSONString(jsonStr string) (Plan, error) {
+// NewPlanFromJSON returns a new Plan unmarshalled from the provided JSON []byte
+func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
 	p := &plan{}
-	err := json.Unmarshal([]byte(jsonStr), p)
-	if err != nil {
+	if err := json.Unmarshal(jsonBytes, p); err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
-func (p *plan) ToJSONString() (string, error) {
-	bytes, err := json.Marshal(p)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+func (p *plan) ToJSON() ([]byte, error) {
+	return json.Marshal(p)
 }
 
 func (p *plan) GetID() string {

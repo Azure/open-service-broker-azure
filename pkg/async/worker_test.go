@@ -147,7 +147,7 @@ func TestReceiveAndWorkCallsWorkOncePerTask(t *testing.T) {
 	queueName := getDisposableQueueName()
 	const expectedCount = 5
 	for range [expectedCount]struct{}{} {
-		taskJSON, err := model.NewTask("foo", nil).ToJSONString()
+		taskJSON, err := model.NewTask("foo", nil).ToJSON()
 		assert.Nil(t, err)
 		intCmd := redisClient.LPush(queueName, taskJSON)
 		assert.Nil(t, intCmd.Err())
@@ -204,7 +204,7 @@ func TestWorkerReceiveAndWorkBlocksEvenAfterInvalidTask(t *testing.T) {
 
 func TestWorkerReceiveAndWorkBlocksEvenAfterWorkError(t *testing.T) {
 	queueName := getDisposableQueueName()
-	taskJSON, err := model.NewTask("foo", nil).ToJSONString()
+	taskJSON, err := model.NewTask("foo", nil).ToJSON()
 	assert.Nil(t, err)
 	intCmd := redisClient.LPush(queueName, taskJSON)
 	assert.Nil(t, intCmd.Err())

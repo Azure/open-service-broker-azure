@@ -11,31 +11,26 @@ type Instance struct {
 	InstanceID                      string `json:"instanceId"`
 	ServiceID                       string `json:"serviceId"`
 	PlanID                          string `json:"planId"`
-	EncryptedProvisioningParameters string `json:"provisioningParameters"`
+	EncryptedProvisioningParameters []byte `json:"provisioningParameters"`
 	Status                          string `json:"status"`
 	StatusReason                    string `json:"statusReason"`
-	EncryptedProvisioningContext    string `json:"provisioningContext"`
+	EncryptedProvisioningContext    []byte `json:"provisioningContext"`
 }
 
-// NewInstanceFromJSONString returns a new Instance unmarshalled from the
-// provided JSON string
-func NewInstanceFromJSONString(jsonStr string) (*Instance, error) {
+// NewInstanceFromJSON returns a new Instance unmarshalled from the provided
+// JSON []byte
+func NewInstanceFromJSON(jsonBytes []byte) (*Instance, error) {
 	instance := &Instance{}
-	err := json.Unmarshal([]byte(jsonStr), instance)
-	if err != nil {
+	if err := json.Unmarshal(jsonBytes, instance); err != nil {
 		return nil, err
 	}
 	return instance, nil
 }
 
-// ToJSONString returns a string containing a JSON representation of the
+// ToJSON returns a []byte containing a JSON representation of the
 // instance
-func (i *Instance) ToJSONString() (string, error) {
-	bytes, err := json.Marshal(i)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+func (i *Instance) ToJSON() ([]byte, error) {
+	return json.Marshal(i)
 }
 
 // SetProvisioningParameters marshals the provided provisioningParameters
@@ -49,7 +44,7 @@ func (i *Instance) SetProvisioningParameters(
 	if err != nil {
 		return err
 	}
-	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	ciphertext, err := codec.Encrypt(jsonBytes)
 	if err != nil {
 		return err
 	}
@@ -63,18 +58,14 @@ func (i *Instance) GetProvisioningParameters(
 	params interface{},
 	codec crypto.Codec,
 ) error {
-	if i.EncryptedProvisioningParameters == "" {
+	if len(i.EncryptedProvisioningParameters) == 0 {
 		return nil
 	}
 	plaintext, err := codec.Decrypt(i.EncryptedProvisioningParameters)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal([]byte(plaintext), params)
-	if err != nil {
-		return err
-	}
-	return nil
+	return json.Unmarshal(plaintext, params)
 }
 
 // SetProvisioningContext marshals the provided provisioningContext object,
@@ -87,7 +78,7 @@ func (i *Instance) SetProvisioningContext(
 	if err != nil {
 		return err
 	}
-	ciphertext, err := codec.Encrypt(string(jsonBytes))
+	ciphertext, err := codec.Encrypt(jsonBytes)
 	if err != nil {
 		return err
 	}
@@ -101,16 +92,12 @@ func (i *Instance) GetProvisioningContext(
 	context interface{},
 	codec crypto.Codec,
 ) error {
-	if i.EncryptedProvisioningContext == "" {
+	if len(i.EncryptedProvisioningContext) == 0 {
 		return nil
 	}
 	plaintext, err := codec.Decrypt(i.EncryptedProvisioningContext)
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal([]byte(plaintext), context)
-	if err != nil {
-		return err
-	}
-	return nil
+	return json.Unmarshal(plaintext, context)
 }

@@ -10,7 +10,7 @@ import (
 
 var (
 	testBindingResponse     *BindingResponse
-	testBindingResponseJSON string
+	testBindingResponseJSON []byte
 )
 
 func init() {
@@ -18,30 +18,29 @@ func init() {
 		Credentials: testArbitraryObject,
 	}
 
-	testBindingResponseJSON = fmt.Sprintf(
+	testBindingResponseJSONStr := fmt.Sprintf(
 		`{
 			"credentials":%s
 		}`,
 		testArbitraryObjectJSON,
 	)
-	whitespace := regexp.MustCompile("\\s")
-	testBindingResponseJSON = whitespace.ReplaceAllString(testBindingResponseJSON, "")
+	whitespace := regexp.MustCompile(`\s`)
+	testBindingResponseJSON = []byte(
+		whitespace.ReplaceAllString(testBindingResponseJSONStr, ""),
+	)
 }
 
-func TestGetBindingResponseFromJSONString(t *testing.T) {
+func TestGetBindingResponseFromJSON(t *testing.T) {
 	bindingResponse := &BindingResponse{
 		Credentials: &ArbitraryType{},
 	}
-	err := GetBindingResponseFromJSONString(
-		testBindingResponseJSON,
-		bindingResponse,
-	)
+	err := GetBindingResponseFromJSON(testBindingResponseJSON, bindingResponse)
 	assert.Nil(t, err)
 	assert.Equal(t, testBindingResponse, bindingResponse)
 }
 
 func TestBindingResponseToJSON(t *testing.T) {
-	jsonStr, err := testBindingResponse.ToJSONString()
+	json, err := testBindingResponse.ToJSON()
 	assert.Nil(t, err)
-	assert.Equal(t, testBindingResponseJSON, jsonStr)
+	assert.Equal(t, testBindingResponseJSON, json)
 }

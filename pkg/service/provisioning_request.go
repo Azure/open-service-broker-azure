@@ -9,25 +9,17 @@ type ProvisioningRequest struct {
 	Parameters interface{} `json:"parameters"`
 }
 
-// GetProvisioningRequestFromJSONString populates the given ProvisioningRequest
-// by unmarshalling the provided JSON string
-func GetProvisioningRequestFromJSONString(
-	jsonStr string,
+// GetProvisioningRequestFromJSON populates the given ProvisioningRequest by
+// unmarshalling the provided JSON []byte
+func GetProvisioningRequestFromJSON(
+	jsonBytes []byte,
 	provisioningRequest *ProvisioningRequest,
 ) error {
-	err := json.Unmarshal([]byte(jsonStr), provisioningRequest)
-	if err != nil {
-		return err
-	}
-	return nil
+	return json.Unmarshal(jsonBytes, provisioningRequest)
 }
 
-// ToJSONString returns a string containing a JSON representation of the
-// provisioning request
-func (p *ProvisioningRequest) ToJSONString() (string, error) {
-	bytes, err := json.Marshal(p)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+// ToJSON returns a []byte containing a JSON representation of the provisioning
+// request
+func (p *ProvisioningRequest) ToJSON() ([]byte, error) {
+	return json.Marshal(p)
 }

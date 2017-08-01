@@ -14,7 +14,7 @@ type Task interface {
 	GetArgs() map[string]string
 	GetWorkerRejectionCount() int
 	IncrementWorkerRejectionCount() int
-	ToJSONString() (string, error)
+	ToJSON() ([]byte, error)
 }
 
 type task struct {
@@ -34,12 +34,10 @@ func NewTask(jobName string, args map[string]string) Task {
 	return t
 }
 
-// NewTaskFromJSONString returns a new Task unmarshalled from the provided JSON
-// string
-func NewTaskFromJSONString(jsonStr string) (Task, error) {
+// NewTaskFromJSON returns a new Task unmarshalled from the provided []byte
+func NewTaskFromJSON(jsonBytes []byte) (Task, error) {
 	t := &task{}
-	err := json.Unmarshal([]byte(jsonStr), t)
-	if err != nil {
+	if err := json.Unmarshal(jsonBytes, t); err != nil {
 		return nil, err
 	}
 	return t, nil
@@ -66,12 +64,7 @@ func (t *task) IncrementWorkerRejectionCount() int {
 	return t.WorkerRejectionCount
 }
 
-// ToJSONString returns a string containing a JSON representation of the
-// task
-func (t *task) ToJSONString() (string, error) {
-	bytes, err := json.Marshal(t)
-	if err != nil {
-		return "", err
-	}
-	return string(bytes), nil
+// ToJSON returns a []byte containing a JSON representation of the task
+func (t *task) ToJSON() ([]byte, error) {
+	return json.Marshal(t)
 }

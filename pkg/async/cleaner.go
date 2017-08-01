@@ -42,8 +42,7 @@ func (c *cleaner) Clean(ctx context.Context) error {
 	defer cancel()
 	ticker := time.NewTicker(time.Second * 10)
 	for {
-		err := c.clean("workers", mainWorkQueueName)
-		if err != nil {
+		if err := c.clean("workers", mainWorkQueueName); err != nil {
 			return &errCleaning{err: err}
 		}
 		select {
@@ -75,8 +74,7 @@ func (c *cleaner) defaultClean(workerSetName, mainWorkQueueName string) error {
 				)
 			}
 			// If we get to here, we have a dead worker on our hands
-			err := c.cleanWorker(workerID, mainWorkQueueName)
-			if err != nil {
+			if err := c.cleanWorker(workerID, mainWorkQueueName); err != nil {
 				return fmt.Errorf(
 					`error cleaning up after dead worker "%s": %s`,
 					workerID,

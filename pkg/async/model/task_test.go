@@ -10,7 +10,7 @@ import (
 
 var (
 	testTask     Task
-	testTaskJSON string
+	testTaskJSON []byte
 )
 
 func init() {
@@ -25,7 +25,7 @@ func init() {
 		},
 	)
 
-	testTaskJSON = fmt.Sprintf(
+	testTaskJSONStr := fmt.Sprintf(
 		`{
 			"id":"%s",
 			"jobName":"%s",
@@ -38,19 +38,20 @@ func init() {
 		argValue,
 		0,
 	)
-	testTaskJSON = strings.Replace(testTaskJSON, " ", "", -1)
-	testTaskJSON = strings.Replace(testTaskJSON, "\n", "", -1)
-	testTaskJSON = strings.Replace(testTaskJSON, "\t", "", -1)
+	testTaskJSONStr = strings.Replace(testTaskJSONStr, " ", "", -1)
+	testTaskJSONStr = strings.Replace(testTaskJSONStr, "\n", "", -1)
+	testTaskJSONStr = strings.Replace(testTaskJSONStr, "\t", "", -1)
+	testTaskJSON = []byte(testTaskJSONStr)
 }
 
-func TestNewTaskFromJSONString(t *testing.T) {
-	task, err := NewTaskFromJSONString(testTaskJSON)
+func TestNewTaskFromJSON(t *testing.T) {
+	task, err := NewTaskFromJSON(testTaskJSON)
 	assert.Nil(t, err)
 	assert.Equal(t, testTask, task)
 }
 
 func TestTaskToJSON(t *testing.T) {
-	jsonStr, err := testTask.ToJSONString()
+	json, err := testTask.ToJSON()
 	assert.Nil(t, err)
-	assert.Equal(t, testTaskJSON, jsonStr)
+	assert.Equal(t, testTaskJSON, json)
 }

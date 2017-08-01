@@ -28,8 +28,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-binding error: error retrieving instance by id",
 		)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
 	if !ok {
@@ -38,9 +37,8 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		)
 		// The instance to bind to does not exist
 		// krancour: Choosing to interpret this scenario as a bad request
-		w.WriteHeader(http.StatusBadRequest)
 		// TODO: Write a more detailed response
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
 		return
 	}
 
@@ -50,20 +48,24 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		)
 		// The instance to bind to does not exist
 		// krancour: Choosing to interpret this scenario as unprocessable
-		w.WriteHeader(http.StatusUnprocessableEntity)
 		// TODO: Write a more detailed response
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusUnprocessableEntity, responseEmptyJSON)
 		return
 	}
 
 	bodyBytes, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"pre-binding error: error reading request body",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		return
+	}
+	defer r.Body.Close() // nolint: errcheck
 
 	bindingRequest := &service.BindingRequest{}
-	err = service.GetBindingRequestFromJSONString(
-		string(bodyBytes),
-		bindingRequest,
-	)
+	err = service.GetBindingRequestFromJSON(bodyBytes, bindingRequest)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Debug(
@@ -71,8 +73,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		)
 		// This scenario is a bad request, as a valid request obviously must contain
 		// valid, well-formed JSON
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responseMalformedRequestBody)
+		s.writeResponse(w, http.StatusBadRequest, responseMalformedRequestBody)
 		return
 	}
 
@@ -90,11 +91,11 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		logFields["planID"] = instance.PlanID
 		logFields["requestPlanID"] = bindingRequest.PlanID
 		log.WithFields(logFields).Debug(
-			"bad binding request: serviceID or planID does not match serviceID or planID on the instance",
+			"bad binding request: serviceID or planID does not match serviceID or " +
+				"planID on the instance",
 		)
-		w.WriteHeader(http.StatusConflict)
 		// TODO: Write a more detailed response
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
 		return
 	}
 
@@ -108,8 +109,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-binding error: no module found for service",
 		)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
 
@@ -117,18 +117,14 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// of the module-specific type for bindingParameters and take a second
 	// pass at parsing the request body
 	bindingRequest.Parameters = module.GetEmptyBindingParameters()
-	err = service.GetBindingRequestFromJSONString(
-		string(bodyBytes),
-		bindingRequest,
-	)
+	err = service.GetBindingRequestFromJSON(bodyBytes, bindingRequest)
 	if err != nil {
 		log.WithFields(logFields).Debug(
 			"bad binding request: error unmarshaling request body",
 		)
 		// This scenario is a bad request, as a valid request obviously must contain
 		// valid, well-formed JSON
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(responseMalformedRequestBody)
+		s.writeResponse(w, http.StatusBadRequest, responseMalformedRequestBody)
 		return
 	}
 	if bindingRequest.Parameters == nil {
@@ -141,8 +137,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-binding error: error retrieving binding by id",
 		)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
 	if ok {
@@ -155,69 +150,66 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		if instanceID != binding.InstanceID {
 			logFields["existingInstanceID"] = binding.InstanceID
 			log.WithFields(logFields).Debug(
-				"bad binding request: instanceID to bind to does not match instanceID of existing binding",
+				"bad binding request: instanceID to bind to does not match " +
+					"instanceID of existing binding",
 			)
-			w.WriteHeader(http.StatusConflict)
 			// TODO: Write a more detailed response
-			w.Write(responseEmptyJSON)
+			s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
 			return
 		}
 		previousBindingRequestParams := module.GetEmptyBindingParameters()
-		err = binding.GetBindingParameters(
+		if err = binding.GetBindingParameters(
 			previousBindingRequestParams,
 			s.codec,
-		)
-		if err != nil {
+		); err != nil {
 			logFields["error"] = err
 			log.WithFields(logFields).Error(
 				"pre-binding error: error decoding persisted bindingParameters",
 			)
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write(responseEmptyJSON)
+			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 			return
 		}
 
-		if reflect.DeepEqual(bindingRequest.Parameters, previousBindingRequestParams) {
+		if reflect.DeepEqual(
+			bindingRequest.Parameters,
+			previousBindingRequestParams,
+		) {
 			// Per the spec, if bound, respond with a 200
 			// Filling in a gap in the spec-- if the status is anything else, we'll
 			// choose to respond with a 409
 			switch binding.Status {
 			case service.BindingStateBound:
 				credentials := module.GetEmptyCredentials()
-				err := binding.GetCredentials(credentials, s.codec)
-				if err != nil {
+				if err = binding.GetCredentials(credentials, s.codec); err != nil {
 					logFields["error"] = err
 					log.WithFields(logFields).Error(
 						"binding error: error decoding persisted credentials",
 					)
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write(responseEmptyJSON)
+					s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 					return
 				}
 				bindingResponse := &service.BindingResponse{
 					Credentials: credentials,
 				}
-				bindingResponseJSONStr, err := bindingResponse.ToJSONString()
+				var bindingResponseJSON []byte
+				bindingResponseJSON, err = bindingResponse.ToJSON()
 				if err != nil {
 					logFields["error"] = err
 					log.WithFields(logFields).Error(
 						"binding error: error marshaling binding response",
 					)
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write(responseEmptyJSON)
+					s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 					return
 				}
-				w.WriteHeader(http.StatusOK)
 				// TODO: krancour: Is this a vulnerability? If I am interpreting the
 				// spec correctly, this is the "right" thing to do, but it also means
 				// any client can steal credentials just by emulating a binding requet
 				// for an existing binding.
-				w.Write([]byte(bindingResponseJSONStr))
+				s.writeResponse(w, http.StatusOK, bindingResponseJSON)
 				return
 			default:
-				w.WriteHeader(http.StatusConflict)
 				// TODO: Write a more detailed response
-				w.Write(responseEmptyJSON)
+				s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
 				return
 			}
 		}
@@ -225,8 +217,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// We land in here if an existing binding was found, but its atrributes
 		// vary from what was requested. The spec requires us to respond with a
 		// 409
-		w.WriteHeader(http.StatusConflict)
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
 		return
 	}
 
@@ -241,13 +232,11 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 			log.WithFields(logFields).Debug(
 				"bad binding request: validation error",
 			)
-			w.WriteHeader(http.StatusBadRequest)
 			// TODO: Send the correct response body-- this is a placeholder
-			w.Write(responseEmptyJSON)
+			s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
 			return
 		}
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
 
@@ -258,8 +247,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"binding error: error decoding persisted provisioningContext",
 		)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
 
@@ -285,8 +273,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = binding.SetBindingContext(bindingContext, s.codec)
-	if err != nil {
+	if err = binding.SetBindingContext(bindingContext, s.codec); err != nil {
 		s.handleBindingError(
 			binding,
 			err,
@@ -296,8 +283,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = binding.SetCredentials(credentials, s.codec)
-	if err != nil {
+	if err = binding.SetCredentials(credentials, s.codec); err != nil {
 		s.handleBindingError(
 			binding,
 			err,
@@ -308,8 +294,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	}
 
 	binding.Status = service.BindingStateBound
-	err = s.store.WriteBinding(binding)
-	if err != nil {
+	if err = s.store.WriteBinding(binding); err != nil {
 		s.handleBindingError(
 			binding,
 			err,
@@ -326,20 +311,18 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	bindingResponse := &service.BindingResponse{
 		Credentials: credentials,
 	}
-	bindingJSONStr, err := bindingResponse.ToJSONString()
+	bindingJSON, err := bindingResponse.ToJSON()
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
 			"post-binding error: error marshaling bindingResponse",
 		)
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
 
 	// If we get all the way to here, we've been successful!
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(bindingJSONStr))
+	s.writeResponse(w, http.StatusCreated, bindingJSON)
 
 	log.WithFields(logFields).Debug("binding complete")
 }
@@ -366,8 +349,7 @@ func (s *server) handleBindingError(
 		"instanceID": binding.InstanceID,
 		"status":     binding.Status,
 	}
-	err := s.store.WriteBinding(binding)
-	if err != nil {
+	if err := s.store.WriteBinding(binding); err != nil {
 		logFields["originalError"] = binding.StatusReason
 		logFields["persistenceError"] = err
 		log.WithFields(logFields).Fatal(
@@ -380,6 +362,5 @@ func (s *server) handleBindingError(
 	log.WithFields(logFields).Error(
 		fmt.Sprintf(`binding error: %s`, msg),
 	)
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write(responseEmptyJSON)
+	s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 }

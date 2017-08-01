@@ -81,16 +81,13 @@ func (w *worker) Work(ctx context.Context) error {
 	// loop (which we'll shortly start in its own goroutine) will have sent the
 	// first heartbeat BEFORE the worker is added to the workers set. To account
 	// for this, we synchronously send the first heartbeat.
-	err := w.heart.Beat()
-	if err != nil {
+	if err := w.heart.Beat(); err != nil {
 		return err
 	}
 	// Heartbeat loop
 	go func() {
-		err := w.heart.Start(ctx)
-		hse := &errHeartStopped{workerID: w.id, err: err}
 		select {
-		case errChan <- hse:
+		case errChan <- &errHeartStopped{workerID: w.id, err: w.heart.Start(ctx)}:
 		case <-ctx.Done():
 		}
 	}()
@@ -106,10 +103,11 @@ func (w *worker) Work(ctx context.Context) error {
 	// Receive and do work
 	for range [5]struct{}{} {
 		go func() {
-			err := w.receiveAndWork(ctx, mainWorkQueueName)
-			rawse := &errReceiveAndWorkStopped{workerID: w.id, err: err}
 			select {
-			case errChan <- rawse:
+			case errChan <- &errReceiveAndWorkStopped{
+				workerID: w.id,
+				err:      w.receiveAndWork(ctx, mainWorkQueueName),
+			}:
 			case <-ctx.Done():
 			}
 		}()
@@ -142,11 +140,11 @@ func (w *worker) defaultReceiveAndWork(
 			if strCmd.Err() != nil {
 				return fmt.Errorf("error receiving task: %s", strCmd.Err())
 			}
-			taskJSON, err := strCmd.Result()
+			taskJSON, err := strCmd.Bytes()
 			if err != nil {
 				return fmt.Errorf("error receiving task: %s", err)
 			}
-			task, err := model.NewTaskFromJSONString(taskJSON)
+			task, err := model.NewTaskFromJSON(taskJSON)
 			if err != nil {
 				// If the JSON is invalid, remove the message from this worker's queue,
 				// log this and move on. No other worker is going to be able to process
@@ -163,7 +161,8 @@ func (w *worker) defaultReceiveAndWork(
 				)
 				if intCmd.Err() != nil {
 					return fmt.Errorf(
-						"error removing malformed task from the worker's work queue; task: %s: %s",
+						"error removing malformed task from the worker's work queue; "+
+							"task: %s: %s",
 						taskJSON,
 						err,
 					)
@@ -180,7 +179,7 @@ func (w *worker) defaultReceiveAndWork(
 					// Construct and execute a transaction that removes the task from this
 					// worker's queue and re-queues it in the main work queue.
 					task.IncrementWorkerRejectionCount()
-					newTaskJSON, err := task.ToJSONString()
+					newTaskJSON, err := task.ToJSON()
 					if err != nil {
 						return fmt.Errorf(
 							"error moving unprocessable task back to main work queue; task: %#v: %s",

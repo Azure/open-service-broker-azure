@@ -9,11 +9,6 @@ import (
 	"github.com/go-redis/redis"
 )
 
-const (
-	operationProvisioning   = "provisioning"
-	operationDeprovisioning = "deprovisioning"
-)
-
 // Engine is an interface for a broker-specifc framework for submitting and
 // asynchronously completing provisioning and deprovisioning tasks.
 type Engine interface {
@@ -53,7 +48,7 @@ func (e *engine) RegisterJob(name string, fn model.JobFunction) error {
 // SubmitTask submits an idempotent task to the async engine for reliable,
 // asynchronous completion
 func (e *engine) SubmitTask(task model.Task) error {
-	taskJSON, err := task.ToJSONString()
+	taskJSON, err := task.ToJSON()
 	if err != nil {
 		return fmt.Errorf("error encoding task %#v: %s", task, err)
 	}
@@ -70,19 +65,18 @@ func (e *engine) Start(ctx context.Context) error {
 	errChan := make(chan error)
 	// Start the cleaner
 	go func() {
-		err := e.cleaner.Clean(ctx)
-		cse := &errCleanerStopped{err: err}
 		select {
-		case errChan <- cse:
+		case errChan <- &errCleanerStopped{err: e.cleaner.Clean(ctx)}:
 		case <-ctx.Done():
 		}
 	}()
 	// Start the worker
 	go func() {
-		err := e.worker.Work(ctx)
-		wse := &errWorkerStopped{workerID: e.worker.GetID(), err: err}
 		select {
-		case errChan <- wse:
+		case errChan <- &errWorkerStopped{
+			workerID: e.worker.GetID(),
+			err:      e.worker.Work(ctx),
+		}:
 		case <-ctx.Done():
 		}
 	}()

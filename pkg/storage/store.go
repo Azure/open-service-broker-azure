@@ -41,27 +41,27 @@ func NewStore(redisClient *redis.Client) Store {
 }
 
 func (s *store) WriteInstance(instance *service.Instance) error {
-	json, err := instance.ToJSONString()
+	json, err := instance.ToJSON()
 	if err != nil {
 		return err
 	}
 	return s.redisClient.Set(instance.InstanceID, json, 0).Err()
 }
 
-func (s *store) GetInstance(instanceID string) (*service.Instance, bool, error) {
+func (s *store) GetInstance(
+	instanceID string,
+) (*service.Instance, bool, error) {
 	strCmd := s.redisClient.Get(instanceID)
-	err := strCmd.Err()
-	if err == redis.Nil {
+	if err := strCmd.Err(); err == redis.Nil {
 		return nil, false, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return nil, false, err
 	}
 	bytes, err := strCmd.Bytes()
 	if err != nil {
 		return nil, false, err
 	}
-	instance, err := service.NewInstanceFromJSONString(string(bytes))
+	instance, err := service.NewInstanceFromJSON(bytes)
 	if err != nil {
 		return nil, false, err
 	}
@@ -70,22 +70,19 @@ func (s *store) GetInstance(instanceID string) (*service.Instance, bool, error) 
 
 func (s *store) DeleteInstance(instanceID string) (bool, error) {
 	strCmd := s.redisClient.Get(instanceID)
-	err := strCmd.Err()
-	if err == redis.Nil {
+	if err := strCmd.Err(); err == redis.Nil {
 		return false, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return false, err
 	}
-	err = s.redisClient.Del(instanceID).Err()
-	if err != nil {
+	if err := s.redisClient.Del(instanceID).Err(); err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
 func (s *store) WriteBinding(binding *service.Binding) error {
-	json, err := binding.ToJSONString()
+	json, err := binding.ToJSON()
 	if err != nil {
 		return err
 	}
@@ -94,18 +91,16 @@ func (s *store) WriteBinding(binding *service.Binding) error {
 
 func (s *store) GetBinding(bindingID string) (*service.Binding, bool, error) {
 	strCmd := s.redisClient.Get(bindingID)
-	err := strCmd.Err()
-	if err == redis.Nil {
+	if err := strCmd.Err(); err == redis.Nil {
 		return nil, false, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return nil, false, err
 	}
 	bytes, err := strCmd.Bytes()
 	if err != nil {
 		return nil, false, err
 	}
-	binding, err := service.NewBindingFromJSONString(string(bytes))
+	binding, err := service.NewBindingFromJSON(bytes)
 	if err != nil {
 		return nil, false, err
 	}
@@ -114,15 +109,12 @@ func (s *store) GetBinding(bindingID string) (*service.Binding, bool, error) {
 
 func (s *store) DeleteBinding(bindingID string) (bool, error) {
 	strCmd := s.redisClient.Get(bindingID)
-	err := strCmd.Err()
-	if err == redis.Nil {
+	if err := strCmd.Err(); err == redis.Nil {
 		return false, nil
-	}
-	if err != nil {
+	} else if err != nil {
 		return false, err
 	}
-	err = s.redisClient.Del(bindingID).Err()
-	if err != nil {
+	if err := s.redisClient.Del(bindingID).Err(); err != nil {
 		return false, err
 	}
 	return true, nil

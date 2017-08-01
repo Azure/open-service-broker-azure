@@ -2,10 +2,13 @@ package api
 
 import "net/http"
 
-func (s *server) healthCheck(w http.ResponseWriter, r *http.Request) {
+func (s *server) healthCheck(
+	w http.ResponseWriter,
+	r *http.Request, // nolint: unparam
+) {
 	if err := s.store.TestConnection(); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	s.writeResponse(w, http.StatusOK, responseEmptyJSON)
 }
