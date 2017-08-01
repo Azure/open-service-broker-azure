@@ -9,7 +9,7 @@ sudo: required
 before_script:
 - make dev-bootstrap
 script:
-- make test docker-build
+- make lint test docker-build
 deploy:
   skip_cleanup: true
   provider: script

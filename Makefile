@@ -61,6 +61,35 @@ dev: check-docker-compose
 test: check-docker-compose
 	docker-compose run --rm test bash -c 'go test $$(glide nv)'
 
+.PHONY: lint
+lint: check-docker-compose
+	docker-compose run \
+		--rm test \
+		bash -c 'gometalinter $$(glide nv) \
+			--disable-all \
+			--enable gofmt \
+			--enable vet \
+			--enable vetshadow \
+			--enable gotype \
+			--enable deadcode \
+			--enable golint \
+			--enable varcheck \
+			--enable structcheck \
+			--enable aligncheck \
+			--enable errcheck \
+			--enable megacheck \
+			--enable ineffassign \
+			--enable interfacer \
+			--enable unconvert \
+			--enable goconst \
+			--enable gas \
+			--enable goimports \
+			--enable misspell \
+			--enable unparam \
+			--enable lll \
+			--line-length 80 \
+			--deadline 120s'
+
 # Running the tests starts a containerized Redis dedicated to testing (if it
 # isn't already running). It's left running afterwards (to speed up the next
 # execution). It remains running unless explicitly shut down. This is a
