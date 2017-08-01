@@ -18,7 +18,7 @@ func New() service.Module {
 }
 
 func (m *module) GetName() string {
-	return "example"
+	return "echo"
 }
 
 func (m *module) ValidateProvisioningParameters(
