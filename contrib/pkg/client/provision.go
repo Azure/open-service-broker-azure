@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/azure-service-broker/pkg/api"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -25,7 +25,7 @@ func Provision(
 		getBaseURL(host, port),
 		instanceID,
 	)
-	provisioningRequest := &service.ProvisioningRequest{
+	provisioningRequest := &api.ProvisioningRequest{
 		ServiceID:  serviceID,
 		PlanID:     planID,
 		Parameters: params,

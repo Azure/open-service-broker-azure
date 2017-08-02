@@ -50,7 +50,7 @@ func TestProvisioningWithMissingServiceID(t *testing.T) {
 		map[string]string{
 			"accepts_incomplete": "true",
 		},
-		&service.ProvisioningRequest{
+		&ProvisioningRequest{
 			ServiceID: "",
 			PlanID:    getDisposablePlanID(),
 		},
@@ -70,7 +70,7 @@ func TestProvisioningWithMissingPlanID(t *testing.T) {
 		map[string]string{
 			"accepts_incomplete": "true",
 		},
-		&service.ProvisioningRequest{
+		&ProvisioningRequest{
 			ServiceID: getDisposableServiceID(),
 			PlanID:    "",
 		},
@@ -90,7 +90,7 @@ func TestProvisioningWithInvalidServiceID(t *testing.T) {
 		map[string]string{
 			"accepts_incomplete": "true",
 		},
-		&service.ProvisioningRequest{
+		&ProvisioningRequest{
 			ServiceID: getDisposableServiceID(),
 			PlanID:    getDisposablePlanID(),
 		},
@@ -110,7 +110,7 @@ func TestProvisioningWithInvalidPlanID(t *testing.T) {
 		map[string]string{
 			"accepts_incomplete": "true",
 		},
-		&service.ProvisioningRequest{
+		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    getDisposablePlanID(),
 		},
@@ -147,7 +147,7 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 		map[string]string{
 			"accepts_incomplete": "true",
 		},
-		&service.ProvisioningRequest{
+		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
 			Parameters: &fake.ProvisioningParameters{
@@ -180,7 +180,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		map[string]string{
 			"accepts_incomplete": "true",
 		},
-		&service.ProvisioningRequest{
+		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
 		},
@@ -210,7 +210,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		map[string]string{
 			"accepts_incomplete": "true",
 		},
-		&service.ProvisioningRequest{
+		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
 		},
@@ -236,7 +236,7 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 		map[string]string{
 			"accepts_incomplete": "true",
 		},
-		&service.ProvisioningRequest{
+		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
 		},
@@ -255,7 +255,7 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 func getProvisionRequest(
 	instanceID string,
 	queryParams map[string]string,
-	pr *service.ProvisioningRequest,
+	pr *ProvisioningRequest,
 ) (*http.Request, error) {
 	var body []byte
 	if pr != nil {

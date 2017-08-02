@@ -67,7 +67,7 @@ func TestBindingWithServiceIDDifferentFromInstanceServiceID(t *testing.T) {
 	req, err := getBindingRequest(
 		instanceID,
 		getDisposableBindingID(),
-		&service.BindingRequest{
+		&BindingRequest{
 			ServiceID: getDisposableServiceID(),
 			PlanID:    planID,
 		},
@@ -94,7 +94,7 @@ func TestBindingWithPlanIDDifferentFromInstancePlanID(t *testing.T) {
 	req, err := getBindingRequest(
 		instanceID,
 		getDisposableBindingID(),
-		&service.BindingRequest{
+		&BindingRequest{
 			ServiceID: serviceID,
 			PlanID:    getDisposablePlanID(),
 		},
@@ -121,7 +121,7 @@ func TestBindingModuleNotFoundForServiceID(t *testing.T) {
 	req, err := getBindingRequest(
 		instanceID,
 		getDisposableBindingID(),
-		&service.BindingRequest{},
+		&BindingRequest{},
 	)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
@@ -152,7 +152,7 @@ func TestBindingWithExistingBindingWithDifferentInstanceID(
 	req, err := getBindingRequest(
 		instanceID,
 		bindingID,
-		&service.BindingRequest{},
+		&BindingRequest{},
 	)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
@@ -191,7 +191,7 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 	req, err := getBindingRequest(
 		instanceID,
 		bindingID,
-		&service.BindingRequest{
+		&BindingRequest{
 			Parameters: &fake.BindingParameters{
 				SomeParameter: "bar",
 			},
@@ -227,7 +227,7 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 	req, err := getBindingRequest(
 		instanceID,
 		bindingID,
-		&service.BindingRequest{},
+		&BindingRequest{},
 	)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
@@ -259,7 +259,7 @@ func TestBindingWithExistingFailedBindingWithSameAttributes(
 	req, err := getBindingRequest(
 		instanceID,
 		bindingID,
-		&service.BindingRequest{},
+		&BindingRequest{},
 	)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
@@ -295,7 +295,7 @@ func TestBrandNewBinding(t *testing.T) {
 	req, err := getBindingRequest(
 		instanceID,
 		getDisposableBindingID(),
-		&service.BindingRequest{},
+		&BindingRequest{},
 	)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
@@ -309,7 +309,7 @@ func TestBrandNewBinding(t *testing.T) {
 func getBindingRequest(
 	instanceID string,
 	bindingID string,
-	br *service.BindingRequest,
+	br *BindingRequest,
 ) (*http.Request, error) {
 	var body []byte
 	if br != nil {

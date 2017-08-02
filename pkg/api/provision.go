@@ -55,8 +55,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close() // nolint: errcheck
 
-	provisioningRequest := &service.ProvisioningRequest{}
-	err = service.GetProvisioningRequestFromJSON(bodyBytes, provisioningRequest)
+	provisioningRequest := &ProvisioningRequest{}
+	err = GetProvisioningRequestFromJSON(bodyBytes, provisioningRequest)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Debug(
@@ -124,7 +124,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// of the module-specific type for provisioningParameters and take a second
 	// pass at parsing the request body
 	provisioningRequest.Parameters = module.GetEmptyProvisioningParameters()
-	err = service.GetProvisioningRequestFromJSON(bodyBytes, provisioningRequest)
+	err = GetProvisioningRequestFromJSON(bodyBytes, provisioningRequest)
 	if err != nil {
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: error unmarshaling request body",
@@ -169,7 +169,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 			return
 		}
-		previousProvisioningRequest := &service.ProvisioningRequest{
+		previousProvisioningRequest := &ProvisioningRequest{
 			ServiceID:  instance.ServiceID,
 			PlanID:     instance.PlanID,
 			Parameters: previousProvisioningRequestParams,

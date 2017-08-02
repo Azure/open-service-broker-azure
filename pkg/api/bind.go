@@ -64,8 +64,8 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close() // nolint: errcheck
 
-	bindingRequest := &service.BindingRequest{}
-	err = service.GetBindingRequestFromJSON(bodyBytes, bindingRequest)
+	bindingRequest := &BindingRequest{}
+	err = GetBindingRequestFromJSON(bodyBytes, bindingRequest)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Debug(
@@ -117,7 +117,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// of the module-specific type for bindingParameters and take a second
 	// pass at parsing the request body
 	bindingRequest.Parameters = module.GetEmptyBindingParameters()
-	err = service.GetBindingRequestFromJSON(bodyBytes, bindingRequest)
+	err = GetBindingRequestFromJSON(bodyBytes, bindingRequest)
 	if err != nil {
 		log.WithFields(logFields).Debug(
 			"bad binding request: error unmarshaling request body",
@@ -188,7 +188,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 					s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 					return
 				}
-				bindingResponse := &service.BindingResponse{
+				bindingResponse := &BindingResponse{
 					Credentials: credentials,
 				}
 				var bindingResponseJSON []byte
@@ -308,7 +308,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// occur are errors in preparing or sending the response. Such errors do not
 	// need to affect the binding's state.
 
-	bindingResponse := &service.BindingResponse{
+	bindingResponse := &BindingResponse{
 		Credentials: credentials,
 	}
 	bindingJSON, err := bindingResponse.ToJSON()

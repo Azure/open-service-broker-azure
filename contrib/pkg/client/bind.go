@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/azure-service-broker/pkg/api"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -26,7 +26,7 @@ func Bind(
 		instanceID,
 		bindingID,
 	)
-	bindingRequest := &service.BindingRequest{
+	bindingRequest := &api.BindingRequest{
 		Parameters: params,
 	}
 	json, err := bindingRequest.ToJSON()
@@ -60,8 +60,8 @@ func Bind(
 			resp.StatusCode,
 		)
 	}
-	bindingResponse := &service.BindingResponse{}
-	err = service.GetBindingResponseFromJSON(bodyBytes, bindingResponse)
+	bindingResponse := &api.BindingResponse{}
+	err = api.GetBindingResponseFromJSON(bodyBytes, bindingResponse)
 	if err != nil {
 		return "", nil, fmt.Errorf("error decoding response body: %s", err)
 	}

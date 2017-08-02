@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/Azure/azure-service-broker/pkg/api/authenticator/always"
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
@@ -8,6 +10,19 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/fake"
 	memoryStorage "github.com/Azure/azure-service-broker/pkg/storage/memory"
 	uuid "github.com/satori/go.uuid"
+)
+
+type ArbitraryType struct {
+	Foo string `json:"foo"`
+}
+
+const fooValue = "bar"
+
+var (
+	testArbitraryObject = &ArbitraryType{
+		Foo: fooValue,
+	}
+	testArbitraryObjectJSON = []byte(fmt.Sprintf(`{"foo":"%s"}`, fooValue))
 )
 
 func getDisposableInstanceID() string {
