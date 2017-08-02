@@ -219,7 +219,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusAccepted, rr.Code)
-	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
+	assert.Equal(t, responseProvisioningAccepted, rr.Body.Bytes())
 }
 
 func TestKickOffNewAsyncProvisioning(t *testing.T) {
@@ -249,7 +249,7 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 	assert.Equal(t, http.StatusAccepted, rr.Code)
 	assert.True(t, validationCalled)
 	assert.Equal(t, 1, len(e.SubmittedTasks))
-	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
+	assert.Equal(t, responseProvisioningAccepted, rr.Body.Bytes())
 }
 
 func getProvisionRequest(

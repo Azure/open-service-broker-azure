@@ -4,8 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/Azure/azure-service-broker/contrib/pkg/client"
+	"github.com/Azure/azure-service-broker/pkg/api"
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -48,5 +50,39 @@ func provision(c *cli.Context) error {
 		log.Fatal(err)
 	}
 	fmt.Printf("\nProvisioning service instance %s\n\n", instanceID)
+	if c.Bool(flagPoll) {
+		ticker := time.NewTicker(time.Second * 5)
+		defer ticker.Stop()
+		for range ticker.C {
+			result, err := client.Poll(
+				host,
+				port,
+				username,
+				password,
+				instanceID,
+				api.OperationProvisioning,
+			)
+			if err != nil {
+				return fmt.Errorf("error polling for provisioning status: %s", err)
+			}
+			switch result {
+			case api.OperationStateInProgress:
+				fmt.Print(".")
+			case api.OperationStateSucceeded:
+				fmt.Printf(
+					"\n\nService instance %s has been successfully provisioned\n\n",
+					instanceID,
+				)
+				return nil
+			case api.OperationStateFailed:
+				return fmt.Errorf(
+					"Provisioning service instance %s has failed",
+					instanceID,
+				)
+			default:
+				return fmt.Errorf("Unrecognized operation status: %s", result)
+			}
+		}
+	}
 	return nil
 }

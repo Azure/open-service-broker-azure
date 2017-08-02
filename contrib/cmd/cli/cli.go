@@ -58,8 +58,31 @@ func main() {
 					Usage: "specify a service-specific provisioning parameter as a k=v " +
 						"pair",
 				},
+				cli.BoolFlag{
+					Name: flagPoll,
+					Usage: "poll the instance for status until provisioning succeeds " +
+						"or fails",
+				},
 			},
 			Action: provision,
+		},
+		{
+			Name:  "poll",
+			Usage: "poll instance status",
+			UsageText: "broker-cli [global options] poll --instance-id " +
+				"<instance id> --operation <provisioning|deprovisioning> " +
+				"[other command options]",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  flagsInstanceID,
+					Usage: "specify the `<instance id>`; required",
+				},
+				cli.StringFlag{
+					Name:  flagsOperation,
+					Usage: "specify the `<operation>`; required",
+				},
+			},
+			Action: poll,
 		},
 		{
 			Name:  "bind",
@@ -104,6 +127,11 @@ func main() {
 				cli.StringFlag{
 					Name:  flagsInstanceID,
 					Usage: "specify the `<instance id>`; required",
+				},
+				cli.BoolFlag{
+					Name: flagPoll,
+					Usage: "poll the instance for status until deprovisioning succeeds " +
+						"or fails",
 				},
 			},
 			Action: deprovision,

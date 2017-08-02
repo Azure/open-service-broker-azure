@@ -180,7 +180,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			// choose to respond with a 409
 			switch instance.Status {
 			case service.InstanceStateProvisioning:
-				s.writeResponse(w, http.StatusAccepted, responseEmptyJSON)
+				s.writeResponse(w, http.StatusAccepted, responseProvisioningAccepted)
 				return
 			case service.InstanceStateProvisioned:
 				s.writeResponse(w, http.StatusOK, responseEmptyJSON)
@@ -297,7 +297,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If we get all the way to here, we've been successful!
-	s.writeResponse(w, http.StatusAccepted, responseEmptyJSON)
+	s.writeResponse(w, http.StatusAccepted, responseProvisioningAccepted)
 
 	log.WithFields(logFields).Debug("asynchronous provisioning initiated")
 }

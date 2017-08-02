@@ -19,4 +19,7 @@ const (
 	flagsBindingID  = "binding-id, bid"
 	flagParameter   = "parameter"
 	flagsParameter  = "parameter, param"
+	flagOperation   = "operation"
+	flagsOperation  = "operation, o"
+	flagPoll        = "poll"
 )

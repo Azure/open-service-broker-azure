@@ -64,7 +64,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"deprovisioning is already in progress",
 		)
-		s.writeResponse(w, http.StatusAccepted, responseEmptyJSON)
+		s.writeResponse(w, http.StatusAccepted, responseDeprovisioningAccepted)
 		return
 	case service.InstanceStateProvisioned:
 	case service.InstanceStateProvisioningFailed:
@@ -145,7 +145,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If we get all the way to here, we've been successful!
-	s.writeResponse(w, http.StatusAccepted, responseEmptyJSON)
+	s.writeResponse(w, http.StatusAccepted, responseDeprovisioningAccepted)
 
 	log.WithFields(logFields).Debug("asynchronous deprovisioning initiated")
 }
