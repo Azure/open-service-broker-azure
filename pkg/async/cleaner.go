@@ -41,6 +41,7 @@ func (c *cleaner) Clean(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	ticker := time.NewTicker(time.Second * 10)
+	defer ticker.Stop()
 	for {
 		if err := c.clean("workers", mainWorkQueueName); err != nil {
 			return &errCleaning{err: err}

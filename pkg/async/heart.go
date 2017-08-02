@@ -70,6 +70,7 @@ func (h *heart) Beat() error {
 // Start sends heartbeats at regular intervals
 func (h *heart) Start(ctx context.Context) error {
 	ticker := time.NewTicker(h.frequency)
+	defer ticker.Stop()
 	for {
 		if err := h.Beat(); err != nil {
 			return err
