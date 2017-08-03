@@ -13,8 +13,13 @@ type Module interface {
 	// provisioningParameters and returns an error if there is any problem
 	ValidateProvisioningParameters(params interface{}) error
 	// GetProvisioner returns a provisioner that defines the steps a module must
-	// execute asynchronously to provision a service
-	GetProvisioner() (Provisioner, error)
+	// execute asynchronously to provision a service.
+	//
+	// The two input parameters represent the service ID and plan ID
+	// (respectively). Using these parameters, module implementations can
+	// choose to return different Provisioner implementations for different
+	// services/plans
+	GetProvisioner(serviceID, planID string) (Provisioner, error)
 	// GetEmptyProvisioningContext returns an empty instance of a module-specific
 	// provisioningContext
 	GetEmptyProvisioningContext() interface{}
@@ -40,5 +45,10 @@ type Module interface {
 	Unbind(provisioningContext, bindingContext interface{}) error
 	// GetDeprovisioner returns a deprovisioner that defines the steps a module
 	// must execute asynchronously to deprovision a service
-	GetDeprovisioner() (Deprovisioner, error)
+	//
+	// The two input parameters represent the service ID and plan ID
+	// (respectively). Using these parameters, module implementations can
+	// choose to return different Deprovisioner implementations for different
+	// services/plans
+	GetDeprovisioner(serviceID, planID string) (Deprovisioner, error)
 }

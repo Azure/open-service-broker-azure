@@ -93,7 +93,10 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deprovisioner, err := module.GetDeprovisioner()
+	deprovisioner, err := module.GetDeprovisioner(
+		instance.ServiceID,
+		instance.PlanID,
+	)
 	if err != nil {
 		logFields["serviceID"] = instance.ServiceID
 		logFields["planID"] = instance.PlanID

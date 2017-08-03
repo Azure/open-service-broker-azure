@@ -218,7 +218,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provisioner, err := module.GetProvisioner()
+	provisioner, err := module.GetProvisioner(
+		provisioningRequest.ServiceID,
+		provisioningRequest.PlanID,
+	)
 	if err != nil {
 		logFields["serviceID"] = provisioningRequest.ServiceID
 		logFields["planID"] = provisioningRequest.PlanID

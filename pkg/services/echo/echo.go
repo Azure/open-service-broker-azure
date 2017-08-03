@@ -31,7 +31,7 @@ func (m *module) ValidateProvisioningParameters(
 	return nil
 }
 
-func (m *module) GetProvisioner() (service.Provisioner, error) {
+func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 	return service.NewProvisioner(
 		service.NewProvisioningStep(
 			"generateMessageId",
@@ -123,7 +123,10 @@ func (m *module) Unbind(
 	return nil
 }
 
-func (m *module) GetDeprovisioner() (service.Deprovisioner, error) {
+func (m *module) GetDeprovisioner(
+	string,
+	string,
+) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("pause", m.pauseDeprovisioning),
 		service.NewDeprovisioningStep(

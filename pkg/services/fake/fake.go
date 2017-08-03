@@ -53,7 +53,7 @@ func (m *Module) ValidateProvisioningParameters(
 
 // GetProvisioner returns a provisioner that defines the steps a module must
 // execute asynchronously to provision a service
-func (m *Module) GetProvisioner() (service.Provisioner, error) {
+func (m *Module) GetProvisioner(string, string) (service.Provisioner, error) {
 	return service.NewProvisioner(
 		service.NewProvisioningStep("run", m.provision),
 	)
@@ -93,7 +93,10 @@ func (m *Module) Unbind(
 
 // GetDeprovisioner returns a deprovisioner that defines the steps a module
 // must execute asynchronously to deprovision a service
-func (m *Module) GetDeprovisioner() (service.Deprovisioner, error) {
+func (m *Module) GetDeprovisioner(
+	string,
+	string,
+) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("run", m.deprovision),
 	)

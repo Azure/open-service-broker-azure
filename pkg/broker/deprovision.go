@@ -67,7 +67,10 @@ func (b *broker) doDeprovisionStep(
 			"error decoding provisioningContext from persisted instance",
 		)
 	}
-	deprovisioner, err := module.GetDeprovisioner()
+	deprovisioner, err := module.GetDeprovisioner(
+		instance.ServiceID,
+		instance.PlanID,
+	)
 	if err != nil {
 		return b.handleDeprovisioningError(
 			instanceID,

@@ -77,7 +77,7 @@ func (b *broker) doProvisionStep(
 			"error decoding provisioningParameters from persisted instance",
 		)
 	}
-	provisioner, err := module.GetProvisioner()
+	provisioner, err := module.GetProvisioner(instance.ServiceID, instance.PlanID)
 	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,
