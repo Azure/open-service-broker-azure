@@ -6,6 +6,7 @@ import (
 
 	"github.com/Azure/azure-service-broker/pkg/azure"
 	"github.com/Azure/azure-service-broker/pkg/service"
+	log "github.com/Sirupsen/logrus"
 	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
 )
@@ -89,6 +90,7 @@ func (m *module) deployARMTemplate(
 		map[string]interface{}{
 			"administratorLoginPassword": pc.AdministratorLoginPassword,
 			"serverName":                 pc.ServerName,
+			"databaseName":               pc.DatabaseName,
 		},
 	)
 	if err != nil {
@@ -125,35 +127,46 @@ func (m *module) setupDatabase(
 	}
 	defer db.Close() // nolint: errcheck
 
-	_, err = db.Exec(
-		fmt.Sprintf("create role %s", pc.DatabaseName),
-	)
+	tx, err := db.Begin()
 	if err != nil {
+		return nil, fmt.Errorf("error starting transaction: %s", err)
+	}
+	defer func() {
+		if err != nil {
+			if err = tx.Rollback(); err != nil {
+				log.WithField("error", err).Error("error rolling back transaction")
+			}
+		}
+	}()
+	if _, err = tx.Exec(
+		fmt.Sprintf("create role %s", pc.DatabaseName),
+	); err != nil {
 		return nil, fmt.Errorf(`error creating role "%s": %s`, pc.DatabaseName, err)
 	}
-	_, err = db.Exec(
+	if _, err = tx.Exec(
 		fmt.Sprintf("grant %s to postgres", pc.DatabaseName),
-	)
-	if err != nil {
+	); err != nil {
 		return nil, fmt.Errorf(
 			`error adding role "%s" to role "postgres": %s`,
 			pc.DatabaseName,
 			err,
 		)
 	}
-	_, err = db.Exec(
+	if _, err = tx.Exec(
 		fmt.Sprintf(
-			"create database %s with owner %s",
+			"alter database %s owner to %s",
 			pc.DatabaseName,
 			pc.DatabaseName,
 		),
-	)
-	if err != nil {
+	); err != nil {
 		return nil, fmt.Errorf(
-			`error creating database "%s": %s`,
+			`error updating database owner"%s": %s`,
 			pc.DatabaseName,
 			err,
 		)
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
 	return pc, nil

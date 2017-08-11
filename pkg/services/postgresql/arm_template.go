@@ -51,6 +51,11 @@ var armTemplateBytes = []byte(`
 			"allowedValues": [ "9.5", "9.6" ],
 			"defaultValue": "9.6"
 		},
+		"databaseName": {
+			"type": "string",
+			"minLength": 2,
+			"maxLength": 63
+		},
 		"firewallRuleName": {
 			"type": "string",
 			"minLength": 1,
@@ -94,6 +99,16 @@ var armTemplateBytes = []byte(`
 			},
 			"type": "Microsoft.DBforPostgreSQL/servers",
 			"resources": [
+				{
+					"apiVersion": "2017-04-30-preview",
+					"name": "[parameters('databaseName')]",
+					"type": "databases",
+					"location": "[resourceGroup().location]",
+					"dependsOn": [
+							"[resourceId('Microsoft.DBforPostgreSQL/servers', parameters('serverName'))]"
+					],
+					"properties": {}
+				},
 				{
 					"type": "firewallrules",
 					"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",

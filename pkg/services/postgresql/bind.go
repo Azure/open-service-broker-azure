@@ -2,6 +2,8 @@ package postgresql
 
 import (
 	"fmt"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -41,20 +43,25 @@ func (m *module) Bind(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error starting transaction: %s", err)
 	}
-	_, err = tx.Exec(
+	defer func() {
+		if err != nil {
+			if err = tx.Rollback(); err != nil {
+				log.WithField("error", err).Error("error rolling back transaction")
+			}
+		}
+	}()
+	if _, err = tx.Exec(
 		fmt.Sprintf("create role %s with password '%s' login", roleName, password),
-	)
-	if err != nil {
+	); err != nil {
 		return nil, nil, fmt.Errorf(
 			`error creating role "%s": %s`,
 			roleName,
 			err,
 		)
 	}
-	_, err = tx.Exec(
+	if _, err = tx.Exec(
 		fmt.Sprintf("grant %s to %s", pc.DatabaseName, roleName),
-	)
-	if err != nil {
+	); err != nil {
 		return nil, nil, fmt.Errorf(
 			`error adding role "%s" to role "%s": %s`,
 			pc.DatabaseName,
@@ -62,10 +69,9 @@ func (m *module) Bind(
 			err,
 		)
 	}
-	_, err = tx.Exec(
+	if _, err = tx.Exec(
 		fmt.Sprintf("alter role %s set role %s", roleName, pc.DatabaseName),
-	)
-	if err != nil {
+	); err != nil {
 		return nil, nil, fmt.Errorf(
 			`error making "%s" the default role for "%s" sessions: %s`,
 			pc.DatabaseName,
@@ -84,7 +90,7 @@ func (m *module) Bind(
 			Host:     pc.FullyQualifiedDomainName,
 			Port:     5432,
 			Database: pc.DatabaseName,
-			Username: roleName,
+			Username: fmt.Sprintf("%s@%s", roleName, pc.ServerName),
 			Password: password,
 		},
 		nil
