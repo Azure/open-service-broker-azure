@@ -48,7 +48,7 @@ func (b *broker) doDeprovisionStep(
 	module, ok := b.modules[instance.ServiceID]
 	if !ok {
 		return b.handleDeprovisioningError(
-			instanceID,
+			instance,
 			stepName,
 			nil,
 			fmt.Sprintf(
@@ -61,7 +61,7 @@ func (b *broker) doDeprovisionStep(
 	err = instance.GetProvisioningContext(provisioningContext, b.codec)
 	if err != nil {
 		return b.handleDeprovisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			"error decoding provisioningContext from persisted instance",
@@ -73,7 +73,7 @@ func (b *broker) doDeprovisionStep(
 	)
 	if err != nil {
 		return b.handleDeprovisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			fmt.Sprintf(
@@ -85,7 +85,7 @@ func (b *broker) doDeprovisionStep(
 	step, ok := deprovisioner.GetStep(stepName)
 	if !ok {
 		return b.handleDeprovisioningError(
-			instanceID,
+			instance,
 			stepName,
 			nil,
 			`deprovisioner does not know how to process step "%s"`,
@@ -97,7 +97,7 @@ func (b *broker) doDeprovisionStep(
 	)
 	if err != nil {
 		return b.handleDeprovisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			"error executing deprovisioning step",
@@ -106,7 +106,7 @@ func (b *broker) doDeprovisionStep(
 	err = instance.SetProvisioningContext(updatedProvisioningContext, b.codec)
 	if err != nil {
 		return b.handleDeprovisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			"error encoding modified provisioningContext",
@@ -115,7 +115,7 @@ func (b *broker) doDeprovisionStep(
 	if nextStepName, ok := deprovisioner.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instance); err != nil {
 			return b.handleDeprovisioningError(
-				instanceID,
+				instance,
 				stepName,
 				err,
 				"error persisting instance",
@@ -130,7 +130,7 @@ func (b *broker) doDeprovisionStep(
 		)
 		if err = b.asyncEngine.SubmitTask(task); err != nil {
 			return b.handleDeprovisioningError(
-				instanceID,
+				instance,
 				stepName,
 				err,
 				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
@@ -141,7 +141,7 @@ func (b *broker) doDeprovisionStep(
 		_, err = b.store.DeleteInstance(instance.InstanceID)
 		if err != nil {
 			return b.handleDeprovisioningError(
-				instanceID,
+				instance,
 				stepName,
 				err,
 				"error deleting deprovisioned instance",

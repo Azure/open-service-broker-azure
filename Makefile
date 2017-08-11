@@ -112,7 +112,13 @@ run: check-docker-compose build
 	@# from the docker-build task used to produce a correctly tagged Docker image,
 	@# although both builds are based on the same Dockerfile
 	docker-compose build broker
-	docker-compose run --rm -p 8080:8080 broker
+	docker-compose run \
+		--rm -p 8080:8080 \
+		-e AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} \
+		-e AZURE_TENANT_ID=${AZURE_TENANT_ID} \
+		-e AZURE_CLIENT_ID=${AZURE_CLIENT_ID} \
+		-e AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET} \
+		broker
 
 # Running the broker starts a containerized Redis dedicated to that purpose (if
 # it isn't already running). It's left running afterwards (to speed up the next

@@ -311,6 +311,9 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	bindingResponse := &BindingResponse{
 		Credentials: credentials,
 	}
+	if bindingResponse.Credentials == nil {
+		bindingResponse.Credentials = module.GetEmptyCredentials()
+	}
 	bindingJSON, err := bindingResponse.ToJSON()
 	if err != nil {
 		logFields["error"] = err

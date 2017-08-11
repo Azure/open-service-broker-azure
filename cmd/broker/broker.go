@@ -16,8 +16,8 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func main() {
-	// Logging setup
+func init() {
+	// Initialize logging
 	formatter := &log.TextFormatter{
 		FullTimestamp: true,
 	}
@@ -33,6 +33,13 @@ func main() {
 	).Info("setting log level")
 	log.SetLevel(logConfig.Level)
 
+	// Initialize modules
+	if err = initModules(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func main() {
 	// Redis client
 	redisConfig, err := getRedisConfig()
 	if err != nil {

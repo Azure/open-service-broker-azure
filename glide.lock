@@ -1,8 +1,24 @@
-hash: 2d44c1402cd298210a45e66dbe5919549dd6e32e868ab75fb685f329fbee5fb9
-updated: 2017-07-26T15:40:18.157064356Z
+hash: 638be5b3b912a383e4e6941dc87367cc8f37ba493bcf4310e060153af9eccbd7
+updated: 2017-08-10T06:07:41.477675479Z
 imports:
+- name: github.com/Azure/azure-sdk-for-go
+  version: 0b09de4174ca0cadcd3abb4aa31267c6f5ccebbb
+  subpackages:
+  - arm/postgresql
+  - arm/resources/resources
+- name: github.com/Azure/go-autorest
+  version: f6e08fe5e4d45c9a66e40196d3fed5f37331d224
+  subpackages:
+  - autorest
+  - autorest/adal
+  - autorest/azure
+  - autorest/date
+  - autorest/to
+  - autorest/validation
+- name: github.com/dgrijalva/jwt-go
+  version: a539ee1a749a2b895533f979515ac7e6e0f5b650
 - name: github.com/go-redis/redis
-  version: e14976b254c5bc5f399dd0ae9314b1d02a176897
+  version: 7a034e1609674d5eb847c3885e5058c54e79a1df
   subpackages:
   - internal
   - internal/consistenthash
@@ -12,34 +28,38 @@ imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: 8c683ee571b6ee7ffc9f1cafd13103c422e71cbf
+  version: ac112f7d75a0714af1bd86ab17749b31f7809640
 - name: github.com/kelseyhightower/envconfig
   version: 70f0258d44cbaa3b6a2581d82f58da01a38e4de4
+- name: github.com/lib/pq
+  version: dd1fe2071026ce53f36a39112e645b4d4f5793a4
+  subpackages:
+  - oid
 - name: github.com/satori/go.uuid
   version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
 - name: github.com/Sirupsen/logrus
-  version: 259b4b7f450a330ee03d88f0d704c2cc7964cf9e
+  version: 181d419aa9e2223811b824e8f0b4af96f9ba9302
 - name: github.com/stretchr/testify
-  version: e3a8ff8ce36581f87a15341206f205b1da467059
+  version: 890a5c3458b43e6104ff5da8dfa139d013d77544
   subpackages:
   - assert
 - name: github.com/urfave/cli
-  version: 4b90d79a682b4bf685762c7452db20f2a676ecb2
-- name: go4.org
-  version: 034d17a462f7b2dcd1a4a73553ec5357ff6e6c6e
+  version: b99aa811b4c1dd84cc6bccb8499c82c72098085a
+- name: golang.org/x/crypto
+  version: b176d7def5d71bdd214203491f89843ed217f420
   subpackages:
-  - syncutil
+  - ssh/terminal
 - name: golang.org/x/sys
-  version: 14ac33bf8474b62c65cae263af2e4d3b543cc699
+  version: e42485b6e20ae7d2304ec72e535b103ed350cc02
   subpackages:
   - unix
   - windows
 testImports:
 - name: github.com/davecgh/go-spew
-  version: 346938d642f2ec3594ed81d874461961cd0faa76
+  version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
   subpackages:
   - spew
 - name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
   subpackages:
   - difflib

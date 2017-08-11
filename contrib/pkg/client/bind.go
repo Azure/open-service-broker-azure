@@ -63,11 +63,11 @@ func Bind(
 	bindingResponse := &api.BindingResponse{}
 	err = api.GetBindingResponseFromJSON(bodyBytes, bindingResponse)
 	if err != nil {
-		return "", nil, fmt.Errorf("error decoding response body: %s", err)
+		return "", nil, fmt.Errorf("error unmarshaling response body: %s", err)
 	}
 	credsMap, ok := bindingResponse.Credentials.(map[string]interface{})
 	if !ok {
-		return "", nil, fmt.Errorf("error decoding response body: %s", err)
+		return "", nil, fmt.Errorf("error unmarshaling response body: %s", err)
 	}
 	return bindingID, credsMap, nil
 }

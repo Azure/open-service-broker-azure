@@ -48,7 +48,7 @@ func (b *broker) doProvisionStep(
 	module, ok := b.modules[instance.ServiceID]
 	if !ok {
 		return b.handleProvisioningError(
-			instanceID,
+			instance,
 			stepName,
 			nil,
 			fmt.Sprintf(
@@ -61,7 +61,7 @@ func (b *broker) doProvisionStep(
 	err = instance.GetProvisioningContext(provisioningContext, b.codec)
 	if err != nil {
 		return b.handleProvisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			"error decoding provisioningContext from persisted instance",
@@ -71,7 +71,7 @@ func (b *broker) doProvisionStep(
 	err = instance.GetProvisioningParameters(provisioningParams, b.codec)
 	if err != nil {
 		return b.handleProvisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			"error decoding provisioningParameters from persisted instance",
@@ -80,7 +80,7 @@ func (b *broker) doProvisionStep(
 	provisioner, err := module.GetProvisioner(instance.ServiceID, instance.PlanID)
 	if err != nil {
 		return b.handleProvisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			fmt.Sprintf(
@@ -92,7 +92,7 @@ func (b *broker) doProvisionStep(
 	step, ok := provisioner.GetStep(stepName)
 	if !ok {
 		return b.handleProvisioningError(
-			instanceID,
+			instance,
 			stepName,
 			nil,
 			`provisioner does not know how to process step "%s"`,
@@ -105,7 +105,7 @@ func (b *broker) doProvisionStep(
 	)
 	if err != nil {
 		return b.handleProvisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			"error executing provisioning step",
@@ -114,7 +114,7 @@ func (b *broker) doProvisionStep(
 	err = instance.SetProvisioningContext(updatedProvisioningContext, b.codec)
 	if err != nil {
 		return b.handleProvisioningError(
-			instanceID,
+			instance,
 			stepName,
 			err,
 			"error encoding modified provisioningContext",
@@ -123,7 +123,7 @@ func (b *broker) doProvisionStep(
 	if nextStepName, ok := provisioner.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instance); err != nil {
 			return b.handleProvisioningError(
-				instanceID,
+				instance,
 				stepName,
 				err,
 				"error persisting instance",
@@ -138,7 +138,7 @@ func (b *broker) doProvisionStep(
 		)
 		if err = b.asyncEngine.SubmitTask(task); err != nil {
 			return b.handleProvisioningError(
-				instanceID,
+				instance,
 				stepName,
 				err,
 				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
@@ -149,7 +149,7 @@ func (b *broker) doProvisionStep(
 		instance.Status = service.InstanceStateProvisioned
 		if err = b.store.WriteInstance(instance); err != nil {
 			return b.handleProvisioningError(
-				instanceID,
+				instance,
 				stepName,
 				err,
 				"error persisting instance",
@@ -191,7 +191,7 @@ func (b *broker) handleProvisioningError(
 			e,
 		)
 	}
-	// If we get to here, we have an instance (not just and instanceID)
+	// If we get to here, we have an instance (not just an instanceID)
 	instance.Status = service.InstanceStateProvisioningFailed
 	var ret error
 	if e == nil {
