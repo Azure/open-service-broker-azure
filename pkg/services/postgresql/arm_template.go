@@ -6,12 +6,6 @@ var armTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"administratorLogin": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 16,
-			"defaultValue": "postgres"
-		},
 		"administratorLoginPassword": {
 			"type": "securestring"
 		},
@@ -20,31 +14,23 @@ var armTemplateBytes = []byte(`
 			"minLength": 2,
 			"maxLength": 63
 		},
+		"skuName": {
+			"type": "string",
+			"allowedValues": [ "PGSQLB50", "PGSQLB100" ]
+		},
+		"skuTier": {
+			"type": "string",
+			"allowedValues": [ "Basic" ]
+		},
 		"skuCapacityDTU": {
 			"type": "int",
-			"allowedValues": [ 50, 100 ],
-			"defaultValue": 50
-		},
-		"skuFamily": {
-			"type": "string",
-			"allowedValues": [ "SkuFamily" ],
-			"defaultValue": "SkuFamily"
-		},
-		"skuName": {
-		"type": "string",
-			"allowedValues": [ "PGSQLB50", "PGSQLB100" ],
-			"defaultValue": "PGSQLB50"
+			"allowedValues": [ 50, 100 ]
 		},
 		"skuSizeMB": {
 			"type": "int",
 			"minValue": 51200,
 			"maxValue": 102400,
 			"defaultValue": 51200
-		},
-		"skuTier": {
-			"type": "string",
-			"allowedValues": [ "Basic" ],
-			"defaultValue": "Basic"
 		},
 		"version": {
 			"type": "string",
@@ -86,7 +72,7 @@ var armTemplateBytes = []byte(`
 			"name": "[parameters('serverName')]",
 			"properties": {
 				"version": "[parameters('version')]",
-				"administratorLogin": "[parameters('administratorLogin')]",
+				"administratorLogin": "postgres",
 				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
 				"storageMB": "[parameters('skuSizeMB')]"
 			},
@@ -94,8 +80,7 @@ var armTemplateBytes = []byte(`
 				"name": "[parameters('skuName')]",
 				"tier": "[parameters('skuTier')]",
 				"capacity": "[parameters('skuCapacityDTU')]",
-				"size": "[parameters('skuSizeMB')]",
-				"family": "[parameters('skuFamily')]"
+				"size": "[parameters('skuSizeMB')]"
 			},
 			"type": "Microsoft.DBforPostgreSQL/servers",
 			"resources": [

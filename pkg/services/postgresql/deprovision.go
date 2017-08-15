@@ -25,6 +25,9 @@ func (m *module) GetDeprovisioner(
 
 func (m *module) deleteARMDeployment(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 ) (interface{}, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
@@ -44,6 +47,9 @@ func (m *module) deleteARMDeployment(
 
 func (m *module) deletePostgreSQLServer(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 ) (interface{}, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)

@@ -44,6 +44,9 @@ func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 
 func (m *module) generateProvisioningMessageID(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 	provisioningParameters interface{}, // nolint: unparam
 ) (interface{}, error) {
@@ -54,6 +57,9 @@ func (m *module) generateProvisioningMessageID(
 
 func (m *module) pauseProvisioning(
 	ctx context.Context,
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 	provisioningParameters interface{}, // nolint: unparam
 ) (interface{}, error) {
@@ -68,6 +74,9 @@ func (m *module) pauseProvisioning(
 
 func (m *module) logProvisioningMessage(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
@@ -138,6 +147,9 @@ func (m *module) GetDeprovisioner(
 
 func (m *module) pauseDeprovisioning(
 	ctx context.Context,
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 ) (interface{}, error) {
 	select {
@@ -151,6 +163,9 @@ func (m *module) pauseDeprovisioning(
 
 func (m *module) logDeprovisioningMessage(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 ) (interface{}, error) {
 	pc := provisioningContext.(*echoProvisioningContext)

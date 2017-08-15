@@ -100,6 +100,9 @@ func (b *broker) doProvisionStep(
 	}
 	updatedProvisioningContext, err := step.Execute(
 		ctx,
+		instanceID,
+		instance.ServiceID,
+		instance.PlanID,
 		provisioningContext,
 		provisioningParams,
 	)

@@ -93,6 +93,9 @@ func (b *broker) doDeprovisionStep(
 	}
 	updatedProvisioningContext, err := step.Execute(
 		ctx,
+		instanceID,
+		instance.ServiceID,
+		instance.PlanID,
 		provisioningContext,
 	)
 	if err != nil {

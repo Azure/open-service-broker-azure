@@ -61,6 +61,9 @@ func (m *Module) GetProvisioner(string, string) (service.Provisioner, error) {
 
 func (m *Module) provision(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 	provisioningParameters interface{}, // nolint: unparam
 ) (interface{}, error) {
@@ -104,6 +107,9 @@ func (m *Module) GetDeprovisioner(
 
 func (m *Module) deprovision(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 ) (interface{}, error) {
 	return provisioningContext, nil

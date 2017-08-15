@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/azure"
@@ -21,7 +22,7 @@ func (m *module) ValidateProvisioningParameters(
 ) error {
 	pp, ok := provisioningParameters.(*postgresqlProvisioningParameters)
 	if !ok {
-		return fmt.Errorf(
+		return errors.New(
 			"error casting provisioningParameters as " +
 				"postgresqlProvisioningParameters",
 		)
@@ -45,12 +46,15 @@ func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 
 func (m *module) preProvision(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 	provisioningParameters interface{}, // nolint: unparam
 ) (interface{}, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, errors.New(
 			"error casting provisioningContext as postgresqlProvisioningContext",
 		)
 	}
@@ -64,20 +68,43 @@ func (m *module) preProvision(
 
 func (m *module) deployARMTemplate(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string,
+	planID string,
 	provisioningContext interface{},
 	provisioningParameters interface{},
 ) (interface{}, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, errors.New(
 			"error casting provisioningContext as postgresqlProvisioningContext",
 		)
 	}
 	pp, ok := provisioningParameters.(*postgresqlProvisioningParameters)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, errors.New(
 			"error casting provisioningParameters as " +
 				"postgresqlProvisioningParameters",
+		)
+	}
+	catalog, err := m.GetCatalog()
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving catalog: %s", err)
+	}
+	service, ok := catalog.GetService(serviceID)
+	if !ok {
+		return nil, fmt.Errorf(
+			`service "%s" not found in the "%s" module catalog`,
+			serviceID,
+			m.GetName(),
+		)
+	}
+	plan, ok := service.GetPlan(planID)
+	if !ok {
+		return nil, fmt.Errorf(
+			`plan "%s" not found for service "%s"`,
+			planID,
+			serviceID,
 		)
 	}
 	outputs, err := m.armDeployer.Deploy(
@@ -85,12 +112,14 @@ func (m *module) deployARMTemplate(
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		// TODO: Values in this map should vary according to the serviceID and planID
-		// selected
 		map[string]interface{}{
 			"administratorLoginPassword": pc.AdministratorLoginPassword,
 			"serverName":                 pc.ServerName,
 			"databaseName":               pc.DatabaseName,
+			"skuName":                    plan.GetProperties().Extended["skuName"],
+			"skuTier":                    plan.GetProperties().Extended["skuTier"],
+			"skuCapacityDTU": plan.GetProperties().
+				Extended["skuCapacityDTU"],
 		},
 	)
 	if err != nil {
@@ -111,12 +140,15 @@ func (m *module) deployARMTemplate(
 
 func (m *module) setupDatabase(
 	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
 	provisioningContext interface{},
 	provisioningParameters interface{}, // nolint: unparam
 ) (interface{}, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, errors.New(
 			"error casting provisioningContext as postgresqlProvisioningContext",
 		)
 	}

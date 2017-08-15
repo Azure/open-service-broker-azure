@@ -9,6 +9,9 @@ import (
 // provisioning step
 type ProvisioningStepFunction func(
 	ctx context.Context,
+	instanceID string,
+	serviceID string,
+	planID string,
 	provisioningContext interface{},
 	params interface{},
 ) (interface{}, error)
@@ -19,7 +22,10 @@ type ProvisioningStep interface {
 	GetName() string
 	Execute(
 		ctx context.Context,
-		provisioningContext,
+		instanceID string,
+		serviceID string,
+		planID string,
+		provisioningContext interface{},
 		params interface{},
 	) (interface{}, error)
 }
@@ -62,12 +68,15 @@ func (p *provisioningStep) GetName() string {
 // Execute executes a step
 func (p *provisioningStep) Execute(
 	ctx context.Context,
+	instanceID string,
+	serviceID string,
+	planID string,
 	provisioningContext interface{},
 	params interface{},
 ) (interface{}, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	return p.fn(ctx, provisioningContext, params)
+	return p.fn(ctx, instanceID, serviceID, planID, provisioningContext, params)
 }
 
 // NewProvisioner returns a new provisioner

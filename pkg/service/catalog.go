@@ -55,10 +55,11 @@ type service struct {
 // instantiated and passed to the NewPlan() constructor function which will
 // carry out all necessary initialization.
 type PlanProperties struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Free        bool   `json:"free"`
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Free        bool                   `json:"free"`
+	Extended    map[string]interface{} `json:"-"`
 }
 
 // Plan is an interface to be implemented by types that represent a single
@@ -67,6 +68,7 @@ type Plan interface {
 	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
+	GetProperties() *PlanProperties
 }
 
 type plan struct {
@@ -235,4 +237,8 @@ func (p *plan) GetID() string {
 
 func (p *plan) GetName() string {
 	return p.Name
+}
+
+func (p *plan) GetProperties() *PlanProperties {
+	return p.PlanProperties
 }
