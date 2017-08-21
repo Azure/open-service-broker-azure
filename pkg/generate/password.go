@@ -1,7 +1,12 @@
-package postgresql
+package generate
 
-// generatePassword generates a random password
-func generatePassword() string {
+const (
+	passwordLength = 16
+	passwordChars  = lowerAlphaChars + upperAlphaChars + numberChars
+)
+
+// NewPassword generates a strong, random password
+func NewPassword() string {
 	seededRandMutex.Lock()
 	defer seededRandMutex.Unlock()
 	b := make([]byte, passwordLength)

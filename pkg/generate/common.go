@@ -1,4 +1,4 @@
-package postgresql
+package generate
 
 import (
 	"math/rand"

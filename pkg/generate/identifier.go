@@ -1,8 +1,14 @@
-package postgresql
+package generate
 
-// generateIdentifier generates a valid PostgreSQL identifier. These can be
-// used as database names and role names.
-func generateIdentifier() string {
+const (
+	identifierLength = 10
+	identifierChars  = lowerAlphaChars + numberChars
+)
+
+// NewIdentifier generates an identifier suitable for use as a username,
+// role name, database name for various database systems-- including, at least,
+// PostgresSQL and MySQL.
+func NewIdentifier() string {
 	seededRandMutex.Lock()
 	defer seededRandMutex.Unlock()
 	b := make([]byte, identifierLength)

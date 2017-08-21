@@ -1,4 +1,4 @@
-package postgresql
+package generate
 
 import (
 	"regexp"
@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGeneratePassword(t *testing.T) {
+func TestNewPassword(t *testing.T) {
 	regex, err := regexp.Compile(`^[a-zA-Z\d]{16}$`)
 	assert.Nil(t, err)
 	for range [100]struct{}{} {
-		password := generatePassword()
+		password := NewPassword()
 		assert.True(t, regex.MatchString(password))
 	}
 }

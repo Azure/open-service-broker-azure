@@ -3,12 +3,8 @@ package postgresql
 import (
 	"fmt"
 
+	"github.com/Azure/azure-service-broker/pkg/generate"
 	log "github.com/Sirupsen/logrus"
-)
-
-const (
-	passwordLength = 16
-	passwordChars  = lowerAlphaChars + upperAlphaChars + numberChars
 )
 
 func (m *module) ValidateBindingParameters(
@@ -30,8 +26,8 @@ func (m *module) Bind(
 		)
 	}
 
-	roleName := generateIdentifier()
-	password := generatePassword()
+	roleName := generate.NewIdentifier()
+	password := generate.NewPassword()
 
 	db, err := getDBConnection(pc)
 	if err != nil {

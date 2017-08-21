@@ -6,15 +6,11 @@ import (
 	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/azure"
+	"github.com/Azure/azure-service-broker/pkg/generate"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
-)
-
-const (
-	identifierLength = 10
-	identifierChars  = lowerAlphaChars + numberChars
 )
 
 func (m *module) ValidateProvisioningParameters(
@@ -61,8 +57,8 @@ func (m *module) preProvision(
 	pc.ResourceGroupName = uuid.NewV4().String()
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.ServerName = uuid.NewV4().String()
-	pc.AdministratorLoginPassword = generatePassword()
-	pc.DatabaseName = generateIdentifier()
+	pc.AdministratorLoginPassword = generate.NewPassword()
+	pc.DatabaseName = generate.NewIdentifier()
 	return pc, nil
 }
 
