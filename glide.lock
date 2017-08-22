@@ -1,5 +1,5 @@
-hash: 638be5b3b912a383e4e6941dc87367cc8f37ba493bcf4310e060153af9eccbd7
-updated: 2017-08-10T06:07:41.477675479Z
+hash: 7ce5a61733db0662650f34bb0072d22a3b94182149c17b0bed62e259e8669fda
+updated: 2017-08-11T14:24:54.602349838-07:00
 imports:
 - name: github.com/Azure/azure-sdk-for-go
   version: 0b09de4174ca0cadcd3abb4aa31267c6f5ccebbb
@@ -25,6 +25,8 @@ imports:
   - internal/hashtag
   - internal/pool
   - internal/proto
+- name: github.com/go-sql-driver/mysql
+  version: a0583e0143b1624142adab07e0e97fe106d99561
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
@@ -32,7 +34,7 @@ imports:
 - name: github.com/kelseyhightower/envconfig
   version: 70f0258d44cbaa3b6a2581d82f58da01a38e4de4
 - name: github.com/lib/pq
-  version: dd1fe2071026ce53f36a39112e645b4d4f5793a4
+  version: e42267488fe361b9dc034be7a6bffef5b195bceb
   subpackages:
   - oid
 - name: github.com/satori/go.uuid
@@ -44,7 +46,7 @@ imports:
   subpackages:
   - assert
 - name: github.com/urfave/cli
-  version: b99aa811b4c1dd84cc6bccb8499c82c72098085a
+  version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
 - name: golang.org/x/crypto
   version: b176d7def5d71bdd214203491f89843ed217f420
   subpackages:
