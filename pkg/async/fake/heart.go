@@ -4,7 +4,7 @@ import "context"
 
 // Heart is a fake implementation of async.Heart used for testing
 type Heart struct {
-	RunBehavior func(context.Context) error
+	RunBehavior RunFunction
 }
 
 // NewHeart returns a new, fake implementation of async.Heart used for testing

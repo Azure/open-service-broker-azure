@@ -8,7 +8,7 @@ import (
 
 // Worker is a fake implementation of async.Worker used for testing
 type Worker struct {
-	RunBehavior func(context.Context) error
+	RunBehavior RunFunction
 }
 
 // NewWorker returns a new, fake implementation of async.Worker used for testing

@@ -6,25 +6,31 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
-type bindFunction func(
+// BindFunction describes a function used to provide pluggable binding behavior
+// to the fake implementation of the service.Module interface
+type BindFunction func(
 	provisioningContext interface{},
 	bindingParameters interface{},
 ) (interface{}, interface{}, error)
 
-type unbindFunction func(
+// UnbindFunction describes a function used to provide pluggable unbinding
+// behavior to the fake implementation of the service.Module interface
+type UnbindFunction func(
 	provisioningContext interface{},
 	bindingContext interface{},
 ) error
 
-type validationFunction func(bindingParameters interface{}) error
+// ValidationFunction describes a function used to provide pluggable validation
+// behavior to the fake implementation of the service.Module interface
+type ValidationFunction func(parameters interface{}) error
 
 // Module is a fake implementation of the service.Module interface used to
 // facilittate testing.
 type Module struct {
-	ProvisioningValidationBehavior validationFunction
-	BindingValidationBehavior      validationFunction
-	BindBehavior                   bindFunction
-	UnbindBehavior                 unbindFunction
+	ProvisioningValidationBehavior ValidationFunction
+	BindingValidationBehavior      ValidationFunction
+	BindBehavior                   BindFunction
+	UnbindBehavior                 UnbindFunction
 }
 
 // New returns a new instance of a type that fulfills the service.Module

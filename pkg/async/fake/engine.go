@@ -9,7 +9,7 @@ import (
 // Engine is a fake implementation of async.Engine used for testing
 type Engine struct {
 	SubmittedTasks map[string]model.Task
-	RunBehavior    func(context.Context) error
+	RunBehavior    RunFunction
 }
 
 // NewEngine returns a new, fake implementation of async.Engine used for testing

@@ -1,6 +1,8 @@
 package fake
 
-type deployFunction func(
+// DeployFunction describes a function used to provide pluggable deployment
+// behavior to the fake implementation of the arm.Deployer interface
+type DeployFunction func(
 	deploymentName string,
 	resourceGroupName string,
 	location string,
@@ -8,12 +10,14 @@ type deployFunction func(
 	params map[string]interface{},
 ) (map[string]interface{}, error)
 
-type deleteFunction func(deploymentName string, resourceGroupName string) error
+// DeleteFunction describes a function used to provide pluggable delete behavior
+// to the fake implementation of the arm.Deployer interface
+type DeleteFunction func(deploymentName string, resourceGroupName string) error
 
 // Deployer is a fake implementaton of arm.Deployer used for testing
 type Deployer struct {
-	DeployBehavior deployFunction
-	DeleteBehavior deleteFunction
+	DeployBehavior DeployFunction
+	DeleteBehavior DeleteFunction
 }
 
 // NewDeployer returns a new, fake implementation of arm.Deployer used for
