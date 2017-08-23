@@ -9,8 +9,6 @@ const (
 // role name, database name for various database systems-- including, at least,
 // PostgresSQL and MySQL.
 func NewIdentifier() string {
-	seededRandMutex.Lock()
-	defer seededRandMutex.Unlock()
 	b := make([]byte, identifierLength)
 	// The first character of an identifier MUST be a lowercase alpha
 	b[0] = lowerAlphaChars[seededRand.Intn(len(lowerAlphaChars))]

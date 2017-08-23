@@ -7,8 +7,6 @@ const (
 
 // NewPassword generates a strong, random password
 func NewPassword() string {
-	seededRandMutex.Lock()
-	defer seededRandMutex.Unlock()
 	b := make([]byte, passwordLength)
 	for i := range b {
 		b[i] = passwordChars[seededRand.Intn(len(passwordChars))]

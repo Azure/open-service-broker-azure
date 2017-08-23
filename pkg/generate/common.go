@@ -1,10 +1,6 @@
 package generate
 
-import (
-	"math/rand"
-	"sync"
-	"time"
-)
+import "github.com/Azure/azure-service-broker/pkg/rand"
 
 const (
 	lowerAlphaChars = "abcdefghijklmnopqrstuvwxyz"
@@ -12,5 +8,4 @@ const (
 	numberChars     = "0123456789"
 )
 
-var seededRand = rand.New(rand.NewSource(time.Now().UnixNano()))
-var seededRandMutex = &sync.Mutex{}
+var seededRand = rand.NewSeeded()
