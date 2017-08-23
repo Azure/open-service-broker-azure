@@ -1,19 +1,8 @@
 package rediscache
 
-import "fmt"
-
 func (m *module) Unbind(
 	provisioningContext interface{}, // nolint: unparam
-	bindingContext interface{},
+	bindingContext interface{}, // nolint: unparam
 ) error {
-	pc, ok := provisioningContext.(*redisProvisioningContext)
-	if !ok {
-		return fmt.Errorf(
-			"error casting provisioningContext as redisProvisioningContext",
-		)
-	}
-
-	err := getDBConnection(pc)
-
-	return err
+	return nil
 }
