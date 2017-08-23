@@ -26,7 +26,7 @@ func getDBConnection(pc *mysqlProvisioningContext) (*sql.DB, error) {
 
 	log.WithField(
 		"serverName", serverName,
-	).Info("Azure ENV SQLDatabaseDNSSuffix")
+	).Debug("Azure ENV SQLDatabaseDNSSuffix")
 
 	err = mysql.RegisterTLSConfig("custom", &tls.Config{
 		ServerName: serverName,
