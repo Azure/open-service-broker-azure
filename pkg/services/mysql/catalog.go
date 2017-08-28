@@ -6,14 +6,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			&service.ServiceProperties{
-				ID:          "e40b3635-01bc-4262-b2c5-0847bd7ab43b",
+				ID:          "997b8372-8dac-40ac-ae65-758b4a5075a5",
 				Name:        "azure-mysqldb",
 				Description: "Azure Database for MySQL Service",
 				Bindable:    true,
 				Tags:        []string{"Azure", "MySQL", "Database"},
 			},
 			service.NewPlan(&service.PlanProperties{
-				ID:          "a05c9967-9f20-4b17-8c66-bb32ab396fcd",
+				ID:          "427559f1-bf2a-45d3-8844-32374a3e58aa",
 				Name:        "basic50",
 				Description: "Basic Tier, 50 DTUs.",
 				Free:        false,
@@ -24,7 +24,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
-				ID:          "d8d5cac9-d975-48ea-9ac4-8232f92bcb93",
+				ID:          "1a538e06-9bcc-4077-8480-966cbf85bf36",
 				Name:        "basic100",
 				Description: "Basic Tier, 100 DTUs",
 				Free:        false,
