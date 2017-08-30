@@ -74,7 +74,10 @@ func TestUnbindingFromInstanceThatExists(t *testing.T) {
 	s, m, err := getTestServer()
 	assert.Nil(t, err)
 	unbindCalled := false
-	m.UnbindBehavior = func(interface{}, interface{}) error {
+	m.UnbindBehavior = func(
+		service.ProvisioningContext,
+		service.BindingContext,
+	) error {
 		unbindCalled = true
 		return nil
 	}

@@ -49,7 +49,7 @@ func NewManager() (Manager, error) {
 		azureEnvironment: azureEnvironment,
 		subscriptionID:   azureConfig.SubscriptionID,
 		tenantID:         azureConfig.TenantID,
-		clientID:         azureConfig.CientID,
+		clientID:         azureConfig.ClientID,
 		clientSecret:     azureConfig.ClientSecret,
 	}, nil
 }

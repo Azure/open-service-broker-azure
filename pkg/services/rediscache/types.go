@@ -1,6 +1,9 @@
 package rediscache
 
-type redisProvisioningParameters struct {
+import "github.com/Azure/azure-service-broker/pkg/service"
+
+// ProvisioningParameters encapsulates Redis-specific provisioning options
+type ProvisioningParameters struct {
 	Location string            `json:"location"`
 	Tags     map[string]string `json:"tags"`
 }
@@ -13,7 +16,8 @@ type redisProvisioningContext struct {
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
 }
 
-type redisBindingParameters struct {
+// BindingParameters encapsulates Redis-specific binding options
+type BindingParameters struct {
 }
 
 type redisBindingContext struct {
@@ -25,22 +29,28 @@ type redisCredentials struct {
 	Password string `json:"password"`
 }
 
-func (m *module) GetEmptyProvisioningParameters() interface{} {
-	return &redisProvisioningParameters{}
+func (r *redisProvisioningContext) GetResourceGroupName() string {
+	return r.ResourceGroupName
 }
 
-func (m *module) GetEmptyProvisioningContext() interface{} {
+func (
+	m *module,
+) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &ProvisioningParameters{}
+}
+
+func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &redisProvisioningContext{}
 }
 
-func (m *module) GetEmptyBindingParameters() interface{} {
-	return &redisBindingParameters{}
+func (m *module) GetEmptyBindingParameters() service.BindingParameters {
+	return &BindingParameters{}
 }
 
-func (m *module) GetEmptyBindingContext() interface{} {
+func (m *module) GetEmptyBindingContext() service.BindingContext {
 	return &redisBindingContext{}
 }
 
-func (m *module) GetEmptyCredentials() interface{} {
+func (m *module) GetEmptyCredentials() service.Credentials {
 	return &redisCredentials{}
 }

@@ -28,8 +28,8 @@ func (m *module) deleteARMDeployment(
 	instanceID string, // nolint: unparam
 	serviceID string, // nolint: unparam
 	planID string, // nolint: unparam
-	provisioningContext interface{},
-) (interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
@@ -50,8 +50,8 @@ func (m *module) deletePostgreSQLServer(
 	instanceID string, // nolint: unparam
 	serviceID string, // nolint: unparam
 	planID string, // nolint: unparam
-	provisioningContext interface{},
-) (interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(

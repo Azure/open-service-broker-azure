@@ -2,10 +2,12 @@ package rediscache
 
 import (
 	"fmt"
+
+	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
 func (m *module) ValidateBindingParameters(
-	bindingParameters interface{},
+	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to Redis, so there is nothing
 	// to validate
@@ -13,9 +15,9 @@ func (m *module) ValidateBindingParameters(
 }
 
 func (m *module) Bind(
-	provisioningContext interface{},
-	bindingParameters interface{},
-) (interface{}, interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+	bindingParameters service.BindingParameters,
+) (service.BindingContext, service.Credentials, error) {
 	pc, ok := provisioningContext.(*redisProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(

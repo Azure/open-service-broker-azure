@@ -35,7 +35,7 @@ func (b *Binding) ToJSON() ([]byte, error) {
 // SetBindingParameters marshals the provided bindingParameters object, encrypts
 // the result, and stores it in the EncryptedBindingParameters field
 func (b *Binding) SetBindingParameters(
-	params interface{},
+	params BindingParameters,
 	codec crypto.Codec,
 ) error {
 	jsonBytes, err := json.Marshal(params)
@@ -53,7 +53,7 @@ func (b *Binding) SetBindingParameters(
 // GetBindingParameters decrypts the EncryptedBindingParameters field and
 // unmarshals the result into the provided bindingParameters object
 func (b *Binding) GetBindingParameters(
-	params interface{},
+	params BindingParameters,
 	codec crypto.Codec,
 ) error {
 	if len(b.EncryptedBindingParameters) == 0 {
@@ -69,7 +69,7 @@ func (b *Binding) GetBindingParameters(
 // SetBindingContext marshals the provided bindingContext object, encrypts the
 // result, and stores it in the EncryptedBindingContext field
 func (b *Binding) SetBindingContext(
-	context interface{},
+	context BindingContext,
 	codec crypto.Codec,
 ) error {
 	jsonBytes, err := json.Marshal(context)
@@ -87,7 +87,7 @@ func (b *Binding) SetBindingContext(
 // GetBindingContext decrypts the EncryptedBindingContext field and unmarshals
 // the result into the provided bindingContext object
 func (b *Binding) GetBindingContext(
-	context interface{},
+	context BindingContext,
 	codec crypto.Codec,
 ) error {
 	if len(b.EncryptedBindingContext) == 0 {
@@ -103,7 +103,7 @@ func (b *Binding) GetBindingContext(
 // SetCredentials marshals the provided credentials object, encrypts the result,
 // and stores it in the EncryptedCredentials field
 func (b *Binding) SetCredentials(
-	credentials interface{},
+	credentials Credentials,
 	codec crypto.Codec,
 ) error {
 	jsonBytes, err := json.Marshal(credentials)
@@ -121,7 +121,7 @@ func (b *Binding) SetCredentials(
 // GetCredentials decrypts the EncryptedCredentials field and unmarshals the
 // result into the provided credentials object
 func (b *Binding) GetCredentials(
-	credentials interface{},
+	credentials Credentials,
 	codec crypto.Codec,
 ) error {
 	if len(b.EncryptedCredentials) == 0 {

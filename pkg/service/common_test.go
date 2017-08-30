@@ -10,6 +10,12 @@ type ArbitraryType struct {
 	Foo string `json:"foo"`
 }
 
+// GetResourceGroupName is implemented only so that ArbitraryType will fulfill
+// the ProvisioningContext interface. This function isn't used anywhere.
+func (a *ArbitraryType) GetResourceGroupName() string {
+	return ""
+}
+
 const fooValue = "bar"
 
 var (

@@ -1,6 +1,9 @@
 package postgresql
 
-type postgresqlProvisioningParameters struct {
+import "github.com/Azure/azure-service-broker/pkg/service"
+
+// ProvisioningParameters encapsulates PostgreSQL-specific provisioning options
+type ProvisioningParameters struct {
 	Location string            `json:"location"`
 	Tags     map[string]string `json:"tags"`
 }
@@ -14,7 +17,8 @@ type postgresqlProvisioningContext struct {
 	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
 }
 
-type postgresqlBindingParameters struct {
+// BindingParameters encapsulates PostgreSQL-specific binding options
+type BindingParameters struct {
 }
 
 type postgresqlBindingContext struct {
@@ -29,22 +33,28 @@ type postgresqlCredentials struct {
 	Password string `json:"password"`
 }
 
-func (m *module) GetEmptyProvisioningParameters() interface{} {
-	return &postgresqlProvisioningParameters{}
+func (p *postgresqlProvisioningContext) GetResourceGroupName() string {
+	return p.ResourceGroupName
 }
 
-func (m *module) GetEmptyProvisioningContext() interface{} {
+func (
+	m *module,
+) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &ProvisioningParameters{}
+}
+
+func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &postgresqlProvisioningContext{}
 }
 
-func (m *module) GetEmptyBindingParameters() interface{} {
-	return &postgresqlBindingParameters{}
+func (m *module) GetEmptyBindingParameters() service.BindingParameters {
+	return &BindingParameters{}
 }
 
-func (m *module) GetEmptyBindingContext() interface{} {
+func (m *module) GetEmptyBindingContext() service.BindingContext {
 	return &postgresqlBindingContext{}
 }
 
-func (m *module) GetEmptyCredentials() interface{} {
+func (m *module) GetEmptyCredentials() service.Credentials {
 	return &postgresqlCredentials{}
 }

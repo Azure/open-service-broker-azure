@@ -8,10 +8,10 @@ type Module interface {
 	GetCatalog() (Catalog, error)
 	// GetEmptyProvisioningParameters returns an empty instance of module-specific
 	// provisioningParameters
-	GetEmptyProvisioningParameters() interface{}
+	GetEmptyProvisioningParameters() ProvisioningParameters
 	// ValidateProvisioningParameters validates the provided
 	// provisioningParameters and returns an error if there is any problem
-	ValidateProvisioningParameters(params interface{}) error
+	ValidateProvisioningParameters(ProvisioningParameters) error
 	// GetProvisioner returns a provisioner that defines the steps a module must
 	// execute asynchronously to provision a service.
 	//
@@ -21,28 +21,27 @@ type Module interface {
 	// services/plans
 	GetProvisioner(serviceID, planID string) (Provisioner, error)
 	// GetEmptyProvisioningContext returns an empty instance of a module-specific
-	// provisioningContext
-	GetEmptyProvisioningContext() interface{}
+	// ProvisioningContext
+	GetEmptyProvisioningContext() ProvisioningContext
 	// GetEmptyBindingParameters returns an empty instance of module-specific
 	// bindingParameters
-	GetEmptyBindingParameters() interface{}
+	GetEmptyBindingParameters() BindingParameters
 	// ValidateBindingParameters validates the provided bindingParameters and
 	// returns an error if there is any problem
-	ValidateBindingParameters(params interface{}) error
+	ValidateBindingParameters(BindingParameters) error
 	// Bind synchronously binds to a service
-	Bind(provisioningContext, params interface{}) (
-		interface{},
-		interface{},
-		error,
-	)
+	Bind(
+		ProvisioningContext,
+		BindingParameters,
+	) (BindingContext, Credentials, error)
 	// GetEmptyBindingContext returns an empty instance of a module-specific
 	// bindingContext
-	GetEmptyBindingContext() interface{}
+	GetEmptyBindingContext() BindingContext
 	// GetEmptyCredentials returns an empty instance of module-specific
 	// credentials
-	GetEmptyCredentials() interface{}
+	GetEmptyCredentials() Credentials
 	// Unbind synchronously unbinds from a service
-	Unbind(provisioningContext, bindingContext interface{}) error
+	Unbind(ProvisioningContext, BindingContext) error
 	// GetDeprovisioner returns a deprovisioner that defines the steps a module
 	// must execute asynchronously to deprovision a service
 	//

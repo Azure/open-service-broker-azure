@@ -37,7 +37,7 @@ func (i *Instance) ToJSON() ([]byte, error) {
 // object, encrypts the result, and stores it in the
 // EncryptedProvisioningParameters field
 func (i *Instance) SetProvisioningParameters(
-	params interface{},
+	params ProvisioningParameters,
 	codec crypto.Codec,
 ) error {
 	jsonBytes, err := json.Marshal(params)
@@ -55,7 +55,7 @@ func (i *Instance) SetProvisioningParameters(
 // GetProvisioningParameters decrypts the EncryptedProvisioningParameters field
 // and unmarshals the result into the provided provisioningParameters object
 func (i *Instance) GetProvisioningParameters(
-	params interface{},
+	params ProvisioningParameters,
 	codec crypto.Codec,
 ) error {
 	if len(i.EncryptedProvisioningParameters) == 0 {
@@ -71,7 +71,7 @@ func (i *Instance) GetProvisioningParameters(
 // SetProvisioningContext marshals the provided provisioningContext object,
 // encrypts the result, and stores it in the EncrypredProvisioningContext field
 func (i *Instance) SetProvisioningContext(
-	context interface{},
+	context ProvisioningContext,
 	codec crypto.Codec,
 ) error {
 	jsonBytes, err := json.Marshal(context)
@@ -89,7 +89,7 @@ func (i *Instance) SetProvisioningContext(
 // GetProvisioningContext decrypts the EncryptedProvisioningContext field and
 // unmarshals the result into the provided provisioningContext object
 func (i *Instance) GetProvisioningContext(
-	context interface{},
+	context ProvisioningContext,
 	codec crypto.Codec,
 ) error {
 	if len(i.EncryptedProvisioningContext) == 0 {

@@ -9,7 +9,6 @@ import (
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
 
 	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/echo"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
@@ -35,7 +34,6 @@ func initModules() error {
 		return fmt.Errorf("error initializing redis manager: %s", err)
 	}
 	modules = []service.Module{
-		echo.New(),
 		postgresql.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
 		mysql.New(armDeployer, mySQLManager),

@@ -1,12 +1,16 @@
 package api
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/Azure/azure-service-broker/pkg/service"
+)
 
 // BindingRequest represents a request to bind to a service
 type BindingRequest struct {
-	ServiceID  string      `json:"service_id"`
-	PlanID     string      `json:"plan_id"`
-	Parameters interface{} `json:"parameters"`
+	ServiceID  string                    `json:"service_id"`
+	PlanID     string                    `json:"plan_id"`
+	Parameters service.BindingParameters `json:"parameters"`
 }
 
 // GetBindingRequestFromJSON populates the given BindingRequest by unmarshalling

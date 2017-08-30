@@ -12,8 +12,8 @@ type DeprovisioningStepFunction func(
 	instanceID string,
 	serviceID string,
 	planID string,
-	provisioningContext interface{},
-) (interface{}, error)
+	provisioningContext ProvisioningContext,
+) (ProvisioningContext, error)
 
 // DeprovisioningStep is an interface to be implemented by types that represent
 // a single step in a chain of steps that defines a deprovisioning process
@@ -24,8 +24,8 @@ type DeprovisioningStep interface {
 		instanceID string,
 		serviceID string,
 		planID string,
-		provisioningContext interface{},
-	) (interface{}, error)
+		provisioningContext ProvisioningContext,
+	) (ProvisioningContext, error)
 }
 
 type deprovisioningStep struct {
@@ -69,8 +69,8 @@ func (d *deprovisioningStep) Execute(
 	instanceID string,
 	serviceID string,
 	planID string,
-	provisioningContext interface{},
-) (interface{}, error) {
+	provisioningContext ProvisioningContext,
+) (ProvisioningContext, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return d.fn(ctx, instanceID, serviceID, planID, provisioningContext)

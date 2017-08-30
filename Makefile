@@ -56,10 +56,28 @@ dev-update: check-docker-compose
 dev: check-docker-compose
 	docker-compose run --rm dev bash
 
-# Containerized unit tests-- requires docker-compose
 .PHONY: test
-test: check-docker-compose
-	docker-compose run --rm test bash -c 'go test $$(glide nv)'
+test: test-unit test-module-lifecycles
+
+# Containerized unit tests-- requires docker-compose
+.PHONY: test-unit
+test-unit: check-docker-compose
+	docker-compose run --rm test bash -c 'go test -tags unit $$(glide nv)'
+
+# Containerized module lifecycle tests-- requires docker-compose
+.PHONY: test-module-lifecycles
+test-module-lifecycles: check-docker-compose
+	@docker-compose run \
+		--rm \
+		-e AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} \
+		-e AZURE_TENANT_ID=${AZURE_TENANT_ID} \
+		-e AZURE_CLIENT_ID=${AZURE_CLIENT_ID} \
+		-e AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET} \
+		test \
+		bash -c 'go test \
+			-parallel 5 \
+		  -timeout 60m \
+			github.com/Azure/azure-service-broker/tests/lifecycle -v'
 
 .PHONY: lint
 lint: check-docker-compose

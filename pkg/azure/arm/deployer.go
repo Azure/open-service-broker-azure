@@ -63,7 +63,7 @@ func NewDeployer() (Deployer, error) {
 		azureEnvironment: azureEnvironment,
 		subscriptionID:   azureConfig.SubscriptionID,
 		tenantID:         azureConfig.TenantID,
-		clientID:         azureConfig.CientID,
+		clientID:         azureConfig.ClientID,
 		clientSecret:     azureConfig.ClientSecret,
 	}, nil
 }
@@ -121,7 +121,7 @@ func (d *deployer) Deploy(
 		)
 	}
 
-	// Handle accorsing to status...
+	// Handle according to status...
 	switch ds {
 	case deploymentStatusNotFound:
 		// The deployment wasn't found, which means we are free to proceed with
@@ -338,7 +338,7 @@ func (d *deployer) doNewDeployment(
 		},
 		cancelCh,
 	)
-	timer := time.NewTimer(time.Minute * 20)
+	timer := time.NewTimer(time.Minute * 30)
 	defer timer.Stop()
 	select {
 	case err := <-errChan:
@@ -368,7 +368,7 @@ func (d *deployer) pollUntilComplete(
 ) (*resources.DeploymentExtended, error) {
 	ticker := time.NewTicker(time.Second * 10)
 	defer ticker.Stop()
-	timer := time.NewTimer(time.Minute * 20)
+	timer := time.NewTimer(time.Minute * 30)
 	defer timer.Stop()
 	var deployment *resources.DeploymentExtended
 	var ds deploymentStatus

@@ -226,7 +226,7 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 	s, m, err := getTestServer()
 	assert.Nil(t, err)
 	validationCalled := false
-	m.ProvisioningValidationBehavior = func(interface{}) error {
+	m.ProvisioningValidationBehavior = func(service.ProvisioningParameters) error {
 		validationCalled = true
 		return nil
 	}

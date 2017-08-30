@@ -12,9 +12,9 @@ type ProvisioningStepFunction func(
 	instanceID string,
 	serviceID string,
 	planID string,
-	provisioningContext interface{},
-	params interface{},
-) (interface{}, error)
+	provisioningContext ProvisioningContext,
+	params ProvisioningParameters,
+) (ProvisioningContext, error)
 
 // ProvisioningStep is an interface to be implemented by types that represent
 // a single step in a chain of steps that defines a provisioning process
@@ -25,9 +25,9 @@ type ProvisioningStep interface {
 		instanceID string,
 		serviceID string,
 		planID string,
-		provisioningContext interface{},
-		params interface{},
-	) (interface{}, error)
+		provisioningContext ProvisioningContext,
+		params ProvisioningParameters,
+	) (ProvisioningContext, error)
 }
 
 type provisioningStep struct {
@@ -71,9 +71,9 @@ func (p *provisioningStep) Execute(
 	instanceID string,
 	serviceID string,
 	planID string,
-	provisioningContext interface{},
-	params interface{},
-) (interface{}, error) {
+	provisioningContext ProvisioningContext,
+	params ProvisioningParameters,
+) (ProvisioningContext, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return p.fn(ctx, instanceID, serviceID, planID, provisioningContext, params)

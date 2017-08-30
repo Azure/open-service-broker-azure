@@ -1,5 +1,7 @@
 package fake
 
+import "github.com/Azure/azure-service-broker/pkg/service"
+
 // ProvisioningParameters represents parameters specific to provisioning a
 // service using the fake service module. Note that, ordinarily, service module-
 // specific types such as this do not need to be exported. An exception is made
@@ -15,6 +17,7 @@ type ProvisioningParameters struct {
 // be exported. An exception is made here because the fake service module is
 // used to facilitate testing of the broker framework itself.
 type ProvisioningContext struct {
+	ResourceGroupName string `json:"resourceGroup"`
 }
 
 // BindingParameters represents parameters specific to binding to a service
@@ -47,32 +50,39 @@ type BindingContext struct {
 type Credentials struct {
 }
 
+// GetResourceGroupName returns the resource group name
+func (p *ProvisioningContext) GetResourceGroupName() string {
+	return p.ResourceGroupName
+}
+
 // GetEmptyProvisioningParameters returns an empty instance of module-specific
 // provisioningParameters
-func (m *Module) GetEmptyProvisioningParameters() interface{} {
+func (
+	m *Module,
+) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
 }
 
 // GetEmptyProvisioningContext returns an empty instance of a module-specific
 // provisioningContext
-func (m *Module) GetEmptyProvisioningContext() interface{} {
+func (m *Module) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &ProvisioningContext{}
 }
 
 // GetEmptyBindingParameters returns an empty instance of module-specific
 // bindingParameters
-func (m *Module) GetEmptyBindingParameters() interface{} {
+func (m *Module) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
 // GetEmptyBindingContext returns an empty instance of a module-specific
 // bindingContext
-func (m *Module) GetEmptyBindingContext() interface{} {
+func (m *Module) GetEmptyBindingContext() service.BindingContext {
 	return &BindingContext{}
 }
 
 // GetEmptyCredentials returns an empty instance of module-specific
 // credentials
-func (m *Module) GetEmptyCredentials() interface{} {
+func (m *Module) GetEmptyCredentials() service.Credentials {
 	return &Credentials{}
 }

@@ -2,11 +2,13 @@ package mysql
 
 import (
 	"fmt"
+
+	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
 func (m *module) Unbind(
-	provisioningContext interface{}, // nolint: unparam
-	bindingContext interface{},
+	provisioningContext service.ProvisioningContext, // nolint: unparam
+	bindingContext service.BindingContext,
 ) error {
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {

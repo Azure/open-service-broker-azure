@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/Azure/azure-service-broker/pkg/generate"
+	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
 func (m *module) ValidateBindingParameters(
-	bindingParameters interface{},
+	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to MySQL, so there is nothing
 	// to validate
@@ -15,9 +16,9 @@ func (m *module) ValidateBindingParameters(
 }
 
 func (m *module) Bind(
-	provisioningContext interface{},
-	bindingParameters interface{},
-) (interface{}, interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+	bindingParameters service.BindingParameters,
+) (service.BindingContext, service.Credentials, error) {
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(

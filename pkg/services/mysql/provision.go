@@ -13,9 +13,9 @@ import (
 )
 
 func (m *module) ValidateProvisioningParameters(
-	provisioningParameters interface{},
+	provisioningParameters service.ProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*mysqlProvisioningParameters)
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return errors.New(
 			"error casting provisioningParameters as " +
@@ -43,9 +43,9 @@ func (m *module) preProvision(
 	instanceID string, // nolint: unparam
 	serviceID string, // nolint: unparam
 	planID string, // nolint: unparam
-	provisioningContext interface{},
-	provisioningParameters interface{}, // nolint: unparam
-) (interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+	provisioningParameters service.ProvisioningParameters, // nolint: unparam
+) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
@@ -65,16 +65,16 @@ func (m *module) deployARMTemplate(
 	instanceID string, // nolint: unparam
 	serviceID string, // nolint: unparam
 	planID string, // nolint: unparam
-	provisioningContext interface{},
-	provisioningParameters interface{},
-) (interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+	provisioningParameters service.ProvisioningParameters,
+) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningContext as mysqlProvisioningContext",
 		)
 	}
-	pp, ok := provisioningParameters.(*mysqlProvisioningParameters)
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningParameters as " +

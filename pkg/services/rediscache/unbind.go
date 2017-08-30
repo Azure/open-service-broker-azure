@@ -1,8 +1,12 @@
 package rediscache
 
+import (
+	"github.com/Azure/azure-service-broker/pkg/service"
+)
+
 func (m *module) Unbind(
-	provisioningContext interface{}, // nolint: unparam
-	bindingContext interface{}, // nolint: unparam
+	provisioningContext service.ProvisioningContext, // nolint: unparam
+	bindingContext service.BindingContext,
 ) error {
 	return nil
 }

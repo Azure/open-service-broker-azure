@@ -1,10 +1,14 @@
 package api
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/Azure/azure-service-broker/pkg/service"
+)
 
 // BindingResponse represents the response to a binding request
 type BindingResponse struct {
-	Credentials interface{} `json:"credentials"`
+	Credentials service.Credentials `json:"credentials"`
 }
 
 // GetBindingResponseFromJSON returns a new BindingResponse unmarshalled from

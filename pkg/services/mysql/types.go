@@ -1,6 +1,9 @@
 package mysql
 
-type mysqlProvisioningParameters struct {
+import "github.com/Azure/azure-service-broker/pkg/service"
+
+// ProvisioningParameters encapsulates MySQL-specific provisioning options
+type ProvisioningParameters struct {
 	Location string            `json:"location"`
 	Tags     map[string]string `json:"tags"`
 }
@@ -14,7 +17,8 @@ type mysqlProvisioningContext struct {
 	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
 }
 
-type mysqlBindingParameters struct {
+// BindingParameters encapsulates MySQL-specific binding options
+type BindingParameters struct {
 }
 
 type mysqlBindingContext struct {
@@ -29,22 +33,28 @@ type mysqlCredentials struct {
 	Password string `json:"password"`
 }
 
-func (m *module) GetEmptyProvisioningParameters() interface{} {
-	return &mysqlProvisioningParameters{}
+func (m *mysqlProvisioningContext) GetResourceGroupName() string {
+	return m.ResourceGroupName
 }
 
-func (m *module) GetEmptyProvisioningContext() interface{} {
+func (
+	m *module,
+) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &ProvisioningParameters{}
+}
+
+func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &mysqlProvisioningContext{}
 }
 
-func (m *module) GetEmptyBindingParameters() interface{} {
-	return &mysqlBindingParameters{}
+func (m *module) GetEmptyBindingParameters() service.BindingParameters {
+	return &BindingParameters{}
 }
 
-func (m *module) GetEmptyBindingContext() interface{} {
+func (m *module) GetEmptyBindingContext() service.BindingContext {
 	return &mysqlBindingContext{}
 }
 
-func (m *module) GetEmptyCredentials() interface{} {
+func (m *module) GetEmptyCredentials() service.Credentials {
 	return &mysqlCredentials{}
 }

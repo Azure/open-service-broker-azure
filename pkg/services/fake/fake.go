@@ -6,29 +6,35 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
+// ProvisioningValidationFunction describes a function used to provide pluggable
+// provisioning validation behavior to the fake implementation of the
+// service.Module interface
+type ProvisioningValidationFunction func(service.ProvisioningParameters) error
+
+// BindingValidationFunction describes a function used to provide pluggable
+// binding validation behavior to the fake implementation of the service.Module
+// interface
+type BindingValidationFunction func(service.BindingParameters) error
+
 // BindFunction describes a function used to provide pluggable binding behavior
 // to the fake implementation of the service.Module interface
 type BindFunction func(
-	provisioningContext interface{},
-	bindingParameters interface{},
-) (interface{}, interface{}, error)
+	provisioningContext service.ProvisioningContext,
+	bindingParameters service.BindingParameters,
+) (service.BindingContext, service.Credentials, error)
 
 // UnbindFunction describes a function used to provide pluggable unbinding
 // behavior to the fake implementation of the service.Module interface
 type UnbindFunction func(
-	provisioningContext interface{},
-	bindingContext interface{},
+	provisioningContext service.ProvisioningContext,
+	bindingContext service.BindingContext,
 ) error
-
-// ValidationFunction describes a function used to provide pluggable validation
-// behavior to the fake implementation of the service.Module interface
-type ValidationFunction func(parameters interface{}) error
 
 // Module is a fake implementation of the service.Module interface used to
 // facilittate testing.
 type Module struct {
-	ProvisioningValidationBehavior ValidationFunction
-	BindingValidationBehavior      ValidationFunction
+	ProvisioningValidationBehavior ProvisioningValidationFunction
+	BindingValidationBehavior      BindingValidationFunction
 	BindBehavior                   BindFunction
 	UnbindBehavior                 UnbindFunction
 }
@@ -37,8 +43,8 @@ type Module struct {
 // and provides an example of how such a module is implemented
 func New() (*Module, error) {
 	return &Module{
-		ProvisioningValidationBehavior: defaultValidationBehavior,
-		BindingValidationBehavior:      defaultValidationBehavior,
+		ProvisioningValidationBehavior: defaultProvisioningValidationBehavior,
+		BindingValidationBehavior:      defaultBindingValidationBehavior,
 		BindBehavior:                   defaultBindBehavior,
 		UnbindBehavior:                 defaultUnbindBehavior,
 	}, nil
@@ -52,7 +58,7 @@ func (m *Module) GetName() string {
 // ValidateProvisioningParameters validates the provided provisioningParameters
 // and returns an error if there is any problem
 func (m *Module) ValidateProvisioningParameters(
-	provisioningParameters interface{},
+	provisioningParameters service.ProvisioningParameters,
 ) error {
 	return m.ProvisioningValidationBehavior(provisioningParameters)
 }
@@ -70,32 +76,32 @@ func (m *Module) provision(
 	instanceID string, // nolint: unparam
 	serviceID string, // nolint: unparam
 	planID string, // nolint: unparam
-	provisioningContext interface{},
-	provisioningParameters interface{}, // nolint: unparam
-) (interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+	provisioningParameters service.ProvisioningParameters, // nolint: unparam
+) (service.ProvisioningContext, error) {
 	return provisioningContext, nil
 }
 
 // ValidateBindingParameters validates the provided bindingParameters and
 // returns an error if there is any problem
 func (m *Module) ValidateBindingParameters(
-	bindingParameters interface{},
+	bindingParameters service.BindingParameters,
 ) error {
 	return m.BindingValidationBehavior(bindingParameters)
 }
 
 // Bind synchronously binds to a service
 func (m *Module) Bind(
-	provisioningContext interface{},
-	bindingParameters interface{},
-) (interface{}, interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+	bindingParameters service.BindingParameters,
+) (service.BindingContext, service.Credentials, error) {
 	return m.BindBehavior(provisioningContext, bindingParameters)
 }
 
 // Unbind synchronously unbinds from a service
 func (m *Module) Unbind(
-	provisioningContext interface{},
-	bindingContext interface{},
+	provisioningContext service.ProvisioningContext,
+	bindingContext service.BindingContext,
 ) error {
 	return m.UnbindBehavior(provisioningContext, bindingContext)
 }
@@ -116,25 +122,31 @@ func (m *Module) deprovision(
 	instanceID string, // nolint: unparam
 	serviceID string, // nolint: unparam
 	planID string, // nolint: unparam
-	provisioningContext interface{},
-) (interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+) (service.ProvisioningContext, error) {
 	return provisioningContext, nil
 }
 
-func defaultValidationBehavior(params interface{}) error {
+func defaultProvisioningValidationBehavior(
+	service.ProvisioningParameters,
+) error {
+	return nil
+}
+
+func defaultBindingValidationBehavior(service.BindingParameters) error {
 	return nil
 }
 
 func defaultBindBehavior(
-	provisioningContext interface{},
-	bindingParameters interface{},
-) (interface{}, interface{}, error) {
+	provisioningContext service.ProvisioningContext,
+	bindingParameters service.BindingParameters,
+) (service.BindingContext, service.Credentials, error) {
 	return provisioningContext, &Credentials{}, nil
 }
 
 func defaultUnbindBehavior(
-	provisioningContext interface{},
-	bindingContext interface{},
+	provisioningContext service.ProvisioningContext,
+	bindingContext service.BindingContext,
 ) error {
 	return nil
 }
