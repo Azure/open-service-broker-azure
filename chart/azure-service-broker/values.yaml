@@ -1,0 +1,53 @@
+replicaCount: 1
+image:
+  ## Image location, NOT including the tag
+  repository: quay.io/deisci/azure-service-broker
+  ## Image tag
+  tag: canary
+  ## "IfNotPresent", "Always", or "Never"
+  pullPolicy: Always
+service:
+  ## Type of service; valid values are "ClusterIP", LoadBalancer", and
+  ## "NodePort". "ClusterIP" is sufficient in the average case where a service
+  ## catalog installation in the same cluster is the only client that needs to
+  ## communicate with this broker. i.e. The broker does not need to receive
+  ## inbound requests from outside the cluster.
+  type: ClusterIP
+  ## Further configuration if service is of type "NodePort"
+  nodePort:
+    ## Available port in allowable range (e.g. 30000 - 32767 on minikube)
+    port: 30080
+azure:
+  ## Valid values are "AzureCloud" and "AzureChinaCloud"
+  environment: AzureCloud
+  ## Required; this is the identifier for the Azure account into which services
+  ## will be provisioned. BE AWARE THAT DOING SO WILL COST YOU MONEY!
+  subscriptionId: 
+  ## Required; this is the identifier of the Azure Service Directory that
+  ## contains the service principal the broker will use for interacting with
+  ## Azure.
+  tenantId: 
+  ## Required; this identifies the service principal. When viewed in Azure
+  ## Active Directory, this is also known as the Application ID.
+  clientId: 
+  ## Required
+  clientSecret: 
+## Basic auth credentials that can later be used to access this broker
+basicAuth:
+  ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+  username: username
+  ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+  password: password
+## A 256 bit key used for database encryption
+## NB: 32 ascii characters == 256 bits
+## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+encryptionKey: This is a key that is 256 bits!!
+## Redis configuration 
+## Production version includes hosted redis in Azure
+## You must set up the redis service prior to installing this helm chart
+## TODO: Need a local Redis version as well
+redis:
+  host: 
+  port: 6379
+  password: ""
+  aes256Key: "AES256Key-32Characters1234567890"

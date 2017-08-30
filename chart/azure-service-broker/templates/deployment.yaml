@@ -1,0 +1,79 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      containers:
+        - name: azure-service-broker
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: ENVIRONMENT
+            value: {{ .Values.azure.environment }}
+          - name: AZURE_SUBSCRIPTION_ID
+            value: {{ required "A value is required for azure.subscriptionId" .Values.azure.subscriptionId }}
+          - name: AZURE_TENANT_ID
+            value: {{ required "A value is required for azure.tenantId" .Values.azure.tenantId }}
+          - name: AZURE_CLIENT_ID
+            value: {{ required "A value is required for azure.clientId" .Values.azure.clientId }}
+          - name: AZURE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: client-secret
+          - name: REDIS_HOST
+            value: {{ required "A value is required for redis.host" .Values.redis.host }}
+          - name: REDIS_PORT
+            value: {{ required "A value is required for redis.host" .Values.redis.port | quote }}
+          - name: REDIS_PASSWORD
+            value: {{ required "A value is required for redis.password" .Values.redis.password }}
+          - name: AES256_KEY
+            value: {{ required "A value is required for redis.aes256Key" .Values.redis.aes256Key }}
+          - name: BASIC_AUTH_USERNAME
+            value: {{ .Values.basicAuth.username }}
+          - name: BASIC_AUTH_PASSWORD
+            value: {{ .Values.basicAuth.password }}
+          - name: SECURITY_USER_NAME
+            value: {{ .Values.basicAuth.username }}
+          - name: SECURITY_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}-auth
+                key: password
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+      imagePullSecrets:
+        - name: deisci-jimz-testing-pull-secret

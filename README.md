@@ -151,3 +151,15 @@ Run all the lint checks:
 $ make lint
 ```
 
+### Install Broker via Helm chart
+Set up your REDIS cache in Azure and then make sure to export your REDIS_HOST and REDIS_PASSWORD in addition to the AZURE specific variables above
+> Note: We will be providing a local option as well soon
+
+```console
+
+$ helm install azure-service-broker --name asb --namespace asb \
+     --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID,azure.tenantId=$AZURE_TENANT_ID,azure.clientId=$AZURE_CLIENT_ID,azure.clientSecret=$AZURE_CLIENT_SECRET,redis.host=$REDIS_HOST,redis.password=$REDIS_PASSWORD
+
+$ kubectl get po -n asb -w
+# wait for the broker service to go healthy
+```
