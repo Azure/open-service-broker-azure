@@ -5,10 +5,10 @@ package lifecycle
 import (
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
-	// pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
+	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
-	// "github.com/Azure/azure-service-broker/pkg/services/postgresql"
+	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
 )
 
@@ -17,10 +17,10 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 	if err != nil {
 		return nil, err
 	}
-	// postgreSQLManager, err := pg.NewManager()
-	// if err != nil {
-	// 	return nil, err
-	// }
+	postgreSQLManager, err := pg.NewManager()
+	if err != nil {
+		return nil, err
+	}
 	mySQLManager, err := mg.NewManager()
 	if err != nil {
 		return nil, err
@@ -30,15 +30,15 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 		return nil, err
 	}
 	return []moduleLifecycleTestCase{
-		// {
-		// 	module:    postgresql.New(armDeployer, postgreSQLManager),
-		// 	serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
-		// 	planID:    "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
-		// 	provisioningParameters: &postgresql.ProvisioningParameters{
-		// 		Location: "southcentralus",
-		// 	},
-		// 	bindingParameters: &postgresql.BindingParameters{},
-		// },
+		{
+			module:    postgresql.New(armDeployer, postgreSQLManager),
+			serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
+			planID:    "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
+			provisioningParameters: &postgresql.ProvisioningParameters{
+				Location: "southcentralus",
+			},
+			bindingParameters: &postgresql.BindingParameters{},
+		},
 		{
 			module:    mysql.New(armDeployer, mySQLManager),
 			serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
