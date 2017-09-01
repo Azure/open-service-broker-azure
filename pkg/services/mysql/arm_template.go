@@ -85,16 +85,6 @@ var armTemplateBytes = []byte(`
 			"type": "Microsoft.DBforMySQL/servers",
 			"resources": [
 				{
-					"apiVersion": "2017-04-30-preview",
-					"name": "[parameters('databaseName')]",
-					"type": "databases",
-					"location": "[resourceGroup().location]",
-					"dependsOn": [
-							"[resourceId('Microsoft.DBforMySQL/servers', parameters('serverName'))]"
-					],
-					"properties": {}
-				},
-				{
 					"type": "firewallrules",
 					"apiVersion": "[variables('DBforMySQLapiVersion')]",
 					"dependsOn": [
@@ -106,6 +96,17 @@ var armTemplateBytes = []byte(`
 						"startIpAddress": "[parameters('firewallStartIpAddress')]",
 						"endIpAddress": "[parameters('firewallEndIpAddress')]"
 					}
+				},
+				{
+					"apiVersion": "2017-04-30-preview",
+					"name": "[parameters('databaseName')]",
+					"type": "databases",
+					"location": "[resourceGroup().location]",
+					"dependsOn": [
+							"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'))]",
+							"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'), '/firewallrules/', parameters('firewallRuleName'))]"
+					],
+					"properties": {}
 				}
 			]
 		}
