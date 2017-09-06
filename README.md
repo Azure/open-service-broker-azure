@@ -132,23 +132,33 @@ go run contrib/cmd/cli/*.go -H localhost -u username -P password deprovision -ii
 
 ## Before Submitting a PR
 
-To ensure CI passes, run the following commands.
+To ensure CI passes, run the following command to run all the tests and lint check:
+> Note: this will trigger lifecycle tests as well. Make sure you have set all the Azure related environment variables to a live Azure subscription.
+
+```
+$ make lint test docker-build
+```
 
 ### Run Tests
 
 Run all tests:
-> Note: this does not currently test against live azure subscription.
+> Note: this will trigger lifecycle tests as well. Make sure you have set all the Azure related environment variables to a live Azure subscription.
 
 ```
 $ make test
 ``` 
 
-### Lint
+### Lint Checks
 
 Run all the lint checks:
 
 ```
 $ make lint
+```
+If there are lint errors, run the following command:
+
+```
+$ gofmt -s -w <filename>
 ```
 
 ### Install Broker via Helm chart
