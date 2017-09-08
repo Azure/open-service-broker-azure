@@ -108,15 +108,15 @@ Credentials:
 With the instance binded, now we can test the credentials from the previous step.
 
 ```
-$ psql -h <host> -U <username>@<host> -d <database>
+$ psql -h <host> -U <username>@<host> -d "db=<database> sslmode=require"
 ```
 
 ### Unbind
 
-To unbind the provisioned instance, run the following command with the Instance id and the Binding id from the previous step. Note: Once you unbind the instance, you can no longer access the provisioned instance with the previous created credentials.
+To unbind the provisioned instance, run the following command with the Instance id and the Binding id from the previous step. Note: Once you unbind the instance, you can no longer access the provisioned instance with the previously created credentials.
 
 ```
-$ go run contrib/cmd/cli/*.go -H localhost -u username -P password unbind -iid 256787f5-8ecb-4ec0-9881-58c1bc4cf62b --bid a109d773-4a20-439f-90c4-215df25a4f97
+$ go run contrib/cmd/cli/*.go -H localhost -u username -P password unbind -iid 256787f5-8ecb-4ec0-9881-58c1bc4cf62b -bid a109d773-4a20-439f-90c4-215df25a4f97
 
 Unbound binding a109d773-4a20-439f-90c4-215df25a4f97 to service instance 256787f5-8ecb-4ec0-9881-58c1bc4cf62b
 ```
@@ -126,7 +126,7 @@ Unbound binding a109d773-4a20-439f-90c4-215df25a4f97 to service instance 256787f
 To delete the provisioned service, run the following command:
 
 ```
-go run contrib/cmd/cli/*.go -H localhost -u username -P password deprovision -iid 256787f5-8ecb-4ec0-9881-58c1bc4cf62b
+$ go run contrib/cmd/cli/*.go -H localhost -u username -P password deprovision -iid 256787f5-8ecb-4ec0-9881-58c1bc4cf62b
 ```
 
 
