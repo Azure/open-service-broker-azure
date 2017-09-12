@@ -1,4 +1,5 @@
 replicaCount: 1
+
 image:
   ## Image location, NOT including the tag
   repository: quay.io/deisci/azure-service-broker
@@ -6,6 +7,7 @@ image:
   tag: canary
   ## "IfNotPresent", "Always", or "Never"
   pullPolicy: Always
+
 service:
   ## Type of service; valid values are "ClusterIP", LoadBalancer", and
   ## "NodePort". "ClusterIP" is sufficient in the average case where a service
@@ -17,6 +19,7 @@ service:
   nodePort:
     ## Available port in allowable range (e.g. 30000 - 32767 on minikube)
     port: 30080
+
 azure:
   ## Valid values are "AzureCloud" and "AzureChinaCloud"
   environment: AzureCloud
@@ -32,26 +35,38 @@ azure:
   clientId: 
   ## Required
   clientSecret: 
+
 ## Basic auth credentials that can later be used to access this broker
 basicAuth:
   ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
   username: username
   ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
   password: password
+
 ## A 256 bit key used for database encryption
 ## NB: 32 ascii characters == 256 bits
 ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
 encryptionKey: This is a key that is 256 bits!!
+
 modules:
   ## Minimum stability required for a module's services and plans to be listed
   ## in the broker's catalog. For production, use STABLE only!
   minStability: ALPHA
+
 ## Redis configuration 
-## Production version includes hosted redis in Azure
-## You must set up the redis service prior to installing this helm chart
-## TODO: Need a local Redis version as well
 redis:
+  ## Should a containerized Redis server be included in the Helm release?
+  embedded: true
+
+  ## Required if not embedded
   host: 
+
+  ## If not embedded, specifies the port for the client to connect to
   port: 6379
-  password: ""
-  aes256Key: "AES256Key-32Characters1234567890"
+
+  ## If embedded, specifies the password the server will require AND the
+  ## password the client will use. If not embedded, this only specifies the
+  ## password the client will use. It must be the correct password for whatever
+  ## external Redis server it connects to.
+  ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+  redisPassword: password

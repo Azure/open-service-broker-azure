@@ -1,0 +1,21 @@
+apiVersion: servicecatalog.k8s.io/v1alpha1
+kind: Instance
+metadata:
+  name: jz-postgresql-instance
+  namespace: default
+spec:
+  serviceClassName: azure-postgresqldb
+  planName: basic50
+  parameters:
+    resourceGroup: demo
+    location: eastus
+    postgresqlServerName: jz-postgresql
+    postgresqlServerParameters:
+      properties:
+        administratorLogin: postgres
+        administratorLoginPassword: F00Bar!!123
+      allowPostgresqlServerFirewallRules:
+      - ruleName: AllowAllIps
+        startIpAddress: 0.0.0.0
+        endIpAddress: 255.255.255.255
+    postgresqldbName: my_db

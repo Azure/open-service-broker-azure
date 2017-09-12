@@ -173,3 +173,14 @@ $ helm install azure-service-broker --name asb --namespace asb \
 $ kubectl get po -n asb -w
 # wait for the broker service to go healthy
 ```
+
+### Troubleshooting
+You must use the following command to get the list of bindings
+
+```console
+
+kubectl get bindings.servicecatalog.k8s.io
+
+```
+
+If you run into issues with deleting the broker, you will need to remove the catalog to clean up and install again
