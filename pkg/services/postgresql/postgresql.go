@@ -27,3 +27,7 @@ func New(
 func (m *module) GetName() string {
 	return "postgresql"
 }
+
+func (m *module) GetStability() service.Stability {
+	return service.StabilityAlpha
+}

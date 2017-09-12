@@ -54,6 +54,7 @@ func NewBroker(
 	codec crypto.Codec,
 	authenticator authenticator.Authenticator,
 	modules []service.Module,
+	minStability service.Stability,
 ) (Broker, error) {
 	b := &broker{
 		store:       storage.NewStore(redisClient),
@@ -63,22 +64,24 @@ func NewBroker(
 	}
 
 	for _, module := range modules {
-		catalog, err := module.GetCatalog()
-		if err != nil {
-			return nil, err
-		}
-		for _, svc := range catalog.GetServices() {
-			existingModule, ok := b.modules[svc.GetID()]
-			if ok {
-				// This means we have more than one module claiming to provide services
-				// with an ID in common. This is a SERIOUS problem.
-				return nil, fmt.Errorf(
-					`module "%s" and module "%s" BOTH provide a service with the id "%s"`,
-					existingModule.GetName(),
-					module.GetName(),
-					svc.GetID())
+		if module.GetStability() >= minStability {
+			catalog, err := module.GetCatalog()
+			if err != nil {
+				return nil, err
 			}
-			b.modules[svc.GetID()] = module
+			for _, svc := range catalog.GetServices() {
+				existingModule, ok := b.modules[svc.GetID()]
+				if ok {
+					// This means we have more than one module claiming to provide services
+					// with an ID in common. This is a SERIOUS problem.
+					return nil, fmt.Errorf(
+						`module "%s" and module "%s" BOTH provide a service with the id "%s"`,
+						existingModule.GetName(),
+						module.GetName(),
+						svc.GetID())
+				}
+				b.modules[svc.GetID()] = module
+			}
 		}
 	}
 

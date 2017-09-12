@@ -70,8 +70,19 @@ func main() {
 		basicAuthConfig.Password,
 	)
 
+	modulesConfig, err := getModulesConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Create broker
-	broker, err := broker.NewBroker(redisClient, codec, authenticator, modules)
+	broker, err := broker.NewBroker(
+		redisClient,
+		codec,
+		authenticator,
+		modules,
+		modulesConfig.MinStability,
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

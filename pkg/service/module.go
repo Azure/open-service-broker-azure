@@ -4,6 +4,8 @@ package service
 type Module interface {
 	// GetName returns a module's name
 	GetName() string
+	// GetStability returns a module's relative level of stability
+	GetStability() Stability
 	// GetCatalog returns a Catalog of service/plans offered by a module
 	GetCatalog() (Catalog, error)
 	// GetEmptyProvisioningParameters returns an empty instance of module-specific

@@ -55,6 +55,11 @@ func (m *Module) GetName() string {
 	return "fake"
 }
 
+// GetStability returns this module's relative stability
+func (m *Module) GetStability() service.Stability {
+	return service.StabilityStable
+}
+
 // ValidateProvisioningParameters validates the provided provisioningParameters
 // and returns an error if there is any problem
 func (m *Module) ValidateProvisioningParameters(

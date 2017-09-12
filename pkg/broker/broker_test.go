@@ -9,6 +9,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/api/authenticator/always"
 	fakeAPI "github.com/Azure/azure-service-broker/pkg/api/fake"
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
+	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -139,7 +140,13 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 }
 
 func getTestBroker() (*broker, error) {
-	b, err := NewBroker(nil, nil, always.NewAuthenticator(), nil)
+	b, err := NewBroker(
+		nil,
+		nil,
+		always.NewAuthenticator(),
+		nil,
+		service.StabilityAlpha,
+	)
 	if err != nil {
 		return nil, err
 	}

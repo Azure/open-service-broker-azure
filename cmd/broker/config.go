@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"strings"
+
+	"github.com/Azure/azure-service-broker/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -32,6 +36,11 @@ type basicAuthConfig struct {
 	Password string `envconfig:"BASIC_AUTH_PASSWORD" required:"true"`
 }
 
+type modulesConfig struct {
+	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"ALPHA"`
+	MinStability    service.Stability
+}
+
 func getLogConfig() (logConfig, error) {
 	lc := logConfig{}
 	err := envconfig.Process("", &lc)
@@ -58,4 +67,27 @@ func getBasicAuthConfig() (basicAuthConfig, error) {
 	bac := basicAuthConfig{}
 	err := envconfig.Process("", &bac)
 	return bac, err
+}
+
+func getModulesConfig() (modulesConfig, error) {
+	mc := modulesConfig{}
+	err := envconfig.Process("", &mc)
+	if err != nil {
+		return mc, err
+	}
+	minStabilityStr := strings.ToUpper(mc.MinStabilityStr)
+	switch minStabilityStr {
+	case "ALPHA":
+		mc.MinStability = service.StabilityAlpha
+	case "BETA":
+		mc.MinStability = service.StabilityBeta
+	case "STABLE":
+		mc.MinStability = service.StabilityStable
+	default:
+		return mc, fmt.Errorf(
+			`unrecognized stability level "%s"`,
+			minStabilityStr,
+		)
+	}
+	return mc, nil
 }

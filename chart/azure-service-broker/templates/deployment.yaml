@@ -57,6 +57,8 @@ spec:
               secretKeyRef:
                 name: {{ template "fullname" . }}-auth
                 key: password
+          - name: MIN_STABILITY:
+            value: {{ .Values.modules.minStability }}
           ports:
           - containerPort: 8080
           readinessProbe:

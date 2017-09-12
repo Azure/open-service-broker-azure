@@ -26,3 +26,7 @@ func New(
 func (m *module) GetName() string {
 	return "rediscache"
 }
+
+func (m *module) GetStability() service.Stability {
+	return service.StabilityAlpha
+}
