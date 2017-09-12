@@ -1,0 +1,27 @@
+{
+  "Linters": {
+    "misspell":   { "Command": "misspell -i hdinsight" }
+  },
+  "Enable": [
+    "gofmt",
+    "vet",
+    "vetshadow",
+    "gotype",
+    "deadcode",
+    "golint",
+    "varcheck",
+    "structcheck",
+    "aligncheck",
+    "errcheck",
+    "megacheck",
+    "ineffassign",
+    "interfacer",
+    "unconvert",
+    "goconst",
+    "gas",
+    "goimports",
+    "misspell",
+    "unparam",
+    "lll"
+  ]
+}

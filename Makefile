@@ -106,26 +106,7 @@ lint: check-docker-compose
 		--rm dev \
 		bash -c 'gometalinter ./... \
 			--disable-all \
-			--enable gofmt \
-			--enable vet \
-			--enable vetshadow \
-			--enable gotype \
-			--enable deadcode \
-			--enable golint \
-			--enable varcheck \
-			--enable structcheck \
-			--enable aligncheck \
-			--enable errcheck \
-			--enable megacheck \
-			--enable ineffassign \
-			--enable interfacer \
-			--enable unconvert \
-			--enable goconst \
-			--enable gas \
-			--enable goimports \
-			--enable misspell \
-			--enable unparam \
-			--enable lll \
+			--config=gometalinterConfig \
 			--line-length 80 \
 			--deadline 120s \
 			--vendor'
