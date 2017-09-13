@@ -1,16 +1,11 @@
 apiVersion: servicecatalog.k8s.io/v1alpha1
-kind: Instance
+kind: ServiceInstance
 metadata:
-  name: jz-redis-instance
+  name: my-redis-instance
   namespace: default
 spec:
   serviceClassName: azure-rediscache
   planName: basic
   parameters:
-    resourceGroup: demo
-    serverName: jz-redis # must be globally unique
     location: eastus
-    enableNonSslPort: true
-    redisCacheSKU: Basic
-    redisCacheFamily: C
-    redisCacheCapacity: 0
+    resourceGroup: demo

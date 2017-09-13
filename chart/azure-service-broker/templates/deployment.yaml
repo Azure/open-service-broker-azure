@@ -63,7 +63,7 @@ spec:
               secretKeyRef:
                 name: {{ template "fullname" . }}
                 key: basic-auth-password
-          - name: MIN_STABILITY:
+          - name: MIN_STABILITY
             value: {{ .Values.modules.minStability }}
           ports:
           - containerPort: 8080

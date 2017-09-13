@@ -168,19 +168,15 @@ Set up your REDIS cache in Azure and then make sure to export your REDIS_HOST an
 ```console
 
 $ helm install azure-service-broker --name asb --namespace asb \
-     --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID,azure.tenantId=$AZURE_TENANT_ID,azure.clientId=$AZURE_CLIENT_ID,azure.clientSecret=$AZURE_CLIENT_SECRET,redis.host=$REDIS_HOST,redis.password=$REDIS_PASSWORD
+     --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
+     --set azure.tenantId=$AZURE_TENANT_ID \
+     --set azure.clientId=$AZURE_CLIENT_ID \
+     --set azure.clientSecret=$AZURE_CLIENT_SECRET
 
-$ kubectl get po -n asb -w
-# wait for the broker service to go healthy
+$ kubectl get pods -n asb -w
+# wait for the broker pod to enter a healthy state
 ```
 
 ### Troubleshooting
-You must use the following command to get the list of bindings
-
-```console
-
-kubectl get bindings.servicecatalog.k8s.io
-
-```
 
 If you run into issues with deleting the broker, you will need to remove the catalog to clean up and install again

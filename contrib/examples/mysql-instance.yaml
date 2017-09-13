@@ -1,16 +1,11 @@
 apiVersion: servicecatalog.k8s.io/v1alpha1
-kind: Instance
+kind: ServiceInstance
 metadata:
-  name: jz-mysql-instance
+  name: my-mysql-instance
   namespace: default
 spec:
   serviceClassName: azure-mysqldb
   planName: basic50
   parameters:
-    resourceGroup: demo
-    serverName: jz-mysql # must be globally unique
     location: eastus
-    skuName: MYSQLB50
-    skuCapacityDTU: 50
-    skuTier: Basic
-    skuSizeMB: 51200
+    resourceGroup: demo
