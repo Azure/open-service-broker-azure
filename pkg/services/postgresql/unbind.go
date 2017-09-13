@@ -13,13 +13,13 @@ func (m *module) Unbind(
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return fmt.Errorf(
-			"error casting provisioningContext as postgresqlProvisioningContext",
+			"error casting provisioningContext as *postgresqlProvisioningContext",
 		)
 	}
 	bc, ok := bindingContext.(*postgresqlBindingContext)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingContext as postgresqlBindingContext",
+			"error casting bindingContext as *postgresqlBindingContext",
 		)
 	}
 

@@ -21,7 +21,7 @@ func (m *module) Bind(
 	pc, ok := provisioningContext.(*redisProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as redisProvisioningContext",
+			"error casting provisioningContext as *redisProvisioningContext",
 		)
 	}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
+	uuid "github.com/satori/go.uuid"
 )
 
 func getTestCases() ([]moduleLifecycleTestCase, error) {
@@ -35,7 +36,8 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 			serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 			planID:    "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
 			provisioningParameters: &postgresql.ProvisioningParameters{
-				Location: "southcentralus",
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
 			},
 			bindingParameters: &postgresql.BindingParameters{},
 		},
@@ -44,7 +46,8 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 			serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
 			planID:    "427559f1-bf2a-45d3-8844-32374a3e58aa",
 			provisioningParameters: &mysql.ProvisioningParameters{
-				Location: "southcentralus",
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
 			},
 			bindingParameters: &mysql.BindingParameters{},
 		},
@@ -53,9 +56,14 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 			serviceID: "0346088a-d4b2-4478-aa32-f18e295ec1d9",
 			planID:    "362b3d1b-5b57-4289-80ad-4a15a760c29c",
 			provisioningParameters: &rediscache.ProvisioningParameters{
-				Location: "southcentralus",
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
 			},
 			bindingParameters: &rediscache.BindingParameters{},
 		},
 	}, nil
+}
+
+func newTestResourceGroupName() string {
+	return "test-" + uuid.NewV4().String()
 }

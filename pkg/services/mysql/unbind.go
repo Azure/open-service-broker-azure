@@ -13,13 +13,13 @@ func (m *module) Unbind(
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return fmt.Errorf(
-			"error casting provisioningContext as mysqlProvisioningContext",
+			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
 	bc, ok := bindingContext.(*mysqlBindingContext)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingContext as mysqlBindingContext",
+			"error casting bindingContext as *mysqlBindingContext",
 		)
 	}
 

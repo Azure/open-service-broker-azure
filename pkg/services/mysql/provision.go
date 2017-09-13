@@ -19,7 +19,7 @@ func (m *module) ValidateProvisioningParameters(
 	if !ok {
 		return errors.New(
 			"error casting provisioningParameters as " +
-				"mysqlProvisioningParameters",
+				"*mysql.ProvisioningParameters",
 		)
 	}
 	if !azure.IsValidLocation(pp.Location) {
@@ -49,10 +49,21 @@ func (m *module) preProvision(
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as mysqlProvisioningContext",
+			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
-	pc.ResourceGroupName = uuid.NewV4().String()
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mysql.ProvisioningParameters",
+		)
+	}
+	if pp.ResourceGroup != "" {
+		pc.ResourceGroupName = pp.ResourceGroup
+	} else {
+		pc.ResourceGroupName = uuid.NewV4().String()
+	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.ServerName = uuid.NewV4().String()
 	pc.AdministratorLoginPassword = generate.NewPassword()
@@ -71,14 +82,14 @@ func (m *module) deployARMTemplate(
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as mysqlProvisioningContext",
+			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningParameters as " +
-				"mysqlProvisioningParameters",
+				"*mysql.ProvisioningParameters",
 		)
 	}
 

@@ -22,7 +22,7 @@ func (m *module) Bind(
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as mysqlProvisioningContext",
+			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
 

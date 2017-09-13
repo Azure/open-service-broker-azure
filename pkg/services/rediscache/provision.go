@@ -17,7 +17,7 @@ func (m *module) ValidateProvisioningParameters(
 	if !ok {
 		return errors.New(
 			"error casting provisioningParameters as " +
-				"redisProvisioningParameters",
+				"*redis.ProvisioningParameters",
 		)
 	}
 	if !azure.IsValidLocation(pp.Location) {
@@ -47,12 +47,21 @@ func (m *module) preProvision(
 	pc, ok := provisioningContext.(*redisProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as redisProvisioningContext",
+			"error casting provisioningContext as *redisProvisioningContext",
 		)
 	}
-
-	// generate names for resources
-	pc.ResourceGroupName = uuid.NewV4().String()
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*redis.ProvisioningParameters",
+		)
+	}
+	if pp.ResourceGroup != "" {
+		pc.ResourceGroupName = pp.ResourceGroup
+	} else {
+		pc.ResourceGroupName = uuid.NewV4().String()
+	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.ServerName = uuid.NewV4().String()
 	return pc, nil
@@ -69,14 +78,14 @@ func (m *module) deployARMTemplate(
 	pc, ok := provisioningContext.(*redisProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as redisProvisioningContext",
+			"error casting provisioningContext as *redisProvisioningContext",
 		)
 	}
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningParameters as " +
-				"redisProvisioningParameters",
+				"*redis.ProvisioningParameters",
 		)
 	}
 	catalog, err := m.GetCatalog()

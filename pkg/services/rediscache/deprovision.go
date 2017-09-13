@@ -33,7 +33,7 @@ func (m *module) deleteARMDeployment(
 	pc, ok := provisioningContext.(*redisProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as redisProvisioningContext",
+			"error casting provisioningContext as *redisProvisioningContext",
 		)
 	}
 	if err := m.armDeployer.Delete(
@@ -55,7 +55,7 @@ func (m *module) deleteRedisServer(
 	pc, ok := provisioningContext.(*redisProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as redisProvisioningContext",
+			"error casting provisioningContext as *redisProvisioningContext",
 		)
 	}
 	if err := m.redisManager.DeleteServer(

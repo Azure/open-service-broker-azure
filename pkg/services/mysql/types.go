@@ -4,8 +4,9 @@ import "github.com/Azure/azure-service-broker/pkg/service"
 
 // ProvisioningParameters encapsulates MySQL-specific provisioning options
 type ProvisioningParameters struct {
-	Location string            `json:"location"`
-	Tags     map[string]string `json:"tags"`
+	Location      string            `json:"location"`
+	ResourceGroup string            `json:"resourceGroup"`
+	Tags          map[string]string `json:"tags"`
 }
 
 type mysqlProvisioningContext struct {

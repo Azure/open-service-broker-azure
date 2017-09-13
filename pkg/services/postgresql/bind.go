@@ -23,7 +23,7 @@ func (m *module) Bind(
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as postgresqlProvisioningContext",
+			"error casting provisioningContext as *postgresqlProvisioningContext",
 		)
 	}
 

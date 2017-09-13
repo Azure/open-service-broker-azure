@@ -30,7 +30,7 @@ func (m *module) deleteARMDeployment(
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as mysqlProvisioningContext",
+			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
 	if err := m.armDeployer.Delete(
@@ -52,7 +52,7 @@ func (m *module) deleteMySQLServer(
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as mysqlProvisioningContext",
+			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
 	if err := m.mysqlManager.DeleteServer(

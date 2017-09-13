@@ -20,7 +20,7 @@ func (m *module) ValidateProvisioningParameters(
 	if !ok {
 		return errors.New(
 			"error casting provisioningParameters as " +
-				"postgresqlProvisioningParameters",
+				"*postgresql.ProvisioningParameters",
 		)
 	}
 	if !azure.IsValidLocation(pp.Location) {
@@ -51,10 +51,21 @@ func (m *module) preProvision(
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as postgresqlProvisioningContext",
+			"error casting provisioningContext as *postgresqlProvisioningContext",
 		)
 	}
-	pc.ResourceGroupName = uuid.NewV4().String()
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*postgresql.ProvisioningParameters",
+		)
+	}
+	if pp.ResourceGroup != "" {
+		pc.ResourceGroupName = pp.ResourceGroup
+	} else {
+		pc.ResourceGroupName = uuid.NewV4().String()
+	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.ServerName = uuid.NewV4().String()
 	pc.AdministratorLoginPassword = generate.NewPassword()
@@ -73,14 +84,14 @@ func (m *module) deployARMTemplate(
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as postgresqlProvisioningContext",
+			"error casting provisioningContext as *postgresqlProvisioningContext",
 		)
 	}
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningParameters as " +
-				"postgresqlProvisioningParameters",
+				"*postgresql.ProvisioningParameters",
 		)
 	}
 	catalog, err := m.GetCatalog()
@@ -145,7 +156,7 @@ func (m *module) setupDatabase(
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as postgresqlProvisioningContext",
+			"error casting provisioningContext as *postgresqlProvisioningContext",
 		)
 	}
 

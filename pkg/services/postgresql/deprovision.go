@@ -33,7 +33,7 @@ func (m *module) deleteARMDeployment(
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as postgresqlProvisioningContext",
+			"error casting provisioningContext as *postgresqlProvisioningContext",
 		)
 	}
 	if err := m.armDeployer.Delete(
@@ -55,7 +55,7 @@ func (m *module) deletePostgreSQLServer(
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as postgresqlProvisioningContext",
+			"error casting provisioningContext as *postgresqlProvisioningContext",
 		)
 	}
 	if err := m.postgresqlManager.DeleteServer(
