@@ -4,9 +4,11 @@ package lifecycle
 
 import (
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
+	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
+	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
@@ -27,6 +29,10 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 		return nil, err
 	}
 	redisManager, err := rc.NewManager()
+	if err != nil {
+		return nil, err
+	}
+	cosmosdbManager, err := cd.NewManager()
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +66,26 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 				ResourceGroup: newTestResourceGroupName(),
 			},
 			bindingParameters: &rediscache.BindingParameters{},
+		},
+		{ // DocumentDB
+			module:    cosmosdb.New(armDeployer, cosmosdbManager),
+			serviceID: "6330de6f-a561-43ea-a15e-b99f44d183e6",
+			planID:    "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
+			provisioningParameters: &cosmosdb.ProvisioningParameters{
+				Location:      "eastus",
+				ResourceGroup: newTestResourceGroupName(),
+			},
+			bindingParameters: &cosmosdb.BindingParameters{},
+		},
+		{ // MongoDB
+			module:    cosmosdb.New(armDeployer, cosmosdbManager),
+			serviceID: "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
+			planID:    "86fdda05-78d7-4026-a443-1325928e7b02",
+			provisioningParameters: &cosmosdb.ProvisioningParameters{
+				Location:      "eastus",
+				ResourceGroup: newTestResourceGroupName(),
+			},
+			bindingParameters: &cosmosdb.BindingParameters{},
 		},
 	}, nil
 }
