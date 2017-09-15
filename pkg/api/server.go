@@ -98,8 +98,21 @@ func NewServer(
 	).Methods(http.MethodGet)
 	s.router = router
 
+	// modules is a map of modules indexed by service id. If a module provides
+	// more than one service, we could end up iterating over a given module
+	// more than once and adding all its services to the consolidated catalog
+	// multiple times. To avoid this, we keep track of modules whose services
+	// have already been added to the consolidated catalog in a handledModules
+	// map that indexes struct{}{} (no allocation required) by module name. (This
+	// is a poor man's set since Go lacks a dedicated set data structure.)
 	services := []service.Service{}
+	handledModules := map[string]struct{}{}
+	var ok bool
 	for _, module := range modules {
+		if _, ok = handledModules[module.GetName()]; ok {
+			continue
+		}
+		handledModules[module.GetName()] = struct{}{}
 		catalog, err := module.GetCatalog()
 		if err != nil {
 			return nil, err
