@@ -11,3 +11,4 @@ import:
 - package: github.com/Azure/go-autorest
 - package: github.com/lib/pq
 - package: github.com/go-sql-driver/mysql
+- package: github.com/denisenkom/go-mssqldb

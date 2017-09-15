@@ -1,11 +1,14 @@
-hash: 7ce5a61733db0662650f34bb0072d22a3b94182149c17b0bed62e259e8669fda
-updated: 2017-08-11T14:24:54.602349838-07:00
+hash: 9a3551b82bfe2cc37e85dccabac608d2dfe9338c412684e39ecd9cd9c0366c55
+updated: 2017-09-04T09:29:00.03096089Z
 imports:
 - name: github.com/Azure/azure-sdk-for-go
   version: 0b09de4174ca0cadcd3abb4aa31267c6f5ccebbb
   subpackages:
+  - arm/mysql
   - arm/postgresql
+  - arm/redis
   - arm/resources/resources
+  - arm/sql
 - name: github.com/Azure/go-autorest
   version: f6e08fe5e4d45c9a66e40196d3fed5f37331d224
   subpackages:
@@ -15,6 +18,8 @@ imports:
   - autorest/date
   - autorest/to
   - autorest/validation
+- name: github.com/denisenkom/go-mssqldb
+  version: 84dc5e6cc4a674abe81be5bf7835f4ae3dced817
 - name: github.com/dgrijalva/jwt-go
   version: a539ee1a749a2b895533f979515ac7e6e0f5b650
 - name: github.com/go-redis/redis
@@ -39,6 +44,8 @@ imports:
   - oid
 - name: github.com/satori/go.uuid
   version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
+- name: github.com/satori/uuid
+  version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
 - name: github.com/Sirupsen/logrus
   version: 181d419aa9e2223811b824e8f0b4af96f9ba9302
 - name: github.com/stretchr/testify
@@ -50,7 +57,15 @@ imports:
 - name: golang.org/x/crypto
   version: b176d7def5d71bdd214203491f89843ed217f420
   subpackages:
+  - md4
   - ssh/terminal
+- name: golang.org/x/net
+  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
+  repo: https://github.com/golang/net.git
+  vcs: git
+  subpackages:
+  - .
+  - context
 - name: golang.org/x/sys
   version: e42485b6e20ae7d2304ec72e535b103ed350cc02
   subpackages:

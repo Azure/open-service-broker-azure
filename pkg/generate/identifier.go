@@ -7,7 +7,7 @@ const (
 
 // NewIdentifier generates an identifier suitable for use as a username,
 // role name, database name for various database systems-- including, at least,
-// PostgresSQL and MySQL.
+// PostgresSQL and MySQL and MSSQL.
 func NewIdentifier() string {
 	b := make([]byte, identifierLength)
 	// The first character of an identifier MUST be a lowercase alpha
