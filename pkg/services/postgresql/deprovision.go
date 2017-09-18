@@ -13,9 +13,6 @@ func (m *module) GetDeprovisioner(
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", m.deleteARMDeployment),
-		// krancour: This next step is a workaround because, currently, deleting
-		// the ARM deployment is NOT deleting the PostgreSQL server. This seems to
-		// be a problem not with ARM, but with the Postgres RP.
 		service.NewDeprovisioningStep(
 			"deletePostgreSQLServer",
 			m.deletePostgreSQLServer,

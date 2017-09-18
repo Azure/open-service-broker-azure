@@ -8,13 +8,6 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure"
 )
 
-// krancour: This whole interface and its implementations are a workaround!
-// Ideally, we'd like to accomplish as much as possible using ARM, however,
-// currently, when deleting ARM deployments, MySQL servers don't get
-// deleted. This seems to be an issue with the underlying RP. To work around
-// that, we'll use this interface and implementations thereof to delete those
-// servers directly.
-
 // Manager is an interface to be implemented by any component capable of
 // managing Azure Database for MySQL
 type Manager interface {
