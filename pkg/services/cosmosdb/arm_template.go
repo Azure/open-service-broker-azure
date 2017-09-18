@@ -29,6 +29,9 @@ var armTemplateBytes = []byte(`
 						"locationName": "[resourceGroup().location]"
 					}
 				]
+			},
+			"tags": {
+				"heritage": "azure-service-broker"
 			}
 		}
 	],

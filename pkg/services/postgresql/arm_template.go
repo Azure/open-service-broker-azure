@@ -83,6 +83,9 @@ var armTemplateBytes = []byte(`
 				"size": "[parameters('skuSizeMB')]"
 			},
 			"type": "Microsoft.DBforPostgreSQL/servers",
+			"tags": {
+				"heritage": "azure-service-broker"
+			},
 			"resources": [
 				{
 					"type": "firewallrules",
