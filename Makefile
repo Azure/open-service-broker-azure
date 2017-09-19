@@ -75,7 +75,7 @@ test-module-lifecycles: check-docker-compose
 		-e AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET} \
 		test \
 		bash -c 'go test \
-			-parallel 5 \
+			-parallel 10 \
 		  -timeout 60m \
 			github.com/Azure/azure-service-broker/tests/lifecycle -v'
 

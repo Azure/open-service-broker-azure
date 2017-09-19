@@ -9,6 +9,7 @@ import (
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
+	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
 
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
@@ -16,6 +17,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
+	"github.com/Azure/azure-service-broker/pkg/services/storage"
 )
 
 var modules []service.Module
@@ -49,12 +51,17 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing cosmosdb manager: %s", err)
 	}
+	storageManager, err := sa.NewManager()
+	if err != nil {
+		return fmt.Errorf("error initializing storage manager: %s", err)
+	}
 	modules = []service.Module{
 		postgresql.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
 		mysql.New(armDeployer, mySQLManager),
 		mssql.New(armDeployer, msSQLManager, msSQLConfig),
 		cosmosdb.New(armDeployer, cosmosDBManager),
+		storage.New(armDeployer, storageManager),
 	}
 	return nil
 }

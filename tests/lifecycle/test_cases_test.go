@@ -9,11 +9,13 @@ import (
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
+	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
 	"github.com/Azure/azure-service-broker/pkg/services/mssql"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
+	"github.com/Azure/azure-service-broker/pkg/services/storage"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -43,6 +45,10 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 		return nil, err
 	}
 	cosmosdbManager, err := cd.NewManager()
+	if err != nil {
+		return nil, err
+	}
+	storageManager, err := sa.NewManager()
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +112,36 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 				ResourceGroup: newTestResourceGroupName(),
 			},
 			bindingParameters: &cosmosdb.BindingParameters{},
+		},
+		{ // General Purpose Storage Account
+			module:    storage.New(armDeployer, storageManager),
+			serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
+			planID:    "6ddf6b41-fb60-4b70-af99-8ecc4896b3cf",
+			provisioningParameters: &storage.ProvisioningParameters{
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
+			},
+			bindingParameters: &storage.BindingParameters{},
+		},
+		{ // Blob Storage Account
+			module:    storage.New(armDeployer, storageManager),
+			serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
+			planID:    "800a17e1-f20a-463d-a290-20516052f647",
+			provisioningParameters: &storage.ProvisioningParameters{
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
+			},
+			bindingParameters: &storage.BindingParameters{},
+		},
+		{ // Blob Storage Account + Blob Container
+			module:    storage.New(armDeployer, storageManager),
+			serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
+			planID:    "189d3b8f-8307-4b3f-8c74-03d069237f70",
+			provisioningParameters: &storage.ProvisioningParameters{
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
+			},
+			bindingParameters: &storage.BindingParameters{},
 		},
 	}, nil
 }

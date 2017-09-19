@@ -1,14 +1,17 @@
 hash: 9a3551b82bfe2cc37e85dccabac608d2dfe9338c412684e39ecd9cd9c0366c55
-updated: 2017-09-04T09:29:00.03096089Z
+updated: 2017-09-15T07:37:03.465594413Z
 imports:
 - name: github.com/Azure/azure-sdk-for-go
   version: 0b09de4174ca0cadcd3abb4aa31267c6f5ccebbb
   subpackages:
+  - arm/cosmos-db
   - arm/mysql
   - arm/postgresql
   - arm/redis
   - arm/resources/resources
   - arm/sql
+  - arm/storage
+  - storage
 - name: github.com/Azure/go-autorest
   version: f6e08fe5e4d45c9a66e40196d3fed5f37331d224
   subpackages:
@@ -19,7 +22,7 @@ imports:
   - autorest/to
   - autorest/validation
 - name: github.com/denisenkom/go-mssqldb
-  version: 84dc5e6cc4a674abe81be5bf7835f4ae3dced817
+  version: b49fae7d39756354262c5f385d4cf04f9ac6618b
 - name: github.com/dgrijalva/jwt-go
   version: a539ee1a749a2b895533f979515ac7e6e0f5b650
 - name: github.com/go-redis/redis
@@ -60,7 +63,7 @@ imports:
   - md4
   - ssh/terminal
 - name: golang.org/x/net
-  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
+  version: 859d1a86bb617c0c20d154590c3c5d3fcb670b07
   repo: https://github.com/golang/net.git
   vcs: git
   subpackages:
