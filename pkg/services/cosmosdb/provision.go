@@ -43,7 +43,7 @@ func (m *module) preProvision(
 	serviceID string, // nolint: unparam
 	planID string, // nolint: unparam
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters, // nolint: unparam
+	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*cosmosdbProvisioningContext)
 	if !ok {
