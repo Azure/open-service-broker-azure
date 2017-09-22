@@ -59,6 +59,11 @@ var armTemplateBytes = []byte(`
 			"minLength": 1,
 			"maxLength": 15,
 			"defaultValue": "255.255.255.255"
+		},
+		"sslEnforcement": {
+			"type": "string",
+			"allowedValues": [ "Enabled", "Disabled" ],
+			"defaultValue": "Enabled"
 		}
 	},
 	"variables": {
@@ -74,7 +79,8 @@ var armTemplateBytes = []byte(`
 				"version": "[parameters('version')]",
 				"administratorLogin": "azureuser",
 				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-				"storageMB": "[parameters('skuSizeMB')]"
+				"storageMB": "[parameters('skuSizeMB')]",
+				"sslEnforcement": "[parameters('sslEnforcement')]"
 			},
 			"sku": {
 				"name": "[parameters('skuName')]",

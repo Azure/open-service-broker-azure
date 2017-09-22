@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/Azure/azure-service-broker/pkg/azure"
 	"github.com/Azure/azure-service-broker/pkg/generate"
@@ -27,6 +28,14 @@ func (m *module) ValidateProvisioningParameters(
 		return service.NewValidationError(
 			"location",
 			fmt.Sprintf(`invalid location: "%s"`, pp.Location),
+		)
+	}
+	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
+	if sslEnforcement != "" && sslEnforcement != "enabled" &&
+		sslEnforcement != "disabled" {
+		return service.NewValidationError(
+			"sslEnforcement",
+			fmt.Sprintf(`invalid sslEnforcement option: "%s"`, pp.SSLEnforcement),
 		)
 	}
 	return nil
@@ -70,6 +79,15 @@ func (m *module) preProvision(
 	pc.ServerName = uuid.NewV4().String()
 	pc.AdministratorLoginPassword = generate.NewPassword()
 	pc.DatabaseName = generate.NewIdentifier()
+
+	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
+	switch sslEnforcement {
+	case "", "enabled":
+		pc.EnforceSSL = true
+	case "disabled":
+		pc.EnforceSSL = false
+	}
+
 	return pc, nil
 }
 
@@ -114,6 +132,12 @@ func (m *module) deployARMTemplate(
 			serviceID,
 		)
 	}
+	var sslEnforcement string
+	if pc.EnforceSSL {
+		sslEnforcement = "Enabled"
+	} else {
+		sslEnforcement = "Disabled"
+	}
 	outputs, err := m.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		pc.ResourceGroupName,
@@ -127,6 +151,7 @@ func (m *module) deployARMTemplate(
 			"skuTier":                    plan.GetProperties().Extended["skuTier"],
 			"skuCapacityDTU": plan.GetProperties().
 				Extended["skuCapacityDTU"],
+			"sslEnforcement": sslEnforcement,
 		},
 	)
 	if err != nil {

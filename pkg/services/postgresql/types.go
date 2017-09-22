@@ -4,9 +4,10 @@ import "github.com/Azure/azure-service-broker/pkg/service"
 
 // ProvisioningParameters encapsulates PostgreSQL-specific provisioning options
 type ProvisioningParameters struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
+	Location       string            `json:"location"`
+	ResourceGroup  string            `json:"resourceGroup"`
+	Tags           map[string]string `json:"tags"`
+	SSLEnforcement string            `json:"sslEnforcement"`
 }
 
 type postgresqlProvisioningContext struct {
@@ -16,6 +17,7 @@ type postgresqlProvisioningContext struct {
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 	DatabaseName               string `json:"database"`
 	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
+	EnforceSSL                 bool   `json:"enforceSSL"`
 }
 
 // BindingParameters encapsulates PostgreSQL-specific binding options
