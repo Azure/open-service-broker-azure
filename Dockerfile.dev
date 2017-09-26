@@ -5,6 +5,9 @@ ENV GLIDE_VERSION=v0.12.3
 RUN curl -sSL https://github.com/Masterminds/glide/releases/download/$GLIDE_VERSION/glide-$GLIDE_VERSION-linux-amd64.tar.gz \
   | tar -vxz -C /usr/local/bin --strip=1 \
   && go get -u github.com/alecthomas/gometalinter \
+  && cd $GOPATH/src/github.com/alecthomas/gometalinter \
+  && git checkout bfcc1d6942136fd86eb6f1a6fb328de8398fbd80 \
+  && go install \
   && gometalinter --install \
   && mkdir -p /go/src/github.com/Azure/azure-service-broker
 

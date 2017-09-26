@@ -83,7 +83,7 @@ test-module-lifecycles: check-docker-compose
 lint: check-docker-compose
 	docker-compose run \
 		--rm test \
-		bash -c 'gometalinter $$(glide nv) \
+		bash -c 'gometalinter ./... \
 			--disable-all \
 			--enable gofmt \
 			--enable vet \
@@ -106,7 +106,8 @@ lint: check-docker-compose
 			--enable unparam \
 			--enable lll \
 			--line-length 80 \
-			--deadline 120s'
+			--deadline 120s \
+			--vendor'
 
 # Running the tests starts a containerized Redis dedicated to testing (if it
 # isn't already running). It's left running afterwards (to speed up the next
