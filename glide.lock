@@ -1,10 +1,11 @@
-hash: 9a3551b82bfe2cc37e85dccabac608d2dfe9338c412684e39ecd9cd9c0366c55
-updated: 2017-09-15T07:37:03.465594413Z
+hash: 35b1c2cccd0a4471d23b94ae23089b7ea6f71480581d651ca6c0f7daebca2f27
+updated: 2017-09-18T16:43:29.901778477Z
 imports:
 - name: github.com/Azure/azure-sdk-for-go
-  version: 0b09de4174ca0cadcd3abb4aa31267c6f5ccebbb
+  version: df4dd90d076ebbf6e87d08d3f00bfac8ff4bde1a
   subpackages:
   - arm/cosmos-db
+  - arm/keyvault
   - arm/mysql
   - arm/postgresql
   - arm/redis
@@ -13,7 +14,7 @@ imports:
   - arm/storage
   - storage
 - name: github.com/Azure/go-autorest
-  version: f6e08fe5e4d45c9a66e40196d3fed5f37331d224
+  version: 48a8154950f853ae1f2a9c409e0eb1fb71119bc8
   subpackages:
   - autorest
   - autorest/adal
@@ -26,7 +27,7 @@ imports:
 - name: github.com/dgrijalva/jwt-go
   version: a539ee1a749a2b895533f979515ac7e6e0f5b650
 - name: github.com/go-redis/redis
-  version: 7a034e1609674d5eb847c3885e5058c54e79a1df
+  version: ddbd81ea6c66514fe1f857af890276fcac7921ce
   subpackages:
   - internal
   - internal/consistenthash
@@ -34,11 +35,11 @@ imports:
   - internal/pool
   - internal/proto
 - name: github.com/go-sql-driver/mysql
-  version: a0583e0143b1624142adab07e0e97fe106d99561
+  version: c775fbc0c7ce5256db87cc1645d60147dbb7ca1c
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: ac112f7d75a0714af1bd86ab17749b31f7809640
+  version: 24fca303ac6da784b9e8269f724ddeb0b2eea5e7
 - name: github.com/kelseyhightower/envconfig
   version: 70f0258d44cbaa3b6a2581d82f58da01a38e4de4
 - name: github.com/lib/pq
@@ -50,15 +51,15 @@ imports:
 - name: github.com/satori/uuid
   version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
 - name: github.com/Sirupsen/logrus
-  version: 181d419aa9e2223811b824e8f0b4af96f9ba9302
+  version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/stretchr/testify
   version: 890a5c3458b43e6104ff5da8dfa139d013d77544
   subpackages:
   - assert
 - name: github.com/urfave/cli
-  version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
+  version: f017f86fccc5a039a98f23311f34fdf78b014f78
 - name: golang.org/x/crypto
-  version: b176d7def5d71bdd214203491f89843ed217f420
+  version: 81e90905daefcd6fd217b62423c0908922eadb30
   subpackages:
   - md4
   - ssh/terminal
@@ -70,7 +71,7 @@ imports:
   - .
   - context
 - name: golang.org/x/sys
-  version: e42485b6e20ae7d2304ec72e535b103ed350cc02
+  version: 9aade4d3a3b7e6d876cd3823ad20ec45fc035402
   subpackages:
   - unix
   - windows

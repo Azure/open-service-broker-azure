@@ -4,6 +4,7 @@ import:
 - package: github.com/go-redis/redis
 - package: github.com/gorilla/mux
 - package: github.com/stretchr/testify
+- package: github.com/satori/uuid
 - package: github.com/satori/go.uuid
 - package: github.com/urfave/cli
 - package: github.com/Sirupsen/logrus

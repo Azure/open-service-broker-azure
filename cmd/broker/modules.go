@@ -5,6 +5,7 @@ import (
 
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
+	kv "github.com/Azure/azure-service-broker/pkg/azure/keyvault"
 	ss "github.com/Azure/azure-service-broker/pkg/azure/mssql"
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
+	"github.com/Azure/azure-service-broker/pkg/services/keyvault"
 	"github.com/Azure/azure-service-broker/pkg/services/mssql"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
@@ -39,6 +41,10 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing redis manager: %s", err)
 	}
+	keyvaultManager, err := kv.NewManager()
+	if err != nil {
+		return fmt.Errorf("error initializing keyvault manager: %s", err)
+	}
 	msSQLManager, err := ss.NewManager()
 	if err != nil {
 		return fmt.Errorf("error initializing mssql manager: %s", err)
@@ -59,6 +65,7 @@ func initModules() error {
 		postgresql.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
 		mysql.New(armDeployer, mySQLManager),
+		keyvault.New(armDeployer, keyvaultManager),
 		mssql.New(armDeployer, msSQLManager, msSQLConfig),
 		cosmosdb.New(armDeployer, cosmosDBManager),
 		storage.New(armDeployer, storageManager),

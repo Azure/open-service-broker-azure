@@ -5,12 +5,14 @@ package lifecycle
 import (
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
+	kv "github.com/Azure/azure-service-broker/pkg/azure/keyvault"
 	ss "github.com/Azure/azure-service-broker/pkg/azure/mssql"
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
 	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
+	"github.com/Azure/azure-service-broker/pkg/services/keyvault"
 	"github.com/Azure/azure-service-broker/pkg/services/mssql"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
@@ -21,6 +23,10 @@ import (
 
 func getTestCases() ([]moduleLifecycleTestCase, error) {
 	armDeployer, err := arm.NewDeployer()
+	if err != nil {
+		return nil, err
+	}
+	keyvaultManager, err := kv.NewManager()
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +59,19 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 		return nil, err
 	}
 	return []moduleLifecycleTestCase{
+		{ // Key Vault
+			module:    keyvault.New(armDeployer, keyvaultManager),
+			serviceID: "d90c881e-c9bb-4e07-a87b-fcfe87e03276",
+			planID:    "3577ee4a-75fc-44b3-b354-9d33d52ef486",
+			provisioningParameters: &keyvault.ProvisioningParameters{
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
+				ObjectID:      "6a74d229-e927-42c5-b6e8-8f5c095cfba8",
+				ClientID:      "test",
+				ClientSecret:  "test",
+			},
+			bindingParameters: &keyvault.BindingParameters{},
+		},
 		{ // PostgreSQL
 			module:    postgresql.New(armDeployer, postgreSQLManager),
 			serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
