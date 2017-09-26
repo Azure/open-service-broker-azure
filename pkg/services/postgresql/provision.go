@@ -116,7 +116,7 @@ func (m *module) deployARMTemplate(
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving catalog: %s", err)
 	}
-	service, ok := catalog.GetService(serviceID)
+	svc, ok := catalog.GetService(serviceID)
 	if !ok {
 		return nil, fmt.Errorf(
 			`service "%s" not found in the "%s" module catalog`,
@@ -124,7 +124,7 @@ func (m *module) deployARMTemplate(
 			m.GetName(),
 		)
 	}
-	plan, ok := service.GetPlan(planID)
+	plan, ok := svc.GetPlan(planID)
 	if !ok {
 		return nil, fmt.Errorf(
 			`plan "%s" not found for service "%s"`,
