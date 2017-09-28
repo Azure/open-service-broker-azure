@@ -5,6 +5,7 @@ package lifecycle
 import (
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
+	eh "github.com/Azure/azure-service-broker/pkg/azure/eventhub"
 	kv "github.com/Azure/azure-service-broker/pkg/azure/keyvault"
 	ss "github.com/Azure/azure-service-broker/pkg/azure/mssql"
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
@@ -12,6 +13,7 @@ import (
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
 	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
+	"github.com/Azure/azure-service-broker/pkg/services/eventhub"
 	"github.com/Azure/azure-service-broker/pkg/services/keyvault"
 	"github.com/Azure/azure-service-broker/pkg/services/mssql"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
@@ -39,6 +41,10 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 		return nil, err
 	}
 	redisManager, err := rc.NewManager()
+	if err != nil {
+		return nil, err
+	}
+	eventHubManager, err := eh.NewManager()
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +107,16 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 				ResourceGroup: newTestResourceGroupName(),
 			},
 			bindingParameters: &rediscache.BindingParameters{},
+		},
+		{ // Event Hub
+			module:    eventhub.New(armDeployer, eventHubManager),
+			serviceID: "7bade660-32f1-4fd7-b9e6-d416d975170b",
+			planID:    "80756db5-a20c-495d-ae70-62cf7d196a3c",
+			provisioningParameters: &eventhub.ProvisioningParameters{
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
+			},
+			bindingParameters: &eventhub.BindingParameters{},
 		},
 		{ // MS SQL
 			module:    mssql.New(armDeployer, msSQLManager, msSQLConfig),

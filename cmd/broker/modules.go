@@ -5,15 +5,16 @@ import (
 
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
+	eh "github.com/Azure/azure-service-broker/pkg/azure/eventhub"
 	kv "github.com/Azure/azure-service-broker/pkg/azure/keyvault"
 	ss "github.com/Azure/azure-service-broker/pkg/azure/mssql"
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
 	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
-
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
+	"github.com/Azure/azure-service-broker/pkg/services/eventhub"
 	"github.com/Azure/azure-service-broker/pkg/services/keyvault"
 	"github.com/Azure/azure-service-broker/pkg/services/mssql"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
@@ -41,6 +42,10 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing redis manager: %s", err)
 	}
+	eventHubManager, err := eh.NewManager()
+	if err != nil {
+		return fmt.Errorf("error initializing event hub manager: %s", err)
+	}
 	keyvaultManager, err := kv.NewManager()
 	if err != nil {
 		return fmt.Errorf("error initializing keyvault manager: %s", err)
@@ -65,6 +70,7 @@ func initModules() error {
 		postgresql.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
 		mysql.New(armDeployer, mySQLManager),
+		eventhub.New(armDeployer, eventHubManager),
 		keyvault.New(armDeployer, keyvaultManager),
 		mssql.New(armDeployer, msSQLManager, msSQLConfig),
 		cosmosdb.New(armDeployer, cosmosDBManager),

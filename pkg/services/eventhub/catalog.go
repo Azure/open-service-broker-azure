@@ -1,0 +1,35 @@
+package eventhub
+
+import "github.com/Azure/azure-service-broker/pkg/service"
+
+func (m *module) GetCatalog() (service.Catalog, error) {
+	return service.NewCatalog([]service.Service{
+		service.NewService(
+			&service.ServiceProperties{
+				ID:          "7bade660-32f1-4fd7-b9e6-d416d975170b",
+				Name:        "azure-eventhub",
+				Description: "Azure Event Hub Service",
+				Bindable:    true,
+				Tags:        []string{"Azure", "Event", "Hubs"},
+			},
+			service.NewPlan(&service.PlanProperties{
+				ID:          "80756db5-a20c-495d-ae70-62cf7d196a3c",
+				Name:        "basic",
+				Description: "Basic",
+				Free:        false,
+				Extended: map[string]interface{}{
+					"eventHubSku": "Basic",
+				},
+			}),
+			service.NewPlan(&service.PlanProperties{
+				ID:          "264ab981-9e37-44ba-b6bb-2d0fe3e80565",
+				Name:        "standard",
+				Description: "Standard",
+				Free:        false,
+				Extended: map[string]interface{}{
+					"eventHubSku": "Standard",
+				},
+			}),
+		),
+	}), nil
+}

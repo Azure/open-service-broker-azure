@@ -1,10 +1,11 @@
 hash: 35b1c2cccd0a4471d23b94ae23089b7ea6f71480581d651ca6c0f7daebca2f27
-updated: 2017-09-18T16:43:29.901778477Z
+updated: 2017-09-26T22:12:03.123021457Z
 imports:
 - name: github.com/Azure/azure-sdk-for-go
   version: df4dd90d076ebbf6e87d08d3f00bfac8ff4bde1a
   subpackages:
   - arm/cosmos-db
+  - arm/eventhub
   - arm/keyvault
   - arm/mysql
   - arm/postgresql
