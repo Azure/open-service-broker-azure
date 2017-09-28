@@ -11,6 +11,7 @@ import (
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
+	sb "github.com/Azure/azure-service-broker/pkg/azure/servicebus"
 	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
@@ -20,6 +21,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
+	"github.com/Azure/azure-service-broker/pkg/services/servicebus"
 	"github.com/Azure/azure-service-broker/pkg/services/storage"
 )
 
@@ -41,6 +43,10 @@ func initModules() error {
 	redisManager, err := rc.NewManager()
 	if err != nil {
 		return fmt.Errorf("error initializing redis manager: %s", err)
+	}
+	serviceBusManager, err := sb.NewManager()
+	if err != nil {
+		return fmt.Errorf("error initializing service bus manager: %s", err)
 	}
 	eventHubManager, err := eh.NewManager()
 	if err != nil {
@@ -70,6 +76,7 @@ func initModules() error {
 		postgresql.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
 		mysql.New(armDeployer, mySQLManager),
+		servicebus.New(armDeployer, serviceBusManager),
 		eventhub.New(armDeployer, eventHubManager),
 		keyvault.New(armDeployer, keyvaultManager),
 		mssql.New(armDeployer, msSQLManager, msSQLConfig),

@@ -11,6 +11,7 @@ import (
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
+	sb "github.com/Azure/azure-service-broker/pkg/azure/servicebus"
 	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
 	"github.com/Azure/azure-service-broker/pkg/services/eventhub"
@@ -19,6 +20,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
+	"github.com/Azure/azure-service-broker/pkg/services/servicebus"
 	"github.com/Azure/azure-service-broker/pkg/services/storage"
 	uuid "github.com/satori/go.uuid"
 )
@@ -41,6 +43,10 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 		return nil, err
 	}
 	redisManager, err := rc.NewManager()
+	if err != nil {
+		return nil, err
+	}
+	serviceBusManager, err := sb.NewManager()
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +113,16 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 				ResourceGroup: newTestResourceGroupName(),
 			},
 			bindingParameters: &rediscache.BindingParameters{},
+		},
+		{ // Service Bus
+			module:    servicebus.New(armDeployer, serviceBusManager),
+			serviceID: "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",
+			planID:    "13c6da8f-128c-48c0-a3a9-659d1b6d3920",
+			provisioningParameters: &servicebus.ProvisioningParameters{
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
+			},
+			bindingParameters: &servicebus.BindingParameters{},
 		},
 		{ // Event Hub
 			module:    eventhub.New(armDeployer, eventHubManager),
