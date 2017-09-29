@@ -161,22 +161,97 @@ If there are lint errors, run the following command:
 $ gofmt -s -w <filename>
 ```
 
-### Install Broker via Helm chart
-Set up your REDIS cache in Azure and then make sure to export your REDIS_HOST and REDIS_PASSWORD in addition to the AZURE specific variables above
-> Note: We will be providing a local option as well soon
+## Install on Kubernetes via Helm
+
+To install the Azure Service Broker on a Kubernetes 1.7+ cluster, first ensure
+that the latest release of the Kubernetes Service Catalog software has been
+deployed to that cluster using
+[these instructions](https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/install-1.7.md).
+
+With the Kubernetes Service Catalog software installed and running, proceed with
+broker installation by creating a [service principal]() that can be used by the
+broker to interact with your Azure subscription.
+
+Ensure the Azure CLI (command line interface) is installed on your system:
 
 ```console
-
-$ helm install azure-service-broker --name asb --namespace asb \
-     --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
-     --set azure.tenantId=$AZURE_TENANT_ID \
-     --set azure.clientId=$AZURE_CLIENT_ID \
-     --set azure.clientSecret=$AZURE_CLIENT_SECRET
-
-$ kubectl get pods -n asb -w
-# wait for the broker pod to enter a healthy state
+$ which az
 ```
 
-### Troubleshooting
+If the Azure CLI is not found, it can be installed using
+[these instructions](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).
 
-If you run into issues with deleting the broker, you will need to remove the catalog to clean up and install again
+With the Azure CLI installed, log in and follow the prompts:
+
+```console
+az login
+```
+
+When the login process has been completed successfully, note the value of the
+`id` field of the `az login` command's JSON output. We'll export
+this as the value of an environment variables for our own convenience.
+
+```console
+$ export AZURE_SUBSCRIPTION_ID=<id>
+```
+
+Now use the CLI to create a new service principal with the
+`Contributor` role. This will allow the service principal to provision all
+Azure services on the broker's behalf.
+
+```console
+$ az ad sp create-for-rbac \
+    --role="Contributor" \
+    --scopes="/subscriptions/${AZURE_SUBSCRIPTION_ID}"
+```
+
+Note the values of the `tenant`, `appId`, and `password` fields in the command's
+JSON output. We'll export these values as environment variables for our
+convenience:
+
+```console
+$ export AZURE_TENANT_ID=<tenant>
+$ export AZURE_CLIENT_ID=<appId>
+$ export AZURE_CLIENT_SECRET=<password>
+```
+
+Now use [Helm](https://helm.sh/) to install the broker using defaults, which
+includes the used of an embedded Redis database. From the `contrib/k8s/`
+directory, execute the following:
+
+```console
+$ helm install azure-service-broker --name asb --namespace asb \
+    --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
+    --set azure.tenantId=$AZURE_TENANT_ID \
+    --set azure.clientId=$AZURE_CLIENT_ID \
+    --set azure.clientSecret=$AZURE_CLIENT_SECRET
+```
+
+__Advanced: To achieve a secure and stable deployment in a production
+environment, please supply a custom `values.yml` file during installation to
+override default passwords, keys, and database location.__
+
+After installing, you may wish to monitor the status of the broker pod until it
+enters a healthy state. This can be accomplished like so:
+
+```console
+$ kubectl get pods -n asb -w
+```
+
+## Uninstalling from Kubernetes via Helm
+
+If you followed the installation instructions in the previous section and wish
+to uninstall the broker, begin by deleting the Helm release:
+
+```console
+$ helm delete asb --purge
+```
+
+If you wish to also uninstall the Kubernetes Service Catalog software:
+
+```console
+$ helm delete catalog --purge
+```
+
+__Note that uninstalling either or both of these packages will NOT effect
+deprovisioning of any services that were provisioned while they were running.__
