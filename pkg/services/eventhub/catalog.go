@@ -15,17 +15,19 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			service.NewPlan(&service.PlanProperties{
 				ID:          "80756db5-a20c-495d-ae70-62cf7d196a3c",
 				Name:        "basic",
-				Description: "Basic",
+				Description: "Basic Tier, 1 Consumer group, 100 Brokered connections",
 				Free:        false,
 				Extended: map[string]interface{}{
 					"eventHubSku": "Basic",
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
-				ID:          "264ab981-9e37-44ba-b6bb-2d0fe3e80565",
-				Name:        "standard",
-				Description: "Standard",
-				Free:        false,
+				ID:   "264ab981-9e37-44ba-b6bb-2d0fe3e80565",
+				Name: "standard",
+				Description: "Standard Tier, 20 Consumer groups, " +
+					"1000 Brokered connections, " +
+					"Additional Storage, Publisher Policies",
+				Free: false,
 				Extended: map[string]interface{}{
 					"eventHubSku": "Standard",
 				},
