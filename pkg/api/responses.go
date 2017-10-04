@@ -43,7 +43,7 @@ var responseSucceeded = []byte(
 )
 
 var responseFailed = []byte(
-	fmt.Sprintf(`{ "state": "%s" }`, OperationStateGone),
+	fmt.Sprintf(`{ "state": "%s" }`, OperationStateFailed),
 )
 
 var responseEmptyJSON = []byte("{}")
