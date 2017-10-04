@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"
 	"github.com/Azure/azure-service-broker/pkg/service"
@@ -250,6 +251,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		ServiceID:  provisioningRequest.ServiceID,
 		PlanID:     provisioningRequest.PlanID,
 		Status:     service.InstanceStateProvisioning,
+		Created:    time.Now(),
 	}
 	if err = instance.SetProvisioningParameters(
 		provisioningRequest.Parameters,

@@ -2,19 +2,21 @@ package service
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/crypto"
 )
 
 // Binding represents a biding to a service
 type Binding struct {
-	BindingID                  string `json:"bindingId"`
-	InstanceID                 string `json:"instanceId"`
-	EncryptedBindingParameters []byte `json:"bindingParameters"`
-	Status                     string `json:"status"`
-	StatusReason               string `json:"statusReason"`
-	EncryptedBindingContext    []byte `json:"bindingContext"`
-	EncryptedCredentials       []byte `json:"credentials"`
+	BindingID                  string    `json:"bindingId"`
+	InstanceID                 string    `json:"instanceId"`
+	EncryptedBindingParameters []byte    `json:"bindingParameters"`
+	Status                     string    `json:"status"`
+	StatusReason               string    `json:"statusReason"`
+	EncryptedBindingContext    []byte    `json:"bindingContext"`
+	EncryptedCredentials       []byte    `json:"credentials"`
+	Created                    time.Time `json:"created"`
 }
 
 // NewBindingFromJSON returns a new Binding unmarshalled from the provided JSON

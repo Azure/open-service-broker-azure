@@ -2,19 +2,21 @@ package service
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/crypto"
 )
 
 // Instance represents an instance of a service
 type Instance struct {
-	InstanceID                      string `json:"instanceId"`
-	ServiceID                       string `json:"serviceId"`
-	PlanID                          string `json:"planId"`
-	EncryptedProvisioningParameters []byte `json:"provisioningParameters"`
-	Status                          string `json:"status"`
-	StatusReason                    string `json:"statusReason"`
-	EncryptedProvisioningContext    []byte `json:"provisioningContext"`
+	InstanceID                      string    `json:"instanceId"`
+	ServiceID                       string    `json:"serviceId"`
+	PlanID                          string    `json:"planId"`
+	EncryptedProvisioningParameters []byte    `json:"provisioningParameters"`
+	Status                          string    `json:"status"`
+	StatusReason                    string    `json:"statusReason"`
+	EncryptedProvisioningContext    []byte    `json:"provisioningContext"`
+	Created                         time.Time `json:"created"`
 }
 
 // NewInstanceFromJSON returns a new Instance unmarshalled from the provided

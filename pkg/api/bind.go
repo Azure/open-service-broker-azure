@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
+	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/service"
 	log "github.com/Sirupsen/logrus"
@@ -254,6 +255,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	binding = &service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
+		Created:    time.Now(),
 	}
 
 	// Starting here, if something goes wrong, we don't know what state module-

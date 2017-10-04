@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -21,6 +22,10 @@ func init() {
 	encryptedProvisiongingParameters := []byte(`{"foo":"bar"}`)
 	statusReason := "in-progress"
 	encryptedProvisiongingContext := []byte(`{"baz":"bat"}`)
+	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
+	if err != nil {
+		panic(err)
+	}
 
 	testInstance = &Instance{
 		InstanceID: instanceID,
@@ -30,6 +35,7 @@ func init() {
 		Status:                       InstanceStateProvisioning,
 		StatusReason:                 statusReason,
 		EncryptedProvisioningContext: encryptedProvisiongingContext,
+		Created: created,
 	}
 
 	b64EncryptedProvisioningParameters := base64.StdEncoding.EncodeToString(
@@ -47,7 +53,8 @@ func init() {
 			"provisioningParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
-			"provisioningContext":"%s"
+			"provisioningContext":"%s",
+			"created":"%s"
 		}`,
 		instanceID,
 		serviceID,
@@ -56,6 +63,7 @@ func init() {
 		InstanceStateProvisioning,
 		statusReason,
 		b64EncryptedProvisioningContext,
+		created.Format(time.RFC3339),
 	)
 	testInstanceJSONStr = strings.Replace(testInstanceJSONStr, " ", "", -1)
 	testInstanceJSONStr = strings.Replace(testInstanceJSONStr, "\n", "", -1)

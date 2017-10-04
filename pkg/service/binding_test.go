@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -21,6 +22,10 @@ func init() {
 	statusReason := "in-progress"
 	encryptedBindingContext := []byte(`{"baz":"bat"}`)
 	encryptedCredentials := []byte(`{"password":"12345"}`)
+	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
+	if err != nil {
+		panic(err)
+	}
 
 	testBinding = &Binding{
 		BindingID:                  bindingID,
@@ -30,6 +35,7 @@ func init() {
 		StatusReason:            statusReason,
 		EncryptedBindingContext: encryptedBindingContext,
 		EncryptedCredentials:    encryptedCredentials,
+		Created:                 created,
 	}
 
 	b64EncryptedBindingParameters := base64.StdEncoding.EncodeToString(
@@ -50,7 +56,8 @@ func init() {
 			"status":"%s",
 			"statusReason":"%s",
 			"bindingContext":"%s",
-			"credentials":"%s"
+			"credentials":"%s",
+			"created":"%s"
 		}`,
 		bindingID,
 		instanceID,
@@ -59,6 +66,7 @@ func init() {
 		statusReason,
 		b64EncryptedBindingContext,
 		b64EncryptedCredentials,
+		created.Format(time.RFC3339),
 	)
 	testBindingJSONStr = strings.Replace(testBindingJSONStr, " ", "", -1)
 	testBindingJSONStr = strings.Replace(testBindingJSONStr, "\n", "", -1)
