@@ -150,6 +150,7 @@ func (m *module) deployARMTemplate(
 			"skuTier":                    plan.GetProperties().Extended["skuTier"],
 			"skuCapacityDTU": plan.GetProperties().
 				Extended["skuCapacityDTU"],
+			"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
 			"sslEnforcement": sslEnforcement,
 		},
 	)

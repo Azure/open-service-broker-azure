@@ -16,21 +16,20 @@ var armTemplateBytes = []byte(`
 		},
 		"skuName": {
 			"type": "string",
-			"allowedValues": [ "MYSQLB50", "MYSQLB100" ]
+			"allowedValues": [ "MYSQLB50", "MYSQLB100", "MYSQLS100","MYSQLS200", "MYSQLS400", "MYSQLS800" ]
 		},
 		"skuTier": {
 			"type": "string",
-			"allowedValues": [ "Basic" ]
+			"allowedValues": [ "Basic", "Standard"]
 		},
 		"skuCapacityDTU": {
 			"type": "int",
-			"allowedValues": [ 50, 100 ]
+			"allowedValues": [ 50, 100, 200, 400, 800 ]
 		},
 		"skuSizeMB": {
 			"type": "int",
 			"minValue": 51200,
-			"maxValue": 102400,
-			"defaultValue": 51200
+			"maxValue": 128000
 		},
 		"version": {
 			"type": "string",
