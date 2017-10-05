@@ -216,7 +216,7 @@ $ export AZURE_CLIENT_SECRET=<password>
 ```
 
 Now use [Helm](https://helm.sh/) to install the broker using defaults, which
-includes the used of an embedded Redis database. From the `contrib/k8s/`
+includes the used of an embedded Redis database. From the `contrib/k8s/charts`
 directory, execute the following:
 
 ```console
