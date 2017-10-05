@@ -44,13 +44,17 @@ spec:
             {{- else }}
             value: {{ required "A value is required for redis.host" .Values.redis.host }}
           - name: REDIS_PORT
-            value: {{ .Values.redis.port }}
+            value: {{ .Values.redis.port | quote }}
             {{- end }}
           - name: REDIS_PASSWORD
+            {{- if .Values.redis.embedded }}
             valueFrom:
               secretKeyRef:
                 name: {{ template "fullname" . }}
                 key: redis-password
+            {{- else }}
+            value: {{ required "A value is required for redis.password" .Values.redis.password }}
+            {{- end }}
           - name: AES256_KEY
             valueFrom:
               secretKeyRef:

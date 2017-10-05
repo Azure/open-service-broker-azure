@@ -213,11 +213,10 @@ convenience:
 $ export AZURE_TENANT_ID=<tenant>
 $ export AZURE_CLIENT_ID=<appId>
 $ export AZURE_CLIENT_SECRET=<password>
+$ export AZURE_SUBSCRIPTION_ID=<subscriptionId>
 ```
 
-Now use [Helm](https://helm.sh/) to install the broker using defaults, which
-includes the used of an embedded Redis database. From the `contrib/k8s/charts`
-directory, execute the following:
+Now use [Helm](https://helm.sh/) to install the broker using defaults, which includes the used of an embedded Redis database. From the `contrib/k8s/charts` directory, execute the following:
 
 ```console
 $ helm install azure-service-broker --name asb --namespace asb \
@@ -225,6 +224,22 @@ $ helm install azure-service-broker --name asb --namespace asb \
     --set azure.tenantId=$AZURE_TENANT_ID \
     --set azure.clientId=$AZURE_CLIENT_ID \
     --set azure.clientSecret=$AZURE_CLIENT_SECRET
+```
+
+If you have a Redis database outside of the cluster you would like to use for the broker instead of the embedded Redis, execute the following:
+
+```console
+$ export REDIS_HOST=<redishost>
+$ export REDIS_PASSWORD=<redispassword>
+
+$ helm install azure-service-broker --name asb --namespace asb \
+    --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
+    --set azure.tenantId=$AZURE_TENANT_ID \
+    --set azure.clientId=$AZURE_CLIENT_ID \
+    --set azure.clientSecret=$AZURE_CLIENT_SECRET \
+    --set redis.host=$REDIS_HOST \
+    --set redis.password=$REDIS_PASSWORD \
+    --set redis.embedded=false
 ```
 
 __Advanced: To achieve a secure and stable deployment in a production
