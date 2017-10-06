@@ -238,7 +238,7 @@ $ helm install azure-service-broker --name asb --namespace asb \
     --set azure.clientId=$AZURE_CLIENT_ID \
     --set azure.clientSecret=$AZURE_CLIENT_SECRET \
     --set redis.host=$REDIS_HOST \
-    --set redis.password=$REDIS_PASSWORD \
+    --set redis.redisPassword=$REDIS_PASSWORD \
     --set redis.embedded=false
 ```
 
