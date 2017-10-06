@@ -169,6 +169,7 @@ func (m *module) deployARMTemplate(
 		pp.Location,
 		armTemplateBytes,
 		armTemplateParameters,
+		pp.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

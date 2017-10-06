@@ -153,6 +153,7 @@ func (m *module) deployARMTemplate(
 			"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
 			"sslEnforcement": sslEnforcement,
 		},
+		pp.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

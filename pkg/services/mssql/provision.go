@@ -185,6 +185,7 @@ func (m *module) deployARMTemplate(
 				"maxSizeBytes": plan.GetProperties().
 					Extended["maxSizeBytes"],
 			},
+			pp.Tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -213,6 +214,7 @@ func (m *module) deployARMTemplate(
 				"maxSizeBytes": plan.GetProperties().
 					Extended["maxSizeBytes"],
 			},
+			pp.Tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error deploying ARM template: %s", err)

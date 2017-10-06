@@ -64,6 +64,9 @@ var armTemplateBytes = []byte(`
 			"type": "string",
 			"allowedValues": [ "Enabled", "Disabled" ],
 			"defaultValue": "Enabled"
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"variables": {
@@ -89,9 +92,7 @@ var armTemplateBytes = []byte(`
 				"size": "[parameters('skuSizeMB')]"
 			},
 			"type": "Microsoft.DBforPostgreSQL/servers",
-			"tags": {
-				"heritage": "azure-service-broker"
-			},
+			"tags": "[parameters('tags')]",
 			"resources": [
 				{
 					"type": "firewallrules",

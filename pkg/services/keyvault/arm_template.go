@@ -62,6 +62,9 @@ var armTemplateBytes = []byte(`
 			"metadata": {
 				"description": "Specifies if the vault is enabled for volume encryption"
 			}
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"resources": [
@@ -70,9 +73,7 @@ var armTemplateBytes = []byte(`
 			"name": "[parameters('keyVaultName')]",
 			"apiVersion": "2015-06-01",
 			"location": "[resourceGroup().location]",
-			"tags": {
-				"displayName": "KeyVault"
-			},
+			"tags": "[parameters('tags')]",
 			"properties": {
 				"enabledForDeployment": "[parameters('enabledForDeployment')]",
 				"enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",

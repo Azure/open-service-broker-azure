@@ -49,6 +49,9 @@ var armTemplateNewServerBytes = []byte(`
 			"minLength": 1,
 			"maxLength": 15,
 			"defaultValue": "255.255.255.255"
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"variables": {
@@ -65,9 +68,7 @@ var armTemplateNewServerBytes = []byte(`
 				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
 				"version": "[parameters('version')]"
 			},
-			"tags": {
-				"heritage": "azure-service-broker"
-			},
+			"tags": "[parameters('tags')]",
 			"resources": [
 				{
 					"type": "firewallrules",

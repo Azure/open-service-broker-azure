@@ -117,6 +117,7 @@ func (m *module) deployARMTemplate(
 			"serviceBusNamespaceName": pc.ServiceBusNamespaceName,
 			"serviceBusSku":           plan.GetProperties().Extended["serviceBusSku"],
 		},
+		pp.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

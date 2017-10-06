@@ -138,6 +138,7 @@ func (m *module) deployARMTemplate(
 			"tenantId":     m.keyvaultManager.GetTenantID(),
 			"objectId":     pp.ObjectID,
 		},
+		pp.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

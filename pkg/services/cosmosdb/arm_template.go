@@ -11,6 +11,9 @@ var armTemplateBytes = []byte(`
 		},
 		"kind": {
 			"type": "string"
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"resources": [
@@ -30,9 +33,7 @@ var armTemplateBytes = []byte(`
 					}
 				]
 			},
-			"tags": {
-				"heritage": "azure-service-broker"
-			}
+			"tags": "[parameters('tags')]"
 		}
 	],
 	"outputs": {

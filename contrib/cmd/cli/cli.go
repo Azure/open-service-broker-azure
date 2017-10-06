@@ -54,6 +54,10 @@ func main() {
 					Usage: "specify the `<plan id>`; required",
 				},
 				cli.StringSliceFlag{
+					Name:  flagTag,
+					Usage: "specify a tag as a k=v pair",
+				},
+				cli.StringSliceFlag{
 					Name: flagsParameter,
 					Usage: "specify a service-specific provisioning parameter as a k=v " +
 						"pair",

@@ -58,6 +58,9 @@ var armTemplateBytes = []byte(`
 			"metadata": {
 				"description": "A value that indicates whether diagnostices is enabled. Use ON or OFF."
 			}
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"resources": [
@@ -74,9 +77,7 @@ var armTemplateBytes = []byte(`
 					"name": "[parameters('redisCacheSKU')]"
 				}
 			},
-			"tags": {
-				"heritage": "azure-service-broker"
-			},
+			"tags": "[parameters('tags')]",
 			"resources": [
 				{
 					"apiVersion": "2015-07-01",

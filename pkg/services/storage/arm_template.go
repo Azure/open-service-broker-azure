@@ -23,6 +23,9 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 		"blobEncryptionEnabled": {
 			"type": "bool",
 			"defaultValue": false
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"resources": [
@@ -45,9 +48,7 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 					}
 				}
 			},
-			"tags": {
-				"heritage": "azure-service-broker"
-			}
+			"tags": "[parameters('tags')]"
 		}
 	],
 	"outputs": {
@@ -90,6 +91,9 @@ var armTemplateBytesBlobStorage = []byte(`
 		"blobEncryptionEnabled": {
 			"type": "bool",
 			"defaultValue": false
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"resources": [
@@ -113,9 +117,7 @@ var armTemplateBytesBlobStorage = []byte(`
 					}
 				}
 			},
-			"tags": {
-				"heritage": "azure-service-broker"
-			}
+			"tags": "[parameters('tags')]"
 		}
 	],
 	"outputs": {

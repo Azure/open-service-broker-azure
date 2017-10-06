@@ -20,6 +20,9 @@ var armTemplateExistingServerBytes = []byte(`
 		},
 		"maxSizeBytes": {
 			"type": "string"
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"variables": {
@@ -37,9 +40,7 @@ var armTemplateExistingServerBytes = []byte(`
 				"requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]",
 				"maxSizeBytes": "[parameters('maxSizeBytes')]"
 			},
-			"tags": {
-				"heritage": "azure-service-broker"
-			}
+			"tags": "[parameters('tags')]"
 		}
 	],
 	"outputs": {

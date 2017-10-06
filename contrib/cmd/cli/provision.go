@@ -25,7 +25,7 @@ func provision(c *cli.Context) error {
 	if planID == "" {
 		return fmt.Errorf("--%s is a required flag", flagPlanID)
 	}
-	params := make(map[string]string)
+	params := make(map[string]interface{})
 	rawParamStrs := c.StringSlice(flagParameter)
 	for _, rawParamStr := range rawParamStrs {
 		rawParamStr = strings.TrimSpace(rawParamStr)
@@ -37,6 +37,18 @@ func provision(c *cli.Context) error {
 		value := strings.TrimSpace(tokens[1])
 		params[key] = value
 	}
+	tags := make(map[string]string)
+	rawTagStrs := c.StringSlice(flagTag)
+	for _, rawTagStr := range rawTagStrs {
+		rawTagStr = strings.TrimSpace(rawTagStr)
+		tokens := strings.Split(rawTagStr, "=")
+		if len(tokens) != 2 {
+			return errors.New("tag string is incorrectly formatted")
+		}
+		key := strings.TrimSpace(tokens[0])
+		value := strings.TrimSpace(tokens[1])
+		tags[key] = value
+	}
 	instanceID, err := client.Provision(
 		host,
 		port,
@@ -45,6 +57,7 @@ func provision(c *cli.Context) error {
 		serviceID,
 		planID,
 		params,
+		tags,
 	)
 	if err != nil {
 		log.Fatal(err)

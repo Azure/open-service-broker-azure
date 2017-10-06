@@ -127,6 +127,7 @@ func (m *module) deployARMTemplate(
 			"name": pc.DatabaseAccountName,
 			"kind": plan.GetProperties().Extended[kindKey],
 		},
+		pp.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

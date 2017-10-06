@@ -6,45 +6,48 @@ var armTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-			"eventHubNamespace": {
-				"type": "string",
-				"metadata": {
-					"description": "Name of the EventHub namespace"
-				}
-			},
-			"eventHubName": {
-				"type": "string",
-				"metadata": {
-					"description": "Name of the Event Hub"
-				}
-			},
-			"messageRetentionInDays": {
-				"type": "int",
-				"defaultValue": 1,
-				"minValue": 1,
-				"maxValue": 7,
-				"metadata": {
-				  "description": "How long to retain the data in Event Hub"
-				}
-			},
-			"partitionCount": {
-				"type": "int",
-				"defaultValue": 4,
-				"minValue": 2,
-				"maxValue": 32,
-				"metadata": {
-				  "description": "Number of partitions chosen"
-				}
-			},
-			"eventHubSku": {
-				"type": "string",
-				"allowedValues": [
-					"Basic",
-					"Standard"
+		"eventHubNamespace": {
+			"type": "string",
+			"metadata": {
+				"description": "Name of the EventHub namespace"
+			}
+		},
+		"eventHubName": {
+			"type": "string",
+			"metadata": {
+				"description": "Name of the Event Hub"
+			}
+		},
+		"messageRetentionInDays": {
+			"type": "int",
+			"defaultValue": 1,
+			"minValue": 1,
+			"maxValue": 7,
+			"metadata": {
+				"description": "How long to retain the data in Event Hub"
+			}
+		},
+		"partitionCount": {
+			"type": "int",
+			"defaultValue": 4,
+			"minValue": 2,
+			"maxValue": 32,
+			"metadata": {
+				"description": "Number of partitions chosen"
+			}
+		},
+		"eventHubSku": {
+			"type": "string",
+			"allowedValues": [
+				"Basic",
+				"Standard"
 			],
 			"metadata": {
 				"description": "Tiers for Event Hubs"
 			}
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"variables": {
@@ -54,14 +57,15 @@ var armTemplateBytes = []byte(`
 	},
 	"resources": [
 		{
-		"apiVersion": "2017-04-01",
-		"name": "[parameters('eventHubNamespace')]",
-		"type": "Microsoft.EventHub/Namespaces",
-		"location": "[resourceGroup().location]",
-		"sku": {
-			"name": "[parameters('eventHubSku')]"
-		},
-		"resources": [
+			"apiVersion": "2017-04-01",
+			"name": "[parameters('eventHubNamespace')]",
+			"type": "Microsoft.EventHub/Namespaces",
+			"location": "[resourceGroup().location]",
+			"sku": {
+				"name": "[parameters('eventHubSku')]"
+			},
+			"tags": "[parameters('tags')]",
+			"resources": [
 				{
 					"apiVersion": "2017-04-01",
 					"name": "[parameters('eventHubName')]",
@@ -72,7 +76,8 @@ var armTemplateBytes = []byte(`
 					"properties": {
 						"messageRetentionInDays": "[parameters('messageRetentionInDays')]",
 						"partitionCount": "[parameters('partitionCount')]"
-					}
+					},
+					"tags": "[parameters('tags')]"
 				}
 			]
 		}

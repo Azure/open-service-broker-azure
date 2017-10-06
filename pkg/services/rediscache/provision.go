@@ -121,6 +121,7 @@ func (m *module) deployARMTemplate(
 			"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
 			"redisCacheCapacity": plan.GetProperties().Extended["redisCacheCapacity"],
 		},
+		pp.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

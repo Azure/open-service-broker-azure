@@ -22,6 +22,9 @@ var armTemplateBytes = []byte(`
 			"metadata": {
 				"description": "The messaging tier for service Bus namespace"
 			}
+		},
+		"tags": {
+			"type": "object"
 		}
 	},
 	"variables": {
@@ -37,7 +40,8 @@ var armTemplateBytes = []byte(`
 			"location": "[resourceGroup().location]",
 			"sku": {
 				"name": "[parameters('serviceBusSku')]"
-			}
+			},
+			"tags": "[parameters('tags')]"
 		}
 	],
 	"outputs": {

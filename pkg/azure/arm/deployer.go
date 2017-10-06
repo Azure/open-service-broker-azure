@@ -33,6 +33,7 @@ type Deployer interface {
 		location string,
 		template []byte,
 		params map[string]interface{},
+		tags map[string]string,
 	) (map[string]interface{}, error)
 	Delete(deploymentName string, resourceGroupName string) error
 }
@@ -77,6 +78,7 @@ func (d *deployer) Deploy(
 	location string,
 	template []byte,
 	params map[string]interface{},
+	tags map[string]string,
 ) (map[string]interface{}, error) {
 	logFields := log.Fields{
 		"resourceGroup": resourceGroupName,
@@ -137,6 +139,7 @@ func (d *deployer) Deploy(
 			location,
 			template,
 			params,
+			tags,
 		); err != nil {
 			return nil, fmt.Errorf(
 				`error deploying "%s" in resource group "%s": %s`,
@@ -287,6 +290,7 @@ func (d *deployer) doNewDeployment(
 	location string,
 	template []byte,
 	params map[string]interface{},
+	tags map[string]string,
 ) (*resources.DeploymentExtended, error) {
 	groupsClient := resources.NewGroupsClientWithBaseURI(
 		d.azureEnvironment.ResourceManagerEndpoint,
@@ -312,6 +316,22 @@ func (d *deployer) doNewDeployment(
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling ARM template: %s", err)
 	}
+
+	// Deal with the possibility that tags == nil
+	if tags == nil {
+		tags = make(map[string]string)
+	}
+
+	// Augment the provided tags with heritage information
+	tags["heritage"] = "azure-service-broker"
+
+	// Deal with the possiiblity that params == nil
+	if params == nil {
+		params = make(map[string]interface{})
+	}
+
+	// Augment the params with tags
+	params["tags"] = tags
 
 	// Convert a simple map[string]interface{} to the more complex
 	// map[string]map[string]interface{} required by the deployments client

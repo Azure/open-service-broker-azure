@@ -119,6 +119,7 @@ func (m *module) deployARMTemplate(
 			"eventHubNamespace": "eh-" + pc.EventHubNamespace,
 			"eventHubSku":       plan.GetProperties().Extended["eventHubSku"],
 		},
+		pp.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
