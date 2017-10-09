@@ -1,3 +1,4 @@
+{{- if .Values.registerBroker }}
 apiVersion: servicecatalog.k8s.io/v1alpha1
 kind: ServiceBroker
 metadata:
@@ -9,3 +10,4 @@ spec:
       kind: Secret
       name: "{{ template "fullname" . }}-auth"
       namespace: {{ .Release.Namespace | quote }}
+{{- end }}
