@@ -9,7 +9,7 @@ image:
   pullPolicy: Always
 
 service:
-  ## Type of service; valid values are "ClusterIP", LoadBalancer", and
+  ## Type of service; valid values are "ClusterIP", "LoadBalancer", and
   ## "NodePort". "ClusterIP" is sufficient in the average case where a service
   ## catalog installation in the same cluster is the only client that needs to
   ## communicate with this broker. i.e. The broker does not need to receive
