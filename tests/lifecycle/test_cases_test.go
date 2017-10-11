@@ -11,6 +11,7 @@ import (
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
+	as "github.com/Azure/azure-service-broker/pkg/azure/search"
 	sb "github.com/Azure/azure-service-broker/pkg/azure/servicebus"
 	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
@@ -20,6 +21,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
+	"github.com/Azure/azure-service-broker/pkg/services/search"
 	"github.com/Azure/azure-service-broker/pkg/services/servicebus"
 	"github.com/Azure/azure-service-broker/pkg/services/storage"
 	uuid "github.com/satori/go.uuid"
@@ -43,6 +45,10 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 		return nil, err
 	}
 	redisManager, err := rc.NewManager()
+	if err != nil {
+		return nil, err
+	}
+	searchManager, err := as.NewManager()
 	if err != nil {
 		return nil, err
 	}
@@ -113,6 +119,16 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 				ResourceGroup: newTestResourceGroupName(),
 			},
 			bindingParameters: &rediscache.BindingParameters{},
+		},
+		{ // Azure Search
+			module:    search.New(armDeployer, searchManager),
+			serviceID: "c54902aa-3027-4c5c-8e96-5b3d3b452f7f",
+			planID:    "35bd6e80-5ff5-487e-be0e-338aee9321e4",
+			provisioningParameters: &search.ProvisioningParameters{
+				Location:      "southcentralus",
+				ResourceGroup: newTestResourceGroupName(),
+			},
+			bindingParameters: &search.BindingParameters{},
 		},
 		{ // Service Bus
 			module:    servicebus.New(armDeployer, serviceBusManager),

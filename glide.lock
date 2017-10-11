@@ -15,6 +15,7 @@ imports:
   - arm/sql
   - arm/storage
   - storage
+  - arm/search
 - name: github.com/Azure/go-autorest
   version: 48a8154950f853ae1f2a9c409e0eb1fb71119bc8
   subpackages:

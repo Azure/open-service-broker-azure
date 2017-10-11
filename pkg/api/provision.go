@@ -234,6 +234,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
+
 	firstStepName, ok := provisioner.GetFirstStepName()
 	if !ok {
 		logFields["serviceID"] = provisioningRequest.ServiceID

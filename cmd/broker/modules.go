@@ -11,8 +11,10 @@ import (
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
 	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
 	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
+	se "github.com/Azure/azure-service-broker/pkg/azure/search"
 	sb "github.com/Azure/azure-service-broker/pkg/azure/servicebus"
 	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
+
 	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
 	"github.com/Azure/azure-service-broker/pkg/services/eventhub"
@@ -21,6 +23,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
 	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
 	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
+	"github.com/Azure/azure-service-broker/pkg/services/search"
 	"github.com/Azure/azure-service-broker/pkg/services/servicebus"
 	"github.com/Azure/azure-service-broker/pkg/services/storage"
 )
@@ -72,6 +75,11 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing storage manager: %s", err)
 	}
+	searchManager, err := se.NewManager()
+	if err != nil {
+		return fmt.Errorf("error initializing search manager: %s", err)
+	}
+
 	modules = []service.Module{
 		postgresql.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
@@ -82,6 +90,7 @@ func initModules() error {
 		mssql.New(armDeployer, msSQLManager, msSQLConfig),
 		cosmosdb.New(armDeployer, cosmosDBManager),
 		storage.New(armDeployer, storageManager),
+		search.New(armDeployer, searchManager),
 	}
 	return nil
 }
