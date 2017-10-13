@@ -28,7 +28,9 @@ type postgresqlBindingContext struct {
 	LoginName string `json:"loginName"`
 }
 
-type postgresqlCredentials struct {
+// Credentials encapsulates PostgreSQL-specific coonection details and
+// credentials.
+type Credentials struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Database string `json:"database"`
@@ -59,5 +61,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &postgresqlCredentials{}
+	return &Credentials{}
 }

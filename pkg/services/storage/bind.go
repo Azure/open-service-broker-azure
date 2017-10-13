@@ -26,7 +26,7 @@ func (m *module) Bind(
 	}
 
 	return &storageBindingContext{},
-		&storageCredentials{
+		&Credentials{
 			StorageAccountName: pc.StorageAccountName,
 			AccessKey:          pc.AccessKey,
 			ContainerName:      pc.ContainerName,

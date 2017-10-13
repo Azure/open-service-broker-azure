@@ -83,7 +83,7 @@ func (m *module) Bind(
 	return &postgresqlBindingContext{
 			LoginName: roleName,
 		},
-		&postgresqlCredentials{
+		&Credentials{
 			Host:     pc.FullyQualifiedDomainName,
 			Port:     5432,
 			Database: pc.DatabaseName,

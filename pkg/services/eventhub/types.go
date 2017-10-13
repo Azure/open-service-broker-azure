@@ -25,7 +25,9 @@ type BindingParameters struct {
 type eventHubBindingContext struct {
 }
 
-type eventHubCredentials struct {
+// Credentials encapsulates Event Hub-specific coonection details and
+// credentials.
+type Credentials struct {
 	ConnectionString string `json:"connectionString"`
 	PrimaryKey       string `json:"primaryKey"`
 }
@@ -53,5 +55,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &eventHubCredentials{}
+	return &Credentials{}
 }

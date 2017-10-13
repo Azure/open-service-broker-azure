@@ -26,7 +26,7 @@ func (m *module) Bind(
 	}
 
 	return &eventHubBindingContext{},
-		&eventHubCredentials{
+		&Credentials{
 			ConnectionString: pc.ConnectionString,
 			PrimaryKey:       pc.PrimaryKey,
 		},

@@ -26,7 +26,7 @@ func (m *module) Bind(
 	}
 
 	return &keyvaultBindingContext{},
-		&keyvaultCredentials{
+		&Credentials{
 			VaultURI:     pc.VaultURI,
 			ClientID:     pc.ClientID,
 			ClientSecret: pc.ClientSecret,

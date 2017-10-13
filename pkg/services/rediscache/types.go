@@ -24,7 +24,8 @@ type BindingParameters struct {
 type redisBindingContext struct {
 }
 
-type redisCredentials struct {
+// Credentials encapsulates Redis-specific coonection details and credentials.
+type Credentials struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Password string `json:"password"`
@@ -53,5 +54,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &redisCredentials{}
+	return &Credentials{}
 }

@@ -1,5 +1,5 @@
-hash: 35b1c2cccd0a4471d23b94ae23089b7ea6f71480581d651ca6c0f7daebca2f27
-updated: 2017-09-28T17:31:08.56651233Z
+hash: 4ac17a61119ff51ef8f97c4684012b26e553cd9a103abe2a80e6e850a38ce697
+updated: 2017-09-30T18:48:24.690346957Z
 imports:
 - name: github.com/Azure/azure-sdk-for-go
   version: df4dd90d076ebbf6e87d08d3f00bfac8ff4bde1a
@@ -78,6 +78,13 @@ imports:
   subpackages:
   - unix
   - windows
+- name: gopkg.in/mgo.v2
+  version: 3f83fa5005286a7fe593b055f0d7771a7dce4655
+  subpackages:
+  - bson
+  - internal/json
+  - internal/sasl
+  - internal/scram
 testImports:
 - name: github.com/davecgh/go-spew
   version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9

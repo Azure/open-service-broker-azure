@@ -26,7 +26,7 @@ func (m *module) Bind(
 	}
 
 	return &redisBindingContext{},
-		&redisCredentials{
+		&Credentials{
 			Host:     pc.FullyQualifiedDomainName,
 			Password: pc.PrimaryKey,
 			Port:     6379,

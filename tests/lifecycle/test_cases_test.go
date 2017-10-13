@@ -4,27 +4,6 @@ package lifecycle
 
 import (
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
-	eh "github.com/Azure/azure-service-broker/pkg/azure/eventhub"
-	kv "github.com/Azure/azure-service-broker/pkg/azure/keyvault"
-	ss "github.com/Azure/azure-service-broker/pkg/azure/mssql"
-	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
-	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
-	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
-	as "github.com/Azure/azure-service-broker/pkg/azure/search"
-	sb "github.com/Azure/azure-service-broker/pkg/azure/servicebus"
-	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
-	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
-	"github.com/Azure/azure-service-broker/pkg/services/eventhub"
-	"github.com/Azure/azure-service-broker/pkg/services/keyvault"
-	"github.com/Azure/azure-service-broker/pkg/services/mssql"
-	"github.com/Azure/azure-service-broker/pkg/services/mysql"
-	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
-	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
-	"github.com/Azure/azure-service-broker/pkg/services/search"
-	"github.com/Azure/azure-service-broker/pkg/services/servicebus"
-	"github.com/Azure/azure-service-broker/pkg/services/storage"
-	uuid "github.com/satori/go.uuid"
 )
 
 func getTestCases() ([]moduleLifecycleTestCase, error) {
@@ -32,187 +11,29 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 	if err != nil {
 		return nil, err
 	}
-	keyvaultManager, err := kv.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	postgreSQLManager, err := pg.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	mySQLManager, err := mg.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	redisManager, err := rc.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	searchManager, err := as.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	serviceBusManager, err := sb.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	eventHubManager, err := eh.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	msSQLManager, err := ss.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	msSQLConfig, err := mssql.GetConfig()
-	if err != nil {
-		return nil, err
-	}
-	cosmosdbManager, err := cd.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	storageManager, err := sa.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	return []moduleLifecycleTestCase{
-		{ // Key Vault
-			module:    keyvault.New(armDeployer, keyvaultManager),
-			serviceID: "d90c881e-c9bb-4e07-a87b-fcfe87e03276",
-			planID:    "3577ee4a-75fc-44b3-b354-9d33d52ef486",
-			provisioningParameters: &keyvault.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-				ObjectID:      "6a74d229-e927-42c5-b6e8-8f5c095cfba8",
-				ClientID:      "test",
-				ClientSecret:  "test",
-			},
-			bindingParameters: &keyvault.BindingParameters{},
-		},
-		{ // PostgreSQL
-			module:    postgresql.New(armDeployer, postgreSQLManager),
-			serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
-			planID:    "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
-			provisioningParameters: &postgresql.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &postgresql.BindingParameters{},
-		},
-		{ // MySQL
-			module:    mysql.New(armDeployer, mySQLManager),
-			serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
-			planID:    "427559f1-bf2a-45d3-8844-32374a3e58aa",
-			provisioningParameters: &mysql.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &mysql.BindingParameters{},
-		},
-		{ // Redis Cache
-			module:    rediscache.New(armDeployer, redisManager),
-			serviceID: "0346088a-d4b2-4478-aa32-f18e295ec1d9",
-			planID:    "362b3d1b-5b57-4289-80ad-4a15a760c29c",
-			provisioningParameters: &rediscache.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &rediscache.BindingParameters{},
-		},
-		{ // Azure Search
-			module:    search.New(armDeployer, searchManager),
-			serviceID: "c54902aa-3027-4c5c-8e96-5b3d3b452f7f",
-			planID:    "35bd6e80-5ff5-487e-be0e-338aee9321e4",
-			provisioningParameters: &search.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &search.BindingParameters{},
-		},
-		{ // Service Bus
-			module:    servicebus.New(armDeployer, serviceBusManager),
-			serviceID: "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",
-			planID:    "13c6da8f-128c-48c0-a3a9-659d1b6d3920",
-			provisioningParameters: &servicebus.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &servicebus.BindingParameters{},
-		},
-		{ // Event Hub
-			module:    eventhub.New(armDeployer, eventHubManager),
-			serviceID: "7bade660-32f1-4fd7-b9e6-d416d975170b",
-			planID:    "80756db5-a20c-495d-ae70-62cf7d196a3c",
-			provisioningParameters: &eventhub.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &eventhub.BindingParameters{},
-		},
-		{ // MS SQL
-			module:    mssql.New(armDeployer, msSQLManager, msSQLConfig),
-			serviceID: "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
-			planID:    "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
-			provisioningParameters: &mssql.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &mssql.BindingParameters{},
-		},
-		{ // DocumentDB
-			module:    cosmosdb.New(armDeployer, cosmosdbManager),
-			serviceID: "6330de6f-a561-43ea-a15e-b99f44d183e6",
-			planID:    "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
-			provisioningParameters: &cosmosdb.ProvisioningParameters{
-				Location:      "eastus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &cosmosdb.BindingParameters{},
-		},
-		{ // MongoDB
-			module:    cosmosdb.New(armDeployer, cosmosdbManager),
-			serviceID: "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
-			planID:    "86fdda05-78d7-4026-a443-1325928e7b02",
-			provisioningParameters: &cosmosdb.ProvisioningParameters{
-				Location:      "eastus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &cosmosdb.BindingParameters{},
-		},
-		{ // General Purpose Storage Account
-			module:    storage.New(armDeployer, storageManager),
-			serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
-			planID:    "6ddf6b41-fb60-4b70-af99-8ecc4896b3cf",
-			provisioningParameters: &storage.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &storage.BindingParameters{},
-		},
-		{ // Blob Storage Account
-			module:    storage.New(armDeployer, storageManager),
-			serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
-			planID:    "800a17e1-f20a-463d-a290-20516052f647",
-			provisioningParameters: &storage.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &storage.BindingParameters{},
-		},
-		{ // Blob Storage Account + Blob Container
-			module:    storage.New(armDeployer, storageManager),
-			serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
-			planID:    "189d3b8f-8307-4b3f-8c74-03d069237f70",
-			provisioningParameters: &storage.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
-			},
-			bindingParameters: &storage.BindingParameters{},
-		},
-	}, nil
-}
 
-func newTestResourceGroupName() string {
-	return "test-" + uuid.NewV4().String()
+	testCases := []moduleLifecycleTestCase{}
+
+	getTestCaseFuncs := []func(arm.Deployer) ([]moduleLifecycleTestCase, error){
+		getCosmosdbCases,
+		getEventhubCases,
+		getKeyvaultCases,
+		getMssqlCases,
+		getMysqlCases,
+		getPostgresqlCases,
+		getRediscacheCases,
+		getSearchCases,
+		getServicebusCases,
+		getStorageCases,
+	}
+
+	for _, getTestCaseFunc := range getTestCaseFuncs {
+		if tcs, err := getTestCaseFunc(armDeployer); err == nil {
+			testCases = append(testCases, tcs...)
+		} else {
+			return nil, err
+		}
+	}
+
+	return testCases, nil
 }

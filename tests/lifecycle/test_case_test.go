@@ -12,12 +12,15 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// moduleLifecycleTestCase encapsulates all the required things for a lifecycle
+// test case
 type moduleLifecycleTestCase struct {
 	module                 service.Module
 	serviceID              string
 	planID                 string
 	provisioningParameters service.ProvisioningParameters
 	bindingParameters      service.BindingParameters
+	testCredentials        func(credentials service.Credentials) error
 }
 
 func (m *moduleLifecycleTestCase) execute() error {
@@ -61,7 +64,7 @@ func (m *moduleLifecycleTestCase) execute() error {
 	// There MUST be a first step
 	if !ok {
 		return fmt.Errorf(
-			`module "%s" provisioner has no steps`,
+			`Module "%s" provisioner has no steps`,
 			m.module.GetName(),
 		)
 	}
@@ -71,7 +74,7 @@ func (m *moduleLifecycleTestCase) execute() error {
 		step, ok = provisioner.GetStep(stepName)
 		if !ok {
 			return fmt.Errorf(
-				`module "%s" provisioning step "%s" not found`,
+				`Module "%s" provisioning step "%s" not found`,
 				m.module.GetName(),
 				stepName,
 			)
@@ -99,9 +102,17 @@ func (m *moduleLifecycleTestCase) execute() error {
 	}
 
 	// Bind
-	bc, _, err := m.module.Bind(pc, m.bindingParameters)
+	bc, credentials, err := m.module.Bind(pc, m.bindingParameters)
 	if err != nil {
 		return err
+	}
+
+	// Test the credentials
+	if m.testCredentials != nil {
+		err = m.testCredentials(credentials)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Unbind
@@ -119,7 +130,7 @@ func (m *moduleLifecycleTestCase) execute() error {
 	// There MUST be a first step
 	if !ok {
 		return fmt.Errorf(
-			`module "%s" deprovisioner has no steps`,
+			`Module "%s" deprovisioner has no steps`,
 			m.module.GetName(),
 		)
 	}
@@ -128,7 +139,7 @@ func (m *moduleLifecycleTestCase) execute() error {
 		step, ok := deprovisioner.GetStep(stepName)
 		if !ok {
 			return fmt.Errorf(
-				`module "%s" deprovisioning step "%s" not found`,
+				`Module "%s" deprovisioning step "%s" not found`,
 				m.module.GetName(),
 				stepName,
 			)
@@ -165,7 +176,7 @@ func (m *moduleLifecycleTestCase) showStatus(ctx context.Context) {
 		select {
 		case <-ticker.C:
 			log.Printf(
-				"----> module \"%s\" lifecycle tests in progress\n",
+				"----> Module \"%s\" lifecycle tests in progress\n",
 				moduleName,
 			)
 		case <-ctx.Done():

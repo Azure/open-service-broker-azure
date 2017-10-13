@@ -26,7 +26,7 @@ func (m *module) Bind(
 	}
 
 	return &serviceBusBindingContext{},
-		&serviceBusCredentials{
+		&Credentials{
 			ConnectionString: pc.ConnectionString,
 			PrimaryKey:       pc.PrimaryKey,
 		},

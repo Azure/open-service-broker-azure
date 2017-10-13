@@ -30,7 +30,8 @@ type mssqlBindingContext struct {
 	LoginName string `json:"loginName"`
 }
 
-type mssqlCredentials struct {
+// Credentials encapsulates MSSQL-specific coonection details and credentials.
+type Credentials struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Database string `json:"database"`
@@ -76,5 +77,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &mssqlCredentials{}
+	return &Credentials{}
 }

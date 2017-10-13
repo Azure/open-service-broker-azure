@@ -28,7 +28,8 @@ type mysqlBindingContext struct {
 	LoginName string `json:"loginName"`
 }
 
-type mysqlCredentials struct {
+// Credentials encapsulates MySQL-specific coonection details and credentials.
+type Credentials struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Database string `json:"database"`
@@ -59,5 +60,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &mysqlCredentials{}
+	return &Credentials{}
 }

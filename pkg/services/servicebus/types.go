@@ -24,7 +24,9 @@ type BindingParameters struct {
 type serviceBusBindingContext struct {
 }
 
-type serviceBusCredentials struct {
+// Credentials encapsulates Service Bus-specific coonection details and
+// credentials.
+type Credentials struct {
 	ConnectionString string `json:"connectionString"`
 	PrimaryKey       string `json:"primaryKey"`
 }
@@ -52,5 +54,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &serviceBusCredentials{}
+	return &Credentials{}
 }

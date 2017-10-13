@@ -28,7 +28,9 @@ type BindingParameters struct {
 type keyvaultBindingContext struct {
 }
 
-type keyvaultCredentials struct {
+// Credentials encapsulates Key Vault-specific coonection details and
+// credentials.
+type Credentials struct {
 	VaultURI     string `json:"vaultUri"`
 	ClientID     string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
@@ -57,5 +59,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &keyvaultCredentials{}
+	return &Credentials{}
 }

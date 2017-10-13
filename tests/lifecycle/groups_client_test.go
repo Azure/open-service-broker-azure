@@ -8,7 +8,9 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure"
 )
 
-func deleteResourceGroup(resourceGroupName string) error {
+func deleteResourceGroup(
+	resourceGroupName string,
+) error {
 	azureConfig, err := az.GetConfig()
 	if err != nil {
 		return err

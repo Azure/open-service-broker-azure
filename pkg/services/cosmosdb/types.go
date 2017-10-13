@@ -33,7 +33,10 @@ type BindingParameters struct {
 type cosmosdbBindingContext struct {
 }
 
-type cosmosdbCredentials struct {
+// Credentials encapsulates CosmosDB-specific connection details and
+// credentials. The attributes of this type cover all the attributes possibly
+// used by either of CosmosDBs two connections types-- MongoDB or DocumentDB.
+type Credentials struct {
 	Host                    string `json:"host,omitempty"`
 	Port                    int    `json:"port,omitempty"`
 	Username                string `json:"username,omitempty"`
@@ -67,5 +70,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &cosmosdbCredentials{}
+	return &Credentials{}
 }

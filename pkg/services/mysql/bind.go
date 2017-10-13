@@ -66,7 +66,7 @@ func (m *module) Bind(
 	return &mysqlBindingContext{
 			LoginName: userName,
 		},
-		&mysqlCredentials{
+		&Credentials{
 			Host:     pc.FullyQualifiedDomainName,
 			Port:     3306,
 			Database: pc.DatabaseName,

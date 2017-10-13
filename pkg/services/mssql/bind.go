@@ -104,7 +104,7 @@ func (m *module) Bind(
 	return &mssqlBindingContext{
 			LoginName: loginName,
 		},
-		&mssqlCredentials{
+		&Credentials{
 			Host:     pc.FullyQualifiedDomainName,
 			Port:     1433,
 			Database: pc.DatabaseName,

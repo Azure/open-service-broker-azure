@@ -32,7 +32,8 @@ type BindingParameters struct {
 type storageBindingContext struct {
 }
 
-type storageCredentials struct {
+// Credentials encapsulates Storage-specific coonection details and credentials.
+type Credentials struct {
 	StorageAccountName string `json:"storageAccountName"`
 	AccessKey          string `json:"accessKey"`
 	ContainerName      string `json:"containerName,omitempty"`
@@ -61,5 +62,5 @@ func (m *module) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (m *module) GetEmptyCredentials() service.Credentials {
-	return &storageCredentials{}
+	return &Credentials{}
 }

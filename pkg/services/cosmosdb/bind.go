@@ -25,7 +25,7 @@ func (m *module) Bind(
 		)
 	}
 	if pc.DatabaseKind == databaseKindMongoDB {
-		cosmosDBCredentials := &cosmosdbCredentials{
+		cosmosDBCredentials := &Credentials{
 			Host: pc.FullyQualifiedDomainName,
 			Port: 10255,
 			// Username is the same as the database account name
@@ -37,7 +37,7 @@ func (m *module) Bind(
 			cosmosDBCredentials,
 			nil
 	}
-	cosmosDBCredentials := &cosmosdbCredentials{
+	cosmosDBCredentials := &Credentials{
 		URI:                     pc.FullyQualifiedDomainName,
 		PrimaryKey:              pc.PrimaryKey,
 		PrimaryConnectionString: pc.ConnectionString,
