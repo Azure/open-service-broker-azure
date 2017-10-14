@@ -22,7 +22,7 @@ func getHDInsightCases(
 			serviceID: "c0fba6e1-4ce4-4d93-b751-c8c5e337739c",
 			planID:    "fab80e5a-54c8-45e3-a466-f390de04e592",
 			provisioningParameters: &hdinsight.ProvisioningParameters{
-				Location:               "southcentralus",
+				Location:               "eastus",
 				ResourceGroup:          newTestResourceGroupName(),
 				ClusterWorkerNodeCount: 2,
 			},
@@ -33,7 +33,7 @@ func getHDInsightCases(
 			serviceID: "c0fba6e1-4ce4-4d93-b751-c8c5e337739c",
 			planID:    "9815959a-35d2-4bf7-b467-3e77c03dcc3e",
 			provisioningParameters: &hdinsight.ProvisioningParameters{
-				Location:               "southcentralus",
+				Location:               "westus",
 				ResourceGroup:          newTestResourceGroupName(),
 				ClusterWorkerNodeCount: 2,
 			},
@@ -44,7 +44,7 @@ func getHDInsightCases(
 			serviceID: "c0fba6e1-4ce4-4d93-b751-c8c5e337739c",
 			planID:    "609c6d56-851e-41cf-8a71-2dde705cf5a5",
 			provisioningParameters: &hdinsight.ProvisioningParameters{
-				Location:               "southcentralus",
+				Location:               "westus2",
 				ResourceGroup:          newTestResourceGroupName(),
 				ClusterWorkerNodeCount: 2,
 			},
