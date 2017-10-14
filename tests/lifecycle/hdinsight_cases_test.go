@@ -34,7 +34,7 @@ func getHDInsightCases(
 			serviceID: "c0fba6e1-4ce4-4d93-b751-c8c5e337739c",
 			planID:    "9815959a-35d2-4bf7-b467-3e77c03dcc3e",
 			standardProvisioningContext: service.StandardProvisioningContext{
-				Location: "southcentralus",
+				Location: "eastus",
 			},
 			provisioningParameters: &hdinsight.ProvisioningParameters{
 				ClusterWorkerNodeCount: 1,
@@ -46,7 +46,7 @@ func getHDInsightCases(
 			serviceID: "c0fba6e1-4ce4-4d93-b751-c8c5e337739c",
 			planID:    "609c6d56-851e-41cf-8a71-2dde705cf5a5",
 			standardProvisioningContext: service.StandardProvisioningContext{
-				Location: "southcentralus",
+				Location: "eastus2",
 			},
 			provisioningParameters: &hdinsight.ProvisioningParameters{
 				ClusterWorkerNodeCount: 1,
@@ -58,7 +58,7 @@ func getHDInsightCases(
 			serviceID: "c0fba6e1-4ce4-4d93-b751-c8c5e337739c",
 			planID:    "ebd2dcf7-c586-42b7-8eeb-06e5641a34aa",
 			standardProvisioningContext: service.StandardProvisioningContext{
-				Location: "southcentralus",
+				Location: "westus",
 			},
 			provisioningParameters: &hdinsight.ProvisioningParameters{
 				ClusterWorkerNodeCount: 1,
