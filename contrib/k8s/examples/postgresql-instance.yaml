@@ -1,11 +1,11 @@
-apiVersion: servicecatalog.k8s.io/v1alpha1
+apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
   name: my-postgresql-instance
   namespace: default
 spec:
-  serviceClassName: azure-postgresqldb
-  planName: basic50
+  externalClusterServiceClassName: azure-postgresqldb
+  externalClusterServicePlanName: basic50
   parameters:
     location: eastus
     resourceGroup: demo
