@@ -15,6 +15,7 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 	testCases := []moduleLifecycleTestCase{}
 
 	getTestCaseFuncs := []func(arm.Deployer) ([]moduleLifecycleTestCase, error){
+		getACICases,
 		getCosmosdbCases,
 		getEventhubCases,
 		getKeyvaultCases,

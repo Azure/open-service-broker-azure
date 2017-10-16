@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	ac "github.com/Azure/azure-service-broker/pkg/azure/aci"
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
 	eh "github.com/Azure/azure-service-broker/pkg/azure/eventhub"
@@ -16,6 +17,7 @@ import (
 	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
 
 	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/azure-service-broker/pkg/services/aci"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
 	"github.com/Azure/azure-service-broker/pkg/services/eventhub"
 	"github.com/Azure/azure-service-broker/pkg/services/keyvault"
@@ -79,6 +81,10 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing search manager: %s", err)
 	}
+	aciManager, err := ac.NewManager()
+	if err != nil {
+		return fmt.Errorf("error initializing aci manager: %s", err)
+	}
 
 	modules = []service.Module{
 		postgresql.New(armDeployer, postgreSQLManager),
@@ -91,6 +97,7 @@ func initModules() error {
 		cosmosdb.New(armDeployer, cosmosDBManager),
 		storage.New(armDeployer, storageManager),
 		search.New(armDeployer, searchManager),
+		aci.New(armDeployer, aciManager),
 	}
 	return nil
 }
