@@ -1,0 +1,30 @@
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/Azure/azure-service-broker
+    docker:
+      - image: quay.io/deis/go-dev:v1.2.0
+        environment:
+          GOPATH: /go
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: echo TODO
+      - run:
+          name: Build Binary
+          command: echo TODO
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build
+      # not enabling this step because tests don't yet pass on circle.
+      # still need to investigate
+      # - test
+      # not enabling this step because lints either time out or fail on
+      # circle. still need to investigate
+      # - lint
+
+
+
