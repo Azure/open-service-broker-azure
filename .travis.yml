@@ -3,9 +3,6 @@ branches:
   only:
   - master
   - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
-cache:
-  directories:
-  - .glide
 services:
 - docker
 - docker-compose
