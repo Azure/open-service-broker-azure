@@ -15,4 +15,4 @@ maintainers:
     email: kent.rancourt@microsoft.com
   - name: Jim Zimmerman
     email: jim.zimmerman@microsoft.com
-tillerVersion: ">=2.4.2"
+tillerVersion: ">=2.7.0-rc1"

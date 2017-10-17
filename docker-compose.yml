@@ -8,6 +8,7 @@ services:
       CGO_ENABLED: 0
     volumes:
     - .:/go/src/github.com/Azure/azure-service-broker
+    network_mode: host
   test: # Like dev, but linked to redis
     build:
       context: .
