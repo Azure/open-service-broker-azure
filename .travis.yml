@@ -10,10 +10,8 @@ services:
 - docker
 - docker-compose
 sudo: required
-before_script:
-- make dev-bootstrap
 script:
-- make lint test docker-build
+- make lint verify-vendored-code test docker-build
 deploy:
   skip_cleanup: true
   provider: script

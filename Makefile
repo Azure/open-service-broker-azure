@@ -34,27 +34,30 @@ clean: check-docker-compose
 	rm -rf ${CONTRIB_BINARY_DIR}
 	docker-compose down --rmi local &> /dev/null
 
-# Containerized project bootstrapping-- requires docker-compose
-# This will (re)build the development environment and populate the vendor/
-# directory with dependencies specified by glide.lock
-.PHONY: dev-bootstrap
-dev-bootstrap: check-docker-compose
-	docker-compose build dev
-	docker-compose run --rm dev glide install
-
-# Containerized dependency update-- requires docker-compose
-# This will (re)build the development environment, populate the vendor/
-# directory with updated dependencies, and update glide.lock accordingly 
-.PHONY: dev-update
-dev-update: check-docker-compose
-	docker-compose build dev
-	docker-compose run --rm dev glide up
-
 # Allow developers to step into the containerized development environment--
 # requires docker-compose
 .PHONY: dev
 dev: check-docker-compose
 	docker-compose run --rm dev bash
+
+# Containerized dependency install/update-- requires docker-compose
+.PHONY: dep
+dep: check-docker-compose
+	docker-compose run --rm dev dep ensure -v
+
+.PHONY: verify-vendored-code
+verify-vendored-code: check-docker-compose
+	docker-compose run --rm dev bash -c ' \
+		export PRJ_DIR=$$(pwd) \
+		&& export TMP_PRJ_DIR=/tmp$$PRJ_DIR \
+		&& mkdir -p $$TMP_PRJ_DIR \
+		&& cp -r $$PRJ_DIR $$TMP_PRJ_DIR/.. \
+		&& cd $$TMP_PRJ_DIR \
+		&& export GOPATH=/tmp$$GOPATH \
+		&& dep ensure -v \
+		&& diff $$PRJ_DIR/Gopkg.lock Gopkg.lock \
+		&& diff -r $$PRJ_DIR/vendor vendor \
+	'
 
 .PHONY: test
 test: test-unit test-module-lifecycles
@@ -62,7 +65,8 @@ test: test-unit test-module-lifecycles
 # Containerized unit tests-- requires docker-compose
 .PHONY: test-unit
 test-unit: check-docker-compose
-	docker-compose run --rm test bash -c 'go test -tags unit $$(glide nv)'
+	@# As of Go 1.9.0, testing ./... excludes tests on vendored code
+	docker-compose run --rm test bash -c 'go test -tags unit ./...'
 
 # Containerized module lifecycle tests-- requires docker-compose
 .PHONY: test-module-lifecycles

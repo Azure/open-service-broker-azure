@@ -56,34 +56,8 @@ are:
 ### Building, Testing, and Running
 
 Building and testing Azure Service Broker code is facilitated through the use
-of a few easy-to-remember make targets.
-
-#### Initial Setup
-
-Although a containerized development environment is employed, the Azure Service
-Broker's dependencies on Go libraries are _not_ resolved in advance as a
-component of that environment. Rather, a tool within that environment
-([Glide](https://github.com/Masterminds/glide)) is used to complete that
-dependency resolution. This step should be performed in advance of building
-or testing Azure Service Broker and should ideally be repeated anytime local
-code is refreshed with changes from upstream.
-
-To resolve dependencies:
-
-```console
-$ make dev-bootstrap
-```
-
-#### Updating Dependencies
-
-While `make dev-bootstrap` resolves dependencies as indicated by the project's
-`glide.lock` file, that target does not adequtely handle the case where a
-contributor has modified `glide.yaml` to add, remove, or modify a dependency.
-To resolve dependency changes and update `glide.lock`, perform the following:
-
-```console
-$ make dev-update
-```
+of a few easy-to-use make targets that mostly execute tasks within the
+containerized development environment.
 
 #### Linting
 
@@ -234,6 +208,32 @@ $ make lint test docker-build
 ```
 
 Any changes passing these three tests locally should pass the same tests in CI.
+
+#### Updating Dependencies
+
+Updating project dependnecies is not a matter of course for most contributions,
+but the need for it arises from time to time, especially in the case that a new
+service module is being added to the broker.
+
+The Azure Service Broker employs the [dep](https://github.com/golang/dep) tool
+to manage dependencies. Dep tracks developer intent (the dependencies you
+_want_) in a file called `Gopkg.toml`. How these intentions are resolved by the
+tool is tracked in a manifest called `Gopkg.lock`.
+
+If you update the desired dependencies in `Gopkg.toml`, be sure to run the
+following afterwards:
+
+```console
+$ make dep
+```
+
+This will update both vendored code in the `vendor/` directory _and_ the
+manifest in `Gopkg.lock`.
+
+__Do not edit `Gopkg.lock` directly.__
+
+If the `make dep` step is accidentally omitted after updates to `Gopkg.toml`,
+the CI process will catch the mistake and fail the build.
 
 #### Running the Azure Service Broker Locally (development mode)
 
