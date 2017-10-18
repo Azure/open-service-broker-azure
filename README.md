@@ -184,9 +184,70 @@ $ kubectl get serviceinstance my-postgresql-instance
 Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgresql-instance" not found
 ```
 
-## Getting Started on Pivotal Cloud Foundry
+## Getting Started on Cloud Foundry
 
-Instructions coming soon!
+### Installation
+
+To deploy the Azure Service Broker to Cloud Foundry, [refer to the documentation](contrib/cf/README.md) showing how to deploy and configure it as a Cloud Foundry app.
+
+### Usage
+
+#### Provisioning
+
+The following will create a Postgres service:
+
+```console
+cf create-service azure-postgresqldb basic50 mypostgresdb -l '{"location": "westus2"}'
+```
+
+You can check the status of the service instance using the `cf service` command, which will show output similar to the following:
+
+```console
+Service instance: mypostgresdb                    
+Service: azure-postgresqldb                       
+Bound apps:                                       
+Tags:                                             
+Plan: basic50                                     
+Description: Azure Database for PostgreSQL Service
+Documentation url:                                
+Dashboard:                                        
+                                                  
+Last Operation                                    
+Status: create in progress                        
+Message: Creating server uf666164eb31.            
+Started: 2017-10-17T23:30:07Z                     
+Updated: 2017-10-17T23:30:12Z                     
+```
+
+### Binding
+
+Once the service has been successfully provisioned, you can bind to it, either using `cf bind-service` or by including it in a Cloud Foundry manifest.
+
+```console
+cf bind-service myapp mypostgresdb
+```
+
+Once bound, the connection details for the service (such as its endpoint and authentication credentaials) are available from the `VCAP_SERVICES` environment variable within the application. You can view the environment variables for a given application using the `cf env` command:
+
+```console
+cf env myapp
+```
+
+### Unbinding
+
+To unbind a service from an application, use the cf unbind-service command:
+
+```console
+cf unbind-service myapp mypostgresdb
+```
+
+### Deprovisioning
+
+To deprovision the service, use the `cf delete-service` command.
+
+```console
+cf delete-service mypostgresdb
+```
 
 ## Code of conduct
 
