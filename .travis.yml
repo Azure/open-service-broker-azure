@@ -8,7 +8,7 @@ services:
 - docker-compose
 sudo: required
 script:
-- make lint verify-vendored-code test docker-build
+- make lint verify-vendored-code docker-build test
 deploy:
   skip_cleanup: true
   provider: script
