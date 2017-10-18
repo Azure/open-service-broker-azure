@@ -86,7 +86,7 @@ test-module-lifecycles: check-docker-compose
 .PHONY: lint
 lint: check-docker-compose
 	docker-compose run \
-		--rm test \
+		--rm dev \
 		bash -c 'gometalinter ./... \
 			--disable-all \
 			--enable gofmt \
