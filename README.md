@@ -197,7 +197,7 @@ To deploy the Azure Service Broker to Cloud Foundry, [refer to the documentation
 The following will create a Postgres service:
 
 ```console
-cf create-service azure-postgresqldb basic50 mypostgresdb -l '{"location": "westus2"}'
+cf create-service azure-postgresqldb basic50 mypostgresdb -c '{"location": "westus2"}'
 ```
 
 You can check the status of the service instance using the `cf service` command, which will show output similar to the following:
