@@ -1,30 +1,62 @@
 version: 2
 jobs:
+  verify-vendored-code:
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run: 
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Verify Vendored Code
+          command: make verify-vendored-code
   build:
-    working_directory: /go/src/github.com/Azure/azure-service-broker
-    docker:
-      - image: quay.io/deis/go-dev:v1.2.0
-        environment:
-          GOPATH: /go
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
     steps:
       - checkout
       - run:
           name: Install Dependencies
-          command: echo TODO
+          command: ./scripts/install-deps.sh
       - run:
-          name: Build Binary
-          command: echo TODO
+          name: Build Binary & Docker Image
+          command: make docker-build
+  test-unit:
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Run Unit Tests
+          command: make test-unit
+  lint:
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Run Lint
+          command: make lint
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build
-      # not enabling this step because tests don't yet pass on circle.
-      # still need to investigate
-      # - test
-      # not enabling this step because lints either time out or fail on
-      # circle. still need to investigate
-      # - lint
-
-
-
+      - test-unit
+      - lint
+      - verify-vendored-code
