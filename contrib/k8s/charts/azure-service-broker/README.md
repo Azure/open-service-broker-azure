@@ -14,13 +14,16 @@ This chart bootstraps Azure Service Broker in your Kubernetes cluster.
   [Kubernetes Service Catalog](https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/install-1.7.md)
   software has been installed
 - An [Azure subscription](https://azure.microsoft.com/en-us/free/)
-- The [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+- The Azure CLI: You can
+[install it locally](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
+or use it in the
+[Azure Cloud Shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview?view=azure-cli-latest)
 - A _service principal_ with the `Contributor` role on your Azure subscription
 
 ## Obtain Your Subscription ID
 
 ```console
-$ export AZURE_SUBSCRIPTION_ID=$(az account show | grep '"id":' | awk '{print $2}' | awk '{gsub(/\"|,/,"")}1')
+$ export AZURE_SUBSCRIPTION_ID=$(az account show --query id | sed s/\"//g)
 ```
 
 ## Creating a Service Principal
