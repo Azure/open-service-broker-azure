@@ -21,6 +21,10 @@ type keyvaultProvisioningContext struct {
 	ClientSecret      string `json:"clientSecret"`
 }
 
+// UpdatingParameters encapsulates keyvault-specific updating options
+type UpdatingParameters struct {
+}
+
 // BindingParameters encapsulates keyvault-specific binding options
 type BindingParameters struct {
 }
@@ -44,6 +48,12 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	m *module,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
 func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {

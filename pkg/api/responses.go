@@ -30,6 +30,10 @@ var responseProvisioningAccepted = []byte(
 	fmt.Sprintf(`{ "operation": "%s" }`, OperationProvisioning),
 )
 
+var responseUpdatingAccepted = []byte(
+	fmt.Sprintf(`{ "operation": "%s" }`, OperationUpdating),
+)
+
 var responseDeprovisioningAccepted = []byte(
 	fmt.Sprintf(`{ "operation": "%s" }`, OperationDeprovisioning),
 )

@@ -20,6 +20,15 @@ type ProvisioningContext struct {
 	ResourceGroupName string `json:"resourceGroup"`
 }
 
+// UpdatingParameters represents parameters specific to binding to a service
+// instance using the fake service module. Note that, ordinarily, service
+// module-specific types such as this do not need to be exported. An exception
+// is made here because the fake service module is used to facilitate testing of
+// the broker framework itself.
+type UpdatingParameters struct {
+	SomeParameter string `json:"someParameter"`
+}
+
 // BindingParameters represents parameters specific to binding to a service
 // instance using the fake service module. Note that, ordinarily, service
 // module-specific types such as this do not need to be exported. An exception
@@ -67,6 +76,14 @@ func (
 // provisioningContext
 func (m *Module) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &ProvisioningContext{}
+}
+
+// GetEmptyUpdatingParameters returns an empty instance of module-specific
+// updatingParameters
+func (
+	m *Module,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
 // GetEmptyBindingParameters returns an empty instance of module-specific

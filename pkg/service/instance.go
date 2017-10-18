@@ -13,6 +13,7 @@ type Instance struct {
 	ServiceID                       string    `json:"serviceId"`
 	PlanID                          string    `json:"planId"`
 	EncryptedProvisioningParameters []byte    `json:"provisioningParameters"`
+	EncryptedUpdatingParameters     []byte    `json:"updatingParameters"`
 	Status                          string    `json:"status"`
 	StatusReason                    string    `json:"statusReason"`
 	EncryptedProvisioningContext    []byte    `json:"provisioningContext"`
@@ -54,6 +55,25 @@ func (i *Instance) SetProvisioningParameters(
 	return nil
 }
 
+// SetUpdatingParameters marshals the provided updatingParameters
+// object, encrypts the result, and stores it in the
+// EncryptedUpdatingParameters field
+func (i *Instance) SetUpdatingParameters(
+	params UpdatingParameters,
+	codec crypto.Codec,
+) error {
+	jsonBytes, err := json.Marshal(params)
+	if err != nil {
+		return err
+	}
+	ciphertext, err := codec.Encrypt(jsonBytes)
+	if err != nil {
+		return err
+	}
+	i.EncryptedUpdatingParameters = ciphertext
+	return nil
+}
+
 // GetProvisioningParameters decrypts the EncryptedProvisioningParameters field
 // and unmarshals the result into the provided provisioningParameters object
 func (i *Instance) GetProvisioningParameters(
@@ -64,6 +84,22 @@ func (i *Instance) GetProvisioningParameters(
 		return nil
 	}
 	plaintext, err := codec.Decrypt(i.EncryptedProvisioningParameters)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(plaintext, params)
+}
+
+// GetUpdatingParameters decrypts the EncryptedUpdatingParameters field
+// and unmarshals the result into the provided updatingParameters object
+func (i *Instance) GetUpdatingParameters(
+	params UpdatingParameters,
+	codec crypto.Codec,
+) error {
+	if len(i.EncryptedUpdatingParameters) == 0 {
+		return nil
+	}
+	plaintext, err := codec.Decrypt(i.EncryptedUpdatingParameters)
 	if err != nil {
 		return err
 	}

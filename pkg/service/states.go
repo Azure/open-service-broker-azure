@@ -7,6 +7,14 @@ const (
 	// InstanceStateProvisioned represents the state where service instance
 	// provisioning has completed successfully
 	InstanceStateProvisioned = "PROVISIONED"
+	// InstanceStateUpdating represents the state where service instance
+	// updating is in progress
+	InstanceStateUpdating = "UPDATING"
+	// InstanceStateUpdated represents the state where service instance
+	// updating has completed successfully
+	// It redirects to InstanceStateProvisioned because it means the same thing
+	// to any other operations besides updating
+	InstanceStateUpdated = InstanceStateProvisioned
 	// InstanceStateProvisioningFailed represents the state where service instance
 	// provisioning has failed
 	InstanceStateProvisioningFailed = "PROVISIONING_FAILED"

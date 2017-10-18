@@ -25,6 +25,20 @@ type Module interface {
 	// GetEmptyProvisioningContext returns an empty instance of a module-specific
 	// ProvisioningContext
 	GetEmptyProvisioningContext() ProvisioningContext
+	// GetEmptyUpdatingParameters returns an empty instance of module-specific
+	// updatingParameters
+	GetEmptyUpdatingParameters() UpdatingParameters
+	// ValidateUpdatingParameters validates the provided
+	// updatingParameters and returns an error if there is any problem
+	ValidateUpdatingParameters(UpdatingParameters) error
+	// GetUpdater returns a updater that defines the steps a module must
+	// execute asynchronously to update a service.
+	//
+	// The two input parameters represent the service ID and plan ID
+	// (respectively). Using these parameters, module implementations can
+	// choose to return different Updater implementations for different
+	// services/plans
+	GetUpdater(serviceID, planID string) (Updater, error)
 	// GetEmptyBindingParameters returns an empty instance of module-specific
 	// bindingParameters
 	GetEmptyBindingParameters() BindingParameters

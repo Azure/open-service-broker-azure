@@ -26,6 +26,10 @@ type cosmosdbProvisioningContext struct {
 	PrimaryKey               string       `json:"primaryKey"`
 }
 
+// UpdatingParameters encapsulates CosmosDB-specific updating options
+type UpdatingParameters struct {
+}
+
 // BindingParameters encapsulates CosmosDB-specific binding options
 type BindingParameters struct {
 }
@@ -59,6 +63,12 @@ func (
 
 func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &cosmosdbProvisioningContext{}
+}
+
+func (
+	m *module,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
 func (m *module) GetEmptyBindingParameters() service.BindingParameters {

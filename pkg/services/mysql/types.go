@@ -20,6 +20,10 @@ type mysqlProvisioningContext struct {
 	EnforceSSL                 bool   `json:"enforceSSL"`
 }
 
+// UpdatingParameters encapsulates MySQL-specific updating options
+type UpdatingParameters struct {
+}
+
 // BindingParameters encapsulates MySQL-specific binding options
 type BindingParameters struct {
 }
@@ -45,6 +49,12 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	m *module,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
 func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {

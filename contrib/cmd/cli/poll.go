@@ -23,7 +23,8 @@ func poll(c *cli.Context) error {
 		return fmt.Errorf("--%s is a required flag", flagOperation)
 	}
 	if operation != api.OperationProvisioning &&
-		operation != api.OperationDeprovisioning {
+		operation != api.OperationDeprovisioning &&
+		operation != api.OperationUpdating {
 		return fmt.Errorf("invalid value for flag --%s", flagOperation)
 	}
 	status, err := client.Poll(

@@ -20,6 +20,7 @@ func init() {
 	serviceID := "test-service-id"
 	planID := "test-plan-id"
 	encryptedProvisiongingParameters := []byte(`{"foo":"bar"}`)
+	encryptedUpdatingParameters := []byte(`{"foo":"bar"}`)
 	statusReason := "in-progress"
 	encryptedProvisiongingContext := []byte(`{"baz":"bat"}`)
 	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
@@ -32,6 +33,7 @@ func init() {
 		ServiceID:  serviceID,
 		PlanID:     planID,
 		EncryptedProvisioningParameters: encryptedProvisiongingParameters,
+		EncryptedUpdatingParameters:     encryptedUpdatingParameters,
 		Status:                       InstanceStateProvisioning,
 		StatusReason:                 statusReason,
 		EncryptedProvisioningContext: encryptedProvisiongingContext,
@@ -40,6 +42,9 @@ func init() {
 
 	b64EncryptedProvisioningParameters := base64.StdEncoding.EncodeToString(
 		encryptedProvisiongingParameters,
+	)
+	b64EncryptedUpdatingParameters := base64.StdEncoding.EncodeToString(
+		encryptedUpdatingParameters,
 	)
 	b64EncryptedProvisioningContext := base64.StdEncoding.EncodeToString(
 		encryptedProvisiongingContext,
@@ -51,6 +56,7 @@ func init() {
 			"serviceId":"%s",
 			"planId":"%s",
 			"provisioningParameters":"%s",
+			"updatingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
 			"provisioningContext":"%s",
@@ -60,6 +66,7 @@ func init() {
 		serviceID,
 		planID,
 		b64EncryptedProvisioningParameters,
+		b64EncryptedUpdatingParameters,
 		InstanceStateProvisioning,
 		statusReason,
 		b64EncryptedProvisioningContext,
@@ -93,12 +100,30 @@ func TestSetProvisioningParametersOnInstance(t *testing.T) {
 	)
 }
 
+func TestSetUpdatingParametersOnInstance(t *testing.T) {
+	err := testInstance.SetUpdatingParameters(testArbitraryObject, noopCodec)
+	assert.Nil(t, err)
+	assert.Equal(
+		t,
+		testArbitraryObjectJSON,
+		testInstance.EncryptedUpdatingParameters,
+	)
+}
+
 func TestGetProvisioningParametersOnInstance(t *testing.T) {
 	testInstance.EncryptedProvisioningParameters = testArbitraryObjectJSON
 	pp := &ArbitraryType{}
 	err := testInstance.GetProvisioningParameters(pp, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(t, testArbitraryObject, pp)
+}
+
+func TestGetUpdatingParametersOnInstance(t *testing.T) {
+	testInstance.EncryptedUpdatingParameters = testArbitraryObjectJSON
+	up := &ArbitraryType{}
+	err := testInstance.GetUpdatingParameters(up, noopCodec)
+	assert.Nil(t, err)
+	assert.Equal(t, testArbitraryObject, up)
 }
 
 func TestSetProvisioningContextOnInstance(t *testing.T) {

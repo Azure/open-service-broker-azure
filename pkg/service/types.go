@@ -28,6 +28,12 @@ type ProvisioningContext interface {
 	GetResourceGroupName() string
 }
 
+// UpdatingParameters is an interface to be implemented by module-specific
+// types that represent updating parameters. This interface doesn't require
+// any functions to be implemented. It exists to improve the clarity of function
+// signatures and documentation.
+type UpdatingParameters interface{}
+
 // BindingParameters is an interface to be implemented by module-specific types
 // that represent binding parameters. This interface doesn't require any
 // functions to be implemented. It exists to improve the clarity of function

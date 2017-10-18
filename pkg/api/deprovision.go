@@ -24,7 +24,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	// spec says to respond with a 422
 	acceptsIncompleteStr := r.URL.Query().Get("accepts_incomplete")
 	if acceptsIncompleteStr == "" {
-		logFields["parameter"] = "accepts_incomplete=true"
+		logFields["parameter"] = "accepts_incomplete=true" // nolint: goconst
 		log.WithFields(logFields).Debug(
 			"bad deprovisioning request: request is missing required query parameter",
 		)

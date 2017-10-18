@@ -11,6 +11,11 @@ import (
 // service.Module interface
 type ProvisioningValidationFunction func(service.ProvisioningParameters) error
 
+// UpdatingValidationFunction describes a function used to provide pluggable
+// updating validation behavior to the fake implementation of the
+// service.Module interface
+type UpdatingValidationFunction func(service.UpdatingParameters) error
+
 // BindingValidationFunction describes a function used to provide pluggable
 // binding validation behavior to the fake implementation of the service.Module
 // interface
@@ -34,6 +39,7 @@ type UnbindFunction func(
 // facilittate testing.
 type Module struct {
 	ProvisioningValidationBehavior ProvisioningValidationFunction
+	UpdatingValidationBehavior     UpdatingValidationFunction
 	BindingValidationBehavior      BindingValidationFunction
 	BindBehavior                   BindFunction
 	UnbindBehavior                 UnbindFunction
@@ -44,6 +50,7 @@ type Module struct {
 func New() (*Module, error) {
 	return &Module{
 		ProvisioningValidationBehavior: defaultProvisioningValidationBehavior,
+		UpdatingValidationBehavior:     defaultUpdatingValidationBehavior,
 		BindingValidationBehavior:      defaultBindingValidationBehavior,
 		BindBehavior:                   defaultBindBehavior,
 		UnbindBehavior:                 defaultUnbindBehavior,
@@ -83,6 +90,33 @@ func (m *Module) provision(
 	planID string, // nolint: unparam
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters, // nolint: unparam
+) (service.ProvisioningContext, error) {
+	return provisioningContext, nil
+}
+
+// ValidateUpdatingParameters validates the provided updatingParameters
+// and returns an error if there is any problem
+func (m *Module) ValidateUpdatingParameters(
+	updatingParameters service.UpdatingParameters,
+) error {
+	return m.UpdatingValidationBehavior(updatingParameters)
+}
+
+// GetUpdater returns a updater that defines the steps a module must
+// execute asynchronously to update a service
+func (m *Module) GetUpdater(string, string) (service.Updater, error) {
+	return service.NewUpdater(
+		service.NewUpdatingStep("run", m.update),
+	)
+}
+
+func (m *Module) update(
+	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
+	provisioningContext service.ProvisioningContext,
+	updatingParameters service.UpdatingParameters, // nolint: unparam
 ) (service.ProvisioningContext, error) {
 	return provisioningContext, nil
 }
@@ -134,6 +168,12 @@ func (m *Module) deprovision(
 
 func defaultProvisioningValidationBehavior(
 	service.ProvisioningParameters,
+) error {
+	return nil
+}
+
+func defaultUpdatingValidationBehavior(
+	service.UpdatingParameters,
 ) error {
 	return nil
 }

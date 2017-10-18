@@ -77,6 +77,10 @@ func NewServer(
 		s.authenticator.Authenticate(s.provision),
 	).Methods(http.MethodPut)
 	router.HandleFunc(
+		"/v2/service_instances/{instance_id}",
+		s.authenticator.Authenticate(s.update),
+	).Methods(http.MethodPatch)
+	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/last_operation",
 		s.authenticator.Authenticate(s.poll),
 	).Methods(http.MethodGet)

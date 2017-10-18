@@ -20,6 +20,10 @@ type aciProvisioningContext struct {
 	IPAddress         string `json:"containerIPv4Address"`
 }
 
+// UpdatingParameters encapsulates aci-specific updating options
+type UpdatingParameters struct {
+}
+
 // BindingParameters encapsulates aci-specific binding options
 type BindingParameters struct {
 }
@@ -39,6 +43,12 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	m *module,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
 func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {
