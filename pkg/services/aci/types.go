@@ -4,13 +4,21 @@ import "github.com/Azure/azure-service-broker/pkg/service"
 
 // ProvisioningParameters encapsulates aci-specific provisioning options
 type ProvisioningParameters struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
-	ImageName     string            `json:"image"`
-	NumberCores   string            `json:"cpuCores"`
-	Memory        string            `json:"memoryInGb"`
-	Port          string            `json:"port"`
+	Location                 string            `json:"location"`
+	ResourceGroup            string            `json:"resourceGroup"`
+	Tags                     map[string]string `json:"tags"`
+	ImageName                string            `json:"image"`
+	NumberCores              string            `json:"cpuCores"`
+	Memory                   string            `json:"memoryInGb"`
+	Port                     string            `json:"port"`
+	Sharename                string            `json:"sharename"`
+	Storageaccountname       string            `json:"storageaccountname"`
+	Storageaccountkey        string            `json:"storageaccountkey"`
+	Volumename               string            `json:"volumename"`
+	Mountpoint               string            `json:"mountpoint"`
+	ImageRegistryLoginServer string            `json:"imageRegistryLoginServer"`
+	ImageUsername            string            `json:"imageUsername"`
+	ImagePassword            string            `json:"imagePassword"`
 }
 
 type aciProvisioningContext struct {

@@ -41,6 +41,34 @@ var armTemplateBytes = []byte(`
 					},
 					"defaultValue": "1.5"
 			},
+			{{if .storageaccountname}}
+			"sharename": {
+					"type": "string"
+			},
+			"storageaccountname": {
+					"type": "string"
+			},
+			"storageaccountkey": {
+					"type": "securestring"
+			},
+			"volumename": {
+					"type": "string"
+			},
+			"mountpoint": {
+					"type": "string"
+			},
+			{{end}}
+			{{if .imageRegistryLoginServer}}
+			"imageRegistryLoginServer": {        
+				"type": "string"
+			},
+			"imageUsername": {        
+				"type": "string"
+			},
+			"imagePassword": {        
+				"type": "string"
+			},
+			{{end}}
 			"tags": {
 				"type": "object"
 			}
@@ -63,6 +91,12 @@ var armTemplateBytes = []byte(`
 																			"port": "[parameters('port')]" 
 																	}
 															],
+															{{if .storageaccountname}}
+															"volumeMounts": [{
+																"name": "[parameters('volumename')]",
+																"mountPath": "[parameters('mountpoint')]"
+															  }],
+															{{end}}
 															"resources": {
 																	"requests": {
 																			"cpu": "[parameters('cpuCores')]",
@@ -73,6 +107,25 @@ var armTemplateBytes = []byte(`
 											}
 									],
 									"osType": "Linux",
+									{{if .imageRegistryLoginServer}}
+									"imageRegistryCredentials": [
+									{
+										"server": "[parameters('imageRegistryLoginServer')]",
+										"username": "[parameters('imageUsername')]",
+										"password": "[parameters('imagePassword')]"
+									}
+									],
+									{{end}}
+									{{if .storageaccountname}}
+									"volumes": [{
+										"name": "[parameters('volumename')]",
+										"azureFile": {
+											"shareName": "[parameters('sharename')]",
+											"storageAccountName": "[parameters('storageaccountname')]",
+											"storageAccountKey": "[parameters('storageaccountkey')]"
+										}
+									  }],
+									{{end}}
 									"ipAddress": {
 											"type": "Public",
 											"ports": [

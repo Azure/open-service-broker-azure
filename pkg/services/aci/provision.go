@@ -89,18 +89,33 @@ func (m *module) deployARMTemplate(
 		)
 	}
 
+	// This part seems pretty ugly no ?
+	params := map[string]interface{}{
+		"name":       pc.ContainerName,
+		"image":      pp.ImageName,
+		"port":       pp.Port,
+		"cpuCores":   pp.NumberCores,
+		"memoryInGb": pp.Memory,
+	}
+	if pp.Storageaccountname != "" {
+		params["sharename"] = pp.Sharename
+		params["storageaccountname"] = pp.Storageaccountname
+		params["storageaccountkey"] = pp.Storageaccountkey
+		params["volumename"] = pp.Volumename
+		params["mountpoint"] = pp.Mountpoint
+	}
+	if pp.ImageRegistryLoginServer != "" {
+		params["imageRegistryLoginServer"] = pp.ImageRegistryLoginServer
+		params["imageUsername"] = pp.ImageUsername
+		params["imagePassword"] = pp.ImagePassword
+	}
+
 	outputs, err := m.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		map[string]interface{}{
-			"name":       pc.ContainerName,
-			"image":      pp.ImageName,
-			"port":       pp.Port,
-			"cpuCores":   pp.NumberCores,
-			"memoryInGb": pp.Memory,
-		},
+		params,
 		pp.Tags,
 	)
 	if err != nil {
