@@ -71,12 +71,12 @@ test-unit: check-docker-compose
 # Containerized module lifecycle tests-- requires docker-compose
 .PHONY: test-module-lifecycles
 test-module-lifecycles: check-docker-compose
-	@docker-compose run \
+	docker-compose run \
 		--rm \
-		-e AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} \
-		-e AZURE_TENANT_ID=${AZURE_TENANT_ID} \
-		-e AZURE_CLIENT_ID=${AZURE_CLIENT_ID} \
-		-e AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET} \
+		-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \
+		-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
+		-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
+		-e AZURE_CLIENT_SECRET=$${AZURE_CLIENT_SECRET} \
 		test \
 		bash -c 'go test \
 			-parallel 10 \
