@@ -1,9 +1,11 @@
 package arm
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
 	"time"
 
@@ -31,7 +33,7 @@ type Deployer interface {
 		deploymentName string,
 		resourceGroupName string,
 		location string,
-		template []byte,
+		templateARM []byte,
 		params map[string]interface{},
 		tags map[string]string,
 	) (map[string]interface{}, error)
@@ -76,7 +78,7 @@ func (d *deployer) Deploy(
 	deploymentName string,
 	resourceGroupName string,
 	location string,
-	template []byte,
+	templateARM []byte,
 	params map[string]interface{},
 	tags map[string]string,
 ) (map[string]interface{}, error) {
@@ -137,7 +139,7 @@ func (d *deployer) Deploy(
 			deploymentName,
 			resourceGroupName,
 			location,
-			template,
+			templateARM,
 			params,
 			tags,
 		); err != nil {
@@ -288,7 +290,7 @@ func (d *deployer) doNewDeployment(
 	deploymentName string,
 	resourceGroupName string,
 	location string,
-	template []byte,
+	templateARM []byte,
 	params map[string]interface{},
 	tags map[string]string,
 ) (*resources.DeploymentExtended, error) {
@@ -309,10 +311,15 @@ func (d *deployer) doNewDeployment(
 			err,
 		)
 	}
+	// Handle the logical part in the ARM template (ex: {{if .Something}} {{end}})
+	tmpl := string(templateARM)
+	t := template.Must(template.New("").Parse(tmpl))
+	var buf bytes.Buffer
+	t.Execute(&buf, params)
 
-	// Unmarshal the template into a map
+	// Unmarshal the templateARM into a map
 	var templateMap map[string]interface{}
-	err := json.Unmarshal(template, &templateMap)
+	err := json.Unmarshal(buf.Bytes(), &templateMap)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling ARM template: %s", err)
 	}
