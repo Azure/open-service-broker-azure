@@ -24,6 +24,10 @@ type hdinsightProvisioningContext struct {
 	BlobStorageContainerName string `json:"blobStorageContainerName"`
 }
 
+// UpdatingParameters encapsulates keyvault-specific updating options
+type UpdatingParameters struct {
+}
+
 // BindingParameters encapsulates HDInsight-specific binding options
 type BindingParameters struct {
 }
@@ -49,6 +53,12 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	m *module,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
 func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {
