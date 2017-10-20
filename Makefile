@@ -26,6 +26,23 @@ check-docker-compose: check-docker
 		exit 2; \
 	fi
 
+# Checks to ensure that AZURE_* environment variables needed to run the broker
+# and its integration tests are set
+.PHONY: check-azure-env-vars
+check-azure-env-vars:
+ifndef AZURE_SUBSCRIPTION_ID
+	$(error AZURE_SUBSCRIPTION_ID is not defined)
+endif
+ifndef AZURE_TENANT_ID
+	$(error AZURE_TENANT_ID is not defined)
+endif
+ifndef AZURE_CLIENT_ID
+	$(error AZURE_CLIENT_ID is not defined)
+endif
+ifndef AZURE_CLIENT_SECRET
+	$(error AZURE_CLIENT_SECRET is not defined)
+endif
+
 # Deletes any existing asb binary AND destroys any running containers AND
 # destroys the dev environment image.
 .PHONY: clean
@@ -70,7 +87,7 @@ test-unit: check-docker-compose
 
 # Containerized module lifecycle tests-- requires docker-compose
 .PHONY: test-module-lifecycles
-test-module-lifecycles: check-docker-compose
+test-module-lifecycles: check-docker-compose check-azure-env-vars
 	docker-compose run \
 		--rm \
 		-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \
@@ -130,7 +147,7 @@ build: check-docker-compose
 
 # (Re)Build the Docker image for the asb and run it
 .PHONY: run
-run: check-docker-compose build
+run: check-docker-compose check-azure-env-vars build
 	@# Force the docker-compose "broker" service to be rebuilt-- this is separate
 	@# from the docker-build task used to produce a correctly tagged Docker image,
 	@# although both builds are based on the same Dockerfile

@@ -39,6 +39,19 @@ jobs:
       - run:
           name: Run Unit Tests
           command: make test-unit
+  test-module-lifecycles:
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Run Module Lifecycle Tests
+          command: make test-module-lifecycles
   lint:
     working_directory: ~/go/src/github.com/Azure/azure-service-broker
     environment:
@@ -58,5 +71,6 @@ workflows:
     jobs:
       - build
       - test-unit
+      - test-module-lifecycles
       - lint
       - verify-vendored-code
