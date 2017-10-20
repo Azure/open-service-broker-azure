@@ -17,6 +17,7 @@ var armTemplateBytes = map[string][]byte{
 	"HBase":  armtemplate.HBase(),
 	"Spark":  armtemplate.Spark(),
 	"Storm":  armtemplate.Storm(),
+	"Kafka":  armtemplate.Kafka(),
 }
 
 // New returns a new instance of a type that fulfills the service.Module
