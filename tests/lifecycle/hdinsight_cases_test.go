@@ -65,5 +65,16 @@ func getHDInsightCases(
 			},
 			bindingParameters: &hdinsight.BindingParameters{},
 		},
+		{ // kafka
+			module:    hdinsight.New(armDeployer, hdinsightManager),
+			serviceID: "c0fba6e1-4ce4-4d93-b751-c8c5e337739c",
+			planID:    "c5f8277b-0cb1-4cfe-863d-03054493368a",
+			provisioningParameters: &hdinsight.ProvisioningParameters{
+				Location:               "westcentralus",
+				ResourceGroup:          newTestResourceGroupName(),
+				ClusterWorkerNodeCount: 2,
+			},
+			bindingParameters: &hdinsight.BindingParameters{},
+		},
 	}, nil
 }

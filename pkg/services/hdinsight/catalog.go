@@ -37,10 +37,16 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Apache Storm: A distributed, real-time computation system for processing large streams of data fast. Storm is offered as a managed cluster in HDInsight. Head Nodes: A3 * 2, Worker nodes: D3v2 * 4 by default, Zookeeper nodes: A3 * 3.", // nolint: lll
 				Free:        false,
 			}),
+			service.NewPlan(&service.PlanProperties{
+				ID:          "c5f8277b-0cb1-4cfe-863d-03054493368a",
+				Name:        "Kafka",
+				Description: "Apache Kafka: An open-source platform used for building streaming data pipelines and applications. Kafka also provides message-queue functionality that allows you to publish and subscribe to data streams. Head Nodes: D3v2 * 2, Worker nodes: D3v2 * 4 by default, Zookeeper nodes: A3 * 3.", // nolint: lll
+				Free:        false,
+			}),
 			// nolint: lll
 			// Cluster type introduction link: https://docs.microsoft.com/en-us/azure/hdinsight/hdinsight-hadoop-introduction#overview
-			// No RServer/Kafka plan. It seems that there is no suitable scenario for
-			// an app to use them. We can add the plan if someone shares his scenario
+			// No RServer plan. It seems that there is no suitable scenario for
+			// an app to use it. We can add the plan if someone shares his scenario
 			// to us.
 		),
 	}), nil
