@@ -19,10 +19,11 @@ type logConfig struct {
 // the broker itself relies on for storing state and orchestrating asynchronous
 // processes
 type redisConfig struct {
-	Host     string `envconfig:"REDIS_HOST" required:"true"`
-	Port     int    `envconfig:"REDIS_PORT" default:"6379"`
-	Password string `envconfig:"REDIS_PASSWORD" default:""`
-	DB       int    `envconfig:"REDIS_DB" default:"0"`
+	Host      string `envconfig:"REDIS_HOST" required:"true"`
+	Port      int    `envconfig:"REDIS_PORT" default:"6379"`
+	Password  string `envconfig:"REDIS_PASSWORD" default:""`
+	DB        int    `envconfig:"REDIS_DB" default:"0"`
+	EnableTLS bool   `envconfig:"REDIS_ENABLE_TLS" default:"false"`
 }
 
 // cryptoConfig represents details (e.g. key) for encrypting and decrypting any

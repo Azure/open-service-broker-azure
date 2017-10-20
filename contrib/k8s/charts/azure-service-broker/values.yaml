@@ -68,8 +68,9 @@ redis:
   ## Required if not embedded
   host: 
 
-  ## If not embedded, specifies the port for the client to connect to
-  port: 6379
+  ## If not embedded, specifies the port for the client to connect to.
+  ## 6380 is the port often used for Redis secured using TLS.
+  port: 6380
 
   ## If embedded, specifies the password the server will require AND the
   ## password the client will use. If not embedded, this only specifies the
@@ -77,3 +78,7 @@ redis:
   ## external Redis server it connects to.
   ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
   redisPassword: password
+
+  ## If not emnedded, specifies whether to use a secure connection to the
+  ## remote Redis host
+  enableTls: true

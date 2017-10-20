@@ -126,8 +126,9 @@ Broker chart and their default values.
 | `modules.minStability` | Specifies the minimum level of stability an ASB module must meet for the services and plans it provides to be included in ASB's catalog of offerings. Valid values are `"ALPHA"`, `"BETA"`, and `"STABLE"`. | `"ALPHA"`; __Only use `"STABLE"` modules in production!__ |
 | `redis.embedded` | ASB uses Redis for data persistence and as a message queue. This option indicates whether an on-cluster Redis deployment should be included when installing this chart. If set to `false`, connection details for a remote Redis cache must be provided. | `true`; __Do not use the embedded Redis cache in production!__ |
 | `redis.host` | _If and only if_ `redis.embedded` is `false`, this option specifies the location of the remote Redis cache. | none |
-| `redis.port` | Specifies the Redis port. | `6379` |
+| `redis.port` | _If and only if_ `redis.embedded` is `false`, this option specifies the port to connect to on the remote Redis host. | `6380` |
 | `redis.redisPassword` | Specifies the Redis password. If `redis.embedded` is `true`, this option sets the password on the Redis cache itself _and_ provides it to ASB. If `redis.embedded` is `false`, this option only provides the password to ASB. In that case, the value of this option must be the correct password for the remote Redis cache. | `"password"`; __Do not use this default value in production!__ |
+| `redis.enableTls` | _If and only if_ `redis.embedded` is `false`, this option specifies whether to use a secure connection to the remote Redis host. | `true` |
 
 Specify a value for each option using the `--set <key>=<value>` switch on the
 `helm install` command. That switch can be invoked multiple times to set

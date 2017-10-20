@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"os"
 	"os/signal"
@@ -45,11 +46,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	redisClient := redis.NewClient(&redis.Options{
+	redisOpts := &redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
 		Password: redisConfig.Password,
 		DB:       redisConfig.DB,
-	})
+	}
+	if redisConfig.EnableTLS {
+		redisOpts.TLSConfig = &tls.Config{
+			ServerName: redisConfig.Host,
+		}
+	}
+	redisClient := redis.NewClient(redisOpts)
 
 	// Crypto
 	cryptoConfig, err := getCryptoConfig()
