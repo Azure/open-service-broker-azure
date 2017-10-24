@@ -1,57 +1,5 @@
 version: 2
 jobs:
-  verify-vendored-code:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
-    environment:
-      GOPATH: ~/go
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
-      - run:
-          name: Verify Vendored Code
-          command: make verify-vendored-code
-  build:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
-    environment:
-      GOPATH: ~/go
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
-      - run:
-          name: Build Binary & Docker Image
-          command: make docker-build
-  test-unit:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
-    environment:
-      GOPATH: ~/go
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
-      - run:
-          name: Run Unit Tests
-          command: make test-unit
-  test-module-lifecycles:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
-    environment:
-      GOPATH: ~/go
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
-      - run:
-          name: Run Module Lifecycle Tests
-          command: make test-module-lifecycles
   lint:
     working_directory: ~/go/src/github.com/Azure/azure-service-broker
     environment:
@@ -65,6 +13,58 @@ jobs:
       - run:
           name: Run Lint
           command: make lint
+  verify-vendored-code:
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Verify Vendored Code
+          command: make verify-vendored-code
+  test-unit:
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Run Unit Tests
+          command: make test-unit
+  build:
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Build Binary & Docker Image
+          command: make docker-build
+  test-module-lifecycles:
+    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Run Module Lifecycle Tests
+          command: make test-module-lifecycles
   deploy:
     working_directory: ~/go/src/github.com/Azure/azure-service-broker
     environment:
@@ -82,19 +82,24 @@ workflows:
   version: 2
   build-and-test:
     jobs:
-      - build
-      - test-unit
-      - test-module-lifecycles
       - lint
       - verify-vendored-code
+      - test-unit
+      - build
+      - test-module-lifecycles:
+          requires:
+            - lint
+            - verify-vendored-code
+            - test-unit
+            - build
       # Deploy Docker images to Docker Hub
       - deploy:
           filters:
             branches:
               only: master
           requires:
-            - build
-            - test-unit
-            - test-module-lifecycles
             - lint
             - verify-vendored-code
+            - test-unit
+            - build
+            - test-module-lifecycles
