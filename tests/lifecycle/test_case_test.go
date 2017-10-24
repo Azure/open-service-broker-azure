@@ -27,7 +27,7 @@ func (m *moduleLifecycleTestCase) execute() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*20)
 	defer cancel()
 	// This will periodically send status to stdout until the context is canceled.
-	// THIS is what stops Travis from timing out these tests!
+	// THIS is what stops CI from timing out these tests!
 	go m.showStatus(ctx)
 
 	err := m.module.ValidateProvisioningParameters(m.provisioningParameters)
