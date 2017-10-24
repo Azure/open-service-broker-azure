@@ -4,6 +4,10 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# This variable is quite possibly undefined. If it is, define a safe default
+# value (empty string) to avoid problems with the nounset option.
+CIRCLE_TAG=${CIRCLE_TAG:-""}
+
 docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
 
 if [[ "${CIRCLE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+[a-z]*$ ]]; then
