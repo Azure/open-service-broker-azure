@@ -73,6 +73,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
           name: Deploy to Docker Hub
           command: ./scripts/deploy.circle.sh
 workflows:
