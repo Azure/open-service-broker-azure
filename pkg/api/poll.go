@@ -31,14 +31,16 @@ func (s *server) poll(
 		return
 	}
 	if operation != OperationProvisioning &&
-		operation != OperationDeprovisioning {
+		operation != OperationDeprovisioning &&
+		operation != OperationUpdating {
 		logFields["operation"] = operation
 		log.WithFields(logFields).Debug(
 			fmt.Sprintf(
-				`bad polling request: query paramater has invalid value; only "%s"`+
-					` and "%s" are accepted`,
+				`bad polling request: query paramater has invalid value; only "%s",`+
+					` %s, and "%s" are accepted`,
 				OperationProvisioning,
 				OperationDeprovisioning,
+				OperationUpdating,
 			),
 		)
 		s.writeResponse(w, http.StatusBadRequest, responseOperationInvalid)
@@ -82,6 +84,32 @@ func (s *server) poll(
 		case service.InstanceStateProvisioningFailed:
 			log.WithFields(logFields).Debug(
 				"provisioning has failed",
+			)
+			s.writeResponse(w, http.StatusOK, responseFailed)
+		default:
+			log.WithFields(logFields).Error(
+				"polling error: instance is in an unknown or invalid state",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		}
+		return
+	}
+
+	if operation == OperationUpdating {
+		switch instance.Status {
+		case service.InstanceStateUpdating:
+			log.WithFields(logFields).Debug(
+				"updating is in progress",
+			)
+			s.writeResponse(w, http.StatusOK, responseInProgress)
+		case service.InstanceStateUpdated:
+			log.WithFields(logFields).Debug(
+				"updating is complete",
+			)
+			s.writeResponse(w, http.StatusOK, responseSucceeded)
+		case service.InstanceStateUpdatingFailed:
+			log.WithFields(logFields).Debug(
+				"updating has failed",
 			)
 			s.writeResponse(w, http.StatusOK, responseFailed)
 		default:

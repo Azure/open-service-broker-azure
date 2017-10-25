@@ -278,6 +278,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	instance.Status = service.InstanceStateUpdating
+	instance.PlanID = updatingRequest.PlanID
 	if err := s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
