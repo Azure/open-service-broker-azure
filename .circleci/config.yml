@@ -85,22 +85,36 @@ workflows:
   version: 2
   build-and-test:
     jobs:
-      - lint
-      - verify-vendored-code
-      - test-unit
-      - build
+      - hold:
+          type: approval
+          filters:
+            branches:
+              ignore: master
+      - lint:
+          requires:
+            - hold
+      - verify-vendored-code:
+          requires:
+            - hold
+      - test-unit:
+          requires:
+            - hold
+      - build:
+          requires:
+            - hold
       - test-module-lifecycles:
           requires:
+            - hold
             - lint
             - verify-vendored-code
             - test-unit
             - build
-      # Deploy Docker images to Docker Hub
       - deploy:
           filters:
             branches:
               only: master
           requires:
+            - hold
             - lint
             - verify-vendored-code
             - test-unit
