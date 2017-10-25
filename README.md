@@ -1,6 +1,6 @@
 # Azure Service Broker
 
-[![Build Status](https://travis-ci.com/deis/azure-service-broker.svg?token=KPqT8rJc1x6zpm6Zq2Sw&branch=master)](https://travis-ci.com/deis/azure-service-broker)
+[![CircleCI](https://circleci.com/gh/deis/azure-service-broker/tree/master.svg?style=svg)](https://circleci.com/gh/deis/azure-service-broker/tree/master)
 
 [Azure Service Broker](https://github.com/deis/azure-service-broker) is the
 open source, [Open Service Broker](https://www.openservicebrokerapi.org/)
