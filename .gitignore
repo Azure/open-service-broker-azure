@@ -1,3 +1,4 @@
 .glide/
 bin/
 _vendor-*/
+vendor.orig/

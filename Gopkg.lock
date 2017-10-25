@@ -38,7 +38,8 @@
 [[projects]]
   name = "github.com/go-redis/redis"
   packages = [".","internal","internal/consistenthash","internal/hashtag","internal/pool","internal/proto"]
-  revision = "ddbd81ea6c66514fe1f857af890276fcac7921ce"
+  revision = "35248155a505a84811be81a2aab1c423317447be"
+  version = "v6.7.2"
 
 [[projects]]
   name = "github.com/go-sql-driver/mysql"

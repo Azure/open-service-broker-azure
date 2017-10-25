@@ -11,7 +11,7 @@ func readTimeout(timeout time.Duration) time.Duration {
 	if timeout == 0 {
 		return 0
 	}
-	return timeout + time.Second
+	return timeout + 10*time.Second
 }
 
 func usePrecise(dur time.Duration) bool {
@@ -41,6 +41,9 @@ func formatSec(dur time.Duration) int64 {
 type Cmdable interface {
 	Pipeline() Pipeliner
 	Pipelined(fn func(Pipeliner) error) ([]Cmder, error)
+
+	TxPipelined(fn func(Pipeliner) error) ([]Cmder, error)
+	TxPipeline() Pipeliner
 
 	ClientGetName() *StringCmd
 	Echo(message interface{}) *StringCmd
@@ -211,6 +214,7 @@ type Cmdable interface {
 	ScriptKill() *StatusCmd
 	ScriptLoad(script string) *StringCmd
 	DebugObject(key string) *StringCmd
+	Publish(channel string, message interface{}) *IntCmd
 	PubSubChannels(pattern string) *StringSliceCmd
 	PubSubNumSub(channels ...string) *StringIntMapCmd
 	PubSubNumPat() *IntCmd
@@ -1877,8 +1881,8 @@ func (c *cmdable) DebugObject(key string) *StringCmd {
 //------------------------------------------------------------------------------
 
 // Publish posts the message to the channel.
-func (c *cmdable) Publish(channel, message string) *IntCmd {
-	cmd := NewIntCmd("PUBLISH", channel, message)
+func (c *cmdable) Publish(channel string, message interface{}) *IntCmd {
+	cmd := NewIntCmd("publish", channel, message)
 	c.process(cmd)
 	return cmd
 }

@@ -47,9 +47,10 @@ func main() {
 		log.Fatal(err)
 	}
 	redisOpts := &redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
-		Password: redisConfig.Password,
-		DB:       redisConfig.DB,
+		Addr:       fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
+		Password:   redisConfig.Password,
+		DB:         redisConfig.DB,
+		MaxRetries: 5,
 	}
 	if redisConfig.EnableTLS {
 		redisOpts.TLSConfig = &tls.Config{

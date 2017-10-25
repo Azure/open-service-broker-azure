@@ -68,7 +68,7 @@ var _ = Describe("PubSub", func() {
 		}
 
 		stats := client.PoolStats()
-		Expect(stats.Requests - stats.Hits).To(Equal(uint32(2)))
+		Expect(stats.Misses).To(Equal(uint32(2)))
 	})
 
 	It("should pub/sub channels", func() {
@@ -191,7 +191,7 @@ var _ = Describe("PubSub", func() {
 		}
 
 		stats := client.PoolStats()
-		Expect(stats.Requests - stats.Hits).To(Equal(uint32(2)))
+		Expect(stats.Misses).To(Equal(uint32(2)))
 	})
 
 	It("should ping/pong", func() {
@@ -290,8 +290,8 @@ var _ = Describe("PubSub", func() {
 		Eventually(done).Should(Receive())
 
 		stats := client.PoolStats()
-		Expect(stats.Requests).To(Equal(uint32(2)))
 		Expect(stats.Hits).To(Equal(uint32(1)))
+		Expect(stats.Misses).To(Equal(uint32(1)))
 	})
 
 	It("returns an error when subscribe fails", func() {
@@ -423,5 +423,21 @@ var _ = Describe("PubSub", func() {
 		Expect(msg.Payload).To(Equal("hello"))
 
 		wg.Wait()
+	})
+
+	It("handles big message payload", func() {
+		pubsub := client.Subscribe("mychannel")
+		defer pubsub.Close()
+
+		ch := pubsub.Channel()
+
+		bigVal := bigVal()
+		err := client.Publish("mychannel", bigVal).Err()
+		Expect(err).NotTo(HaveOccurred())
+
+		var msg *redis.Message
+		Eventually(ch).Should(Receive(&msg))
+		Expect(msg.Channel).To(Equal("mychannel"))
+		Expect(msg.Payload).To(Equal(string(bigVal)))
 	})
 })

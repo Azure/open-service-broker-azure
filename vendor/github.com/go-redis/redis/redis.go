@@ -3,6 +3,7 @@ package redis
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/go-redis/redis/internal"
@@ -12,6 +13,10 @@ import (
 
 // Redis nil reply, .e.g. when key does not exist.
 const Nil = internal.Nil
+
+func init() {
+	SetLogger(log.New(os.Stderr, "redis: ", log.LstdFlags|log.Lshortfile))
+}
 
 func SetLogger(logger *log.Logger) {
 	internal.Logger = logger
@@ -131,7 +136,7 @@ func (c *baseClient) defaultProcess(cmd Cmder) error {
 		cn, _, err := c.getConn()
 		if err != nil {
 			cmd.setErr(err)
-			if internal.IsRetryableError(err) {
+			if internal.IsRetryableError(err, true) {
 				continue
 			}
 			return err
@@ -141,7 +146,7 @@ func (c *baseClient) defaultProcess(cmd Cmder) error {
 		if err := writeCmd(cn, cmd); err != nil {
 			c.releaseConn(cn, err)
 			cmd.setErr(err)
-			if internal.IsRetryableError(err) {
+			if internal.IsRetryableError(err, true) {
 				continue
 			}
 			return err
@@ -150,7 +155,7 @@ func (c *baseClient) defaultProcess(cmd Cmder) error {
 		cn.SetReadTimeout(c.cmdTimeout(cmd))
 		err = cmd.readReply(cn)
 		c.releaseConn(cn, err)
-		if err != nil && internal.IsRetryableError(err) {
+		if err != nil && internal.IsRetryableError(err, cmd.readTimeout() == nil) {
 			continue
 		}
 
@@ -216,7 +221,7 @@ func (c *baseClient) pipelineExecer(p pipelineProcessor) pipelineExecer {
 			}
 			_ = c.connPool.Remove(cn)
 
-			if !canRetry || !internal.IsRetryableError(err) {
+			if !canRetry || !internal.IsRetryableError(err, true) {
 				break
 			}
 		}
@@ -347,21 +352,16 @@ func (c *Client) Options() *Options {
 	return c.opt
 }
 
+type PoolStats pool.Stats
+
 // PoolStats returns connection pool stats.
 func (c *Client) PoolStats() *PoolStats {
-	s := c.connPool.Stats()
-	return &PoolStats{
-		Requests: s.Requests,
-		Hits:     s.Hits,
-		Timeouts: s.Timeouts,
-
-		TotalConns: s.TotalConns,
-		FreeConns:  s.FreeConns,
-	}
+	stats := c.connPool.Stats()
+	return (*PoolStats)(stats)
 }
 
 func (c *Client) Pipelined(fn func(Pipeliner) error) ([]Cmder, error) {
-	return c.Pipeline().pipelined(fn)
+	return c.Pipeline().Pipelined(fn)
 }
 
 func (c *Client) Pipeline() Pipeliner {
@@ -373,7 +373,7 @@ func (c *Client) Pipeline() Pipeliner {
 }
 
 func (c *Client) TxPipelined(fn func(Pipeliner) error) ([]Cmder, error) {
-	return c.TxPipeline().pipelined(fn)
+	return c.TxPipeline().Pipelined(fn)
 }
 
 // TxPipeline acts like Pipeline, but wraps queued commands with MULTI/EXEC.
@@ -425,7 +425,7 @@ type Conn struct {
 }
 
 func (c *Conn) Pipelined(fn func(Pipeliner) error) ([]Cmder, error) {
-	return c.Pipeline().pipelined(fn)
+	return c.Pipeline().Pipelined(fn)
 }
 
 func (c *Conn) Pipeline() Pipeliner {
@@ -437,7 +437,7 @@ func (c *Conn) Pipeline() Pipeliner {
 }
 
 func (c *Conn) TxPipelined(fn func(Pipeliner) error) ([]Cmder, error) {
-	return c.TxPipeline().pipelined(fn)
+	return c.TxPipeline().Pipelined(fn)
 }
 
 // TxPipeline acts like Pipeline, but wraps queued commands with MULTI/EXEC.

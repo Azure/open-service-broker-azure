@@ -205,17 +205,19 @@ func (c *clusterNodes) Close() error {
 	return firstErr
 }
 
-func (c *clusterNodes) Err() error {
+func (c *clusterNodes) Addrs() ([]string, error) {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
+	closed := c.closed
+	addrs := c.addrs
+	c.mu.RUnlock()
 
-	if c.closed {
-		return pool.ErrClosed
+	if closed {
+		return nil, pool.ErrClosed
 	}
-	if len(c.addrs) == 0 {
-		return errClusterNoNodes
+	if len(addrs) == 0 {
+		return nil, errClusterNoNodes
 	}
-	return nil
+	return addrs, nil
 }
 
 func (c *clusterNodes) NextGeneration() uint32 {
@@ -298,16 +300,9 @@ func (c *clusterNodes) GetOrCreate(addr string) (*clusterNode, error) {
 }
 
 func (c *clusterNodes) Random() (*clusterNode, error) {
-	c.mu.RLock()
-	closed := c.closed
-	addrs := c.addrs
-	c.mu.RUnlock()
-
-	if closed {
-		return nil, pool.ErrClosed
-	}
-	if len(addrs) == 0 {
-		return nil, errClusterNoNodes
+	addrs, err := c.Addrs()
+	if err != nil {
+		return nil, err
 	}
 
 	var nodeErr error
@@ -504,7 +499,8 @@ func (c *ClusterClient) state() (*clusterState, error) {
 		return v.(*clusterState), nil
 	}
 
-	if err := c.nodes.Err(); err != nil {
+	_, err := c.nodes.Addrs()
+	if err != nil {
 		return nil, err
 	}
 
@@ -539,13 +535,13 @@ func (c *ClusterClient) cmdInfo(name string) *CommandInfo {
 
 func (c *ClusterClient) cmdSlot(cmd Cmder) int {
 	cmdInfo := c.cmdInfo(cmd.Name())
-	firstKey := cmd.arg(cmdFirstKeyPos(cmd, cmdInfo))
+	firstKey := cmd.stringArg(cmdFirstKeyPos(cmd, cmdInfo))
 	return hashtag.Slot(firstKey)
 }
 
 func (c *ClusterClient) cmdSlotAndNode(state *clusterState, cmd Cmder) (int, *clusterNode, error) {
 	cmdInfo := c.cmdInfo(cmd.Name())
-	firstKey := cmd.arg(cmdFirstKeyPos(cmd, cmdInfo))
+	firstKey := cmd.stringArg(cmdFirstKeyPos(cmd, cmdInfo))
 	slot := hashtag.Slot(firstKey)
 
 	if cmdInfo != nil && cmdInfo.ReadOnly && c.opt.ReadOnly {
@@ -660,7 +656,7 @@ func (c *ClusterClient) Process(cmd Cmder) error {
 			continue
 		}
 
-		if internal.IsRetryableError(err) {
+		if internal.IsRetryableError(err, true) {
 			var nodeErr error
 			node, nodeErr = c.nodes.Random()
 			if nodeErr != nil {
@@ -805,20 +801,24 @@ func (c *ClusterClient) PoolStats() *PoolStats {
 
 	for _, node := range state.masters {
 		s := node.Client.connPool.Stats()
-		acc.Requests += s.Requests
 		acc.Hits += s.Hits
+		acc.Misses += s.Misses
 		acc.Timeouts += s.Timeouts
+
 		acc.TotalConns += s.TotalConns
 		acc.FreeConns += s.FreeConns
+		acc.StaleConns += s.StaleConns
 	}
 
 	for _, node := range state.slaves {
 		s := node.Client.connPool.Stats()
-		acc.Requests += s.Requests
 		acc.Hits += s.Hits
+		acc.Misses += s.Misses
 		acc.Timeouts += s.Timeouts
+
 		acc.TotalConns += s.TotalConns
 		acc.FreeConns += s.FreeConns
+		acc.StaleConns += s.StaleConns
 	}
 
 	return &acc
@@ -877,21 +877,12 @@ func (c *ClusterClient) reaper(idleCheckFrequency time.Duration) {
 			break
 		}
 
-		var n int
 		for _, node := range nodes {
-			nn, err := node.Client.connPool.(*pool.ConnPool).ReapStaleConns()
+			_, err := node.Client.connPool.(*pool.ConnPool).ReapStaleConns()
 			if err != nil {
 				internal.Logf("ReapStaleConns failed: %s", err)
-			} else {
-				n += nn
 			}
 		}
-
-		s := c.PoolStats()
-		internal.Logf(
-			"reaper: removed %d stale conns (TotalConns=%d FreeConns=%d Requests=%d Hits=%d Timeouts=%d)",
-			n, s.TotalConns, s.FreeConns, s.Requests, s.Hits, s.Timeouts,
-		)
 	}
 }
 
@@ -904,7 +895,7 @@ func (c *ClusterClient) Pipeline() Pipeliner {
 }
 
 func (c *ClusterClient) Pipelined(fn func(Pipeliner) error) ([]Cmder, error) {
-	return c.Pipeline().pipelined(fn)
+	return c.Pipeline().Pipelined(fn)
 }
 
 func (c *ClusterClient) pipelineExec(cmds []Cmder) error {
@@ -1042,7 +1033,7 @@ func (c *ClusterClient) TxPipeline() Pipeliner {
 }
 
 func (c *ClusterClient) TxPipelined(fn func(Pipeliner) error) ([]Cmder, error) {
-	return c.TxPipeline().pipelined(fn)
+	return c.TxPipeline().Pipelined(fn)
 }
 
 func (c *ClusterClient) txPipelineExec(cmds []Cmder) error {
