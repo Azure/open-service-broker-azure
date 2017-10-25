@@ -83,7 +83,7 @@ jobs:
           command: ./scripts/deploy.quay.sh
 workflows:
   version: 2
-  build-and-test:
+  build-and-test-pr:
     jobs:
       - hold:
           type: approval
@@ -93,15 +93,27 @@ workflows:
       - lint:
           requires:
             - hold
+          filters:
+            branches:
+              ignore: master
       - verify-vendored-code:
           requires:
             - hold
+          filters:
+            branches:
+              ignore: master
       - test-unit:
           requires:
             - hold
+          filters:
+            branches:
+              ignore: master
       - build:
           requires:
             - hold
+          filters:
+            branches:
+              ignore: master
       - test-module-lifecycles:
           requires:
             - hold
@@ -109,14 +121,43 @@ workflows:
             - verify-vendored-code
             - test-unit
             - build
-      - deploy:
+          filters:
+            branches:
+              ignore: master
+  build-and-test-master:
+    jobs:
+      - lint:
           filters:
             branches:
               only: master
+      - verify-vendored-code:
+          filters:
+            branches:
+              only: master
+      - test-unit:
+          filters:
+            branches:
+              only: master
+      - build:
+          filters:
+            branches:
+              only: master
+      - test-module-lifecycles:
           requires:
-            - hold
+            - lint
+            - verify-vendored-code
+            - test-unit
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
             - lint
             - verify-vendored-code
             - test-unit
             - build
             - test-module-lifecycles
+          filters:
+            branches:
+              only: master
