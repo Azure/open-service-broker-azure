@@ -48,12 +48,21 @@ func (m *module) preProvision(
 	pc, ok := provisioningContext.(*searchProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as searchProvisioningContext",
+			"error casting provisioningContext as *searchProvisioningContext",
 		)
 	}
-
-	// generate names for resources
-	pc.ResourceGroupName = uuid.NewV4().String()
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*search.ProvisioningParameters",
+		)
+	}
+	if pp.ResourceGroup != "" {
+		pc.ResourceGroupName = pp.ResourceGroup
+	} else {
+		pc.ResourceGroupName = uuid.NewV4().String()
+	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.ServiceName = uuid.NewV4().String()
 	return pc, nil
@@ -70,7 +79,7 @@ func (m *module) deployARMTemplate(
 	pc, ok := provisioningContext.(*searchProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as searchProvisioningContext",
+			"error casting provisioningContext as *searchProvisioningContext",
 		)
 	}
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
