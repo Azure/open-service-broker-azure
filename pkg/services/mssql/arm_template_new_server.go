@@ -98,9 +98,7 @@ var armTemplateNewServerBytes = []byte(`
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]",
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'), '/firewallrules/', parameters('firewallRuleName'))]"
 					],
-					"tags": {
-						"heritage": "azure-service-broker"
-					}
+					"tags": "[parameters('tags')]"
 				}
 			]
 		}
