@@ -4,8 +4,8 @@ metadata:
   name: my-redis-instance
   namespace: default
 spec:
-  externalClusterServiceClassName: azure-rediscache
-  externalClusterServicePlanName: basic
+  clusterServiceClassExternalName: azure-rediscache
+  clusterServicePlanExternalName: basic
   parameters:
     location: eastus
     resourceGroup: demo

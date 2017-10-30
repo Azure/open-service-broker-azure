@@ -4,8 +4,8 @@ metadata:
   name: my-postgresql-instance
   namespace: default
 spec:
-  externalClusterServiceClassName: azure-postgresqldb
-  externalClusterServicePlanName: basic50
+  clusterServiceClassExternalName: azure-postgresqldb
+  clusterServicePlanExternalName: basic50
   parameters:
     location: eastus
     resourceGroup: demo

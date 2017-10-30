@@ -4,8 +4,8 @@ metadata:
   name: my-mysql-instance
   namespace: default
 spec:
-  externalClusterServiceClassName: azure-mysqldb
-  externalClusterServicePlanName: basic50
+  clusterServiceClassExternalName: azure-mysqldb
+  clusterServicePlanExternalName: basic50
   parameters:
     location: eastus
     resourceGroup: demo
