@@ -42,13 +42,14 @@ func (s *serviceManager) GetProvisioner(
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", s.preProvision),
 		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
+		service.NewProvisioningStep("enableTDE", s.enableTDE),
 	)
 }
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	_ string, // instanceID
-	_ service.Plan, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
@@ -67,14 +68,14 @@ func (s *serviceManager) preProvision(
 		)
 	}
 
+	pc.ARMDeploymentName = uuid.NewV4().String()
+	pc.DatabaseName = generate.NewIdentifier()
 	if pp.ServerName == "" {
 		// new server scenario
-		pc.ARMDeploymentName = uuid.NewV4().String()
 		pc.ServerName = uuid.NewV4().String()
 		pc.IsNewServer = true
 		pc.AdministratorLogin = generate.NewIdentifier()
 		pc.AdministratorLoginPassword = generate.NewPassword()
-		pc.DatabaseName = generate.NewIdentifier()
 	} else {
 		// exisiting server scenario
 		servers := s.mssqlConfig.Servers
@@ -85,13 +86,10 @@ func (s *serviceManager) preProvision(
 				pp.ServerName,
 			)
 		}
-
-		pc.ARMDeploymentName = uuid.NewV4().String()
 		pc.ServerName = server.ServerName
 		pc.IsNewServer = false
 		pc.AdministratorLogin = server.AdministratorLogin
 		pc.AdministratorLoginPassword = server.AdministratorLoginPassword
-		pc.DatabaseName = generate.NewIdentifier()
 
 		// Ensure the server configuration works
 		azureConfig, err := azure.GetConfig()
@@ -199,4 +197,56 @@ func (s *serviceManager) deployARMTemplate(
 	}
 
 	return pc, nil
+}
+
+func (s *serviceManager) enableTDE(
+	_ context.Context,
+	_ string, // instanceID
+	_ service.Plan,
+	standardProvisioningContext service.StandardProvisioningContext,
+	provisioningContext service.ProvisioningContext,
+	provisioningParameters service.ProvisioningParameters,
+) (service.ProvisioningContext, error) {
+	pc, ok := provisioningContext.(*mssqlProvisioningContext)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningContext as *mssqlProvisioningContext",
+		)
+	}
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mssql.ProvisioningParameters",
+		)
+	}
+
+	if !pp.EnableTDE {
+		return provisioningContext, nil
+	}
+
+	var resourceGroup string
+	if pc.IsNewServer {
+		resourceGroup = standardProvisioningContext.ResourceGroup
+	} else {
+		servers := s.mssqlConfig.Servers
+		server, ok := servers[pp.ServerName]
+		if !ok {
+			return nil, fmt.Errorf(
+				`can't find serverName "%s" in Azure SQL Server configuration`,
+				pp.ServerName,
+			)
+		}
+		resourceGroup = server.ResourceGroupName
+	}
+
+	if err := s.mssqlManager.EnableTransparentDataEncryption(
+		resourceGroup,
+		pc.ServerName,
+		pc.DatabaseName,
+	); err != nil {
+		return nil, err
+	}
+
+	return provisioningContext, nil
 }

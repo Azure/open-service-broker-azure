@@ -141,7 +141,9 @@ func getMssqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &sqldb.ProvisioningParameters{},
+			provisioningParameters: &sqldb.ProvisioningParameters{
+				EnableTDE: true,
+			},
 			bindingParameters:      &sqldb.BindingParameters{},
 			testCredentials:        testMsSQLCreds(),
 		},
@@ -156,6 +158,7 @@ func getMssqlCases(
 			},
 			provisioningParameters: &sqldb.ProvisioningParameters{
 				ServerName: serverName,
+				EnableTDE:  true,
 			},
 			bindingParameters: &sqldb.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),

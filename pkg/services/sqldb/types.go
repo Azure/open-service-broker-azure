@@ -5,16 +5,18 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // ProvisioningParameters encapsulates MSSQL-specific provisioning options
 type ProvisioningParameters struct {
 	ServerName string `json:"server"`
+	EnableTDE  bool   `json:"enableTDE"`
 }
 
 type mssqlProvisioningContext struct {
-	ARMDeploymentName          string `json:"armDeployment"`
-	ServerName                 string `json:"server"`
-	IsNewServer                bool   `json:"isNewServer"`
-	AdministratorLogin         string `json:"administratorLogin"`
-	AdministratorLoginPassword string `json:"administratorLoginPassword"`
-	DatabaseName               string `json:"database"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
+	ARMDeploymentName          string            `json:"armDeployment"`
+	ServerName                 string            `json:"server"`
+	IsNewServer                bool              `json:"isNewServer"`
+	AdministratorLogin         string            `json:"administratorLogin"`
+	AdministratorLoginPassword string            `json:"administratorLoginPassword"` // nolint: lll
+	DatabaseName               string            `json:"database"`
+	FullyQualifiedDomainName   string            `json:"fullyQualifiedDomainName"`
+	Tags                       map[string]string `json:"tags"`
 }
 
 // UpdatingParameters encapsulates MSSQL-specific updating options

@@ -11,14 +11,19 @@ import (
 // Manager is an interface to be implemented by any component capable of
 // managing Azure SQL Database
 type Manager interface {
-	DeleteServer(
-		serverName string,
+	EnableTransparentDataEncryption(
 		resourceGroupName string,
-	) error
-	DeleteDatabase(
 		serverName string,
 		databaseName string,
+	) error
+	DeleteServer(
 		resourceGroupName string,
+		serverName string,
+	) error
+	DeleteDatabase(
+		resourceGroupName string,
+		serverName string,
+		databaseName string,
 	) error
 }
 
@@ -52,9 +57,51 @@ func NewManager() (Manager, error) {
 	}, nil
 }
 
-func (m *manager) DeleteServer(
-	serverName string,
+func (m *manager) EnableTransparentDataEncryption(
 	resourceGroupName string,
+	serverName string,
+	databaseName string,
+) error {
+	authorizer, err := az.GetBearerTokenAuthorizer(
+		m.azureEnvironment,
+		m.tenantID,
+		m.clientID,
+		m.clientSecret,
+	)
+	if err != nil {
+		return fmt.Errorf("error getting bearer token authorizer: %s", err)
+	}
+
+	tdeClient := sql.NewTransparentDataEncryptionsClientWithBaseURI(
+		m.azureEnvironment.ResourceManagerEndpoint,
+		m.subscriptionID,
+	)
+	tdeClient.Authorizer = authorizer
+
+	tdeProperties := sql.TransparentDataEncryptionProperties{
+		Status: sql.TransparentDataEncryptionStatusEnabled,
+	}
+
+	tde := sql.TransparentDataEncryption{
+		TransparentDataEncryptionProperties: &tdeProperties,
+	}
+
+	if _, err = tdeClient.CreateOrUpdate(
+		resourceGroupName,
+		serverName,
+		databaseName,
+		"current",
+		tde,
+	); err != nil {
+		return fmt.Errorf("error creating or updating mssql database tde: %s", err)
+	}
+
+	return nil
+}
+
+func (m *manager) DeleteServer(
+	resourceGroupName string,
+	serverName string,
 ) error {
 	authorizer, err := az.GetBearerTokenAuthorizer(
 		m.azureEnvironment,
@@ -71,10 +118,13 @@ func (m *manager) DeleteServer(
 		m.subscriptionID,
 	)
 	serversClient.Authorizer = authorizer
-	if _, err = serversClient.Delete(
+	cancelCh := make(chan struct{})
+	_, errChan := serversClient.Delete(
 		resourceGroupName,
 		serverName,
-	); err != nil {
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
 		return fmt.Errorf("error deleting mssql server: %s", err)
 	}
 
@@ -82,9 +132,9 @@ func (m *manager) DeleteServer(
 }
 
 func (m *manager) DeleteDatabase(
+	resourceGroupName string,
 	serverName string,
 	databaseName string,
-	resourceGroupName string,
 ) error {
 	authorizer, err := az.GetBearerTokenAuthorizer(
 		m.azureEnvironment,
