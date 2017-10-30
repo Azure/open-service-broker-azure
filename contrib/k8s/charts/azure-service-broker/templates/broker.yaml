@@ -6,8 +6,8 @@ metadata:
 spec:
   url: http://{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
   authInfo:
-    basicAuthSecret:
-      kind: Secret
-      name: "{{ template "fullname" . }}-auth"
-      namespace: {{ .Release.Namespace | quote }}
+    basic:
+      secretRef:
+        name: "{{ template "fullname" . }}-auth"
+        namespace: {{ .Release.Namespace | quote }}
 {{- end }}
