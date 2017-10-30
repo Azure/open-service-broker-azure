@@ -64,7 +64,7 @@ func (m *module) preProvision(
 	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.EventHubName = uuid.NewV4().String()
-	pc.EventHubNamespace = uuid.NewV4().String()
+	pc.EventHubNamespace = "eh-" + uuid.NewV4().String()
 	return pc, nil
 }
 
@@ -116,7 +116,7 @@ func (m *module) deployARMTemplate(
 		armTemplateBytes,
 		map[string]interface{}{
 			"eventHubName":      pc.EventHubName,
-			"eventHubNamespace": "eh-" + pc.EventHubNamespace,
+			"eventHubNamespace": pc.EventHubNamespace,
 			"eventHubSku":       plan.GetProperties().Extended["eventHubSku"],
 		},
 		pp.Tags,
