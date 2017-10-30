@@ -24,6 +24,9 @@ var armTemplateNewServerBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"serverName": {
 			"type": "string"
 		},
@@ -45,7 +48,7 @@ var armTemplateNewServerBytes = []byte(`
 			"type": "Microsoft.Sql/servers",
 			"name": "[parameters('serverName')]",
 			"apiVersion": "[variables('SQLapiVersion')]",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"properties": {
 				"administratorLogin": "[parameters('administratorLogin')]",
 				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
@@ -56,7 +59,7 @@ var armTemplateNewServerBytes = []byte(`
 					"type": "firewallrules",
 					"name": "all",
 					"apiVersion": "[variables('SQLapiVersion')]",
-					"location": "[resourceGroup().location]",
+					"location": "[parameters('location')]",
 					"properties": {
 						"startIpAddress": "0.0.0.0",
 						"endIpAddress": "255.255.255.255"

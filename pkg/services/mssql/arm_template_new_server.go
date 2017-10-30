@@ -6,6 +6,9 @@ var armTemplateNewServerBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"serverName": {
 			"type": "string"
 		},
@@ -62,7 +65,7 @@ var armTemplateNewServerBytes = []byte(`
 			"type": "Microsoft.Sql/servers",
 			"name": "[parameters('serverName')]",
 			"apiVersion": "[variables('SQLapiVersion')]",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"properties": {
 				"administratorLogin": "[parameters('administratorLogin')]",
 				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
@@ -74,7 +77,7 @@ var armTemplateNewServerBytes = []byte(`
 					"type": "firewallrules",
 					"name": "[parameters('firewallRuleName')]",
 					"apiVersion": "[variables('SQLapiVersion')]",
-					"location": "[resourceGroup().location]",
+					"location": "[parameters('location')]",
 					"properties": {
 						"startIpAddress": "[parameters('firewallStartIpAddress')]",
 						"endIpAddress": "[parameters('firewallEndIpAddress')]"
@@ -87,7 +90,7 @@ var armTemplateNewServerBytes = []byte(`
 					"type": "databases",
 					"name": "[parameters('databaseName')]",
 					"apiVersion": "[variables('SQLapiVersion')]",
-					"location": "[resourceGroup().location]",
+					"location": "[parameters('location')]",
 					"properties": {
 						"collation": "SQL_Latin1_General_CP1_CI_AS",
 						"edition": "[parameters('edition')]",

@@ -6,6 +6,9 @@ var armTemplateBytes = []byte(`
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "location": {
+      "type": "string"
+    },
     "searchServiceName": {
       "type": "string",
       "minLength": 2,
@@ -72,7 +75,7 @@ var armTemplateBytes = []byte(`
       "apiVersion": "2015-08-19",
       "name": "[parameters('searchServiceName')]",
       "type": "Microsoft.Search/searchServices",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "tags": "[parameters('tags')]",
       "sku": {
         "name": "[toLower(parameters('searchServiceSku'))]"

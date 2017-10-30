@@ -6,6 +6,9 @@ var armTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"serverName": {
 			"type": "string",
 			"metadata": {
@@ -68,7 +71,7 @@ var armTemplateBytes = []byte(`
 			"apiVersion": "2015-08-01",
 			"name": "[parameters('serverName')]",
 			"type": "Microsoft.Cache/Redis",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"properties": {
 				"enableNonSslPort": true,
 				"sku": {
@@ -83,7 +86,7 @@ var armTemplateBytes = []byte(`
 					"apiVersion": "2015-07-01",
 					"type": "Microsoft.Cache/redis/providers/diagnosticsettings",
 					"name": "[concat(parameters('serverName'), '/Microsoft.Insights/service')]",
-					"location": "[resourceGroup().location]",
+					"location": "[parameters('location')]",
 					"dependsOn": [
 						"[concat('Microsoft.Cache/Redis/', parameters('serverName'))]"
 					],

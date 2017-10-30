@@ -6,6 +6,9 @@ var armTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"administratorLoginPassword": {
 			"type": "securestring"
 		},
@@ -76,7 +79,7 @@ var armTemplateBytes = []byte(`
 		{
 			"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
 			"kind": "",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"name": "[parameters('serverName')]",
 			"properties": {
 				"version": "[parameters('version')]",
@@ -100,7 +103,7 @@ var armTemplateBytes = []byte(`
 					"dependsOn": [
 						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]"
 					],
-					"location": "[resourceGroup().location]",
+					"location": "[parameters('location')]",
 					"name": "[parameters('firewallRuleName')]",
 					"properties": {
 						"startIpAddress": "[parameters('firewallStartIpAddress')]",
@@ -111,7 +114,7 @@ var armTemplateBytes = []byte(`
 					"apiVersion": "2017-04-30-preview",
 					"name": "[parameters('databaseName')]",
 					"type": "databases",
-					"location": "[resourceGroup().location]",
+					"location": "[parameters('location')]",
 					"dependsOn": [
 						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]",
 						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'), '/firewallrules/', parameters('firewallRuleName'))]"

@@ -6,6 +6,9 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"name": {
 			"type": "string"
 		},
@@ -33,7 +36,7 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 			"type": "Microsoft.Storage/storageAccounts",
 			"name": "[parameters('name')]",
 			"apiVersion": "2017-06-01",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"sku": {
 				"name": "[parameters('accountType')]"
 			},
@@ -66,6 +69,9 @@ var armTemplateBytesBlobStorage = []byte(`
 	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"name": {
 			"type": "string"
 		},
@@ -101,7 +107,7 @@ var armTemplateBytesBlobStorage = []byte(`
 			"type": "Microsoft.Storage/storageAccounts",
 			"name": "[parameters('name')]",
 			"apiVersion": "2017-06-01",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"sku": {
 				"name": "[parameters('accountType')]"
 			},

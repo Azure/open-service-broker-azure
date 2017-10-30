@@ -6,6 +6,9 @@ var armTemplateBytes = []byte(`
 		"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 		"contentVersion": "1.0.0.0",
 		"parameters": {
+			"location": {
+				"type": "string"
+			},
 			"name": {
 				"type": "string",
 				"metadata": {
@@ -51,7 +54,7 @@ var armTemplateBytes = []byte(`
 				"name": "[parameters('name')]",
 				"type": "Microsoft.ContainerInstance/containerGroups",
 				"apiVersion": "2017-08-01-preview",
-				"location": "[resourceGroup().location]",
+				"location": "[parameters('location')]",
 				"properties": {
 					"containers": [
 						{

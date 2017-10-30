@@ -6,6 +6,9 @@ var armTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"name": {
 			"type": "string"
 		},
@@ -22,14 +25,14 @@ var armTemplateBytes = []byte(`
 			"kind": "[parameters('kind')]",
 			"type": "Microsoft.DocumentDb/databaseAccounts",
 			"name": "[parameters('name')]",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"properties": {
 				"databaseAccountOfferType": "Standard",
 				"locations": [
 					{
-						"id": "[concat(parameters('name'), '-', resourceGroup().location)]",
+						"id": "[concat(parameters('name'), '-', parameters('location'))]",
 						"failoverPriority": 0,
-						"locationName": "[resourceGroup().location]"
+						"locationName": "[parameters('location')]"
 					}
 				]
 			},

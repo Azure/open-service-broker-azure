@@ -6,6 +6,9 @@ var armTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"serviceBusNamespaceName": {
 			"type": "string",
 			"metadata": {
@@ -37,7 +40,7 @@ var armTemplateBytes = []byte(`
 			"apiVersion": "2017-04-01",
 			"name": "[parameters('serviceBusNamespaceName')]",
 			"type": "Microsoft.ServiceBus/Namespaces",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"sku": {
 				"name": "[parameters('serviceBusSku')]"
 			},

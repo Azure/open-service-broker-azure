@@ -6,6 +6,9 @@ var armTemplateExistingServerBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"serverName": {
 			"type": "string"
 		},
@@ -33,7 +36,7 @@ var armTemplateExistingServerBytes = []byte(`
 			"type": "Microsoft.Sql/servers/databases",
 			"name": "[concat(parameters('serverName'), '/', parameters('databaseName'))]",
 			"apiVersion": "[variables('SQLapiVersion')]",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"properties": {
 				"collation": "SQL_Latin1_General_CP1_CI_AS",
 				"edition": "[parameters('edition')]",

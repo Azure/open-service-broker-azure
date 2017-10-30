@@ -326,6 +326,9 @@ func (d *deployer) doNewDeployment(
 		return nil, fmt.Errorf("error unmarshaling ARM template: %s", err)
 	}
 
+	// Augment the params with location
+	params["location"] = location
+
 	// Deal with the possibility that tags == nil
 	if tags == nil {
 		tags = make(map[string]string)
