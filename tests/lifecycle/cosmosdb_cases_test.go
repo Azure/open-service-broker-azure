@@ -19,6 +19,7 @@ import (
 
 func getCosmosdbCases(
 	armDeployer arm.Deployer,
+	resourceGroup string,
 ) ([]moduleLifecycleTestCase, error) {
 	cosmosdbManager, err := cd.NewManager()
 	if err != nil {
@@ -27,23 +28,23 @@ func getCosmosdbCases(
 
 	return []moduleLifecycleTestCase{
 		{ // DocumentDB
-			module:    cosmosdb.New(armDeployer, cosmosdbManager),
-			serviceID: "6330de6f-a561-43ea-a15e-b99f44d183e6",
-			planID:    "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
+			module:      cosmosdb.New(armDeployer, cosmosdbManager),
+			description: "DocumentDB",
+			serviceID:   "6330de6f-a561-43ea-a15e-b99f44d183e6",
+			planID:      "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
 			provisioningParameters: &cosmosdb.ProvisioningParameters{
-				Location:      "eastus",
-				ResourceGroup: newTestResourceGroupName(),
+				Location: "eastus",
 			},
 			bindingParameters: &cosmosdb.BindingParameters{},
 			testCredentials:   testDocumentDBCreds(),
 		},
 		{ // MongoDB
-			module:    cosmosdb.New(armDeployer, cosmosdbManager),
-			serviceID: "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
-			planID:    "86fdda05-78d7-4026-a443-1325928e7b02",
+			module:      cosmosdb.New(armDeployer, cosmosdbManager),
+			description: "MongoDB",
+			serviceID:   "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
+			planID:      "86fdda05-78d7-4026-a443-1325928e7b02",
 			provisioningParameters: &cosmosdb.ProvisioningParameters{
-				Location:      "eastus",
-				ResourceGroup: newTestResourceGroupName(),
+				Location: "eastus",
 			},
 			bindingParameters: &cosmosdb.BindingParameters{},
 			testCredentials:   testMongoDBCreds(),

@@ -297,22 +297,31 @@ func (d *deployer) doNewDeployment(
 		d.subscriptionID,
 	)
 	groupsClient.Authorizer = authorizer
-	if _, err := groupsClient.CreateOrUpdate(
-		resourceGroupName,
-		resources.Group{
-			Name:     &resourceGroupName,
-			Location: &location,
-		},
-	); err != nil {
+	res, err := groupsClient.CheckExistence(resourceGroupName)
+	if err != nil {
 		return nil, fmt.Errorf(
-			"error ensuring the existence of resource group: %s",
+			"error checking existence of resource group: %s",
 			err,
 		)
+	}
+	if res.StatusCode == http.StatusNotFound {
+		if _, err = groupsClient.CreateOrUpdate(
+			resourceGroupName,
+			resources.Group{
+				Name:     &resourceGroupName,
+				Location: &location,
+			},
+		); err != nil {
+			return nil, fmt.Errorf(
+				"error creating resource group: %s",
+				err,
+			)
+		}
 	}
 
 	// Unmarshal the template into a map
 	var templateMap map[string]interface{}
-	err := json.Unmarshal(template, &templateMap)
+	err = json.Unmarshal(template, &templateMap)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling ARM template: %s", err)
 	}
@@ -361,7 +370,7 @@ func (d *deployer) doNewDeployment(
 	timer := time.NewTimer(time.Minute * 30)
 	defer timer.Stop()
 	select {
-	case err := <-errChan:
+	case err = <-errChan:
 		if err != nil {
 			return nil, fmt.Errorf("error submitting ARM template: %s", err)
 		}

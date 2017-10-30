@@ -10,6 +10,7 @@ import (
 
 func getPostgresqlCases(
 	armDeployer arm.Deployer,
+	resourceGroup string,
 ) ([]moduleLifecycleTestCase, error) {
 	postgreSQLManager, err := pg.NewManager()
 	if err != nil {
@@ -22,8 +23,7 @@ func getPostgresqlCases(
 			serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 			planID:    "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
 			provisioningParameters: &postgresql.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
+				Location: "southcentralus",
 			},
 			bindingParameters: &postgresql.BindingParameters{},
 		},

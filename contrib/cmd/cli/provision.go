@@ -25,7 +25,7 @@ func provision(c *cli.Context) error {
 	if planID == "" {
 		return fmt.Errorf("--%s is a required flag", flagPlanID)
 	}
-	params := make(map[string]interface{})
+	params := client.ProvisioningParameters{}
 	rawParamStrs := c.StringSlice(flagParameter)
 	for _, rawParamStr := range rawParamStrs {
 		rawParamStr = strings.TrimSpace(rawParamStr)

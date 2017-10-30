@@ -16,6 +16,10 @@ type ArbitraryType struct {
 	Foo string `json:"foo"`
 }
 
+// SetResourceGroup is implemented only so that ArbitraryType will fulfill
+// the ProvisioningParameters interface. This function isn't used anywhere.
+func (a *ArbitraryType) SetResourceGroup(resourceGroup string) {}
+
 const fooValue = "bar"
 
 var (

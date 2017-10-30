@@ -20,13 +20,15 @@ const (
 // types that represent provisioning parameters. This interface doesn't require
 // any functions to be implemented. It exists to improve the clarity of function
 // signatures and documentation.
-type ProvisioningParameters interface{}
+type ProvisioningParameters interface {
+	// SetResourceGroup sets the name of the resource group that a service
+	// instance should be provisioned into.
+	SetResourceGroup(string)
+}
 
 // ProvisioningContext is an interface to be implemented by module-specific
 // types that represent provisioning context.
-type ProvisioningContext interface {
-	GetResourceGroupName() string
-}
+type ProvisioningContext interface{}
 
 // UpdatingParameters is an interface to be implemented by module-specific
 // types that represent updating parameters. This interface doesn't require

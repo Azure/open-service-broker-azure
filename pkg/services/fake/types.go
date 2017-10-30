@@ -59,11 +59,6 @@ type BindingContext struct {
 type Credentials struct {
 }
 
-// GetResourceGroupName returns the resource group name
-func (p *ProvisioningContext) GetResourceGroupName() string {
-	return p.ResourceGroupName
-}
-
 // GetEmptyProvisioningParameters returns an empty instance of module-specific
 // provisioningParameters
 func (
@@ -71,6 +66,10 @@ func (
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
 }
+
+// SetResourceGroup sets the name of the resource group into which service
+// instances will be deployed
+func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {}
 
 // GetEmptyProvisioningContext returns an empty instance of a module-specific
 // provisioningContext

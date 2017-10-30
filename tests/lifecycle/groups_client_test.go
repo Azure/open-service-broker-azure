@@ -8,16 +8,42 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure"
 )
 
-func deleteResourceGroup(
-	resourceGroupName string,
-) error {
-	azureConfig, err := az.GetConfig()
+func ensureResourceGroup(resourceGroup string, location string) error {
+	groupsClient, err := getGroupsClient()
 	if err != nil {
 		return err
 	}
-	azureEnvironment, err := azure.EnvironmentFromName(azureConfig.Environment)
+	_, err = groupsClient.CreateOrUpdate(
+		resourceGroup,
+		resources.Group{
+			Name:     &resourceGroup,
+			Location: &location,
+		},
+	)
+	return err
+}
+
+func deleteResourceGroup(
+	resourceGroupName string,
+) error {
+	groupsClient, err := getGroupsClient()
 	if err != nil {
 		return err
+	}
+	cancelCh := make(chan struct{})
+	defer close(cancelCh)
+	_, errCh := groupsClient.Delete(resourceGroupName, cancelCh)
+	return <-errCh
+}
+
+func getGroupsClient() (*resources.GroupsClient, error) {
+	azureConfig, err := az.GetConfig()
+	if err != nil {
+		return nil, err
+	}
+	azureEnvironment, err := azure.EnvironmentFromName(azureConfig.Environment)
+	if err != nil {
+		return nil, err
 	}
 	groupsClient := resources.NewGroupsClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
@@ -30,11 +56,8 @@ func deleteResourceGroup(
 		azureConfig.ClientSecret,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	groupsClient.Authorizer = authorizer
-	cancelCh := make(chan struct{})
-	defer close(cancelCh)
-	_, errChan := groupsClient.Delete(resourceGroupName, cancelCh)
-	return <-errChan
+	return &groupsClient, err
 }

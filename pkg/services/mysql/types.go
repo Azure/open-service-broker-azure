@@ -41,14 +41,16 @@ type Credentials struct {
 	Password string `json:"password"`
 }
 
-func (m *mysqlProvisioningContext) GetResourceGroupName() string {
-	return m.ResourceGroupName
-}
-
 func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+// SetResourceGroup sets the name of the resource group into which service
+// instances will be deployed
+func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
+	p.ResourceGroup = resourceGroup
 }
 
 func (

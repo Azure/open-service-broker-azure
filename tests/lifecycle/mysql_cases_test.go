@@ -10,6 +10,7 @@ import (
 
 func getMysqlCases(
 	armDeployer arm.Deployer,
+	resourceGroup string,
 ) ([]moduleLifecycleTestCase, error) {
 	mySQLManager, err := mg.NewManager()
 	if err != nil {
@@ -22,8 +23,7 @@ func getMysqlCases(
 			serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
 			planID:    "427559f1-bf2a-45d3-8844-32374a3e58aa",
 			provisioningParameters: &mysql.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
+				Location: "southcentralus",
 			},
 			bindingParameters: &mysql.BindingParameters{},
 		},

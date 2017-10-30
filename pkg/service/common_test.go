@@ -10,11 +10,9 @@ type ArbitraryType struct {
 	Foo string `json:"foo"`
 }
 
-// GetResourceGroupName is implemented only so that ArbitraryType will fulfill
-// the ProvisioningContext interface. This function isn't used anywhere.
-func (a *ArbitraryType) GetResourceGroupName() string {
-	return ""
-}
+// SetResourceGroup is implemented only so that ArbitraryType will fulfill
+// the ProvisioningParameters interface. This function isn't used anywhere.
+func (a *ArbitraryType) SetResourceGroup(resourceGroup string) {}
 
 const fooValue = "bar"
 

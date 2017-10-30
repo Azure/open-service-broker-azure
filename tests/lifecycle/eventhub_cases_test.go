@@ -10,6 +10,7 @@ import (
 
 func getEventhubCases(
 	armDeployer arm.Deployer,
+	resourceGroup string,
 ) ([]moduleLifecycleTestCase, error) {
 	eventHubManager, err := eh.NewManager()
 	if err != nil {
@@ -22,8 +23,7 @@ func getEventhubCases(
 			serviceID: "7bade660-32f1-4fd7-b9e6-d416d975170b",
 			planID:    "80756db5-a20c-495d-ae70-62cf7d196a3c",
 			provisioningParameters: &eventhub.ProvisioningParameters{
-				Location:      "southcentralus",
-				ResourceGroup: newTestResourceGroupName(),
+				Location: "southcentralus",
 			},
 			bindingParameters: &eventhub.BindingParameters{},
 		},

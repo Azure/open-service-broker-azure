@@ -43,14 +43,16 @@ type Credentials struct {
 	ContainerName      string `json:"containerName,omitempty"`
 }
 
-func (r *storageProvisioningContext) GetResourceGroupName() string {
-	return r.ResourceGroupName
-}
-
 func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+// SetResourceGroup sets the name of the resource group into which service
+// instances will be deployed
+func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
+	p.ResourceGroup = resourceGroup
 }
 
 func (

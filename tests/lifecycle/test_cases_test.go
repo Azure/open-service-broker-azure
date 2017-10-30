@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 )
 
-func getTestCases() ([]moduleLifecycleTestCase, error) {
+func getTestCases(resourceGroup string) ([]moduleLifecycleTestCase, error) {
 	armDeployer, err := arm.NewDeployer()
 	if err != nil {
 		return nil, err
@@ -14,7 +14,10 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 
 	testCases := []moduleLifecycleTestCase{}
 
-	getTestCaseFuncs := []func(arm.Deployer) ([]moduleLifecycleTestCase, error){
+	getTestCaseFuncs := []func(
+		armDeployer arm.Deployer,
+		resourceGroup string,
+	) ([]moduleLifecycleTestCase, error){
 		getACICases,
 		getCosmosdbCases,
 		getEventhubCases,
@@ -29,7 +32,7 @@ func getTestCases() ([]moduleLifecycleTestCase, error) {
 	}
 
 	for _, getTestCaseFunc := range getTestCaseFuncs {
-		if tcs, err := getTestCaseFunc(armDeployer); err == nil {
+		if tcs, err := getTestCaseFunc(armDeployer, resourceGroup); err == nil {
 			testCases = append(testCases, tcs...)
 		} else {
 			return nil, err

@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/service"
@@ -13,9 +14,13 @@ import (
 )
 
 // moduleLifecycleTestCase encapsulates all the required things for a lifecycle
-// test case
+// test case. A case should defines both createDependency and
+// cleanUpDependency, or neither of them. And we assume that the dependency is
+// in the same resource group with the service instance.
 type moduleLifecycleTestCase struct {
 	module                 service.Module
+	description            string
+	setup                  func() error
 	serviceID              string
 	planID                 string
 	provisioningParameters service.ProvisioningParameters
@@ -23,9 +28,31 @@ type moduleLifecycleTestCase struct {
 	testCredentials        func(credentials service.Credentials) error
 }
 
-func (m *moduleLifecycleTestCase) execute() error {
+func (m *moduleLifecycleTestCase) getName() string {
+	base := fmt.Sprintf(
+		"TestModules/lifecycle/%s",
+		m.module.GetName(),
+	)
+	if m.description == "" {
+		return base
+	}
+	return fmt.Sprintf(
+		"%s/%s",
+		base,
+		strings.Replace(m.description, " ", "_", -1),
+	)
+}
+
+func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*20)
 	defer cancel()
+
+	name := m.getName()
+
+	log.Printf("----> %s: starting\n", name)
+
+	defer log.Printf("----> %s: completed\n", name)
+
 	// This will periodically send status to stdout until the context is canceled.
 	// THIS is what stops CI from timing out these tests!
 	go m.showStatus(ctx)
@@ -38,21 +65,16 @@ func (m *moduleLifecycleTestCase) execute() error {
 	pc := m.module.GetEmptyProvisioningContext()
 	var tempPC service.ProvisioningContext
 
-	// Make sure we clean up after ourselves
-	defer func() {
-		resourceGroupName := pc.GetResourceGroupName()
-		if resourceGroupName != "" {
-			log.Printf("----> deleting resource group \"%s\"\n", resourceGroupName)
-			if err := deleteResourceGroup(resourceGroupName); err != nil {
-				log.Printf("----> error deleting resource group: %s", err)
-			} else {
-				log.Printf(
-					"----> done deleting resource group \"%s\"\n",
-					resourceGroupName,
-				)
-			}
+	// Force the resource group to be something known to this test executor
+	// to ensure good cleanup
+	m.provisioningParameters.SetResourceGroup(resourceGroup)
+
+	// Setup...
+	if m.setup != nil {
+		if err := m.setup(); err != nil {
+			return err
 		}
-	}()
+	}
 
 	// Provision...
 	iid := uuid.NewV4().String()
@@ -169,16 +191,13 @@ func (m *moduleLifecycleTestCase) execute() error {
 }
 
 func (m *moduleLifecycleTestCase) showStatus(ctx context.Context) {
-	moduleName := m.module.GetName()
+	name := m.getName()
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
-			log.Printf(
-				"----> Module \"%s\" lifecycle tests in progress\n",
-				moduleName,
-			)
+			log.Printf("----> %s: in progress\n", name)
 		case <-ctx.Done():
 			return
 		}

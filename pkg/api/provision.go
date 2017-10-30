@@ -1,6 +1,8 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"reflect"
@@ -56,8 +58,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close() // nolint: errcheck
 
-	provisioningRequest := &ProvisioningRequest{}
-	err = GetProvisioningRequestFromJSON(bodyBytes, provisioningRequest)
+	rawProvisioningRequest := map[string]interface{}{}
+	err = json.Unmarshal(bodyBytes, &rawProvisioningRequest)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Debug(
@@ -70,7 +72,9 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if provisioningRequest.ServiceID == "" {
+	serviceIDIface, ok := rawProvisioningRequest["service_id"]
+	serviceID := fmt.Sprintf("%v", serviceIDIface)
+	if !ok || serviceID == "" {
 		logFields["field"] = "service_id"
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: required request body field is missing",
@@ -78,7 +82,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusBadRequest, responseServiceIDRequired)
 		return
 	}
-	if provisioningRequest.PlanID == "" {
+
+	planIDIface, ok := rawProvisioningRequest["plan_id"]
+	planID := fmt.Sprintf("%v", planIDIface)
+	if !ok || planID == "" {
 		logFields["field"] = "plan_id"
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: required request body field is missing",
@@ -87,9 +94,9 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	svc, ok := s.catalog.GetService(provisioningRequest.ServiceID)
+	svc, ok := s.catalog.GetService(serviceID)
 	if !ok {
-		logFields["serviceID"] = provisioningRequest.ServiceID
+		logFields["serviceID"] = serviceID
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: invalid serviceID",
 		)
@@ -97,10 +104,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, ok = svc.GetPlan(provisioningRequest.PlanID)
+	_, ok = svc.GetPlan(planID)
 	if !ok {
-		logFields["serviceID"] = provisioningRequest.ServiceID
-		logFields["planID"] = provisioningRequest.PlanID
+		logFields["serviceID"] = serviceID
+		logFields["planID"] = planID
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: invalid planID for service",
 		)
@@ -108,12 +115,12 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	module, ok := s.modules[provisioningRequest.ServiceID]
+	module, ok := s.modules[serviceID]
 	if !ok {
 		// We already validated that the serviceID and planID are legitimate. If
 		// we don't find a module that handles the service, something is really
 		// wrong.
-		logFields["serviceID"] = provisioningRequest.ServiceID
+		logFields["serviceID"] = serviceID
 		log.WithFields(logFields).Error(
 			"pre-provisioning error: no module found for service",
 		)
@@ -124,7 +131,9 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// Now that we know what module we're dealing with, we can get an instance
 	// of the module-specific type for provisioningParameters and take a second
 	// pass at parsing the request body
-	provisioningRequest.Parameters = module.GetEmptyProvisioningParameters()
+	provisioningRequest := &ProvisioningRequest{
+		Parameters: module.GetEmptyProvisioningParameters(),
+	}
 	err = GetProvisioningRequestFromJSON(bodyBytes, provisioningRequest)
 	if err != nil {
 		log.WithFields(logFields).Debug(
@@ -204,7 +213,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// Start by carrying out module-specific request validation
 	err = module.ValidateProvisioningParameters(provisioningRequest.Parameters)
 	if err != nil {
-		validationErr, ok := err.(*service.ValidationError)
+		var validationErr *service.ValidationError
+		validationErr, ok = err.(*service.ValidationError)
 		if ok {
 			logFields["field"] = validationErr.Field
 			logFields["issue"] = validationErr.Issue
@@ -220,11 +230,11 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	provisioner, err := module.GetProvisioner(
-		provisioningRequest.ServiceID,
-		provisioningRequest.PlanID,
+		serviceID,
+		planID,
 	)
 	if err != nil {
-		logFields["serviceID"] = provisioningRequest.ServiceID
+		logFields["serviceID"] = serviceID
 		logFields["planID"] = provisioningRequest.PlanID
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
