@@ -1,8 +1,8 @@
 # Azure Service Broker
 
-[![CircleCI](https://circleci.com/gh/deis/azure-service-broker/tree/master.svg?style=svg&circle-token=1cc55fd28b41ee590e849090a33e0220fb051479)](https://circleci.com/gh/deis/azure-service-broker/tree/master)
+[![CircleCI](https://circleci.com/gh/Azure/azure-service-broker/tree/master.svg?style=svg&circle-token=1cc55fd28b41ee590e849090a33e0220fb051479)](https://circleci.com/gh/Azure/azure-service-broker/tree/master)
 
-[Azure Service Broker](https://github.com/deis/azure-service-broker) is the
+[Azure Service Broker](https://github.com/Azure/azure-service-broker) is the
 open source, [Open Service Broker](https://www.openservicebrokerapi.org/)
 compatible API server that provisions managed services in the Microsoft
 Azure public cloud.
