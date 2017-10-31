@@ -91,6 +91,16 @@ This command deploys the Azure Service Broker on your Kubernetes cluster in the
 default configuration. The [configuration](#configuration) section lists the
 parameters that can optionally be configured during installation.
 
+To verify the service broker has been deployed and show installed service classes and plans:
+
+```console
+$ kubectl get clusterservicebroker -o yaml
+
+$ kubectl get clusterserviceclasses -o=custom-columns=NAME:.metadata.name,EXTERNAL\ NAME:.spec.externalName
+
+$ kubectl get clusterserviceplans -o=custom-columns=NAME:.metadata.name,EXTERNAL\ NAME:.spec.externalName,SERVICE\ CLASS:.spec.clusterServiceClassRef.name --sort-by=.spec.clusterServiceClassRef.name
+```
+
 ## Uninstalling the Chart
 
 To uninstall/delete the `asb` deployment:
