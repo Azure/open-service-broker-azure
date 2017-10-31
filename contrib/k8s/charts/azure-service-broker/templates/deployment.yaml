@@ -86,4 +86,4 @@ spec:
             successThreshold: 1
             timeoutSeconds: 2
       imagePullSecrets:
-        - name: deisci-jimz-testing-pull-secret
+        - name: asb-jimz-testing-pull-secret
