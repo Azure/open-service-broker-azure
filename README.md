@@ -1,6 +1,6 @@
 # Azure Service Broker
 
-[![CircleCI](https://circleci.com/gh/Azure/azure-service-broker/tree/master.svg?style=svg&circle-token=1cc55fd28b41ee590e849090a33e0220fb051479)](https://circleci.com/gh/Azure/azure-service-broker/tree/master)
+[![CircleCI](https://circleci.com/gh/Azure/azure-service-broker.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/azure-service-broker)
 
 [Azure Service Broker](https://github.com/Azure/azure-service-broker) is the
 open source, [Open Service Broker](https://www.openservicebrokerapi.org/)
