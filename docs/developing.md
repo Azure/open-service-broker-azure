@@ -15,15 +15,11 @@ but the path used below should generally be adequate:
 export GOPATH=~/Code/go
 ```
 
-Note that this repository is currently hosted under the `deis` organization in
-GitHub, although all fully-qualified package names assume this repository will
-eventually be transplanted to the `Azure` organization. As such, care needs to
-be taken in cloning this repository to ensure its location relative to you
-`GOPATH` reflects the package names correctly:
+Then, create the proper directory and clone this repository to it:
 
 ```console
 $ mkdir -p $GOPATH/src/github.com/Azure
-$ git clone git@github.com:deis/azure-service-broker.git \
+$ git clone git@github.com:Azure/azure-service-broker.git \
     $GOPATH/src/github.com/Azure/azure-service-broker
 $ cd $GOPATH/src/github.com/Azure/azure-service-broker
 ```
