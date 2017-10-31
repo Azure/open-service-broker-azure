@@ -9,6 +9,9 @@ func Storm() []byte {
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "0.9.0.0",
 	"parameters": {
+		"location": {
+			"type": "string"
+		},
 		"clusterName": {
 			"type": "String",
 			"metadata": {
@@ -84,7 +87,7 @@ func Storm() []byte {
 			"type": "Microsoft.HDInsight/clusters",
 			"name": "[parameters('clusterName')]",
 			"apiVersion": "[variables('HDInsightApiVersion')]",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"properties": {
 				"clusterVersion": "[parameters('clusterVersion')]",
 				"osType": "Linux",
@@ -168,7 +171,7 @@ func Storm() []byte {
 			"type": "Microsoft.Storage/storageAccounts",
 			"name": "[parameters('storageAccountName')]",
 			"apiVersion": "[variables('StorageApiVersion')]",
-			"location": "[resourceGroup().location]",
+			"location": "[parameters('location')]",
 			"properties": {
 				"accountType": "Standard_LRS"
 			}
