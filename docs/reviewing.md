@@ -1,6 +1,6 @@
 # Reviewing Azure Service Broker Code
 
-This is a guide for reviewers of pull requests (PRs) & code in this repository.
+This is a guide for reviewers of pull requests (PRs) and code in this repository.
 
 When a pull request is submitted (see 
 [the developing document](./developing.md) for more details on the PR process),
