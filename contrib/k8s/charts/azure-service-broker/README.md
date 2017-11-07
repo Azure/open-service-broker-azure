@@ -11,7 +11,7 @@ This chart bootstraps Azure Service Broker in your Kubernetes cluster.
 
 - [Kubernetes](https://kubernetes.io/) 1.7+ with RBAC enabled
 - The
-  [Kubernetes Service Catalog](https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/install-1.7.md)
+  [Kubernetes Service Catalog](https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/install.md)
   software has been installed
 - An [Azure subscription](https://azure.microsoft.com/en-us/free/)
 - The Azure CLI: You can
