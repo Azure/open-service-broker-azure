@@ -45,9 +45,16 @@ a large feature. These generally require two reviews, but the first reviewer may
 decide that they can review it without a second review if they are familiar with
 the changes.
 
-Note that we do not make a distinction between modified, deleted or added code,
+A few additional notes:
+
+- We do not make a distinction between modified, deleted or added code,
 nor do they distinguish between production and test code. All code should be
-the same quality.
+the same quality
+- Maintainers sometimes submit small PRs, often for administrative purposes
+(i.e. fixing a typo in a document or modifying a script for CI). In these cases,
+a maintainer may merge these PRs without review. Maintainers must use their best
+judgement to decide whether these kinds of PRs need a separate review or not.
+- Maintainers may merge their own PRs after reviews are completed and "green"
 
 All reviewers will use 
 [GitHub Pull Request Reviews](https://help.github.com/articles/about-pull-request-reviews/)
