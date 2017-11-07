@@ -14,8 +14,8 @@ Reviewers have the following general responsibilities:
 - Ensuring that the code is easy to read and of generally good quality
 - Ensuring that tests pass
 - Ensuring that documentation (in-code and otherwise) is clear and complete
-- Ensuring that no harmful changes are made to the OSB-facing API. These include, but are
-not limited to:
+- Ensuring that no harmful changes are made to the Open Service Broker compliant API 
+that this broker provides. These include, but are not limited to:
     - Changing the name of a service or plan
     - Creating a new service or plan that is illegal according to the OSB spec
 
