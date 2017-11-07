@@ -37,9 +37,9 @@ some part of the documentation, they should reach out to either the contributor
 - Small: While we don't have exact measurements to determine whether a PR is small,
 these PRs generally span no more than a few files or represent a mechanical change
 (even if it may be across many files, like a rename). These require a single review
-- Medium: As mentioned in the previous point, we don't have exact measurements to 
-determine whether a PR is small, these PRs generally span a only a single module 
-(i.e. a service). These require a single review by a reviewer familiar with the area
+- Medium: While we don't have exact measurements to determine whether a PR is medium, 
+these PRs generally span a only a single module (i.e. a service). Medium PRs require a 
+single review by a reviewer familiar with the areas of concern
 - Large: Large PRs generally span a large portion of the codebase, or add or remove
 a large feature. These generally require two reviews, but the first reviewer may 
 decide that they can review it without a second review if they are familiar with
