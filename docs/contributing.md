@@ -67,6 +67,9 @@ follow the same general lifecycle. Differences are noted below.
 2. Fork the repository, develop and test your code changes.
 3. Submit a pull request.
 
+Your pull request will be reviewed according to the process defined in 
+[reviewing.md](./reviewing.md).
+
 ## Code of conduct
 
 This project has adopted the
