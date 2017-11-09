@@ -3,7 +3,7 @@
 This is a guide for reviewers of pull requests (PRs) and code in this repository.
 
 When a pull request is submitted (see 
-[the developing document](./developing.md) for more details on the PR process),
+[the contributing document](./contributing.md) for more details on the PR process),
 the maintainers of this repository ("reviewers" hereafter) are responsible 
 for reviewing and merging it.
 
