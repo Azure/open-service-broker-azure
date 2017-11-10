@@ -9,3 +9,6 @@ spec:
   parameters:
     location: eastus
     resourceGroup: demo
+    extensions:
+    - uuid-ossp
+    - postgis
