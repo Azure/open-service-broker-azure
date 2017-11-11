@@ -30,7 +30,7 @@ func (m *module) Bind(
 	roleName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
-	db, err := getDBConnection(pc)
+	db, err := getDBConnection(pc, primaryDB)
 	if err != nil {
 		return nil, nil, err
 	}

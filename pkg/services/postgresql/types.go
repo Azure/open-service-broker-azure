@@ -8,6 +8,7 @@ type ProvisioningParameters struct {
 	ResourceGroup  string            `json:"resourceGroup"`
 	Tags           map[string]string `json:"tags"`
 	SSLEnforcement string            `json:"sslEnforcement"`
+	Extensions     []string          `json:"extensions"`
 }
 
 type postgresqlProvisioningContext struct {
