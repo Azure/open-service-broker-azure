@@ -24,6 +24,10 @@ func getPostgresqlCases(
 			planID:    "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
 			provisioningParameters: &postgresql.ProvisioningParameters{
 				Location: "southcentralus",
+				Extensions: []string{
+					"uuid-ossp",
+					"postgis",
+				},
 			},
 			bindingParameters: &postgresql.BindingParameters{},
 		},

@@ -23,7 +23,7 @@ func (m *module) Unbind(
 		)
 	}
 
-	db, err := getDBConnection(pc)
+	db, err := getDBConnection(pc, primaryDB)
 	if err != nil {
 		return err
 	}

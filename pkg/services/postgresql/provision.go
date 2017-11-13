@@ -46,6 +46,7 @@ func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 		service.NewProvisioningStep("preProvision", m.preProvision),
 		service.NewProvisioningStep("deployARMTemplate", m.deployARMTemplate),
 		service.NewProvisioningStep("setupDatabase", m.setupDatabase),
+		service.NewProvisioningStep("createExtensions", m.createExtensions),
 	)
 }
 
@@ -186,7 +187,7 @@ func (m *module) setupDatabase(
 		)
 	}
 
-	db, err := getDBConnection(pc)
+	db, err := getDBConnection(pc, primaryDB)
 	if err != nil {
 		return nil, err
 	}
@@ -234,5 +235,63 @@ func (m *module) setupDatabase(
 		return nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
+	return pc, nil
+}
+
+func (m *module) createExtensions(
+	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
+	provisioningContext service.ProvisioningContext,
+	provisioningParameters service.ProvisioningParameters,
+) (service.ProvisioningContext, error) {
+	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningContext as *postgresqlProvisioningContext",
+		)
+	}
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*postgresql.ProvisioningParameters",
+		)
+	}
+
+	if len(pp.Extensions) > 0 {
+		db, err := getDBConnection(pc, pc.DatabaseName)
+		if err != nil {
+			return nil, err
+		}
+		defer db.Close() // nolint: errcheck
+
+		tx, err := db.Begin()
+		if err != nil {
+			return nil, fmt.Errorf("error starting transaction: %s", err)
+		}
+		defer func() {
+			if err != nil {
+				if err = tx.Rollback(); err != nil {
+					log.WithField("error", err).Error("error rolling back transaction")
+				}
+			}
+		}()
+		for _, extension := range pp.Extensions {
+			if _, err = tx.Exec(
+				fmt.Sprintf(`create extension "%s"`, extension),
+			); err != nil {
+				return nil, fmt.Errorf(
+					`error creating extension "%s": %s`,
+					extension,
+					err,
+				)
+			}
+		}
+		if err = tx.Commit(); err != nil {
+			return nil, fmt.Errorf("error committing transaction: %s", err)
+		}
+	}
 	return pc, nil
 }
