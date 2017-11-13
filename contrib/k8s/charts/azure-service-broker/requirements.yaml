@@ -1,5 +1,0 @@
-dependencies:
-- name: redis
-  version: 0.10.0
-  condition: redis.embedded
-  repository: https://kubernetes-charts.storage.googleapis.com/
