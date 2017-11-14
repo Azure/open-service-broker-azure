@@ -190,7 +190,8 @@ Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgre
 
 ### Installation
 
-To deploy the Azure Service Broker to Cloud Foundry, refer to the [refer to the documentation](contrib/cf/README.md) showing how to deploy and configure it as a Cloud Foundry app.
+To deploy the Azure Service Broker to Cloud Foundry, please refer to the 
+[CloudFoundry installation documentation](contrib/cf/README.md) for instructions.
 
 ### Usage
 
