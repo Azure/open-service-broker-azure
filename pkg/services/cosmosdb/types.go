@@ -45,10 +45,10 @@ type Credentials struct {
 	Port                    int    `json:"port,omitempty"`
 	Username                string `json:"username,omitempty"`
 	Password                string `json:"password,omitempty"`
-	ConnectionString        string `json:"connectionstring,omitempty"`
+	ConnectionString        string `json:"connectionString,omitempty"`
 	URI                     string `json:"uri,omitempty"`
-	PrimaryConnectionString string `json:"primaryconnectionstring,omitempty"`
-	PrimaryKey              string `json:"primarykey,omitempty"`
+	PrimaryConnectionString string `json:"primaryConnectionString,omitempty"`
+	PrimaryKey              string `json:"primaryKey,omitempty"`
 }
 
 func (

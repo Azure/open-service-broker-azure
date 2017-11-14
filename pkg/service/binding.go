@@ -7,7 +7,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/crypto"
 )
 
-// Binding represents a biding to a service
+// Binding represents a binding to a service
 type Binding struct {
 	BindingID                  string    `json:"bindingId"`
 	InstanceID                 string    `json:"instanceId"`
