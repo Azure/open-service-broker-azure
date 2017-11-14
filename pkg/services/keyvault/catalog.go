@@ -8,7 +8,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "d90c881e-c9bb-4e07-a87b-fcfe87e03276",
 				Name:        "azure-keyvault",
-				Description: "Azure Key Vault",
+				Description: "Azure Key Vault (Alpha)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "Key", "Vault"},
 			},

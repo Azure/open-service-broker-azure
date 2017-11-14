@@ -8,7 +8,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "0346088a-d4b2-4478-aa32-f18e295ec1d9",
 				Name:        "azure-rediscache",
-				Description: "Azure Redis Cache",
+				Description: "Azure Redis Cache (Alpha)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "Redis", "Cache", "Database"},
 			},
