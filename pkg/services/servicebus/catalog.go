@@ -8,7 +8,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",
 				Name:        "azure-servicebus",
-				Description: "Azure Service Bus",
+				Description: "Azure Service Bus (Alpha)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "Service", "Bus"},
 			},

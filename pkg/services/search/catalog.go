@@ -8,7 +8,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "c54902aa-3027-4c5c-8e96-5b3d3b452f7f",
 				Name:        "azuresearch",
-				Description: "Azure Search",
+				Description: "Azure Search (Alpha)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "Search", "Elasticsearch"},
 			},

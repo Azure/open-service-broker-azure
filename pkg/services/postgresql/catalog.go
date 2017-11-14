@@ -8,7 +8,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 				Name:        "azure-postgresqldb",
-				Description: "Azure Database for PostgreSQL Service",
+				Description: "Azure Database for PostgreSQL (Alpha)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "PostgreSQL", "Database"},
 			},
