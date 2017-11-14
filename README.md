@@ -145,7 +145,7 @@ Error from server (NotFound): secrets "my-postgresql-secret" not found
 To deprovision:
 
 ```console
-$ kubectl delete serviceinstance my-postgresql-binding
+$ kubectl delete serviceinstance my-postgresql-instance
 ```
 
 You can observe the status to see that asynchronous deprovisioning is ongoing:
