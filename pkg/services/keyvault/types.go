@@ -7,7 +7,7 @@ type ProvisioningParameters struct {
 	Location      string            `json:"location"`
 	ResourceGroup string            `json:"resourceGroup"`
 	Tags          map[string]string `json:"tags"`
-	ObjectID      string            `json:"objectid"`
+	ObjectID      string            `json:"objectId"`
 	ClientID      string            `json:"clientId"`
 	ClientSecret  string            `json:"clientSecret"`
 }
