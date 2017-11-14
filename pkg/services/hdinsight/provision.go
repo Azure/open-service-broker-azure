@@ -65,9 +65,11 @@ func (s *serviceManager) preProvision(
 		return nil, err
 	}
 	storageEndpointSuffix := azureEnvironment.StorageEndpointSuffix
-	pc.BlobStorageEndpoint = pc.StorageAccountName +
-		".blob." +
-		storageEndpointSuffix
+	pc.BlobStorageEndpoint = fmt.Sprintf(
+		"%s.blob.%s",
+		pc.StorageAccountName,
+		storageEndpointSuffix,
+	)
 
 	pc.BlobStorageContainerName = generate.NewIdentifier()
 	return pc, nil
