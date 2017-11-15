@@ -11,8 +11,10 @@ Azure public cloud.
 
 ### Installing
 
-To install the Azure Service Broker on a Kubernetes cluster, refer to the
-[documentation in the Azure Service Broker's Helm chart](contrib/k8s/charts/azure-service-broker/README.md).
+[Helm](https://helm.sh) is used to install the Azure Service Broker onto Kubernetes
+clusters. Please refer to the 
+[Helm chart](https://github.com/Azure/helm-charts/tree/master/azure-service-broker)
+for details on how to complete the installation.
 
 ### Examples
 
@@ -143,7 +145,7 @@ Error from server (NotFound): secrets "my-postgresql-secret" not found
 To deprovision:
 
 ```console
-$ kubectl delete serviceinstance my-postgresql-binding
+$ kubectl delete serviceinstance my-postgresql-instance
 ```
 
 You can observe the status to see that asynchronous deprovisioning is ongoing:
@@ -188,7 +190,8 @@ Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgre
 
 ### Installation
 
-To deploy the Azure Service Broker to Cloud Foundry, [refer to the documentation](contrib/cf/README.md) showing how to deploy and configure it as a Cloud Foundry app.
+To deploy the Azure Service Broker to Cloud Foundry, please refer to the 
+[CloudFoundry installation documentation](contrib/cf/README.md) for instructions.
 
 ### Usage
 

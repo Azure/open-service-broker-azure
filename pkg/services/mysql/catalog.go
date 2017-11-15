@@ -8,7 +8,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "997b8372-8dac-40ac-ae65-758b4a5075a5",
 				Name:        "azure-mysqldb",
-				Description: "Azure Database for MySQL Service",
+				Description: "Azure Database for MySQL (Alpha)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "MySQL", "Database"},
 			},
