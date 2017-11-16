@@ -1,6 +1,7 @@
 ---
-  name: asb
-  buildpack: go_buildpack
+applications:
+- name: asb
+  buildpack: https://github.com/cloudfoundry/go-buildpack/releases/download/v1.8.13/go-buildpack-v1.8.13.zip
   command: broker 
   env:
     AZURE_SUBSCRIPTION_ID: <YOUR SUBSCRIPTION ID>
