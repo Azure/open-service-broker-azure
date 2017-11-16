@@ -19,6 +19,14 @@ import (
 
 func init() {
 	// Initialize logging
+	// Split log output across stdout and stderr, depending on severity
+	// krancour: This functionality is currently dependent on a fork of
+	// the github.com/Sirupsen/logrus package that lives in the split-streams
+	// branch at github.com/krancour/logrus. (See Gopkg.toml)
+	// We can resume using the upstream logrus if/when this PR is merged:
+	// https://github.com/sirupsen/logrus/pull/671
+	log.SetOutput(os.Stdout)
+	log.SetErrOutput(os.Stderr)
 	formatter := &log.TextFormatter{
 		FullTimestamp: true,
 	}
