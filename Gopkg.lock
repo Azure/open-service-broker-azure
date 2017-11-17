@@ -14,10 +14,11 @@
   version = "v8.2.0"
 
 [[projects]]
-  branch = "master"
+  branch = "split-streams"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  revision = "89742aefa4b206dcf400792f3bd35b542998eb3b"
+  revision = "9da25b464c10092c58bc53d56e44d04213e84496"
+  source = "github.com/krancour/logrus"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -120,6 +121,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "08e56a604ae5adec81dac253ec89a3d5725358212f1ef0840cad41db73ee1fda"
+  inputs-digest = "f354ec712ae336256469c4a4de45d1f9d6d4af9bc97a98b343c404b758b81744"
   solver-name = "gps-cdcl"
   solver-version = 1
