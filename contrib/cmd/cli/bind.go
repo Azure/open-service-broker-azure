@@ -1,10 +1,8 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/Azure/azure-service-broker/contrib/pkg/client"
 	"github.com/urfave/cli"
@@ -19,17 +17,9 @@ func bind(c *cli.Context) error {
 	if instanceID == "" {
 		return fmt.Errorf("--%s is a required flag", flagInstanceID)
 	}
-	params := make(map[string]string)
-	rawParamStrs := c.StringSlice(flagParameter)
-	for _, rawParamStr := range rawParamStrs {
-		rawParamStr = strings.TrimSpace(rawParamStr)
-		tokens := strings.Split(rawParamStr, "=")
-		if len(tokens) != 2 {
-			return errors.New("parameter string is incorrectly formatted")
-		}
-		key := strings.TrimSpace(tokens[0])
-		value := strings.TrimSpace(tokens[1])
-		params[key] = value
+	params, err := parseParams(c)
+	if err != nil {
+		return err
 	}
 	bindingID, credentialMap, err := client.Bind(
 		host,

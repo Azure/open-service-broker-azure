@@ -17,7 +17,7 @@ func Update(
 	password string,
 	serviceID string,
 	planID string,
-	params map[string]string,
+	params map[string]interface{},
 ) (string, error) {
 	instanceID := uuid.NewV4().String()
 	url := fmt.Sprintf(
