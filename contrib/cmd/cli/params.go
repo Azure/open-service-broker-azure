@@ -3,25 +3,29 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/Azure/azure-service-broker/contrib/pkg/client"
+	parms "github.com/Azure/azure-service-broker/contrib/pkg/params"
 	"github.com/urfave/cli"
 )
 
+// parseParams iterates, in turn, over string, int, float, and bool params as
+// specified by the user and parses them into a map[string]interface{}.
 func parseParams(c *cli.Context) (map[string]interface{}, error) {
 	params := client.ProvisioningParameters{}
 	rawParamStrs := c.StringSlice(flagParameter)
 	for _, rawParamStr := range rawParamStrs {
-		key, val, err := parseParam(rawParamStr)
+		key, val, err := parms.Parse(rawParamStr)
 		if err != nil {
 			return nil, err
 		}
-		params[key] = val
+		if err := parms.Add(params, key, val); err != nil {
+			return nil, err
+		}
 	}
 	rawParamStrs = c.StringSlice(flagIntParameter)
 	for _, rawParamStr := range rawParamStrs {
-		key, valStr, err := parseParam(rawParamStr)
+		key, valStr, err := parms.Parse(rawParamStr)
 		if err != nil {
 			return nil, err
 		}
@@ -32,11 +36,13 @@ func parseParams(c *cli.Context) (map[string]interface{}, error) {
 				rawParamStr,
 			)
 		}
-		params[key] = val
+		if err := parms.Add(params, key, val); err != nil {
+			return nil, err
+		}
 	}
 	rawParamStrs = c.StringSlice(flagFloatParameter)
 	for _, rawParamStr := range rawParamStrs {
-		key, valStr, err := parseParam(rawParamStr)
+		key, valStr, err := parms.Parse(rawParamStr)
 		if err != nil {
 			return nil, err
 		}
@@ -47,11 +53,13 @@ func parseParams(c *cli.Context) (map[string]interface{}, error) {
 				rawParamStr,
 			)
 		}
-		params[key] = val
+		if err := parms.Add(params, key, val); err != nil {
+			return nil, err
+		}
 	}
 	rawParamStrs = c.StringSlice(flagBoolParameter)
 	for _, rawParamStr := range rawParamStrs {
-		key, valStr, err := parseParam(rawParamStr)
+		key, valStr, err := parms.Parse(rawParamStr)
 		if err != nil {
 			return nil, err
 		}
@@ -62,19 +70,9 @@ func parseParams(c *cli.Context) (map[string]interface{}, error) {
 				rawParamStr,
 			)
 		}
-		params[key] = val
+		if err := parms.Add(params, key, val); err != nil {
+			return nil, err
+		}
 	}
 	return params, nil
-}
-
-func parseParam(rawParamStr string) (string, string, error) {
-	rawParamStr = strings.TrimSpace(rawParamStr)
-	tokens := strings.Split(rawParamStr, "=")
-	if len(tokens) != 2 {
-		return "", "", fmt.Errorf(
-			`parameter string "%s" is incorrectly formatted`,
-			rawParamStr,
-		)
-	}
-	return strings.TrimSpace(tokens[0]), strings.TrimSpace(tokens[1]), nil
 }
