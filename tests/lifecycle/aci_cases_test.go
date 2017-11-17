@@ -25,9 +25,9 @@ func getACICases(
 			provisioningParameters: &aci.ProvisioningParameters{
 				Location:    "eastus",
 				ImageName:   "nginx",
-				Memory:      "1.5",
-				NumberCores: "1",
-				Port:        "80",
+				Memory:      1.5,
+				NumberCores: 1,
+				Port:        80,
 			},
 			bindingParameters: &aci.BindingParameters{},
 		},
