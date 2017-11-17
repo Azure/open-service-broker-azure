@@ -38,7 +38,10 @@ type aciCredentials struct {
 func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
+	return &ProvisioningParameters{
+		NumberCores: 1,
+		Memory:      1.5,
+	}
 }
 
 // SetResourceGroup sets the name of the resource group into which service
