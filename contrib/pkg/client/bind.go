@@ -17,7 +17,7 @@ func Bind(
 	username string,
 	password string,
 	instanceID string,
-	params map[string]string,
+	params map[string]interface{},
 ) (string, map[string]interface{}, error) {
 	bindingID := uuid.NewV4().String()
 	url := fmt.Sprintf(

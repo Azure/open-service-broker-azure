@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/Azure/azure-service-broker/contrib/pkg/client"
@@ -22,17 +20,9 @@ func update(c *cli.Context) error {
 		return fmt.Errorf("--%s is a required flag", flagServiceID)
 	}
 	planID := c.String(flagPlanID)
-	params := make(map[string]string)
-	rawParamStrs := c.StringSlice(flagParameter)
-	for _, rawParamStr := range rawParamStrs {
-		rawParamStr = strings.TrimSpace(rawParamStr)
-		tokens := strings.Split(rawParamStr, "=")
-		if len(tokens) != 2 {
-			return errors.New("parameter string is incorrectly formatted")
-		}
-		key := strings.TrimSpace(tokens[0])
-		value := strings.TrimSpace(tokens[1])
-		params[key] = value
+	params, err := parseParams(c)
+	if err != nil {
+		return err
 	}
 	instanceID, err := client.Update(
 		host,

@@ -24,14 +24,14 @@ var armTemplateBytes = []byte(`
 				"defaultValue": "microsoft/aci-helloworld"
 			},
 			"port": {
-				"type": "string",
+				"type": "int",
 				"metadata": {
 					"description": "Port to open on the container and the public IP address."
 				},
 				"defaultValue": "80"
 			},
 			"cpuCores": {
-				"type": "string",
+				"type": "int",
 				"metadata": {
 					"description": "The number of CPU cores to allocate to the container. Must be an integer."
 				},
@@ -69,7 +69,7 @@ var armTemplateBytes = []byte(`
 								"resources": {
 									"requests": {
 										"cpu": "[parameters('cpuCores')]",
-										"memoryInGb": "[parameters('memoryInGb')]"
+										"memoryInGb": "[float(parameters('memoryInGb'))]"
 									}
 								}
 							}

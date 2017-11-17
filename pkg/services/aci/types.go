@@ -8,9 +8,9 @@ type ProvisioningParameters struct {
 	ResourceGroup string            `json:"resourceGroup"`
 	Tags          map[string]string `json:"tags"`
 	ImageName     string            `json:"image"`
-	NumberCores   string            `json:"cpuCores"`
-	Memory        string            `json:"memoryInGb"`
-	Port          string            `json:"port"`
+	NumberCores   int               `json:"cpuCores"`
+	Memory        float64           `json:"memoryInGb"`
+	Port          int               `json:"port"`
 }
 
 type aciProvisioningContext struct {
@@ -38,7 +38,10 @@ type aciCredentials struct {
 func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
+	return &ProvisioningParameters{
+		NumberCores: 1,
+		Memory:      1.5,
+	}
 }
 
 // SetResourceGroup sets the name of the resource group into which service

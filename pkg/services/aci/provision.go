@@ -99,7 +99,7 @@ func (m *module) deployARMTemplate(
 			"image":      pp.ImageName,
 			"port":       pp.Port,
 			"cpuCores":   pp.NumberCores,
-			"memoryInGb": pp.Memory,
+			"memoryInGb": fmt.Sprintf("%f", pp.Memory),
 		},
 		pp.Tags,
 	)
