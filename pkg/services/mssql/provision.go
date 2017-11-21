@@ -174,7 +174,8 @@ func (m *module) deployARMTemplate(
 			pc.ResourceGroupName,
 			pc.Location,
 			armTemplateNewServerBytes,
-			map[string]interface{}{
+			nil, // Go template params
+			map[string]interface{}{ // ARM template params
 				"serverName":                 pc.ServerName,
 				"administratorLogin":         pc.AdministratorLogin,
 				"administratorLoginPassword": pc.AdministratorLoginPassword,
@@ -205,7 +206,8 @@ func (m *module) deployARMTemplate(
 			pc.ResourceGroupName,
 			pc.Location,
 			armTemplateExistingServerBytes,
-			map[string]interface{}{
+			nil, // Go template params
+			map[string]interface{}{ // ARM template params
 				"serverName":   pc.ServerName,
 				"databaseName": pc.DatabaseName,
 				"edition":      plan.GetProperties().Extended["edition"],

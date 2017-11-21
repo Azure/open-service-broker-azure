@@ -9,6 +9,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	az "github.com/Azure/azure-service-broker/pkg/azure"
+	"github.com/Azure/azure-service-broker/pkg/template"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	log "github.com/Sirupsen/logrus"
@@ -32,7 +33,8 @@ type Deployer interface {
 		resourceGroupName string,
 		location string,
 		template []byte,
-		params map[string]interface{},
+		goParams interface{},
+		armParams map[string]interface{},
 		tags map[string]string,
 	) (map[string]interface{}, error)
 	Delete(deploymentName string, resourceGroupName string) error
@@ -77,7 +79,8 @@ func (d *deployer) Deploy(
 	resourceGroupName string,
 	location string,
 	template []byte,
-	params map[string]interface{},
+	goParams interface{},
+	armParams map[string]interface{},
 	tags map[string]string,
 ) (map[string]interface{}, error) {
 	logFields := log.Fields{
@@ -138,7 +141,8 @@ func (d *deployer) Deploy(
 			resourceGroupName,
 			location,
 			template,
-			params,
+			goParams,
+			armParams,
 			tags,
 		); err != nil {
 			return nil, fmt.Errorf(
@@ -288,8 +292,9 @@ func (d *deployer) doNewDeployment(
 	deploymentName string,
 	resourceGroupName string,
 	location string,
-	template []byte,
-	params map[string]interface{},
+	armTemplate []byte,
+	goParams interface{},
+	armParams map[string]interface{},
 	tags map[string]string,
 ) (*resources.DeploymentExtended, error) {
 	groupsClient := resources.NewGroupsClientWithBaseURI(
@@ -319,15 +324,26 @@ func (d *deployer) doNewDeployment(
 		}
 	}
 
+	finalArmTemplate := armTemplate
+
+	// The template could be a Go text template that renders down to an ARM
+	// template, so deal with that possibility first.
+	if goParams != nil {
+		finalArmTemplate, err = template.Render(armTemplate, goParams)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Unmarshal the template into a map
-	var templateMap map[string]interface{}
-	err = json.Unmarshal(template, &templateMap)
+	var armTemplateMap map[string]interface{}
+	err = json.Unmarshal(finalArmTemplate, &armTemplateMap)
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshaling ARM template: %s", err)
 	}
 
 	// Augment the params with location
-	params["location"] = location
+	armParams["location"] = location
 
 	// Deal with the possibility that tags == nil
 	if tags == nil {
@@ -338,24 +354,23 @@ func (d *deployer) doNewDeployment(
 	tags["heritage"] = "azure-service-broker"
 
 	// Deal with the possiiblity that params == nil
-	if params == nil {
-		params = make(map[string]interface{})
+	if armParams == nil {
+		armParams = make(map[string]interface{})
 	}
 
 	// Augment the params with tags
-	params["tags"] = tags
+	armParams["tags"] = tags
 
 	// Convert a simple map[string]interface{} to the more complex
 	// map[string]map[string]interface{} required by the deployments client
-	paramsMap := map[string]interface{}{}
-	for key, val := range params {
-		paramsMap[key] = map[string]interface{}{
+	armParamsMap := map[string]interface{}{}
+	for key, val := range armParams {
+		armParamsMap[key] = map[string]interface{}{
 			"value": val,
 		}
 	}
 
 	// Deploy the template
-
 	cancelCh := make(chan struct{})
 	defer close(cancelCh)
 	_, errChan := deploymentsClient.CreateOrUpdate(
@@ -363,8 +378,8 @@ func (d *deployer) doNewDeployment(
 		deploymentName,
 		resources.Deployment{
 			Properties: &resources.DeploymentProperties{
-				Template:   &templateMap,
-				Parameters: &paramsMap,
+				Template:   &armTemplateMap,
+				Parameters: &armParamsMap,
 				Mode:       resources.Incremental,
 			},
 		},

@@ -14,11 +14,29 @@
   version = "v8.2.0"
 
 [[projects]]
+  name = "github.com/Masterminds/semver"
+  packages = ["."]
+  revision = "15d8430ab86497c5c0da827b748823945e1cf1e1"
+  version = "v1.4.0"
+
+[[projects]]
+  name = "github.com/Masterminds/sprig"
+  packages = ["."]
+  revision = "efda631a76d70875162cdc25ffa0d0164bf69758"
+  version = "v2.14.0"
+
+[[projects]]
   branch = "split-streams"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   revision = "9da25b464c10092c58bc53d56e44d04213e84496"
   source = "github.com/krancour/logrus"
+
+[[projects]]
+  name = "github.com/aokoli/goutils"
+  packages = ["."]
+  revision = "3391d3790d23d03408670993e957e8f408993c34"
+  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -60,6 +78,18 @@
   version = "v1.5.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/huandu/xstrings"
+  packages = ["."]
+  revision = "d6590c0c31d16526217fa60fbd2067f7afcd78c5"
+
+[[projects]]
+  name = "github.com/imdario/mergo"
+  packages = ["."]
+  revision = "7fe0c75c13abdee74b09fcacef5ea1c6bba6a874"
+  version = "0.2.4"
+
+[[projects]]
   name = "github.com/kelseyhightower/envconfig"
   packages = ["."]
   revision = "70f0258d44cbaa3b6a2581d82f58da01a38e4de4"
@@ -99,7 +129,7 @@
 
 [[projects]]
   name = "golang.org/x/crypto"
-  packages = ["md4","ssh/terminal"]
+  packages = ["md4","pbkdf2","scrypt","ssh/terminal"]
   revision = "81e90905daefcd6fd217b62423c0908922eadb30"
 
 [[projects]]
@@ -121,6 +151,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cc605baf4c56716e34f2b8d846ef5bf6716ace551495a930e168255b6aad4da5"
+  inputs-digest = "0df6bf952e3389527e59f4687d9c6e9fee66f9699041e0d919dbf5c70c262ad8"
   solver-name = "gps-cdcl"
   solver-version = 1

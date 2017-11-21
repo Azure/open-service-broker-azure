@@ -27,7 +27,7 @@ func getACICases(
 				ImageName:   "nginx",
 				Memory:      1.5,
 				NumberCores: 1,
-				Port:        80,
+				Ports:       []int{80, 443},
 			},
 			bindingParameters: &aci.BindingParameters{},
 		},

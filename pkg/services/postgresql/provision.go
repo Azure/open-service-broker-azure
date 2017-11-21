@@ -144,7 +144,8 @@ func (m *module) deployARMTemplate(
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		map[string]interface{}{
+		nil, // Go template params
+		map[string]interface{}{ // ARM template params
 			"administratorLoginPassword": pc.AdministratorLoginPassword,
 			"serverName":                 pc.ServerName,
 			"databaseName":               pc.DatabaseName,

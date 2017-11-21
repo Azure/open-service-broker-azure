@@ -113,9 +113,8 @@ func (m *module) deployARMTemplate(
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		// TODO: Values in this map should vary according to the serviceID and planID
-		// selected
-		map[string]interface{}{
+		nil, // Go template params
+		map[string]interface{}{ // ARM template params
 			"serverName":         pc.ServerName,
 			"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
 			"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],

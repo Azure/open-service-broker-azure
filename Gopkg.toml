@@ -63,3 +63,6 @@
 
 [[constraint]]
   name = "gopkg.in/mgo.v2"
+
+[[constraint]]
+  name = "github.com/Masterminds/sprig"

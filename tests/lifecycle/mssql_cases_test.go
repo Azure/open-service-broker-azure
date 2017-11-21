@@ -91,7 +91,8 @@ func getMssqlCases(
 			resourceGroup,
 			location,
 			armTemplateNewServerBytes,
-			map[string]interface{}{
+			nil, // Go template params
+			map[string]interface{}{ // ARM template params
 				"serverName":                 serverName,
 				"administratorLogin":         administratorLogin,
 				"administratorLoginPassword": administratorLoginPassword,

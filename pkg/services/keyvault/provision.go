@@ -132,7 +132,8 @@ func (m *module) deployARMTemplate(
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		map[string]interface{}{
+		nil, // Go template params
+		map[string]interface{}{ // ARM template params
 			"keyVaultName": pc.KeyVaultName,
 			"vaultSku":     plan.GetProperties().Extended["vaultSku"],
 			"tenantId":     m.keyvaultManager.GetTenantID(),

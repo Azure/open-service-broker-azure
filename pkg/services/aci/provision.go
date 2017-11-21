@@ -94,10 +94,10 @@ func (m *module) deployARMTemplate(
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		map[string]interface{}{
+		pp, // Go template params
+		map[string]interface{}{ // ARM template params
 			"name":       pc.ContainerName,
 			"image":      pp.ImageName,
-			"port":       pp.Port,
 			"cpuCores":   pp.NumberCores,
 			"memoryInGb": fmt.Sprintf("%f", pp.Memory),
 		},
@@ -107,14 +107,12 @@ func (m *module) deployARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	IPAddress, ok := outputs["containerIPv4Address"].(string)
-	if !ok {
-		return nil, fmt.Errorf(
-			"Error : couldn't find the container IP address",
-		)
+	// We don't check if this is ok, because "no public IP" is a legitimate
+	// scenario.
+	publicIPv4Address, ok := outputs["publicIPv4Address"].(string)
+	if ok {
+		pc.PublicIPv4Address = publicIPv4Address
 	}
-
-	pc.IPAddress = IPAddress
 
 	return pc, nil
 }
