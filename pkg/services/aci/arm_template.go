@@ -23,13 +23,6 @@ var armTemplateBytes = []byte(`
 				},
 				"defaultValue": "microsoft/aci-helloworld"
 			},
-			"port": {
-				"type": "int",
-				"metadata": {
-					"description": "Port to open on the container and the public IP address."
-				},
-				"defaultValue": "80"
-			},
 			"cpuCores": {
 				"type": "int",
 				"metadata": {
@@ -61,11 +54,15 @@ var armTemplateBytes = []byte(`
 							"name": "[parameters('name')]",
 							"properties": {
 								"image": "[parameters('image')]",
+								{{- if and $.Ports (gt (len $.Ports) 0) }}
 								"ports": [
+									{{- range $index, $port := $.Ports }}
 									{
-										"port": "[parameters('port')]" 
-									}
+										"port": {{ $port }}
+									}{{ if lt (add1 $index) (len $.Ports) }},{{ end }}
+									{{- end }}
 								],
+								{{- end }}
 								"resources": {
 									"requests": {
 										"cpu": "[parameters('cpuCores')]",
@@ -75,25 +72,30 @@ var armTemplateBytes = []byte(`
 							}
 						}
 					],
-					"osType": "Linux",
+					{{- if and $.Ports (gt (len $.Ports) 0) }}
 					"ipAddress": {
 						"type": "Public",
 						"ports": [
+							{{- range $index, $port := $.Ports }}
 							{
-								"protocol": "tcp",
-								"port": "[parameters('port')]"
-							}
+								"port": {{ $port }}
+							}{{ if lt (add1 $index) (len $.Ports) }},{{ end }}
+							{{- end }}
 						]
-					}
+					},
+					{{- end }}
+					"osType": "Linux"
 				},
 				"tags": "[parameters('tags')]"
 			}
 		],
 		"outputs": {
-			"containerIPv4Address":{
+			{{- if and $.Ports (gt (len $.Ports) 0) }}
+			"publicIPv4Address":{
 				"type": "string",
 				"value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups/', parameters('name'))).ipAddress.ip]"
 			}
+			{{- end }}
 		}
 	}
 `)

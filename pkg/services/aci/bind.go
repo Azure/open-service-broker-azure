@@ -27,7 +27,7 @@ func (m *module) Bind(
 
 	return &aciBindingContext{},
 		&aciCredentials{
-			IPAddress: pc.IPAddress,
+			PublicIPv4Address: pc.PublicIPv4Address,
 		},
 		nil
 }

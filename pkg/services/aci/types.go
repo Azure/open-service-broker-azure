@@ -10,14 +10,14 @@ type ProvisioningParameters struct {
 	ImageName     string            `json:"image"`
 	NumberCores   int               `json:"cpuCores"`
 	Memory        float64           `json:"memoryInGb"`
-	Port          int               `json:"port"`
+	Ports         []int             `json:"ports"`
 }
 
 type aciProvisioningContext struct {
 	ResourceGroupName string `json:"resourceGroup"`
 	ARMDeploymentName string `json:"armDeployment"`
 	ContainerName     string `json:"name"`
-	IPAddress         string `json:"containerIPv4Address"`
+	PublicIPv4Address string `json:"publicIPv4Address"`
 }
 
 // UpdatingParameters encapsulates aci-specific updating options
@@ -32,7 +32,7 @@ type aciBindingContext struct {
 }
 
 type aciCredentials struct {
-	IPAddress string `json:"containerIPv4Address"`
+	PublicIPv4Address string `json:"publicIPv4Address"`
 }
 
 func (
@@ -41,6 +41,7 @@ func (
 	return &ProvisioningParameters{
 		NumberCores: 1,
 		Memory:      1.5,
+		Ports:       make([]int, 0),
 	}
 }
 
