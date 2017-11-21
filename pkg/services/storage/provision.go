@@ -168,7 +168,8 @@ func (m *module) deployARMTemplate(
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		armTemplateParameters,
+		nil, // Go template params
+		armTemplateParameters, // ARM template params
 		pp.Tags,
 	)
 	if err != nil {

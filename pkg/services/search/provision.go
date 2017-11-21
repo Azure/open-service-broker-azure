@@ -115,7 +115,8 @@ func (m *module) deployARMTemplate(
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		map[string]interface{}{
+		nil, // Go template params
+		map[string]interface{}{ // ARM template params
 			"searchServiceName": pc.ServiceName,
 			"searchServiceSku":  plan.GetProperties().Extended["searchServiceSku"],
 		},

@@ -114,7 +114,8 @@ func (m *module) deployARMTemplate(
 		pc.ResourceGroupName,
 		pp.Location,
 		armTemplateBytes,
-		map[string]interface{}{
+		nil, // Go template params
+		map[string]interface{}{ // ARM template params
 			"eventHubName":      pc.EventHubName,
 			"eventHubNamespace": pc.EventHubNamespace,
 			"eventHubSku":       plan.GetProperties().Extended["eventHubSku"],
