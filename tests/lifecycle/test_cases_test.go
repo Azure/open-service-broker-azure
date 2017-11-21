@@ -21,6 +21,7 @@ func getTestCases(resourceGroup string) ([]moduleLifecycleTestCase, error) {
 		getACICases,
 		getCosmosdbCases,
 		getEventhubCases,
+		getHDInsightCases,
 		getKeyvaultCases,
 		getMssqlCases,
 		getMysqlCases,

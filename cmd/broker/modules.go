@@ -7,6 +7,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
 	eh "github.com/Azure/azure-service-broker/pkg/azure/eventhub"
+	hd "github.com/Azure/azure-service-broker/pkg/azure/hdinsight"
 	kv "github.com/Azure/azure-service-broker/pkg/azure/keyvault"
 	ss "github.com/Azure/azure-service-broker/pkg/azure/mssql"
 	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
@@ -20,6 +21,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/aci"
 	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
 	"github.com/Azure/azure-service-broker/pkg/services/eventhub"
+	"github.com/Azure/azure-service-broker/pkg/services/hdinsight"
 	"github.com/Azure/azure-service-broker/pkg/services/keyvault"
 	"github.com/Azure/azure-service-broker/pkg/services/mssql"
 	"github.com/Azure/azure-service-broker/pkg/services/mysql"
@@ -85,6 +87,10 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing aci manager: %s", err)
 	}
+	hdinsightManager, err := hd.NewManager()
+	if err != nil {
+		return fmt.Errorf("error initializing hdinsight manager: %s", err)
+	}
 
 	modules = []service.Module{
 		postgresql.New(armDeployer, postgreSQLManager),
@@ -98,6 +104,7 @@ func initModules() error {
 		storage.New(armDeployer, storageManager),
 		search.New(armDeployer, searchManager),
 		aci.New(armDeployer, aciManager),
+		hdinsight.New(armDeployer, hdinsightManager),
 	}
 	return nil
 }
