@@ -1,0 +1,11 @@
+
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: my-cosmosdb-instance
+  namespace: default
+spec:
+  clusterServiceClassExternalName: azure-cosmos-document-db
+  parameters:
+    location: japaneast
+    resourceGroup: demo
