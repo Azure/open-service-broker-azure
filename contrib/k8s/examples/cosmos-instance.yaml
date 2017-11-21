@@ -9,4 +9,3 @@ spec:
   parameters:
     location: japaneast
     resourceGroup: demo
-    
