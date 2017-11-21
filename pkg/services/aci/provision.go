@@ -26,6 +26,12 @@ func (m *module) ValidateProvisioningParameters(
 			fmt.Sprintf(`invalid location: "%s"`, pp.Location),
 		)
 	}
+	if pp.ImageName == "" {
+		return service.NewValidationError(
+			"image",
+			fmt.Sprintf(`invalid image: "%s"`, pp.ImageName),
+		)
+	}
 	return nil
 }
 
