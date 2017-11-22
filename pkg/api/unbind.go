@@ -116,7 +116,11 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		// Starting here, if something goes wrong, we don't know what state module-
 		// specific code has left us in, so we'll attempt to record the error in
 		// the datastore.
-		err = module.Unbind(provisioningContext, bindingContext)
+		err = module.Unbind(
+			instance.StandardProvisioningContext,
+			provisioningContext,
+			bindingContext,
+		)
 		if err != nil {
 			s.handleUnbindingError(
 				binding,

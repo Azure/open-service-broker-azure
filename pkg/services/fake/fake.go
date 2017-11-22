@@ -24,15 +24,17 @@ type BindingValidationFunction func(service.BindingParameters) error
 // BindFunction describes a function used to provide pluggable binding behavior
 // to the fake implementation of the service.Module interface
 type BindFunction func(
-	provisioningContext service.ProvisioningContext,
-	bindingParameters service.BindingParameters,
+	service.StandardProvisioningContext,
+	service.ProvisioningContext,
+	service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error)
 
 // UnbindFunction describes a function used to provide pluggable unbinding
 // behavior to the fake implementation of the service.Module interface
 type UnbindFunction func(
-	provisioningContext service.ProvisioningContext,
-	bindingContext service.BindingContext,
+	service.StandardProvisioningContext,
+	service.ProvisioningContext,
+	service.BindingContext,
 ) error
 
 // Module is a fake implementation of the service.Module interface used to
@@ -84,12 +86,13 @@ func (m *Module) GetProvisioner(string, string) (service.Provisioner, error) {
 }
 
 func (m *Module) provision(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters, // nolint: unparam
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	return provisioningContext, nil
 }
@@ -104,17 +107,21 @@ func (m *Module) ValidateUpdatingParameters(
 
 // GetUpdater returns a updater that defines the steps a module must
 // execute asynchronously to update a service
-func (m *Module) GetUpdater(string, string) (service.Updater, error) {
+func (m *Module) GetUpdater(
+	_ string, // serviceID
+	_ string, // planID
+) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("run", m.update),
 	)
 }
 
 func (m *Module) update(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	updatingParameters service.UpdatingParameters, // nolint: unparam
 ) (service.ProvisioningContext, error) {
@@ -131,18 +138,28 @@ func (m *Module) ValidateBindingParameters(
 
 // Bind synchronously binds to a service
 func (m *Module) Bind(
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	return m.BindBehavior(provisioningContext, bindingParameters)
+	return m.BindBehavior(
+		standardProvisioningContext,
+		provisioningContext,
+		bindingParameters,
+	)
 }
 
 // Unbind synchronously unbinds from a service
 func (m *Module) Unbind(
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingContext service.BindingContext,
 ) error {
-	return m.UnbindBehavior(provisioningContext, bindingContext)
+	return m.UnbindBehavior(
+		standardProvisioningContext,
+		provisioningContext,
+		bindingContext,
+	)
 }
 
 // GetDeprovisioner returns a deprovisioner that defines the steps a module
@@ -157,10 +174,11 @@ func (m *Module) GetDeprovisioner(
 }
 
 func (m *Module) deprovision(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
 	return provisioningContext, nil
@@ -183,6 +201,7 @@ func defaultBindingValidationBehavior(service.BindingParameters) error {
 }
 
 func defaultBindBehavior(
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
@@ -190,6 +209,7 @@ func defaultBindBehavior(
 }
 
 func defaultUnbindBehavior(
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingContext service.BindingContext,
 ) error {

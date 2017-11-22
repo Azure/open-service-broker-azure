@@ -96,6 +96,7 @@ func (b *broker) doDeprovisionStep(
 		instanceID,
 		instance.ServiceID,
 		instance.PlanID,
+		instance.StandardProvisioningContext,
 		provisioningContext,
 	)
 	if err != nil {

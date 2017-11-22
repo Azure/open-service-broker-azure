@@ -9,15 +9,17 @@ import (
 
 // Instance represents an instance of a service
 type Instance struct {
-	InstanceID                      string    `json:"instanceId"`
-	ServiceID                       string    `json:"serviceId"`
-	PlanID                          string    `json:"planId"`
-	EncryptedProvisioningParameters []byte    `json:"provisioningParameters"`
-	EncryptedUpdatingParameters     []byte    `json:"updatingParameters"`
-	Status                          string    `json:"status"`
-	StatusReason                    string    `json:"statusReason"`
-	EncryptedProvisioningContext    []byte    `json:"provisioningContext"`
-	Created                         time.Time `json:"created"`
+	InstanceID                      string                         `json:"instanceId"`                     // nolint: lll
+	ServiceID                       string                         `json:"serviceId"`                      // nolint: lll
+	PlanID                          string                         `json:"planId"`                         // nolint: lll
+	StandardProvisioningParameters  StandardProvisioningParameters `json:"standardProvisioningParameters"` // nolint: lll
+	EncryptedProvisioningParameters []byte                         `json:"provisioningParameters"`         // nolint: lll
+	EncryptedUpdatingParameters     []byte                         `json:"updatingParameters"`             // nolint: lll
+	Status                          string                         `json:"status"`                         // nolint: lll
+	StatusReason                    string                         `json:"statusReason"`                   // nolint: lll
+	StandardProvisioningContext     StandardProvisioningContext    `json:"standardProvisioningContext"`    // nolint: lll
+	EncryptedProvisioningContext    []byte                         `json:"provisioningContext"`            // nolint: lll
+	Created                         time.Time                      `json:"created"`                        // nolint: lll
 }
 
 // NewInstanceFromJSON returns a new Instance unmarshalled from the provided

@@ -12,6 +12,7 @@ type ProvisioningStepFunction func(
 	instanceID string,
 	serviceID string,
 	planID string,
+	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 	params ProvisioningParameters,
 ) (ProvisioningContext, error)
@@ -25,6 +26,7 @@ type ProvisioningStep interface {
 		instanceID string,
 		serviceID string,
 		planID string,
+		standardProvisioningContext StandardProvisioningContext,
 		provisioningContext ProvisioningContext,
 		params ProvisioningParameters,
 	) (ProvisioningContext, error)
@@ -71,12 +73,21 @@ func (p *provisioningStep) Execute(
 	instanceID string,
 	serviceID string,
 	planID string,
+	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 	params ProvisioningParameters,
 ) (ProvisioningContext, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	return p.fn(ctx, instanceID, serviceID, planID, provisioningContext, params)
+	return p.fn(
+		ctx,
+		instanceID,
+		serviceID,
+		planID,
+		standardProvisioningContext,
+		provisioningContext,
+		params,
+	)
 }
 
 // NewProvisioner returns a new provisioner

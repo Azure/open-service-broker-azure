@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/azure"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	uuid "github.com/satori/go.uuid"
 )
@@ -18,12 +17,6 @@ func (m *module) ValidateProvisioningParameters(
 		return errors.New(
 			"error casting provisioningParameters as " +
 				"*aci.ProvisioningParameters",
-		)
-	}
-	if !azure.IsValidLocation(pp.Location) {
-		return service.NewValidationError(
-			"location",
-			fmt.Sprintf(`invalid location: "%s"`, pp.Location),
 		)
 	}
 	if pp.ImageName == "" {
@@ -43,12 +36,13 @@ func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 }
 
 func (m *module) preProvision(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters, // nolint: unparam
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*aciProvisioningContext)
 	if !ok {
@@ -56,28 +50,17 @@ func (m *module) preProvision(
 			"error casting provisioningContext as *aciProvisioningContext",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*aci.ProvisioningParameters",
-		)
-	}
-	if pp.ResourceGroup != "" {
-		pc.ResourceGroupName = pp.ResourceGroup
-	} else {
-		pc.ResourceGroupName = uuid.NewV4().String()
-	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.ContainerName = uuid.NewV4().String()
 	return pc, nil
 }
 
 func (m *module) deployARMTemplate(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
@@ -97,8 +80,8 @@ func (m *module) deployARMTemplate(
 
 	outputs, err := m.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		pc.ResourceGroupName,
-		pp.Location,
+		standardProvisioningContext.ResourceGroup,
+		standardProvisioningContext.Location,
 		armTemplateBytes,
 		pp, // Go template params
 		map[string]interface{}{ // ARM template params
@@ -107,7 +90,7 @@ func (m *module) deployARMTemplate(
 			"cpuCores":   pp.NumberCores,
 			"memoryInGb": fmt.Sprintf("%f", pp.Memory),
 		},
-		pp.Tags,
+		standardProvisioningContext.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

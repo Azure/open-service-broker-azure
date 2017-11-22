@@ -20,7 +20,7 @@ func init() {
 	testProvisioningRequest = &ProvisioningRequest{
 		ServiceID:  serviceID,
 		PlanID:     planID,
-		Parameters: testArbitraryObject,
+		Parameters: testArbitraryMap,
 	}
 
 	testProvisioningRequestJSONStr := fmt.Sprintf(
@@ -31,7 +31,7 @@ func init() {
 		}`,
 		serviceID,
 		planID,
-		testArbitraryObjectJSON,
+		testArbitraryMapJSON,
 	)
 	whitespace := regexp.MustCompile(`\s`)
 	testProvisioningRequestJSON = []byte(
@@ -39,13 +39,9 @@ func init() {
 	)
 }
 
-func TestGetProvisioningRequestFromJSON(t *testing.T) {
-	provisioningRequest := &ProvisioningRequest{
-		Parameters: &ArbitraryType{},
-	}
-	err := GetProvisioningRequestFromJSON(
+func TestNewProvisioningRequestFromJSON(t *testing.T) {
+	provisioningRequest, err := NewProvisioningRequestFromJSON(
 		testProvisioningRequestJSON,
-		provisioningRequest,
 	)
 	assert.Nil(t, err)
 	assert.Equal(t, testProvisioningRequest, provisioningRequest)

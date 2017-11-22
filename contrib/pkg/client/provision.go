@@ -17,7 +17,7 @@ func Provision(
 	password string,
 	serviceID string,
 	planID string,
-	params ProvisioningParameters,
+	params map[string]interface{},
 	tags map[string]string,
 ) (string, error) {
 	instanceID := uuid.NewV4().String()

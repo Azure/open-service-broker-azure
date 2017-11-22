@@ -18,10 +18,11 @@ func (m *module) GetDeprovisioner(
 }
 
 func (m *module) deleteARMDeployment(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*searchProvisioningContext)
@@ -32,7 +33,7 @@ func (m *module) deleteARMDeployment(
 	}
 	if err := m.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		pc.ResourceGroupName,
+		standardProvisioningContext.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -40,10 +41,11 @@ func (m *module) deleteARMDeployment(
 }
 
 func (m *module) deleteAzureSearch(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*searchProvisioningContext)
@@ -54,7 +56,7 @@ func (m *module) deleteAzureSearch(
 	}
 	if err := m.searchManager.DeleteServer(
 		pc.ServiceName,
-		pc.ResourceGroupName,
+		standardProvisioningContext.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting Azure Search: %s", err)
 	}

@@ -278,6 +278,7 @@ func TestBrandNewBinding(t *testing.T) {
 	}
 	bindCalled := false
 	m.BindBehavior = func(
+		service.StandardProvisioningContext,
 		service.ProvisioningContext,
 		service.BindingParameters,
 	) (service.BindingContext, service.Credentials, error) {

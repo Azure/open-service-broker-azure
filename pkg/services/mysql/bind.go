@@ -16,6 +16,7 @@ func (m *module) ValidateBindingParameters(
 }
 
 func (m *module) Bind(
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {

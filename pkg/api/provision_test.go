@@ -150,8 +150,8 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: &fake.ProvisioningParameters{
-				SomeParameter: "bar",
+			Parameters: map[string]interface{}{
+				"someParameter": "bar",
 			},
 		},
 	)
@@ -222,12 +222,12 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 	assert.Equal(t, responseProvisioningAccepted, rr.Body.Bytes())
 }
 
-func TestKickOffNewAsyncProvisioning(t *testing.T) {
+func TestValidatingLocationParameterFails(t *testing.T) {
 	s, m, err := getTestServer()
 	assert.Nil(t, err)
-	validationCalled := false
+	moduleSpecificValidationCalled := false
 	m.ProvisioningValidationBehavior = func(service.ProvisioningParameters) error {
-		validationCalled = true
+		moduleSpecificValidationCalled = true
 		return nil
 	}
 	instanceID := getDisposableInstanceID()
@@ -239,6 +239,73 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
+			Parameters: map[string]interface{}{
+				"location": "upsidedown",
+			},
+		},
+	)
+	assert.Nil(t, err)
+	e := s.asyncEngine.(*fakeAsync.Engine)
+	assert.Empty(t, e.SubmittedTasks)
+	rr := httptest.NewRecorder()
+	s.router.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+	assert.False(t, moduleSpecificValidationCalled)
+	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
+}
+
+func TestModuleSpecificValidationFails(t *testing.T) {
+	s, m, err := getTestServer()
+	assert.Nil(t, err)
+	moduleSpecificValidationCalled := false
+	m.ProvisioningValidationBehavior = func(service.ProvisioningParameters) error {
+		moduleSpecificValidationCalled = true
+		return service.NewValidationError("foo", "bar")
+	}
+	instanceID := getDisposableInstanceID()
+	req, err := getProvisionRequest(
+		instanceID,
+		map[string]string{
+			"accepts_incomplete": "true",
+		},
+		&ProvisioningRequest{
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
+			Parameters: map[string]interface{}{
+				"location": "eastus",
+			},
+		},
+	)
+	assert.Nil(t, err)
+	e := s.asyncEngine.(*fakeAsync.Engine)
+	assert.Empty(t, e.SubmittedTasks)
+	rr := httptest.NewRecorder()
+	s.router.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+	assert.True(t, moduleSpecificValidationCalled)
+	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
+}
+
+func TestKickOffNewAsyncProvisioning(t *testing.T) {
+	s, m, err := getTestServer()
+	assert.Nil(t, err)
+	moduleSpecificValidationCalled := false
+	m.ProvisioningValidationBehavior = func(service.ProvisioningParameters) error {
+		moduleSpecificValidationCalled = true
+		return nil
+	}
+	instanceID := getDisposableInstanceID()
+	req, err := getProvisionRequest(
+		instanceID,
+		map[string]string{
+			"accepts_incomplete": "true",
+		},
+		&ProvisioningRequest{
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
+			Parameters: map[string]interface{}{
+				"location": "eastus",
+			},
 		},
 	)
 	assert.Nil(t, err)
@@ -247,7 +314,7 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusAccepted, rr.Code)
-	assert.True(t, validationCalled)
+	assert.True(t, moduleSpecificValidationCalled)
 	assert.Equal(t, 1, len(e.SubmittedTasks))
 	assert.Equal(t, responseProvisioningAccepted, rr.Body.Bytes())
 }
