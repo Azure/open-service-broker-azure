@@ -9,7 +9,7 @@ import (
 )
 
 func TestHealthEndpoint(t *testing.T) {
-	s, _, err := getTestServer()
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	req, err := getHealthRequest()
 	assert.Nil(t, err)

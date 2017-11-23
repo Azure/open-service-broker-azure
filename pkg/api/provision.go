@@ -251,7 +251,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// If we get to here, we need to provision a new instance.
 
 	// Start by validating all the standard provisioning parameters
-	err = validateStandardProvisioningParameters(standardProvisioningParameters)
+	err = s.validateStandardProvisioningParameters(standardProvisioningParameters)
 	if err != nil {
 		s.handlePossibleValidationError(err, w, logFields)
 		return
@@ -292,16 +292,9 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	standardProvisioningContext := service.StandardProvisioningContext{
-		Location: standardProvisioningParameters.Location,
-		Tags:     standardProvisioningParameters.Tags,
-	}
-	if standardProvisioningParameters.ResourceGroup == "" {
-		standardProvisioningContext.ResourceGroup = uuid.NewV4().String()
-	} else {
-		standardProvisioningContext.ResourceGroup =
-			standardProvisioningParameters.ResourceGroup
-	}
+	standardProvisioningContext := s.getStandardProvisioningContext(
+		standardProvisioningParameters,
+	)
 
 	instance = &service.Instance{
 		InstanceID: instanceID,
@@ -366,10 +359,11 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	log.WithFields(logFields).Debug("asynchronous provisioning initiated")
 }
 
-func validateStandardProvisioningParameters(
+func (s *server) validateStandardProvisioningParameters(
 	spp service.StandardProvisioningParameters,
 ) error {
-	if !azure.IsValidLocation(spp.Location) {
+	if (spp.Location == "" && s.defaultAzureLocation == "") ||
+		(spp.Location != "" && !azure.IsValidLocation(spp.Location)) {
 		return service.NewValidationError(
 			"location",
 			fmt.Sprintf(`invalid location: "%s"`, spp.Location),
@@ -395,4 +389,32 @@ func (s *server) handlePossibleValidationError(
 		return
 	}
 	s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+}
+
+func (s *server) getStandardProvisioningContext(
+	spp service.StandardProvisioningParameters,
+) service.StandardProvisioningContext {
+	// Handle defaults for location and resource group
+	spc := service.StandardProvisioningContext{
+		Tags: spp.Tags,
+	}
+	if spp.Location != "" {
+		spc.Location = spp.Location
+	} else {
+		// Note: If standardProvisioningParameters.Location and
+		// s.defaultAzureLocation were both "", we would have failed validation
+		// earlier. So if standardProvisioningParameters.Location == "", we know
+		// s.defaultAzureLocation != "", so the following is safe.
+		spc.Location = s.defaultAzureLocation
+	}
+	if spp.ResourceGroup != "" {
+		spc.ResourceGroup = spp.ResourceGroup
+	} else {
+		if s.defaultAzureResourceGroup != "" {
+			spc.ResourceGroup = s.defaultAzureResourceGroup
+		} else {
+			spc.ResourceGroup = uuid.NewV4().String()
+		}
+	}
+	return spc
 }

@@ -42,6 +42,11 @@ type modulesConfig struct {
 	MinStability    service.Stability
 }
 
+type azureConfig struct {
+	DefaultLocation      string `envconfig:"AZURE_DEFAULT_LOCATION"`
+	DefaultResourceGroup string `envconfig:"AZURE_DEFAULT_RESOURCE_GROUP"`
+}
+
 func getLogConfig() (logConfig, error) {
 	lc := logConfig{}
 	err := envconfig.Process("", &lc)
@@ -91,4 +96,10 @@ func getModulesConfig() (modulesConfig, error) {
 		)
 	}
 	return mc, nil
+}
+
+func getAzureConfig() (azureConfig, error) {
+	ac := azureConfig{}
+	err := envconfig.Process("", &ac)
+	return ac, err
 }
