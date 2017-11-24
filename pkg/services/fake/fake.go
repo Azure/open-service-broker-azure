@@ -123,7 +123,7 @@ func (m *Module) update(
 	_ string, // planID
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	updatingParameters service.UpdatingParameters, // nolint: unparam
+	_ service.UpdatingParameters,
 ) (service.ProvisioningContext, error) {
 	return provisioningContext, nil
 }
