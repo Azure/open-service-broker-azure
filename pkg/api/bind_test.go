@@ -192,8 +192,8 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 		instanceID,
 		bindingID,
 		&BindingRequest{
-			Parameters: &fake.BindingParameters{
-				SomeParameter: "bar",
+			Parameters: map[string]interface{}{
+				"someParameter": "bar",
 			},
 		},
 	)

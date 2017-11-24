@@ -2,24 +2,26 @@ package api
 
 import (
 	"encoding/json"
-
-	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
 // BindingRequest represents a request to bind to a service
 type BindingRequest struct {
-	ServiceID  string                    `json:"service_id"`
-	PlanID     string                    `json:"plan_id"`
-	Parameters service.BindingParameters `json:"parameters"`
+	ServiceID  string                 `json:"service_id"`
+	PlanID     string                 `json:"plan_id"`
+	Parameters map[string]interface{} `json:"parameters"`
 }
 
-// GetBindingRequestFromJSON populates the given BindingRequest by unmarshalling
-// the provided JSON []byte
-func GetBindingRequestFromJSON(
+// NewBindingRequestFromJSON returns a new BindingRequest unmarshaled from the
+// provided JSON []byte
+func NewBindingRequestFromJSON(
 	jsonBytes []byte,
-	bindingRequest *BindingRequest,
-) error {
-	return json.Unmarshal(jsonBytes, bindingRequest)
+) (*BindingRequest, error) {
+	bindingRequest := &BindingRequest{}
+	err := json.Unmarshal(jsonBytes, bindingRequest)
+	if err != nil {
+		return nil, err
+	}
+	return bindingRequest, nil
 }
 
 // ToJSON returns a []byte containing a JSON representation of the binding
