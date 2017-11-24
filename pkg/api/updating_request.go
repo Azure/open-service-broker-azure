@@ -2,8 +2,6 @@ package api
 
 import (
 	"encoding/json"
-
-	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
 // UpdatingPreviousValues represents the information about the service instance
@@ -15,19 +13,23 @@ type UpdatingPreviousValues struct {
 
 // UpdatingRequest represents a request to update a service
 type UpdatingRequest struct {
-	ServiceID      string                     `json:"service_id"`
-	PlanID         string                     `json:"plan_id"`
-	Parameters     service.UpdatingParameters `json:"parameters"`
-	PreviousValues UpdatingPreviousValues     `json:"previous_values"`
+	ServiceID      string                 `json:"service_id"`
+	PlanID         string                 `json:"plan_id"`
+	Parameters     map[string]interface{} `json:"parameters"`
+	PreviousValues UpdatingPreviousValues `json:"previous_values"`
 }
 
-// GetUpdatingRequestFromJSON populates the given UpdatingRequest by
-// unmarshalling the provided JSON []byte
-func GetUpdatingRequestFromJSON(
+// NewUpdatingRequestFromJSON returns a new UpdatingRequest unmarshaled from the
+// provided JSON []byte
+func NewUpdatingRequestFromJSON(
 	jsonBytes []byte,
-	updatingRequest *UpdatingRequest,
-) error {
-	return json.Unmarshal(jsonBytes, updatingRequest)
+) (*UpdatingRequest, error) {
+	updatingRequest := &UpdatingRequest{}
+	err := json.Unmarshal(jsonBytes, updatingRequest)
+	if err != nil {
+		return nil, err
+	}
+	return updatingRequest, nil
 }
 
 // ToJSON returns a []byte containing a JSON representation of the updating

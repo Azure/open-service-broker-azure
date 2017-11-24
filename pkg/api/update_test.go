@@ -183,9 +183,11 @@ func TestKickOffNewAsyncUpdating(t *testing.T) {
 			"accepts_incomplete": "true",
 		},
 		&UpdatingRequest{
-			ServiceID:  fake.ServiceID,
-			PlanID:     fake.StandardPlanID,
-			Parameters: fake.UpdatingParameters{"fake"},
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
+			Parameters: map[string]interface{}{
+				"someParameter": "fake",
+			},
 		},
 	)
 	assert.Nil(t, err)
