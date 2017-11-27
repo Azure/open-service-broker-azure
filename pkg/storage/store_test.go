@@ -123,7 +123,7 @@ func TestGetExistingBinding(t *testing.T) {
 	// Assert that the retrieval was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	// Assert that binding is not nil before using 
+	// Assert that binding is not nil before using
 	if assert.NotNil(t, binding, "binding should not be nil") {
 		assert.Equal(t, bindingID, binding.BindingID)
 	}
