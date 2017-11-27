@@ -54,7 +54,10 @@ func TestGetExistingInstance(t *testing.T) {
 	// Assert that the retrieval was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	assert.Equal(t, instanceID, instance.InstanceID)
+	// Asset that instance is not nil before using
+	if assert.NotNil(t, instance, "instance should not be nil") {
+		assert.Equal(t, instanceID, instance.InstanceID)
+	}
 }
 
 func TestDeleteNonExistingInstance(t *testing.T) {
@@ -120,7 +123,10 @@ func TestGetExistingBinding(t *testing.T) {
 	// Assert that the retrieval was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	assert.Equal(t, bindingID, binding.BindingID)
+	// Assert that binding is not nil before using
+	if assert.NotNil(t, binding, "binding should not be nil") {
+		assert.Equal(t, bindingID, binding.BindingID)
+	}
 }
 
 func TestDeleteNonExistingBinding(t *testing.T) {
