@@ -36,7 +36,7 @@ func (s *server) poll(
 		logFields["operation"] = operation
 		log.WithFields(logFields).Debug(
 			fmt.Sprintf(
-				`bad polling request: query paramater has invalid value; only "%s",`+
+				`bad polling request: query parameter has invalid value; only "%s",`+
 					` %s, and "%s" are accepted`,
 				OperationProvisioning,
 				OperationDeprovisioning,
