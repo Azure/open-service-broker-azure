@@ -17,8 +17,7 @@ func NewBindingRequestFromJSON(
 	jsonBytes []byte,
 ) (*BindingRequest, error) {
 	bindingRequest := &BindingRequest{}
-	err := json.Unmarshal(jsonBytes, bindingRequest)
-	if err != nil {
+	if err := json.Unmarshal(jsonBytes, bindingRequest); err != nil {
 		return nil, err
 	}
 	return bindingRequest, nil

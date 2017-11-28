@@ -25,8 +25,7 @@ func NewUpdatingRequestFromJSON(
 	jsonBytes []byte,
 ) (*UpdatingRequest, error) {
 	updatingRequest := &UpdatingRequest{}
-	err := json.Unmarshal(jsonBytes, updatingRequest)
-	if err != nil {
+	if err := json.Unmarshal(jsonBytes, updatingRequest); err != nil {
 		return nil, err
 	}
 	return updatingRequest, nil

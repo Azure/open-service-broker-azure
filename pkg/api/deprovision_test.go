@@ -122,6 +122,7 @@ func TestKickOffNewAsyncDeprovisioning(t *testing.T) {
 	)
 	assert.Nil(t, err)
 	e := s.asyncEngine.(*fakeAsync.Engine)
+	assert.NotNil(t, e)
 	assert.Empty(t, e.SubmittedTasks)
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)

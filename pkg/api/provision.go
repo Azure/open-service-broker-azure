@@ -146,7 +146,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	err = decoder.Decode(provisioningRequest.Parameters)
 	if err != nil {
 		log.WithFields(logFields).Debug(
-			"bad provisioning request: error decoding parameter map",
+			"bad provisioning request: error decoding parameter map into " +
+				"standardParameters",
 		)
 		// krancour: Choosing to interpret this scenario as a bad request since the
 		// probable cause would be disagreement between provided and expected types
@@ -172,7 +173,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	err = decoder.Decode(provisioningRequest.Parameters)
 	if err != nil {
 		log.WithFields(logFields).Debug(
-			"bad provisioning request: error decoding parameter map",
+			"bad provisioning request: error decoding parameter map into " +
+				"module-specific parameters",
 		)
 		// krancour: Choosing to interpret this scenario as a bad request since the
 		// probable cause would be disagreement between provided and expected types
