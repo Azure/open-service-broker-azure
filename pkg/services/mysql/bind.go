@@ -54,7 +54,8 @@ func (m *module) Bind(
 		fmt.Sprintf("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, "+
 			"PROCESS, INDEX, ALTER, SHOW DATABASES, CREATE TEMPORARY TABLES, "+
 			"LOCK TABLES, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, "+
-			"CREATE USER, EVENT, TRIGGER ON *.* TO '%s'@'%%' WITH GRANT OPTION",
+			"CREATE USER, REFERENCES, EVENT, "+
+			"TRIGGER ON *.* TO '%s'@'%%' WITH GRANT OPTION",
 			userName)); err != nil {
 		return nil, nil, fmt.Errorf(
 			`error granting permission to "%s": %s`,
