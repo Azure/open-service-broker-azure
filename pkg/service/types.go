@@ -16,14 +16,26 @@ const (
 	StabilityStable
 )
 
+// StandardProvisioningParameters encapsulates the handful of provisioning
+// parameters that are widely required for ANYTHING provisioned in Azure.
+type StandardProvisioningParameters struct {
+	Location      string            `json:"location"`
+	ResourceGroup string            `json:"resourceGroup"`
+	Tags          map[string]string `json:"tags"`
+}
+
 // ProvisioningParameters is an interface to be implemented by module-specific
 // types that represent provisioning parameters. This interface doesn't require
 // any functions to be implemented. It exists to improve the clarity of function
 // signatures and documentation.
-type ProvisioningParameters interface {
-	// SetResourceGroup sets the name of the resource group that a service
-	// instance should be provisioned into.
-	SetResourceGroup(string)
+type ProvisioningParameters interface{}
+
+// StandardProvisioningContext encapsulates the small amount of provisioning
+// context that is widely required for ANYTHING provisioned in Azure.
+type StandardProvisioningContext struct {
+	Location      string            `json:"location"`
+	ResourceGroup string            `json:"resourceGroup"`
+	Tags          map[string]string `json:"tags"`
 }
 
 // ProvisioningContext is an interface to be implemented by module-specific

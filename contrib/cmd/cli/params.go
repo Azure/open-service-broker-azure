@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Azure/azure-service-broker/contrib/pkg/client"
 	parms "github.com/Azure/azure-service-broker/contrib/pkg/params"
 	"github.com/urfave/cli"
 )
@@ -12,7 +11,7 @@ import (
 // parseParams iterates, in turn, over string, int, float, and bool params as
 // specified by the user and parses them into a map[string]interface{}.
 func parseParams(c *cli.Context) (map[string]interface{}, error) {
-	params := client.ProvisioningParameters{}
+	params := map[string]interface{}{}
 	rawParamStrs := c.StringSlice(flagParameter)
 	for _, rawParamStr := range rawParamStrs {
 		key, val, err := parms.Parse(rawParamStr)

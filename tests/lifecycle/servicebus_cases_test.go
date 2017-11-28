@@ -5,6 +5,7 @@ package lifecycle
 import (
 	"github.com/Azure/azure-service-broker/pkg/azure/arm"
 	sb "github.com/Azure/azure-service-broker/pkg/azure/servicebus"
+	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/servicebus"
 )
 
@@ -22,10 +23,11 @@ func getServicebusCases(
 			module:    servicebus.New(armDeployer, serviceBusManager),
 			serviceID: "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",
 			planID:    "13c6da8f-128c-48c0-a3a9-659d1b6d3920",
-			provisioningParameters: &servicebus.ProvisioningParameters{
+			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			bindingParameters: &servicebus.BindingParameters{},
+			provisioningParameters: &servicebus.ProvisioningParameters{},
+			bindingParameters:      &servicebus.BindingParameters{},
 		},
 	}, nil
 }

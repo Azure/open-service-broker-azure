@@ -4,14 +4,10 @@ import "github.com/Azure/azure-service-broker/pkg/service"
 
 // ProvisioningParameters encapsulates MySQL-specific provisioning options
 type ProvisioningParameters struct {
-	Location       string            `json:"location"`
-	ResourceGroup  string            `json:"resourceGroup"`
-	Tags           map[string]string `json:"tags"`
-	SSLEnforcement string            `json:"sslEnforcement"`
+	SSLEnforcement string `json:"sslEnforcement"`
 }
 
 type mysqlProvisioningContext struct {
-	ResourceGroupName          string `json:"resourceGroup"`
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
@@ -45,12 +41,6 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
-}
-
-// SetResourceGroup sets the name of the resource group into which service
-// instances will be deployed
-func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
-	p.ResourceGroup = resourceGroup
 }
 
 func (

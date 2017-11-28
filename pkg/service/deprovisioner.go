@@ -12,6 +12,7 @@ type DeprovisioningStepFunction func(
 	instanceID string,
 	serviceID string,
 	planID string,
+	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 ) (ProvisioningContext, error)
 
@@ -24,6 +25,7 @@ type DeprovisioningStep interface {
 		instanceID string,
 		serviceID string,
 		planID string,
+		standardProvisioningContext StandardProvisioningContext,
 		provisioningContext ProvisioningContext,
 	) (ProvisioningContext, error)
 }
@@ -69,11 +71,19 @@ func (d *deprovisioningStep) Execute(
 	instanceID string,
 	serviceID string,
 	planID string,
+	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 ) (ProvisioningContext, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	return d.fn(ctx, instanceID, serviceID, planID, provisioningContext)
+	return d.fn(
+		ctx,
+		instanceID,
+		serviceID,
+		planID,
+		standardProvisioningContext,
+		provisioningContext,
+	)
 }
 
 // NewDeprovisioner returns a new deprovisioner

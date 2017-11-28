@@ -7,7 +7,8 @@ import (
 )
 
 func (m *module) Unbind(
-	provisioningContext service.ProvisioningContext, // nolint: unparam
+	_ service.StandardProvisioningContext,
+	provisioningContext service.ProvisioningContext,
 	bindingContext service.BindingContext,
 ) error {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)

@@ -4,18 +4,13 @@ import "github.com/Azure/azure-service-broker/pkg/service"
 
 // ProvisioningParameters encapsulates MSSQL-specific provisioning options
 type ProvisioningParameters struct {
-	Location      string            `json:"location"`
-	ServerName    string            `json:"server"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
+	ServerName string `json:"server"`
 }
 
 type mssqlProvisioningContext struct {
-	ResourceGroupName          string `json:"resourceGroup"`
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	IsNewServer                bool   `json:"isNewServer"`
-	Location                   string `json:"location"`
 	AdministratorLogin         string `json:"administratorLogin"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 	DatabaseName               string `json:"database"`
@@ -62,12 +57,6 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
-}
-
-// SetResourceGroup sets the name of the resource group into which service
-// instances will be deployed
-func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
-	p.ResourceGroup = resourceGroup
 }
 
 func (

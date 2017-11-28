@@ -20,7 +20,7 @@ func init() {
 	testUpdatingRequest = &UpdatingRequest{
 		ServiceID:  serviceID,
 		PlanID:     planID,
-		Parameters: testArbitraryObject,
+		Parameters: testArbitraryMap,
 	}
 
 	testUpdatingRequestJSONStr := fmt.Sprintf(
@@ -41,13 +41,9 @@ func init() {
 	)
 }
 
-func TestGetUpdatingRequestFromJSON(t *testing.T) {
-	updatingRequest := &UpdatingRequest{
-		Parameters: &ArbitraryType{},
-	}
-	err := GetUpdatingRequestFromJSON(
+func TestNewUpdatingRequestFromJSON(t *testing.T) {
+	updatingRequest, err := NewUpdatingRequestFromJSON(
 		testUpdatingRequestJSON,
-		updatingRequest,
 	)
 	assert.Nil(t, err)
 	assert.Equal(t, testUpdatingRequest, updatingRequest)

@@ -138,11 +138,12 @@ func getMssqlCases(
 			description: "new server and database",
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
-			provisioningParameters: &mssql.ProvisioningParameters{
+			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			bindingParameters: &mssql.BindingParameters{},
-			testCredentials:   testMsSQLCreds(),
+			provisioningParameters: &mssql.ProvisioningParameters{},
+			bindingParameters:      &mssql.BindingParameters{},
+			testCredentials:        testMsSQLCreds(),
 		},
 		{ // existing server scenario
 			module:      mssql.New(armDeployer, msSQLManager, msSQLConfig),
@@ -150,6 +151,9 @@ func getMssqlCases(
 			setup:       createSQLServer,
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
+			standardProvisioningContext: service.StandardProvisioningContext{
+				Location: "southcentralus", // This is actually irrelevant for this test
+			},
 			provisioningParameters: &mssql.ProvisioningParameters{
 				ServerName: serverName,
 			},

@@ -3,14 +3,9 @@ package eventhub
 import "github.com/Azure/azure-service-broker/pkg/service"
 
 // ProvisioningParameters encapsulates Azure Event Hub provisioning options
-type ProvisioningParameters struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
-}
+type ProvisioningParameters struct{}
 
 type eventHubProvisioningContext struct {
-	ResourceGroupName string `json:"resourceGroup"`
 	ARMDeploymentName string `json:"armDeployment"`
 	EventHubName      string `json:"eventHubName"`
 	EventHubNamespace string `json:"eventHubNamespace"`
@@ -40,12 +35,6 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
-}
-
-// SetResourceGroup sets the name of the resource group into which service
-// instances will be deployed
-func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
-	p.ResourceGroup = resourceGroup
 }
 
 func (

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Azure/azure-service-broker/pkg/azure"
 	"github.com/Azure/azure-service-broker/pkg/generate"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	log "github.com/Sirupsen/logrus"
@@ -22,12 +21,6 @@ func (m *module) ValidateProvisioningParameters(
 		return errors.New(
 			"error casting provisioningParameters as " +
 				"*postgresql.ProvisioningParameters",
-		)
-	}
-	if !azure.IsValidLocation(pp.Location) {
-		return service.NewValidationError(
-			"location",
-			fmt.Sprintf(`invalid location: "%s"`, pp.Location),
 		)
 	}
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
@@ -51,10 +44,11 @@ func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 }
 
 func (m *module) preProvision(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
@@ -70,11 +64,6 @@ func (m *module) preProvision(
 			"error casting provisioningParameters as " +
 				"*postgresql.ProvisioningParameters",
 		)
-	}
-	if pp.ResourceGroup != "" {
-		pc.ResourceGroupName = pp.ResourceGroup
-	} else {
-		pc.ResourceGroupName = uuid.NewV4().String()
 	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.ServerName = uuid.NewV4().String()
@@ -93,24 +82,18 @@ func (m *module) preProvision(
 }
 
 func (m *module) deployARMTemplate(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
 	serviceID string,
 	planID string,
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningContext as *postgresqlProvisioningContext",
-		)
-	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*postgresql.ProvisioningParameters",
 		)
 	}
 	catalog, err := m.GetCatalog()
@@ -141,8 +124,8 @@ func (m *module) deployARMTemplate(
 	}
 	outputs, err := m.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		pc.ResourceGroupName,
-		pp.Location,
+		standardProvisioningContext.ResourceGroup,
+		standardProvisioningContext.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
@@ -155,7 +138,7 @@ func (m *module) deployARMTemplate(
 				Extended["skuCapacityDTU"],
 			"sslEnforcement": sslEnforcement,
 		},
-		pp.Tags,
+		standardProvisioningContext.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -174,12 +157,13 @@ func (m *module) deployARMTemplate(
 }
 
 func (m *module) setupDatabase(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters, // nolint: unparam
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
@@ -240,10 +224,11 @@ func (m *module) setupDatabase(
 }
 
 func (m *module) createExtensions(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {

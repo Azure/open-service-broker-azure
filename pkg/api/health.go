@@ -4,7 +4,7 @@ import "net/http"
 
 func (s *server) healthCheck(
 	w http.ResponseWriter,
-	r *http.Request, // nolint: unparam
+	_ *http.Request,
 ) {
 	if err := s.store.TestConnection(); err != nil {
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)

@@ -21,10 +21,11 @@ func (m *module) GetDeprovisioner(
 }
 
 func (m *module) deleteARMDeployment(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*cosmosdbProvisioningContext)
@@ -35,7 +36,7 @@ func (m *module) deleteARMDeployment(
 	}
 	if err := m.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		pc.ResourceGroupName,
+		standardProvisioningContext.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -43,10 +44,11 @@ func (m *module) deleteARMDeployment(
 }
 
 func (m *module) deleteCosmosDBServer(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*cosmosdbProvisioningContext)
@@ -57,7 +59,7 @@ func (m *module) deleteCosmosDBServer(
 	}
 	if err := m.cosmosdbManager.DeleteDatabaseAccount(
 		pc.DatabaseAccountName,
-		pc.ResourceGroupName,
+		standardProvisioningContext.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}

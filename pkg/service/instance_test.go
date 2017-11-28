@@ -19,6 +19,10 @@ func init() {
 	instanceID := "test-instance-id"
 	serviceID := "test-service-id"
 	planID := "test-plan-id"
+	location := "test-location"
+	resourceGroup := "test-rg"
+	tagKey := "foo"
+	tagVal := "bar"
 	encryptedProvisiongingParameters := []byte(`{"foo":"bar"}`)
 	encryptedUpdatingParameters := []byte(`{"foo":"bar"}`)
 	statusReason := "in-progress"
@@ -32,10 +36,20 @@ func init() {
 		InstanceID: instanceID,
 		ServiceID:  serviceID,
 		PlanID:     planID,
+		StandardProvisioningParameters: StandardProvisioningParameters{
+			Location:      location,
+			ResourceGroup: resourceGroup,
+			Tags:          map[string]string{tagKey: tagVal},
+		},
 		EncryptedProvisioningParameters: encryptedProvisiongingParameters,
 		EncryptedUpdatingParameters:     encryptedUpdatingParameters,
-		Status:                       InstanceStateProvisioning,
-		StatusReason:                 statusReason,
+		Status:       InstanceStateProvisioning,
+		StatusReason: statusReason,
+		StandardProvisioningContext: StandardProvisioningContext{
+			Location:      location,
+			ResourceGroup: resourceGroup,
+			Tags:          map[string]string{tagKey: tagVal},
+		},
 		EncryptedProvisioningContext: encryptedProvisiongingContext,
 		Created: created,
 	}
@@ -55,20 +69,38 @@ func init() {
 			"instanceId":"%s",
 			"serviceId":"%s",
 			"planId":"%s",
+			"standardProvisioningParameters":{
+				"location":"%s",
+				"resourceGroup":"%s",
+				"tags":{"%s":"%s"}
+			},
 			"provisioningParameters":"%s",
 			"updatingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
+			"standardProvisioningContext":{
+				"location":"%s",
+				"resourceGroup":"%s",
+				"tags":{"%s":"%s"}
+			},
 			"provisioningContext":"%s",
 			"created":"%s"
 		}`,
 		instanceID,
 		serviceID,
 		planID,
+		location,
+		resourceGroup,
+		tagKey,
+		tagVal,
 		b64EncryptedProvisioningParameters,
 		b64EncryptedUpdatingParameters,
 		InstanceStateProvisioning,
 		statusReason,
+		location,
+		resourceGroup,
+		tagKey,
+		tagVal,
 		b64EncryptedProvisioningContext,
 		created.Format(time.RFC3339),
 	)

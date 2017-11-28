@@ -4,16 +4,12 @@ import "github.com/Azure/azure-service-broker/pkg/service"
 
 // ProvisioningParameters encapsulates keyvault-specific provisioning options
 type ProvisioningParameters struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
-	ObjectID      string            `json:"objectId"`
-	ClientID      string            `json:"clientId"`
-	ClientSecret  string            `json:"clientSecret"`
+	ObjectID     string `json:"objectId"`
+	ClientID     string `json:"clientId"`
+	ClientSecret string `json:"clientSecret"`
 }
 
 type keyvaultProvisioningContext struct {
-	ResourceGroupName string `json:"resourceGroup"`
 	ARMDeploymentName string `json:"armDeployment"`
 	KeyVaultName      string `json:"keyVaultName"`
 	VaultURI          string `json:"vaultUri"`
@@ -44,12 +40,6 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
-}
-
-// SetResourceGroup sets the name of the resource group into which service
-// instances will be deployed
-func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
-	p.ResourceGroup = resourceGroup
 }
 
 func (

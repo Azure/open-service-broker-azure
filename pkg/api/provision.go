@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -10,9 +9,12 @@ import (
 	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/async/model"
+	"github.com/Azure/azure-service-broker/pkg/azure"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/mitchellh/mapstructure"
+	"github.com/satori/uuid"
 )
 
 func (s *server) provision(w http.ResponseWriter, r *http.Request) {
@@ -58,8 +60,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close() // nolint: errcheck
 
-	rawProvisioningRequest := map[string]interface{}{}
-	err = json.Unmarshal(bodyBytes, &rawProvisioningRequest)
+	provisioningRequest, err := NewProvisioningRequestFromJSON(bodyBytes)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Debug(
@@ -72,9 +73,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceIDIface, ok := rawProvisioningRequest["service_id"]
-	serviceID := fmt.Sprintf("%v", serviceIDIface)
-	if !ok || serviceID == "" {
+	serviceID := provisioningRequest.ServiceID
+	if serviceID == "" {
 		logFields["field"] = "service_id"
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: required request body field is missing",
@@ -83,9 +83,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	planIDIface, ok := rawProvisioningRequest["plan_id"]
-	planID := fmt.Sprintf("%v", planIDIface)
-	if !ok || planID == "" {
+	planID := provisioningRequest.PlanID
+	if planID == "" {
 		logFields["field"] = "plan_id"
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: required request body field is missing",
@@ -128,25 +127,59 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Now that we know what module we're dealing with, we can get an instance
-	// of the module-specific type for provisioningParameters and take a second
-	// pass at parsing the request body
-	provisioningRequest := &ProvisioningRequest{
-		Parameters: module.GetEmptyProvisioningParameters(),
+	// Unpack the parameter map in the request to structs
+
+	// Standard params (those common to all services) first
+	standardProvisioningParameters := service.StandardProvisioningParameters{}
+	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		TagName: "json",
+		Result:  &standardProvisioningParameters,
+	})
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"error building parameter map decoder",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		return
 	}
-	err = GetProvisioningRequestFromJSON(bodyBytes, provisioningRequest)
+	err = decoder.Decode(provisioningRequest.Parameters)
 	if err != nil {
 		log.WithFields(logFields).Debug(
-			"bad provisioning request: error unmarshaling request body",
+			"bad provisioning request: error decoding parameter map into " +
+				"standardParameters",
 		)
-		// krancour: Choosing to interpret this scenario as a bad request, as a
-		// valid request, obviously contains valid, well-formed JSON
-		// TODO: Write a more detailed response
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
 		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
 		return
 	}
-	if provisioningRequest.Parameters == nil {
-		provisioningRequest.Parameters = module.GetEmptyProvisioningParameters()
+
+	// Then service-specific parameters
+	provisioningParameters := module.GetEmptyProvisioningParameters()
+	decoderConfig := &mapstructure.DecoderConfig{
+		TagName: "json",
+		Result:  provisioningParameters,
+	}
+	decoder, err = mapstructure.NewDecoder(decoderConfig)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"error building parameter map decoder",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		return
+	}
+	err = decoder.Decode(provisioningRequest.Parameters)
+	if err != nil {
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: error decoding parameter map into " +
+				"module-specific parameters",
+		)
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
+		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		return
 	}
 
 	instance, ok, err := s.store.GetInstance(instanceID)
@@ -166,9 +199,13 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// provisioning context and other status information. So, let's reverse
 		// engineer a request from the existing instance then compare it to the
 		// current request.
-		previousProvisioningRequestParams := module.GetEmptyProvisioningParameters()
+		//
+		// Two requests are the same if they are for the same serviceID, the same,
+		// planID, and both standard and module-specific provisioning parameters
+		// are deeply equal.
+		previousProvisioningParameters := module.GetEmptyProvisioningParameters()
 		if err = instance.GetProvisioningParameters(
-			previousProvisioningRequestParams,
+			previousProvisioningParameters,
 			s.codec,
 		); err != nil {
 			logFields["error"] = err
@@ -179,12 +216,16 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 			return
 		}
-		previousProvisioningRequest := &ProvisioningRequest{
-			ServiceID:  instance.ServiceID,
-			PlanID:     instance.PlanID,
-			Parameters: previousProvisioningRequestParams,
-		}
-		if reflect.DeepEqual(provisioningRequest, previousProvisioningRequest) {
+		if instance.ServiceID == serviceID &&
+			instance.PlanID == planID &&
+			reflect.DeepEqual(
+				instance.StandardProvisioningParameters,
+				standardProvisioningParameters,
+			) &&
+			reflect.DeepEqual(
+				previousProvisioningParameters,
+				provisioningParameters,
+			) {
 			// Per the spec, if fully provisioned, respond with a 200, else a 202.
 			// Filling in a gap in the spec-- if the status is anything else, we'll
 			// choose to respond with a 409
@@ -210,22 +251,18 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If we get to here, we need to provision a new instance.
-	// Start by carrying out module-specific request validation
-	err = module.ValidateProvisioningParameters(provisioningRequest.Parameters)
+
+	// Start by validating all the standard provisioning parameters
+	err = s.validateStandardProvisioningParameters(standardProvisioningParameters)
 	if err != nil {
-		var validationErr *service.ValidationError
-		validationErr, ok = err.(*service.ValidationError)
-		if ok {
-			logFields["field"] = validationErr.Field
-			logFields["issue"] = validationErr.Issue
-			log.WithFields(logFields).Debug(
-				"bad provisioning request: validation error",
-			)
-			// TODO: Send the correct response body-- this is a placeholder
-			s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
-			return
-		}
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.handlePossibleValidationError(err, w, logFields)
+		return
+	}
+
+	// Then validate module-specific provisioning parameters
+	err = module.ValidateProvisioningParameters(provisioningParameters)
+	if err != nil {
+		s.handlePossibleValidationError(err, w, logFields)
 		return
 	}
 
@@ -257,12 +294,18 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	standardProvisioningContext := s.getStandardProvisioningContext(
+		standardProvisioningParameters,
+	)
+
 	instance = &service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  provisioningRequest.ServiceID,
 		PlanID:     provisioningRequest.PlanID,
-		Status:     service.InstanceStateProvisioning,
-		Created:    time.Now(),
+		StandardProvisioningParameters: standardProvisioningParameters,
+		Status: service.InstanceStateProvisioning,
+		StandardProvisioningContext: standardProvisioningContext,
+		Created:                     time.Now(),
 	}
 	if err = instance.SetProvisioningParameters(
 		provisioningRequest.Parameters,
@@ -316,4 +359,64 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	s.writeResponse(w, http.StatusAccepted, responseProvisioningAccepted)
 
 	log.WithFields(logFields).Debug("asynchronous provisioning initiated")
+}
+
+func (s *server) validateStandardProvisioningParameters(
+	spp service.StandardProvisioningParameters,
+) error {
+	if (spp.Location == "" && s.defaultAzureLocation == "") ||
+		(spp.Location != "" && !azure.IsValidLocation(spp.Location)) {
+		return service.NewValidationError(
+			"location",
+			fmt.Sprintf(`invalid location: "%s"`, spp.Location),
+		)
+	}
+	return nil
+}
+
+func (s *server) handlePossibleValidationError(
+	err error,
+	w http.ResponseWriter,
+	logFields log.Fields,
+) {
+	validationErr, ok := err.(*service.ValidationError)
+	if ok {
+		logFields["field"] = validationErr.Field
+		logFields["issue"] = validationErr.Issue
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: validation error",
+		)
+		// TODO: Send the correct response body-- this is a placeholder
+		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		return
+	}
+	s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+}
+
+func (s *server) getStandardProvisioningContext(
+	spp service.StandardProvisioningParameters,
+) service.StandardProvisioningContext {
+	// Handle defaults for location and resource group
+	spc := service.StandardProvisioningContext{
+		Tags: spp.Tags,
+	}
+	if spp.Location != "" {
+		spc.Location = spp.Location
+	} else {
+		// Note: If standardProvisioningParameters.Location and
+		// s.defaultAzureLocation were both "", we would have failed validation
+		// earlier. So if standardProvisioningParameters.Location == "", we know
+		// s.defaultAzureLocation != "", so the following is safe.
+		spc.Location = s.defaultAzureLocation
+	}
+	if spp.ResourceGroup != "" {
+		spc.ResourceGroup = spp.ResourceGroup
+	} else {
+		if s.defaultAzureResourceGroup != "" {
+			spc.ResourceGroup = s.defaultAzureResourceGroup
+		} else {
+			spc.ResourceGroup = uuid.NewV4().String()
+		}
+	}
+	return spc
 }

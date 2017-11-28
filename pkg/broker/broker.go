@@ -55,6 +55,8 @@ func NewBroker(
 	authenticator authenticator.Authenticator,
 	modules []service.Module,
 	minStability service.Stability,
+	defaultAzureLocation string,
+	defaultAzureResourceGroup string,
 ) (Broker, error) {
 	b := &broker{
 		store:       storage.NewStore(redisClient),
@@ -111,6 +113,8 @@ func NewBroker(
 		b.codec,
 		authenticator,
 		b.modules,
+		defaultAzureLocation,
+		defaultAzureResourceGroup,
 	)
 	if err != nil {
 		return nil, err

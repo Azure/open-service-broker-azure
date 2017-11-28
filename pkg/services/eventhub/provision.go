@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/azure"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	uuid "github.com/satori/go.uuid"
 )
@@ -13,19 +12,7 @@ import (
 func (m *module) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return errors.New(
-			"error casting provisioningParameters as " +
-				"*eventhub.ProvisioningParameters",
-		)
-	}
-	if !azure.IsValidLocation(pp.Location) {
-		return service.NewValidationError(
-			"location",
-			fmt.Sprintf(`invalid location: "%s"`, pp.Location),
-		)
-	}
+	// Nothing to validate
 	return nil
 }
 
@@ -37,30 +24,19 @@ func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 }
 
 func (m *module) preProvision(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*eventHubProvisioningContext)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningContext as *eventHubProvisioningContext",
 		)
-	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*eventhub.ProvisioningParameters",
-		)
-	}
-	if pp.ResourceGroup != "" {
-		pc.ResourceGroupName = pp.ResourceGroup
-	} else {
-		pc.ResourceGroupName = uuid.NewV4().String()
 	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.EventHubName = uuid.NewV4().String()
@@ -69,24 +45,18 @@ func (m *module) preProvision(
 }
 
 func (m *module) deployARMTemplate(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
 	serviceID string,
 	planID string,
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*eventHubProvisioningContext)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningContext as *eventHubProvisioningContext",
-		)
-	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*eventhub.ProvisioningParameters",
 		)
 	}
 	catalog, err := m.GetCatalog()
@@ -111,8 +81,8 @@ func (m *module) deployARMTemplate(
 	}
 	outputs, err := m.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		pc.ResourceGroupName,
-		pp.Location,
+		standardProvisioningContext.ResourceGroup,
+		standardProvisioningContext.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
@@ -120,7 +90,7 @@ func (m *module) deployARMTemplate(
 			"eventHubNamespace": pc.EventHubNamespace,
 			"eventHubSku":       plan.GetProperties().Extended["eventHubSku"],
 		},
-		pp.Tags,
+		standardProvisioningContext.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

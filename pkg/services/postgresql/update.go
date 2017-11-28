@@ -10,6 +10,9 @@ func (m *module) ValidateUpdatingParameters(
 	return nil
 }
 
-func (m *module) GetUpdater(string, string) (service.Updater, error) {
+func (m *module) GetUpdater(
+	_ string, // serviceID
+	_ string, // planID
+) (service.Updater, error) {
 	return service.NewUpdater()
 }

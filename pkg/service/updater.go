@@ -12,6 +12,7 @@ type UpdatingStepFunction func(
 	instanceID string,
 	serviceID string,
 	planID string,
+	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 	params UpdatingParameters,
 ) (ProvisioningContext, error)
@@ -25,6 +26,7 @@ type UpdatingStep interface {
 		instanceID string,
 		serviceID string,
 		planID string,
+		standardProvisioningContext StandardProvisioningContext,
 		provisioningContext ProvisioningContext,
 		params UpdatingParameters,
 	) (ProvisioningContext, error)
@@ -71,12 +73,21 @@ func (u *updatingStep) Execute(
 	instanceID string,
 	serviceID string,
 	planID string,
+	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 	params UpdatingParameters,
 ) (ProvisioningContext, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	return u.fn(ctx, instanceID, serviceID, planID, provisioningContext, params)
+	return u.fn(
+		ctx,
+		instanceID,
+		serviceID,
+		planID,
+		standardProvisioningContext,
+		provisioningContext,
+		params,
+	)
 }
 
 // NewUpdater returns a new updater
