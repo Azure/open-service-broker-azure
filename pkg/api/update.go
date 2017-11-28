@@ -37,7 +37,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	if err != nil || !acceptsIncomplete {
 		logFields["accepts_incomplete"] = acceptsIncompleteStr
 		log.WithFields(logFields).Debug(
-			`bad updating request: query paramater has invalid value; only ` +
+			`bad updating request: query parameter has invalid value; only ` +
 				`"true" is accepted`,
 		)
 		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
@@ -278,6 +278,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	instance.Status = service.InstanceStateUpdating
+	instance.PlanID = updatingRequest.PlanID
 	if err := s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
