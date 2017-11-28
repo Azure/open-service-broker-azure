@@ -103,6 +103,7 @@ func (b *broker) doUpdateStep(
 		instanceID,
 		instance.ServiceID,
 		instance.PlanID,
+		instance.StandardProvisioningContext,
 		provisioningContext,
 		updatingParams,
 	)
