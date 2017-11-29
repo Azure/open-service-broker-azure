@@ -100,6 +100,17 @@ test-module-lifecycles: check-docker-compose check-azure-env-vars
 		  -timeout 60m \
 			github.com/Azure/azure-service-broker/tests/lifecycle -v'
 
+
+.PHONY: test-api-compliance
+test-api-compliance: check-docker-compose
+	docker-compose build test-broker
+	docker-compose build test-api-compliance
+	-docker-compose run \
+		--rm \
+		test-api-compliance
+	docker-compose kill test-broker
+	docker-compose rm -f test-broker
+	
 .PHONY: lint
 lint: check-docker-compose
 	docker-compose run \
