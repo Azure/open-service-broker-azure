@@ -1,11 +1,12 @@
-// +build compliance,!unit
+// +build !unit
 
-package api
+package compliance
 
 import (
 	"context"
 	"testing"
 
+	"github.com/Azure/azure-service-broker/pkg/api"
 	"github.com/Azure/azure-service-broker/pkg/api/authenticator/basic"
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
@@ -28,7 +29,7 @@ func getBasicAuthConfig() (basicAuthConfig, error) {
 	return bac, err
 }
 
-func getComplianceTestServer() (*server, error) {
+func getComplianceTestServer() (api.Server, error) {
 	fakeModule, err := fake.New()
 	if err != nil {
 		return nil, err
@@ -50,7 +51,7 @@ func getComplianceTestServer() (*server, error) {
 		basicAuthConfig.Password,
 	)
 
-	s, err := NewServer(
+	server, err := api.NewServer(
 		8080,
 		memoryStorage.NewStore(),
 		fakeAsync.NewEngine(),
@@ -64,15 +65,17 @@ func getComplianceTestServer() (*server, error) {
 	if err != nil {
 		return nil, err
 	}
-	return s.(*server), nil
+
+	return server, nil
 }
 
 //TestAPICompliance starts a test serverfor use with OSB api compliance testing
 func TestAPICompliance(t *testing.T) {
+
 	s, err := getComplianceTestServer()
 	assert.Nil(t, err)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	err = s.listenAndServe(ctx)
+	err = s.Start(ctx)
 	assert.Equal(t, ctx.Err(), err)
 }

@@ -32,7 +32,7 @@ services:
       BASIC_AUTH_PASSWORD: password
     volumes:
     - .:/go/src/github.com/Azure/azure-service-broker
-    command:  bash -c 'go test -tags compliance ./...'
+    command:  bash -c 'go test  -tags compliance github.com/Azure/azure-service-broker/tests/compliance'
   broker:
     build: .
     environment:
