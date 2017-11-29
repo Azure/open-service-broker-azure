@@ -66,7 +66,7 @@
                     "parameter2-name-here": "parameter2-value-here"
                 }
             },            
-            "async": true,
+            "async": false,
             "scenario": "new"
         },
         {
@@ -74,7 +74,7 @@
                 "service_id":"cdd1fb7a-d1e9-49e0-b195-e0bab747798a",
                 "plan_id":"bd15e6f3-4ff5-477c-bb57-26313a368e74"                
             },            
-            "async": true,
+            "async": false,
             "scenario": "delete"
         }
     ]                     
