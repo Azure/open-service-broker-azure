@@ -57,7 +57,10 @@ func getComplianceTestServer() (*server, error) {
 		noop.NewCodec(),
 		authenticator,
 		modules,
+		" ",
+		" ",
 	)
+
 	if err != nil {
 		return nil, err
 	}
