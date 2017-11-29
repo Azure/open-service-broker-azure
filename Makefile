@@ -106,8 +106,8 @@ test-module-lifecycles: check-docker-compose check-azure-env-vars
 test-api-compliance: check-docker-compose
 	docker-compose build test-broker test-api-compliance
 	-docker-compose run --rm test-api-compliance
-	#docker-compose kill test-broker
-	#docker-compose rm -f test-broker
+	docker-compose kill test-broker
+	docker-compose rm -f test-broker
 	
 .PHONY: lint
 lint: check-docker-compose
