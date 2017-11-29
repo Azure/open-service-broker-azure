@@ -67,10 +67,6 @@ func (
 	return &ProvisioningParameters{}
 }
 
-// SetResourceGroup sets the name of the resource group into which service
-// instances will be deployed
-func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {}
-
 // GetEmptyProvisioningContext returns an empty instance of a module-specific
 // provisioningContext
 func (m *Module) GetEmptyProvisioningContext() service.ProvisioningContext {

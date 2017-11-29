@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/Azure/azure-sdk-for-go/storage"
-	"github.com/Azure/azure-service-broker/pkg/azure"
 	"github.com/Azure/azure-service-broker/pkg/generate"
 	"github.com/Azure/azure-service-broker/pkg/service"
 	uuid "github.com/satori/go.uuid"
@@ -15,25 +14,13 @@ import (
 func (m *module) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return errors.New(
-			"error casting provisioningParameters as " +
-				"*storage.ProvisioningParameters",
-		)
-	}
-	if !azure.IsValidLocation(pp.Location) {
-		return service.NewValidationError(
-			"location",
-			fmt.Sprintf(`invalid location: "%s"`, pp.Location),
-		)
-	}
+	// No validation needed
 	return nil
 }
 
 func (m *module) GetProvisioner(
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	serviceID string,
+	planID string,
 ) (service.Provisioner, error) {
 	provisioningSteps := []service.ProvisioningStep{
 		service.NewProvisioningStep("preProvision", m.preProvision),
@@ -67,30 +54,19 @@ func (m *module) GetProvisioner(
 }
 
 func (m *module) preProvision(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	serviceID string,
+	planID string,
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*storageProvisioningContext)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningContext as *storageProvisioningContext",
 		)
-	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*storage.ProvisioningParameters",
-		)
-	}
-	if pp.ResourceGroup != "" {
-		pc.ResourceGroupName = pp.ResourceGroup
-	} else {
-		pc.ResourceGroupName = uuid.NewV4().String()
 	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.StorageAccountName = generate.NewIdentifier()
@@ -119,24 +95,18 @@ func (m *module) preProvision(
 }
 
 func (m *module) deployARMTemplate(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
 	serviceID string,
 	planID string,
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*storageProvisioningContext)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningContext as *storageProvisioningContext",
-		)
-	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*storage.ProvisioningParameters",
 		)
 	}
 	plan, err := m.getPlan(serviceID, planID)
@@ -165,12 +135,12 @@ func (m *module) deployARMTemplate(
 	}
 	outputs, err := m.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		pc.ResourceGroupName,
-		pp.Location,
+		standardProvisioningContext.ResourceGroup,
+		standardProvisioningContext.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters, // ARM template params
-		pp.Tags,
+		standardProvisioningContext.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -188,12 +158,13 @@ func (m *module) deployARMTemplate(
 }
 
 func (m *module) createBlobContainer(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters, // nolint: unparam
+	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*storageProvisioningContext)
 	if !ok {

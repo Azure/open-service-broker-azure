@@ -2,24 +2,26 @@ package api
 
 import (
 	"encoding/json"
-
-	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
 // ProvisioningRequest represents a request to provision a service
 type ProvisioningRequest struct {
-	ServiceID  string                         `json:"service_id"`
-	PlanID     string                         `json:"plan_id"`
-	Parameters service.ProvisioningParameters `json:"parameters"`
+	ServiceID  string                 `json:"service_id"`
+	PlanID     string                 `json:"plan_id"`
+	Parameters map[string]interface{} `json:"parameters"`
 }
 
-// GetProvisioningRequestFromJSON populates the given ProvisioningRequest by
-// unmarshalling the provided JSON []byte
-func GetProvisioningRequestFromJSON(
+// NewProvisioningRequestFromJSON returns a new ProvisioningRequest unmarshaled
+// from the provided JSON []byte
+func NewProvisioningRequestFromJSON(
 	jsonBytes []byte,
-	provisioningRequest *ProvisioningRequest,
-) error {
-	return json.Unmarshal(jsonBytes, provisioningRequest)
+) (*ProvisioningRequest, error) {
+	provisioningRequest := &ProvisioningRequest{}
+	err := json.Unmarshal(jsonBytes, provisioningRequest)
+	if err != nil {
+		return nil, err
+	}
+	return provisioningRequest, nil
 }
 
 // ToJSON returns a []byte containing a JSON representation of the provisioning

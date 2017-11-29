@@ -16,10 +16,6 @@ type ArbitraryType struct {
 	Foo string `json:"foo"`
 }
 
-// SetResourceGroup is implemented only so that ArbitraryType will fulfill
-// the ProvisioningParameters interface. This function isn't used anywhere.
-func (a *ArbitraryType) SetResourceGroup(resourceGroup string) {}
-
 const fooValue = "bar"
 
 var (
@@ -27,6 +23,10 @@ var (
 		Foo: fooValue,
 	}
 	testArbitraryObjectJSON = []byte(fmt.Sprintf(`{"foo":"%s"}`, fooValue))
+	testArbitraryMap        = map[string]interface{}{
+		"foo": "bar",
+	}
+	testArbitraryMapJSON = []byte(fmt.Sprintf(`{"foo":"%s"}`, fooValue))
 )
 
 func getDisposableInstanceID() string {
@@ -45,7 +45,10 @@ func getDisposableBindingID() string {
 	return uuid.NewV4().String()
 }
 
-func getTestServer() (*server, *fake.Module, error) {
+func getTestServer(
+	defaultAzureLocation string,
+	defaultAzureResourceGroup string,
+) (*server, *fake.Module, error) {
 	fakeModule, err := fake.New()
 	if err != nil {
 		return nil, nil, err
@@ -64,6 +67,8 @@ func getTestServer() (*server, *fake.Module, error) {
 		noop.NewCodec(),
 		always.NewAuthenticator(),
 		modules,
+		defaultAzureLocation,
+		defaultAzureResourceGroup,
 	)
 	if err != nil {
 		return nil, nil, err

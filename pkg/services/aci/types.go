@@ -4,17 +4,13 @@ import "github.com/Azure/azure-service-broker/pkg/service"
 
 // ProvisioningParameters encapsulates aci-specific provisioning options
 type ProvisioningParameters struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
-	ImageName     string            `json:"image"`
-	NumberCores   int               `json:"cpuCores"`
-	Memory        float64           `json:"memoryInGb"`
-	Ports         []int             `json:"ports"`
+	ImageName   string  `json:"image"`
+	NumberCores int     `json:"cpuCores"`
+	Memory      float64 `json:"memoryInGb"`
+	Ports       []int   `json:"ports"`
 }
 
 type aciProvisioningContext struct {
-	ResourceGroupName string `json:"resourceGroup"`
 	ARMDeploymentName string `json:"armDeployment"`
 	ContainerName     string `json:"name"`
 	PublicIPv4Address string `json:"publicIPv4Address"`
@@ -43,12 +39,6 @@ func (
 		Memory:      1.5,
 		Ports:       make([]int, 0),
 	}
-}
-
-// SetResourceGroup sets the name of the resource group into which service
-// instances will be deployed
-func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
-	p.ResourceGroup = resourceGroup
 }
 
 func (

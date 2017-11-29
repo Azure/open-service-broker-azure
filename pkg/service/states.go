@@ -7,6 +7,9 @@ const (
 	// InstanceStateProvisioned represents the state where service instance
 	// provisioning has completed successfully
 	InstanceStateProvisioned = "PROVISIONED"
+	// InstanceStateProvisioningFailed represents the state where service instance
+	// provisioning has failed
+	InstanceStateProvisioningFailed = "PROVISIONING_FAILED"
 	// InstanceStateUpdating represents the state where service instance
 	// updating is in progress
 	InstanceStateUpdating = "UPDATING"
@@ -15,9 +18,9 @@ const (
 	// It redirects to InstanceStateProvisioned because it means the same thing
 	// to any other operations besides updating
 	InstanceStateUpdated = InstanceStateProvisioned
-	// InstanceStateProvisioningFailed represents the state where service instance
-	// provisioning has failed
-	InstanceStateProvisioningFailed = "PROVISIONING_FAILED"
+	// InstanceStateUpdatingFailed represents the state where service instance
+	// updating has failed
+	InstanceStateUpdatingFailed = "UPDATING_FAILED"
 	// InstanceStateDeprovisioning represents the state where service instance
 	// deprovisioning is in progress
 	InstanceStateDeprovisioning = "DEPROVISIONING"

@@ -55,6 +55,8 @@ func NewBroker(
 	authenticator authenticator.Authenticator,
 	modules []service.Module,
 	minStability service.Stability,
+	defaultAzureLocation string,
+	defaultAzureResourceGroup string,
 ) (Broker, error) {
 	b := &broker{
 		store:       storage.NewStore(redisClient),
@@ -91,6 +93,12 @@ func NewBroker(
 			"error registering async job for executing provisioning steps",
 		)
 	}
+	err = b.asyncEngine.RegisterJob("updateStep", b.doUpdateStep)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing updating steps",
+		)
+	}
 	err = b.asyncEngine.RegisterJob("deprovisionStep", b.doDeprovisionStep)
 	if err != nil {
 		return nil, errors.New(
@@ -105,6 +113,8 @@ func NewBroker(
 		b.codec,
 		authenticator,
 		b.modules,
+		defaultAzureLocation,
+		defaultAzureResourceGroup,
 	)
 	if err != nil {
 		return nil, err

@@ -10,14 +10,9 @@ const (
 )
 
 // ProvisioningParameters encapsulates CosmosDB-specific provisioning options
-type ProvisioningParameters struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
-}
+type ProvisioningParameters struct{}
 
 type cosmosdbProvisioningContext struct {
-	ResourceGroupName        string       `json:"resourceGroup"`
 	ARMDeploymentName        string       `json:"armDeployment"`
 	DatabaseAccountName      string       `json:"name"`
 	DatabaseKind             databaseKind `json:"kind"`
@@ -55,12 +50,6 @@ func (
 	m *module,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
-}
-
-// SetResourceGroup sets the name of the resource group into which service
-// instances will be deployed
-func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
-	p.ResourceGroup = resourceGroup
 }
 
 func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {

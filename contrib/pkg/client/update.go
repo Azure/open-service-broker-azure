@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/Azure/azure-service-broker/pkg/api"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Update initiates updating of an existing service instance
@@ -15,11 +14,11 @@ func Update(
 	port int,
 	username string,
 	password string,
+	instanceID string,
 	serviceID string,
 	planID string,
 	params map[string]interface{},
-) (string, error) {
-	instanceID := uuid.NewV4().String()
+) error {
 	url := fmt.Sprintf(
 		"%s/v2/service_instances/%s",
 		getBaseURL(host, port),
@@ -32,7 +31,7 @@ func Update(
 	}
 	json, err := updatingRequest.ToJSON()
 	if err != nil {
-		return "", fmt.Errorf("error encoding request body: %s", err)
+		return fmt.Errorf("error encoding request body: %s", err)
 	}
 	req, err := http.NewRequest(
 		http.MethodPatch,
@@ -40,7 +39,7 @@ func Update(
 		bytes.NewBuffer(json),
 	)
 	if err != nil {
-		return "", fmt.Errorf("error building request: %s", err)
+		return fmt.Errorf("error building request: %s", err)
 	}
 	if username != "" || password != "" {
 		addAuthHeader(req, username, password)
@@ -51,14 +50,14 @@ func Update(
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("error executing update call: %s", err)
+		return fmt.Errorf("error executing update call: %s", err)
 	}
 	defer resp.Body.Close() // nolint: errcheck
 	if resp.StatusCode != http.StatusAccepted {
-		return "", fmt.Errorf(
+		return fmt.Errorf(
 			"unanticipated http response code %d",
 			resp.StatusCode,
 		)
 	}
-	return instanceID, nil
+	return nil
 }

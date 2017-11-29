@@ -35,7 +35,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	if err != nil || !acceptsIncomplete {
 		logFields["accepts_incomplete"] = acceptsIncompleteStr
 		log.WithFields(logFields).Debug(
-			`bad deprovisioning request: query paramater has invalid value; only ` +
+			`bad deprovisioning request: query parameter has invalid value; only ` +
 				`"true" is accepted`,
 		)
 		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)

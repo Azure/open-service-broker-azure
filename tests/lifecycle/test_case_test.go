@@ -18,14 +18,15 @@ import (
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
 type moduleLifecycleTestCase struct {
-	module                 service.Module
-	description            string
-	setup                  func() error
-	serviceID              string
-	planID                 string
-	provisioningParameters service.ProvisioningParameters
-	bindingParameters      service.BindingParameters
-	testCredentials        func(credentials service.Credentials) error
+	module                      service.Module
+	description                 string
+	setup                       func() error
+	serviceID                   string
+	planID                      string
+	standardProvisioningContext service.StandardProvisioningContext
+	provisioningParameters      service.ProvisioningParameters
+	bindingParameters           service.BindingParameters
+	testCredentials             func(credentials service.Credentials) error
 }
 
 func (m *moduleLifecycleTestCase) getName() string {
@@ -67,7 +68,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 
 	// Force the resource group to be something known to this test executor
 	// to ensure good cleanup
-	m.provisioningParameters.SetResourceGroup(resourceGroup)
+	m.standardProvisioningContext.ResourceGroup = resourceGroup
 
 	// Setup...
 	if m.setup != nil {
@@ -109,6 +110,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 			iid,
 			m.serviceID,
 			m.planID,
+			m.standardProvisioningContext,
 			pc,
 			m.provisioningParameters,
 		)
@@ -124,7 +126,11 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Bind
-	bc, credentials, err := m.module.Bind(pc, m.bindingParameters)
+	bc, credentials, err := m.module.Bind(
+		m.standardProvisioningContext,
+		pc,
+		m.bindingParameters,
+	)
 	if err != nil {
 		return err
 	}
@@ -138,7 +144,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Unbind
-	err = m.module.Unbind(pc, bc)
+	err = m.module.Unbind(m.standardProvisioningContext, pc, bc)
 	if err != nil {
 		return err
 	}
@@ -174,6 +180,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 			iid,
 			m.serviceID,
 			m.planID,
+			m.standardProvisioningContext,
 			pc,
 		)
 		if err != nil {

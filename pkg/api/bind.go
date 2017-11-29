@@ -10,6 +10,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/mitchellh/mapstructure"
 )
 
 func (s *server) bind(w http.ResponseWriter, r *http.Request) {
@@ -65,8 +66,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close() // nolint: errcheck
 
-	bindingRequest := &BindingRequest{}
-	err = GetBindingRequestFromJSON(bodyBytes, bindingRequest)
+	bindingRequest, err := NewBindingRequestFromJSON(bodyBytes)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Debug(
@@ -114,22 +114,30 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Now that we know what module we're dealing with, we can get an instance
-	// of the module-specific type for bindingParameters and take a second
-	// pass at parsing the request body
-	bindingRequest.Parameters = module.GetEmptyBindingParameters()
-	err = GetBindingRequestFromJSON(bodyBytes, bindingRequest)
+	// Unpack the parameter map in the request to a struct
+	bindingParameters := module.GetEmptyBindingParameters()
+	decoderConfig := &mapstructure.DecoderConfig{
+		TagName: "json",
+		Result:  bindingParameters,
+	}
+	decoder, err := mapstructure.NewDecoder(decoderConfig)
 	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad binding request: error unmarshaling request body",
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"error building parameter map decoder",
 		)
-		// This scenario is a bad request, as a valid request obviously must contain
-		// valid, well-formed JSON
-		s.writeResponse(w, http.StatusBadRequest, responseMalformedRequestBody)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
-	if bindingRequest.Parameters == nil {
-		bindingRequest.Parameters = module.GetEmptyBindingParameters()
+	err = decoder.Decode(bindingRequest.Parameters)
+	if err != nil {
+		log.WithFields(logFields).Debug(
+			"bad binding request: error decoding parameter map",
+		)
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
+		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		return
 	}
 
 	binding, ok, err := s.store.GetBinding(bindingID)
@@ -158,9 +166,9 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
 			return
 		}
-		previousBindingRequestParams := module.GetEmptyBindingParameters()
+		previousBindingParams := module.GetEmptyBindingParameters()
 		if err = binding.GetBindingParameters(
-			previousBindingRequestParams,
+			previousBindingParams,
 			s.codec,
 		); err != nil {
 			logFields["error"] = err
@@ -172,8 +180,8 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if reflect.DeepEqual(
-			bindingRequest.Parameters,
-			previousBindingRequestParams,
+			bindingParameters,
+			previousBindingParams,
 		) {
 			// Per the spec, if bound, respond with a 200
 			// Filling in a gap in the spec-- if the status is anything else, we'll
@@ -262,6 +270,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
 	bindingContext, credentials, err := module.Bind(
+		instance.StandardProvisioningContext,
 		provisioningContext,
 		bindingRequest.Parameters,
 	)

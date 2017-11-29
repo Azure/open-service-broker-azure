@@ -22,14 +22,7 @@ func (m *module) ValidateProvisioningParameters(
 				"*mssql.ProvisioningParameters",
 		)
 	}
-	if pp.ServerName == "" {
-		if !azure.IsValidLocation(pp.Location) {
-			return service.NewValidationError(
-				"location",
-				fmt.Sprintf(`invalid location: "%s"`, pp.Location),
-			)
-		}
-	} else {
+	if pp.ServerName != "" {
 		if _, ok := m.mssqlConfig.Servers[pp.ServerName]; !ok {
 			return service.NewValidationError(
 				"serverName",
@@ -51,10 +44,11 @@ func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 }
 
 func (m *module) preProvision(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
@@ -74,15 +68,9 @@ func (m *module) preProvision(
 
 	if pp.ServerName == "" {
 		// new server scenario
-		if pp.ResourceGroup != "" {
-			pc.ResourceGroupName = pp.ResourceGroup
-		} else {
-			pc.ResourceGroupName = uuid.NewV4().String()
-		}
 		pc.ARMDeploymentName = uuid.NewV4().String()
 		pc.ServerName = uuid.NewV4().String()
 		pc.IsNewServer = true
-		pc.Location = pp.Location
 		pc.AdministratorLogin = generate.NewIdentifier()
 		pc.AdministratorLoginPassword = generate.NewPassword()
 		pc.DatabaseName = generate.NewIdentifier()
@@ -97,11 +85,9 @@ func (m *module) preProvision(
 			)
 		}
 
-		pc.ResourceGroupName = server.ResourceGroupName
 		pc.ARMDeploymentName = uuid.NewV4().String()
 		pc.ServerName = server.ServerName
 		pc.IsNewServer = false
-		pc.Location = server.Location
 		pc.AdministratorLogin = server.AdministratorLogin
 		pc.AdministratorLoginPassword = server.AdministratorLoginPassword
 		pc.DatabaseName = generate.NewIdentifier()
@@ -126,10 +112,11 @@ func (m *module) preProvision(
 }
 
 func (m *module) deployARMTemplate(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
 	serviceID string,
 	planID string,
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
@@ -167,12 +154,12 @@ func (m *module) deployARMTemplate(
 		)
 	}
 
-	if pp.ServerName == "" {
+	if pc.IsNewServer {
 		// new server scenario
 		outputs, err := m.armDeployer.Deploy(
 			pc.ARMDeploymentName,
-			pc.ResourceGroupName,
-			pc.Location,
+			standardProvisioningContext.ResourceGroup,
+			standardProvisioningContext.Location,
 			armTemplateNewServerBytes,
 			nil, // Go template params
 			map[string]interface{}{ // ARM template params
@@ -186,7 +173,7 @@ func (m *module) deployARMTemplate(
 				"maxSizeBytes": plan.GetProperties().
 					Extended["maxSizeBytes"],
 			},
-			pp.Tags,
+			standardProvisioningContext.Tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -201,10 +188,19 @@ func (m *module) deployARMTemplate(
 		pc.FullyQualifiedDomainName = fullyQualifiedDomainName
 	} else {
 		// existing server scenario
+		servers := m.mssqlConfig.Servers
+		server, ok := servers[pp.ServerName]
+		if !ok {
+			return nil, fmt.Errorf(
+				`can't find serverName "%s" in Azure SQL Server configuration`,
+				pp.ServerName,
+			)
+		}
+
 		_, err := m.armDeployer.Deploy(
 			pc.ARMDeploymentName,
-			pc.ResourceGroupName,
-			pc.Location,
+			server.ResourceGroupName,
+			server.Location,
 			armTemplateExistingServerBytes,
 			nil, // Go template params
 			map[string]interface{}{ // ARM template params
@@ -216,7 +212,7 @@ func (m *module) deployARMTemplate(
 				"maxSizeBytes": plan.GetProperties().
 					Extended["maxSizeBytes"],
 			},
-			pp.Tags,
+			standardProvisioningContext.Tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error deploying ARM template: %s", err)

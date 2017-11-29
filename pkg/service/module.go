@@ -47,6 +47,7 @@ type Module interface {
 	ValidateBindingParameters(BindingParameters) error
 	// Bind synchronously binds to a service
 	Bind(
+		StandardProvisioningContext,
 		ProvisioningContext,
 		BindingParameters,
 	) (BindingContext, Credentials, error)
@@ -57,7 +58,7 @@ type Module interface {
 	// credentials
 	GetEmptyCredentials() Credentials
 	// Unbind synchronously unbinds from a service
-	Unbind(ProvisioningContext, BindingContext) error
+	Unbind(StandardProvisioningContext, ProvisioningContext, BindingContext) error
 	// GetDeprovisioner returns a deprovisioner that defines the steps a module
 	// must execute asynchronously to deprovision a service
 	//

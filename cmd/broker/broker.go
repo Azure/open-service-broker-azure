@@ -91,6 +91,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	azureConfig, err := getAzureConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Create broker
 	broker, err := broker.NewBroker(
 		redisClient,
@@ -98,6 +103,8 @@ func main() {
 		authenticator,
 		modules,
 		modulesConfig.MinStability,
+		azureConfig.DefaultLocation,
+		azureConfig.DefaultResourceGroup,
 	)
 	if err != nil {
 		log.Fatal(err)

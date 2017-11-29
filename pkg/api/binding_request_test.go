@@ -20,7 +20,7 @@ func init() {
 	testBindingRequest = &BindingRequest{
 		ServiceID:  serviceID,
 		PlanID:     planID,
-		Parameters: testArbitraryObject,
+		Parameters: testArbitraryMap,
 	}
 
 	testBindingRequestJSONStr := fmt.Sprintf(
@@ -41,11 +41,10 @@ func init() {
 	testBindingRequestJSON = []byte(testBindingRequestJSONStr)
 }
 
-func TestGetBindingRequestFromJSON(t *testing.T) {
-	bindingRequest := &BindingRequest{
-		Parameters: &ArbitraryType{},
-	}
-	err := GetBindingRequestFromJSON(testBindingRequestJSON, bindingRequest)
+func TestNewBindingRequestFromJSON(t *testing.T) {
+	bindingRequest, err := NewBindingRequestFromJSON(
+		testBindingRequestJSON,
+	)
 	assert.Nil(t, err)
 	assert.Equal(t, testBindingRequest, bindingRequest)
 }

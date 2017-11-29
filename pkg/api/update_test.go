@@ -14,7 +14,7 @@ import (
 )
 
 func TestUpdatingWithAcceptIncompleteNotSet(t *testing.T) {
-	s, _, err := getTestServer()
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(getDisposableInstanceID(), nil, nil)
 	assert.Nil(t, err)
@@ -25,7 +25,7 @@ func TestUpdatingWithAcceptIncompleteNotSet(t *testing.T) {
 }
 
 func TestUpdatingWithAcceptIncompleteNotTrue(t *testing.T) {
-	s, _, err := getTestServer()
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
 		getDisposableInstanceID(),
@@ -42,7 +42,7 @@ func TestUpdatingWithAcceptIncompleteNotTrue(t *testing.T) {
 }
 
 func TestUpdatingWithMissingServiceID(t *testing.T) {
-	s, _, err := getTestServer()
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
 		getDisposableInstanceID(),
@@ -62,7 +62,7 @@ func TestUpdatingWithMissingServiceID(t *testing.T) {
 }
 
 func TestUpdatingWithInvalidServiceID(t *testing.T) {
-	s, _, err := getTestServer()
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
 		getDisposableInstanceID(),
@@ -82,7 +82,7 @@ func TestUpdatingWithInvalidServiceID(t *testing.T) {
 }
 
 func TestUpdatingWithInvalidPlanID(t *testing.T) {
-	s, _, err := getTestServer()
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
 		getDisposableInstanceID(),
@@ -104,7 +104,7 @@ func TestUpdatingWithInvalidPlanID(t *testing.T) {
 func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 	t *testing.T,
 ) {
-	s, _, err := getTestServer()
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
@@ -134,7 +134,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( // nolint: lll
 	t *testing.T,
 ) {
-	s, _, err := getTestServer()
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
@@ -162,7 +162,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 }
 
 func TestKickOffNewAsyncUpdating(t *testing.T) {
-	s, m, err := getTestServer()
+	s, m, err := getTestServer("", "")
 	assert.Nil(t, err)
 	validationCalled := false
 	m.UpdatingValidationBehavior = func(service.UpdatingParameters) error {
@@ -183,13 +183,16 @@ func TestKickOffNewAsyncUpdating(t *testing.T) {
 			"accepts_incomplete": "true",
 		},
 		&UpdatingRequest{
-			ServiceID:  fake.ServiceID,
-			PlanID:     fake.StandardPlanID,
-			Parameters: fake.UpdatingParameters{"fake"},
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
+			Parameters: map[string]interface{}{
+				"someParameter": "fake",
+			},
 		},
 	)
 	assert.Nil(t, err)
 	e := s.asyncEngine.(*fakeAsync.Engine)
+	assert.NotNil(t, e)
 	assert.Empty(t, e.SubmittedTasks)
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)

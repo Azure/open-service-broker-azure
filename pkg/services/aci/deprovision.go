@@ -13,18 +13,16 @@ func (m *module) GetDeprovisioner(
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", m.deleteARMDeployment),
-		service.NewDeprovisioningStep(
-			"deleteACIServer",
-			m.deleteACIServer,
-		),
+		service.NewDeprovisioningStep("deleteACIServer", m.deleteACIServer),
 	)
 }
 
 func (m *module) deleteARMDeployment(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*aciProvisioningContext)
@@ -35,7 +33,7 @@ func (m *module) deleteARMDeployment(
 	}
 	if err := m.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		pc.ResourceGroupName,
+		standardProvisioningContext.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -43,10 +41,11 @@ func (m *module) deleteARMDeployment(
 }
 
 func (m *module) deleteACIServer(
-	ctx context.Context, // nolint: unparam
-	instanceID string, // nolint: unparam
-	serviceID string, // nolint: unparam
-	planID string, // nolint: unparam
+	_ context.Context,
+	_ string, // instanceID
+	_ string, // serviceID
+	_ string, // planID
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*aciProvisioningContext)
@@ -57,7 +56,7 @@ func (m *module) deleteACIServer(
 	}
 	if err := m.aciManager.DeleteACI(
 		pc.ContainerName,
-		pc.ResourceGroupName,
+		standardProvisioningContext.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting key vault: %s", err)
 	}

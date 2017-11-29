@@ -66,3 +66,6 @@
 
 [[constraint]]
   name = "github.com/Masterminds/sprig"
+
+[[constraint]]
+  name = "github.com/mitchellh/mapstructure"

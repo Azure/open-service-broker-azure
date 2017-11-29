@@ -10,6 +10,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/mitchellh/mapstructure"
 )
 
 func (s *server) update(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +38,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	if err != nil || !acceptsIncomplete {
 		logFields["accepts_incomplete"] = acceptsIncompleteStr
 		log.WithFields(logFields).Debug(
-			`bad updating request: query paramater has invalid value; only ` +
+			`bad updating request: query parameter has invalid value; only ` +
 				`"true" is accepted`,
 		)
 		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
@@ -55,8 +56,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close() // nolint: errcheck
 
-	updatingRequest := &UpdatingRequest{}
-	err = GetUpdatingRequestFromJSON(bodyBytes, updatingRequest)
+	updatingRequest, err := NewUpdatingRequestFromJSON(bodyBytes)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Debug(
@@ -114,23 +114,30 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Now that we know what module we're dealing with, we can get an instance
-	// of the module-specific type for updatingParameters and take a second
-	// pass at parsing the request body
-	updatingRequest.Parameters = module.GetEmptyUpdatingParameters()
-	err = GetUpdatingRequestFromJSON(bodyBytes, updatingRequest)
+	// Unpack the parameter map in the request to a struct
+	updatingParameters := module.GetEmptyUpdatingParameters()
+	decoderConfig := &mapstructure.DecoderConfig{
+		TagName: "json",
+		Result:  updatingParameters,
+	}
+	decoder, err := mapstructure.NewDecoder(decoderConfig)
 	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad updating request: error unmarshaling request body",
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"error building parameter map decoder",
 		)
-		// krancour: Choosing to interpret this scenario as a bad request, as a
-		// valid request, obviously contains valid, well-formed JSON
-		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
-	if updatingRequest.Parameters == nil {
-		updatingRequest.Parameters = module.GetEmptyUpdatingParameters()
+	err = decoder.Decode(updatingRequest.Parameters)
+	if err != nil {
+		log.WithFields(logFields).Debug(
+			"bad updating request: error decoding parameter map",
+		)
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
+		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		return
 	}
 
 	instance, ok, err := s.store.GetInstance(instanceID)
@@ -188,12 +195,12 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
-	previousUpdatingRequest := &UpdatingRequest{
-		ServiceID:  instance.ServiceID,
-		PlanID:     instance.PlanID,
-		Parameters: previousUpdatingRequestParams,
-	}
-	if reflect.DeepEqual(updatingRequest, previousUpdatingRequest) {
+	if instance.ServiceID == updatingRequest.ServiceID &&
+		instance.PlanID == updatingRequest.PlanID &&
+		reflect.DeepEqual(
+			previousUpdatingRequestParams,
+			updatingParameters,
+		) {
 		// Per the spec, if fully provisioned, respond with a 200, else a 202.
 		// Filling in a gap in the spec-- if the status is anything else, we'll
 		// choose to respond with a 409
@@ -278,6 +285,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	instance.Status = service.InstanceStateUpdating
+	instance.PlanID = updatingRequest.PlanID
 	if err := s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
