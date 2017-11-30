@@ -7,6 +7,10 @@ import (
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer     arm.Deployer
 	cosmosdbManager cosmosdb.Manager
 }
@@ -19,8 +23,10 @@ func New(
 	cosmosdbManager cosmosdb.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:     armDeployer,
-		cosmosdbManager: cosmosdbManager,
+		serviceManager: &serviceManager{
+			armDeployer:     armDeployer,
+			cosmosdbManager: cosmosdbManager,
+		},
 	}
 }
 
