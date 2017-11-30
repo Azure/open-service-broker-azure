@@ -11,33 +11,25 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (m *module) ValidateProvisioningParameters(
+func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
 	// No validation needed
 	return nil
 }
 
-func (m *module) GetProvisioner(
-	serviceID string,
-	planID string,
+func (s *serviceManager) GetProvisioner(
+	plan service.Plan,
 ) (service.Provisioner, error) {
 	provisioningSteps := []service.ProvisioningStep{
-		service.NewProvisioningStep("preProvision", m.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", m.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", s.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
 	}
 
-	plan, err := m.getPlan(serviceID, planID)
-	if err != nil {
-		return nil, errors.New(
-			"error getting plan by service ID and plan ID",
-		)
-	}
 	storeKind, ok := plan.GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, errors.New(
 			"error retrieving the storage kind from the plan: %s",
-			err,
 		)
 	}
 
@@ -46,18 +38,17 @@ func (m *module) GetProvisioner(
 	case storageKindBlobContainer:
 		provisioningSteps = append(
 			provisioningSteps,
-			service.NewProvisioningStep("createBlobContainer", m.createBlobContainer),
+			service.NewProvisioningStep("createBlobContainer", s.createBlobContainer),
 		)
 	}
 
 	return service.NewProvisioner(provisioningSteps...)
 }
 
-func (m *module) preProvision(
+func (s *serviceManager) preProvision(
 	_ context.Context,
 	_ string, // instanceID
-	serviceID string,
-	planID string,
+	plan service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -71,17 +62,10 @@ func (m *module) preProvision(
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.StorageAccountName = generate.NewIdentifier()
 
-	plan, err := m.getPlan(serviceID, planID)
-	if err != nil {
-		return nil, errors.New(
-			"error getting plan by service ID and plan ID",
-		)
-	}
 	storeKind, ok := plan.GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
-		return nil, fmt.Errorf(
-			"error retrieving the storage kind from the plan: %s",
-			err,
+		return nil, errors.New(
+			"error retrieving the storage kind from the plan",
 		)
 	}
 
@@ -94,11 +78,10 @@ func (m *module) preProvision(
 	return pc, nil
 }
 
-func (m *module) deployARMTemplate(
+func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	_ string, // instanceID
-	serviceID string,
-	planID string,
+	plan service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -109,17 +92,10 @@ func (m *module) deployARMTemplate(
 			"error casting provisioningContext as *storageProvisioningContext",
 		)
 	}
-	plan, err := m.getPlan(serviceID, planID)
-	if err != nil {
-		return nil, errors.New(
-			"error getting plan by service ID and plan ID",
-		)
-	}
 	storeKind, ok := plan.GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
-		return nil, fmt.Errorf(
-			"error retrieving the storage kind from the plan: %s",
-			err,
+		return nil, errors.New(
+			"error retrieving the storage kind from the plan",
 		)
 	}
 
@@ -133,7 +109,7 @@ func (m *module) deployARMTemplate(
 	armTemplateParameters := map[string]interface{}{
 		"name": pc.StorageAccountName,
 	}
-	outputs, err := m.armDeployer.Deploy(
+	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		standardProvisioningContext.ResourceGroup,
 		standardProvisioningContext.Location,
@@ -157,11 +133,10 @@ func (m *module) deployARMTemplate(
 	return pc, nil
 }
 
-func (m *module) createBlobContainer(
+func (s *serviceManager) createBlobContainer(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -187,31 +162,4 @@ func (m *module) createBlobContainer(
 	}
 
 	return pc, nil
-}
-
-func (m *module) getPlan(serviceID, planID string) (service.Plan, error) {
-	catalog, err := m.GetCatalog()
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving catalog: %s", err)
-	}
-
-	service, ok := catalog.GetService(serviceID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`service "%s" not found in the "%s" module catalog`,
-			serviceID,
-			m.GetName(),
-		)
-	}
-
-	plan, ok := service.GetPlan(planID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`plan "%s" not found for service "%s"`,
-			planID,
-			serviceID,
-		)
-	}
-
-	return plan, nil
 }
