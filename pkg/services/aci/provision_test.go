@@ -11,9 +11,9 @@ func TestValidateProvisioningParametersWithNoImageName(t *testing.T) {
 	pp := &ProvisioningParameters{
 		ImageName: "nginx:latest",
 	}
-	err := m.ValidateProvisioningParameters(pp)
+	err := m.serviceManager.ValidateProvisioningParameters(pp)
 	assert.Nil(t, err)
 	pp.ImageName = ""
-	err = m.ValidateProvisioningParameters(pp)
+	err = m.serviceManager.ValidateProvisioningParameters(pp)
 	assert.NotNil(t, err)
 }
