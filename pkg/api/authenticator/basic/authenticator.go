@@ -9,7 +9,7 @@ import (
 )
 
 // basicAuthenticator is a implementation of the authenticator.Authenticator
-// interface useful for testing. It unconditionally authenticates all requests.
+// interface that authenticates HTTP requests using Basic Auth
 type basicAuthenticator struct {
 	Username string
 	Password string
