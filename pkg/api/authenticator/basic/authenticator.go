@@ -35,7 +35,7 @@ func (b *basicAuthenticator) Authenticate(
 		}
 		headerValueTokens := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 		if len(headerValueTokens) != 2 || headerValueTokens[0] != "Basic" {
-			http.Error(w, "{}", http.StatusForbidden)
+			http.Error(w, "{}", http.StatusUnauthorized)
 			return
 		}
 		b64UsernameAndPassword := headerValueTokens[1]
@@ -43,7 +43,7 @@ func (b *basicAuthenticator) Authenticate(
 			b64UsernameAndPassword,
 		)
 		if err != nil {
-			http.Error(w, "{}", http.StatusForbidden)
+			http.Error(w, "{}", http.StatusUnauthorized)
 			return
 		}
 		usernameAndPasswordTokens := strings.SplitN(
@@ -54,7 +54,7 @@ func (b *basicAuthenticator) Authenticate(
 		if len(usernameAndPasswordTokens) != 2 ||
 			usernameAndPasswordTokens[0] != b.Username ||
 			usernameAndPasswordTokens[1] != b.Password {
-			http.Error(w, "{}", http.StatusForbidden)
+			http.Error(w, "{}", http.StatusUnauthorized)
 			return
 		}
 		handle(w, r)
