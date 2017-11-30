@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Azure/azure-service-broker/pkg/api"
+	"github.com/Azure/open-service-broker-azure/pkg/api"
 	uuid "github.com/satori/go.uuid"
 )
 

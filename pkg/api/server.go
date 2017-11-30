@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/api/authenticator"
-	"github.com/Azure/azure-service-broker/pkg/async"
-	"github.com/Azure/azure-service-broker/pkg/crypto"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )

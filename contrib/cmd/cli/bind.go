@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Azure/azure-service-broker/contrib/pkg/client"
+	"github.com/Azure/open-service-broker-azure/contrib/pkg/client"
 	"github.com/urfave/cli"
 )
 

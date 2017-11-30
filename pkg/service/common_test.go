@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 )
 
 type ArbitraryType struct {

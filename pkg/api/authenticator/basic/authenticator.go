@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Azure/azure-service-broker/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
 )
 
 // basicAuthenticator is a implementation of the authenticator.Authenticator

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/azure"
-	"github.com/Azure/azure-service-broker/pkg/generate"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	az "github.com/Azure/go-autorest/autorest/azure"
 	uuid "github.com/satori/go.uuid"
 )

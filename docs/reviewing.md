@@ -1,4 +1,4 @@
-# Reviewing Azure Service Broker Code
+# Reviewing Open Service Broker for Azure Code
 
 This is a guide for reviewers of pull requests (PRs) and code in this repository.
 
@@ -25,7 +25,7 @@ community.
 
 # Review Process
 
-As the Azure Service Broker has not yet reached a 1.0 release, we, the maintainers, believe
+As the Open Service Broker for Azure has not yet reached a 1.0 release, we, the maintainers, believe
 that quality, efficiency, and velocity are important (in that order of importance).
 
 As such, we've defined a few categories of PRs and their review requirements:

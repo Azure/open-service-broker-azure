@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/arm/eventhub"
-	az "github.com/Azure/azure-service-broker/pkg/azure"
+	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/go-autorest/autorest/azure"
 )
 

@@ -1,7 +1,7 @@
 package always
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
 )
 
 // alwaysAuthenticator is a implementation of the authenticator.Authenticator

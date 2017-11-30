@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 )
 
 // Instance represents an instance of a service

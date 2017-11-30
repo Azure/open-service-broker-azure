@@ -19,21 +19,21 @@ Then, create the proper directory and clone this repository to it:
 
 ```console
 $ mkdir -p $GOPATH/src/github.com/Azure
-$ git clone git@github.com:Azure/azure-service-broker.git \
-    $GOPATH/src/github.com/Azure/azure-service-broker
-$ cd $GOPATH/src/github.com/Azure/azure-service-broker
+$ git clone git@github.com:Azure/open-service-broker-azure.git \
+    $GOPATH/src/github.com/Azure/open-service-broker-azure
+$ cd $GOPATH/src/github.com/Azure/open-service-broker-azure
 ```
 
 Note also that all of the above is for the benefit of one's IDE (integrated
 development environment), which may use your system's natively installed Go
-tools to introspect, compile, and test code. Because the Azure Service Broker
+tools to introspect, compile, and test code. Because the Open Service Broker for Azure
 depends upon a consistent, containerized build / test environment, the placement
 of code on one's system does not impact one's ability to build and test code
 using the commands documented in the following sections.
 
 ## The Containerized Development Environment
 
-The Azure Service Broker utilizes a consistent, containerized build / test
+The Open Service Broker for Azure utilizes a consistent, containerized build / test
 environment to ensure all contributors build and test their patches using the
 _exact_ same environment employed by CI. This approach eliminates the "it worked
 on my machine" factor and minimizes the set of tools that contributors must have
@@ -42,7 +42,7 @@ necessary to have Go (or any particular version thereof) installed.
 
 ### Prerequisites
 
-The prerequisites for successfully building and testing the Azure Service Broker
+The prerequisites for successfully building and testing the Open Service Broker for Azure
 are:
 
 - make
@@ -51,13 +51,13 @@ are:
 
 ### Building, Testing, and Running
 
-Building and testing Azure Service Broker code is facilitated through the use
+Building and testing Open Service Broker for Azure code is facilitated through the use
 of a few easy-to-use make targets that mostly execute tasks within the
 containerized development environment.
 
 #### Linting
 
-The Azure Service Broker project observes quite a large number of style
+The Open Service Broker for Azure project observes quite a large number of style
 conventions that are common within the Go community. Adherence to these
 conventions is enforced via the
 [Go Meta Linter](https://github.com/alecthomas/gometalinter) tool.
@@ -81,7 +81,7 @@ $ make test-unit
 
 #### Running "Lifecycle" Tests
 
-Azure Service Broker is used to facilitate provisioning and binding to various
+Open Service Broker for Azure is used to facilitate provisioning and binding to various
 managed services provided by Microsoft Azure. To assert integration with these
 many services works as expected, the project contains a "lifecycle" test suite.
 These tests are integration tests that exercise the provision / bind / unbind /
@@ -104,7 +104,7 @@ $ export AZURE_SUBSCRIPTION_ID=$( \
 ```
 
 Next create a service principal (service account) in your Azure Active Directory
-tenant. This is the identity that the Azure Service Broker will use when
+tenant. This is the identity that the Open Service Broker for Azure will use when
 authenticating to Azure endpoints.
   
 ```console
@@ -224,7 +224,7 @@ Updating project dependnecies is not a matter of course for most contributions,
 but the need for it arises from time to time, especially in the case that a new
 service module is being added to the broker.
 
-The Azure Service Broker employs the [dep](https://github.com/golang/dep) tool
+The Open Service Broker for Azure employs the [dep](https://github.com/golang/dep) tool
 to manage dependencies. Dep tracks developer intent (the dependencies you
 _want_) in a file called `Gopkg.toml`. How these intentions are resolved by the
 tool is tracked in a manifest called `Gopkg.lock`.
@@ -244,24 +244,24 @@ __Do not edit `Gopkg.lock` directly.__
 If the `make dep` step is accidentally omitted after updates to `Gopkg.toml`,
 the CI process will catch the mistake and fail the build.
 
-#### Running the Azure Service Broker Locally (development mode)
+#### Running the Open Service Broker for Azure Locally (development mode)
 
-Running the Azure Service Broker requires the use of a live Azure subscription.
+Running the Open Service Broker for Azure requires the use of a live Azure subscription.
 Refer to the [Running "Lifecycle" Tests](#running-lifecycle-tests) section for
 further details on required setup.
 
-To build and launch the Azure Service Broker in a container:
+To build and launch the Open Service Broker for Azure in a container:
 
 ```console
 $ make run
 ```
 
 Through its use of Docker Compose, this make target will not only launch the
-Azure Service Broker, but will also launch a containerized Redis database that
+Open Service Broker for Azure, but will also launch a containerized Redis database that
 the broker will use for persistence and reliable queueing of aynchronous tasks.
 
 Note this method of running is only advisable during development. To deploy
-the Azure Service Broker to Kubernetes or Pivotal Cloud Foundry, see the
+the Open Service Broker for Azure to Kubernetes or Pivotal Cloud Foundry, see the
 relevant documentation for each:
 
 - Deploying on Kubernetes
@@ -296,11 +296,11 @@ interactively, leaving the user with a TTY and a bash prompt.
 
 While CI relies on the tests documented in previous sections, its a natual
 human tendency to want to interact with software we are contributing to. Because
-the OSB specification implemented by the Azure Service Broker is complex, the
+the OSB specification implemented by the Open Service Broker for Azure is complex, the
 `curl` commands one might use to interact with the broker are also complex.
 
 Rather than burden contributors with the need to craft "artisinal" `curl`
-commands for the sake of executing simple actions, the Azure Service Broker
+commands for the sake of executing simple actions, the Open Service Broker for Azure
 project comes with a "bespoke" CLI that is used _only_ to facilitate human
 interaction with the broker. (The true clients of the broker are the Kubernetes
 Service Catalog and Pivotal Cloud Foundry.)

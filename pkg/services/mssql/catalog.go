@@ -1,6 +1,6 @@
 package mssql
 
-import "github.com/Azure/azure-service-broker/pkg/service"
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {

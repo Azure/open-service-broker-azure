@@ -3,10 +3,10 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	sa "github.com/Azure/azure-service-broker/pkg/azure/storage"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	sa "github.com/Azure/open-service-broker-azure/pkg/azure/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/storage"
 )
 
 func getStorageCases(

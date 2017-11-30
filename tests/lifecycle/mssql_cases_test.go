@@ -9,11 +9,11 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	ss "github.com/Azure/azure-service-broker/pkg/azure/mssql"
-	"github.com/Azure/azure-service-broker/pkg/generate"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/mssql"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	ss "github.com/Azure/open-service-broker-azure/pkg/azure/mssql"
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
 	uuid "github.com/satori/go.uuid"
 )

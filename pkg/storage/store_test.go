@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/go-redis/redis"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"

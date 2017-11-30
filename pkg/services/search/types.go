@@ -1,6 +1,6 @@
 package search
 
-import "github.com/Azure/azure-service-broker/pkg/service"
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates
 // Azure Search-specific provisioning options

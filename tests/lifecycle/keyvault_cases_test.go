@@ -3,10 +3,10 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	kv "github.com/Azure/azure-service-broker/pkg/azure/keyvault"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/keyvault"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	kv "github.com/Azure/open-service-broker-azure/pkg/azure/keyvault"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
 )
 
 func getKeyvaultCases(

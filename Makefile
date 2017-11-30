@@ -3,7 +3,7 @@ VERSION ?= $(shell git describe --always --abbrev=7 --dirty)
 BINARY_DIR := bin
 BINARY_NAME := asb
 
-BASE_IMAGE_NAME      = azure-service-broker
+BASE_IMAGE_NAME      = open-service-broker-azure
 MUTABLE_TAG         ?= canary
 IMAGE_NAME           = $(REGISTRY)$(BASE_IMAGE_NAME):$(VERSION)
 MUTABLE_IMAGE_NAME   = $(REGISTRY)$(BASE_IMAGE_NAME):$(MUTABLE_TAG)
@@ -98,7 +98,7 @@ test-module-lifecycles: check-docker-compose check-azure-env-vars
 		bash -c 'go test \
 			-parallel 10 \
 		  -timeout 60m \
-			github.com/Azure/azure-service-broker/tests/lifecycle -v'
+			github.com/Azure/open-service-broker-azure/tests/lifecycle -v'
 
 
 # Containerized API compliance check via osb-checker. Currently ignores exit code. 

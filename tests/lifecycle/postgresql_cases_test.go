@@ -3,10 +3,10 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	pg "github.com/Azure/azure-service-broker/pkg/azure/postgresql"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/postgresql"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	pg "github.com/Azure/open-service-broker-azure/pkg/azure/postgresql"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 )
 
 func getPostgresqlCases(

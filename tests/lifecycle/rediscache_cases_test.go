@@ -3,10 +3,10 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	rc "github.com/Azure/azure-service-broker/pkg/azure/rediscache"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/rediscache"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	rc "github.com/Azure/open-service-broker-azure/pkg/azure/rediscache"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 )
 
 func getRediscacheCases(
