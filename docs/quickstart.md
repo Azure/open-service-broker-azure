@@ -1,17 +1,46 @@
-# Quickstart
+# Quickstart: Open Service Broker for Azure on a Minikube cluster
 This quickstart walks-through using the Open Service Broker for Azure (OSBA) to
-deploy WordPress on a Kubernetes cluster, using OSBA to provision and bind to
-an Azure MySQL database.
+deploy WordPress on a local Minikube cluster.
+
+WordPress requires a backend MySQL database. Instead of creating a database in the Azure portal and then manually configuring the connection information, our Kubernetes manifests can take advantage of OSBA to provision an Azure MySQL database on our behalf, save the connection information in Kubernetes secrets, and then bind them to our WordPress instance.
+
+* [Prerequisites](#prerequisites)
+* [Initial Setup](#cluster-setup)
+  * [Configure your Azure account](#configure-your-azure-account)
+  * [Create a resource group](#create-a-resource-group)
+  * [Create a service principal](#create-a-service-principal)
+  * [Create a Kubernetes cluster using Minikube](#create-a-kubernetes-cluster-using-minikube)
+  * [Configure the cluster with Open Service Broker for Azure](#configure-the-cluster-with-open-service-broker-for-azure)
+* [Deploy WordPress](#deploy-wordpress)
+* [Next Steps](#next-steps)
 
 # Prerequisites
 * A [Microsoft Azure account](https://azure.microsoft.com/en-us/free/).
 * Install [Minikube](#install-minikube).
-* Install the [Azure CLI](#install-az).
-* Install the [Kubernetes CLI](#install-kubectl).
-* Install the [Helm CLI](#install-helm).
+* Install the [Azure CLI](#install-the-azure-cli).
+* Install the [Kubernetes CLI](#install-the-kubernetes-cli).
+* Install the [Helm CLI](#install-the-helm-cli).
 
-## Install az
-Install the Azure CLI, `az`, by following the instructions for your operating system.
+## Install Minikube
+[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer.
+
+**MacOS**
+```
+brew cask install minikube
+```
+
+**Windows**
+1. Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe) file.
+1. Rename it to **minikube.exe**.
+1. Add it to a directory on your PATH.
+
+**Linux**
+```
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+```
+
+## Install the Azure CLI
+Install `az` by following the instructions for your operating system.
 See the [full installation instructions](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) if yours isn't listed below.
 
 **MacOS**
@@ -38,33 +67,16 @@ To install the CLI on Windows and use it in the Windows command-line, download a
     sudo apt-get update && sudo apt-get install azure-cli
     ```
 
-## Install kubectl
-Install the Kubernetes CLI, `kubectl`, by running the following command:
+## Install the Kubernetes CLI
+Install `kubectl` by running the following command:
 
 ```
 az acs kubernetes install-cli
 ```
 
-## Install minikube
-[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer.
-
-**MacOS**
-```
-brew cask install minikube
-```
-
-**Windows**
-1. Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe) file.
-1. Rename it to **minikube.exe**.
-1. Add it to a directory on your PATH.
-
-**Linux**
-```
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
-```
-
-## Install Helm
+## Install the Helm CLI
 [Helm](https://github.com/kubernetes/helm) is a tool for installing pre-configured applications on Kubernetes.
+Install `helm` by running the following command:
 
 **MacOS**
 ```
@@ -81,7 +93,9 @@ brew install kubernetes-helm
 curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 ```
 
-# Steps
+# Cluster Setup
+Now that we have all the tools, we need a Kubernetes cluster with Open Service Broker for Azure configured.
+
 ## Configure your Azure account
 First let's identify your Azure subscription and save it for use later on in the quickstart.
 
@@ -97,7 +111,7 @@ First let's identify your Azure subscription and save it for use later on in the
     export AZURE_SUBSCRIPTION_ID="<SubscriptionId>"
     ```
 
-    **Powershell**
+    **PowerShell**
     ```
     $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
     ```
@@ -132,7 +146,7 @@ resources on your account on behalf of Kubernetes.
     export AZURE_CLIENT_SECRET=<Password>
     ```
 
-    **Powershell**
+    **PowerShell**
     ```
     $env:AZURE_TENANT_ID = "<DisplayName>"
     $env:AZURE_CLIENT_ID = "<AppId>"
