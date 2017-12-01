@@ -56,7 +56,7 @@ brew install azure-cli
 
 **Windows**
 
-To install the CLI on Windows and use it in the Windows command-line, download and run the [Azure CLI Installer (MSI)](https://aka.ms/InstallAzureCliWindows).
+Download and run the [Azure CLI Installer (MSI)](https://aka.ms/InstallAzureCliWindows).
 
 **Ubuntu 64-bit**
 
@@ -206,58 +206,19 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
     ```
 
 1. Check on the status of everything that we have installed by running the
-    following command and checking that everything is in the `Running` state.
+    following command and checking that every pod is in the `Running` state.
     You may need to wait a few minutes, rerunning the command until all of the
     resources are ready.
     ```console
-    $ kubectl get all --namespace catalog
-    NAME                                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-    deploy/catalog-catalog-apiserver            1         1         1            1           9d
-    deploy/catalog-catalog-controller-manager   1         1         1            1           9d
-
-    NAME                                               DESIRED   CURRENT   READY     AGE
-    rs/catalog-catalog-apiserver-5999465555            1         1         1         9d
-    rs/catalog-catalog-controller-manager-554c758786   1         1         1         9d
-
-    NAME                                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-    deploy/catalog-catalog-apiserver            1         1         1            1           9d
-    deploy/catalog-catalog-controller-manager   1         1         1            1           9d
-
-    NAME                                               DESIRED   CURRENT   READY     AGE
-    rs/catalog-catalog-apiserver-5999465555            1         1         1         9d
-    rs/catalog-catalog-controller-manager-554c758786   1         1         1         9d
-
+    $ kubectl get pods --namespace catalog
     NAME                                                     READY     STATUS    RESTARTS   AGE
     po/catalog-catalog-apiserver-5999465555-9hgwm            2/2       Running   4          9d
     po/catalog-catalog-controller-manager-554c758786-f8qvc   1/1       Running   11         9d
 
-    NAME                            TYPE       CLUSTER-IP   EXTERNAL-IP   PORT(S)         AGE
-    svc/catalog-catalog-apiserver   NodePort   10.0.0.117   <none>        443:30443/TCP   9d
-
-    $ kubectl get all --namespace osba
-    NAME                              DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-    deploy/osba-azure-service-broker   1         1         1            1           9d
-    deploy/osba-redis                  1         1         1            1           9d
-
-    NAME                                     DESIRED   CURRENT   READY     AGE
-    rs/osba-azure-service-broker-8495bff484   1         1         1         9d
-    rs/osba-redis-5b44fc9779                  1         1         1         9d
-
-    NAME                              DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-    deploy/osba-azure-service-broker   1         1         1            1           9d
-    deploy/osba-redis                  1         1         1            1           9d
-
-    NAME                                     DESIRED   CURRENT   READY     AGE
-    rs/osba-azure-service-broker-8495bff484   1         1         1         9d
-    rs/osba-redis-5b44fc9779                  1         1         1         9d
-
+    $ kubectl get pods --namespace osba
     NAME                                           READY     STATUS    RESTARTS   AGE
     po/osba-azure-service-broker-8495bff484-7ggj6   1/1       Running   0          9d
     po/osba-redis-5b44fc9779-hgnck                  1/1       Running   0          9d
-
-    NAME                           TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)    AGE
-    svc/osba-azure-service-broker   ClusterIP   10.0.0.8     <none>        80/TCP     9d
-    svc/osba-redis                  ClusterIP   10.0.0.28    <none>        6379/TCP   9d
     ```
 
 ---
@@ -278,6 +239,7 @@ $ kubectl get deploy/quickstart-wordpress -w
 
 NAME                DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 quickstart-wordpress   1         1         1            0           1m
+...
 quickstart-wordpress   1         1         1            1           2m
 ```
 
@@ -289,8 +251,8 @@ quickstart-wordpress   1         1         1            1           2m
     ```
 
     **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
-    the command from the WordPress deployment output because we are using Minikube
-    and do not have a public IP address.
+    the command from the WordPress deployment output because with Minikube the
+    WordPress service won't have a public IP address assigned.
 1. Login using the following credentials:
     ```
     echo Username: user
@@ -307,14 +269,13 @@ Here's how to remove resources created by this quickstart:
 # Next Steps
 Minikube may seem like an odd choice for an Azure quickstart, but it demonstrates
 that Open Service Broker for Azure isn't limited to clusters running on Azure!
-Our local Kubernetes cluster communicated via OSBA with Azure, provisioned a cloud
-database, and bound our local WordPress installation to that new database.
+Our local Kubernetes cluster communicated with Azure via OSBA, provisioned an Azure
+MySQL database, and bound our local WordPress installation to that new database.
 
 With OSBA _any_ cluster can rely on Azure to provide all those pesky "as a service"
 goodies that make life easier.
 
-Now that you have a cluster with OSBA, adding more services is quick. Try out another
-service to see for yourself:
+Now that you have a cluster with OSBA, adding more applications is quick. Try out another to see for yourself:
 
 * [Concourse CI](https://github.com/Azure/helm-charts/blob/master/concourse)
 * [pbpBB](https://github.com/Azure/helm-charts/blob/master/phpbb)
