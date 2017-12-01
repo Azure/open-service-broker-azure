@@ -9,7 +9,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (m *module) ValidateProvisioningParameters(
+func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
@@ -28,18 +28,19 @@ func (m *module) ValidateProvisioningParameters(
 	return nil
 }
 
-func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
+func (s *serviceManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", m.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", m.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", s.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
 	)
 }
 
-func (m *module) preProvision(
+func (s *serviceManager) preProvision(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -55,11 +56,10 @@ func (m *module) preProvision(
 	return pc, nil
 }
 
-func (m *module) deployARMTemplate(
+func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
@@ -78,7 +78,7 @@ func (m *module) deployARMTemplate(
 		)
 	}
 
-	outputs, err := m.armDeployer.Deploy(
+	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		standardProvisioningContext.ResourceGroup,
 		standardProvisioningContext.Location,

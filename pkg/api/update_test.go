@@ -165,10 +165,11 @@ func TestKickOffNewAsyncUpdating(t *testing.T) {
 	s, m, err := getTestServer("", "")
 	assert.Nil(t, err)
 	validationCalled := false
-	m.UpdatingValidationBehavior = func(service.UpdatingParameters) error {
-		validationCalled = true
-		return nil
-	}
+	m.ServiceManager.UpdatingValidationBehavior =
+		func(service.UpdatingParameters) error {
+			validationCalled = true
+			return nil
+		}
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(&service.Instance{
 		InstanceID: instanceID,

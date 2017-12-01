@@ -272,12 +272,13 @@ func TestBrandNewBinding(t *testing.T) {
 	s, m, err := getTestServer("", "")
 	assert.Nil(t, err)
 	validationCalled := false
-	m.BindingValidationBehavior = func(service.BindingParameters) error {
-		validationCalled = true
-		return nil
-	}
+	m.ServiceManager.BindingValidationBehavior =
+		func(service.BindingParameters) error {
+			validationCalled = true
+			return nil
+		}
 	bindCalled := false
-	m.BindBehavior = func(
+	m.ServiceManager.BindBehavior = func(
 		service.StandardProvisioningContext,
 		service.ProvisioningContext,
 		service.BindingParameters,

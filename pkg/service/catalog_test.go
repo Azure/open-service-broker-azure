@@ -32,6 +32,7 @@ func init() {
 				Bindable:      bindable,
 				PlanUpdatable: planUpdatable,
 			},
+			nil,
 			NewPlan(&PlanProperties{
 				ID:          id,
 				Name:        name,

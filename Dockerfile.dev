@@ -14,3 +14,5 @@ RUN curl -sSL \
   && mkdir -p /go/src/github.com/Azure/azure-service-broker
 
 WORKDIR /go/src/github.com/Azure/azure-service-broker
+
+EXPOSE 8080

@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
-func (m *module) ValidateBindingParameters(
+func (s *serviceManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to Service Bus, so there is nothing
@@ -14,7 +14,7 @@ func (m *module) ValidateBindingParameters(
 	return nil
 }
 
-func (m *module) Bind(
+func (s *serviceManager) Bind(
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingParameters service.BindingParameters,

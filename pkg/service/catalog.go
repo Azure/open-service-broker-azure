@@ -39,16 +39,18 @@ type Service interface {
 	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
+	GetServiceManager() ServiceManager
 	GetPlans() []Plan
 	GetPlan(planID string) (Plan, bool)
 }
 
 type service struct {
 	*ServiceProperties
-	indexedPlans map[string]Plan
-	Plans        []json.RawMessage `json:"plans"`
-	plans        []Plan
-	jsonMutex    sync.Mutex
+	serviceManager ServiceManager
+	indexedPlans   map[string]Plan
+	Plans          []json.RawMessage `json:"plans"`
+	plans          []Plan
+	jsonMutex      sync.Mutex
 }
 
 // PlanProperties represent the properties of a Plan that can be directly
@@ -140,9 +142,14 @@ func (c *catalog) GetService(serviceID string) (Service, bool) {
 }
 
 // NewService initialized and returns a new Service
-func NewService(serviceProperties *ServiceProperties, plans ...Plan) Service {
+func NewService(
+	serviceProperties *ServiceProperties,
+	serviceManager ServiceManager,
+	plans ...Plan,
+) Service {
 	s := &service{
 		ServiceProperties: serviceProperties,
+		serviceManager:    serviceManager,
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
@@ -197,6 +204,10 @@ func (s *service) GetID() string {
 
 func (s *service) GetName() string {
 	return s.Name
+}
+
+func (s *service) GetServiceManager() ServiceManager {
+	return s.serviceManager
 }
 
 // GetPlans returns all of the service's plans

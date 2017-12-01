@@ -13,6 +13,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:    true,
 				Tags:        []string{"Azure", "SQL", "Database"},
 			},
+			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 				Name:        "basic",

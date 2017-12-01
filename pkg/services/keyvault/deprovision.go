@@ -7,24 +7,22 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
-func (m *module) GetDeprovisioner(
-	string,
-	string,
+func (s *serviceManager) GetDeprovisioner(
+	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep("deleteARMDeployment", m.deleteARMDeployment),
+		service.NewDeprovisioningStep("deleteARMDeployment", s.deleteARMDeployment),
 		service.NewDeprovisioningStep(
 			"deleteKeyVaultServer",
-			m.deleteKeyVaultServer,
+			s.deleteKeyVaultServer,
 		),
 	)
 }
 
-func (m *module) deleteARMDeployment(
+func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
@@ -34,7 +32,7 @@ func (m *module) deleteARMDeployment(
 			"error casting provisioningContext as *keyvaultProvisioningContext",
 		)
 	}
-	if err := m.armDeployer.Delete(
+	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
 		standardProvisioningContext.ResourceGroup,
 	); err != nil {
@@ -43,11 +41,10 @@ func (m *module) deleteARMDeployment(
 	return pc, nil
 }
 
-func (m *module) deleteKeyVaultServer(
+func (s *serviceManager) deleteKeyVaultServer(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
@@ -57,7 +54,7 @@ func (m *module) deleteKeyVaultServer(
 			"error casting provisioningContext as *keyvaultProvisioningContext",
 		)
 	}
-	if err := m.keyvaultManager.DeleteVault(
+	if err := s.keyvaultManager.DeleteVault(
 		pc.KeyVaultName,
 		standardProvisioningContext.ResourceGroup,
 	); err != nil {
