@@ -169,9 +169,7 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
     ```
 1. Grant the `cluster-admin` role to the default system account:
     ```
-    kubectl create clusterrolebinding cluster-admin:kube-system \
-       --clusterrole=cluster-admin \
-       --serviceaccount=kube-system:default
+    kubectl create clusterrolebinding cluster-admin:kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:default
     ```
 
 ## Configure the cluster with Open Service Broker for Azure
@@ -188,6 +186,8 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
     helm install svc-cat/catalog --name catalog --namespace catalog
     ```
 1. Deploy Open Service Broker for Azure on the cluster:
+
+    **Bash**
     ```
     helm install azure/azure-service-broker --name osba --namespace osba \
       --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
@@ -195,6 +195,16 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
       --set azure.clientId=$AZURE_CLIENT_ID \
       --set azure.clientSecret=$AZURE_CLIENT_SECRET
     ```
+
+    **PowerShell**
+    ```
+    helm install azure/azure-service-broker --name osba --namespace osba `
+      --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
+      --set azure.tenantId=$env:AZURE_TENANT_ID `
+      --set azure.clientId=$env:AZURE_CLIENT_ID `
+      --set azure.clientSecret=$env:AZURE_CLIENT_SECRET
+    ```
+
 1. Check on the status of everything that we have installed by running the
     following command and checking that everything is in the `Running` state.
     You may need to wait a few minutes, rerunning the command until all of the
