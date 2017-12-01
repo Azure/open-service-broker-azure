@@ -7,6 +7,10 @@ import (
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer       arm.Deployer
 	postgresqlManager postgresql.Manager
 }
@@ -19,8 +23,10 @@ func New(
 	postgresqlManager postgresql.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:       armDeployer,
-		postgresqlManager: postgresqlManager,
+		serviceManager: &serviceManager{
+			armDeployer:       armDeployer,
+			postgresqlManager: postgresqlManager,
+		},
 	}
 }
 

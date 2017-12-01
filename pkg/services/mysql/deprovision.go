@@ -7,24 +7,22 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
-func (m *module) GetDeprovisioner(
-	string,
-	string,
+func (s *serviceManager) GetDeprovisioner(
+	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep("deleteARMDeployment", m.deleteARMDeployment),
+		service.NewDeprovisioningStep("deleteARMDeployment", s.deleteARMDeployment),
 		service.NewDeprovisioningStep(
 			"deleteMySQLServer",
-			m.deleteMySQLServer,
+			s.deleteMySQLServer,
 		),
 	)
 }
 
-func (m *module) deleteARMDeployment(
+func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
@@ -34,7 +32,7 @@ func (m *module) deleteARMDeployment(
 			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
-	if err := m.armDeployer.Delete(
+	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
 		standardProvisioningContext.ResourceGroup,
 	); err != nil {
@@ -43,11 +41,10 @@ func (m *module) deleteARMDeployment(
 	return pc, nil
 }
 
-func (m *module) deleteMySQLServer(
+func (s *serviceManager) deleteMySQLServer(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan, // planID
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
@@ -57,7 +54,7 @@ func (m *module) deleteMySQLServer(
 			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
-	if err := m.mysqlManager.DeleteServer(
+	if err := s.mysqlManager.DeleteServer(
 		pc.ServerName,
 		standardProvisioningContext.ResourceGroup,
 	); err != nil {

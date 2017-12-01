@@ -7,6 +7,10 @@ import (
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer  arm.Deployer
 	mssqlManager mssql.Manager
 	mssqlConfig  Config
@@ -21,9 +25,11 @@ func New(
 	mssqlConfig Config,
 ) service.Module {
 	return &module{
-		armDeployer:  armDeployer,
-		mssqlManager: mssqlManager,
-		mssqlConfig:  mssqlConfig,
+		serviceManager: &serviceManager{
+			armDeployer:  armDeployer,
+			mssqlManager: mssqlManager,
+			mssqlConfig:  mssqlConfig,
+		},
 	}
 }
 

@@ -45,19 +45,32 @@ func (b *broker) doDeprovisionStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing deprovisioning step")
-	module, ok := b.modules[instance.ServiceID]
+	svc, ok := b.catalog.GetService(instance.ServiceID)
 	if !ok {
 		return b.handleDeprovisioningError(
 			instance,
 			stepName,
 			nil,
 			fmt.Sprintf(
-				`no module was found for handling service "%s"`,
+				`no service was found for handling serviceID "%s"`,
 				instance.ServiceID,
 			),
 		)
 	}
-	provisioningContext := module.GetEmptyProvisioningContext()
+	plan, ok := svc.GetPlan(instance.PlanID)
+	if !ok {
+		return b.handleDeprovisioningError(
+			instance,
+			stepName,
+			nil,
+			fmt.Sprintf(
+				`no plan was found for handling planID "%s"`,
+				instance.ServiceID,
+			),
+		)
+	}
+	serviceManager := svc.GetServiceManager()
+	provisioningContext := serviceManager.GetEmptyProvisioningContext()
 	err = instance.GetProvisioningContext(provisioningContext, b.codec)
 	if err != nil {
 		return b.handleDeprovisioningError(
@@ -67,10 +80,7 @@ func (b *broker) doDeprovisionStep(
 			"error decoding provisioningContext from persisted instance",
 		)
 	}
-	deprovisioner, err := module.GetDeprovisioner(
-		instance.ServiceID,
-		instance.PlanID,
-	)
+	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
 		return b.handleDeprovisioningError(
 			instance,
@@ -94,8 +104,7 @@ func (b *broker) doDeprovisionStep(
 	updatedProvisioningContext, err := step.Execute(
 		ctx,
 		instanceID,
-		instance.ServiceID,
-		instance.PlanID,
+		plan,
 		instance.StandardProvisioningContext,
 		provisioningContext,
 	)

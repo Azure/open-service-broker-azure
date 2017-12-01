@@ -12,6 +12,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:    true,
 				Tags:        []string{"Azure", "Container", "Instance"},
 			},
+			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "d48798e2-21db-405b-abc7-aa6f0ff08f6c",
 				Name:        "aci",

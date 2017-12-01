@@ -4,15 +4,12 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
-func (m *module) ValidateUpdatingParameters(
+func (s *serviceManager) ValidateUpdatingParameters(
 	updatingParameters service.UpdatingParameters,
 ) error {
 	return nil
 }
 
-func (m *module) GetUpdater(
-	_ string, // serviceID
-	_ string, // planID
-) (service.Updater, error) {
+func (s *serviceManager) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater()
 }

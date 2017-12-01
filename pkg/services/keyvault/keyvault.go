@@ -7,6 +7,10 @@ import (
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer     arm.Deployer
 	keyvaultManager keyvault.Manager
 }
@@ -18,8 +22,10 @@ func New(
 	keyvaultManager keyvault.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:     armDeployer,
-		keyvaultManager: keyvaultManager,
+		serviceManager: &serviceManager{
+			armDeployer:     armDeployer,
+			keyvaultManager: keyvaultManager,
+		},
 	}
 }
 

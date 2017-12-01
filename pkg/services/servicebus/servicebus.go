@@ -7,6 +7,10 @@ import (
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer       arm.Deployer
 	serviceBusManager servicebus.Manager
 }
@@ -18,8 +22,10 @@ func New(
 	serviceBusManager servicebus.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:       armDeployer,
-		serviceBusManager: serviceBusManager,
+		serviceManager: &serviceManager{
+			armDeployer:       armDeployer,
+			serviceBusManager: serviceBusManager,
+		},
 	}
 }
 
