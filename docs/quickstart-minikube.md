@@ -264,7 +264,7 @@ Here's how to remove resources created by this quickstart:
 
 1. `az group delete --name osba-quickstart`
 1. `az ad sp delete --name osba-quickstart`
-1. `minikubte delete`
+1. `minikube delete`
 
 # Next Steps
 Minikube may seem like an odd choice for an Azure quickstart, but it demonstrates
@@ -278,7 +278,7 @@ goodies that make life easier.
 Now that you have a cluster with OSBA, adding more applications is quick. Try out another to see for yourself:
 
 * [Concourse CI](https://github.com/Azure/helm-charts/blob/master/concourse)
-* [pbpBB](https://github.com/Azure/helm-charts/blob/master/phpbb)
+* [phpBB](https://github.com/Azure/helm-charts/blob/master/phpbb)
 
 All of our OSBA-enabled helm charts are available in the [Azure/helm-charts](https://github.com/Azure/helm-charts)
 repository.
