@@ -2,8 +2,8 @@ FROM scratch
 
 COPY ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
-COPY bin/asb /app/asb
+COPY bin/osba /app/osba
 
-CMD ["/app/asb"]
+CMD ["/app/osba"]
 
 EXPOSE 8080

@@ -16,7 +16,7 @@ What you will need:
 The Open Service Broker for Azure uses Redis as a backing store for its state. Create a cache using the Azure CLI:
 
 ```console
-az redis create -n asb-cache -g myresourcegroup -l <location> --sku Basic --vm-size C1 --enable-non-ssl-port
+az redis create -n osba-cache -g myresourcegroup -l <location> --sku Basic --vm-size C1 --enable-non-ssl-port
 ```
 
 Note the `hostName` and `primaryKey` in the output as these will be needed later.
@@ -54,7 +54,7 @@ Open contrib/cf/manifest.yml and enter the values obtained in the earlier steps:
 
 ```yaml
 ---
-  name: asb
+  name: osba
   buildpack: go_buildpack
   command: broker 
   env:
@@ -87,5 +87,5 @@ cf push -f contrib/cf/manifest.yml
 With the broker app deployed, the final step is to register it as a service broker in Cloud Foundry. Note that this step must be executed by a Cloud Foundry administrator unless you are using the `--space-scoped` flag to limit it to a single CF space.
 
 ```console
-cf create-service-broker open-service-broker-azure username password https://asb.apps.example.com
+cf create-service-broker open-service-broker-azure username password https://osba.apps.example.com
 ```

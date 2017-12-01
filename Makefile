@@ -1,7 +1,7 @@
 VERSION ?= $(shell git describe --always --abbrev=7 --dirty)
 
 BINARY_DIR := bin
-BINARY_NAME := asb
+BINARY_NAME := osba
 
 # This is left as 'azure-service-broker' because we don't yet have a docker repo
 # for 'open-service-broker-azure'
@@ -47,7 +47,7 @@ ifndef AZURE_CLIENT_SECRET
 	$(error AZURE_CLIENT_SECRET is not defined)
 endif
 
-# Deletes any existing asb binary AND destroys any running containers AND
+# Deletes any existing osba binary AND destroys any running containers AND
 # destroys the dev environment image.
 .PHONY: clean
 clean: check-docker-compose
@@ -158,7 +158,7 @@ build: check-docker-compose
 	docker-compose run --rm dev \
 		go build -o ${BINARY_DIR}/${BINARY_NAME} ./cmd/broker
 
-# (Re)Build the Docker image for the asb and run it
+# (Re)Build the Docker image for the osba and run it
 .PHONY: run
 run: check-docker-compose check-azure-env-vars build
 	@# Force the docker-compose "broker" service to be rebuilt-- this is separate
