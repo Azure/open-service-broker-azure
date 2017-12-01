@@ -21,6 +21,7 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				Bindable:    true,
 				Tags:        []string{"Fake"},
 			},
+			m.ServiceManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          StandardPlanID,
 				Name:        "standard",
