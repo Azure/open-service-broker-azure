@@ -11,7 +11,6 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/api/authenticator/basic"
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
-	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/fake"
 	memoryStorage "github.com/Azure/azure-service-broker/pkg/storage/memory"
 	log "github.com/Sirupsen/logrus"
@@ -25,9 +24,6 @@ func main() {
 	fakeCatalog, err := fakeModule.GetCatalog()
 	if err != nil {
 		log.Fatal(err)
-	}
-	modules := map[string]service.Module{
-		fakeCatalog.GetServices()[0].GetID(): fakeModule,
 	}
 
 	username := "username"
@@ -44,7 +40,7 @@ func main() {
 		fakeAsync.NewEngine(),
 		noop.NewCodec(),
 		authenticator,
-		modules,
+		fakeCatalog,
 		" ",
 		" ",
 	)

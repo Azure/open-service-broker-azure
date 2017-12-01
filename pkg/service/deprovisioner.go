@@ -10,8 +10,7 @@ import (
 type DeprovisioningStepFunction func(
 	ctx context.Context,
 	instanceID string,
-	serviceID string,
-	planID string,
+	plan Plan,
 	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 ) (ProvisioningContext, error)
@@ -23,8 +22,7 @@ type DeprovisioningStep interface {
 	Execute(
 		ctx context.Context,
 		instanceID string,
-		serviceID string,
-		planID string,
+		plan Plan,
 		standardProvisioningContext StandardProvisioningContext,
 		provisioningContext ProvisioningContext,
 	) (ProvisioningContext, error)
@@ -69,8 +67,7 @@ func (d *deprovisioningStep) GetName() string {
 func (d *deprovisioningStep) Execute(
 	ctx context.Context,
 	instanceID string,
-	serviceID string,
-	planID string,
+	plan Plan,
 	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 ) (ProvisioningContext, error) {
@@ -79,8 +76,7 @@ func (d *deprovisioningStep) Execute(
 	return d.fn(
 		ctx,
 		instanceID,
-		serviceID,
-		planID,
+		plan,
 		standardProvisioningContext,
 		provisioningContext,
 	)

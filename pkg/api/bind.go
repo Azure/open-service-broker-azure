@@ -101,21 +101,23 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// At this point, there's absolute agreement on what service we're dealing
-	// with. We can go ahead and find the module for this service.
-	module, ok := s.modules[instance.ServiceID]
+	// with. We can go ahead and find the Service itself to get the
+	// ServiceManager.
+	svc, ok := s.catalog.GetService(instance.ServiceID)
 	if !ok {
-		// If we don't find a module that handles the service, something is really
-		// wrong. (It should exist, because an instance with this serviceID exists.)
+		// If we don't find the Service in the catalog, something is really wrong.
+		// (It should exist, because an instance with this serviceID exists.)
 		logFields["serviceID"] = instance.ServiceID
 		log.WithFields(logFields).Error(
-			"pre-binding error: no module found for service",
+			"pre-binding error: no Service found for serviceID",
 		)
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
+	serviceManager := svc.GetServiceManager()
 
 	// Unpack the parameter map in the request to a struct
-	bindingParameters := module.GetEmptyBindingParameters()
+	bindingParameters := serviceManager.GetEmptyBindingParameters()
 	decoderConfig := &mapstructure.DecoderConfig{
 		TagName: "json",
 		Result:  bindingParameters,
@@ -166,7 +168,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
 			return
 		}
-		previousBindingParams := module.GetEmptyBindingParameters()
+		previousBindingParams := serviceManager.GetEmptyBindingParameters()
 		if err = binding.GetBindingParameters(
 			previousBindingParams,
 			s.codec,
@@ -188,7 +190,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 			// choose to respond with a 409
 			switch binding.Status {
 			case service.BindingStateBound:
-				credentials := module.GetEmptyCredentials()
+				credentials := serviceManager.GetEmptyCredentials()
 				if err = binding.GetCredentials(credentials, s.codec); err != nil {
 					logFields["error"] = err
 					log.WithFields(logFields).Error(
@@ -230,9 +232,9 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If we get to here, we need to provision a new binding.
-	// Start by carrying out module-specific request validation
-	err = module.ValidateBindingParameters(bindingRequest.Parameters)
+	// If we get to here, we need to create a new binding.
+	// Start by carrying out service-specific request validation
+	err = serviceManager.ValidateBindingParameters(bindingRequest.Parameters)
 	if err != nil {
 		validationErr, ok := err.(*service.ValidationError)
 		if ok {
@@ -249,7 +251,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provisioningContext := module.GetEmptyProvisioningContext()
+	provisioningContext := serviceManager.GetEmptyProvisioningContext()
 	err = instance.GetProvisioningContext(provisioningContext, s.codec)
 	if err != nil {
 		logFields["error"] = err
@@ -266,10 +268,10 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		Created:    time.Now(),
 	}
 
-	// Starting here, if something goes wrong, we don't know what state module-
+	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
-	bindingContext, credentials, err := module.Bind(
+	bindingContext, credentials, err := serviceManager.Bind(
 		instance.StandardProvisioningContext,
 		provisioningContext,
 		bindingRequest.Parameters,
@@ -278,7 +280,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		s.handleBindingError(
 			binding,
 			err,
-			"error executing module-specific binding logic",
+			"error executing service-specific binding logic",
 			w,
 		)
 		return
@@ -323,7 +325,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		Credentials: credentials,
 	}
 	if bindingResponse.Credentials == nil {
-		bindingResponse.Credentials = module.GetEmptyCredentials()
+		bindingResponse.Credentials = serviceManager.GetEmptyCredentials()
 	}
 	bindingJSON, err := bindingResponse.ToJSON()
 	if err != nil {
