@@ -77,7 +77,7 @@ verify-vendored-code: check-docker-compose
 	'
 
 .PHONY: test
-test: test-unit test-module-lifecycles
+test: test-unit test-module-lifecycles test-api-compliance
 
 # Containerized unit tests-- requires docker-compose
 .PHONY: test-unit
@@ -100,6 +100,15 @@ test-module-lifecycles: check-docker-compose check-azure-env-vars
 		  -timeout 60m \
 			github.com/Azure/azure-service-broker/tests/lifecycle -v'
 
+
+# Containerized API compliance check via osb-checker. Currently ignores exit code. 
+.PHONY: test-api-compliance
+test-api-compliance: check-docker-compose
+	docker-compose build test-api-compliance-broker test-api-compliance
+	-docker-compose run --rm test-api-compliance
+	docker-compose kill test-api-compliance-broker
+	docker-compose rm -f test-api-compliance-broker
+	
 .PHONY: lint
 lint: check-docker-compose
 	docker-compose run \
