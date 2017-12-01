@@ -1,6 +1,6 @@
-# Installing the Open Service Broker for Azure on Cloud Foundry
+# Installing Open Service Broker for Azure on Cloud Foundry
 
-The Open Service Broker for Azure is an [Open Service Broker](https://wwww.openservicebrokerapi.org)-compatible application for provisioning and managing services in Microsoft Azure. This document describes how to deploy it on [Cloud Foundry](https://cloudfoundry.org).
+Open Service Broker for Azure is an [Open Service Broker](https://wwww.openservicebrokerapi.org)-compatible application for provisioning and managing services in Microsoft Azure. This document describes how to deploy it on [Cloud Foundry](https://cloudfoundry.org).
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ What you will need:
 
 ## Create an Azure Redis Cache
 
-The Open Service Broker for Azure uses Redis as a backing store for its state. Create a cache using the Azure CLI:
+Open Service Broker for Azure uses Redis as a backing store for its state. Create a cache using the Azure CLI:
 
 ```console
 az redis create -n osba-cache -g myresourcegroup -l <location> --sku Basic --vm-size C1 --enable-non-ssl-port
@@ -29,7 +29,7 @@ $ az account show --query id
 
 ## Create a Service Principal
 
-The Open Service Broker for Azure uses a service principal to provision Azure resources on your behalf.
+Open Service Broker for Azure uses a service principal to provision Azure resources on your behalf.
 
 ```console
 $ az ad sp create-for-rbac

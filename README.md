@@ -11,7 +11,7 @@ Azure public cloud.
 
 ### Installing
 
-[Helm](https://helm.sh) is used to install the Open Service Broker for Azure onto Kubernetes
+[Helm](https://helm.sh) is used to install Open Service Broker for Azure onto Kubernetes
 clusters. Please refer to the 
 [Helm chart](https://github.com/Azure/helm-charts/tree/master/open-service-broker-azure)
 for details on how to complete the installation.
@@ -20,7 +20,7 @@ for details on how to complete the installation.
 
 #### Provisioning
 
-With the Kubernetes Service Catalog software and the Open Service Broker for Azure both
+With the Kubernetes Service Catalog software and Open Service Broker for Azure both
 installed on your Kubernetes cluster, try creating a `ServiceInstance` resource
 to see service provisioning in action.
 
@@ -190,7 +190,7 @@ Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgre
 
 ### Installation
 
-To deploy the Open Service Broker for Azure to Cloud Foundry, please refer to the 
+To deploy Open Service Broker for Azure to Cloud Foundry, please refer to the 
 [CloudFoundry installation documentation](contrib/cf/README.md) for instructions.
 
 ### Usage

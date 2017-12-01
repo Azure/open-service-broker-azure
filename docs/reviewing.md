@@ -25,7 +25,7 @@ community.
 
 # Review Process
 
-As the Open Service Broker for Azure has not yet reached a 1.0 release, we, the maintainers, believe
+As Open Service Broker for Azure has not yet reached a 1.0 release, we, the maintainers, believe
 that quality, efficiency, and velocity are important (in that order of importance).
 
 As such, we've defined a few categories of PRs and their review requirements:

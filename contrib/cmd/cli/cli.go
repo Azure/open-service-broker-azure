@@ -10,7 +10,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "broker-cli"
-	app.Usage = "demo the Open Service Broker for Azure with ease"
+	app.Usage = "demo Open Service Broker for Azure with ease"
 	app.UsageText = "broker-cli [global options] <command> [command options] " +
 		"[arguments...]"
 	app.Flags = []cli.Flag{
