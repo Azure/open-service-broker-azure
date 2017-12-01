@@ -68,30 +68,30 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		// spec is clear on whether that's permissible or not. So for now, we must
 		// accept the possibility that orphaned bindings may exist. I'm choosing
 		// to deal with this by skipping straight to deleting the binding from the
-		// datastore without invoking any module-specific unbinding logic. (We
+		// datastore without invoking any service-specific unbinding logic. (We
 		// cannot, because with the instance no longer existing, we cannot identify
 		// the service and plan of the instance, and therefore do not know which
-		// module can successfully effect binding).
+		// serviceManager can successfully effect binding).
 		// TODO: Re-evaluate this decision later.
 		log.WithFields(logFields).Debug(
 			"unbinding an orphaned binding",
 		)
 	} else {
-
-		module, ok := s.modules[instance.ServiceID]
+		// We can go ahead and find the Service itself to get the ServiceManager.
+		svc, ok := s.catalog.GetService(instance.ServiceID)
 		if !ok {
-			// If we don't find a module that handles the service, something is really
-			// wrong. (It should exist, because an instance with this serviceID
-			// exists.)
+			// If we don't find the Service in the catalog, something is really wrong.
+			// (It should exist, because an instance with this serviceID exists.)
 			logFields["serviceID"] = instance.ServiceID
 			log.WithFields(logFields).Error(
-				"pre-unbinding error: no module found for service",
+				"pre-unbinding error: no Service found for serviceID",
 			)
 			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 			return
 		}
+		serviceManager := svc.GetServiceManager()
 
-		provisioningContext := module.GetEmptyProvisioningContext()
+		provisioningContext := serviceManager.GetEmptyProvisioningContext()
 		err = instance.GetProvisioningContext(provisioningContext, s.codec)
 		if err != nil {
 			logFields["error"] = err
@@ -102,7 +102,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		bindingContext := module.GetEmptyBindingContext()
+		bindingContext := serviceManager.GetEmptyBindingContext()
 		err = binding.GetBindingContext(bindingContext, s.codec)
 		if err != nil {
 			logFields["error"] = err
@@ -113,10 +113,10 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Starting here, if something goes wrong, we don't know what state module-
+		// Starting here, if something goes wrong, we don't know what state service-
 		// specific code has left us in, so we'll attempt to record the error in
 		// the datastore.
-		err = module.Unbind(
+		err = serviceManager.Unbind(
 			instance.StandardProvisioningContext,
 			provisioningContext,
 			bindingContext,
@@ -125,7 +125,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 			s.handleUnbindingError(
 				binding,
 				err,
-				"error executing module-specific unbinding logic",
+				"error executing service-specific unbinding logic",
 				w,
 			)
 			return

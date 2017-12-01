@@ -10,8 +10,7 @@ import (
 type UpdatingStepFunction func(
 	ctx context.Context,
 	instanceID string,
-	serviceID string,
-	planID string,
+	plan Plan,
 	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 	params UpdatingParameters,
@@ -24,8 +23,7 @@ type UpdatingStep interface {
 	Execute(
 		ctx context.Context,
 		instanceID string,
-		serviceID string,
-		planID string,
+		plan Plan,
 		standardProvisioningContext StandardProvisioningContext,
 		provisioningContext ProvisioningContext,
 		params UpdatingParameters,
@@ -71,8 +69,7 @@ func (u *updatingStep) GetName() string {
 func (u *updatingStep) Execute(
 	ctx context.Context,
 	instanceID string,
-	serviceID string,
-	planID string,
+	plan Plan,
 	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 	params UpdatingParameters,
@@ -82,8 +79,7 @@ func (u *updatingStep) Execute(
 	return u.fn(
 		ctx,
 		instanceID,
-		serviceID,
-		planID,
+		plan,
 		standardProvisioningContext,
 		provisioningContext,
 		params,

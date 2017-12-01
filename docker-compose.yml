@@ -17,6 +17,19 @@ services:
     - .:/go/src/github.com/Azure/azure-service-broker
     links:
     - test-redis:redis
+  test-api-compliance: #Run the API compliance tests, run the broker, redis and the osb-checker
+    build:
+      context: .
+      dockerfile: Dockerfile.osb-checker
+    links:
+    - test-api-compliance-broker:broker
+  test-api-compliance-broker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+    - .:/go/src/github.com/Azure/azure-service-broker
+    command:  bash -c 'go run cmd/compliance-test-broker.go'
   broker:
     build: .
     environment:

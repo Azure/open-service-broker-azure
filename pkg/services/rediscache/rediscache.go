@@ -7,6 +7,10 @@ import (
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer  arm.Deployer
 	redisManager rediscache.Manager
 }
@@ -18,8 +22,10 @@ func New(
 	redisManager rediscache.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:  armDeployer,
-		redisManager: redisManager,
+		serviceManager: &serviceManager{
+			armDeployer:  armDeployer,
+			redisManager: redisManager,
+		},
 	}
 }
 

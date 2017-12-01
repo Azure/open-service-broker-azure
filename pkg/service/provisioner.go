@@ -10,8 +10,7 @@ import (
 type ProvisioningStepFunction func(
 	ctx context.Context,
 	instanceID string,
-	serviceID string,
-	planID string,
+	plan Plan,
 	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 	params ProvisioningParameters,
@@ -24,8 +23,7 @@ type ProvisioningStep interface {
 	Execute(
 		ctx context.Context,
 		instanceID string,
-		serviceID string,
-		planID string,
+		plan Plan,
 		standardProvisioningContext StandardProvisioningContext,
 		provisioningContext ProvisioningContext,
 		params ProvisioningParameters,
@@ -71,8 +69,7 @@ func (p *provisioningStep) GetName() string {
 func (p *provisioningStep) Execute(
 	ctx context.Context,
 	instanceID string,
-	serviceID string,
-	planID string,
+	plan Plan,
 	standardProvisioningContext StandardProvisioningContext,
 	provisioningContext ProvisioningContext,
 	params ProvisioningParameters,
@@ -82,8 +79,7 @@ func (p *provisioningStep) Execute(
 	return p.fn(
 		ctx,
 		instanceID,
-		serviceID,
-		planID,
+		plan,
 		standardProvisioningContext,
 		provisioningContext,
 		params,

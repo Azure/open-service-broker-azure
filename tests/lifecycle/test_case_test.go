@@ -58,12 +58,39 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	// THIS is what stops CI from timing out these tests!
 	go m.showStatus(ctx)
 
-	err := m.module.ValidateProvisioningParameters(m.provisioningParameters)
+	// Get the service and plan
+	cat, err := m.module.GetCatalog()
+	if err != nil {
+		return fmt.Errorf(
+			`error gettting catalog from module "%s"`,
+			m.module.GetName(),
+		)
+	}
+	svc, ok := cat.GetService(m.serviceID)
+	if !ok {
+		return fmt.Errorf(
+			`service "%s" not found in module "%s" catalog`,
+			m.serviceID,
+			m.module.GetName(),
+		)
+	}
+	plan, ok := svc.GetPlan(m.planID)
+	if !ok {
+		return fmt.Errorf(
+			`plan "%s" not found for service "%s" in module "%s" catalog`,
+			m.planID,
+			m.serviceID,
+			m.module.GetName(),
+		)
+	}
+	serviceManager := svc.GetServiceManager()
+
+	err = serviceManager.ValidateProvisioningParameters(m.provisioningParameters)
 	if err != nil {
 		return err
 	}
 
-	pc := m.module.GetEmptyProvisioningContext()
+	pc := serviceManager.GetEmptyProvisioningContext()
 	var tempPC service.ProvisioningContext
 
 	// Force the resource group to be something known to this test executor
@@ -79,7 +106,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 
 	// Provision...
 	iid := uuid.NewV4().String()
-	provisioner, err := m.module.GetProvisioner(m.serviceID, m.planID)
+	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
 		return err
 	}
@@ -108,8 +135,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		tempPC, err = step.Execute(
 			ctx,
 			iid,
-			m.serviceID,
-			m.planID,
+			plan,
 			m.standardProvisioningContext,
 			pc,
 			m.provisioningParameters,
@@ -126,7 +152,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Bind
-	bc, credentials, err := m.module.Bind(
+	bc, credentials, err := serviceManager.Bind(
 		m.standardProvisioningContext,
 		pc,
 		m.bindingParameters,
@@ -144,13 +170,13 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Unbind
-	err = m.module.Unbind(m.standardProvisioningContext, pc, bc)
+	err = serviceManager.Unbind(m.standardProvisioningContext, pc, bc)
 	if err != nil {
 		return err
 	}
 
 	// Deprovision...
-	deprovisioner, err := m.module.GetDeprovisioner(m.serviceID, m.planID)
+	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
 		return nil
 	}
@@ -178,8 +204,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		tempPC, err = step.Execute(
 			ctx,
 			iid,
-			m.serviceID,
-			m.planID,
+			nil, // Plan
 			m.standardProvisioningContext,
 			pc,
 		)
