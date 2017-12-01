@@ -22,17 +22,14 @@ services:
       context: .
       dockerfile: Dockerfile.osb-checker
     links:
-    - test-broker:broker
-  test-broker:
+    - test-api-compliance-broker:broker
+  test-api-compliance-broker:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    environment:
-      BASIC_AUTH_USERNAME: username
-      BASIC_AUTH_PASSWORD: password
     volumes:
     - .:/go/src/github.com/Azure/azure-service-broker
-    command:  bash -c 'go test  -tags compliance github.com/Azure/azure-service-broker/tests/compliance'
+    command:  bash -c 'go run cmd/compliance-test-broker.go'
   broker:
     build: .
     environment:

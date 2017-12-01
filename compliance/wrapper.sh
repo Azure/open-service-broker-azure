@@ -8,5 +8,5 @@ until [[ 200 -eq $(curl --write-out %{http_code} --silent --output /dev/null htt
     sleep 5
 done
 
-bash -c mocha
+exec bash -c mocha
 

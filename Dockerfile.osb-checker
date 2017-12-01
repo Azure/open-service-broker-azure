@@ -1,17 +1,15 @@
 FROM node:6-stretch
 
-RUN git clone https://github.com/Haishi2016/osb-checker.git /opt/osb-checker
-
-RUN rm /opt/osb-checker/2.13/tests/test/configs/*.json
-
+RUN git clone https://github.com/Haishi2016/osb-checker.git /opt/osb-checker && \
+        rm /opt/osb-checker/2.13/tests/test/configs/*.json && \ 
+	npm config set package-lock false && npm install --global mocha
+ 
 COPY compliance/config.json /opt/osb-checker/2.13/tests/test/configs/config_mock.json
 
-RUN npm config set package-lock false && npm install --global mocha
+COPY compliance/wrapper.sh /opt/osb-checker/2.13/tests/
 
 WORKDIR /opt/osb-checker/2.13/tests
 
 RUN npm install
-
-COPY compliance/wrapper.sh /opt/osb-checker/2.13/tests/
 
 ENTRYPOINT [ "./wrapper.sh" ]

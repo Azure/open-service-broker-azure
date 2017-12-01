@@ -104,10 +104,10 @@ test-module-lifecycles: check-docker-compose check-azure-env-vars
 # Containerized API compliance check via osb-checker. Currently ignores exit code. 
 .PHONY: test-api-compliance
 test-api-compliance: check-docker-compose
-	docker-compose build test-broker test-api-compliance
+	docker-compose build test-api-compliance-broker test-api-compliance
 	-docker-compose run --rm test-api-compliance
-	docker-compose kill test-broker
-	docker-compose rm -f test-broker
+	docker-compose kill test-api-compliance-broker
+	docker-compose rm -f test-api-compliance-broker
 	
 .PHONY: lint
 lint: check-docker-compose

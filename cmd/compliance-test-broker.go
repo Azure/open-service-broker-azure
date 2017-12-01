@@ -1,10 +1,11 @@
-// +build !unit
-
-package compliance
+package main
 
 import (
 	"context"
-	"testing"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/Azure/azure-service-broker/pkg/api"
 	"github.com/Azure/azure-service-broker/pkg/api/authenticator/basic"
@@ -14,41 +15,27 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/services/fake"
 	memoryStorage "github.com/Azure/azure-service-broker/pkg/storage/memory"
 	log "github.com/Sirupsen/logrus"
-	"github.com/kelseyhightower/envconfig"
-	"github.com/stretchr/testify/assert"
 )
 
-type basicAuthConfig struct {
-	Username string `envconfig:"BASIC_AUTH_USERNAME" required:"true"`
-	Password string `envconfig:"BASIC_AUTH_PASSWORD" required:"true"`
-}
-
-func getBasicAuthConfig() (basicAuthConfig, error) {
-	bac := basicAuthConfig{}
-	err := envconfig.Process("", &bac)
-	return bac, err
-}
-
-func getComplianceTestServer() (api.Server, error) {
+func main() {
 	fakeModule, err := fake.New()
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	fakeCatalog, err := fakeModule.GetCatalog()
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	modules := map[string]service.Module{
 		fakeCatalog.GetServices()[0].GetID(): fakeModule,
 	}
 
-	basicAuthConfig, err := getBasicAuthConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
+	username := "username"
+	password := "password"
+
 	authenticator := basic.NewAuthenticator(
-		basicAuthConfig.Username,
-		basicAuthConfig.Password,
+		username,
+		password,
 	)
 
 	server, err := api.NewServer(
@@ -63,19 +50,29 @@ func getComplianceTestServer() (api.Server, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
-	return server, nil
-}
-
-//TestAPICompliance starts a test serverfor use with OSB api compliance testing
-func TestAPICompliance(t *testing.T) {
-
-	s, err := getComplianceTestServer()
-	assert.Nil(t, err)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	err = s.Start(ctx)
-	assert.Equal(t, ctx.Err(), err)
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		signal := <-sigChan
+		log.WithField(
+			"signal",
+			signal,
+		).Debug("signal received; shutting down")
+		cancel()
+	}()
+
+	if err := server.Start(ctx); err != nil {
+		if err == ctx.Err() {
+			// Allow some time for goroutines to shut down
+			time.Sleep(time.Second * 3)
+		} else {
+			log.Fatal(err)
+		}
+	}
 }
