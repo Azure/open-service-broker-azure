@@ -7,6 +7,8 @@ open source, [Open Service Broker](https://www.openservicebrokerapi.org/)
 compatible API server that provisions managed services in the Microsoft
 Azure public cloud.
 
+![Open Service Broker for Azure GIF](./gifs/demovideo.gif)
+
 ## Getting Started on Kubernetes
 
 ### Installing
