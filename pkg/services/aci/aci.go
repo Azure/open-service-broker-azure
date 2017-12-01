@@ -7,6 +7,10 @@ import (
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer arm.Deployer
 	aciManager  aci.Manager
 }
@@ -18,8 +22,10 @@ func New(
 	aciManager aci.Manager,
 ) service.Module {
 	return &module{
-		armDeployer: armDeployer,
-		aciManager:  aciManager,
+		serviceManager: &serviceManager{
+			armDeployer: armDeployer,
+			aciManager:  aciManager,
+		},
 	}
 }
 

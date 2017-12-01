@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
-func (m *module) Unbind(
+func (s *serviceManager) Unbind(
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingContext service.BindingContext,

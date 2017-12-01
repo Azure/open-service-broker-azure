@@ -8,7 +8,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func (m *module) ValidateBindingParameters(
+func (s *serviceManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to PostgreSQL, so there is nothing
@@ -16,7 +16,7 @@ func (m *module) ValidateBindingParameters(
 	return nil
 }
 
-func (m *module) Bind(
+func (s *serviceManager) Bind(
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingParameters service.BindingParameters,

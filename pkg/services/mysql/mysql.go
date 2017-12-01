@@ -7,6 +7,10 @@ import (
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer  arm.Deployer
 	mysqlManager mysql.Manager
 }
@@ -19,8 +23,10 @@ func New(
 	mysqlManager mysql.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:  armDeployer,
-		mysqlManager: mysqlManager,
+		serviceManager: &serviceManager{
+			armDeployer:  armDeployer,
+			mysqlManager: mysqlManager,
+		},
 	}
 }
 

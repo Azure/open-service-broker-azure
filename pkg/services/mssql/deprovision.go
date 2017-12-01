@@ -7,27 +7,25 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/service"
 )
 
-func (m *module) GetDeprovisioner(
-	string,
-	string,
+func (s *serviceManager) GetDeprovisioner(
+	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep(
 			"deleteARMDeployment",
-			m.deleteARMDeployment,
+			s.deleteARMDeployment,
 		),
 		service.NewDeprovisioningStep(
 			"deleteMsSQLServerOrDatabase",
-			m.deleteMsSQLServerOrDatabase,
+			s.deleteMsSQLServerOrDatabase,
 		),
 	)
 }
 
-func (m *module) deleteARMDeployment(
+func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
@@ -40,13 +38,13 @@ func (m *module) deleteARMDeployment(
 	var err error
 	if pc.IsNewServer {
 		// new server scenario
-		err = m.armDeployer.Delete(
+		err = s.armDeployer.Delete(
 			pc.ARMDeploymentName,
 			standardProvisioningContext.ResourceGroup,
 		)
 	} else {
 		// exisiting server scenario
-		servers := m.mssqlConfig.Servers
+		servers := s.mssqlConfig.Servers
 		server, ok := servers[pc.ServerName]
 		if !ok {
 			return nil, fmt.Errorf(
@@ -55,7 +53,7 @@ func (m *module) deleteARMDeployment(
 			)
 		}
 
-		err = m.armDeployer.Delete(
+		err = s.armDeployer.Delete(
 			pc.ARMDeploymentName,
 			server.ResourceGroupName,
 		)
@@ -66,11 +64,10 @@ func (m *module) deleteARMDeployment(
 	return pc, nil
 }
 
-func (m *module) deleteMsSQLServerOrDatabase(
+func (s *serviceManager) deleteMsSQLServerOrDatabase(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
@@ -83,7 +80,7 @@ func (m *module) deleteMsSQLServerOrDatabase(
 
 	if pc.IsNewServer {
 		// new server scenario
-		if err := m.mssqlManager.DeleteServer(
+		if err := s.mssqlManager.DeleteServer(
 			pc.ServerName,
 			standardProvisioningContext.ResourceGroup,
 		); err != nil {
@@ -91,7 +88,7 @@ func (m *module) deleteMsSQLServerOrDatabase(
 		}
 	} else {
 		// exisiting server scenario
-		servers := m.mssqlConfig.Servers
+		servers := s.mssqlConfig.Servers
 		server, ok := servers[pc.ServerName]
 		if !ok {
 			return nil, fmt.Errorf(
@@ -100,7 +97,7 @@ func (m *module) deleteMsSQLServerOrDatabase(
 			)
 		}
 
-		if err := m.mssqlManager.DeleteDatabase(
+		if err := s.mssqlManager.DeleteDatabase(
 			pc.ServerName,
 			pc.DatabaseName,
 			server.ResourceGroupName,

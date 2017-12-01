@@ -6,7 +6,6 @@ import (
 	"github.com/Azure/azure-service-broker/pkg/api/authenticator/always"
 	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
 	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
-	"github.com/Azure/azure-service-broker/pkg/service"
 	"github.com/Azure/azure-service-broker/pkg/services/fake"
 	memoryStorage "github.com/Azure/azure-service-broker/pkg/storage/memory"
 	uuid "github.com/satori/go.uuid"
@@ -57,16 +56,13 @@ func getTestServer(
 	if err != nil {
 		return nil, nil, err
 	}
-	modules := map[string]service.Module{
-		fakeCatalog.GetServices()[0].GetID(): fakeModule,
-	}
 	s, err := NewServer(
 		8080,
 		memoryStorage.NewStore(),
 		fakeAsync.NewEngine(),
 		noop.NewCodec(),
 		always.NewAuthenticator(),
-		modules,
+		fakeCatalog,
 		defaultAzureLocation,
 		defaultAzureResourceGroup,
 	)

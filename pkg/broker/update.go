@@ -45,19 +45,32 @@ func (b *broker) doUpdateStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing updating step")
-	module, ok := b.modules[instance.ServiceID]
+	svc, ok := b.catalog.GetService(instance.ServiceID)
 	if !ok {
 		return b.handleUpdatingError(
 			instance,
 			stepName,
 			nil,
 			fmt.Sprintf(
-				`no module was found for handling service "%s"`,
+				`no service was found for handling serviceID "%s"`,
 				instance.ServiceID,
 			),
 		)
 	}
-	provisioningContext := module.GetEmptyProvisioningContext()
+	plan, ok := svc.GetPlan(instance.PlanID)
+	if !ok {
+		return b.handleUpdatingError(
+			instance,
+			stepName,
+			nil,
+			fmt.Sprintf(
+				`no plan was found for handling planID "%s"`,
+				instance.ServiceID,
+			),
+		)
+	}
+	serviceManager := svc.GetServiceManager()
+	provisioningContext := serviceManager.GetEmptyProvisioningContext()
 	err = instance.GetProvisioningContext(provisioningContext, b.codec)
 	if err != nil {
 		return b.handleUpdatingError(
@@ -67,7 +80,7 @@ func (b *broker) doUpdateStep(
 			"error decoding provisioningContext from persisted instance",
 		)
 	}
-	updatingParams := module.GetEmptyUpdatingParameters()
+	updatingParams := serviceManager.GetEmptyUpdatingParameters()
 	err = instance.GetUpdatingParameters(updatingParams, b.codec)
 	if err != nil {
 		return b.handleUpdatingError(
@@ -77,7 +90,7 @@ func (b *broker) doUpdateStep(
 			"error decoding updatingParameters from persisted instance",
 		)
 	}
-	updater, err := module.GetUpdater(instance.ServiceID, instance.PlanID)
+	updater, err := serviceManager.GetUpdater(plan)
 	if err != nil {
 		return b.handleUpdatingError(
 			instance,
@@ -101,8 +114,7 @@ func (b *broker) doUpdateStep(
 	updatedProvisioningContext, err := step.Execute(
 		ctx,
 		instanceID,
-		instance.ServiceID,
-		instance.PlanID,
+		plan,
 		instance.StandardProvisioningContext,
 		provisioningContext,
 		updatingParams,
