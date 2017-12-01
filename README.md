@@ -20,9 +20,8 @@ Instructions on how to install each prerequisite are linked below:
 - [Service Catalog](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-3-install-service-catalog)
 
 Finally, you'll need [Service Catalog CLI](https://github.com/Azure/service-catalog-cli)
-installed to introspect the Kubernetes cluster.
-
-Please refer to the [CLI installation instructions](https://github.com/Azure/service-catalog-cli#install)
+installed to introspect the Kubernetes cluster. Please refer to the 
+[CLI installation instructions](https://github.com/Azure/service-catalog-cli#install)
 for details on how to install it onto your machine.
 
 #### Provisioning
