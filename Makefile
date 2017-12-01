@@ -3,7 +3,11 @@ VERSION ?= $(shell git describe --always --abbrev=7 --dirty)
 BINARY_DIR := bin
 BINARY_NAME := asb
 
-BASE_IMAGE_NAME      = open-service-broker-azure
+# This is left as 'azure-service-broker' because we don't yet have a docker repo
+# for 'open-service-broker-azure'
+#
+# See https://github.com/Azure/open-service-broker-azure/issues/100
+BASE_IMAGE_NAME      = azure-service-broker
 MUTABLE_TAG         ?= canary
 IMAGE_NAME           = $(REGISTRY)$(BASE_IMAGE_NAME):$(VERSION)
 MUTABLE_IMAGE_NAME   = $(REGISTRY)$(BASE_IMAGE_NAME):$(MUTABLE_TAG)
