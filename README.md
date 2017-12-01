@@ -11,12 +11,19 @@ Azure public cloud.
 
 ### Installing
 
-[Helm](https://helm.sh) is used to install the Azure Service Broker onto Kubernetes
-clusters. Please refer to the 
-[Helm chart](https://github.com/Azure/helm-charts/tree/master/azure-service-broker)
-for details on how to complete the installation.
+You'll need a few pre-requisites in order to run these examples on Kubernetes.
 
-### Examples
+Instructions on how to install each prerequisite are linked below:
+
+- [A compatible Kubernetes cluster](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-1-create-a-compatible-kubernetes-cluster)
+- [A working Helm installation](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-2-initialize-helm-on-the-cluster)
+- [Service Catalog](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-3-install-service-catalog)
+
+Finally, you'll need [Service Catalog CLI](https://github.com/Azure/service-catalog-cli)
+installed to introspect the Kubernetes cluster.
+
+Please refer to the [CLI installation instructions](https://github.com/Azure/service-catalog-cli#install)
+for details on how to install it onto your machine.
 
 #### Provisioning
 
@@ -33,52 +40,12 @@ $ kubectl create -f contrib/k8s/examples/postgresql-instance.yaml
 After the `ServiceInstance` resource is submitted, you can view its status:
 
 ```console
-$ kubectl get serviceinstance my-postgresql-instance -o yaml
+$ svc-cat get instance my-postgresql-instance
 ```
 
-The folowing is excerpted from the output and shows that asynchronous
-provisioning is ongoing:
-
-```console
-status:
-  asyncOpInProgress: true
-  conditions:
-  - lastTransitionTime: 2017-10-16T18:28:13Z
-    message: The instance is being provisioned asynchronously
-    reason: Provisioning
-    status: "False"
-    type: Ready
-  currentOperation: Provision
-  inProgressProperties:
-    externalClusterServicePlanName: basic50
-    parameterChecksum: bf5f464a1a09117e100c9a7bb10409e57570f281d756aab4cd00b428c7be16ac
-    parameters:
-      location: eastus
-      resourceGroup: demo
-  lastOperation: provisioning
-  operationStartTime: 2017-10-16T18:28:13Z
-```
-
-Eventually, status will reflect a success or failure state:
-
-```console
-status:
-  asyncOpInProgress: false
-  conditions:
-  - lastTransitionTime: 2017-10-16T18:36:43Z
-    message: The instance was provisioned successfully
-    reason: ProvisionedSuccessfully
-    status: "True"
-    type: Ready
-  externalProperties:
-    externalClusterServicePlanName: basic50
-    parameterChecksum: bf5f464a1a09117e100c9a7bb10409e57570f281d756aab4cd00b428c7be16ac
-    parameters:
-      location: eastus
-      resourceGroup: demo
-  orphanMitigationInProgress: false
-  reconciledGeneration: 1
-```
+You'll see output that includes a status to indicate that asynchronous 
+provisioning is ongoing. Eventually that status will change to indicate
+that asynchronous provisioning is complete.
 
 #### Binding
 
@@ -91,33 +58,13 @@ $ kubectl create -f contrib/k8s/examples/postgresql-binding.yaml
 To check the status of the binding:
 
 ```console
-$ kubectl get servicebinding my-postgresql-binding -o yaml
+$ svc-cat get binding my-postgresql-binding
 ```
 
-The following is excerpted from the output:
-
-```console
-spec:
-  externalID: 25638746-bd86-44a1-a60e-06069734f2cd
-  instanceRef:
-    name: my-postgresql-instance
-  secretName: my-postgresql-secret
-status:
-  conditions:
-  - lastTransitionTime: 2017-10-16T18:44:38Z
-    message: Injected bind result
-    reason: InjectedBindResult
-    status: "True"
-    type: Ready
-  externalProperties: {}
-  orphanMitigationInProgress: false
-  reconciledGeneration: 1
-```
-
-The status shows the binding was successful and the `spec.secretName` field
-indicates that connection details and credentials have been written into a
-secret named `my-postgresql-secret`. You can observe that this secret exists
-and has been populated:
+You'll see some output to indicate that the binding was successful. Once it is,
+a secret named `my-postgresql-secret` will be written that contains the database
+connection details in it.
+You can observe that this secret exists and has been populated:
 
 ```console
 $ kubectl get secret my-postgresql-secret -o yaml
@@ -151,40 +98,12 @@ $ kubectl delete serviceinstance my-postgresql-instance
 You can observe the status to see that asynchronous deprovisioning is ongoing:
 
 ```console
-$ kubectl get serviceinstance my-postgresql-instance -o yaml
+$ svc-cat get instance my-postgresql-instance
 ```
 
-The following is excerpted from the output:
-
-```console
-status:
-  asyncOpInProgress: true
-  conditions:
-  - lastTransitionTime: 2017-10-16T19:02:19Z
-    message: The instance is being deprovisioned asynchronously
-    reason: Deprovisioning
-    status: "False"
-    type: Ready
-  currentOperation: Deprovision
-  externalProperties:
-    externalClusterServicePlanName: basic50
-    parameterChecksum: bf5f464a1a09117e100c9a7bb10409e57570f281d756aab4cd00b428c7be16ac
-    parameters:
-      location: eastus
-      resourceGroup: demo
-  lastOperation: deprovisioning
-  operationStartTime: 2017-10-16T19:02:19Z
-  orphanMitigationInProgress: false
-  reconciledGeneration: 1
-```
-
-When the asynchronous deprovisioning procress completes, the deletion of the
-resource will also be complete:
-
-```console
-$ kubectl get serviceinstance my-postgresql-instance
-Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgresql-instance" not found
-```
+You'll see in the output that asynchronous deprovision is in progress. When
+it's complete, the deletion of the resource will also be complete and
+the `svc-cat get` command will indicate that the instance no longer exists.
 
 ## Getting Started on Cloud Foundry
 
