@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 )
 
 // Binding represents a binding to a service

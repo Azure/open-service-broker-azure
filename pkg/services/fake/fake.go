@@ -3,7 +3,7 @@ package fake
 import (
 	"context"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 // ProvisioningValidationFunction describes a function used to provide pluggable

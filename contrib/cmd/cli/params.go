@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	parms "github.com/Azure/azure-service-broker/contrib/pkg/params"
+	parms "github.com/Azure/open-service-broker-azure/contrib/pkg/params"
 	"github.com/urfave/cli"
 )
 

@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/async/model"
-	"github.com/Azure/azure-service-broker/pkg/azure"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"

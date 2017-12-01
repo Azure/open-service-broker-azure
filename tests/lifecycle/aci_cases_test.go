@@ -3,10 +3,10 @@
 package lifecycle
 
 import (
-	ac "github.com/Azure/azure-service-broker/pkg/azure/aci"
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/aci"
+	ac "github.com/Azure/open-service-broker-azure/pkg/azure/aci"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
 )
 
 func getACICases(

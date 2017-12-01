@@ -3,8 +3,8 @@ package mssql
 import (
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/generate"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 )
 

@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Azure/azure-service-broker/pkg/services/fake"
+	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/stretchr/testify/assert"
 )
 

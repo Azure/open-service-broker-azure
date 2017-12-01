@@ -3,10 +3,10 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	eh "github.com/Azure/azure-service-broker/pkg/azure/eventhub"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/eventhub"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	eh "github.com/Azure/open-service-broker-azure/pkg/azure/eventhub"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/eventhub"
 )
 
 func getEventhubCases(

@@ -1,6 +1,6 @@
 ---
 applications:
-- name: asb
+- name: osba
   buildpack: https://github.com/cloudfoundry/go-buildpack/releases/download/v1.8.13/go-buildpack-v1.8.13.zip
   command: broker 
   env:
@@ -14,5 +14,5 @@ applications:
     AES256_KEY: AES256Key-32Characters1234567890
     BASIC_AUTH_USERNAME: username
     BASIC_AUTH_PASSWORD: password
-    GOPACKAGENAME: github.com/Azure/azure-service-broker
-    GO_INSTALL_PACKAGE_SPEC: github.com/Azure/azure-service-broker/cmd/broker
+    GOPACKAGENAME: github.com/Azure/open-service-broker-azure
+    GO_INSTALL_PACKAGE_SPEC: github.com/Azure/open-service-broker-azure/cmd/broker

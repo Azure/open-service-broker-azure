@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/api/authenticator/always"
-	fakeAPI "github.com/Azure/azure-service-broker/pkg/api/fake"
-	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/always"
+	fakeAPI "github.com/Azure/open-service-broker-azure/pkg/api/fake"
+	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -3,7 +3,7 @@ package fake
 import (
 	"context"
 
-	"github.com/Azure/azure-service-broker/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async/model"
 )
 
 // Worker is a fake implementation of async.Worker used for testing

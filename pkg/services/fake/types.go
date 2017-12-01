@@ -1,6 +1,6 @@
 package fake
 
-import "github.com/Azure/azure-service-broker/pkg/service"
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters represents parameters specific to provisioning a
 // service using the fake service module. Note that, ordinarily, service module-

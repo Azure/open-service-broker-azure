@@ -1,6 +1,6 @@
 # Contributing Guidelines
 
-The Microsoft Azure Service Broker project accepts contributions via GitHub pull
+The Microsoft Open Service Broker for Azure project accepts contributions via GitHub pull
 requests. This document outlines the process to help get your contribution
 accepted.
 
@@ -21,7 +21,7 @@ signed the CLA can be accepted into the repository.
 
 This is an open source project and as such no formal support is available.
 However, like all good open source projects we do offer "best effort" support
-through [github issues](https://github.com/Azure/azure-service-broker/issues).
+through [github issues](https://github.com/Azure/open-service-broker-azure/issues).
 
 Before opening a new issue or submitting a new pull request, it's helpful to
 search the project - it's likely that another user has already reported the
@@ -30,12 +30,12 @@ issue you're facing, or it's a known issue that we're already aware of.
 ## Issues
 
 Issues are used as the primary method for tracking anything to do with the
-Azure Service Broker project.
+Open Service Broker for Azure project.
 
 ### Issue Lifecycle
 
 The issue lifecycle is mainly driven by the core maintainers, but is good
-information for those contributing to Azure Service Broker. All issue types
+information for those contributing to Open Service Broker for Azure. All issue types
 follow the same general lifecycle. Differences are noted below.
 
 1. Issue creation

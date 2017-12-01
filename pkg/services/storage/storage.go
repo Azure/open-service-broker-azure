@@ -1,9 +1,9 @@
 package storage
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/azure/storage"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {

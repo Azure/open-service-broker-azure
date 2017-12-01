@@ -7,14 +7,14 @@ services:
     environment:
       CGO_ENABLED: 0
     volumes:
-    - .:/go/src/github.com/Azure/azure-service-broker
+    - .:/go/src/github.com/Azure/open-service-broker-azure
     network_mode: host
   test: # Like dev, but linked to redis
     build:
       context: .
       dockerfile: Dockerfile.dev
     volumes:
-    - .:/go/src/github.com/Azure/azure-service-broker
+    - .:/go/src/github.com/Azure/open-service-broker-azure
     links:
     - test-redis:redis
   test-api-compliance: #Run the API compliance tests, run the broker, redis and the osb-checker

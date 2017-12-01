@@ -1,7 +1,7 @@
 version: 2
 jobs:
   lint:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
     machine: true
@@ -14,7 +14,7 @@ jobs:
           name: Run Lint
           command: make lint
   verify-vendored-code:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
     machine: true
@@ -27,7 +27,7 @@ jobs:
           name: Verify Vendored Code
           command: make verify-vendored-code
   test-unit:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
     machine: true
@@ -40,7 +40,7 @@ jobs:
           name: Run Unit Tests
           command: make test-unit
   build:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
     machine: true
@@ -53,7 +53,7 @@ jobs:
           name: Build Binary & Docker Image
           command: make docker-build
   test-module-lifecycles:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
     machine: true
@@ -66,7 +66,7 @@ jobs:
           name: Run Module Lifecycle Tests
           command: make test-module-lifecycles
   deploy:
-    working_directory: ~/go/src/github.com/Azure/azure-service-broker
+    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
     machine: true

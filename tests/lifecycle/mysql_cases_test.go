@@ -3,10 +3,10 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	mg "github.com/Azure/azure-service-broker/pkg/azure/mysql"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/mysql"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	mg "github.com/Azure/open-service-broker-azure/pkg/azure/mysql"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 )
 
 func getMysqlCases(

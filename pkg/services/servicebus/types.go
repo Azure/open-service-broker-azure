@@ -1,6 +1,6 @@
 package servicebus
 
-import "github.com/Azure/azure-service-broker/pkg/service"
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates Service Bus specific provisioning options
 type ProvisioningParameters struct{}

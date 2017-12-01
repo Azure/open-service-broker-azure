@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/Azure/azure-service-broker/pkg/api"
+	"github.com/Azure/open-service-broker-azure/pkg/api"
 )
 
 // Poll polls the status of an instance

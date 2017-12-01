@@ -1,8 +1,8 @@
-# Azure Service Broker
+# Open Service Broker for Azure
 
-[![CircleCI](https://circleci.com/gh/Azure/azure-service-broker.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/azure-service-broker)
+[![CircleCI](https://circleci.com/gh/Azure/open-service-broker-azure.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/open-service-broker-azure)
 
-[Azure Service Broker](https://github.com/Azure/azure-service-broker) is the
+[Open Service Broker for Azure](https://github.com/Azure/open-service-broker-azure) is the
 open source, [Open Service Broker](https://www.openservicebrokerapi.org/)
 compatible API server that provisions managed services in the Microsoft
 Azure public cloud.
@@ -11,16 +11,16 @@ Azure public cloud.
 
 ### Installing
 
-[Helm](https://helm.sh) is used to install the Azure Service Broker onto Kubernetes
+[Helm](https://helm.sh) is used to install Open Service Broker for Azure onto Kubernetes
 clusters. Please refer to the 
-[Helm chart](https://github.com/Azure/helm-charts/tree/master/azure-service-broker)
+[Helm chart](https://github.com/Azure/helm-charts/tree/master/open-service-broker-azure)
 for details on how to complete the installation.
 
 ### Examples
 
 #### Provisioning
 
-With the Kubernetes Service Catalog software and the Azure Service Broker both
+With the Kubernetes Service Catalog software and Open Service Broker for Azure both
 installed on your Kubernetes cluster, try creating a `ServiceInstance` resource
 to see service provisioning in action.
 
@@ -190,7 +190,7 @@ Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgre
 
 ### Installation
 
-To deploy the Azure Service Broker to Cloud Foundry, please refer to the 
+To deploy Open Service Broker for Azure to Cloud Foundry, please refer to the 
 [CloudFoundry installation documentation](contrib/cf/README.md) for instructions.
 
 ### Usage
