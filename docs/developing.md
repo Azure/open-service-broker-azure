@@ -182,13 +182,12 @@ $ for g in $( \
   done
 ```
 
-#### Running "Compliance" Tests
+#### Running OSB API Compliance Tests
 
-The Azure Service Broker implements the Open Service Broker API. To assert 
-compliance with the API specification, the project includes a set of compliance
-tests using an automatic checker. These tests verify API response codes for
-various operations such as provisionining, binding and deprovision. These tests
-use a mock service module. 
+The Azure Service Broker implements the OSB API. To assert compliance with
+the API specification, the project includes a set of compliance tests.
+These tests verify API response codes for various operations such as 
+provisionining, binding and deprovision. These tests use a mock service module.
 
 To run the compliance tests:
 
@@ -196,12 +195,9 @@ To run the compliance tests:
 $ make test-api-compliance
 ```
 
-Note that the compliance tests currently do not run as part of the make test
-target described below. 
-
 #### Linting and Running All Tests
 
-To execute unit tests _and_ lifecycle tests together:
+To execute unit tests, lifecycle tests, _and_ compliance tests together:
 
 ```console
 $ make test

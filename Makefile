@@ -77,7 +77,7 @@ verify-vendored-code: check-docker-compose
 	'
 
 .PHONY: test
-test: test-unit test-module-lifecycles
+test: test-unit test-module-lifecycles test-api-compliance
 
 # Containerized unit tests-- requires docker-compose
 .PHONY: test-unit
