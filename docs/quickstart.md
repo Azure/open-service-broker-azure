@@ -2,10 +2,13 @@
 This quickstart walks-through using the Open Service Broker for Azure (OSBA) to
 deploy WordPress on a local Minikube cluster.
 
-WordPress requires a backend MySQL database. Instead of creating a database in the Azure portal and then manually configuring the connection information, our Kubernetes manifests can take advantage of OSBA to provision an Azure MySQL database on our behalf, save the connection information in Kubernetes secrets, and then bind them to our WordPress instance.
+WordPress requires a backend MySQL database. Without OSBA, we would create a database
+in the Azure portal, and then manually configure the connection information. Now
+with OSBA our Kubernetes manifests can provision an Azure MySQL database on our behalf,
+save the connection information in Kubernetes secrets, and then bind them to our WordPress instance.
 
 * [Prerequisites](#prerequisites)
-* [Initial Setup](#cluster-setup)
+* [Cluster Setup](#cluster-setup)
   * [Configure your Azure account](#configure-your-azure-account)
   * [Create a resource group](#create-a-resource-group)
   * [Create a service principal](#create-a-service-principal)
@@ -13,6 +16,8 @@ WordPress requires a backend MySQL database. Instead of creating a database in t
   * [Configure the cluster with Open Service Broker for Azure](#configure-the-cluster-with-open-service-broker-for-azure)
 * [Deploy WordPress](#deploy-wordpress)
 * [Next Steps](#next-steps)
+
+---
 
 # Prerequisites
 * A [Microsoft Azure account](https://azure.microsoft.com/en-us/free/).
@@ -93,6 +98,8 @@ brew install kubernetes-helm
 curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 ```
 
+---
+
 # Cluster Setup
 Now that we have all the tools, we need a Kubernetes cluster with Open Service Broker for Azure configured.
 
@@ -157,9 +164,9 @@ resources on your account on behalf of Kubernetes.
 Next we will create a local cluster using Minikube. _Support for AKS is coming soon!_
 
 1. Create an RBAC enabled cluster:
-```
-minikube start --extra-config=apiserver.Authorization.Mode=RBAC
-```
+    ```
+    minikube start --extra-config=apiserver.Authorization.Mode=RBAC
+    ```
 1. Grant the `cluster-admin` role to the default system account:
     ```
     kubectl create clusterrolebinding cluster-admin:kube-system \
@@ -243,7 +250,9 @@ minikube start --extra-config=apiserver.Authorization.Mode=RBAC
     svc/osba-redis                  ClusterIP   10.0.0.28    <none>        6379/TCP   9d
     ```
 
-## Deploy WordPress
+---
+
+# Deploy WordPress
 Now that we have a cluster with Open Service Broker for Azure, we can deploy
 WordPress to Kubernetes and OSBA will handle provisioning an Azure MySQL database
 and binding it to our WordPress installation.
@@ -252,10 +261,7 @@ and binding it to our WordPress installation.
 helm install azure/wordpress --name quickstart
 ```
 
-The **NOTES** section of the output provides instructions for monitoring the
-deployment's progress. Since, the output assumes that you will have a public IP
-address, and we are using Minikube locally, use the following command to tell when
-WordPress is ready:
+Use the following command to tell when WordPress is ready:
 
 ```console
 $ kubectl get deploy/quickstart-wordpress -w
@@ -269,7 +275,7 @@ quickstart-wordpress   1         1         1            1           2m
 
 1. Run the following command to open WordPress in your browser:
     ```
-    open http://$(minikube ip)/admin
+    open http://$(minikube ip):31215/admin
     ```
 
     **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
