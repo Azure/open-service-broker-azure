@@ -295,9 +295,24 @@ Here's how to remove resources created by this quickstart:
 1. `minikubte delete`
 
 # Next Steps
-TODO: explain what cool thing we did and what to do next (helm-charts)
+Minikube may seem like an odd choice for an Azure quickstart, but it demonstrates
+that Open Service Broker for Azure isn't limited to clusters running on Azure!
+Our local Kubernetes cluster communicated via OSBA with Azure, provisioned a cloud
+database, and bound our local WordPress installation to that new database.
 
-1. minikube is cool because it shows that osba works off azure
-1. that seemed like a lot of steps, but most of it is one-time setup. if you wanted
-to install another application on your cluster, like ghost, it would just be 1 command
-1. link to more helm-charts. Invite people to contribute!
+With OSBA _any_ cluster can rely on Azure to provide all those pesky "as a service"
+goodies that make life easier.
+
+Now that you have a cluster with OSBA, adding more services is quick. Try out another
+service to see for yourself:
+
+* [Concourse CI](https://github.com/Azure/helm-charts/blob/master/concourse)
+* [pbpBB](https://github.com/Azure/helm-charts/blob/master/phpbb)
+
+All of our OSBA-enabled helm charts are available in the [Azure/helm-charts](https://github.com/Azure/helm-charts)
+repository.
+
+## Contributing
+Do you have an application in mind that you'd like to use with OSBA? We'd love to
+have it! Learn how to [contribute a new chart](https://github.com/Azure/helm-charts#creating-a-new-chart)
+to our helm repository.
