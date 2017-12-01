@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/template"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
+	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/template"
 	log "github.com/Sirupsen/logrus"
 )
 

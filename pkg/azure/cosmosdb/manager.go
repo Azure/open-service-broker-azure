@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/arm/cosmos-db"
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/go-autorest/autorest/azure"
+	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 )
 
 // Manager is an interface to be implemented by any component capable of

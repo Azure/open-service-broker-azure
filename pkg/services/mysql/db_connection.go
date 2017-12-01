@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/go-autorest/autorest/azure"
+	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-sql-driver/mysql"
 )
