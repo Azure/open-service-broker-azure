@@ -29,7 +29,7 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
-    command:  bash -c 'go run cmd/compliance-test-broker.go'
+    command:  bash -c 'go run cmd/compliance-test-broker/compliance-test-broker.go'
   broker:
     build: .
     environment:
