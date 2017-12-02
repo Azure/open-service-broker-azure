@@ -1,4 +1,4 @@
-package postgresql
+package postgresqldb
 
 // nolint: lll
 var armTemplateBytes = []byte(`

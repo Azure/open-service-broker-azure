@@ -1,3 +1,3 @@
-package postgresql
+package postgresqldb
 
 const primaryDB = "postgres"

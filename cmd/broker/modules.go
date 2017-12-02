@@ -23,7 +23,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssqldb"
-	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
+	"github.com/Azure/open-service-broker-azure/pkg/services/postgresqldb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/search"
 	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
@@ -87,7 +87,7 @@ func initModules() error {
 	}
 
 	modules = []service.Module{
-		postgresql.New(armDeployer, postgreSQLManager),
+		postgresqldb.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
 		mysqldb.New(armDeployer, mySQLManager),
 		servicebus.New(armDeployer, serviceBusManager),
