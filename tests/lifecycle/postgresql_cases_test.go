@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	pg "github.com/Azure/open-service-broker-azure/pkg/azure/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
+	"github.com/Azure/open-service-broker-azure/pkg/services/postgresqldb"
 )
 
 func getPostgresqlCases(
@@ -20,19 +20,19 @@ func getPostgresqlCases(
 
 	return []moduleLifecycleTestCase{
 		{
-			module:    postgresql.New(armDeployer, postgreSQLManager),
+			module:    postgresqldb.New(armDeployer, postgreSQLManager),
 			serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 			planID:    "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &postgresql.ProvisioningParameters{
+			provisioningParameters: &postgresqldb.ProvisioningParameters{
 				Extensions: []string{
 					"uuid-ossp",
 					"postgis",
 				},
 			},
-			bindingParameters: &postgresql.BindingParameters{},
+			bindingParameters: &postgresqldb.BindingParameters{},
 		},
 	}, nil
 }
