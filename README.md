@@ -7,10 +7,12 @@ open source, [Open Service Broker](https://www.openservicebrokerapi.org/)
 compatible API server that provisions managed services in the Microsoft
 Azure public cloud.
 
+![Open Service Broker for Azure GIF](./gifs/demovideo.gif)
+
 # Quickstart
 The [Minikube Quickstart](docs/quickstart-minikube.md) walks-through using the
 Open Service Broker for Azure to deploy WordPress on a local Minikube cluster.
-Go from "_I have an Azure account that I have never used_" to "_I just deployed WordPress and know what OSBA means!_" 😄
+Go from "_I have an Azure account that I have never used_" to "_I just deployed WordPress and know what OSBA means!_" �
 
 ## Getting Started on Kubernetes
 
