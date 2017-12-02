@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	mg "github.com/Azure/open-service-broker-azure/pkg/azure/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mysqldb"
 )
 
 func getMysqlCases(
@@ -20,14 +20,14 @@ func getMysqlCases(
 
 	return []moduleLifecycleTestCase{
 		{
-			module:    mysql.New(armDeployer, mySQLManager),
+			module:    mysqldb.New(armDeployer, mySQLManager),
 			serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
 			planID:    "427559f1-bf2a-45d3-8844-32374a3e58aa",
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &mysql.ProvisioningParameters{},
-			bindingParameters:      &mysql.BindingParameters{},
+			provisioningParameters: &mysqldb.ProvisioningParameters{},
+			bindingParameters:      &mysqldb.BindingParameters{},
 		},
 	}, nil
 }

@@ -14,7 +14,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
-				ID:          "13c6da8f-128c-48c0-a3a9-659d1b6d3920",
+				ID:          "d06817b1-87ea-4320-8942-14b1d060206a",
 				Name:        "basic",
 				Description: "Basic Tier, Shared Capacity",
 				Free:        false,
@@ -33,7 +33,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
-				ID:   "e359cbbe-d52b-47cc-8243-5bb9651c86c7",
+				ID:   "cec378a7-6452-4203-beca-d34898edbadc",
 				Name: "premium",
 				Description: "Premium Tier, Dedicated Capacity, Recommended " +
 					"For Production Workloads, Fixed Pricing",
