@@ -9,10 +9,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	cd "github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/cosmosdb"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	cd "github.com/Azure/open-service-broker-azure/pkg/azure/cosmosdb"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )

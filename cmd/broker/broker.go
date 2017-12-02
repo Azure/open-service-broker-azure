@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/api/authenticator/basic"
-	"github.com/Azure/azure-service-broker/pkg/broker"
-	"github.com/Azure/azure-service-broker/pkg/crypto/aes256"
+	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/basic"
+	"github.com/Azure/open-service-broker-azure/pkg/broker"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )

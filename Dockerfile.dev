@@ -11,6 +11,8 @@ RUN curl -sSL \
   && git checkout bfcc1d6942136fd86eb6f1a6fb328de8398fbd80 \
   && go install \
   && gometalinter --install \
-  && mkdir -p /go/src/github.com/Azure/azure-service-broker
+  && mkdir -p /go/src/github.com/Azure/open-service-broker-azure
 
-WORKDIR /go/src/github.com/Azure/azure-service-broker
+WORKDIR /go/src/github.com/Azure/open-service-broker-azure
+
+EXPOSE 8080

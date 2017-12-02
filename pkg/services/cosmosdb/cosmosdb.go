@@ -1,12 +1,16 @@
 package cosmosdb
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/azure/cosmosdb"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/cosmosdb"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer     arm.Deployer
 	cosmosdbManager cosmosdb.Manager
 }
@@ -19,8 +23,10 @@ func New(
 	cosmosdbManager cosmosdb.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:     armDeployer,
-		cosmosdbManager: cosmosdbManager,
+		serviceManager: &serviceManager{
+			armDeployer:     armDeployer,
+			cosmosdbManager: cosmosdbManager,
+		},
 	}
 }
 

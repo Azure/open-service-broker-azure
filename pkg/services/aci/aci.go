@@ -1,12 +1,16 @@
 package aci
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/aci"
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/aci"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer arm.Deployer
 	aciManager  aci.Manager
 }
@@ -18,8 +22,10 @@ func New(
 	aciManager aci.Manager,
 ) service.Module {
 	return &module{
-		armDeployer: armDeployer,
-		aciManager:  aciManager,
+		serviceManager: &serviceManager{
+			armDeployer: armDeployer,
+			aciManager:  aciManager,
+		},
 	}
 }
 

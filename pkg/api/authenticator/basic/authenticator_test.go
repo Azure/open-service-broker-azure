@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Azure/azure-service-broker/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,7 +39,7 @@ func TestAuthHeaderNotBasic(t *testing.T) {
 	a.Authenticate(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
-	assert.Equal(t, http.StatusForbidden, rr.Code)
+	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 	assert.False(t, handlerCalled)
 }
 
@@ -53,7 +53,7 @@ func TestAuthUsernamePasswordNotBase64(t *testing.T) {
 	a.Authenticate(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
-	assert.Equal(t, http.StatusForbidden, rr.Code)
+	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 	assert.False(t, handlerCalled)
 }
 
@@ -74,7 +74,7 @@ func TestAuthUsernamePasswordInvalid(t *testing.T) {
 	a.Authenticate(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
-	assert.Equal(t, http.StatusForbidden, rr.Code)
+	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 	assert.False(t, handlerCalled)
 }
 

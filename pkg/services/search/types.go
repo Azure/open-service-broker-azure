@@ -1,6 +1,6 @@
 package search
 
-import "github.com/Azure/azure-service-broker/pkg/service"
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates
 // Azure Search-specific provisioning options
@@ -29,29 +29,31 @@ type searchCredentials struct {
 }
 
 func (
-	m *module,
+	s *serviceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
 }
 
 func (
-	m *module,
+	s *serviceManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }
 
-func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {
+func (
+	s *serviceManager,
+) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &searchProvisioningContext{}
 }
 
-func (m *module) GetEmptyBindingParameters() service.BindingParameters {
+func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (m *module) GetEmptyBindingContext() service.BindingContext {
+func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
 	return &searchBindingContext{}
 }
 
-func (m *module) GetEmptyCredentials() service.Credentials {
+func (s *serviceManager) GetEmptyCredentials() service.Credentials {
 	return &searchCredentials{}
 }

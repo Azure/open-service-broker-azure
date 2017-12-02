@@ -1,12 +1,16 @@
 package mssql
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/azure/mssql"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/mssql"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer  arm.Deployer
 	mssqlManager mssql.Manager
 	mssqlConfig  Config
@@ -21,9 +25,11 @@ func New(
 	mssqlConfig Config,
 ) service.Module {
 	return &module{
-		armDeployer:  armDeployer,
-		mssqlManager: mssqlManager,
-		mssqlConfig:  mssqlConfig,
+		serviceManager: &serviceManager{
+			armDeployer:  armDeployer,
+			mssqlManager: mssqlManager,
+			mssqlConfig:  mssqlConfig,
+		},
 	}
 }
 

@@ -3,7 +3,7 @@ package fake
 import (
 	"context"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 // ProvisioningValidationFunction describes a function used to provide pluggable
@@ -40,6 +40,12 @@ type UnbindFunction func(
 // Module is a fake implementation of the service.Module interface used to
 // facilittate testing.
 type Module struct {
+	ServiceManager *ServiceManager
+}
+
+// ServiceManager is a fake implementation of the service.ServiceManager
+// interface used to facilitate testing.
+type ServiceManager struct {
 	ProvisioningValidationBehavior ProvisioningValidationFunction
 	UpdatingValidationBehavior     UpdatingValidationFunction
 	BindingValidationBehavior      BindingValidationFunction
@@ -51,11 +57,13 @@ type Module struct {
 // and provides an example of how such a module is implemented
 func New() (*Module, error) {
 	return &Module{
-		ProvisioningValidationBehavior: defaultProvisioningValidationBehavior,
-		UpdatingValidationBehavior:     defaultUpdatingValidationBehavior,
-		BindingValidationBehavior:      defaultBindingValidationBehavior,
-		BindBehavior:                   defaultBindBehavior,
-		UnbindBehavior:                 defaultUnbindBehavior,
+		ServiceManager: &ServiceManager{
+			ProvisioningValidationBehavior: defaultProvisioningValidationBehavior,
+			UpdatingValidationBehavior:     defaultUpdatingValidationBehavior,
+			BindingValidationBehavior:      defaultBindingValidationBehavior,
+			BindBehavior:                   defaultBindBehavior,
+			UnbindBehavior:                 defaultUnbindBehavior,
+		},
 	}, nil
 }
 
@@ -71,25 +79,26 @@ func (m *Module) GetStability() service.Stability {
 
 // ValidateProvisioningParameters validates the provided provisioningParameters
 // and returns an error if there is any problem
-func (m *Module) ValidateProvisioningParameters(
+func (s *ServiceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
-	return m.ProvisioningValidationBehavior(provisioningParameters)
+	return s.ProvisioningValidationBehavior(provisioningParameters)
 }
 
 // GetProvisioner returns a provisioner that defines the steps a module must
 // execute asynchronously to provision a service
-func (m *Module) GetProvisioner(string, string) (service.Provisioner, error) {
+func (s *ServiceManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("run", m.provision),
+		service.NewProvisioningStep("run", s.provision),
 	)
 }
 
-func (m *Module) provision(
+func (s *ServiceManager) provision(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -99,28 +108,24 @@ func (m *Module) provision(
 
 // ValidateUpdatingParameters validates the provided updatingParameters
 // and returns an error if there is any problem
-func (m *Module) ValidateUpdatingParameters(
+func (s *ServiceManager) ValidateUpdatingParameters(
 	updatingParameters service.UpdatingParameters,
 ) error {
-	return m.UpdatingValidationBehavior(updatingParameters)
+	return s.UpdatingValidationBehavior(updatingParameters)
 }
 
 // GetUpdater returns a updater that defines the steps a module must
 // execute asynchronously to update a service
-func (m *Module) GetUpdater(
-	_ string, // serviceID
-	_ string, // planID
-) (service.Updater, error) {
+func (s *ServiceManager) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater(
-		service.NewUpdatingStep("run", m.update),
+		service.NewUpdatingStep("run", s.update),
 	)
 }
 
-func (m *Module) update(
+func (s *ServiceManager) update(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.UpdatingParameters,
@@ -130,19 +135,19 @@ func (m *Module) update(
 
 // ValidateBindingParameters validates the provided bindingParameters and
 // returns an error if there is any problem
-func (m *Module) ValidateBindingParameters(
+func (s *ServiceManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
-	return m.BindingValidationBehavior(bindingParameters)
+	return s.BindingValidationBehavior(bindingParameters)
 }
 
 // Bind synchronously binds to a service
-func (m *Module) Bind(
+func (s *ServiceManager) Bind(
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	return m.BindBehavior(
+	return s.BindBehavior(
 		standardProvisioningContext,
 		provisioningContext,
 		bindingParameters,
@@ -150,12 +155,12 @@ func (m *Module) Bind(
 }
 
 // Unbind synchronously unbinds from a service
-func (m *Module) Unbind(
+func (s *ServiceManager) Unbind(
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingContext service.BindingContext,
 ) error {
-	return m.UnbindBehavior(
+	return s.UnbindBehavior(
 		standardProvisioningContext,
 		provisioningContext,
 		bindingContext,
@@ -164,20 +169,18 @@ func (m *Module) Unbind(
 
 // GetDeprovisioner returns a deprovisioner that defines the steps a module
 // must execute asynchronously to deprovision a service
-func (m *Module) GetDeprovisioner(
-	string,
-	string,
+func (s *ServiceManager) GetDeprovisioner(
+	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep("run", m.deprovision),
+		service.NewDeprovisioningStep("run", s.deprovision),
 	)
 }
 
-func (m *Module) deprovision(
+func (s *ServiceManager) deprovision(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {

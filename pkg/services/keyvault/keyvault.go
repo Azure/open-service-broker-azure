@@ -1,12 +1,16 @@
 package keyvault
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/azure/keyvault"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/keyvault"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer     arm.Deployer
 	keyvaultManager keyvault.Manager
 }
@@ -18,8 +22,10 @@ func New(
 	keyvaultManager keyvault.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:     armDeployer,
-		keyvaultManager: keyvaultManager,
+		serviceManager: &serviceManager{
+			armDeployer:     armDeployer,
+			keyvaultManager: keyvaultManager,
+		},
 	}
 }
 

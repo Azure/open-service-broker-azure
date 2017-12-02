@@ -5,29 +5,30 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
 )
 
-func (m *module) ValidateProvisioningParameters(
+func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
 	// No validation needed
 	return nil
 }
 
-func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
+func (s *serviceManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", m.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", m.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", s.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
 	)
 }
 
-func (m *module) preProvision(
+func (s *serviceManager) preProvision(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -43,11 +44,10 @@ func (m *module) preProvision(
 	return pc, nil
 }
 
-func (m *module) deployARMTemplate(
+func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	_ string, // instanceID
-	serviceID string,
-	planID string,
+	plan service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -58,27 +58,7 @@ func (m *module) deployARMTemplate(
 			"error casting provisioningContext as *serviceBusProvisioningContext",
 		)
 	}
-	catalog, err := m.GetCatalog()
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving catalog: %s", err)
-	}
-	service, ok := catalog.GetService(serviceID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`service "%s" not found in the "%s" module catalog`,
-			serviceID,
-			m.GetName(),
-		)
-	}
-	plan, ok := service.GetPlan(planID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`plan "%s" not found for service "%s"`,
-			planID,
-			serviceID,
-		)
-	}
-	outputs, err := m.armDeployer.Deploy(
+	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		standardProvisioningContext.ResourceGroup,
 		standardProvisioningContext.Location,

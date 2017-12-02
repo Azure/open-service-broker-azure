@@ -3,10 +3,10 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	sb "github.com/Azure/azure-service-broker/pkg/azure/servicebus"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/servicebus"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	sb "github.com/Azure/open-service-broker-azure/pkg/azure/servicebus"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
 )
 
 func getServicebusCases(

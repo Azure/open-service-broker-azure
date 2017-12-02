@@ -1,10 +1,10 @@
 package eventhub
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (m *module) Unbind(
+func (s *serviceManager) Unbind(
 	_ service.StandardProvisioningContext,
 	_ service.ProvisioningContext,
 	_ service.BindingContext,

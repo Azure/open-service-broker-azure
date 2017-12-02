@@ -1,12 +1,16 @@
 package rediscache
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/azure/rediscache"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/rediscache"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer  arm.Deployer
 	redisManager rediscache.Manager
 }
@@ -18,8 +22,10 @@ func New(
 	redisManager rediscache.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:  armDeployer,
-		redisManager: redisManager,
+		serviceManager: &serviceManager{
+			armDeployer:  armDeployer,
+			redisManager: redisManager,
+		},
 	}
 }
 

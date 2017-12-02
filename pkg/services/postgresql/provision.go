@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Azure/azure-service-broker/pkg/generate"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
 )
 
-func (m *module) ValidateProvisioningParameters(
+func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
@@ -34,20 +34,21 @@ func (m *module) ValidateProvisioningParameters(
 	return nil
 }
 
-func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
+func (s *serviceManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", m.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", m.deployARMTemplate),
-		service.NewProvisioningStep("setupDatabase", m.setupDatabase),
-		service.NewProvisioningStep("createExtensions", m.createExtensions),
+		service.NewProvisioningStep("preProvision", s.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
+		service.NewProvisioningStep("setupDatabase", s.setupDatabase),
+		service.NewProvisioningStep("createExtensions", s.createExtensions),
 	)
 }
 
-func (m *module) preProvision(
+func (s *serviceManager) preProvision(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
@@ -81,11 +82,10 @@ func (m *module) preProvision(
 	return pc, nil
 }
 
-func (m *module) deployARMTemplate(
+func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	_ string, // instanceID
-	serviceID string,
-	planID string,
+	plan service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -96,33 +96,13 @@ func (m *module) deployARMTemplate(
 			"error casting provisioningContext as *postgresqlProvisioningContext",
 		)
 	}
-	catalog, err := m.GetCatalog()
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving catalog: %s", err)
-	}
-	svc, ok := catalog.GetService(serviceID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`service "%s" not found in the "%s" module catalog`,
-			serviceID,
-			m.GetName(),
-		)
-	}
-	plan, ok := svc.GetPlan(planID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`plan "%s" not found for service "%s"`,
-			planID,
-			serviceID,
-		)
-	}
 	var sslEnforcement string
 	if pc.EnforceSSL {
 		sslEnforcement = "Enabled"
 	} else {
 		sslEnforcement = "Disabled"
 	}
-	outputs, err := m.armDeployer.Deploy(
+	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		standardProvisioningContext.ResourceGroup,
 		standardProvisioningContext.Location,
@@ -156,11 +136,10 @@ func (m *module) deployARMTemplate(
 	return pc, nil
 }
 
-func (m *module) setupDatabase(
+func (s *serviceManager) setupDatabase(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	_ service.ProvisioningParameters,
@@ -223,11 +202,10 @@ func (m *module) setupDatabase(
 	return pc, nil
 }
 
-func (m *module) createExtensions(
+func (s *serviceManager) createExtensions(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan,
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,

@@ -3,7 +3,7 @@ package fake
 import (
 	"context"
 
-	"github.com/Azure/azure-service-broker/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async/model"
 )
 
 // Engine is a fake implementation of async.Engine used for testing

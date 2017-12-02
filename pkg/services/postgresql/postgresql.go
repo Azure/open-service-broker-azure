@@ -1,12 +1,16 @@
 package postgresql
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/azure/postgresql"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/postgresql"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer       arm.Deployer
 	postgresqlManager postgresql.Manager
 }
@@ -19,8 +23,10 @@ func New(
 	postgresqlManager postgresql.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:       armDeployer,
-		postgresqlManager: postgresqlManager,
+		serviceManager: &serviceManager{
+			armDeployer:       armDeployer,
+			postgresqlManager: postgresqlManager,
+		},
 	}
 }
 

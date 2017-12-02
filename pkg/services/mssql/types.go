@@ -1,6 +1,6 @@
 package mssql
 
-import "github.com/Azure/azure-service-broker/pkg/service"
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates MSSQL-specific provisioning options
 type ProvisioningParameters struct {
@@ -54,29 +54,31 @@ type Config struct {
 }
 
 func (
-	m *module,
+	s *serviceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
 }
 
 func (
-	m *module,
+	s *serviceManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }
 
-func (m *module) GetEmptyProvisioningContext() service.ProvisioningContext {
+func (
+	s *serviceManager,
+) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &mssqlProvisioningContext{}
 }
 
-func (m *module) GetEmptyBindingParameters() service.BindingParameters {
+func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (m *module) GetEmptyBindingContext() service.BindingContext {
+func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
 	return &mssqlBindingContext{}
 }
 
-func (m *module) GetEmptyCredentials() service.Credentials {
+func (s *serviceManager) GetEmptyCredentials() service.Credentials {
 	return &Credentials{}
 }

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
+	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
 	"github.com/stretchr/testify/assert"
 )
 

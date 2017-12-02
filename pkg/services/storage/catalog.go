@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 const kindKey = "kind"
@@ -16,6 +16,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:    true,
 				Tags:        []string{"Azure", "Storage"},
 			},
+			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:   "6ddf6b41-fb60-4b70-af99-8ecc4896b3cf",
 				Name: "general-purpose-storage-account",

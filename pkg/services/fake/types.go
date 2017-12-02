@@ -1,6 +1,6 @@
 package fake
 
-import "github.com/Azure/azure-service-broker/pkg/service"
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters represents parameters specific to provisioning a
 // service using the fake service module. Note that, ordinarily, service module-
@@ -62,39 +62,41 @@ type Credentials struct {
 // GetEmptyProvisioningParameters returns an empty instance of module-specific
 // provisioningParameters
 func (
-	m *Module,
+	s *ServiceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
 }
 
 // GetEmptyProvisioningContext returns an empty instance of a module-specific
 // provisioningContext
-func (m *Module) GetEmptyProvisioningContext() service.ProvisioningContext {
+func (
+	s *ServiceManager,
+) GetEmptyProvisioningContext() service.ProvisioningContext {
 	return &ProvisioningContext{}
 }
 
 // GetEmptyUpdatingParameters returns an empty instance of module-specific
 // updatingParameters
 func (
-	m *Module,
+	s *ServiceManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }
 
 // GetEmptyBindingParameters returns an empty instance of module-specific
 // bindingParameters
-func (m *Module) GetEmptyBindingParameters() service.BindingParameters {
+func (s *ServiceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
 // GetEmptyBindingContext returns an empty instance of a module-specific
 // bindingContext
-func (m *Module) GetEmptyBindingContext() service.BindingContext {
+func (s *ServiceManager) GetEmptyBindingContext() service.BindingContext {
 	return &BindingContext{}
 }
 
 // GetEmptyCredentials returns an empty instance of module-specific
 // credentials
-func (m *Module) GetEmptyCredentials() service.Credentials {
+func (s *ServiceManager) GetEmptyCredentials() service.Credentials {
 	return &Credentials{}
 }

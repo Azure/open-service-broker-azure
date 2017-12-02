@@ -1,26 +1,33 @@
-# Azure Service Broker
+# Open Service Broker for Azure
 
-[![CircleCI](https://circleci.com/gh/Azure/azure-service-broker.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/azure-service-broker)
+[![CircleCI](https://circleci.com/gh/Azure/open-service-broker-azure.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/open-service-broker-azure)
 
-[Azure Service Broker](https://github.com/Azure/azure-service-broker) is the
+[Open Service Broker for Azure](https://github.com/Azure/open-service-broker-azure) is the
 open source, [Open Service Broker](https://www.openservicebrokerapi.org/)
 compatible API server that provisions managed services in the Microsoft
 Azure public cloud.
+
+![Open Service Broker for Azure GIF](./gifs/demovideo.gif)
+
+# Quickstart
+The [Minikube Quickstart](docs/quickstart-minikube.md) walks-through using the
+Open Service Broker for Azure to deploy WordPress on a local Minikube cluster.
+Go from "_I have an Azure account that I have never used_" to "_I just deployed WordPress and know what OSBA means!_" �
 
 ## Getting Started on Kubernetes
 
 ### Installing
 
-[Helm](https://helm.sh) is used to install the Azure Service Broker onto Kubernetes
-clusters. Please refer to the 
-[Helm chart](https://github.com/Azure/helm-charts/tree/master/azure-service-broker)
+[Helm](https://helm.sh) is used to install Open Service Broker for Azure onto Kubernetes
+clusters. Please refer to the
+[Helm chart](https://github.com/Azure/helm-charts/tree/master/open-service-broker-azure)
 for details on how to complete the installation.
 
 ### Examples
 
 #### Provisioning
 
-With the Kubernetes Service Catalog software and the Azure Service Broker both
+With the Kubernetes Service Catalog software and Open Service Broker for Azure both
 installed on your Kubernetes cluster, try creating a `ServiceInstance` resource
 to see service provisioning in action.
 
@@ -190,7 +197,7 @@ Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgre
 
 ### Installation
 
-To deploy the Azure Service Broker to Cloud Foundry, please refer to the 
+To deploy Open Service Broker for Azure to Cloud Foundry, please refer to the 
 [CloudFoundry installation documentation](contrib/cf/README.md) for instructions.
 
 ### Usage
@@ -214,7 +221,7 @@ Plan: basic50
 Description: Azure Database for PostgreSQL Service
 Documentation url:                                
 Dashboard:                                        
-                                                  
+
 Last Operation                                    
 Status: create in progress                        
 Message: Creating server uf666164eb31.            
@@ -254,7 +261,7 @@ cf delete-service mypostgresdb
 
 # Contributing
 
-For details on how to contribute to this project, please see 
+For details on how to contribute to this project, please see
 [contributing.md](./docs/contributing.md).
 
 This project welcomes contributions and suggestions. All contributions require you to agree to a

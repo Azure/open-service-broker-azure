@@ -1,12 +1,16 @@
 package mysql
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/azure/mysql"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/mysql"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer  arm.Deployer
 	mysqlManager mysql.Manager
 }
@@ -19,8 +23,10 @@ func New(
 	mysqlManager mysql.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:  armDeployer,
-		mysqlManager: mysqlManager,
+		serviceManager: &serviceManager{
+			armDeployer:  armDeployer,
+			mysqlManager: mysqlManager,
+		},
 	}
 }
 

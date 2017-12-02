@@ -8,10 +8,10 @@ import (
 	"regexp"
 	"testing"
 
-	fakeAsync "github.com/Azure/azure-service-broker/pkg/async/fake"
-	"github.com/Azure/azure-service-broker/pkg/crypto/noop"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/services/fake"
+	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -227,10 +227,11 @@ func TestValidatingLocationParameterFails(t *testing.T) {
 	s, m, err := getTestServer("", "")
 	assert.Nil(t, err)
 	moduleSpecificValidationCalled := false
-	m.ProvisioningValidationBehavior = func(service.ProvisioningParameters) error {
-		moduleSpecificValidationCalled = true
-		return nil
-	}
+	m.ServiceManager.ProvisioningValidationBehavior =
+		func(service.ProvisioningParameters) error {
+			moduleSpecificValidationCalled = true
+			return nil
+		}
 	instanceID := getDisposableInstanceID()
 	req, err := getProvisionRequest(
 		instanceID,
@@ -260,10 +261,11 @@ func TestModuleSpecificValidationFails(t *testing.T) {
 	s, m, err := getTestServer("", "")
 	assert.Nil(t, err)
 	moduleSpecificValidationCalled := false
-	m.ProvisioningValidationBehavior = func(service.ProvisioningParameters) error {
-		moduleSpecificValidationCalled = true
-		return service.NewValidationError("foo", "bar")
-	}
+	m.ServiceManager.ProvisioningValidationBehavior =
+		func(service.ProvisioningParameters) error {
+			moduleSpecificValidationCalled = true
+			return service.NewValidationError("foo", "bar")
+		}
 	instanceID := getDisposableInstanceID()
 	req, err := getProvisionRequest(
 		instanceID,
@@ -293,10 +295,11 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 	s, m, err := getTestServer("", "")
 	assert.Nil(t, err)
 	moduleSpecificValidationCalled := false
-	m.ProvisioningValidationBehavior = func(service.ProvisioningParameters) error {
-		moduleSpecificValidationCalled = true
-		return nil
-	}
+	m.ServiceManager.ProvisioningValidationBehavior =
+		func(service.ProvisioningParameters) error {
+			moduleSpecificValidationCalled = true
+			return nil
+		}
 	instanceID := getDisposableInstanceID()
 	req, err := getProvisionRequest(
 		instanceID,

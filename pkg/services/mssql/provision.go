@@ -5,14 +5,14 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/azure"
-	"github.com/Azure/azure-service-broker/pkg/generate"
-	"github.com/Azure/azure-service-broker/pkg/service"
 	az "github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
 )
 
-func (m *module) ValidateProvisioningParameters(
+func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
@@ -23,7 +23,7 @@ func (m *module) ValidateProvisioningParameters(
 		)
 	}
 	if pp.ServerName != "" {
-		if _, ok := m.mssqlConfig.Servers[pp.ServerName]; !ok {
+		if _, ok := s.mssqlConfig.Servers[pp.ServerName]; !ok {
 			return service.NewValidationError(
 				"serverName",
 				fmt.Sprintf(
@@ -36,18 +36,19 @@ func (m *module) ValidateProvisioningParameters(
 	return nil
 }
 
-func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
+func (s *serviceManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", m.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", m.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", s.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
 	)
 }
 
-func (m *module) preProvision(
+func (s *serviceManager) preProvision(
 	_ context.Context,
 	_ string, // instanceID
-	_ string, // serviceID
-	_ string, // planID
+	_ service.Plan, // planID
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
@@ -76,7 +77,7 @@ func (m *module) preProvision(
 		pc.DatabaseName = generate.NewIdentifier()
 	} else {
 		// exisiting server scenario
-		servers := m.mssqlConfig.Servers
+		servers := s.mssqlConfig.Servers
 		server, ok := servers[pp.ServerName]
 		if !ok {
 			return nil, fmt.Errorf(
@@ -111,11 +112,10 @@ func (m *module) preProvision(
 	return pc, nil
 }
 
-func (m *module) deployARMTemplate(
+func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	_ string, // instanceID
-	serviceID string,
-	planID string,
+	plan service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
@@ -133,30 +133,9 @@ func (m *module) deployARMTemplate(
 				"*mssql.ProvisioningParameters",
 		)
 	}
-	catalog, err := m.GetCatalog()
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving catalog: %s", err)
-	}
-	service, ok := catalog.GetService(serviceID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`service "%s" not found in the "%s" module catalog`,
-			serviceID,
-			m.GetName(),
-		)
-	}
-	plan, ok := service.GetPlan(planID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`plan "%s" not found for service "%s"`,
-			planID,
-			serviceID,
-		)
-	}
-
 	if pc.IsNewServer {
 		// new server scenario
-		outputs, err := m.armDeployer.Deploy(
+		outputs, err := s.armDeployer.Deploy(
 			pc.ARMDeploymentName,
 			standardProvisioningContext.ResourceGroup,
 			standardProvisioningContext.Location,
@@ -188,7 +167,7 @@ func (m *module) deployARMTemplate(
 		pc.FullyQualifiedDomainName = fullyQualifiedDomainName
 	} else {
 		// existing server scenario
-		servers := m.mssqlConfig.Servers
+		servers := s.mssqlConfig.Servers
 		server, ok := servers[pp.ServerName]
 		if !ok {
 			return nil, fmt.Errorf(
@@ -197,7 +176,7 @@ func (m *module) deployARMTemplate(
 			)
 		}
 
-		_, err := m.armDeployer.Deploy(
+		_, err := s.armDeployer.Deploy(
 			pc.ARMDeploymentName,
 			server.ResourceGroupName,
 			server.Location,

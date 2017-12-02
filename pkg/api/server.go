@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/api/authenticator"
-	"github.com/Azure/azure-service-broker/pkg/async"
-	"github.com/Azure/azure-service-broker/pkg/crypto"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
@@ -35,14 +35,12 @@ type Server interface {
 }
 
 type server struct {
-	port          int
-	store         storage.Store
-	asyncEngine   async.Engine
-	codec         crypto.Codec
-	authenticator authenticator.Authenticator
-	router        *mux.Router
-	// Modules indexed by service
-	modules         map[string]service.Module
+	port            int
+	store           storage.Store
+	asyncEngine     async.Engine
+	codec           crypto.Codec
+	authenticator   authenticator.Authenticator
+	router          *mux.Router
 	catalog         service.Catalog
 	catalogResponse []byte
 	// This allows tests to inject an alternative implementation of this function
@@ -58,7 +56,7 @@ func NewServer(
 	asyncEngine async.Engine,
 	codec crypto.Codec,
 	authenticator authenticator.Authenticator,
-	modules map[string]service.Module,
+	catalog service.Catalog,
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,
 ) (Server, error) {
@@ -68,7 +66,7 @@ func NewServer(
 		asyncEngine:               asyncEngine,
 		codec:                     codec,
 		authenticator:             authenticator,
-		modules:                   modules,
+		catalog:                   catalog,
 		defaultAzureLocation:      defaultAzureLocation,
 		defaultAzureResourceGroup: defaultAzureResourceGroup,
 	}
@@ -108,29 +106,7 @@ func NewServer(
 	).Methods(http.MethodGet)
 	s.router = router
 
-	// modules is a map of modules indexed by service id. If a module provides
-	// more than one service, we could end up iterating over a given module
-	// more than once and adding all its services to the consolidated catalog
-	// multiple times. To avoid this, we keep track of modules whose services
-	// have already been added to the consolidated catalog in a handledModules
-	// map that indexes struct{}{} (no allocation required) by module name. (This
-	// is a poor man's set since Go lacks a dedicated set data structure.)
-	services := []service.Service{}
-	handledModules := map[string]struct{}{}
-	var ok bool
-	for _, module := range modules {
-		if _, ok = handledModules[module.GetName()]; ok {
-			continue
-		}
-		handledModules[module.GetName()] = struct{}{}
-		catalog, err := module.GetCatalog()
-		if err != nil {
-			return nil, err
-		}
-		services = append(services, catalog.GetServices()...)
-	}
-	s.catalog = service.NewCatalog(services)
-	catalogJSON, err := s.catalog.ToJSON()
+	catalogJSON, err := catalog.ToJSON()
 	if err != nil {
 		return nil, err
 	}

@@ -3,10 +3,10 @@ package mssql
 import (
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (m *module) Unbind(
+func (s *serviceManager) Unbind(
 	_ service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	bindingContext service.BindingContext,

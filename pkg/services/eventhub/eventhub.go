@@ -1,12 +1,16 @@
 package eventhub
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	"github.com/Azure/azure-service-broker/pkg/azure/eventhub"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/eventhub"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
 	armDeployer     arm.Deployer
 	eventHubManager eventhub.Manager
 }
@@ -18,8 +22,10 @@ func New(
 	eventHubManager eventhub.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:     armDeployer,
-		eventHubManager: eventHubManager,
+		serviceManager: &serviceManager{
+			armDeployer:     armDeployer,
+			eventHubManager: eventHubManager,
+		},
 	}
 }
 

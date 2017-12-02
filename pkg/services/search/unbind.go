@@ -1,8 +1,8 @@
 package search
 
-import "github.com/Azure/azure-service-broker/pkg/service"
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-func (m *module) Unbind(
+func (s *serviceManager) Unbind(
 	_ service.StandardProvisioningContext,
 	_ service.ProvisioningContext,
 	_ service.BindingContext,

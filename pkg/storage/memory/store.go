@@ -1,8 +1,8 @@
 package memory
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/storage"
 )
 
 type store struct {

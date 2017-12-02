@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/api"
-	"github.com/Azure/azure-service-broker/pkg/api/authenticator"
-	"github.com/Azure/azure-service-broker/pkg/async"
-	"github.com/Azure/azure-service-broker/pkg/crypto"
-	"github.com/Azure/azure-service-broker/pkg/service"
-	"github.com/Azure/azure-service-broker/pkg/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/api"
+	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
@@ -44,8 +44,7 @@ type broker struct {
 	apiServer   api.Server
 	asyncEngine async.Engine
 	codec       crypto.Codec
-	// Modules indexed by service
-	modules map[string]service.Module
+	catalog     service.Catalog
 }
 
 // NewBroker returns a new Broker
@@ -62,30 +61,40 @@ func NewBroker(
 		store:       storage.NewStore(redisClient),
 		asyncEngine: async.NewEngine(redisClient),
 		codec:       codec,
-		modules:     make(map[string]service.Module),
 	}
 
+	// Consolidate the catalogs from all the individual modules into a single
+	// catalog. Check as we go along to make sure that no two modules provide
+	// services having the same ID.
+	services := []service.Service{}
+	usedServiceIDs := map[string]string{}
 	for _, module := range modules {
 		if module.GetStability() >= minStability {
+			moduleName := module.GetName()
 			catalog, err := module.GetCatalog()
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf(
+					`error retrieving catalog from module "%s": %s`,
+					moduleName,
+					err,
+				)
 			}
 			for _, svc := range catalog.GetServices() {
-				existingModule, ok := b.modules[svc.GetID()]
-				if ok {
-					// This means we have more than one module claiming to provide services
-					// with an ID in common. This is a SERIOUS problem.
+				serviceID := svc.GetID()
+				if moduleNameForUsedServiceID, ok := usedServiceIDs[serviceID]; ok {
 					return nil, fmt.Errorf(
-						`module "%s" and module "%s" BOTH provide a service with the id "%s"`,
-						existingModule.GetName(),
-						module.GetName(),
-						svc.GetID())
+						`modules "%s" and "%s" both provide a service with the id "%s"`,
+						moduleNameForUsedServiceID,
+						moduleName,
+						serviceID,
+					)
 				}
-				b.modules[svc.GetID()] = module
+				services = append(services, svc)
+				usedServiceIDs[serviceID] = moduleName
 			}
 		}
 	}
+	b.catalog = service.NewCatalog(services)
 
 	err := b.asyncEngine.RegisterJob("provisionStep", b.doProvisionStep)
 	if err != nil {
@@ -112,7 +121,7 @@ func NewBroker(
 		b.asyncEngine,
 		b.codec,
 		authenticator,
-		b.modules,
+		b.catalog,
 		defaultAzureLocation,
 		defaultAzureResourceGroup,
 	)

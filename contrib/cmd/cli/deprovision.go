@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Azure/azure-service-broker/contrib/pkg/client"
-	"github.com/Azure/azure-service-broker/pkg/api"
+	"github.com/Azure/open-service-broker-azure/contrib/pkg/client"
+	"github.com/Azure/open-service-broker-azure/pkg/api"
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )

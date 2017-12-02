@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/async/model"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -45,19 +45,32 @@ func (b *broker) doProvisionStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing provisioning step")
-	module, ok := b.modules[instance.ServiceID]
+	svc, ok := b.catalog.GetService(instance.ServiceID)
 	if !ok {
 		return b.handleProvisioningError(
 			instance,
 			stepName,
 			nil,
 			fmt.Sprintf(
-				`no module was found for handling service "%s"`,
+				`no service was found for handling serviceID "%s"`,
 				instance.ServiceID,
 			),
 		)
 	}
-	provisioningContext := module.GetEmptyProvisioningContext()
+	plan, ok := svc.GetPlan(instance.PlanID)
+	if !ok {
+		return b.handleProvisioningError(
+			instance,
+			stepName,
+			nil,
+			fmt.Sprintf(
+				`no plan was found for handling planID "%s"`,
+				instance.ServiceID,
+			),
+		)
+	}
+	serviceManager := svc.GetServiceManager()
+	provisioningContext := serviceManager.GetEmptyProvisioningContext()
 	err = instance.GetProvisioningContext(provisioningContext, b.codec)
 	if err != nil {
 		return b.handleProvisioningError(
@@ -67,7 +80,7 @@ func (b *broker) doProvisionStep(
 			"error decoding provisioningContext from persisted instance",
 		)
 	}
-	provisioningParams := module.GetEmptyProvisioningParameters()
+	provisioningParams := serviceManager.GetEmptyProvisioningParameters()
 	err = instance.GetProvisioningParameters(provisioningParams, b.codec)
 	if err != nil {
 		return b.handleProvisioningError(
@@ -77,7 +90,7 @@ func (b *broker) doProvisionStep(
 			"error decoding provisioningParameters from persisted instance",
 		)
 	}
-	provisioner, err := module.GetProvisioner(instance.ServiceID, instance.PlanID)
+	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
 		return b.handleProvisioningError(
 			instance,
@@ -101,8 +114,7 @@ func (b *broker) doProvisionStep(
 	updatedProvisioningContext, err := step.Execute(
 		ctx,
 		instanceID,
-		instance.ServiceID,
-		instance.PlanID,
+		plan,
 		instance.StandardProvisioningContext,
 		provisioningContext,
 		provisioningParams,

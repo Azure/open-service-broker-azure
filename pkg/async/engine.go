@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Azure/azure-service-broker/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async/model"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )

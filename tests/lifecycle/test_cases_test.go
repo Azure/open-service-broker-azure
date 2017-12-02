@@ -3,7 +3,7 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 )
 
 func getTestCases(resourceGroup string) ([]moduleLifecycleTestCase, error) {

@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Azure/azure-service-broker/pkg/async/model"
-	"github.com/Azure/azure-service-broker/pkg/azure"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"
@@ -103,7 +103,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, ok = svc.GetPlan(planID)
+	plan, ok := svc.GetPlan(planID)
 	if !ok {
 		logFields["serviceID"] = serviceID
 		logFields["planID"] = planID
@@ -114,18 +114,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	module, ok := s.modules[serviceID]
-	if !ok {
-		// We already validated that the serviceID and planID are legitimate. If
-		// we don't find a module that handles the service, something is really
-		// wrong.
-		logFields["serviceID"] = serviceID
-		log.WithFields(logFields).Error(
-			"pre-provisioning error: no module found for service",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
+	serviceManager := svc.GetServiceManager()
 
 	// Unpack the parameter map in the request to structs
 
@@ -156,7 +145,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Then service-specific parameters
-	provisioningParameters := module.GetEmptyProvisioningParameters()
+	provisioningParameters := serviceManager.GetEmptyProvisioningParameters()
 	decoderConfig := &mapstructure.DecoderConfig{
 		TagName: "json",
 		Result:  provisioningParameters,
@@ -174,7 +163,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: error decoding parameter map into " +
-				"module-specific parameters",
+				"service-specific parameters",
 		)
 		// krancour: Choosing to interpret this scenario as a bad request since the
 		// probable cause would be disagreement between provided and expected types
@@ -201,9 +190,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// current request.
 		//
 		// Two requests are the same if they are for the same serviceID, the same,
-		// planID, and both standard and module-specific provisioning parameters
+		// planID, and both standard and service-specific provisioning parameters
 		// are deeply equal.
-		previousProvisioningParameters := module.GetEmptyProvisioningParameters()
+		previousProvisioningParameters :=
+			serviceManager.GetEmptyProvisioningParameters()
 		if err = instance.GetProvisioningParameters(
 			previousProvisioningParameters,
 			s.codec,
@@ -259,17 +249,14 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Then validate module-specific provisioning parameters
-	err = module.ValidateProvisioningParameters(provisioningParameters)
+	// Then validate service-specific provisioning parameters
+	err = serviceManager.ValidateProvisioningParameters(provisioningParameters)
 	if err != nil {
 		s.handlePossibleValidationError(err, w, logFields)
 		return
 	}
 
-	provisioner, err := module.GetProvisioner(
-		serviceID,
-		planID,
-	)
+	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
 		logFields["serviceID"] = serviceID
 		logFields["planID"] = provisioningRequest.PlanID
@@ -319,7 +306,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err = instance.SetProvisioningContext(
-		module.GetEmptyProvisioningContext(),
+		serviceManager.GetEmptyProvisioningContext(),
 		s.codec,
 	); err != nil {
 		logFields["error"] = err

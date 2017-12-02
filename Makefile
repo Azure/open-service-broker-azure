@@ -1,8 +1,12 @@
 VERSION ?= $(shell git describe --always --abbrev=7 --dirty)
 
 BINARY_DIR := bin
-BINARY_NAME := asb
+BINARY_NAME := osba
 
+# This is left as 'azure-service-broker' because we don't yet have a docker repo
+# for 'open-service-broker-azure'
+#
+# See https://github.com/Azure/open-service-broker-azure/issues/100
 BASE_IMAGE_NAME      = azure-service-broker
 MUTABLE_TAG         ?= canary
 IMAGE_NAME           = $(REGISTRY)$(BASE_IMAGE_NAME):$(VERSION)
@@ -43,7 +47,7 @@ ifndef AZURE_CLIENT_SECRET
 	$(error AZURE_CLIENT_SECRET is not defined)
 endif
 
-# Deletes any existing asb binary AND destroys any running containers AND
+# Deletes any existing osba binary AND destroys any running containers AND
 # destroys the dev environment image.
 .PHONY: clean
 clean: check-docker-compose
@@ -77,7 +81,7 @@ verify-vendored-code: check-docker-compose
 	'
 
 .PHONY: test
-test: test-unit test-module-lifecycles
+test: test-unit test-api-compliance test-module-lifecycles
 
 # Containerized unit tests-- requires docker-compose
 .PHONY: test-unit
@@ -98,8 +102,17 @@ test-module-lifecycles: check-docker-compose check-azure-env-vars
 		bash -c 'go test \
 			-parallel 10 \
 		  -timeout 60m \
-			github.com/Azure/azure-service-broker/tests/lifecycle -v'
+			github.com/Azure/open-service-broker-azure/tests/lifecycle -v'
 
+
+# Containerized API compliance check via osb-checker. Currently ignores exit code. 
+.PHONY: test-api-compliance
+test-api-compliance: check-docker-compose
+	docker-compose build test-api-compliance-broker test-api-compliance
+	-docker-compose run --rm test-api-compliance
+	docker-compose kill test-api-compliance-broker
+	docker-compose rm -f test-api-compliance-broker
+	
 .PHONY: lint
 lint: check-docker-compose
 	docker-compose run \
@@ -145,7 +158,7 @@ build: check-docker-compose
 	docker-compose run --rm dev \
 		go build -o ${BINARY_DIR}/${BINARY_NAME} ./cmd/broker
 
-# (Re)Build the Docker image for the asb and run it
+# (Re)Build the Docker image for the osba and run it
 .PHONY: run
 run: check-docker-compose check-azure-env-vars build
 	@# Force the docker-compose "broker" service to be rebuilt-- this is separate

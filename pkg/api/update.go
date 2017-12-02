@@ -6,8 +6,8 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/Azure/azure-service-broker/pkg/async/model"
-	"github.com/Azure/azure-service-broker/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/mitchellh/mapstructure"
@@ -88,8 +88,9 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var plan service.Plan
 	if updatingRequest.PlanID != "" {
-		_, ok = svc.GetPlan(updatingRequest.PlanID)
+		plan, ok = svc.GetPlan(updatingRequest.PlanID)
 		if !ok {
 			logFields["serviceID"] = updatingRequest.ServiceID
 			logFields["planID"] = updatingRequest.PlanID
@@ -101,21 +102,10 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	module, ok := s.modules[updatingRequest.ServiceID]
-	if !ok {
-		// We already validated that the serviceID and planID are legitimate. If
-		// we don't find a module that handles the service, something is really
-		// wrong.
-		logFields["serviceID"] = updatingRequest.ServiceID
-		log.WithFields(logFields).Error(
-			"pre-provisioning error: no module found for service",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
+	serviceManager := svc.GetServiceManager()
 
 	// Unpack the parameter map in the request to a struct
-	updatingParameters := module.GetEmptyUpdatingParameters()
+	updatingParameters := serviceManager.GetEmptyUpdatingParameters()
 	decoderConfig := &mapstructure.DecoderConfig{
 		TagName: "json",
 		Result:  updatingParameters,
@@ -182,7 +172,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	previousUpdatingRequestParams := module.GetEmptyUpdatingParameters()
+	previousUpdatingRequestParams := serviceManager.GetEmptyUpdatingParameters()
 	if err = instance.GetUpdatingParameters(
 		previousUpdatingRequestParams,
 		s.codec,
@@ -229,8 +219,8 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If we get to here, we need to update the instance.
-	// Start by carrying out module-specific request validation
-	err = module.ValidateUpdatingParameters(updatingRequest.Parameters)
+	// Start by carrying out serviceManager-specific request validation
+	err = serviceManager.ValidateUpdatingParameters(updatingRequest.Parameters)
 	if err != nil {
 		validationErr, ok := err.(*service.ValidationError)
 		if ok {
@@ -247,10 +237,19 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updater, err := module.GetUpdater(
-		updatingRequest.ServiceID,
-		updatingRequest.PlanID,
-	)
+	if plan == nil {
+		plan, ok = svc.GetPlan(instance.PlanID)
+		if !ok {
+			logFields["serviceID"] = updatingRequest.ServiceID
+			logFields["planID"] = instance.PlanID
+			log.WithFields(logFields).Error(
+				"pre-updating error: no Plan found for planID in Service",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, responseInvalidPlanID)
+			return
+		}
+	}
+	updater, err := serviceManager.GetUpdater(plan)
 	if err != nil {
 		logFields["serviceID"] = updatingRequest.ServiceID
 		logFields["planID"] = updatingRequest.PlanID
