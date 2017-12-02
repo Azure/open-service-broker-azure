@@ -85,8 +85,8 @@ func getModulesConfig() (modulesConfig, error) {
 	switch minStabilityStr {
 	case "EXPERIMENTAL":
 		mc.MinStability = service.StabilityExperimental
-	case "BETA":
-		mc.MinStability = service.StabilityBeta
+	case "PREVIEW":
+		mc.MinStability = service.StabilityPreview
 	case "STABLE":
 		mc.MinStability = service.StabilityStable
 	default:

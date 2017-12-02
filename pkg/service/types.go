@@ -9,11 +9,11 @@ const (
 	// service modules. At this level of stability, we're not even certain we've
 	// built the right thing!
 	StabilityExperimental Stability = iota
-	// StabilityBeta represents relative stability of the moderately immature and
-	// semi-experimental service modules
-	StabilityBeta
+	// StabilityPreview represents relative stability of modules we believe are
+	// approaching a stable state.
+	StabilityPreview
 	// StabilityStable represents relative stability of the mature, production-
-	// ready service modules
+	// ready service modules.
 	StabilityStable
 )
 
