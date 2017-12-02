@@ -10,7 +10,7 @@ public cloud.
 |![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/150px-Warning.svg.png) | This software is under heavy development. Releases observe [semantic versioning](https://semver.org), but the project is in an ALPHA status and no assurances are made regarding backwards compatibility or stability. All releases prior to v1.0.0 will remain subject to the possibility of breaking changes when the MINOR version number has been incremented. |
 |---|---|
 
-![Open Service Broker for Azure GIF](./gifs/demovideo.gif)
+![Open Service Broker for Azure GIF](docs/images/demovideo.gif)
 
 ## Supported Services
 
