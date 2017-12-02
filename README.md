@@ -26,12 +26,17 @@ public cloud.
 * [Azure Service Bus](docs/modules/servicebus.md)
 * [Azure Storage](docs/modules/storage.md)
 
+# Quickstart
+The [Minikube Quickstart](docs/quickstart-minikube.md) walks-through using the
+Open Service Broker for Azure to deploy WordPress on a local Minikube cluster.
+Go from "_I have an Azure account that I have never used_" to "_I just deployed WordPress and know what OSBA means!_" �
+
 ## Getting Started on Kubernetes
 
 ### Installing
 
 [Helm](https://helm.sh) is used to install Open Service Broker for Azure onto Kubernetes
-clusters. Please refer to the 
+clusters. Please refer to the
 [Helm chart](https://github.com/Azure/helm-charts/tree/master/open-service-broker-azure)
 for details on how to complete the installation.
 
@@ -233,7 +238,7 @@ Plan: basic50
 Description: Azure Database for PostgreSQL Service
 Documentation url:                                
 Dashboard:                                        
-                                                  
+
 Last Operation                                    
 Status: create in progress                        
 Message: Creating server uf666164eb31.            
@@ -273,7 +278,7 @@ cf delete-service mypostgresdb
 
 # Contributing
 
-For details on how to contribute to this project, please see 
+For details on how to contribute to this project, please see
 [contributing.md](./docs/contributing.md).
 
 This project welcomes contributions and suggestions. All contributions require you to agree to a

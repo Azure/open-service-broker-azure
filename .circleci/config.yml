@@ -39,6 +39,19 @@ jobs:
       - run:
           name: Run Unit Tests
           command: make test-unit
+  test-api-compliance:
+    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
+    environment:
+      GOPATH: ~/go
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: ./scripts/install-deps.sh
+      - run:
+          name: Run API Compliance Tests
+          command: make test-api-compliance
   build:
     working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
@@ -108,6 +121,12 @@ workflows:
           filters:
             branches:
               ignore: master
+      - test-api-compliance:
+          requires:
+            - hold
+          filters:
+            branches:
+              ignore: master
       - build:
           requires:
             - hold
@@ -120,6 +139,7 @@ workflows:
             - lint
             - verify-vendored-code
             - test-unit
+            - test-api-compliance
             - build
           filters:
             branches:
@@ -131,45 +151,53 @@ workflows:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - verify-vendored-code:
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - test-unit:
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
+      - test-api-compliance:
+          filters:
+            branches:
+              only: master
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - build:
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - test-module-lifecycles:
           requires:
             - lint
             - verify-vendored-code
             - test-unit
+            - test-api-compliance
             - build
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - deploy:
           requires:
             - lint
             - verify-vendored-code
             - test-unit
+            - test-api-compliance
             - build
             - test-module-lifecycles
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
