@@ -9,6 +9,20 @@ Azure public cloud.
 
 ![Open Service Broker for Azure GIF](./gifs/demovideo.gif)
 
+## Supported Services
+
+* [Azure Container Instances](docs/modules/aci.md)
+* [Azure CosmosDB](docs/modules/cosmosdb.md)
+* [Azure Event Hubs](docs/modules/eventhubs.md)
+* [Azure Key Vault](docs/modules/keyvault.md)
+* [Azure SQL Database](docs/modules/mssqldb.md)
+* [Azure Database for MySQL](docs/modules/mysqldb.md)
+* [Azure Database for PostgreSQL](docs/modules/postgresqldb.md)
+* [Azure Redis Cache](docs/modules/rediscache.md)
+* [Azure Search](docs/modules/search.md)
+* [Azure Service Bus](docs/modules/servicebus.md)
+* [Azure Storage](docs/modules/storage.md)
+
 ## Getting Started on Kubernetes
 
 ### Installing
