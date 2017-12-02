@@ -15,6 +15,7 @@ import (
 	se "github.com/Azure/open-service-broker-azure/pkg/azure/search"
 	sb "github.com/Azure/open-service-broker-azure/pkg/azure/servicebus"
 	sa "github.com/Azure/open-service-broker-azure/pkg/azure/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mysqldb"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
@@ -22,7 +23,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssqldb"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/search"
@@ -89,7 +89,7 @@ func initModules() error {
 	modules = []service.Module{
 		postgresql.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
-		mysql.New(armDeployer, mySQLManager),
+		mysqldb.New(armDeployer, mySQLManager),
 		servicebus.New(armDeployer, serviceBusManager),
 		eventhubs.New(armDeployer, eventHubManager),
 		keyvault.New(armDeployer, keyvaultManager),

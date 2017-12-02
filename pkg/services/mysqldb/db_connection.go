@@ -1,4 +1,4 @@
-package mysql
+package mysqldb
 
 import (
 	"crypto/tls"

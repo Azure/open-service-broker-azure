@@ -1,4 +1,4 @@
-package mysql
+package mysqldb
 
 // nolint: lll
 var armTemplateBytes = []byte(`
