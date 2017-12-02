@@ -1,4 +1,4 @@
-package eventhub
+package eventhubs
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"

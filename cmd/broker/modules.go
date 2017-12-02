@@ -19,7 +19,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
-	"github.com/Azure/open-service-broker-azure/pkg/services/eventhub"
+	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
@@ -91,7 +91,7 @@ func initModules() error {
 		rediscache.New(armDeployer, redisManager),
 		mysql.New(armDeployer, mySQLManager),
 		servicebus.New(armDeployer, serviceBusManager),
-		eventhub.New(armDeployer, eventHubManager),
+		eventhubs.New(armDeployer, eventHubManager),
 		keyvault.New(armDeployer, keyvaultManager),
 		mssql.New(armDeployer, msSQLManager, msSQLConfig),
 		cosmosdb.New(armDeployer, cosmosDBManager),
