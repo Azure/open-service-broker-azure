@@ -2,10 +2,10 @@
 
 [![CircleCI](https://circleci.com/gh/Azure/open-service-broker-azure.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/open-service-broker-azure)
 
-[Open Service Broker for Azure](https://github.com/Azure/open-service-broker-azure) is the
-open source, [Open Service Broker](https://www.openservicebrokerapi.org/)
-compatible API server that provisions managed services in the Microsoft
-Azure public cloud.
+**Open Service Broker for Azure** is the open source,
+[Open Service Broker](https://www.openservicebrokerapi.org/)
+compatible API server that provisions managed services in the Microsoft Azure
+public cloud.
 
 |![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/150px-Warning.svg.png) | This software is under heavy development. Releases observe [semantic versioning](https://semver.org), but the project is in an ALPHA status and no assurances are made regarding backwards compatibility or stability. All releases prior to v1.0.0 will remain subject to the possibility of breaking changes when the MINOR version number has been incremented. |
 |---|---|
