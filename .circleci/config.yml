@@ -151,31 +151,31 @@ workflows:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - verify-vendored-code:
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - test-unit:
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - test-api-compliance:
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - build:
           filters:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - test-module-lifecycles:
           requires:
             - lint
@@ -187,7 +187,7 @@ workflows:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - deploy:
           requires:
             - lint
@@ -200,4 +200,4 @@ workflows:
             branches:
               only: master
             tags:
-              only: /v[0-9]+(\.[0-9]+)*/
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
