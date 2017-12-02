@@ -8,7 +8,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "7bade660-32f1-4fd7-b9e6-d416d975170b",
 				Name:        "azure-eventhubs",
-				Description: "Azure Event Hubs (Alpha)",
+				Description: "Azure Event Hubs (Experimental)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "Event", "Hubs"},
 			},

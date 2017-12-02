@@ -9,7 +9,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 				Name:        "azure-sqldb",
-				Description: "Azure SQL Database (Alpha)",
+				Description: "Azure SQL Database (Experimental)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "SQL", "Database"},
 			},

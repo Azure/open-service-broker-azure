@@ -12,7 +12,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
 				Name:        "azure-storage",
-				Description: "Azure Storage (Alpha)",
+				Description: "Azure Storage (Experimental)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "Storage"},
 			},
