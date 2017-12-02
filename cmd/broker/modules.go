@@ -21,7 +21,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mssqldb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
@@ -65,7 +65,7 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing mssql manager: %s", err)
 	}
-	msSQLConfig, err := mssql.GetConfig()
+	msSQLConfig, err := mssqldb.GetConfig()
 	if err != nil {
 		return fmt.Errorf("error parsing mssql configuration: %s", err)
 	}
@@ -93,7 +93,7 @@ func initModules() error {
 		servicebus.New(armDeployer, serviceBusManager),
 		eventhubs.New(armDeployer, eventHubManager),
 		keyvault.New(armDeployer, keyvaultManager),
-		mssql.New(armDeployer, msSQLManager, msSQLConfig),
+		mssqldb.New(armDeployer, msSQLManager, msSQLConfig),
 		cosmosdb.New(armDeployer, cosmosDBManager),
 		storage.New(armDeployer, storageManager),
 		search.New(armDeployer, searchManager),
