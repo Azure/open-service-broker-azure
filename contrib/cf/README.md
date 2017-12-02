@@ -16,7 +16,7 @@ What you will need:
 Open Service Broker for Azure uses Redis as a backing store for its state. Create a cache using the Azure CLI:
 
 ```console
-az redis create -n osba-cache -g myresourcegroup -l <location> --sku Basic --vm-size C1 --enable-non-ssl-port
+az redis create -n osba-cache -g myresourcegroup -l <location> --sku Basic --vm-size C1
 ```
 
 Note the `hostName` and `primaryKey` in the output as these will be needed later.
@@ -54,22 +54,24 @@ Open contrib/cf/manifest.yml and enter the values obtained in the earlier steps:
 
 ```yaml
 ---
-  name: osba
-  buildpack: go_buildpack
-  command: broker 
-  env:
-    AZURE_SUBSCRIPTION_ID: <YOUR SUBSCRIPTION ID>
-    AZURE_TENANT_ID: <TENANT ID FROM SERVICE PRINCIPAL>
-    AZURE_CLIENT_ID: <APPID FROM SERVICE PRINCIPAL>
-    AZURE_CLIENT_SECRET: <PASSWORD FROM SERVICE PRINCIPAL>
-    LOG_LEVEL: DEBUG
-    REDIS_HOST: <HOSTNAME FROM AZURE REDIS CACHE>
-    REDIS_PASSWORD: <PRIMARYKEY FROM AZURE REDIS CACHE>
-    AES256_KEY: AES256Key-32Characters1234567890
-    BASIC_AUTH_USERNAME: username
-    BASIC_AUTH_PASSWORD: password
-    GOPACKAGENAME: github.com/Azure/open-service-broker-azure
-    GO_INSTALL_PACKAGE_SPEC: github.com/Azure/open-service-broker-azure/cmd/broker
+  applications:
+    - name: osba
+      buildpack: https://github.com/cloudfoundry/go-buildpack/releases/download/v1.8.13/go-buildpack-v1.8.13.zip
+      command: broker 
+      env:
+        AZURE_SUBSCRIPTION_ID: <YOUR SUBSCRIPTION ID>
+        AZURE_TENANT_ID: <TENANT ID FROM SERVICE PRINCIPAL>
+        AZURE_CLIENT_ID: <APPID FROM SERVICE PRINCIPAL>
+        AZURE_CLIENT_SECRET: <PASSWORD FROM SERVICE PRINCIPAL>
+        AZURE_DEFAULT_LOCATION: <DEFAULT AZURE REGION FOR SERVICES>
+        LOG_LEVEL: DEBUG
+        REDIS_HOST: <HOSTNAME FROM AZURE REDIS CACHE>
+        REDIS_PASSWORD: <PRIMARYKEY FROM AZURE REDIS CACHE>
+        AES256_KEY: AES256Key-32Characters1234567890
+        BASIC_AUTH_USERNAME: username
+        BASIC_AUTH_PASSWORD: password
+        GOPACKAGENAME: github.com/Azure/open-service-broker-azure
+        GO_INSTALL_PACKAGE_SPEC: github.com/Azure/open-service-broker-azure/cmd/broker
 ```
 
 **IMPORTANT**: The default values for `AES256_KEY`, `BASIC\_AUTH\_USERNAME`, and `BASIC\_AUTH\_PASSWORD` should never be used in production environments.
