@@ -12,7 +12,7 @@ public cloud.
 
 ![Open Service Broker for Azure GIF](docs/images/demovideo.gif)
 
-*Open Service Broker is a trademark of the [Cloud Foundry Foundation](http://cloudfoundry.org).*
+*CLOUD FOUNDRY and OPEN SERVICE BROKER are trademarks of the CloudFoundry.org Foundation in the United States and other countries.*
 
 ## Supported Services
 
