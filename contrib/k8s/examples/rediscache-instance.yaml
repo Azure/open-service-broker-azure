@@ -1,7 +1,7 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: my-redis-instance
+  name: my-rediscache-instance
   namespace: default
 spec:
   clusterServiceClassExternalName: azure-rediscache
