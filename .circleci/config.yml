@@ -90,10 +90,7 @@ jobs:
           command: ./scripts/install-deps.sh
       - run:
           name: Deploy to Docker Hub
-          command: ./scripts/deploy.dockerhub.sh
-      - run:
-          name: Deploy to Quay
-          command: ./scripts/deploy.quay.sh
+          command: ./scripts/deploy.sh
 workflows:
   version: 2
   build-and-test-pr:
