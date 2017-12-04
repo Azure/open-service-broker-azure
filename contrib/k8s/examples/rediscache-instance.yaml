@@ -1,11 +1,11 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: my-mysql-instance
+  name: my-rediscache-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-mysqldb
-  clusterServicePlanExternalName: basic50
+  clusterServiceClassExternalName: azure-rediscache
+  clusterServicePlanExternalName: basic
   parameters:
     location: eastus
     resourceGroup: demo

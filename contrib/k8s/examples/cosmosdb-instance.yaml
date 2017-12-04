@@ -1,11 +1,11 @@
+
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: my-redis-instance
+  name: my-cosmosdb-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-rediscache
-  clusterServicePlanExternalName: basic
+  clusterServiceClassExternalName: azure-cosmos-document-db
   parameters:
     location: eastus
     resourceGroup: demo
