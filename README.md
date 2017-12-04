@@ -1,4 +1,4 @@
-# Open Service Broker for Azure
+# Open Service Broker&trade; for Azure
 
 [![CircleCI](https://circleci.com/gh/Azure/open-service-broker-azure.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/open-service-broker-azure)
 
@@ -11,6 +11,8 @@ public cloud.
 |---|---|
 
 ![Open Service Broker for Azure GIF](docs/images/demovideo.gif)
+
+*Open Service Broker is a trademark of the [Cloud Foundry Foundation](http://cloudfoundry.org).*
 
 ## Supported Services
 
