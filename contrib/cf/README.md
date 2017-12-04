@@ -66,7 +66,9 @@ Open contrib/cf/manifest.yml and enter the values obtained in the earlier steps:
         AZURE_DEFAULT_LOCATION: <DEFAULT AZURE REGION FOR SERVICES>
         LOG_LEVEL: DEBUG
         REDIS_HOST: <HOSTNAME FROM AZURE REDIS CACHE>
+        REDIS_PORT: 6380
         REDIS_PASSWORD: <PRIMARYKEY FROM AZURE REDIS CACHE>
+        REDIS_ENABLE_TLS: true
         AES256_KEY: AES256Key-32Characters1234567890
         BASIC_AUTH_USERNAME: username
         BASIC_AUTH_PASSWORD: password
