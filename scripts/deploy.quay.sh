@@ -10,7 +10,7 @@ CIRCLE_TAG=${CIRCLE_TAG:-""}
 
 docker login -u "${QUAY_USERNAME}" -p "${QUAY_PASSWORD}" quay.io
 
-if [[ "${CIRCLE_TAG}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+[a-z]*$ ]]; then
+if [[ "${CIRCLE_TAG}" =~ ^v[0-9]+(\.[0-9]+)*(\-.+)?$ ]]; then
     echo "Pushing images with tags '${CIRCLE_TAG}' and 'latest'."
     REGISTRY=quay.io/deis/ VERSION="${CIRCLE_TAG}" MUTABLE_TAG="latest" \
       make docker-push

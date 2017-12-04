@@ -15,15 +15,15 @@ import (
 	se "github.com/Azure/open-service-broker-azure/pkg/azure/search"
 	sb "github.com/Azure/open-service-broker-azure/pkg/azure/servicebus"
 	sa "github.com/Azure/open-service-broker-azure/pkg/azure/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mysqldb"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
-	"github.com/Azure/open-service-broker-azure/pkg/services/eventhub"
+	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
-	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mssqldb"
+	"github.com/Azure/open-service-broker-azure/pkg/services/postgresqldb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/search"
 	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
@@ -65,7 +65,7 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing mssql manager: %s", err)
 	}
-	msSQLConfig, err := mssql.GetConfig()
+	msSQLConfig, err := mssqldb.GetConfig()
 	if err != nil {
 		return fmt.Errorf("error parsing mssql configuration: %s", err)
 	}
@@ -87,13 +87,13 @@ func initModules() error {
 	}
 
 	modules = []service.Module{
-		postgresql.New(armDeployer, postgreSQLManager),
+		postgresqldb.New(armDeployer, postgreSQLManager),
 		rediscache.New(armDeployer, redisManager),
-		mysql.New(armDeployer, mySQLManager),
+		mysqldb.New(armDeployer, mySQLManager),
 		servicebus.New(armDeployer, serviceBusManager),
-		eventhub.New(armDeployer, eventHubManager),
+		eventhubs.New(armDeployer, eventHubManager),
 		keyvault.New(armDeployer, keyvaultManager),
-		mssql.New(armDeployer, msSQLManager, msSQLConfig),
+		mssqldb.New(armDeployer, msSQLManager, msSQLConfig),
 		cosmosdb.New(armDeployer, cosmosDBManager),
 		storage.New(armDeployer, storageManager),
 		search.New(armDeployer, searchManager),

@@ -34,5 +34,5 @@ func (m *module) GetName() string {
 }
 
 func (m *module) GetStability() service.Stability {
-	return service.StabilityAlpha
+	return service.StabilityExperimental
 }

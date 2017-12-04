@@ -10,8 +10,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				&service.ServiceProperties{
 					ID:   "6330de6f-a561-43ea-a15e-b99f44d183e6",
 					Name: "azure-cosmos-document-db",
-					Description: "Azure DocumentDB (Alpha) provided by CosmosDB and " +
-						"accessible via SQL (DocumentDB), Gremlin (Graph), and Table " +
+					Description: "Azure DocumentDB (Experimental) provided by CosmosDB " +
+						"and accessible via SQL (DocumentDB), Gremlin (Graph), and Table " +
 						"(Key-Value) APIs",
 					Bindable: true,
 					Tags: []string{"Azure",
@@ -41,7 +41,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				&service.ServiceProperties{
 					ID:          "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
 					Name:        "azure-cosmos-mongo-db",
-					Description: "MongoDB on Azure (Alpha) provided by CosmosDB",
+					Description: "MongoDB on Azure (Experimental) provided by CosmosDB",
 					Bindable:    true,
 					Tags: []string{"Azure",
 						"CosmosDB",

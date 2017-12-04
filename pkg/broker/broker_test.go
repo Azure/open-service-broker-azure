@@ -145,7 +145,7 @@ func getTestBroker() (*broker, error) {
 		nil,
 		always.NewAuthenticator(),
 		nil,
-		service.StabilityAlpha,
+		service.StabilityExperimental,
 		"",
 		"",
 	)
