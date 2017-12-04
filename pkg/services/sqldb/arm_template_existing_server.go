@@ -1,4 +1,4 @@
-package mssqldb
+package sqldb
 
 // nolint: lll
 var armTemplateExistingServerBytes = []byte(`
