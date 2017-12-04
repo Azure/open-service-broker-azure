@@ -5,14 +5,15 @@ package service
 type Stability int
 
 const (
-	// StabilityAlpha represents relative stability of the most immature and
-	// experimental service modules
-	StabilityAlpha Stability = iota
-	// StabilityBeta represents relative stability of the moderately immature and
-	// semi-experimental service modules
-	StabilityBeta
+	// StabilityExperimental represents relative stability of the most immature
+	// service modules. At this level of stability, we're not even certain we've
+	// built the right thing!
+	StabilityExperimental Stability = iota
+	// StabilityPreview represents relative stability of modules we believe are
+	// approaching a stable state.
+	StabilityPreview
 	// StabilityStable represents relative stability of the mature, production-
-	// ready service modules
+	// ready service modules.
 	StabilityStable
 )
 

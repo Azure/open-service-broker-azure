@@ -38,7 +38,7 @@ type basicAuthConfig struct {
 }
 
 type modulesConfig struct {
-	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"ALPHA"`
+	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"EXPERIMENTAL"`
 	MinStability    service.Stability
 }
 
@@ -83,10 +83,10 @@ func getModulesConfig() (modulesConfig, error) {
 	}
 	minStabilityStr := strings.ToUpper(mc.MinStabilityStr)
 	switch minStabilityStr {
-	case "ALPHA":
-		mc.MinStability = service.StabilityAlpha
-	case "BETA":
-		mc.MinStability = service.StabilityBeta
+	case "EXPERIMENTAL":
+		mc.MinStability = service.StabilityExperimental
+	case "PREVIEW":
+		mc.MinStability = service.StabilityPreview
 	case "STABLE":
 		mc.MinStability = service.StabilityStable
 	default:
