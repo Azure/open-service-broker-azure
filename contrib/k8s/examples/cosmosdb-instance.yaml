@@ -7,5 +7,5 @@ metadata:
 spec:
   clusterServiceClassExternalName: azure-cosmos-document-db
   parameters:
-    location: japaneast
+    location: eastus
     resourceGroup: demo
