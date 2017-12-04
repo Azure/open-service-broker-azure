@@ -20,7 +20,7 @@ public cloud.
 * [Azure CosmosDB](docs/modules/cosmosdb.md)
 * [Azure Event Hubs](docs/modules/eventhubs.md)
 * [Azure Key Vault](docs/modules/keyvault.md)
-* [Azure SQL Database](docs/modules/mssqldb.md)
+* [Azure SQL Database](docs/modules/sqldb.md)
 * [Azure Database for MySQL](docs/modules/mysqldb.md)
 * [Azure Database for PostgreSQL](docs/modules/postgresqldb.md)
 * [Azure Redis Cache](docs/modules/rediscache.md)

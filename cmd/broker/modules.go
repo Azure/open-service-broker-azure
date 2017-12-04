@@ -16,13 +16,13 @@ import (
 	sb "github.com/Azure/open-service-broker-azure/pkg/azure/servicebus"
 	sa "github.com/Azure/open-service-broker-azure/pkg/azure/storage"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysqldb"
+	"github.com/Azure/open-service-broker-azure/pkg/services/sqldb"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mssqldb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresqldb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/search"
@@ -65,7 +65,7 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing mssql manager: %s", err)
 	}
-	msSQLConfig, err := mssqldb.GetConfig()
+	msSQLConfig, err := sqldb.GetConfig()
 	if err != nil {
 		return fmt.Errorf("error parsing mssql configuration: %s", err)
 	}
@@ -93,7 +93,7 @@ func initModules() error {
 		servicebus.New(armDeployer, serviceBusManager),
 		eventhubs.New(armDeployer, eventHubManager),
 		keyvault.New(armDeployer, keyvaultManager),
-		mssqldb.New(armDeployer, msSQLManager, msSQLConfig),
+		sqldb.New(armDeployer, msSQLManager, msSQLConfig),
 		cosmosdb.New(armDeployer, cosmosDBManager),
 		storage.New(armDeployer, storageManager),
 		search.New(armDeployer, searchManager),

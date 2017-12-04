@@ -1,4 +1,4 @@
-package mssqldb
+package sqldb
 
 import (
 	"database/sql"

@@ -13,7 +13,7 @@ import (
 	ss "github.com/Azure/open-service-broker-azure/pkg/azure/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mssqldb"
+	"github.com/Azure/open-service-broker-azure/pkg/services/sqldb"
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
 	uuid "github.com/satori/go.uuid"
 )
@@ -104,14 +104,14 @@ func getMssqlCases(
 		return nil
 	}
 
-	serverConfig := mssqldb.ServerConfig{
+	serverConfig := sqldb.ServerConfig{
 		ServerName:                 serverName,
 		ResourceGroupName:          resourceGroup,
 		Location:                   location,
 		AdministratorLogin:         administratorLogin,
 		AdministratorLoginPassword: administratorLoginPassword,
 	}
-	serverConfigs := []mssqldb.ServerConfig{serverConfig}
+	serverConfigs := []sqldb.ServerConfig{serverConfig}
 	serverConfigsBytes, err := json.Marshal(serverConfigs)
 	if err != nil {
 		return nil, err
@@ -127,26 +127,26 @@ func getMssqlCases(
 	if err != nil {
 		return nil, err
 	}
-	msSQLConfig, err := mssqldb.GetConfig()
+	msSQLConfig, err := sqldb.GetConfig()
 	if err != nil {
 		return nil, err
 	}
 
 	return []moduleLifecycleTestCase{
 		{ // new server scenario
-			module:      mssqldb.New(armDeployer, msSQLManager, msSQLConfig),
+			module:      sqldb.New(armDeployer, msSQLManager, msSQLConfig),
 			description: "new server and database",
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &mssqldb.ProvisioningParameters{},
-			bindingParameters:      &mssqldb.BindingParameters{},
+			provisioningParameters: &sqldb.ProvisioningParameters{},
+			bindingParameters:      &sqldb.BindingParameters{},
 			testCredentials:        testMsSQLCreds(),
 		},
 		{ // existing server scenario
-			module:      mssqldb.New(armDeployer, msSQLManager, msSQLConfig),
+			module:      sqldb.New(armDeployer, msSQLManager, msSQLConfig),
 			description: "database on an existing server",
 			setup:       createSQLServer,
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
@@ -154,10 +154,10 @@ func getMssqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus", // This is actually irrelevant for this test
 			},
-			provisioningParameters: &mssqldb.ProvisioningParameters{
+			provisioningParameters: &sqldb.ProvisioningParameters{
 				ServerName: serverName,
 			},
-			bindingParameters: &mssqldb.BindingParameters{},
+			bindingParameters: &sqldb.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),
 		},
 	}, nil
@@ -165,7 +165,7 @@ func getMssqlCases(
 
 func testMsSQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
-		cdts, ok := credentials.(*mssqldb.Credentials)
+		cdts, ok := credentials.(*sqldb.Credentials)
 		if !ok {
 			return fmt.Errorf("error casting credentials as *mssql.Credentials")
 		}

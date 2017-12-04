@@ -1,4 +1,4 @@
-package mssqldb
+package sqldb
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
