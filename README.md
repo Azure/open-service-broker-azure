@@ -53,13 +53,13 @@ to see service provisioning in action.
 The following will provision PostgreSQL on Azure:
 
 ```console
-$ kubectl create -f contrib/k8s/examples/postgresql-instance.yaml
+$ kubectl create -f contrib/k8s/examples/postgresqldb-instance.yaml
 ```
 
 After the `ServiceInstance` resource is submitted, you can view its status:
 
 ```console
-$ kubectl get serviceinstance my-postgresql-instance -o yaml
+$ kubectl get serviceinstance my-postgresqldb-instance -o yaml
 ```
 
 The folowing is excerpted from the output and shows that asynchronous
@@ -111,13 +111,13 @@ status:
 Upon success, bind to the instance:
 
 ```console
-$ kubectl create -f contrib/k8s/examples/postgresql-binding.yaml
+$ kubectl create -f contrib/k8s/examples/postgresqldb-binding.yaml
 ```
 
 To check the status of the binding:
 
 ```console
-$ kubectl get servicebinding my-postgresql-binding -o yaml
+$ kubectl get servicebinding my-postgresqldb-binding -o yaml
 ```
 
 The following is excerpted from the output:
@@ -126,8 +126,8 @@ The following is excerpted from the output:
 spec:
   externalID: 25638746-bd86-44a1-a60e-06069734f2cd
   instanceRef:
-    name: my-postgresql-instance
-  secretName: my-postgresql-secret
+    name: my-postgresqldb-instance
+  secretName: my-postgresqldb-secret
 status:
   conditions:
   - lastTransitionTime: 2017-10-16T18:44:38Z
@@ -142,11 +142,11 @@ status:
 
 The status shows the binding was successful and the `spec.secretName` field
 indicates that connection details and credentials have been written into a
-secret named `my-postgresql-secret`. You can observe that this secret exists
+secret named `my-postgresqldb-secret`. You can observe that this secret exists
 and has been populated:
 
 ```console
-$ kubectl get secret my-postgresql-secret -o yaml
+$ kubectl get secret my-postgresqldb-secret -o yaml
 ```
 
 This secret can be used just as any other.
@@ -156,14 +156,14 @@ This secret can be used just as any other.
 To unbind:
 
 ```console
-$ kubectl delete servicebinding my-postgresql-binding
+$ kubectl delete servicebinding my-postgresqldb-binding
 ```
 
-Observe that the secret named `my-postgresql-secret` is also deleted:
+Observe that the secret named `my-postgresqldb-secret` is also deleted:
 
 ```console
-$ kubectl get secret my-postgresql-secret
-Error from server (NotFound): secrets "my-postgresql-secret" not found
+$ kubectl get secret my-postgresqldb-secret
+Error from server (NotFound): secrets "my-postgresqldb-secret" not found
 ```
 
 #### Deprovisioning
@@ -171,13 +171,13 @@ Error from server (NotFound): secrets "my-postgresql-secret" not found
 To deprovision:
 
 ```console
-$ kubectl delete serviceinstance my-postgresql-instance
+$ kubectl delete serviceinstance my-postgresqldb-instance
 ```
 
 You can observe the status to see that asynchronous deprovisioning is ongoing:
 
 ```console
-$ kubectl get serviceinstance my-postgresql-instance -o yaml
+$ kubectl get serviceinstance my-postgresqldb-instance -o yaml
 ```
 
 The following is excerpted from the output:
@@ -208,8 +208,8 @@ When the asynchronous deprovisioning procress completes, the deletion of the
 resource will also be complete:
 
 ```console
-$ kubectl get serviceinstance my-postgresql-instance
-Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgresql-instance" not found
+$ kubectl get serviceinstance my-postgresqldb-instance
+Error from server (NotFound): serviceinstances.servicecatalog.k8s.io "my-postgresqldb-instance" not found
 ```
 
 ## Getting Started on Cloud Foundry
