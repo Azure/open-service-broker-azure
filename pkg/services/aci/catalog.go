@@ -8,7 +8,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "451d5d19-4575-4d4a-9474-116f705ecc95",
 				Name:        "azure-aci",
-				Description: "Azure Container Instance (Alpha)",
+				Description: "Azure Container Instance (Experimental)",
 				Bindable:    true,
 				Tags:        []string{"Azure", "Container", "Instance"},
 			},
