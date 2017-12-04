@@ -81,8 +81,8 @@ func (s *serviceManager) deleteMsSQLServerOrDatabase(
 	if pc.IsNewServer {
 		// new server scenario
 		if err := s.mssqlManager.DeleteServer(
-			pc.ServerName,
 			standardProvisioningContext.ResourceGroup,
+			pc.ServerName,
 		); err != nil {
 			return pc, fmt.Errorf("error deleting mssql server: %s", err)
 		}
@@ -98,9 +98,9 @@ func (s *serviceManager) deleteMsSQLServerOrDatabase(
 		}
 
 		if err := s.mssqlManager.DeleteDatabase(
+			server.ResourceGroupName,
 			pc.ServerName,
 			pc.DatabaseName,
-			server.ResourceGroupName,
 		); err != nil {
 			return pc, fmt.Errorf("error deleting mssql database: %s", err)
 		}

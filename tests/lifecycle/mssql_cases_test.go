@@ -141,9 +141,11 @@ func getMssqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &mssqldb.ProvisioningParameters{},
-			bindingParameters:      &mssqldb.BindingParameters{},
-			testCredentials:        testMsSQLCreds(),
+			provisioningParameters: &mssqldb.ProvisioningParameters{
+				EnableTDE: true,
+			},
+			bindingParameters: &mssqldb.BindingParameters{},
+			testCredentials:   testMsSQLCreds(),
 		},
 		{ // existing server scenario
 			module:      mssqldb.New(armDeployer, msSQLManager, msSQLConfig),
@@ -156,6 +158,7 @@ func getMssqlCases(
 			},
 			provisioningParameters: &mssqldb.ProvisioningParameters{
 				ServerName: serverName,
+				EnableTDE:  true,
 			},
 			bindingParameters: &mssqldb.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),

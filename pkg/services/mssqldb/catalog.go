@@ -7,11 +7,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			&service.ServiceProperties{
-				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
-				Name:        "azure-sqldb",
-				Description: "Azure SQL Database (Alpha)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "SQL", "Database"},
+				ID:            "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
+				Name:          "azure-sqldb",
+				Description:   "Azure SQL Database (Alpha)",
+				Bindable:      true,
+				PlanUpdatable: true,
+				Tags:          []string{"Azure", "SQL", "Database"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
