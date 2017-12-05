@@ -177,7 +177,7 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 1. Before we can use Helm to install applications such as Service Catalog and
     WordPress on the cluster, we first need to prepare the cluster to work with Helm:
     ```
-    kubectl create -f https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/helm-rbac-config.yaml
+    kubectl create -f https://raw.githubusercontent.com/Azure/helm-charts/master/docs/prerequisities/helm-rbac-config.yaml
     helm init --service-account tiller
     ```
 1. Deploy Service Catalog on the cluster:
