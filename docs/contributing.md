@@ -64,7 +64,7 @@ follow the same general lifecycle. Differences are noted below.
 
 1. If you haven't already done so, sign a Contributor License Agreement
 (see details above).
-2. Fork the repository, develop and test your code changes.
+2. Fork the repository, develop and test your code changes. [Development Guide](./developing.md)
 3. Submit a pull request.
 
 Your pull request will be reviewed according to the process defined in 
