@@ -190,7 +190,7 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
     **Bash**
     ```
     helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
-    helm install azure/azure-service-broker --name osba --namespace osba \
+    helm install azure/open-service-broker-azure --name osba --namespace osba \
       --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
       --set azure.tenantId=$AZURE_TENANT_ID \
       --set azure.clientId=$AZURE_CLIENT_ID \
@@ -200,7 +200,7 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
     **PowerShell**
     ```
     helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
-    helm install azure/azure-service-broker --name osba --namespace osba `
+    helm install azure/open-service-broker-azure --name osba --namespace osba `
       --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
       --set azure.tenantId=$env:AZURE_TENANT_ID `
       --set azure.clientId=$env:AZURE_CLIENT_ID `
