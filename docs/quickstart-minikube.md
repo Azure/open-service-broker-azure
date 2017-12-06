@@ -177,7 +177,7 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 1. Before we can use Helm to install applications such as Service Catalog and
     WordPress on the cluster, we first need to prepare the cluster to work with Helm:
     ```
-    kubectl create -f https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/helm-rbac-config.yaml
+    kubectl create -f https://raw.githubusercontent.com/Azure/helm-charts/master/docs/prerequisities/helm-rbac-config.yaml
     helm init --service-account tiller
     ```
 1. Deploy Service Catalog on the cluster:
@@ -189,7 +189,8 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 
     **Bash**
     ```
-    helm install azure/azure-service-broker --name osba --namespace osba \
+    helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+    helm install azure/open-service-broker-azure --name osba --namespace osba \
       --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
       --set azure.tenantId=$AZURE_TENANT_ID \
       --set azure.clientId=$AZURE_CLIENT_ID \
@@ -198,7 +199,8 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 
     **PowerShell**
     ```
-    helm install azure/azure-service-broker --name osba --namespace osba `
+    helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+    helm install azure/open-service-broker-azure --name osba --namespace osba `
       --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
       --set azure.tenantId=$env:AZURE_TENANT_ID `
       --set azure.clientId=$env:AZURE_CLIENT_ID `
