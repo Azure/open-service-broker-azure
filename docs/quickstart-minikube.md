@@ -212,12 +212,12 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
     You may need to wait a few minutes, rerunning the command until all of the
     resources are ready.
     ```console
-    $ kubectl get pods --namespace catalog
+    kubectl get pods --namespace catalog
     NAME                                                     READY     STATUS    RESTARTS   AGE
     po/catalog-catalog-apiserver-5999465555-9hgwm            2/2       Running   4          9d
     po/catalog-catalog-controller-manager-554c758786-f8qvc   1/1       Running   11         9d
 
-    $ kubectl get pods --namespace osba
+    kubectl get pods --namespace osba
     NAME                                           READY     STATUS    RESTARTS   AGE
     po/osba-azure-service-broker-8495bff484-7ggj6   1/1       Running   0          9d
     po/osba-redis-5b44fc9779-hgnck                  1/1       Running   0          9d
@@ -241,13 +241,13 @@ If you're using
 the `persistence.enabled` parameter to `false` using the following command.
 
 ```console
-$ helm install azure/wordpress --name quickstart --set persistence.enabled=false
+helm install azure/wordpress --name quickstart --set persistence.enabled=false
 ```
 
 Use the following command to tell when WordPress is ready:
 
 ```console
-$ kubectl get deploy/quickstart-wordpress -w
+kubectl get deploy/quickstart-wordpress -w
 
 NAME                DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 quickstart-wordpress   1         1         1            0           1m
