@@ -275,7 +275,7 @@ quickstart-wordpress   1         1         1            1           2m
 Here's how to remove resources created by this quickstart:
 
 1. `az group delete --name osba-quickstart`
-1. `az ad sp delete --name osba-quickstart`
+1. `az ad sp delete --id http://osba-quickstart`
 1. `minikube delete`
 
 # Next Steps
