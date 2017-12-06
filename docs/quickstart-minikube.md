@@ -259,8 +259,7 @@ quickstart-wordpress   1         1         1            1           2m
 
 1. Run the following command to open WordPress in your browser:
     ```
-    open http://$(minikube ip):$(kubectl get service quickstart-wordpress \ 
-       -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort}) 
+    open http://$(minikube ip):$(kubectl get service quickstart-wordpress -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort}) 
     ```
 
     **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
