@@ -148,14 +148,14 @@ resources on your account on behalf of Kubernetes.
 
     **Bash**
     ```
-    export AZURE_TENANT_ID=<DisplayName>
+    export AZURE_TENANT_ID=<Tenant>
     export AZURE_CLIENT_ID=<AppId>
     export AZURE_CLIENT_SECRET=<Password>
     ```
 
     **PowerShell**
     ```
-    $env:AZURE_TENANT_ID = "<DisplayName>"
+    $env:AZURE_TENANT_ID = "<Tenant>"
     $env:AZURE_CLIENT_ID = "<AppId>"
     $env:AZURE_CLIENT_SECRET = "<Password>"
     ```
