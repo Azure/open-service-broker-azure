@@ -259,12 +259,13 @@ quickstart-wordpress   1         1         1            1           2m
 
 1. Run the following command to open WordPress in your browser:
     ```
-    open http://$(minikube ip):31215/admin
+    open http://$(minikube ip):$(kubectl get service quickstart-wordpress -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort})/admin 
     ```
 
     **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
     the command from the WordPress deployment output because with Minikube the
-    WordPress service won't have a public IP address assigned.
+    WordPress service won't have a public IP address assigned. We are also using
+    kubectl in order to find the node port of the `http` port. 
 1. Login using the following credentials:
     ```
     echo Username: user
