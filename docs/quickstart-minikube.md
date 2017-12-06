@@ -234,6 +234,16 @@ and binding it to our WordPress installation.
 helm install azure/wordpress --name quickstart
 ```
 
+Note: when installing the wordpress chart on some versions of Minikube, you
+may encounter issues due to [kubernetes/minikube#2256](https://github.com/kubernetes/minikube/issues/2256).
+If you're using
+[v0.24.1](https://github.com/kubernetes/minikube/releases/tag/v0.24.1), we recommend setting
+the `persistence.enabled` parameter to `false` using the following command.
+
+```console
+$ helm install azure/wordpress --name quickstart --set persistence.enabled=false
+```
+
 Use the following command to tell when WordPress is ready:
 
 ```console
