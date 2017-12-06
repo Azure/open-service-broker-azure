@@ -1,11 +1,11 @@
 # Quickstart: Open Service Broker for Azure on a Minikube cluster
 This quickstart walks-through using the Open Service Broker for Azure (OSBA) to
-deploy WordPress on a local Minikube cluster.
+deploy [Ghost](https://ghost.org/) Blog on a local Minikube cluster.
 
-WordPress requires a backend MySQL database. Without OSBA, we would create a database
+Ghost requires a backend MySQL database. Without OSBA, we would create a database
 in the Azure portal, and then manually configure the connection information. Now
 with OSBA our Kubernetes manifests can provision an Azure MySQL database on our behalf,
-save the connection information in Kubernetes secrets, and then bind them to our WordPress instance.
+save the connection information in Kubernetes secrets, and then bind them to our Ghost instance.
 
 * [Prerequisites](#prerequisites)
 * [Cluster Setup](#cluster-setup)
@@ -14,7 +14,7 @@ save the connection information in Kubernetes secrets, and then bind them to our
   * [Create a service principal](#create-a-service-principal)
   * [Create a Kubernetes cluster using Minikube](#create-a-kubernetes-cluster-using-minikube)
   * [Configure the cluster with Open Service Broker for Azure](#configure-the-cluster-with-open-service-broker-for-azure)
-* [Deploy WordPress](#deploy-wordpress)
+* [Deploy Ghost](#deploy-ghost)
 * [Next Steps](#next-steps)
 
 ---
@@ -175,7 +175,7 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 ## Configure the cluster with Open Service Broker for Azure
 
 1. Before we can use Helm to install applications such as Service Catalog and
-    WordPress on the cluster, we first need to prepare the cluster to work with Helm:
+    Ghost on the cluster, we first need to prepare the cluster to work with Helm:
     ```
     kubectl create -f https://raw.githubusercontent.com/Azure/helm-charts/master/docs/prerequisities/helm-rbac-config.yaml
     helm init --service-account tiller
@@ -225,40 +225,40 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 
 ---
 
-# Deploy WordPress
+# Deploy Ghost
 Now that we have a cluster with Open Service Broker for Azure, we can deploy
-WordPress to Kubernetes and OSBA will handle provisioning an Azure MySQL database
-and binding it to our WordPress installation.
+Ghost to Kubernetes and OSBA will handle provisioning an Azure MySQL database
+and binding it to our Ghost installation.
 
 ```
-helm install azure/wordpress --name quickstart
+helm install azure/ghost --name quickstart
 ```
 
-Use the following command to tell when WordPress is ready:
+Use the following command to tell when Ghost is ready:
 
 ```console
-$ kubectl get deploy/quickstart-wordpress -w
+$ kubectl get deploy/quickstart-ghost -w
 
 NAME                DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-quickstart-wordpress   1         1         1            0           1m
+quickstart-ghost   1         1         1            0           1m
 ...
-quickstart-wordpress   1         1         1            1           2m
+quickstart-ghost   1         1         1            1           2m
 ```
 
-## Login to WordPress
+## Login to Ghost
 
-1. Run the following command to open WordPress in your browser:
+1. Run the following command to open Ghost in your browser:
     ```
     open http://$(minikube ip):31215/admin
     ```
 
-    **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
-    the command from the WordPress deployment output because with Minikube the
-    WordPress service won't have a public IP address assigned.
+    **Note**: We are using the `minikube ip` to get the Ghost URL, instead of
+    the command from the Ghost deployment output because with Minikube the
+    Ghost service won't have a public IP address assigned.
 1. Login using the following credentials:
     ```
     echo Username: user
-    echo Password: $(kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
+    echo Password: $(kubectl get secret quickstart-ghost -o jsonpath="{.data.ghost-password}" | base64 --decode)
     ```
 
 ## Optional: Cleanup
@@ -272,7 +272,7 @@ Here's how to remove resources created by this quickstart:
 Minikube may seem like an odd choice for an Azure quickstart, but it demonstrates
 that Open Service Broker for Azure isn't limited to clusters running on Azure!
 Our local Kubernetes cluster communicated with Azure via OSBA, provisioned an Azure
-MySQL database, and bound our local WordPress installation to that new database.
+MySQL database, and bound our local Ghost installation to that new database.
 
 With OSBA _any_ cluster can rely on Azure to provide all those pesky "as a service"
 goodies that make life easier.
