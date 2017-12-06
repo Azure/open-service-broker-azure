@@ -241,8 +241,7 @@ If you're using
 the `persistence.enabled` parameter to `false` using the following command.
 
 ```console
-$ helm install --name my-release --namespace wp azure/wordpress \
-  --set persistence.enabled=false
+$ helm install azure/wordpress --name quickstart --set persistence.enabled=false
 ```
 
 Use the following command to tell when WordPress is ready:
