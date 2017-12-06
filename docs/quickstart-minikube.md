@@ -249,7 +249,7 @@ quickstart-ghost   1         1         1            1           2m
 
 1. Run the following command to open Ghost in your browser:
     ```
-    open http://$(minikube service quickstart-ghost --format={{.IP}}):80/admin
+    open http://$(minikube ip):31215/admin
     ```
 
     **Note**: We are using the `minikube ip` to get the Ghost URL, instead of
