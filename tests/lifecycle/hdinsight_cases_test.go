@@ -3,9 +3,10 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-service-broker/pkg/azure/arm"
-	hd "github.com/Azure/azure-service-broker/pkg/azure/hdinsight"
-	"github.com/Azure/azure-service-broker/pkg/services/hdinsight"
+	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
+	hd "github.com/Azure/open-service-broker-azure/pkg/azure/hdinsight"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/hdinsight"
 )
 
 func getHDInsightCases(

@@ -4,7 +4,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates HDInsight-specific provisioning options
 type ProvisioningParameters struct {
-	ClusterWorkerNodeCount int               `json:"clusterWorkerNodeCount"`
+	ClusterWorkerNodeCount int `json:"clusterWorkerNodeCount"`
 }
 
 type hdinsightProvisioningContext struct {
@@ -49,10 +49,10 @@ func (
 	return &ProvisioningParameters{}
 }
 
-// SetResourceGroup sets the name of the resource group into which service
-// instances will be deployed
-func (p *ProvisioningParameters) SetResourceGroup(resourceGroup string) {
-	p.ResourceGroup = resourceGroup
+func (
+	s *serviceManager,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
 func (
@@ -70,5 +70,5 @@ func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {
-	return &hdinsightCredentials{}
+	return &Credentials{}
 }

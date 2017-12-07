@@ -5,8 +5,8 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/arm/hdinsight"
 	"github.com/Azure/azure-sdk-for-go/arm/storage"
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	az "github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 )
 
 // Manager is an interface to be implemented by any component capable of

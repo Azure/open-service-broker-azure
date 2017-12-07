@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
+	az "github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	az "github.com/Azure/go-autorest/autorest/azure"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -24,7 +24,9 @@ func (s *serviceManager) ValidateProvisioningParameters(
 	return nil
 }
 
-func (s *serviceManager) GetProvisioner(service.Plan) (service.Provisioner, error) {
+func (s *serviceManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", s.preProvision),
 		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
@@ -78,7 +80,7 @@ func (s *serviceManager) preProvision(
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	_ string, // instanceID
-	_ service.Plan,
+	plan service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 	provisioningParameters service.ProvisioningParameters,
@@ -94,27 +96,6 @@ func (s *serviceManager) deployARMTemplate(
 		return nil, errors.New(
 			"error casting provisioningParameters as " +
 				"hdinsightProvisioningParameters",
-		)
-	}
-
-	catalog, err := s.GetCatalog()
-	if err != nil {
-		return nil, fmt.Errorf("error retrieving catalog: %s", err)
-	}
-	service, ok := catalog.GetService(serviceID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`service "%s" not found in the "%s" module catalog`,
-			serviceID,
-			s.GetName(),
-		)
-	}
-	plan, ok := service.GetPlan(planID)
-	if !ok {
-		return nil, fmt.Errorf(
-			`plan "%s" not found for service "%s"`,
-			planID,
-			serviceID,
 		)
 	}
 	planName := plan.GetProperties().Name
@@ -137,6 +118,7 @@ func (s *serviceManager) deployARMTemplate(
 		standardProvisioningContext.ResourceGroup,
 		standardProvisioningContext.Location,
 		armTemplateBytes[planName],
+		nil, // Go template params
 		armParams,
 		standardProvisioningContext.Tags,
 	)

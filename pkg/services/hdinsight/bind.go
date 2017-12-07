@@ -8,7 +8,7 @@ import (
 )
 
 func (s *serviceManager) ValidateBindingParameters(
-	bindingParameters service.BindingParameters,
+	_ service.BindingParameters,
 ) error {
 	return nil
 }
@@ -46,7 +46,7 @@ func (s *serviceManager) Bind(
 		)
 	}
 	return &hdinsightBindingContext{},
-		&hdinsightCredentials{
+		&Credentials{
 			ClusterEndpoint:          clusterEndpoint,
 			Username:                 pc.ClusterLoginUserName,
 			Password:                 pc.ClusterLoginPassword,

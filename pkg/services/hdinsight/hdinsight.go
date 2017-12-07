@@ -7,17 +7,21 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/hdinsight/armtemplate"
 )
 
-type module struct {
-	armDeployer      arm.Deployer
-	hdinsightManager hdinsight.Manager
-}
-
 var armTemplateBytes = map[string][]byte{
 	"Hadoop": armtemplate.Hadoop(),
 	"HBase":  armtemplate.HBase(),
 	"Spark":  armtemplate.Spark(),
 	"Storm":  armtemplate.Storm(),
 	"Kafka":  armtemplate.Kafka(),
+}
+
+type module struct {
+	serviceManager *serviceManager
+}
+
+type serviceManager struct {
+	armDeployer      arm.Deployer
+	hdinsightManager hdinsight.Manager
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -28,15 +32,17 @@ func New(
 	hdinsightManager hdinsight.Manager,
 ) service.Module {
 	return &module{
-		armDeployer:      armDeployer,
-		hdinsightManager: hdinsightManager,
+		serviceManager: &serviceManager{
+			armDeployer:      armDeployer,
+			hdinsightManager: hdinsightManager,
+		},
 	}
 }
 
-func (s *serviceManager) GetName() string {
+func (m *module) GetName() string {
 	return "hdinsight"
 }
 
-func (s *serviceManager) GetStability() service.Stability {
-	return service.StabilityAlpha
+func (m *module) GetStability() service.Stability {
+	return service.StabilityExperimental
 }

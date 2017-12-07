@@ -30,7 +30,7 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	_ string, // instanceID
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
+	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
 	pc, ok := provisioningContext.(*hdinsightProvisioningContext)
@@ -38,7 +38,7 @@ func (s *serviceManager) deleteARMDeployment(
 		return nil, fmt.Errorf(
 			"error casting provisioningContext as *hdinsightProvisioningContext",
 		)
-	}s.
+	}
 	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
 		standardProvisioningContext.ResourceGroup,
