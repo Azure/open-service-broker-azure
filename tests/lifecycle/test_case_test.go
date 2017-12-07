@@ -45,7 +45,7 @@ func (m *moduleLifecycleTestCase) getName() string {
 }
 
 func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*20)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*30)
 	defer cancel()
 
 	name := m.getName()
