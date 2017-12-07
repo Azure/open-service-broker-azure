@@ -17,6 +17,7 @@ public cloud.
 ## Supported Services
 
 * [Azure Container Instances](docs/modules/aci.md)
+* [Azure Container Registry](docs/modules/acr.md)
 * [Azure CosmosDB](docs/modules/cosmosdb.md)
 * [Azure Event Hubs](docs/modules/eventhubs.md)
 * [Azure Key Vault](docs/modules/keyvault.md)

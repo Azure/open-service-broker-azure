@@ -19,6 +19,7 @@ func getTestCases(resourceGroup string) ([]moduleLifecycleTestCase, error) {
 		resourceGroup string,
 	) ([]moduleLifecycleTestCase, error){
 		getACICases,
+		getAcrCases,
 		getCosmosdbCases,
 		getEventhubCases,
 		getKeyvaultCases,
