@@ -155,7 +155,7 @@ resources on your account on behalf of Kubernetes.
 
     **PowerShell**
     ```
-    $env:AZURE_TENANT_ID = "<DisplayName>"
+    $env:AZURE_TENANT_ID = "<Tenant>"
     $env:AZURE_CLIENT_ID = "<AppId>"
     $env:AZURE_CLIENT_SECRET = "<Password>"
     ```
@@ -265,12 +265,14 @@ quickstart-wordpress   1         1         1            1           2m
     **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
     the command from the WordPress deployment output because with Minikube the
     WordPress service won't have a public IP address assigned.
-1. Login using the following credentials:
+1. To retrieve the password run this command
     ```
-    echo Username: user
     echo Password: $(kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
     ```
 
+1. Login using the username `user` and the password you just received:
+    
+    
 ## Optional: Cleanup
 Here's how to remove resources created by this quickstart:
 
