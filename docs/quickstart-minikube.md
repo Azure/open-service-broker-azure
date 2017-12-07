@@ -148,7 +148,7 @@ resources on your account on behalf of Kubernetes.
 
     **Bash**
     ```
-    export AZURE_TENANT_ID=<DisplayName>
+    export AZURE_TENANT_ID=<Tenant>
     export AZURE_CLIENT_ID=<AppId>
     export AZURE_CLIENT_SECRET=<Password>
     ```
@@ -259,18 +259,19 @@ quickstart-wordpress   1         1         1            1           2m
 
 1. Run the following command to open WordPress in your browser:
     ```
-    open http://$(minikube ip):31215/admin
+    open http://$(minikube ip):$(kubectl get service quickstart-wordpress -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort})/admin 
     ```
 
     **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
     the command from the WordPress deployment output because with Minikube the
     WordPress service won't have a public IP address assigned.
+
 1. To retrieve the password run this command
     ```
     echo Password: $(kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
     ```
 
-1. Login using the username `user` and the password you just received:
+1. Login using the username `user` and the password you just retrieved.
     
     
 ## Optional: Cleanup
