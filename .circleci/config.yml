@@ -78,7 +78,7 @@ jobs:
       - run:
           name: Run Module Lifecycle Tests
           command: make test-module-lifecycles
-  deploy:
+  publish-rc-images:
     working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
@@ -89,8 +89,21 @@ jobs:
           name: Install Dependencies
           command: ./scripts/install-deps.sh
       - run:
-          name: Deploy to Docker Hub
-          command: ./scripts/deploy.sh
+          name: Log in to Docker Hub
+          command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+      - run:
+          name: Publish Release Candidate Images to Docker Hub
+          command: make docker-push-rc
+  publish-release-images:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: Log in to Docker Hub
+          command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+      - run:
+          name: Publish Release Images to Docker Hub
+          command: REL_VERSION="${CIRCLE_TAG}" make docker-push-release
 workflows:
   version: 2
   build-and-test-pr:
@@ -147,32 +160,22 @@ workflows:
           filters:
             branches:
               only: master
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - verify-vendored-code:
           filters:
             branches:
               only: master
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - test-unit:
           filters:
             branches:
               only: master
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - test-api-compliance:
           filters:
             branches:
               only: master
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - build:
           filters:
             branches:
               only: master
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - test-module-lifecycles:
           requires:
             - lint
@@ -183,9 +186,7 @@ workflows:
           filters:
             branches:
               only: master
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
-      - deploy:
+      - publish-rc-images:
           requires:
             - lint
             - verify-vendored-code
@@ -196,5 +197,11 @@ workflows:
           filters:
             branches:
               only: master
+  release:
+    jobs:
+      - publish-release-images:
+          filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
