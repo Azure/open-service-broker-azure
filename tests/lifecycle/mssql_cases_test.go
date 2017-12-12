@@ -4,18 +4,14 @@ package lifecycle
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"net/url"
-	"os"
 
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	ss "github.com/Azure/open-service-broker-azure/pkg/azure/mssql"
-	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/sqldb"
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
-	uuid "github.com/satori/go.uuid"
 )
 
 // nolint: lll
@@ -80,61 +76,15 @@ func getMssqlCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
 ) ([]moduleLifecycleTestCase, error) {
-	// Creating a SQL server for existing server case only
-	serverName := uuid.NewV4().String()
-	administratorLogin := generate.NewIdentifier()
-	administratorLoginPassword := generate.NewPassword()
-	location := "southcentralus"
-	createSQLServer := func() error {
-		if _, err := armDeployer.Deploy(
-			uuid.NewV4().String(),
-			resourceGroup,
-			location,
-			armTemplateNewServerBytes,
-			nil, // Go template params
-			map[string]interface{}{ // ARM template params
-				"serverName":                 serverName,
-				"administratorLogin":         administratorLogin,
-				"administratorLoginPassword": administratorLoginPassword,
-			},
-			map[string]string{},
-		); err != nil {
-			return fmt.Errorf("error deploying ARM template: %s", err)
-		}
-		return nil
-	}
-
-	serverConfig := sqldb.ServerConfig{
-		ServerName:                 serverName,
-		ResourceGroupName:          resourceGroup,
-		Location:                   location,
-		AdministratorLogin:         administratorLogin,
-		AdministratorLoginPassword: administratorLoginPassword,
-	}
-	serverConfigs := []sqldb.ServerConfig{serverConfig}
-	serverConfigsBytes, err := json.Marshal(serverConfigs)
-	if err != nil {
-		return nil, err
-	}
-	if err = os.Setenv(
-		"AZURE_SQL_SERVERS",
-		string(serverConfigsBytes),
-	); err != nil {
-		return nil, err
-	}
 
 	msSQLManager, err := ss.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	msSQLConfig, err := sqldb.GetConfig()
 	if err != nil {
 		return nil, err
 	}
 
 	return []moduleLifecycleTestCase{
 		{ // new server scenario
-			module:      sqldb.New(armDeployer, msSQLManager, msSQLConfig),
+			module:      sqldb.New(armDeployer, msSQLManager),
 			description: "new server and database",
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
@@ -144,21 +94,6 @@ func getMssqlCases(
 			provisioningParameters: &sqldb.ProvisioningParameters{},
 			bindingParameters:      &sqldb.BindingParameters{},
 			testCredentials:        testMsSQLCreds(),
-		},
-		{ // existing server scenario
-			module:      sqldb.New(armDeployer, msSQLManager, msSQLConfig),
-			description: "database on an existing server",
-			setup:       createSQLServer,
-			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
-			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
-			standardProvisioningContext: service.StandardProvisioningContext{
-				Location: "southcentralus", // This is actually irrelevant for this test
-			},
-			provisioningParameters: &sqldb.ProvisioningParameters{
-				ServerName: serverName,
-			},
-			bindingParameters: &sqldb.BindingParameters{},
-			testCredentials:   testMsSQLCreds(),
 		},
 	}, nil
 }
