@@ -4,8 +4,8 @@
 [[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
   packages = ["arm/containerinstance","arm/cosmos-db","arm/eventhub","arm/keyvault","arm/mysql","arm/postgresql","arm/redis","arm/resources/resources","arm/search","arm/servicebus","arm/sql","arm/storage","storage"]
-  revision = "df4dd90d076ebbf6e87d08d3f00bfac8ff4bde1a"
-  version = "v10.3.1-beta"
+  revision = "509eea43b93cec2f3f17acbe2578ef58703923f8"
+  version = "v11.1.0-beta"
 
 [[projects]]
   name = "github.com/Azure/go-autorest"
