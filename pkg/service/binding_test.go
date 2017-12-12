@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	testBinding     *Binding
+	testBinding     Binding
 	testBindingJSON []byte
 )
 
@@ -27,7 +27,7 @@ func init() {
 		panic(err)
 	}
 
-	testBinding = &Binding{
+	testBinding = Binding{
 		BindingID:                  bindingID,
 		InstanceID:                 instanceID,
 		EncryptedBindingParameters: encryptedBindingParameters,

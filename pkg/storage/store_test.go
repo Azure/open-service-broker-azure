@@ -23,7 +23,7 @@ func TestWriteInstance(t *testing.T) {
 	strCmd := redisClient.Get(instanceID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Store the instance
-	err := testStore.WriteInstance(&service.Instance{
+	err := testStore.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 	})
 	assert.Nil(t, err)
@@ -54,10 +54,7 @@ func TestGetExistingInstance(t *testing.T) {
 	// Assert that the retrieval was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	// Asset that instance is not nil before using
-	if assert.NotNil(t, instance, "instance should not be nil") {
-		assert.Equal(t, instanceID, instance.InstanceID)
-	}
+	assert.Equal(t, instanceID, instance.InstanceID)
 }
 
 func TestDeleteNonExistingInstance(t *testing.T) {
@@ -92,7 +89,7 @@ func TestWriteBinding(t *testing.T) {
 	strCmd := redisClient.Get(bindingID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Store the binding
-	err := testStore.WriteBinding(&service.Binding{
+	err := testStore.WriteBinding(service.Binding{
 		BindingID: bindingID,
 	})
 	assert.Nil(t, err)
@@ -123,10 +120,7 @@ func TestGetExistingBinding(t *testing.T) {
 	// Assert that the retrieval was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	// Assert that binding is not nil before using
-	if assert.NotNil(t, binding, "binding should not be nil") {
-		assert.Equal(t, bindingID, binding.BindingID)
-	}
+	assert.Equal(t, bindingID, binding.BindingID)
 }
 
 func TestDeleteNonExistingBinding(t *testing.T) {

@@ -129,7 +129,7 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	existingInstance := &service.Instance{
+	existingInstance := service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
@@ -169,7 +169,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	err = s.store.WriteInstance(&service.Instance{
+	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
@@ -199,7 +199,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	err = s.store.WriteInstance(&service.Instance{
+	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,

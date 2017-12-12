@@ -188,7 +188,7 @@ func (b *broker) handleUpdatingError(
 	e error,
 	msg string,
 ) error {
-	instance, ok := instanceOrInstanceID.(*service.Instance)
+	instance, ok := instanceOrInstanceID.(service.Instance)
 	if !ok {
 		instanceID := instanceOrInstanceID
 		if e == nil {

@@ -30,7 +30,7 @@ func TestUnbindingWithInstanceIDDifferentFromBindingInstanceID(t *testing.T) {
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	bindingID := getDisposableBindingID()
-	err = s.store.WriteBinding(&service.Binding{
+	err = s.store.WriteBinding(service.Binding{
 		InstanceID: getDisposableInstanceID(),
 		BindingID:  bindingID,
 	})
@@ -51,7 +51,7 @@ func TestUnbindingFromInstanceThatDoesNotExist(t *testing.T) {
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	bindingID := getDisposableBindingID()
-	err = s.store.WriteBinding(&service.Binding{
+	err = s.store.WriteBinding(service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 	})
@@ -84,13 +84,13 @@ func TestUnbindingFromInstanceThatExists(t *testing.T) {
 	}
 	instanceID := getDisposableInstanceID()
 	bindingID := getDisposableBindingID()
-	err = s.store.WriteInstance(&service.Instance{
+	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 	})
 	assert.Nil(t, err)
-	err = s.store.WriteBinding(&service.Binding{
+	err = s.store.WriteBinding(service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 	})

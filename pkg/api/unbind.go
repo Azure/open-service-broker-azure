@@ -152,7 +152,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 // so we log that failure and kill the process. Barring such a failure, a nicely
 // formatted error message is logged.
 func (s *server) handleUnbindingError(
-	binding *service.Binding,
+	binding service.Binding,
 	e error,
 	msg string,
 	w http.ResponseWriter,

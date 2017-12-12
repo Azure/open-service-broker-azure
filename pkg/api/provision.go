@@ -285,7 +285,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		standardProvisioningParameters,
 	)
 
-	instance = &service.Instance{
+	instance = service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  provisioningRequest.ServiceID,
 		PlanID:     provisioningRequest.PlanID,

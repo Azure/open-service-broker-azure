@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	testInstance     *Instance
+	testInstance     Instance
 	testInstanceJSON []byte
 )
 
@@ -32,7 +32,7 @@ func init() {
 		panic(err)
 	}
 
-	testInstance = &Instance{
+	testInstance = Instance{
 		InstanceID: instanceID,
 		ServiceID:  serviceID,
 		PlanID:     planID,

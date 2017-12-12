@@ -21,16 +21,14 @@ type Binding struct {
 
 // NewBindingFromJSON returns a new Binding unmarshalled from the provided JSON
 // []byte
-func NewBindingFromJSON(jsonBytes []byte) (*Binding, error) {
-	binding := &Binding{}
-	if err := json.Unmarshal(jsonBytes, binding); err != nil {
-		return nil, err
-	}
-	return binding, nil
+func NewBindingFromJSON(jsonBytes []byte) (Binding, error) {
+	binding := Binding{}
+	err := json.Unmarshal(jsonBytes, &binding)
+	return binding, err
 }
 
 // ToJSON returns a []byte containing a JSON representation of the instance
-func (b *Binding) ToJSON() ([]byte, error) {
+func (b Binding) ToJSON() ([]byte, error) {
 	return json.Marshal(b)
 }
 
@@ -54,7 +52,7 @@ func (b *Binding) SetBindingParameters(
 
 // GetBindingParameters decrypts the EncryptedBindingParameters field and
 // unmarshals the result into the provided bindingParameters object
-func (b *Binding) GetBindingParameters(
+func (b Binding) GetBindingParameters(
 	params BindingParameters,
 	codec crypto.Codec,
 ) error {
@@ -88,7 +86,7 @@ func (b *Binding) SetBindingContext(
 
 // GetBindingContext decrypts the EncryptedBindingContext field and unmarshals
 // the result into the provided bindingContext object
-func (b *Binding) GetBindingContext(
+func (b Binding) GetBindingContext(
 	context BindingContext,
 	codec crypto.Codec,
 ) error {
@@ -122,7 +120,7 @@ func (b *Binding) SetCredentials(
 
 // GetCredentials decrypts the EncryptedCredentials field and unmarshals the
 // result into the provided credentials object
-func (b *Binding) GetCredentials(
+func (b Binding) GetCredentials(
 	credentials Credentials,
 	codec crypto.Codec,
 ) error {

@@ -19,18 +19,18 @@ func NewStore() storage.Store {
 	}
 }
 
-func (s *store) WriteInstance(instance *service.Instance) error {
-	s.instances[instance.InstanceID] = *instance
+func (s *store) WriteInstance(instance service.Instance) error {
+	s.instances[instance.InstanceID] = instance
 	return nil
 }
 
 func (s *store) GetInstance(instanceID string) (
-	*service.Instance,
+	service.Instance,
 	bool,
 	error,
 ) {
 	instance, ok := s.instances[instanceID]
-	return &instance, ok, nil
+	return instance, ok, nil
 }
 
 func (s *store) DeleteInstance(instanceID string) (bool, error) {
@@ -42,14 +42,14 @@ func (s *store) DeleteInstance(instanceID string) (bool, error) {
 	return true, nil
 }
 
-func (s *store) WriteBinding(binding *service.Binding) error {
-	s.bindings[binding.BindingID] = *binding
+func (s *store) WriteBinding(binding service.Binding) error {
+	s.bindings[binding.BindingID] = binding
 	return nil
 }
 
-func (s *store) GetBinding(bindingID string) (*service.Binding, bool, error) {
+func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	binding, ok := s.bindings[bindingID]
-	return &binding, ok, nil
+	return binding, ok, nil
 }
 
 func (s *store) DeleteBinding(bindingID string) (bool, error) {

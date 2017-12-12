@@ -262,7 +262,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	binding = &service.Binding{
+	binding = service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		Created:    time.Now(),
@@ -349,7 +349,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 // so we log that failure and kill the process. Barring such a failure, a nicely
 // formatted error message is logged.
 func (s *server) handleBindingError(
-	binding *service.Binding,
+	binding service.Binding,
 	e error,
 	msg string,
 	w http.ResponseWriter,

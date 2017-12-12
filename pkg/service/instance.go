@@ -24,17 +24,15 @@ type Instance struct {
 
 // NewInstanceFromJSON returns a new Instance unmarshalled from the provided
 // JSON []byte
-func NewInstanceFromJSON(jsonBytes []byte) (*Instance, error) {
-	instance := &Instance{}
-	if err := json.Unmarshal(jsonBytes, instance); err != nil {
-		return nil, err
-	}
-	return instance, nil
+func NewInstanceFromJSON(jsonBytes []byte) (Instance, error) {
+	instance := Instance{}
+	err := json.Unmarshal(jsonBytes, &instance)
+	return instance, err
 }
 
 // ToJSON returns a []byte containing a JSON representation of the
 // instance
-func (i *Instance) ToJSON() ([]byte, error) {
+func (i Instance) ToJSON() ([]byte, error) {
 	return json.Marshal(i)
 }
 
@@ -78,7 +76,7 @@ func (i *Instance) SetUpdatingParameters(
 
 // GetProvisioningParameters decrypts the EncryptedProvisioningParameters field
 // and unmarshals the result into the provided provisioningParameters object
-func (i *Instance) GetProvisioningParameters(
+func (i Instance) GetProvisioningParameters(
 	params ProvisioningParameters,
 	codec crypto.Codec,
 ) error {
@@ -94,7 +92,7 @@ func (i *Instance) GetProvisioningParameters(
 
 // GetUpdatingParameters decrypts the EncryptedUpdatingParameters field
 // and unmarshals the result into the provided updatingParameters object
-func (i *Instance) GetUpdatingParameters(
+func (i Instance) GetUpdatingParameters(
 	params UpdatingParameters,
 	codec crypto.Codec,
 ) error {
@@ -128,7 +126,7 @@ func (i *Instance) SetProvisioningContext(
 
 // GetProvisioningContext decrypts the EncryptedProvisioningContext field and
 // unmarshals the result into the provided provisioningContext object
-func (i *Instance) GetProvisioningContext(
+func (i Instance) GetProvisioningContext(
 	context ProvisioningContext,
 	codec crypto.Codec,
 ) error {
