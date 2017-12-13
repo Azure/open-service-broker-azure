@@ -9,16 +9,16 @@ import (
 
 // Binding represents a binding to a service
 type Binding struct {
-	BindingID                  string            `json:"bindingId"`
-	InstanceID                 string            `json:"instanceId"`
-	ServiceID                  string            `json:"serviceId"`
-	EncryptedBindingParameters []byte            `json:"bindingParameters"`
-	BindingParameters          BindingParameters `json:"-"`
-	Status                     string            `json:"status"`
-	StatusReason               string            `json:"statusReason"`
-	EncryptedDetails           []byte            `json:"details"`
-	Details                    BindingDetails    `json:"-"`
-	Created                    time.Time         `json:"created"`
+	BindingID                  string            `json:"bindingId" bson:"bindingId"`
+	InstanceID                 string            `json:"instanceId" bson:"instanceId"`
+	ServiceID                  string            `json:"serviceId" bson:"serviceId"`
+	EncryptedBindingParameters []byte            `json:"bindingParameters" bson:"bindingParameters"`
+	BindingParameters          BindingParameters `json:"-" bson:"-"`
+	Status                     string            `json:"status" bson:"status"`
+	StatusReason               string            `json:"statusReason" bson:"statusReason"`
+	EncryptedDetails           []byte            `json:"details" bson:"details"`
+	Details                    BindingDetails    `json:"-" bson:"-"`
+	Created                    time.Time         `json:"created" bson:"created"`
 }
 
 // NewBindingFromJSON returns a new Binding unmarshalled from the provided JSON
