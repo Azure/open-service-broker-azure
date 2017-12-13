@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/go-redis/redis"
 )
@@ -12,7 +13,12 @@ type Store interface {
 	WriteInstance(instance service.Instance) error
 	// GetInstance retrieves a persisted instance from the underlying storage by
 	// instance id
-	GetInstance(instanceID string) (service.Instance, bool, error)
+	GetInstance(
+		instanceID string,
+		pp service.ProvisioningParameters,
+		up service.UpdatingParameters,
+		pc service.ProvisioningContext,
+	) (service.Instance, bool, error)
 	// DeleteInstance deletes a persisted instance from the underlying storage by
 	// instance id
 	DeleteInstance(instanceID string) (bool, error)
@@ -31,17 +37,19 @@ type Store interface {
 
 type store struct {
 	redisClient *redis.Client
+	codec       crypto.Codec
 }
 
 // NewStore returns a new Redis-based implementation of the Store interface
-func NewStore(redisClient *redis.Client) Store {
+func NewStore(redisClient *redis.Client, codec crypto.Codec) Store {
 	return &store{
 		redisClient: redisClient,
+		codec:       codec,
 	}
 }
 
 func (s *store) WriteInstance(instance service.Instance) error {
-	json, err := instance.ToJSON()
+	json, err := instance.ToJSON(s.codec)
 	if err != nil {
 		return err
 	}
@@ -50,6 +58,9 @@ func (s *store) WriteInstance(instance service.Instance) error {
 
 func (s *store) GetInstance(
 	instanceID string,
+	pp service.ProvisioningParameters,
+	up service.UpdatingParameters,
+	pc service.ProvisioningContext,
 ) (service.Instance, bool, error) {
 	strCmd := s.redisClient.Get(instanceID)
 	if err := strCmd.Err(); err == redis.Nil {
@@ -61,7 +72,7 @@ func (s *store) GetInstance(
 	if err != nil {
 		return service.Instance{}, false, err
 	}
-	instance, err := service.NewInstanceFromJSON(bytes)
+	instance, err := service.NewInstanceFromJSON(bytes, pp, up, pc, s.codec)
 	return instance, err == nil, err
 }
 

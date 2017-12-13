@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
@@ -133,14 +132,10 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-	}
-	err = existingInstance.SetProvisioningParameters(
-		&fake.ProvisioningParameters{
+		ProvisioningParameters: &fake.ProvisioningParameters{
 			SomeParameter: "foo",
 		},
-		noop.NewCodec(),
-	)
-	assert.Nil(t, err)
+	}
 	err = s.store.WriteInstance(existingInstance)
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(

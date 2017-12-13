@@ -24,7 +24,7 @@ func (b *broker) doDeprovisionStep(
 	if !ok {
 		return errors.New(`missing required argument "instanceID"`)
 	}
-	instance, ok, err := b.store.GetInstance(instanceID)
+	instance, ok, err := b.store.GetInstance(instanceID, nil, nil, nil)
 	if err != nil {
 		return b.handleDeprovisioningError(
 			instanceID,
@@ -70,16 +70,33 @@ func (b *broker) doDeprovisionStep(
 		)
 	}
 	serviceManager := svc.GetServiceManager()
-	provisioningContext := serviceManager.GetEmptyProvisioningContext()
-	err = instance.GetProvisioningContext(provisioningContext, b.codec)
+
+	// Now that we have a serviceManager, we can get empty objects of the correct
+	// types, so we can take a second pass at retrieving an instance from storage
+	// with more concrete details filled in.
+	instance, ok, err = b.store.GetInstance(
+		instanceID,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+	)
 	if err != nil {
 		return b.handleDeprovisioningError(
-			instance,
+			instanceID,
 			stepName,
 			err,
-			"error decoding provisioningContext from persisted instance",
+			"error loading persisted instance",
 		)
 	}
+	if !ok {
+		return b.handleDeprovisioningError(
+			instanceID,
+			stepName,
+			nil,
+			"instance does not exist in the data store",
+		)
+	}
+
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
 		return b.handleDeprovisioningError(
@@ -106,7 +123,7 @@ func (b *broker) doDeprovisionStep(
 		instanceID,
 		plan,
 		instance.StandardProvisioningContext,
-		provisioningContext,
+		instance.ProvisioningContext,
 	)
 	if err != nil {
 		return b.handleDeprovisioningError(
@@ -116,15 +133,7 @@ func (b *broker) doDeprovisionStep(
 			"error executing deprovisioning step",
 		)
 	}
-	err = instance.SetProvisioningContext(updatedProvisioningContext, b.codec)
-	if err != nil {
-		return b.handleDeprovisioningError(
-			instance,
-			stepName,
-			err,
-			"error encoding modified provisioningContext",
-		)
-	}
+	instance.ProvisioningContext = updatedProvisioningContext
 	if nextStepName, ok := deprovisioner.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instance); err != nil {
 			return b.handleDeprovisioningError(

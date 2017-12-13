@@ -50,7 +50,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instance, ok, err := s.store.GetInstance(instanceID)
+	instance, ok, err := s.store.GetInstance(instanceID, nil, nil, nil)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -91,12 +91,19 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		}
 		serviceManager := svc.GetServiceManager()
 
-		provisioningContext := serviceManager.GetEmptyProvisioningContext()
-		err = instance.GetProvisioningContext(provisioningContext, s.codec)
+		// Now that we have a serviceManager, we can get empty objects of the
+		// correct types, so we can take a second pass at retrieving an instance
+		// from storage with more concrete details filled in.
+		instance, ok, err = s.store.GetInstance(
+			instanceID,
+			serviceManager.GetEmptyProvisioningParameters(),
+			serviceManager.GetEmptyUpdatingParameters(),
+			serviceManager.GetEmptyProvisioningContext(),
+		)
 		if err != nil {
 			logFields["error"] = err
 			log.WithFields(logFields).Error(
-				"unbinding error: error decoding persisted provisioningContext",
+				"pre-unbinding error: error retrieving instance by id",
 			)
 			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 			return
@@ -118,7 +125,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		// the datastore.
 		err = serviceManager.Unbind(
 			instance.StandardProvisioningContext,
-			provisioningContext,
+			instance.ProvisioningContext,
 			bindingContext,
 		)
 		if err != nil {

@@ -58,7 +58,7 @@ func NewBroker(
 	defaultAzureResourceGroup string,
 ) (Broker, error) {
 	b := &broker{
-		store:       storage.NewStore(redisClient),
+		store:       storage.NewStore(redisClient, codec),
 		asyncEngine: async.NewEngine(redisClient),
 		codec:       codec,
 	}
@@ -117,7 +117,7 @@ func NewBroker(
 
 	b.apiServer, err = api.NewServer(
 		8080,
-		storage.NewStore(redisClient),
+		b.store,
 		b.asyncEngine,
 		b.codec,
 		authenticator,

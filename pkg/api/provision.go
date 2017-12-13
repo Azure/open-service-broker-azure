@@ -171,7 +171,12 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instance, ok, err := s.store.GetInstance(instanceID)
+	instance, ok, err := s.store.GetInstance(
+		instanceID,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+	)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -192,20 +197,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// Two requests are the same if they are for the same serviceID, the same,
 		// planID, and both standard and service-specific provisioning parameters
 		// are deeply equal.
-		previousProvisioningParameters :=
-			serviceManager.GetEmptyProvisioningParameters()
-		if err = instance.GetProvisioningParameters(
-			previousProvisioningParameters,
-			s.codec,
-		); err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"pre-provisioning error: error decoding persisted " +
-					"provisioningParameters",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
 		if instance.ServiceID == serviceID &&
 			instance.PlanID == planID &&
 			reflect.DeepEqual(
@@ -213,7 +204,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 				standardProvisioningParameters,
 			) &&
 			reflect.DeepEqual(
-				previousProvisioningParameters,
+				instance.ProvisioningParameters,
 				provisioningParameters,
 			) {
 			// Per the spec, if fully provisioned, respond with a 200, else a 202.
@@ -290,31 +281,11 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		ServiceID:  provisioningRequest.ServiceID,
 		PlanID:     provisioningRequest.PlanID,
 		StandardProvisioningParameters: standardProvisioningParameters,
-		Status: service.InstanceStateProvisioning,
+		ProvisioningParameters:         provisioningParameters,
+		Status:                         service.InstanceStateProvisioning,
 		StandardProvisioningContext: standardProvisioningContext,
+		ProvisioningContext:         serviceManager.GetEmptyProvisioningContext(),
 		Created:                     time.Now(),
-	}
-	if err = instance.SetProvisioningParameters(
-		provisioningRequest.Parameters,
-		s.codec,
-	); err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"provisioning error: error encoding provisioningParameters",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
-	if err = instance.SetProvisioningContext(
-		serviceManager.GetEmptyProvisioningContext(),
-		s.codec,
-	); err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"provisioning error: error encoding provisioningContext",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
 	}
 	if err = s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err

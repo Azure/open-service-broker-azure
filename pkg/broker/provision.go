@@ -24,7 +24,7 @@ func (b *broker) doProvisionStep(
 	if !ok {
 		return errors.New(`missing required argument "instanceID"`)
 	}
-	instance, ok, err := b.store.GetInstance(instanceID)
+	instance, ok, err := b.store.GetInstance(instanceID, nil, nil, nil)
 	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,
@@ -70,26 +70,33 @@ func (b *broker) doProvisionStep(
 		)
 	}
 	serviceManager := svc.GetServiceManager()
-	provisioningContext := serviceManager.GetEmptyProvisioningContext()
-	err = instance.GetProvisioningContext(provisioningContext, b.codec)
+
+	// Now that we have a serviceManager, we can get empty objects of the correct
+	// types, so we can take a second pass at retrieving an instance from storage
+	// with more concrete details filled in.
+	instance, ok, err = b.store.GetInstance(
+		instanceID,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+	)
 	if err != nil {
 		return b.handleProvisioningError(
-			instance,
+			instanceID,
 			stepName,
 			err,
-			"error decoding provisioningContext from persisted instance",
+			"error loading persisted instance",
 		)
 	}
-	provisioningParams := serviceManager.GetEmptyProvisioningParameters()
-	err = instance.GetProvisioningParameters(provisioningParams, b.codec)
-	if err != nil {
+	if !ok {
 		return b.handleProvisioningError(
-			instance,
+			instanceID,
 			stepName,
-			err,
-			"error decoding provisioningParameters from persisted instance",
+			nil,
+			"instance does not exist in the data store",
 		)
 	}
+
 	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
 		return b.handleProvisioningError(
@@ -116,8 +123,8 @@ func (b *broker) doProvisionStep(
 		instanceID,
 		plan,
 		instance.StandardProvisioningContext,
-		provisioningContext,
-		provisioningParams,
+		instance.ProvisioningContext,
+		instance.ProvisioningParameters,
 	)
 	if err != nil {
 		return b.handleProvisioningError(
@@ -127,15 +134,7 @@ func (b *broker) doProvisionStep(
 			"error executing provisioning step",
 		)
 	}
-	err = instance.SetProvisioningContext(updatedProvisioningContext, b.codec)
-	if err != nil {
-		return b.handleProvisioningError(
-			instance,
-			stepName,
-			err,
-			"error encoding modified provisioningContext",
-		)
-	}
+	instance.ProvisioningContext = updatedProvisioningContext
 	if nextStepName, ok := provisioner.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instance); err != nil {
 			return b.handleProvisioningError(

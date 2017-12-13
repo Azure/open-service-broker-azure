@@ -24,7 +24,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 
 	log.WithFields(logFields).Debug("received binding request")
 
-	instance, ok, err := s.store.GetInstance(instanceID)
+	instance, ok, err := s.store.GetInstance(instanceID, nil, nil, nil)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -115,6 +115,24 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	serviceManager := svc.GetServiceManager()
+
+	// Now that we have a serviceManager, we can get empty objects of the correct
+	// types, so we can take a second pass at retrieving an instance from storage
+	// with more concrete details filled in.
+	instance, ok, err = s.store.GetInstance(
+		instanceID,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+	)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"pre-binding error: error retrieving instance by id",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		return
+	}
 
 	// Unpack the parameter map in the request to a struct
 	bindingParameters := serviceManager.GetEmptyBindingParameters()
@@ -251,17 +269,6 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provisioningContext := serviceManager.GetEmptyProvisioningContext()
-	err = instance.GetProvisioningContext(provisioningContext, s.codec)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"binding error: error decoding persisted provisioningContext",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
-
 	binding = service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
@@ -273,7 +280,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// the datastore.
 	bindingContext, credentials, err := serviceManager.Bind(
 		instance.StandardProvisioningContext,
-		provisioningContext,
+		instance.ProvisioningContext,
 		bindingRequest.Parameters,
 	)
 	if err != nil {
