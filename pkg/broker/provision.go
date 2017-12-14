@@ -118,14 +118,7 @@ func (b *broker) doProvisionStep(
 			`provisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedProvisioningContext, err := step.Execute(
-		ctx,
-		instanceID,
-		plan,
-		instance.StandardProvisioningContext,
-		instance.ProvisioningContext,
-		instance.ProvisioningParameters,
-	)
+	updatedProvisioningContext, err := step.Execute(ctx, instance, plan)
 	if err != nil {
 		return b.handleProvisioningError(
 			instance,

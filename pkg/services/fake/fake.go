@@ -97,13 +97,10 @@ func (s *ServiceManager) GetProvisioner(
 
 func (s *ServiceManager) provision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+	return instance.ProvisioningContext, nil
 }
 
 // ValidateUpdatingParameters validates the provided updatingParameters

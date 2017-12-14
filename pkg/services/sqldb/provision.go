@@ -47,22 +47,19 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
-	_ service.Plan, // planID
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
+	instance service.Instance,
+	_ service.Plan,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*mssqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *mssqlProvisioningContext",
+			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
+			"error casting instance.ProvisioningParameters as " +
 				"*mssql.ProvisioningParameters",
 		)
 	}
@@ -114,22 +111,19 @@ func (s *serviceManager) preProvision(
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*mssqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *mssqlProvisioningContext",
+			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
+			"error casting instance.ProvisioningParameters as " +
 				"*mssql.ProvisioningParameters",
 		)
 	}
@@ -137,8 +131,8 @@ func (s *serviceManager) deployARMTemplate(
 		// new server scenario
 		outputs, err := s.armDeployer.Deploy(
 			pc.ARMDeploymentName,
-			standardProvisioningContext.ResourceGroup,
-			standardProvisioningContext.Location,
+			instance.StandardProvisioningContext.ResourceGroup,
+			instance.StandardProvisioningContext.Location,
 			armTemplateNewServerBytes,
 			nil, // Go template params
 			map[string]interface{}{ // ARM template params
@@ -152,7 +146,7 @@ func (s *serviceManager) deployARMTemplate(
 				"maxSizeBytes": plan.GetProperties().
 					Extended["maxSizeBytes"],
 			},
-			standardProvisioningContext.Tags,
+			instance.StandardProvisioningContext.Tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -191,7 +185,7 @@ func (s *serviceManager) deployARMTemplate(
 				"maxSizeBytes": plan.GetProperties().
 					Extended["maxSizeBytes"],
 			},
-			standardProvisioningContext.Tags,
+			instance.StandardProvisioningContext.Tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error deploying ARM template: %s", err)
