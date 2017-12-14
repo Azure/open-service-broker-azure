@@ -118,13 +118,7 @@ func (b *broker) doDeprovisionStep(
 			`deprovisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedProvisioningContext, err := step.Execute(
-		ctx,
-		instanceID,
-		plan,
-		instance.StandardProvisioningContext,
-		instance.ProvisioningContext,
-	)
+	updatedProvisioningContext, err := step.Execute(ctx, instance, plan)
 	if err != nil {
 		return b.handleDeprovisioningError(
 			instance,

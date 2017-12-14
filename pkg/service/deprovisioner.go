@@ -9,10 +9,8 @@ import (
 // deprovisioning step
 type DeprovisioningStepFunction func(
 	ctx context.Context,
-	instanceID string,
+	instance Instance,
 	plan Plan,
-	standardProvisioningContext StandardProvisioningContext,
-	provisioningContext ProvisioningContext,
 ) (ProvisioningContext, error)
 
 // DeprovisioningStep is an interface to be implemented by types that represent
@@ -21,10 +19,8 @@ type DeprovisioningStep interface {
 	GetName() string
 	Execute(
 		ctx context.Context,
-		instanceID string,
+		instance Instance,
 		plan Plan,
-		standardProvisioningContext StandardProvisioningContext,
-		provisioningContext ProvisioningContext,
 	) (ProvisioningContext, error)
 }
 
@@ -66,19 +62,15 @@ func (d *deprovisioningStep) GetName() string {
 // Execute executes a step
 func (d *deprovisioningStep) Execute(
 	ctx context.Context,
-	instanceID string,
+	instance Instance,
 	plan Plan,
-	standardProvisioningContext StandardProvisioningContext,
-	provisioningContext ProvisioningContext,
 ) (ProvisioningContext, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return d.fn(
 		ctx,
-		instanceID,
+		instance,
 		plan,
-		standardProvisioningContext,
-		provisioningContext,
 	)
 }
 

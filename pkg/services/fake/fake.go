@@ -176,12 +176,10 @@ func (s *ServiceManager) GetDeprovisioner(
 
 func (s *ServiceManager) deprovision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+	return instance.ProvisioningContext, nil
 }
 
 func defaultProvisioningValidationBehavior(
