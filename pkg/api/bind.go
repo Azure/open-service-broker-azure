@@ -257,9 +257,8 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
 	bindingContext, credentials, err := serviceManager.Bind(
-		instance.StandardProvisioningContext,
-		instance.ProvisioningContext,
-		bindingRequest.Parameters,
+		instance,
+		bindingParameters,
 	)
 	if err != nil {
 		s.handleBindingError(

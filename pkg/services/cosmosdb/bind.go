@@ -15,14 +15,14 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*cosmosdbProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*cosmosdbProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as *cosmosdbProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*cosmosdbProvisioningContext",
 		)
 	}
 	if pc.DatabaseKind == databaseKindMongoDB {

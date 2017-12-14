@@ -16,14 +16,13 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*mysqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as *mysqlProvisioningContext",
+			"error casting instance.ProvisioningContext as *mysqlProvisioningContext",
 		)
 	}
 

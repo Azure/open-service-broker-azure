@@ -31,11 +31,7 @@ type ServiceManager interface { // nolint: golint
 	// returns an error if there is any problem
 	ValidateBindingParameters(BindingParameters) error
 	// Bind synchronously binds to a service
-	Bind(
-		StandardProvisioningContext,
-		ProvisioningContext,
-		BindingParameters,
-	) (BindingContext, Credentials, error)
+	Bind(Instance, BindingParameters) (BindingContext, Credentials, error)
 	// GetEmptyBindingContext returns an empty instance of a module-specific
 	// bindingContext
 	GetEmptyBindingContext() BindingContext
@@ -43,7 +39,7 @@ type ServiceManager interface { // nolint: golint
 	// credentials
 	GetEmptyCredentials() Credentials
 	// Unbind synchronously unbinds from a service
-	Unbind(StandardProvisioningContext, ProvisioningContext, BindingContext) error
+	Unbind(Instance, BindingContext) error
 	// GetDeprovisioner returns a deprovisioner that defines the steps a module
 	// must execute asynchronously to deprovision a service
 	GetDeprovisioner(Plan) (Deprovisioner, error)

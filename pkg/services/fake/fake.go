@@ -140,26 +140,24 @@ func (s *ServiceManager) ValidateBindingParameters(
 
 // Bind synchronously binds to a service
 func (s *ServiceManager) Bind(
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
 	return s.BindBehavior(
-		standardProvisioningContext,
-		provisioningContext,
+		instance.StandardProvisioningContext,
+		instance.ProvisioningContext,
 		bindingParameters,
 	)
 }
 
 // Unbind synchronously unbinds from a service
 func (s *ServiceManager) Unbind(
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
 	return s.UnbindBehavior(
-		standardProvisioningContext,
-		provisioningContext,
+		instance.StandardProvisioningContext,
+		instance.ProvisioningContext,
 		bindingContext,
 	)
 }

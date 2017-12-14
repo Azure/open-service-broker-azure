@@ -17,14 +17,14 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*postgresqlProvisioningContext",
 		)
 	}
 
