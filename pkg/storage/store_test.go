@@ -105,7 +105,7 @@ func TestGetNonExistingBinding(t *testing.T) {
 	strCmd := redisClient.Get(bindingID)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to retrieve the non-existing binding
-	_, ok, err := testStore.GetBinding(bindingID)
+	_, ok, err := testStore.GetBinding(bindingID, nil, nil, nil)
 	// Assert that the retrieval failed
 	assert.False(t, ok)
 	assert.Nil(t, err)
@@ -117,7 +117,7 @@ func TestGetExistingBinding(t *testing.T) {
 	statCmd := redisClient.Set(bindingID, getBindingJSON(bindingID), 0)
 	assert.Nil(t, statCmd.Err())
 	// Retrieve the binding
-	binding, ok, err := testStore.GetBinding(bindingID)
+	binding, ok, err := testStore.GetBinding(bindingID, nil, nil, nil)
 	// Assert that the retrieval was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)

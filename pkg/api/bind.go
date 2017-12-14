@@ -160,7 +160,12 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	binding, ok, err := s.store.GetBinding(bindingID)
+	binding, ok, err := s.store.GetBinding(
+		bindingID,
+		serviceManager.GetEmptyBindingParameters(),
+		serviceManager.GetEmptyBindingContext(),
+		serviceManager.GetEmptyCredentials(),
+	)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -186,39 +191,18 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
 			return
 		}
-		previousBindingParams := serviceManager.GetEmptyBindingParameters()
-		if err = binding.GetBindingParameters(
-			previousBindingParams,
-			s.codec,
-		); err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"pre-binding error: error decoding persisted bindingParameters",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
 
 		if reflect.DeepEqual(
 			bindingParameters,
-			previousBindingParams,
+			binding.BindingParameters,
 		) {
 			// Per the spec, if bound, respond with a 200
 			// Filling in a gap in the spec-- if the status is anything else, we'll
 			// choose to respond with a 409
 			switch binding.Status {
 			case service.BindingStateBound:
-				credentials := serviceManager.GetEmptyCredentials()
-				if err = binding.GetCredentials(credentials, s.codec); err != nil {
-					logFields["error"] = err
-					log.WithFields(logFields).Error(
-						"binding error: error decoding persisted credentials",
-					)
-					s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-					return
-				}
 				bindingResponse := &BindingResponse{
-					Credentials: credentials,
+					Credentials: binding.Credentials,
 				}
 				var bindingResponseJSON []byte
 				bindingResponseJSON, err = bindingResponse.ToJSON()
@@ -269,12 +253,6 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	binding = service.Binding{
-		InstanceID: instanceID,
-		BindingID:  bindingID,
-		Created:    time.Now(),
-	}
-
 	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
@@ -293,24 +271,13 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = binding.SetBindingContext(bindingContext, s.codec); err != nil {
-		s.handleBindingError(
-			binding,
-			err,
-			"error encoding bindingContext",
-			w,
-		)
-		return
-	}
-
-	if err = binding.SetCredentials(credentials, s.codec); err != nil {
-		s.handleBindingError(
-			binding,
-			err,
-			"error encoding credentials",
-			w,
-		)
-		return
+	binding = service.Binding{
+		InstanceID:        instanceID,
+		BindingID:         bindingID,
+		BindingParameters: bindingParameters,
+		BindingContext:    bindingContext,
+		Credentials:       credentials,
+		Created:           time.Now(),
 	}
 
 	binding.Status = service.BindingStateBound

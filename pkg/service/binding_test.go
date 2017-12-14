@@ -19,9 +19,18 @@ func init() {
 	bindingID := "test-binding-id"
 	instanceID := "test-instance-id"
 	encryptedBindingParameters := []byte(`{"foo":"bar"}`)
+	bindingParameters := &ArbitraryType{
+		Foo: "bar",
+	}
 	statusReason := "in-progress"
-	encryptedBindingContext := []byte(`{"baz":"bat"}`)
-	encryptedCredentials := []byte(`{"password":"12345"}`)
+	encryptedBindingContext := []byte(`{"foo":"bat"}`)
+	bindingContext := &ArbitraryType{
+		Foo: "bat",
+	}
+	encryptedCredentials := []byte(`{"foo":"baz"}`)
+	credentials := &ArbitraryType{
+		Foo: "baz",
+	}
 	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
 	if err != nil {
 		panic(err)
@@ -31,11 +40,14 @@ func init() {
 		BindingID:                  bindingID,
 		InstanceID:                 instanceID,
 		EncryptedBindingParameters: encryptedBindingParameters,
-		Status:                  BindingStateBound,
-		StatusReason:            statusReason,
-		EncryptedBindingContext: encryptedBindingContext,
-		EncryptedCredentials:    encryptedCredentials,
-		Created:                 created,
+		BindingParameters:          bindingParameters,
+		Status:                     BindingStateBound,
+		StatusReason:               statusReason,
+		EncryptedBindingContext:    encryptedBindingContext,
+		BindingContext:             bindingContext,
+		EncryptedCredentials:       encryptedCredentials,
+		Credentials:                credentials,
+		Created:                    created,
 	}
 
 	b64EncryptedBindingParameters := base64.StdEncoding.EncodeToString(
@@ -75,51 +87,94 @@ func init() {
 }
 
 func TestNewBindingFromJSON(t *testing.T) {
-	binding, err := NewBindingFromJSON(testBindingJSON)
+	binding, err := NewBindingFromJSON(
+		testBindingJSON,
+		&ArbitraryType{},
+		&ArbitraryType{},
+		&ArbitraryType{},
+		noopCodec,
+	)
 	assert.Nil(t, err)
 	assert.Equal(t, testBinding, binding)
 }
 
 func TestBindingToJSON(t *testing.T) {
-	json, err := testBinding.ToJSON()
+	json, err := testBinding.ToJSON(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(t, testBindingJSON, json)
 }
 
-func TestSetBindingParametersOnBinding(t *testing.T) {
-	b := Binding{}
-	err := b.SetBindingParameters(testArbitraryObject, noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObjectJSON, b.EncryptedBindingParameters)
-}
-
-func TestGetBindingParametersOnBinding(t *testing.T) {
-	b := Binding{
-		EncryptedBindingParameters: testArbitraryObjectJSON,
+func TestEncryptBindingParameters(t *testing.T) {
+	binding := Binding{
+		BindingParameters: testArbitraryObject,
 	}
-	bp := &ArbitraryType{}
-	err := b.GetBindingParameters(bp, noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, bp)
-}
-
-func TestSetBindingContextOnBinding(t *testing.T) {
-	b := Binding{}
-	err := b.SetBindingContext(testArbitraryObject, noopCodec)
+	var err error
+	binding, err = binding.encryptBindingParameters(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		b.EncryptedBindingContext,
+		binding.EncryptedBindingParameters,
 	)
 }
 
-func TestGetBindingContextOnBinding(t *testing.T) {
-	b := Binding{
-		EncryptedBindingContext: testArbitraryObjectJSON,
+func TestEncryptBindingContext(t *testing.T) {
+	binding := Binding{
+		BindingContext: testArbitraryObject,
 	}
-	bc := &ArbitraryType{}
-	err := b.GetBindingContext(bc, noopCodec)
+	var err error
+	binding, err = binding.encryptBindingContext(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, bc)
+	assert.Equal(
+		t,
+		testArbitraryObjectJSON,
+		binding.EncryptedBindingContext,
+	)
+}
+
+func TestEncryptCredentials(t *testing.T) {
+	binding := Binding{
+		Credentials: testArbitraryObject,
+	}
+	var err error
+	binding, err = binding.encryptCredentials(noopCodec)
+	assert.Nil(t, err)
+	assert.Equal(
+		t,
+		testArbitraryObjectJSON,
+		binding.EncryptedCredentials,
+	)
+}
+
+func TestDecryptBindingParameters(t *testing.T) {
+	binding := Binding{
+		EncryptedBindingParameters: testArbitraryObjectJSON,
+		BindingParameters:          &ArbitraryType{},
+	}
+	var err error
+	binding, err = binding.decryptBindingParameters(noopCodec)
+	assert.Nil(t, err)
+	assert.Equal(t, testArbitraryObject, binding.BindingParameters)
+}
+
+func TestDecryptBindingContext(t *testing.T) {
+	binding := Binding{
+		EncryptedBindingContext: testArbitraryObjectJSON,
+		BindingContext:          &ArbitraryType{},
+	}
+	var err error
+	binding, err = binding.decryptBindingContext(noopCodec)
+	assert.Nil(t, err)
+	assert.Equal(t, testArbitraryObject, binding.BindingContext)
+}
+
+func TestDecryptCredentials(t *testing.T) {
+	binding := Binding{
+		EncryptedCredentials: testArbitraryObjectJSON,
+		Credentials:          &ArbitraryType{},
+	}
+	var err error
+	binding, err = binding.decryptCredentials(noopCodec)
+	assert.Nil(t, err)
+	assert.Equal(t, testArbitraryObject, binding.Credentials)
 }

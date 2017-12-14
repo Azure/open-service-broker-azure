@@ -65,7 +65,7 @@ func TestUnbindingFromInstanceThatDoesNotExist(t *testing.T) {
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
-	_, ok, err := s.store.GetBinding(bindingID)
+	_, ok, err := s.store.GetBinding(bindingID, nil, nil, nil)
 	assert.Nil(t, err)
 	assert.False(t, ok)
 }
@@ -105,7 +105,7 @@ func TestUnbindingFromInstanceThatExists(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 	assert.True(t, unbindCalled)
-	_, ok, err := s.store.GetBinding(bindingID)
+	_, ok, err := s.store.GetBinding(bindingID, nil, nil, nil)
 	assert.Nil(t, err)
 	assert.False(t, ok)
 }

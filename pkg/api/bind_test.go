@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
@@ -178,14 +177,10 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 	existingBinding := service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
-	}
-	err = existingBinding.SetBindingParameters(
-		&fake.BindingParameters{
+		BindingParameters: &fake.BindingParameters{
 			SomeParameter: "foo",
 		},
-		noop.NewCodec(),
-	)
-	assert.Nil(t, err)
+	}
 	err = s.store.WriteBinding(existingBinding)
 	assert.Nil(t, err)
 	req, err := getBindingRequest(

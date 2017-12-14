@@ -26,7 +26,12 @@ type Store interface {
 	WriteBinding(binding service.Binding) error
 	// GetBinding retrieves a persisted instance from the underlying storage by
 	// binding id
-	GetBinding(bindingID string) (service.Binding, bool, error)
+	GetBinding(
+		bindingID string,
+		bp service.BindingParameters,
+		bc service.BindingContext,
+		cr service.Credentials,
+	) (service.Binding, bool, error)
 	// DeleteBinding deletes a persisted binding from the underlying storage by
 	// binding id
 	DeleteBinding(bindingID string) (bool, error)
@@ -90,14 +95,19 @@ func (s *store) DeleteInstance(instanceID string) (bool, error) {
 }
 
 func (s *store) WriteBinding(binding service.Binding) error {
-	json, err := binding.ToJSON()
+	json, err := binding.ToJSON(s.codec)
 	if err != nil {
 		return err
 	}
 	return s.redisClient.Set(binding.BindingID, json, 0).Err()
 }
 
-func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
+func (s *store) GetBinding(
+	bindingID string,
+	bp service.BindingParameters,
+	bc service.BindingContext,
+	cr service.Credentials,
+) (service.Binding, bool, error) {
 	strCmd := s.redisClient.Get(bindingID)
 	if err := strCmd.Err(); err == redis.Nil {
 		return service.Binding{}, false, nil
@@ -108,7 +118,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	if err != nil {
 		return service.Binding{}, false, err
 	}
-	binding, err := service.NewBindingFromJSON(bytes)
+	binding, err := service.NewBindingFromJSON(bytes, bp, bc, cr, s.codec)
 	return binding, err == nil, err
 }
 
