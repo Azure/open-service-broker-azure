@@ -119,7 +119,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// Now that we have a serviceManager, we can get empty objects of the correct
 	// types, so we can take a second pass at retrieving an instance from storage
 	// with more concrete details filled in.
-	instance, ok, err = s.store.GetInstance(
+	instance, _, err = s.store.GetInstance(
 		instanceID,
 		serviceManager.GetEmptyProvisioningParameters(),
 		serviceManager.GetEmptyUpdatingParameters(),

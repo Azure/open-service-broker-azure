@@ -94,7 +94,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		// Now that we have a serviceManager, we can get empty objects of the
 		// correct types, so we can take a second pass at retrieving an instance
 		// and a binding from storage with more concrete details filled in.
-		instance, ok, err = s.store.GetInstance(
+		instance, _, err = s.store.GetInstance(
 			instanceID,
 			serviceManager.GetEmptyProvisioningParameters(),
 			serviceManager.GetEmptyUpdatingParameters(),
@@ -108,7 +108,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 			return
 		}
-		binding, ok, err = s.store.GetBinding(
+		binding, _, err = s.store.GetBinding(
 			bindingID,
 			serviceManager.GetEmptyBindingParameters(),
 			serviceManager.GetEmptyBindingContext(),
