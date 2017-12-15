@@ -28,7 +28,7 @@ func getMysqlCases(
 			},
 			provisioningParameters: &mysqldb.ProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.0",
+				FirewallIPEnd:   "255.255.255.255",
 			},
 			bindingParameters: &mysqldb.BindingParameters{},
 		},

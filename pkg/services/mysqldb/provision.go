@@ -29,42 +29,49 @@ func (s *serviceManager) ValidateProvisioningParameters(
 		sslEnforcement != "disabled" {
 		return service.NewValidationError(
 			"sslEnforcement",
-			fmt.Sprintf(`invalid sslEnforcement option: "%s"`, pp.SSLEnforcement),
+			fmt.Sprintf(`invalid option: "%s"`, pp.SSLEnforcement),
 		)
 	}
-
+	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
+		if pp.FirewallIPStart == "" {
+			return service.NewValidationError(
+				"firewallStartIPAddress",
+				fmt.Sprintf(`invalid option: "%s"`, pp.FirewallIPStart),
+			)
+		}
+		if pp.FirewallIPEnd == "" {
+			return service.NewValidationError(
+				"firewallEndIPAddress",
+				fmt.Sprintf(`invalid option: "%s"`, pp.FirewallIPEnd),
+			)
+		}
+	}
 	startIP := net.ParseIP(pp.FirewallIPStart)
-	if pp.FirewallIPStart != "" && net.ParseIP(pp.FirewallIPStart) == nil {
+	if pp.FirewallIPStart != "" && startIP == nil {
 		return service.NewValidationError(
-			"firewallStartIpAddress",
-			fmt.Sprintf(`invalid firewallStartIpAddress option: "%s"`, pp.SSLEnforcement),
+			"firewallStartIPAddress",
+			fmt.Sprintf(`invalid option: "%s"`, pp.FirewallIPStart),
 		)
 	}
-
 	endIP := net.ParseIP(pp.FirewallIPEnd)
-	if pp.FirewallIPEnd != "" && net.ParseIP(pp.FirewallIPEnd) == nil {
+	if pp.FirewallIPEnd != "" && endIP == nil {
 		return service.NewValidationError(
-			"firewallEndIpAddress",
-			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.SSLEnforcement),
+			"firewallEndIPAddress",
+			fmt.Sprintf(`invalid option: "%s"`, pp.FirewallIPEnd),
 		)
 	}
-
-	if startIP != nil && endIP == nil {
-		return service.NewValidationError(
-			"firewallEndIpAddress",
-			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.SSLEnforcement),
-		)
-	}
-
+	//The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
+	//Once converted,comparing two IP addresses can be done by using the
+	//bytes. Compare function. Per the ARM template documentation,
+	//startIP must be <= endIP.
 	startBytes := startIP.To4()
 	endBytes := endIP.To4()
 	if bytes.Compare(startBytes, endBytes) > 0 {
 		return service.NewValidationError(
-			"firewallEndIpAddress",
-			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.SSLEnforcement),
+			"firewallEndIPAddress",
+			fmt.Sprintf(`invalid option: "%s"`, pp.SSLEnforcement),
 		)
 	}
-
 	return nil
 }
 
@@ -134,8 +141,9 @@ func buildARMTemplateParameters(
 		"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
 		"sslEnforcement": sslEnforcement,
 	}
-	//Only include these if they are not empty. ARM Deployer will fail
-	//if the values included are not valid IPV4 addresses (i.e. empty string wil fail)
+	//Only include these if they are not empty.
+	//ARM Deployer will fail if the values included are not
+	//valid IPV4 addresses (i.e. empty string wil fail)
 	if provisioningParameters.FirewallIPStart != "" {
 		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
 	}

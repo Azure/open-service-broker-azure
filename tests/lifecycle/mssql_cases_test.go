@@ -143,7 +143,7 @@ func getMssqlCases(
 			},
 			provisioningParameters: &sqldb.ProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.0",
+				FirewallIPEnd:   "255.255.255.255",
 			},
 			bindingParameters: &sqldb.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),
