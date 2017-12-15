@@ -52,3 +52,15 @@ func TestValidateInvalidIP(t *testing.T) {
 	error := sm.ValidateProvisioningParameters(pp)
 	assert.NotNil(t, error)
 }
+
+func TestValidateIncompleteIP(t *testing.T) {
+
+	sm := &serviceManager{}
+
+	pp := &ProvisioningParameters{
+		FirewallIPStart: "192.168.",
+	}
+
+	error := sm.ValidateProvisioningParameters(pp)
+	assert.NotNil(t, error)
+}
