@@ -10,7 +10,6 @@ type ProvisioningParameters struct {
 type mssqlProvisioningContext struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
-	IsNewServer                bool   `json:"isNewServer"`
 	AdministratorLogin         string `json:"administratorLogin"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 	DatabaseName               string `json:"database"`
