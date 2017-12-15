@@ -9,11 +9,8 @@ import (
 // updating step
 type UpdatingStepFunction func(
 	ctx context.Context,
-	instanceID string,
+	instance Instance,
 	plan Plan,
-	standardProvisioningContext StandardProvisioningContext,
-	provisioningContext ProvisioningContext,
-	params UpdatingParameters,
 ) (ProvisioningContext, error)
 
 // UpdatingStep is an interface to be implemented by types that represent
@@ -22,11 +19,8 @@ type UpdatingStep interface {
 	GetName() string
 	Execute(
 		ctx context.Context,
-		instanceID string,
+		instance Instance,
 		plan Plan,
-		standardProvisioningContext StandardProvisioningContext,
-		provisioningContext ProvisioningContext,
-		params UpdatingParameters,
 	) (ProvisioningContext, error)
 }
 
@@ -68,21 +62,15 @@ func (u *updatingStep) GetName() string {
 // Execute executes a step
 func (u *updatingStep) Execute(
 	ctx context.Context,
-	instanceID string,
+	instance Instance,
 	plan Plan,
-	standardProvisioningContext StandardProvisioningContext,
-	provisioningContext ProvisioningContext,
-	params UpdatingParameters,
 ) (ProvisioningContext, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return u.fn(
 		ctx,
-		instanceID,
+		instance,
 		plan,
-		standardProvisioningContext,
-		provisioningContext,
-		params,
 	)
 }
 

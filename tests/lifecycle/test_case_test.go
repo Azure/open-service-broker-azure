@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	uuid "github.com/satori/go.uuid"
 )
 
 // moduleLifecycleTestCase encapsulates all the required things for a lifecycle
@@ -90,9 +89,6 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		return err
 	}
 
-	pc := serviceManager.GetEmptyProvisioningContext()
-	var tempPC service.ProvisioningContext
-
 	// Force the resource group to be something known to this test executor
 	// to ensure good cleanup
 	m.standardProvisioningContext.ResourceGroup = resourceGroup
@@ -104,8 +100,16 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		}
 	}
 
+	// Build an instance from test case details
+	instance := service.Instance{
+		ServiceID: m.serviceID,
+		PlanID:    m.planID,
+		StandardProvisioningContext: m.standardProvisioningContext,
+		ProvisioningContext:         serviceManager.GetEmptyProvisioningContext(),
+		ProvisioningParameters:      m.provisioningParameters,
+	}
+
 	// Provision...
-	iid := uuid.NewV4().String()
 	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
 		return err
@@ -129,21 +133,10 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 				stepName,
 			)
 		}
-		// Assign results to temp variable in case they're nil. We don't want
-		// pc to ever be nil, or we risk a nil pointer dereference in the
-		// cleanup logic.
-		tempPC, err = step.Execute(
-			ctx,
-			iid,
-			plan,
-			m.standardProvisioningContext,
-			pc,
-			m.provisioningParameters,
-		)
+		instance.ProvisioningContext, err = step.Execute(ctx, instance, plan)
 		if err != nil {
 			return err
 		}
-		pc = tempPC
 		stepName, ok = provisioner.GetNextStepName(stepName)
 		// If there is no next step, we're done with provisioning
 		if !ok {
@@ -152,11 +145,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Bind
-	bc, credentials, err := serviceManager.Bind(
-		m.standardProvisioningContext,
-		pc,
-		m.bindingParameters,
-	)
+	bc, credentials, err := serviceManager.Bind(instance, m.bindingParameters)
 	if err != nil {
 		return err
 	}
@@ -170,7 +159,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Unbind
-	err = serviceManager.Unbind(m.standardProvisioningContext, pc, bc)
+	err = serviceManager.Unbind(instance, bc)
 	if err != nil {
 		return err
 	}
@@ -201,17 +190,10 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		// Assign results to temp variable in case they're nil. We don't want
 		// pc to ever be nil, or we risk a nil pointer dereference in the
 		// cleanup logic.
-		tempPC, err = step.Execute(
-			ctx,
-			iid,
-			nil, // Plan
-			m.standardProvisioningContext,
-			pc,
-		)
+		instance.ProvisioningContext, err = step.Execute(ctx, instance, plan)
 		if err != nil {
 			return err
 		}
-		pc = tempPC
 		stepName, ok = deprovisioner.GetNextStepName(stepName)
 		// If there is no next step, we're done with deprovisioning
 		if !ok {

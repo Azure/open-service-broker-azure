@@ -11,10 +11,7 @@ func (s *serviceManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep(
-			"deleteARMDeployment",
-			s.deleteARMDeployment,
-		),
+		service.NewDeprovisioningStep("deleteARMDeployment", s.deleteARMDeployment),
 		service.NewDeprovisioningStep(
 			"deleteMsSQLServerOrDatabase",
 			s.deleteMsSQLServerOrDatabase,
@@ -24,15 +21,13 @@ func (s *serviceManager) GetDeprovisioner(
 
 func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*mssqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as *mssqlProvisioningContext",
+			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
 		)
 	}
 	var err error
@@ -40,7 +35,7 @@ func (s *serviceManager) deleteARMDeployment(
 		// new server scenario
 		err = s.armDeployer.Delete(
 			pc.ARMDeploymentName,
-			standardProvisioningContext.ResourceGroup,
+			instance.StandardProvisioningContext.ResourceGroup,
 		)
 	} else {
 		// exisiting server scenario
@@ -66,15 +61,13 @@ func (s *serviceManager) deleteARMDeployment(
 
 func (s *serviceManager) deleteMsSQLServerOrDatabase(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*mssqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as *mssqlProvisioningContext",
+			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
 		)
 	}
 
@@ -82,7 +75,7 @@ func (s *serviceManager) deleteMsSQLServerOrDatabase(
 		// new server scenario
 		if err := s.mssqlManager.DeleteServer(
 			pc.ServerName,
-			standardProvisioningContext.ResourceGroup,
+			instance.StandardProvisioningContext.ResourceGroup,
 		); err != nil {
 			return pc, fmt.Errorf("error deleting mssql server: %s", err)
 		}

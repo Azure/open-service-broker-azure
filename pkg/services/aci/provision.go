@@ -39,16 +39,13 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*aciProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*aciProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *aciProvisioningContext",
+			"error casting instance.ProvisioningContext as *aciProvisioningContext",
 		)
 	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
@@ -58,30 +55,27 @@ func (s *serviceManager) preProvision(
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*aciProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*aciProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *aciProvisioningContext",
+			"error casting instance.ProvisioningContext as *aciProvisioningContext",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
+			"error casting instance.ProvisioningParameters as " +
 				"*aci.ProvisioningParameters",
 		)
 	}
 
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		instance.StandardProvisioningContext.ResourceGroup,
+		instance.StandardProvisioningContext.Location,
 		armTemplateBytes,
 		pp, // Go template params
 		map[string]interface{}{ // ARM template params
@@ -90,7 +84,7 @@ func (s *serviceManager) deployARMTemplate(
 			"cpuCores":   pp.NumberCores,
 			"memoryInGb": fmt.Sprintf("%f", pp.Memory),
 		},
-		standardProvisioningContext.Tags,
+		instance.StandardProvisioningContext.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

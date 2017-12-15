@@ -18,20 +18,19 @@ func (s *serviceManager) GetDeprovisioner(
 
 func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*serviceBusProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*serviceBusProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as *serviceBusProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*serviceBusProvisioningContext",
 		)
 	}
 	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
+		instance.StandardProvisioningContext.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -40,20 +39,19 @@ func (s *serviceManager) deleteARMDeployment(
 
 func (s *serviceManager) deleteNamespace(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*serviceBusProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*serviceBusProvisioningContext)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as *serviceBusProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*serviceBusProvisioningContext",
 		)
 	}
 	if err := s.serviceBusManager.DeleteNamespace(
 		pc.ServiceBusNamespaceName,
-		standardProvisioningContext.ResourceGroup,
+		instance.StandardProvisioningContext.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting service bus namespace: %s", err)
 	}
