@@ -14,64 +14,6 @@ import (
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
 )
 
-// nolint: lll
-var armTemplateNewServerBytes = []byte(`
-{
-	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
-	"contentVersion": "1.0.0.0",
-	"parameters": {
-		"location": {
-			"type": "string"
-		},
-		"serverName": {
-			"type": "string"
-		},
-		"administratorLogin": {
-			"type": "string"
-		},
-		"administratorLoginPassword": {
-			"type": "securestring"
-		},
-		"tags": {
-			"type": "object"
-		}
-	},
-	"variables": {
-		"SQLapiVersion": "2014-04-01"
-	},
-	"resources": [
-		{
-			"type": "Microsoft.Sql/servers",
-			"name": "[parameters('serverName')]",
-			"apiVersion": "[variables('SQLapiVersion')]",
-			"location": "[parameters('location')]",
-			"properties": {
-				"administratorLogin": "[parameters('administratorLogin')]",
-				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-				"version": "12.0"
-			},
-			"resources": [
-				{
-					"type": "firewallrules",
-					"name": "all",
-					"apiVersion": "[variables('SQLapiVersion')]",
-					"location": "[parameters('location')]",
-					"properties": {
-						"startIpAddress": "0.0.0.0",
-						"endIpAddress": "255.255.255.255"
-					},
-					"dependsOn": [
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
-					]
-				}
-			]
-		}
-	],
-	"outputs": {
-	}
-}
-`)
-
 func getMssqlCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
