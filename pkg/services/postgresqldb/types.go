@@ -6,8 +6,8 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 type ProvisioningParameters struct {
 	SSLEnforcement  string   `json:"sslEnforcement"`
 	Extensions      []string `json:"extensions"`
-	FirewallIPStart string   `json:"firewallStartIpAddress"`
-	FirewallIPEnd   string   `json:"firewallEndIpAddress"`
+	FirewallIPStart string   `json:"firewallStartIPAddress"`
+	FirewallIPEnd   string   `json:"firewallEndIPAddress"`
 }
 
 type postgresqlProvisioningContext struct {
