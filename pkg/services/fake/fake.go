@@ -121,13 +121,10 @@ func (s *ServiceManager) GetUpdater(service.Plan) (service.Updater, error) {
 
 func (s *ServiceManager) update(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.UpdatingParameters,
 ) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+	return instance.ProvisioningContext, nil
 }
 
 // ValidateBindingParameters validates the provided bindingParameters and

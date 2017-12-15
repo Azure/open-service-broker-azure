@@ -136,11 +136,8 @@ func (b *broker) doUpdateStep(
 	}
 	updatedProvisioningContext, err := step.Execute(
 		ctx,
-		instanceID,
+		instance,
 		plan,
-		instance.StandardProvisioningContext,
-		instance.ProvisioningContext,
-		instance.UpdatingParameters,
 	)
 	if err != nil {
 		return b.handleUpdatingError(
