@@ -24,7 +24,7 @@ func (b *broker) doDeprovisionStep(
 	if !ok {
 		return errors.New(`missing required argument "instanceID"`)
 	}
-	instance, ok, err := b.store.GetInstance(instanceID)
+	instance, ok, err := b.store.GetInstance(instanceID, nil, nil, nil)
 	if err != nil {
 		return b.handleDeprovisioningError(
 			instanceID,
@@ -70,16 +70,49 @@ func (b *broker) doDeprovisionStep(
 		)
 	}
 	serviceManager := svc.GetServiceManager()
-	provisioningContext := serviceManager.GetEmptyProvisioningContext()
-	err = instance.GetProvisioningContext(provisioningContext, b.codec)
+
+	// Now that we have a serviceManager, we can get empty objects of the correct
+	// types, so we can take a second pass at retrieving an instance from storage
+	// with more concrete details filled in.
+	instance, _, err = b.store.GetInstance(
+		instanceID,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+	)
 	if err != nil {
 		return b.handleDeprovisioningError(
-			instance,
+			instanceID,
 			stepName,
 			err,
-			"error decoding provisioningContext from persisted instance",
+			"error loading persisted instance",
 		)
 	}
+
+	// Retrieve a second copy of the instance from storage. Why? We're about to
+	// pass the instance off to module specific code. It's passed by value, so
+	// we'd like to imagine that the modules can only modify copies of the
+	// instance, but some of the fields of an instance are pointers and a copy of
+	// a pointer still points back to the original thing-- meaning modules could
+	// modify parts of the instance in unexpected ways. What we'll do is take the
+	// one part of the instance that we inted for modules to modify (provisioning
+	// context) and add that to this untouched copy and write the untouched copy
+	// back to storage.
+	instanceCopy, _, err := b.store.GetInstance(
+		instanceID,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+	)
+	if err != nil {
+		return b.handleProvisioningError(
+			instanceID,
+			stepName,
+			err,
+			"error loading persisted instance",
+		)
+	}
+
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
 		return b.handleDeprovisioningError(
@@ -101,13 +134,7 @@ func (b *broker) doDeprovisionStep(
 			`deprovisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedProvisioningContext, err := step.Execute(
-		ctx,
-		instanceID,
-		plan,
-		instance.StandardProvisioningContext,
-		provisioningContext,
-	)
+	updatedProvisioningContext, err := step.Execute(ctx, instance, plan)
 	if err != nil {
 		return b.handleDeprovisioningError(
 			instance,
@@ -116,19 +143,11 @@ func (b *broker) doDeprovisionStep(
 			"error executing deprovisioning step",
 		)
 	}
-	err = instance.SetProvisioningContext(updatedProvisioningContext, b.codec)
-	if err != nil {
-		return b.handleDeprovisioningError(
-			instance,
-			stepName,
-			err,
-			"error encoding modified provisioningContext",
-		)
-	}
+	instanceCopy.ProvisioningContext = updatedProvisioningContext
 	if nextStepName, ok := deprovisioner.GetNextStepName(step.GetName()); ok {
-		if err = b.store.WriteInstance(instance); err != nil {
+		if err = b.store.WriteInstance(instanceCopy); err != nil {
 			return b.handleDeprovisioningError(
-				instance,
+				instanceCopy,
 				stepName,
 				err,
 				"error persisting instance",
@@ -143,7 +162,7 @@ func (b *broker) doDeprovisionStep(
 		)
 		if err = b.asyncEngine.SubmitTask(task); err != nil {
 			return b.handleDeprovisioningError(
-				instance,
+				instanceCopy,
 				stepName,
 				err,
 				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
@@ -151,10 +170,10 @@ func (b *broker) doDeprovisionStep(
 		}
 	} else {
 		// No next step-- we're done deprovisioning!
-		_, err = b.store.DeleteInstance(instance.InstanceID)
+		_, err = b.store.DeleteInstance(instanceCopy.InstanceID)
 		if err != nil {
 			return b.handleDeprovisioningError(
-				instance,
+				instanceCopy,
 				stepName,
 				err,
 				"error deleting deprovisioned instance",
@@ -177,7 +196,7 @@ func (b *broker) handleDeprovisioningError(
 	e error,
 	msg string,
 ) error {
-	instance, ok := instanceOrInstanceID.(*service.Instance)
+	instance, ok := instanceOrInstanceID.(service.Instance)
 	if !ok {
 		instanceID := instanceOrInstanceID
 		if e == nil {

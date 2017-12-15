@@ -30,7 +30,7 @@ func TestUnbindingWithInstanceIDDifferentFromBindingInstanceID(t *testing.T) {
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	bindingID := getDisposableBindingID()
-	err = s.store.WriteBinding(&service.Binding{
+	err = s.store.WriteBinding(service.Binding{
 		InstanceID: getDisposableInstanceID(),
 		BindingID:  bindingID,
 	})
@@ -51,7 +51,7 @@ func TestUnbindingFromInstanceThatDoesNotExist(t *testing.T) {
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	bindingID := getDisposableBindingID()
-	err = s.store.WriteBinding(&service.Binding{
+	err = s.store.WriteBinding(service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 	})
@@ -65,7 +65,7 @@ func TestUnbindingFromInstanceThatDoesNotExist(t *testing.T) {
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
-	_, ok, err := s.store.GetBinding(bindingID)
+	_, ok, err := s.store.GetBinding(bindingID, nil, nil, nil)
 	assert.Nil(t, err)
 	assert.False(t, ok)
 }
@@ -84,13 +84,13 @@ func TestUnbindingFromInstanceThatExists(t *testing.T) {
 	}
 	instanceID := getDisposableInstanceID()
 	bindingID := getDisposableBindingID()
-	err = s.store.WriteInstance(&service.Instance{
+	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 	})
 	assert.Nil(t, err)
-	err = s.store.WriteBinding(&service.Binding{
+	err = s.store.WriteBinding(service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 	})
@@ -105,7 +105,7 @@ func TestUnbindingFromInstanceThatExists(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
 	assert.True(t, unbindCalled)
-	_, ok, err := s.store.GetBinding(bindingID)
+	_, ok, err := s.store.GetBinding(bindingID, nil, nil, nil)
 	assert.Nil(t, err)
 	assert.False(t, ok)
 }

@@ -82,22 +82,20 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*postgresqlProvisioningContext",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
+			"error casting instance.ProvisioningParameters as " +
 				"*postgresql.ProvisioningParameters",
 		)
 	}
@@ -152,34 +150,25 @@ func buildARMTemplateParameters(
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*postgresql.ProvisioningParameters",
-		)
-	}
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
-	if !ok {
-		return nil, errors.New(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*postgresqlProvisioningContext",
 		)
 	}
 	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		instance.StandardProvisioningContext.ResourceGroup,
+		instance.StandardProvisioningContext.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
-		standardProvisioningContext.Tags,
+		instance.StandardProvisioningContext.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -199,16 +188,14 @@ func (s *serviceManager) deployARMTemplate(
 
 func (s *serviceManager) setupDatabase(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*postgresqlProvisioningContext",
 		)
 	}
 
@@ -265,22 +252,20 @@ func (s *serviceManager) setupDatabase(
 
 func (s *serviceManager) createExtensions(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*postgresqlProvisioningContext",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
+			"error casting instance.ProvisioningParameters as " +
 				"*postgresql.ProvisioningParameters",
 		)
 	}

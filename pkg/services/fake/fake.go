@@ -97,13 +97,10 @@ func (s *ServiceManager) GetProvisioner(
 
 func (s *ServiceManager) provision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+	return instance.ProvisioningContext, nil
 }
 
 // ValidateUpdatingParameters validates the provided updatingParameters
@@ -124,13 +121,10 @@ func (s *ServiceManager) GetUpdater(service.Plan) (service.Updater, error) {
 
 func (s *ServiceManager) update(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.UpdatingParameters,
 ) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+	return instance.ProvisioningContext, nil
 }
 
 // ValidateBindingParameters validates the provided bindingParameters and
@@ -143,26 +137,24 @@ func (s *ServiceManager) ValidateBindingParameters(
 
 // Bind synchronously binds to a service
 func (s *ServiceManager) Bind(
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
 	return s.BindBehavior(
-		standardProvisioningContext,
-		provisioningContext,
+		instance.StandardProvisioningContext,
+		instance.ProvisioningContext,
 		bindingParameters,
 	)
 }
 
 // Unbind synchronously unbinds from a service
 func (s *ServiceManager) Unbind(
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
 	return s.UnbindBehavior(
-		standardProvisioningContext,
-		provisioningContext,
+		instance.StandardProvisioningContext,
+		instance.ProvisioningContext,
 		bindingContext,
 	)
 }
@@ -179,12 +171,10 @@ func (s *ServiceManager) GetDeprovisioner(
 
 func (s *ServiceManager) deprovision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
 ) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+	return instance.ProvisioningContext, nil
 }
 
 func defaultProvisioningValidationBehavior(

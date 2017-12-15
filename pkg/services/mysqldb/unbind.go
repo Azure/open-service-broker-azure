@@ -7,14 +7,13 @@ import (
 )
 
 func (s *serviceManager) Unbind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
-	pc, ok := provisioningContext.(*mysqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return fmt.Errorf(
-			"error casting provisioningContext as *mysqlProvisioningContext",
+			"error casting instance.ProvisioningContext as *mysqlProvisioningContext",
 		)
 	}
 	bc, ok := bindingContext.(*mysqlBindingContext)
