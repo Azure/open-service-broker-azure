@@ -17,7 +17,7 @@ func (s *serviceManager) ValidateBindingParameters(
 
 func (s *serviceManager) Bind(
 	instance service.Instance,
-	bindingParameters service.BindingParameters,
+	_ service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
 	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
 	if !ok {
