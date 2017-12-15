@@ -160,6 +160,13 @@ func (s *serviceManager) deployARMTemplate(
 				"*postgresqlProvisioningContext",
 		)
 	}
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*postgresql.ProvisioningParameters",
+		)
+	}
 	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,

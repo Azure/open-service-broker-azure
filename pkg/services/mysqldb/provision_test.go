@@ -6,6 +6,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestValidateNoFirewallConfig(t *testing.T) {
+
+	sm := &serviceManager{}
+
+	pp := &ProvisioningParameters{}
+
+	error := sm.ValidateProvisioningParameters(pp)
+	assert.Nil(t, error)
+}
+
 func TestValidateGoodFirewallConfig(t *testing.T) {
 
 	sm := &serviceManager{}

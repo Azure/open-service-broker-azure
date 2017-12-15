@@ -157,6 +157,13 @@ func (s *serviceManager) deployARMTemplate(
 				"as *mysqlProvisioningContext",
 		)
 	}
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mysql.ProvisioningParameters",
+		)
+	}
 	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
