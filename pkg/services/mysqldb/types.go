@@ -4,7 +4,9 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates MySQL-specific provisioning options
 type ProvisioningParameters struct {
-	SSLEnforcement string `json:"sslEnforcement"`
+	SSLEnforcement  string `json:"sslEnforcement"`
+	FirewallIPStart string `json:"firewallStartIpAddress"`
+	FirewallIPEnd   string `json:"firewallEndIpAddress"`
 }
 
 type mysqlProvisioningContext struct {

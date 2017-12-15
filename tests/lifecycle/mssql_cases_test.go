@@ -141,9 +141,12 @@ func getMssqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &sqldb.ProvisioningParameters{},
-			bindingParameters:      &sqldb.BindingParameters{},
-			testCredentials:        testMsSQLCreds(),
+			provisioningParameters: &sqldb.ProvisioningParameters{
+				FirewallIPStart: "0.0.0.0",
+				FirewallIPEnd:   "255.255.255.0",
+			},
+			bindingParameters: &sqldb.BindingParameters{},
+			testCredentials:   testMsSQLCreds(),
 		},
 		{ // existing server scenario
 			module:      sqldb.New(armDeployer, msSQLManager, msSQLConfig),

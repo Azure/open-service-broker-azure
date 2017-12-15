@@ -1,9 +1,11 @@
 package mysqldb
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
@@ -30,6 +32,39 @@ func (s *serviceManager) ValidateProvisioningParameters(
 			fmt.Sprintf(`invalid sslEnforcement option: "%s"`, pp.SSLEnforcement),
 		)
 	}
+
+	startIP := net.ParseIP(pp.FirewallIPStart)
+	if pp.FirewallIPStart != "" && net.ParseIP(pp.FirewallIPStart) == nil {
+		return service.NewValidationError(
+			"firewallStartIpAddress",
+			fmt.Sprintf(`invalid firewallStartIpAddress option: "%s"`, pp.SSLEnforcement),
+		)
+	}
+
+	endIP := net.ParseIP(pp.FirewallIPEnd)
+	if pp.FirewallIPEnd != "" && net.ParseIP(pp.FirewallIPEnd) == nil {
+		return service.NewValidationError(
+			"firewallEndIpAddress",
+			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.SSLEnforcement),
+		)
+	}
+
+	if startIP != nil && endIP == nil {
+		return service.NewValidationError(
+			"firewallEndIpAddress",
+			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.SSLEnforcement),
+		)
+	}
+
+	startBytes := startIP.To4()
+	endBytes := endIP.To4()
+	if bytes.Compare(startBytes, endBytes) > 0 {
+		return service.NewValidationError(
+			"firewallEndIpAddress",
+			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.SSLEnforcement),
+		)
+	}
+
 	return nil
 }
 
@@ -79,43 +114,70 @@ func (s *serviceManager) preProvision(
 	return pc, nil
 }
 
+func buildARMTemplateParameters(
+	plan service.Plan,
+	provisioningContext *mysqlProvisioningContext,
+	provisioningParameters *ProvisioningParameters,
+) map[string]interface{} {
+	var sslEnforcement string
+	if provisioningContext.EnforceSSL {
+		sslEnforcement = "Enabled"
+	} else {
+		sslEnforcement = "Disabled"
+	}
+	p := map[string]interface{}{ // ARM template params
+		"administratorLoginPassword": provisioningContext.AdministratorLoginPassword,
+		"serverName":                 provisioningContext.ServerName,
+		"databaseName":               provisioningContext.DatabaseName,
+		"skuName":                    plan.GetProperties().Extended["skuName"],
+		"skuTier":                    plan.GetProperties().Extended["skuTier"],
+		"skuCapacityDTU": plan.GetProperties().
+			Extended["skuCapacityDTU"],
+		"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
+		"sslEnforcement": sslEnforcement,
+	}
+	//Only include these if they are not empty. ARM Deployer will fail
+	//if the values included are not valid IPV4 addresses (i.e. empty string wil fail)
+	if provisioningParameters.FirewallIPStart != "" {
+		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
+	}
+	if provisioningParameters.FirewallIPEnd != "" {
+		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
+	}
+	return p
+}
+
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	_ string, //instanceID
 	plan service.Plan,
 	standardProvisioningContext service.StandardProvisioningContext,
 	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
+	provisioningParameters service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
+
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mysql.ProvisioningParameters",
+		)
+	}
+
 	pc, ok := provisioningContext.(*mysqlProvisioningContext)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningContext as *mysqlProvisioningContext",
 		)
 	}
-	var sslEnforcement string
-	if pc.EnforceSSL {
-		sslEnforcement = "Enabled"
-	} else {
-		sslEnforcement = "Disabled"
-	}
+	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		standardProvisioningContext.ResourceGroup,
 		standardProvisioningContext.Location,
 		armTemplateBytes,
 		nil, // Go template params
-		map[string]interface{}{ // ARM template params
-			"administratorLoginPassword": pc.AdministratorLoginPassword,
-			"serverName":                 pc.ServerName,
-			"databaseName":               pc.DatabaseName,
-			"skuName":                    plan.GetProperties().Extended["skuName"],
-			"skuTier":                    plan.GetProperties().Extended["skuTier"],
-			"skuCapacityDTU": plan.GetProperties().
-				Extended["skuCapacityDTU"],
-			"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
-			"sslEnforcement": sslEnforcement,
-		},
+		armTemplateParameters,
 		standardProvisioningContext.Tags,
 	)
 	if err != nil {

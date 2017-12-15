@@ -1,9 +1,11 @@
 package sqldb
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"net"
 
 	az "github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
@@ -33,6 +35,39 @@ func (s *serviceManager) ValidateProvisioningParameters(
 			)
 		}
 	}
+
+	startIP := net.ParseIP(pp.FirewallIPStart)
+	if pp.FirewallIPStart != "" && net.ParseIP(pp.FirewallIPStart) == nil {
+		return service.NewValidationError(
+			"firewallStartIpAddress",
+			fmt.Sprintf(`invalid firewallStartIpAddress option: "%s"`, pp.FirewallIPStart),
+		)
+	}
+
+	endIP := net.ParseIP(pp.FirewallIPEnd)
+	if pp.FirewallIPEnd != "" && net.ParseIP(pp.FirewallIPEnd) == nil {
+		return service.NewValidationError(
+			"firewallEndIpAddress",
+			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.FirewallIPEnd),
+		)
+	}
+
+	if startIP != nil && endIP == nil {
+		return service.NewValidationError(
+			"firewallEndIpAddress",
+			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.FirewallIPEnd),
+		)
+	}
+
+	startBytes := startIP.To4()
+	endBytes := endIP.To4()
+	if bytes.Compare(startBytes, endBytes) > 0 {
+		return service.NewValidationError(
+			"firewallEndIpAddress",
+			fmt.Sprintf(`invalid firewallEndIpAddress option: "%s"`, pp.FirewallIPEnd),
+		)
+	}
+
 	return nil
 }
 
@@ -112,6 +147,33 @@ func (s *serviceManager) preProvision(
 	return pc, nil
 }
 
+func buildARMTemplateParameters(
+	plan service.Plan,
+	provisioningContext *mssqlProvisioningContext,
+	provisioningParameters *ProvisioningParameters,
+) map[string]interface{} {
+	p := map[string]interface{}{ // ARM template params
+		"serverName":                 provisioningContext.ServerName,
+		"administratorLogin":         provisioningContext.AdministratorLogin,
+		"administratorLoginPassword": provisioningContext.AdministratorLoginPassword,
+		"databaseName":               provisioningContext.DatabaseName,
+		"edition":                    plan.GetProperties().Extended["edition"],
+		"requestedServiceObjectiveName": plan.GetProperties().
+			Extended["requestedServiceObjectiveName"],
+		"maxSizeBytes": plan.GetProperties().
+			Extended["maxSizeBytes"],
+	}
+	//Only include these if they are not empty. ARM Deployer will fail
+	//if the values included are not valid IPV4 addresses (i.e. empty string wil fail)
+	if provisioningParameters.FirewallIPStart != "" {
+		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
+	}
+	if provisioningParameters.FirewallIPEnd != "" {
+		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
+	}
+	return p
+}
+
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	_ string, // instanceID
@@ -134,6 +196,7 @@ func (s *serviceManager) deployARMTemplate(
 		)
 	}
 	if pc.IsNewServer {
+		armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
 		// new server scenario
 		outputs, err := s.armDeployer.Deploy(
 			pc.ARMDeploymentName,
@@ -141,17 +204,7 @@ func (s *serviceManager) deployARMTemplate(
 			standardProvisioningContext.Location,
 			armTemplateNewServerBytes,
 			nil, // Go template params
-			map[string]interface{}{ // ARM template params
-				"serverName":                 pc.ServerName,
-				"administratorLogin":         pc.AdministratorLogin,
-				"administratorLoginPassword": pc.AdministratorLoginPassword,
-				"databaseName":               pc.DatabaseName,
-				"edition":                    plan.GetProperties().Extended["edition"],
-				"requestedServiceObjectiveName": plan.GetProperties().
-					Extended["requestedServiceObjectiveName"],
-				"maxSizeBytes": plan.GetProperties().
-					Extended["maxSizeBytes"],
-			},
+			armTemplateParameters,
 			standardProvisioningContext.Tags,
 		)
 		if err != nil {

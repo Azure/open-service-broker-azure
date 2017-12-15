@@ -4,7 +4,9 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates MSSQL-specific provisioning options
 type ProvisioningParameters struct {
-	ServerName string `json:"server"`
+	ServerName      string `json:"server"`
+	FirewallIPStart string `json:"firewallStartIpAddress"`
+	FirewallIPEnd   string `json:"firewallEndIpAddress"`
 }
 
 type mssqlProvisioningContext struct {

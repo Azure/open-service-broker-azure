@@ -4,8 +4,10 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates PostgreSQL-specific provisioning options
 type ProvisioningParameters struct {
-	SSLEnforcement string   `json:"sslEnforcement"`
-	Extensions     []string `json:"extensions"`
+	SSLEnforcement  string   `json:"sslEnforcement"`
+	Extensions      []string `json:"extensions"`
+	FirewallIPStart string   `json:"firewallStartIpAddress"`
+	FirewallIPEnd   string   `json:"firewallEndIpAddress"`
 }
 
 type postgresqlProvisioningContext struct {
