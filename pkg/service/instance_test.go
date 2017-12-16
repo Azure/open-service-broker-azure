@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	testInstance     *Instance
+	testInstance     Instance
 	testInstanceJSON []byte
 )
 
@@ -23,16 +23,25 @@ func init() {
 	resourceGroup := "test-rg"
 	tagKey := "foo"
 	tagVal := "bar"
+	provisioningParameters := &ArbitraryType{
+		Foo: "bar",
+	}
 	encryptedProvisiongingParameters := []byte(`{"foo":"bar"}`)
-	encryptedUpdatingParameters := []byte(`{"foo":"bar"}`)
+	updatingParameters := &ArbitraryType{
+		Foo: "bat",
+	}
+	encryptedUpdatingParameters := []byte(`{"foo":"bat"}`)
 	statusReason := "in-progress"
-	encryptedProvisiongingContext := []byte(`{"baz":"bat"}`)
+	provisioningContext := &ArbitraryType{
+		Foo: "baz",
+	}
+	encryptedProvisiongingContext := []byte(`{"foo":"baz"}`)
 	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
 	if err != nil {
 		panic(err)
 	}
 
-	testInstance = &Instance{
+	testInstance = Instance{
 		InstanceID: instanceID,
 		ServiceID:  serviceID,
 		PlanID:     planID,
@@ -42,16 +51,19 @@ func init() {
 			Tags:          map[string]string{tagKey: tagVal},
 		},
 		EncryptedProvisioningParameters: encryptedProvisiongingParameters,
+		ProvisioningParameters:          provisioningParameters,
 		EncryptedUpdatingParameters:     encryptedUpdatingParameters,
-		Status:       InstanceStateProvisioning,
-		StatusReason: statusReason,
+		UpdatingParameters:              updatingParameters,
+		Status:                          InstanceStateProvisioning,
+		StatusReason:                    statusReason,
 		StandardProvisioningContext: StandardProvisioningContext{
 			Location:      location,
 			ResourceGroup: resourceGroup,
 			Tags:          map[string]string{tagKey: tagVal},
 		},
 		EncryptedProvisioningContext: encryptedProvisiongingContext,
-		Created: created,
+		ProvisioningContext:          provisioningContext,
+		Created:                      created,
 	}
 
 	b64EncryptedProvisioningParameters := base64.StdEncoding.EncodeToString(
@@ -111,67 +123,94 @@ func init() {
 }
 
 func TestNewInstanceFromJSON(t *testing.T) {
-	instance, err := NewInstanceFromJSON(testInstanceJSON)
+	instance, err := NewInstanceFromJSON(
+		testInstanceJSON,
+		&ArbitraryType{},
+		&ArbitraryType{},
+		&ArbitraryType{},
+		noopCodec,
+	)
 	assert.Nil(t, err)
 	assert.Equal(t, testInstance, instance)
 }
 
 func TestInstanceToJSON(t *testing.T) {
-	json, err := testInstance.ToJSON()
+	json, err := testInstance.ToJSON(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(t, testInstanceJSON, json)
 }
 
-func TestSetProvisioningParametersOnInstance(t *testing.T) {
-	err := testInstance.SetProvisioningParameters(testArbitraryObject, noopCodec)
+func TestEncryptProvisioningParameters(t *testing.T) {
+	instance := Instance{
+		ProvisioningParameters: testArbitraryObject,
+	}
+	var err error
+	instance, err = instance.encryptProvisioningParameters(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		testInstance.EncryptedProvisioningParameters,
+		instance.EncryptedProvisioningParameters,
 	)
 }
 
-func TestSetUpdatingParametersOnInstance(t *testing.T) {
-	err := testInstance.SetUpdatingParameters(testArbitraryObject, noopCodec)
+func TestEncryptUpdatingParameters(t *testing.T) {
+	instance := Instance{
+		UpdatingParameters: testArbitraryObject,
+	}
+	var err error
+	instance, err = instance.encryptUpdatingParameters(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		testInstance.EncryptedUpdatingParameters,
+		instance.EncryptedUpdatingParameters,
 	)
 }
 
-func TestGetProvisioningParametersOnInstance(t *testing.T) {
-	testInstance.EncryptedProvisioningParameters = testArbitraryObjectJSON
-	pp := &ArbitraryType{}
-	err := testInstance.GetProvisioningParameters(pp, noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, pp)
-}
-
-func TestGetUpdatingParametersOnInstance(t *testing.T) {
-	testInstance.EncryptedUpdatingParameters = testArbitraryObjectJSON
-	up := &ArbitraryType{}
-	err := testInstance.GetUpdatingParameters(up, noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, up)
-}
-
-func TestSetProvisioningContextOnInstance(t *testing.T) {
-	err := testInstance.SetProvisioningContext(testArbitraryObject, noopCodec)
+func TestEncryptProvisioningContext(t *testing.T) {
+	instance := Instance{
+		ProvisioningContext: testArbitraryObject,
+	}
+	var err error
+	instance, err = instance.encryptProvisioningContext(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		testInstance.EncryptedProvisioningContext,
+		instance.EncryptedProvisioningContext,
 		testArbitraryObjectJSON,
 	)
 }
 
-func TestGetProvisioningContextOnInstance(t *testing.T) {
-	testInstance.EncryptedProvisioningContext = testArbitraryObjectJSON
-	pc := &ArbitraryType{}
-	err := testInstance.GetProvisioningContext(pc, noopCodec)
+func TestDecryptProvisioningParameters(t *testing.T) {
+	instance := Instance{
+		EncryptedProvisioningParameters: testArbitraryObjectJSON,
+		ProvisioningParameters:          &ArbitraryType{},
+	}
+	var err error
+	instance, err = instance.decryptProvisioningParameters(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, pc)
+	assert.Equal(t, testArbitraryObject, instance.ProvisioningParameters)
+}
+
+func TestDecryptUpdatingParameters(t *testing.T) {
+	instance := Instance{
+		EncryptedUpdatingParameters: testArbitraryObjectJSON,
+		UpdatingParameters:          &ArbitraryType{},
+	}
+	var err error
+	instance, err = instance.decryptUpdatingParameters(noopCodec)
+	assert.Nil(t, err)
+	assert.Equal(t, testArbitraryObject, instance.UpdatingParameters)
+}
+
+func TestDecryptProvisioningContext(t *testing.T) {
+	instance := Instance{
+		EncryptedProvisioningContext: testArbitraryObjectJSON,
+		ProvisioningContext:          &ArbitraryType{},
+	}
+	var err error
+	instance, err = instance.decryptProvisioningContext(noopCodec)
+	assert.Nil(t, err)
+	assert.Equal(t, testArbitraryObject, instance.ProvisioningContext)
 }

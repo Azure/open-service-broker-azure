@@ -1,4 +1,4 @@
-VERSION ?= $(shell git describe --always --abbrev=7 --dirty)
+GIT_VERSION = $(shell git describe --always --abbrev=7 --dirty)
 
 BINARY_DIR := bin
 BINARY_NAME := osba
@@ -7,10 +7,13 @@ BINARY_NAME := osba
 # for 'open-service-broker-azure'
 #
 # See https://github.com/Azure/open-service-broker-azure/issues/100
-BASE_IMAGE_NAME      = azure-service-broker
-MUTABLE_TAG         ?= canary
-IMAGE_NAME           = $(REGISTRY)$(BASE_IMAGE_NAME):$(VERSION)
-MUTABLE_IMAGE_NAME   = $(REGISTRY)$(BASE_IMAGE_NAME):$(MUTABLE_TAG)
+BASE_IMAGE_NAME        = azure-service-broker
+
+RC_IMAGE_NAME          = $(REGISTRY)$(BASE_IMAGE_NAME):$(GIT_VERSION)
+RC_MUTABLE_IMAGE_NAME  = $(REGISTRY)$(BASE_IMAGE_NAME):canary
+
+REL_IMAGE_NAME         = $(REGISTRY)$(BASE_IMAGE_NAME):$(REL_VERSION)
+REL_MUTABLE_IMAGE_NAME = $(REGISTRY)$(BASE_IMAGE_NAME):latest
 
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
@@ -186,14 +189,24 @@ stop-broker-redis: check-docker-compose
 # Build the Docker image
 .PHONY: docker-build
 docker-build: check-docker build
-	docker build -t $(IMAGE_NAME) .
-	docker tag $(IMAGE_NAME) $(MUTABLE_IMAGE_NAME)
+	docker build -t $(RC_IMAGE_NAME) .
+	docker tag $(RC_IMAGE_NAME) $(RC_MUTABLE_IMAGE_NAME)
 
-# Push the Docker image
-.PHONY: docker-push
-docker-push: check-docker docker-build
-	docker push $(IMAGE_NAME)
-	docker push $(MUTABLE_IMAGE_NAME)
+# Push the release candidate Docker images
+.PHONY: docker-push-rc
+docker-push-rc: check-docker docker-build
+	docker push $(RC_IMAGE_NAME)
+	docker push $(RC_MUTABLE_IMAGE_NAME)
+
+# Push the release  / semver Docker images
+.PHONY: docker-push-release
+docker-push-release:
+ifndef REL_VERSION
+	$(error REL_VERSION is undefined)
+endif
+	docker pull $(RC_IMAGE_NAME)
+	docker tag $(RC_IMAGE_NAME) $(REL_IMAGE_NAME)
+	docker tag $(RC_IMAGE_NAME) $(REL_MUTABLE_IMAGE_NAME)
 
 # ---------------------------------------------------------------------------- #
 # contrib/                                                                     #

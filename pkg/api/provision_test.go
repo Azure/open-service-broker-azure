@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
@@ -129,18 +128,14 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	existingInstance := &service.Instance{
+	existingInstance := service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-	}
-	err = existingInstance.SetProvisioningParameters(
-		&fake.ProvisioningParameters{
+		ProvisioningParameters: &fake.ProvisioningParameters{
 			SomeParameter: "foo",
 		},
-		noop.NewCodec(),
-	)
-	assert.Nil(t, err)
+	}
 	err = s.store.WriteInstance(existingInstance)
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -169,7 +164,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	err = s.store.WriteInstance(&service.Instance{
+	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
@@ -199,7 +194,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	err = s.store.WriteInstance(&service.Instance{
+	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,

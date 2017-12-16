@@ -7,14 +7,14 @@ import (
 )
 
 func (s *serviceManager) Unbind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
 	if !ok {
 		return fmt.Errorf(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*postgresqlProvisioningContext",
 		)
 	}
 	bc, ok := bindingContext.(*postgresqlBindingContext)

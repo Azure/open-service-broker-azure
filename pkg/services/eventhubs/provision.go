@@ -27,16 +27,14 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*eventHubProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*eventHubProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *eventHubProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*eventHubProvisioningContext",
 		)
 	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
@@ -47,22 +45,20 @@ func (s *serviceManager) preProvision(
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*eventHubProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*eventHubProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *eventHubProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*eventHubProvisioningContext",
 		)
 	}
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		instance.StandardProvisioningContext.ResourceGroup,
+		instance.StandardProvisioningContext.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
@@ -70,7 +66,7 @@ func (s *serviceManager) deployARMTemplate(
 			"eventHubNamespace": pc.EventHubNamespace,
 			"eventHubSku":       plan.GetProperties().Extended["eventHubSku"],
 		},
-		standardProvisioningContext.Tags,
+		instance.StandardProvisioningContext.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

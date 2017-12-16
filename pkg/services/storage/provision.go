@@ -47,16 +47,14 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*storageProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *storageProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*storageProvisioningContext",
 		)
 	}
 	pc.ARMDeploymentName = uuid.NewV4().String()
@@ -80,16 +78,14 @@ func (s *serviceManager) preProvision(
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*storageProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *storageProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*storageProvisioningContext",
 		)
 	}
 	storeKind, ok := plan.GetProperties().Extended[kindKey].(storageKind)
@@ -111,12 +107,12 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		instance.StandardProvisioningContext.ResourceGroup,
+		instance.StandardProvisioningContext.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters, // ARM template params
-		standardProvisioningContext.Tags,
+		instance.StandardProvisioningContext.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -135,16 +131,14 @@ func (s *serviceManager) deployARMTemplate(
 
 func (s *serviceManager) createBlobContainer(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
 ) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*storageProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *storageProvisioningContext",
+			"error casting instance.ProvisioningContext " +
+				"as *storageProvisioningContext",
 		)
 	}
 

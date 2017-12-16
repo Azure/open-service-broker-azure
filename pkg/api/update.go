@@ -130,7 +130,12 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instance, ok, err := s.store.GetInstance(instanceID)
+	instance, ok, err := s.store.GetInstance(
+		instanceID,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+	)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -172,23 +177,10 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	previousUpdatingRequestParams := serviceManager.GetEmptyUpdatingParameters()
-	if err = instance.GetUpdatingParameters(
-		previousUpdatingRequestParams,
-		s.codec,
-	); err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"pre-updating error: error decoding persisted " +
-				"updatingParameters",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
 	if instance.ServiceID == updatingRequest.ServiceID &&
 		instance.PlanID == updatingRequest.PlanID &&
 		reflect.DeepEqual(
-			previousUpdatingRequestParams,
+			instance.UpdatingParameters,
 			updatingParameters,
 		) {
 		// Per the spec, if fully provisioned, respond with a 200, else a 202.
@@ -271,18 +263,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := instance.SetUpdatingParameters(
-		updatingRequest.Parameters,
-		s.codec,
-	); err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"updating error: error encoding updatingParameters",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
-
+	instance.UpdatingParameters = updatingParameters
 	instance.Status = service.InstanceStateUpdating
 	instance.PlanID = updatingRequest.PlanID
 	if err := s.store.WriteInstance(instance); err != nil {
