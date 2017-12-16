@@ -9,3 +9,5 @@ spec:
   parameters:
     location: eastus
     resourceGroup: demo
+    firewallStartIPAddress: "0.0.0.0"
+    firewallEndIPAddress: "255.255.255.255"
