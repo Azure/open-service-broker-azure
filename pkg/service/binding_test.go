@@ -18,6 +18,7 @@ var (
 func init() {
 	bindingID := "test-binding-id"
 	instanceID := "test-instance-id"
+	serviceID := "test-service-id"
 	encryptedBindingParameters := []byte(`{"foo":"bar"}`)
 	bindingParameters := &ArbitraryType{
 		Foo: "bar",
@@ -39,6 +40,7 @@ func init() {
 	testBinding = Binding{
 		BindingID:                  bindingID,
 		InstanceID:                 instanceID,
+		ServiceID:                  serviceID,
 		EncryptedBindingParameters: encryptedBindingParameters,
 		BindingParameters:          bindingParameters,
 		Status:                     BindingStateBound,
@@ -64,6 +66,7 @@ func init() {
 		`{
 			"bindingId":"%s",
 			"instanceId":"%s",
+			"serviceId":"%s",
 			"bindingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
@@ -73,6 +76,7 @@ func init() {
 		}`,
 		bindingID,
 		instanceID,
+		serviceID,
 		b64EncryptedBindingParameters,
 		BindingStateBound,
 		statusReason,

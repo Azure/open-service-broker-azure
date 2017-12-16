@@ -11,6 +11,7 @@ import (
 type Binding struct {
 	BindingID                  string            `json:"bindingId"`
 	InstanceID                 string            `json:"instanceId"`
+	ServiceID                  string            `json:"serviceId"`
 	EncryptedBindingParameters []byte            `json:"bindingParameters"`
 	BindingParameters          BindingParameters `json:"-"`
 	Status                     string            `json:"status"`

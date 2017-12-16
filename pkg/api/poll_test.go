@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -38,6 +39,7 @@ func TestPollingWithInstanceProvisioning(t *testing.T) {
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
+		ServiceID:  fake.ServiceID,
 		Status:     service.InstanceStateProvisioning,
 	})
 	assert.Nil(t, err)
@@ -55,6 +57,7 @@ func TestPollingWithInstanceProvisioned(t *testing.T) {
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
+		ServiceID:  fake.ServiceID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -72,6 +75,7 @@ func TestPollingWithInstanceProvisioningFailed(t *testing.T) {
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
+		ServiceID:  fake.ServiceID,
 		Status:     service.InstanceStateProvisioningFailed,
 	})
 	assert.Nil(t, err)
@@ -89,6 +93,7 @@ func TestPollingWithInstanceDeprovisioning(t *testing.T) {
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
+		ServiceID:  fake.ServiceID,
 		Status:     service.InstanceStateDeprovisioning,
 	})
 	assert.Nil(t, err)
@@ -121,6 +126,7 @@ func TestPollingWithInstanceDeprovisioningFailed(t *testing.T) {
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
+		ServiceID:  fake.ServiceID,
 		Status:     service.InstanceStateDeprovisioningFailed,
 	})
 	assert.Nil(t, err)

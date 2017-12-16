@@ -24,7 +24,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 
 	log.WithFields(logFields).Debug("received binding request")
 
-	instance, ok, err := s.store.GetInstance(instanceID, nil, nil, nil)
+	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -116,24 +116,6 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	}
 	serviceManager := svc.GetServiceManager()
 
-	// Now that we have a serviceManager, we can get empty objects of the correct
-	// types, so we can take a second pass at retrieving an instance from storage
-	// with more concrete details filled in.
-	instance, _, err = s.store.GetInstance(
-		instanceID,
-		serviceManager.GetEmptyProvisioningParameters(),
-		serviceManager.GetEmptyUpdatingParameters(),
-		serviceManager.GetEmptyProvisioningContext(),
-	)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"pre-binding error: error retrieving instance by id",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
-
 	// Unpack the parameter map in the request to a struct
 	bindingParameters := serviceManager.GetEmptyBindingParameters()
 	decoderConfig := &mapstructure.DecoderConfig{
@@ -160,12 +142,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	binding, ok, err := s.store.GetBinding(
-		bindingID,
-		serviceManager.GetEmptyBindingParameters(),
-		serviceManager.GetEmptyBindingContext(),
-		serviceManager.GetEmptyCredentials(),
-	)
+	binding, ok, err := s.store.GetBinding(bindingID)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -271,7 +248,11 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	}
 
 	binding = service.Binding{
-		InstanceID:        instanceID,
+		InstanceID: instanceID,
+		// Storing the serviceID on the binding gives us a shortcut to finding
+		// the service and therefore the serviceManager later on-- even if the
+		// binding somehow gets orphaned and we can no longer find the instance.
+		ServiceID:         instance.ServiceID,
 		BindingID:         bindingID,
 		BindingParameters: bindingParameters,
 		BindingContext:    bindingContext,
