@@ -51,7 +51,7 @@ var armTemplateNewServerBytes = []byte(`
 			"type": "string",
 			"minLength": 1,
 			"maxLength": 15,
-			"defaultValue": "255.255.255.255"
+			"defaultValue": "0.0.0.0"
 		},
 		"tags": {
 			"type": "object"

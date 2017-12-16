@@ -1,9 +1,11 @@
 package postgresqldb
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
@@ -28,7 +30,48 @@ func (s *serviceManager) ValidateProvisioningParameters(
 		sslEnforcement != "disabled" {
 		return service.NewValidationError(
 			"sslEnforcement",
-			fmt.Sprintf(`invalid sslEnforcement option: "%s"`, pp.SSLEnforcement),
+			fmt.Sprintf(`invalid option: "%s"`, pp.SSLEnforcement),
+		)
+	}
+	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
+		if pp.FirewallIPStart == "" {
+			return service.NewValidationError(
+				"firewallStartIPAddress",
+				"must be set when firewallEndIPAddress is set",
+			)
+		}
+		if pp.FirewallIPEnd == "" {
+			return service.NewValidationError(
+				"firewallEndIPAddress",
+				"must be set when firewallStartIPAddress is set",
+			)
+		}
+	}
+	startIP := net.ParseIP(pp.FirewallIPStart)
+	if pp.FirewallIPStart != "" && startIP == nil {
+		return service.NewValidationError(
+			"firewallStartIPAddress",
+			fmt.Sprintf(`invalid value: "%s"`, pp.FirewallIPStart),
+		)
+	}
+	endIP := net.ParseIP(pp.FirewallIPEnd)
+	if pp.FirewallIPEnd != "" && endIP == nil {
+		return service.NewValidationError(
+			"firewallEndIPAddress",
+			fmt.Sprintf(`invalid value: "%s"`, pp.FirewallIPEnd),
+		)
+	}
+	//The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
+	//Once converted,comparing two IP addresses can be done by using the
+	//bytes. Compare function. Per the ARM template documentation,
+	//startIP must be <= endIP.
+	startBytes := startIP.To4()
+	endBytes := endIP.To4()
+	if bytes.Compare(startBytes, endBytes) > 0 {
+		return service.NewValidationError(
+			"firewallEndIPAddress",
+			fmt.Sprintf(`invalid value: "%s". must be 
+				greater than or equal to firewallStartIPAddress`, pp.FirewallIPEnd),
 		)
 	}
 	return nil
@@ -64,6 +107,7 @@ func (s *serviceManager) preProvision(
 				"*postgresql.ProvisioningParameters",
 		)
 	}
+
 	pc.ARMDeploymentName = uuid.NewV4().String()
 	pc.ServerName = uuid.NewV4().String()
 	pc.AdministratorLoginPassword = generate.NewPassword()
@@ -80,6 +124,39 @@ func (s *serviceManager) preProvision(
 	return pc, nil
 }
 
+func buildARMTemplateParameters(
+	plan service.Plan,
+	provisioningContext *postgresqlProvisioningContext,
+	provisioningParameters *ProvisioningParameters,
+) map[string]interface{} {
+	var sslEnforcement string
+	if provisioningContext.EnforceSSL {
+		sslEnforcement = "Enabled"
+	} else {
+		sslEnforcement = "Disabled"
+	}
+	p := map[string]interface{}{ // ARM template params
+		"administratorLoginPassword": provisioningContext.AdministratorLoginPassword,
+		"serverName":                 provisioningContext.ServerName,
+		"databaseName":               provisioningContext.DatabaseName,
+		"skuName":                    plan.GetProperties().Extended["skuName"],
+		"skuTier":                    plan.GetProperties().Extended["skuTier"],
+		"skuCapacityDTU": plan.GetProperties().
+			Extended["skuCapacityDTU"],
+		"sslEnforcement": sslEnforcement,
+	}
+	//Only include these if they are not empty.
+	//ARM Deployer will fail if the values included are not
+	//valid IPV4 addresses (i.e. empty string wil fail)
+	if provisioningParameters.FirewallIPStart != "" {
+		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
+	}
+	if provisioningParameters.FirewallIPEnd != "" {
+		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
+	}
+	return p
+}
+
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
@@ -92,28 +169,21 @@ func (s *serviceManager) deployARMTemplate(
 				"*postgresqlProvisioningContext",
 		)
 	}
-	var sslEnforcement string
-	if pc.EnforceSSL {
-		sslEnforcement = "Enabled"
-	} else {
-		sslEnforcement = "Disabled"
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*postgresql.ProvisioningParameters",
+		)
 	}
+	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		instance.StandardProvisioningContext.ResourceGroup,
 		instance.StandardProvisioningContext.Location,
 		armTemplateBytes,
 		nil, // Go template params
-		map[string]interface{}{ // ARM template params
-			"administratorLoginPassword": pc.AdministratorLoginPassword,
-			"serverName":                 pc.ServerName,
-			"databaseName":               pc.DatabaseName,
-			"skuName":                    plan.GetProperties().Extended["skuName"],
-			"skuTier":                    plan.GetProperties().Extended["skuTier"],
-			"skuCapacityDTU": plan.GetProperties().
-				Extended["skuCapacityDTU"],
-			"sslEnforcement": sslEnforcement,
-		},
+		armTemplateParameters,
 		instance.StandardProvisioningContext.Tags,
 	)
 	if err != nil {
