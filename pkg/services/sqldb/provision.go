@@ -72,7 +72,7 @@ func (s *serviceManager) ValidateProvisioningParameters(
 	if bytes.Compare(startBytes, endBytes) > 0 {
 		return service.NewValidationError(
 			"firewallEndIPAddress",
-			fmt.Sprintf(`invalid value: "%s". firewallEndIPAddress must be 
+			fmt.Sprintf(`invalid value: "%s". must be 
 				greater than or equal to firewallStartIPAddress`, pp.FirewallIPEnd),
 		)
 	}
