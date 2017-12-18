@@ -268,7 +268,7 @@ quickstart-wordpress   1         1         1            1           2m
 
 1. To retrieve the password, run this command:
     ```
-    echo Password: $(kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
+    $ kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode
     ```
 
 1. Login using the username `user` and the password you just retrieved.
