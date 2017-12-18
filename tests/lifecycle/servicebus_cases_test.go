@@ -12,13 +12,13 @@ import (
 func getServicebusCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	serviceBusManager, err := sb.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{
 			module:    servicebus.New(armDeployer, serviceBusManager),
 			serviceID: "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",

@@ -12,13 +12,13 @@ import (
 func getRediscacheCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	redisManager, err := rc.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{
 			module:    rediscache.New(armDeployer, redisManager),
 			serviceID: "0346088a-d4b2-4478-aa32-f18e295ec1d9",

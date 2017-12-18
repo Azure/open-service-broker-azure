@@ -12,13 +12,13 @@ import (
 func getMysqlCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	mySQLManager, err := mg.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{
 			module:    mysqldb.New(armDeployer, mySQLManager),
 			serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",

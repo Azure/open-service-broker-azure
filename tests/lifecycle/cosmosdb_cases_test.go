@@ -20,13 +20,13 @@ import (
 func getCosmosdbCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	cosmosdbManager, err := cd.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{ // DocumentDB
 			module:      cosmosdb.New(armDeployer, cosmosdbManager),
 			description: "DocumentDB",
