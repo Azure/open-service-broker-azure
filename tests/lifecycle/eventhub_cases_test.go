@@ -12,13 +12,13 @@ import (
 func getEventhubCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	eventHubManager, err := eh.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{
 			module:    eventhubs.New(armDeployer, eventHubManager),
 			serviceID: "7bade660-32f1-4fd7-b9e6-d416d975170b",

@@ -12,13 +12,13 @@ import (
 func getPostgresqlCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	postgreSQLManager, err := pg.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{
 			module:    postgresqldb.New(armDeployer, postgreSQLManager),
 			serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
