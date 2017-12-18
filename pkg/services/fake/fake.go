@@ -24,16 +24,14 @@ type BindingValidationFunction func(service.BindingParameters) error
 // BindFunction describes a function used to provide pluggable binding behavior
 // to the fake implementation of the service.Module interface
 type BindFunction func(
-	service.StandardProvisioningContext,
-	service.ProvisioningContext,
+	service.Instance,
 	service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error)
 
 // UnbindFunction describes a function used to provide pluggable unbinding
 // behavior to the fake implementation of the service.Module interface
 type UnbindFunction func(
-	service.StandardProvisioningContext,
-	service.ProvisioningContext,
+	service.Instance,
 	service.BindingContext,
 ) error
 
@@ -140,11 +138,7 @@ func (s *ServiceManager) Bind(
 	instance service.Instance,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	return s.BindBehavior(
-		instance.StandardProvisioningContext,
-		instance.ProvisioningContext,
-		bindingParameters,
-	)
+	return s.BindBehavior(instance, bindingParameters)
 }
 
 // Unbind synchronously unbinds from a service
@@ -152,11 +146,7 @@ func (s *ServiceManager) Unbind(
 	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
-	return s.UnbindBehavior(
-		instance.StandardProvisioningContext,
-		instance.ProvisioningContext,
-		bindingContext,
-	)
+	return s.UnbindBehavior(instance, bindingContext)
 }
 
 // GetDeprovisioner returns a deprovisioner that defines the steps a module
@@ -194,17 +184,15 @@ func defaultBindingValidationBehavior(service.BindingParameters) error {
 }
 
 func defaultBindBehavior(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingParameters service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	return provisioningContext, &Credentials{}, nil
+	return instance.ProvisioningContext, &Credentials{}, nil
 }
 
 func defaultUnbindBehavior(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingContext service.BindingContext,
+	_ service.Instance,
+	_ service.BindingContext,
 ) error {
 	return nil
 }
