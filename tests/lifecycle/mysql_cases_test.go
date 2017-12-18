@@ -26,8 +26,11 @@ func getMysqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &mysqldb.ProvisioningParameters{},
-			bindingParameters:      &mysqldb.BindingParameters{},
+			provisioningParameters: &mysqldb.ProvisioningParameters{
+				FirewallIPStart: "0.0.0.0",
+				FirewallIPEnd:   "255.255.255.255",
+			},
+			bindingParameters: &mysqldb.BindingParameters{},
 		},
 	}, nil
 }
