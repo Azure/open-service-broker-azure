@@ -80,7 +80,7 @@ func (a *allServiceManager) Unbind(
 	return nil
 }
 
-//TODO implement db only scenario
+//TODO implement db only scenario unbind
 func (d *dbServiceManager) Unbind(
 	_ service.Instance,
 	_ service.BindingDetails,
