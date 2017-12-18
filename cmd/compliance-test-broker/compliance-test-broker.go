@@ -37,7 +37,7 @@ func main() {
 	noopCodec := noop.NewCodec()
 	server, err := api.NewServer(
 		8080,
-		memoryStorage.NewStore(noopCodec),
+		memoryStorage.NewStore(fakeCatalog, noopCodec),
 		fakeAsync.NewEngine(),
 		noopCodec,
 		authenticator,

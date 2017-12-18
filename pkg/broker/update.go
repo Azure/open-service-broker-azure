@@ -24,7 +24,7 @@ func (b *broker) doUpdateStep(
 	if !ok {
 		return errors.New(`missing required argument "instanceID"`)
 	}
-	instance, ok, err := b.store.GetInstance(instanceID, nil, nil, nil)
+	instance, ok, err := b.store.GetInstance(instanceID)
 	if err != nil {
 		return b.handleUpdatingError(
 			instanceID,
@@ -71,24 +71,6 @@ func (b *broker) doUpdateStep(
 	}
 	serviceManager := svc.GetServiceManager()
 
-	// Now that we have a serviceManager, we can get empty objects of the correct
-	// types, so we can take a second pass at retrieving an instance from storage
-	// with more concrete details filled in.
-	instance, _, err = b.store.GetInstance(
-		instanceID,
-		serviceManager.GetEmptyProvisioningParameters(),
-		serviceManager.GetEmptyUpdatingParameters(),
-		serviceManager.GetEmptyProvisioningContext(),
-	)
-	if err != nil {
-		return b.handleUpdatingError(
-			instanceID,
-			stepName,
-			err,
-			"error loading persisted instance",
-		)
-	}
-
 	// Retrieve a second copy of the instance from storage. Why? We're about to
 	// pass the instance off to module specific code. It's passed by value, so
 	// we'd like to imagine that the modules can only modify copies of the
@@ -98,12 +80,7 @@ func (b *broker) doUpdateStep(
 	// one part of the instance that we inted for modules to modify (provisioning
 	// context) and add that to this untouched copy and write the untouched copy
 	// back to storage.
-	instanceCopy, _, err := b.store.GetInstance(
-		instanceID,
-		serviceManager.GetEmptyProvisioningParameters(),
-		serviceManager.GetEmptyUpdatingParameters(),
-		serviceManager.GetEmptyProvisioningContext(),
-	)
+	instanceCopy, _, err := b.store.GetInstance(instanceID)
 	if err != nil {
 		return b.handleProvisioningError(
 			instanceID,
