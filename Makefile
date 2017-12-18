@@ -84,7 +84,7 @@ verify-vendored-code: check-docker-compose
 	'
 
 .PHONY: test
-test: test-unit test-api-compliance test-module-lifecycles
+test: test-unit test-api-compliance test-service-lifecycles
 
 # Containerized unit tests-- requires docker-compose
 .PHONY: test-unit
@@ -92,9 +92,17 @@ test-unit: check-docker-compose
 	@# As of Go 1.9.0, testing ./... excludes tests on vendored code
 	docker-compose run --rm test bash -c 'go test -tags unit ./...'
 
-# Containerized module lifecycle tests-- requires docker-compose
-.PHONY: test-module-lifecycles
-test-module-lifecycles: check-docker-compose check-azure-env-vars
+# Containerized service lifecycle tests-- requires docker-compose
+.PHONY: test-service-lifecycles
+test-service-lifecycles: check-docker-compose check-azure-env-vars
+	@echo
+	##############################################################################
+	# WARNING! This creates services in Azure and will cost you real MONEY!      #
+	# If run to completion, these tests clean up after themselves, but if        #
+	# interrupted, you may need to perform some manual cleanup on your           #
+	# subscription!                                                              #
+	##############################################################################
+	@echo
 	docker-compose run \
 		--rm \
 		-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \

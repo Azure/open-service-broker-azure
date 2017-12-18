@@ -17,14 +17,13 @@ import (
 func getMssqlCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
-
+) ([]serviceLifecycleTestCase, error) {
 	msSQLManager, err := ss.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{ // new server scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
 			description: "new server and database",

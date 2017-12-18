@@ -36,6 +36,20 @@ func (s *serviceManager) ValidateProvisioningParameters(
 			)
 		}
 	}
+	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
+		if pp.FirewallIPStart == "" {
+			return service.NewValidationError(
+				"firewallStartIPAddress",
+				"must be set when firewallEndIPAddress is set",
+			)
+		}
+		if pp.FirewallIPEnd == "" {
+			return service.NewValidationError(
+				"firewallEndIPAddress",
+				"must be set when firewallStartIPAddress is set",
+			)
+		}
+	}
 	startIP := net.ParseIP(pp.FirewallIPStart)
 	if pp.FirewallIPStart != "" && startIP == nil {
 		return service.NewValidationError(

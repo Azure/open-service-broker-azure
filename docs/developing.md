@@ -149,7 +149,7 @@ HOWERVER, if the tests are interrupted, tests may not successfully clean up
 after themselves.__
 
 ```console
-$ make test-module-lifecycles
+$ make test-service-lifecycles
 ```
 
 Regardless of success or failure, after tests have completed, you can verify
