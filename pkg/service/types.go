@@ -31,14 +31,6 @@ type StandardProvisioningParameters struct {
 // signatures and documentation.
 type ProvisioningParameters interface{}
 
-// StandardProvisioningContext encapsulates the small amount of provisioning
-// context that is widely required for ANYTHING provisioned in Azure.
-type StandardProvisioningContext struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
-}
-
 // ProvisioningContext is an interface to be implemented by module-specific
 // types that represent provisioning context.
 type ProvisioningContext interface{}

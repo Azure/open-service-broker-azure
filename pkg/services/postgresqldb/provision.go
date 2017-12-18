@@ -179,12 +179,12 @@ func (s *serviceManager) deployARMTemplate(
 	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

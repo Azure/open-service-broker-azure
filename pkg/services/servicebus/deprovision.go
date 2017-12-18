@@ -30,7 +30,7 @@ func (s *serviceManager) deleteARMDeployment(
 	}
 	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -51,7 +51,7 @@ func (s *serviceManager) deleteNamespace(
 	}
 	if err := s.serviceBusManager.DeleteNamespace(
 		pc.ServiceBusNamespaceName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting service bus namespace: %s", err)
 	}

@@ -17,15 +17,15 @@ import (
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
 type serviceLifecycleTestCase struct {
-	module                      service.Module
-	description                 string
-	setup                       func() error
-	serviceID                   string
-	planID                      string
-	standardProvisioningContext service.StandardProvisioningContext
-	provisioningParameters      service.ProvisioningParameters
-	bindingParameters           service.BindingParameters
-	testCredentials             func(credentials service.Credentials) error
+	module                 service.Module
+	description            string
+	setup                  func() error
+	serviceID              string
+	planID                 string
+	location               string
+	provisioningParameters service.ProvisioningParameters
+	bindingParameters      service.BindingParameters
+	testCredentials        func(credentials service.Credentials) error
 }
 
 func (s serviceLifecycleTestCase) getName() string {
@@ -89,10 +89,6 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		return err
 	}
 
-	// Force the resource group to be something known to this test executor
-	// to ensure good cleanup
-	s.standardProvisioningContext.ResourceGroup = resourceGroup
-
 	// Setup...
 	if s.setup != nil {
 		if err := s.setup(); err != nil {
@@ -104,9 +100,12 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	instance := service.Instance{
 		ServiceID: s.serviceID,
 		PlanID:    s.planID,
-		StandardProvisioningContext: s.standardProvisioningContext,
-		ProvisioningContext:         serviceManager.GetEmptyProvisioningContext(),
-		ProvisioningParameters:      s.provisioningParameters,
+		Location:  s.location,
+		// Force the resource group to be something known to this test executor
+		// to ensure good cleanup
+		ResourceGroup:          resourceGroup,
+		ProvisioningContext:    serviceManager.GetEmptyProvisioningContext(),
+		ProvisioningParameters: s.provisioningParameters,
 	}
 
 	// Provision...

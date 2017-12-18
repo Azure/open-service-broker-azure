@@ -197,12 +197,10 @@ func getTestInstance() service.Instance {
 		UpdatingParameters:     fakeServiceManager.GetEmptyUpdatingParameters(),
 		Status:                 service.InstanceStateProvisioned,
 		StatusReason:           "",
-		StandardProvisioningContext: service.StandardProvisioningContext{
-			Location:      "eastus",
-			ResourceGroup: "test",
-			Tags:          map[string]string{"foo": "bar"},
-		},
-		ProvisioningContext: fakeServiceManager.GetEmptyProvisioningContext(),
+		Location:               "eastus",
+		ResourceGroup:          "test",
+		Tags:                   map[string]string{"foo": "bar"},
+		ProvisioningContext:    fakeServiceManager.GetEmptyProvisioningContext(),
 	}
 }
 

@@ -30,7 +30,7 @@ func (s *serviceManager) deleteARMDeployment(
 	}
 	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -50,7 +50,7 @@ func (s *serviceManager) deleteNamespace(
 		)
 	}
 	if err := s.eventHubManager.DeleteNamespace(
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 		pc.EventHubNamespace,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting event hub namespace: %s", err)

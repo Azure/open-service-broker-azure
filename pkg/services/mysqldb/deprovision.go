@@ -29,7 +29,7 @@ func (s *serviceManager) deleteARMDeployment(
 	}
 	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -49,7 +49,7 @@ func (s *serviceManager) deleteMySQLServer(
 	}
 	if err := s.mysqlManager.DeleteServer(
 		pc.ServerName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}

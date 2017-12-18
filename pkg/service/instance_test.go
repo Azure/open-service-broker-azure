@@ -56,11 +56,9 @@ func init() {
 		UpdatingParameters:              updatingParameters,
 		Status:                          InstanceStateProvisioning,
 		StatusReason:                    statusReason,
-		StandardProvisioningContext: StandardProvisioningContext{
-			Location:      location,
-			ResourceGroup: resourceGroup,
-			Tags:          map[string]string{tagKey: tagVal},
-		},
+		Location:                        location,
+		ResourceGroup:                   resourceGroup,
+		Tags:                            map[string]string{tagKey: tagVal},
 		EncryptedProvisioningContext: encryptedProvisiongingContext,
 		ProvisioningContext:          provisioningContext,
 		Created:                      created,
@@ -90,11 +88,9 @@ func init() {
 			"updatingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
-			"standardProvisioningContext":{
-				"location":"%s",
-				"resourceGroup":"%s",
-				"tags":{"%s":"%s"}
-			},
+			"location":"%s",
+			"resourceGroup":"%s",
+			"tags":{"%s":"%s"},
 			"provisioningContext":"%s",
 			"created":"%s"
 		}`,

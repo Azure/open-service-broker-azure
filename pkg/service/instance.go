@@ -17,10 +17,12 @@ type Instance struct {
 	ProvisioningParameters          ProvisioningParameters         `json:"-"`
 	EncryptedUpdatingParameters     []byte                         `json:"updatingParameters"` // nolint: lll
 	UpdatingParameters              UpdatingParameters             `json:"-"`
-	Status                          string                         `json:"status"`                      // nolint: lll
-	StatusReason                    string                         `json:"statusReason"`                // nolint: lll
-	StandardProvisioningContext     StandardProvisioningContext    `json:"standardProvisioningContext"` // nolint: lll
-	EncryptedProvisioningContext    []byte                         `json:"provisioningContext"`         // nolint: lll
+	Status                          string                         `json:"status"`        // nolint: lll
+	StatusReason                    string                         `json:"statusReason"`  // nolint: lll
+	Location                        string                         `json:"location"`      // nolint: lll
+	ResourceGroup                   string                         `json:"resourceGroup"` // nolint: lll
+	Tags                            map[string]string              `json:"tags"`
+	EncryptedProvisioningContext    []byte                         `json:"provisioningContext"` // nolint: lll
 	ProvisioningContext             ProvisioningContext            `json:"-"`
 	Created                         time.Time                      `json:"created"` // nolint: lll
 }

@@ -54,8 +54,8 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
@@ -64,7 +64,7 @@ func (s *serviceManager) deployARMTemplate(
 			"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
 			"redisCacheCapacity": plan.GetProperties().Extended["redisCacheCapacity"],
 		},
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

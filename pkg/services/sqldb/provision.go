@@ -203,12 +203,12 @@ func (s *serviceManager) deployARMTemplate(
 		// new server scenario
 		outputs, err := s.armDeployer.Deploy(
 			pc.ARMDeploymentName,
-			instance.StandardProvisioningContext.ResourceGroup,
-			instance.StandardProvisioningContext.Location,
+			instance.ResourceGroup,
+			instance.Location,
 			armTemplateNewServerBytes,
 			nil, // Go template params
 			armTemplateParameters,
-			instance.StandardProvisioningContext.Tags,
+			instance.Tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -247,7 +247,7 @@ func (s *serviceManager) deployARMTemplate(
 				"maxSizeBytes": plan.GetProperties().
 					Extended["maxSizeBytes"],
 			},
-			instance.StandardProvisioningContext.Tags,
+			instance.Tags,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("error deploying ARM template: %s", err)

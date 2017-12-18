@@ -33,7 +33,7 @@ func (s *serviceManager) deleteARMDeployment(
 	}
 	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -54,7 +54,7 @@ func (s *serviceManager) deleteCosmosDBServer(
 	}
 	if err := s.cosmosdbManager.DeleteDatabaseAccount(
 		pc.DatabaseAccountName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}

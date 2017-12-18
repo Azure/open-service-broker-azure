@@ -267,10 +267,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	standardProvisioningContext := s.getStandardProvisioningContext(
-		standardProvisioningParameters,
-	)
-
 	instance = service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  provisioningRequest.ServiceID,
@@ -278,9 +274,15 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		StandardProvisioningParameters: standardProvisioningParameters,
 		ProvisioningParameters:         provisioningParameters,
 		Status:                         service.InstanceStateProvisioning,
-		StandardProvisioningContext: standardProvisioningContext,
-		ProvisioningContext:         serviceManager.GetEmptyProvisioningContext(),
-		Created:                     time.Now(),
+		Location: s.getLocation(
+			standardProvisioningParameters.Location,
+		),
+		ResourceGroup: s.getResourceGroup(
+			standardProvisioningParameters.ResourceGroup,
+		),
+		Tags:                standardProvisioningParameters.Tags,
+		ProvisioningContext: serviceManager.GetEmptyProvisioningContext(),
+		Created:             time.Now(),
 	}
 	if err = s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err
@@ -346,30 +348,23 @@ func (s *server) handlePossibleValidationError(
 	s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 }
 
-func (s *server) getStandardProvisioningContext(
-	spp service.StandardProvisioningParameters,
-) service.StandardProvisioningContext {
-	// Handle defaults for location and resource group
-	spc := service.StandardProvisioningContext{
-		Tags: spp.Tags,
+func (s *server) getLocation(location string) string {
+	if location != "" {
+		return location
 	}
-	if spp.Location != "" {
-		spc.Location = spp.Location
-	} else {
-		// Note: If standardProvisioningParameters.Location and
-		// s.defaultAzureLocation were both "", we would have failed validation
-		// earlier. So if standardProvisioningParameters.Location == "", we know
-		// s.defaultAzureLocation != "", so the following is safe.
-		spc.Location = s.defaultAzureLocation
+	// Note: If standardProvisioningParameters.Location and
+	// s.defaultAzureLocation were both "", we would have failed validation
+	// earlier. So if standardProvisioningParameters.Location == "", we know
+	// s.defaultAzureLocation != "", so the following is safe.
+	return s.defaultAzureLocation
+}
+
+func (s *server) getResourceGroup(resourceGroup string) string {
+	if resourceGroup != "" {
+		return resourceGroup
 	}
-	if spp.ResourceGroup != "" {
-		spc.ResourceGroup = spp.ResourceGroup
-	} else {
-		if s.defaultAzureResourceGroup != "" {
-			spc.ResourceGroup = s.defaultAzureResourceGroup
-		} else {
-			spc.ResourceGroup = uuid.NewV4().String()
-		}
+	if s.defaultAzureResourceGroup != "" {
+		return s.defaultAzureResourceGroup
 	}
-	return spc
+	return uuid.NewV4().String()
 }

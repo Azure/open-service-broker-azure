@@ -57,8 +57,8 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
@@ -66,7 +66,7 @@ func (s *serviceManager) deployARMTemplate(
 			"eventHubNamespace": pc.EventHubNamespace,
 			"eventHubSku":       plan.GetProperties().Extended["eventHubSku"],
 		},
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)

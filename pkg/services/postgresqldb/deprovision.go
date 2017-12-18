@@ -33,7 +33,7 @@ func (s *serviceManager) deleteARMDeployment(
 	}
 	if err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -54,7 +54,7 @@ func (s *serviceManager) deletePostgreSQLServer(
 	}
 	if err := s.postgresqlManager.DeleteServer(
 		pc.ServerName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}

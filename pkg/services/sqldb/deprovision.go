@@ -35,7 +35,7 @@ func (s *serviceManager) deleteARMDeployment(
 		// new server scenario
 		err = s.armDeployer.Delete(
 			pc.ARMDeploymentName,
-			instance.StandardProvisioningContext.ResourceGroup,
+			instance.ResourceGroup,
 		)
 	} else {
 		// exisiting server scenario
@@ -75,7 +75,7 @@ func (s *serviceManager) deleteMsSQLServerOrDatabase(
 		// new server scenario
 		if err := s.mssqlManager.DeleteServer(
 			pc.ServerName,
-			instance.StandardProvisioningContext.ResourceGroup,
+			instance.ResourceGroup,
 		); err != nil {
 			return pc, fmt.Errorf("error deleting mssql server: %s", err)
 		}
