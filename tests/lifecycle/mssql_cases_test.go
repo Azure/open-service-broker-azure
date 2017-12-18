@@ -79,7 +79,7 @@ var armTemplateNewServerBytes = []byte(`
 func getMssqlCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	// Creating a SQL server for existing server case only
 	serverName := uuid.NewV4().String()
 	administratorLogin := generate.NewIdentifier()
@@ -132,7 +132,7 @@ func getMssqlCases(
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{ // new server scenario
 			module:      sqldb.New(armDeployer, msSQLManager, msSQLConfig),
 			description: "new server and database",

@@ -12,13 +12,13 @@ import (
 func getStorageCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	storageManager, err := sa.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{ // General Purpose Storage Account
 			module:      storage.New(armDeployer, storageManager),
 			description: "general purpose storage account",

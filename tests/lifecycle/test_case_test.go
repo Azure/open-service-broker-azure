@@ -12,11 +12,11 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-// moduleLifecycleTestCase encapsulates all the required things for a lifecycle
+// serviceLifecycleTestCase encapsulates all the required things for a lifecycle
 // test case. A case should defines both createDependency and
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
-type moduleLifecycleTestCase struct {
+type serviceLifecycleTestCase struct {
 	module                      service.Module
 	description                 string
 	setup                       func() error
@@ -28,26 +28,26 @@ type moduleLifecycleTestCase struct {
 	testCredentials             func(credentials service.Credentials) error
 }
 
-func (m *moduleLifecycleTestCase) getName() string {
+func (s serviceLifecycleTestCase) getName() string {
 	base := fmt.Sprintf(
-		"TestModules/lifecycle/%s",
-		m.module.GetName(),
+		"TestServices/lifecycle/%s",
+		s.module.GetName(),
 	)
-	if m.description == "" {
+	if s.description == "" {
 		return base
 	}
 	return fmt.Sprintf(
 		"%s/%s",
 		base,
-		strings.Replace(m.description, " ", "_", -1),
+		strings.Replace(s.description, " ", "_", -1),
 	)
 }
 
-func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
+func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*20)
 	defer cancel()
 
-	name := m.getName()
+	name := s.getName()
 
 	log.Printf("----> %s: starting\n", name)
 
@@ -55,58 +55,58 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 
 	// This will periodically send status to stdout until the context is canceled.
 	// THIS is what stops CI from timing out these tests!
-	go m.showStatus(ctx)
+	go s.showStatus(ctx)
 
 	// Get the service and plan
-	cat, err := m.module.GetCatalog()
+	cat, err := s.module.GetCatalog()
 	if err != nil {
 		return fmt.Errorf(
 			`error gettting catalog from module "%s"`,
-			m.module.GetName(),
+			s.module.GetName(),
 		)
 	}
-	svc, ok := cat.GetService(m.serviceID)
+	svc, ok := cat.GetService(s.serviceID)
 	if !ok {
 		return fmt.Errorf(
 			`service "%s" not found in module "%s" catalog`,
-			m.serviceID,
-			m.module.GetName(),
+			s.serviceID,
+			s.module.GetName(),
 		)
 	}
-	plan, ok := svc.GetPlan(m.planID)
+	plan, ok := svc.GetPlan(s.planID)
 	if !ok {
 		return fmt.Errorf(
 			`plan "%s" not found for service "%s" in module "%s" catalog`,
-			m.planID,
-			m.serviceID,
-			m.module.GetName(),
+			s.planID,
+			s.serviceID,
+			s.module.GetName(),
 		)
 	}
 	serviceManager := svc.GetServiceManager()
 
-	err = serviceManager.ValidateProvisioningParameters(m.provisioningParameters)
+	err = serviceManager.ValidateProvisioningParameters(s.provisioningParameters)
 	if err != nil {
 		return err
 	}
 
 	// Force the resource group to be something known to this test executor
 	// to ensure good cleanup
-	m.standardProvisioningContext.ResourceGroup = resourceGroup
+	s.standardProvisioningContext.ResourceGroup = resourceGroup
 
 	// Setup...
-	if m.setup != nil {
-		if err := m.setup(); err != nil {
+	if s.setup != nil {
+		if err := s.setup(); err != nil {
 			return err
 		}
 	}
 
 	// Build an instance from test case details
 	instance := service.Instance{
-		ServiceID: m.serviceID,
-		PlanID:    m.planID,
-		StandardProvisioningContext: m.standardProvisioningContext,
+		ServiceID: s.serviceID,
+		PlanID:    s.planID,
+		StandardProvisioningContext: s.standardProvisioningContext,
 		ProvisioningContext:         serviceManager.GetEmptyProvisioningContext(),
-		ProvisioningParameters:      m.provisioningParameters,
+		ProvisioningParameters:      s.provisioningParameters,
 	}
 
 	// Provision...
@@ -119,7 +119,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	if !ok {
 		return fmt.Errorf(
 			`Module "%s" provisioner has no steps`,
-			m.module.GetName(),
+			s.module.GetName(),
 		)
 	}
 	// Execute provisioning steps until there are none left
@@ -129,7 +129,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		if !ok {
 			return fmt.Errorf(
 				`Module "%s" provisioning step "%s" not found`,
-				m.module.GetName(),
+				s.module.GetName(),
 				stepName,
 			)
 		}
@@ -145,14 +145,14 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Bind
-	bc, credentials, err := serviceManager.Bind(instance, m.bindingParameters)
+	bc, credentials, err := serviceManager.Bind(instance, s.bindingParameters)
 	if err != nil {
 		return err
 	}
 
 	// Test the credentials
-	if m.testCredentials != nil {
-		err = m.testCredentials(credentials)
+	if s.testCredentials != nil {
+		err = s.testCredentials(credentials)
 		if err != nil {
 			return err
 		}
@@ -174,7 +174,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	if !ok {
 		return fmt.Errorf(
 			`Module "%s" deprovisioner has no steps`,
-			m.module.GetName(),
+			s.module.GetName(),
 		)
 	}
 	// Execute deprovisioning steps until there are none left
@@ -183,7 +183,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		if !ok {
 			return fmt.Errorf(
 				`Module "%s" deprovisioning step "%s" not found`,
-				m.module.GetName(),
+				s.module.GetName(),
 				stepName,
 			)
 		}
@@ -204,8 +204,8 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	return nil
 }
 
-func (m *moduleLifecycleTestCase) showStatus(ctx context.Context) {
-	name := m.getName()
+func (s serviceLifecycleTestCase) showStatus(ctx context.Context) {
+	name := s.getName()
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 	for {

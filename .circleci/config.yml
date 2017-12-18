@@ -65,7 +65,7 @@ jobs:
       - run:
           name: Build Binary & Docker Image
           command: make docker-build
-  test-module-lifecycles:
+  test-service-lifecycles:
     working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
@@ -76,8 +76,8 @@ jobs:
           name: Install Dependencies
           command: ./scripts/install-deps.sh
       - run:
-          name: Run Module Lifecycle Tests
-          command: make test-module-lifecycles
+          name: Run Service Lifecycle Tests
+          command: make test-service-lifecycles
   publish-rc-images:
     working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
@@ -143,7 +143,7 @@ workflows:
           filters:
             branches:
               ignore: master
-      - test-module-lifecycles:
+      - test-service-lifecycles:
           requires:
             - hold
             - lint
@@ -176,7 +176,7 @@ workflows:
           filters:
             branches:
               only: master
-      - test-module-lifecycles:
+      - test-service-lifecycles:
           requires:
             - lint
             - verify-vendored-code
@@ -193,7 +193,7 @@ workflows:
             - test-unit
             - test-api-compliance
             - build
-            - test-module-lifecycles
+            - test-service-lifecycles
           filters:
             branches:
               only: master

@@ -12,13 +12,13 @@ import (
 func getACICases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	aciManager, err := ac.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{
 			module:    aci.New(armDeployer, aciManager),
 			serviceID: "451d5d19-4575-4d4a-9474-116f705ecc95",
