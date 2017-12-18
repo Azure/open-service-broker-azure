@@ -318,7 +318,7 @@ func (s *vmServiceManager) deployARMTemplate(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
-		armTemplateNewServerBytes,
+		armTemplateServerOnlyBytes,
 		nil, // Go template params
 		armTemplateParams,
 		instance.Tags,

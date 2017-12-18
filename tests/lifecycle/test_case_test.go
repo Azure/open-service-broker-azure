@@ -176,10 +176,26 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		// Unbind
 		err = serviceManager.Unbind(instance, bd)
 		if err != nil {
+			log.Printf("Error in bind step: %v", bindErr)
+			return bindErr
+		}
+
+		// Unbind
+		err = serviceManager.Unbind(instance, bd)
+		if err != nil {
 			return err
 
 		}
 
+<<<<<<< HEAD
+=======
+		// Unbind (need to skip if not bindable)
+		bindErr = serviceManager.Unbind(instance, bc)
+		if bindErr != nil {
+			log.Printf("Error in unbind step: %v", bindErr)
+			return bindErr
+		}
+>>>>>>> Server only option for #124
 	}
 	// Deprovision...
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)

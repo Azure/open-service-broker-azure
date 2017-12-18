@@ -5,6 +5,7 @@ package lifecycle
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/url"
 
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
@@ -29,11 +30,22 @@ func getMssqlCases(
 			description: "new server only",
 			serviceID:   "2787cd60-8184-4b80-aa45-f507fa5a6ff4",
 			planID:      "0f4baa94-92cb-4222-9d7e-600c394ec50d",
+<<<<<<< HEAD
 			location:    "southcentralus",
 			provisioningParameters: &sqldb.ServerProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
+=======
+			standardProvisioningContext: service.StandardProvisioningContext{
+				Location: "southcentralus",
+			},
+			provisioningParameters: &sqldb.ProvisioningParameters{
+				FirewallIPStart: "0.0.0.0",
+				FirewallIPEnd:   "255.255.255.255",
+			},
+			bindingParameters: &sqldb.BindingParameters{},
+>>>>>>> Server only option for #124
 		},
 		{ // new server scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
@@ -51,13 +63,27 @@ func getMssqlCases(
 	}, nil
 }
 
+func testNoOpCreds() func(credentials service.Credentials) error {
+	return func(credentials service.Credentials) error {
+		log.Printf("Running empty test creds")
+		return nil
+	}
+}
+
 func testMsSQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
+		log.Printf("Running not empty test creds")
 		cdts, ok := credentials.(*sqldb.Credentials)
 
 		if !ok {
 			return fmt.Errorf("error casting credentials as *mssql.Credentials")
 		}
+		//Skip test if cdts.Database is empty, server only scenario.
+		if cdts.Database == "" {
+			return nil
+		}
+
+		log.Printf("cdts.Database : %v ", cdts.Database)
 		//Skip test if cdts.Database is empty, server only scenario.
 		if cdts.Database == "" {
 			return nil
