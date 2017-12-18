@@ -27,6 +27,8 @@ func getPostgresqlCases(
 				Location: "southcentralus",
 			},
 			provisioningParameters: &postgresqldb.ProvisioningParameters{
+				FirewallIPStart: "0.0.0.0",
+				FirewallIPEnd:   "255.255.255.255",
 				Extensions: []string{
 					"uuid-ossp",
 					"postgis",

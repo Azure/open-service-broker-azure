@@ -31,7 +31,7 @@ save the connection information in Kubernetes secrets, and then bind them to our
 
 **MacOS**
 ```
-brew cask install minikube
+$ brew cask install minikube
 ```
 
 **Windows**
@@ -41,7 +41,7 @@ brew cask install minikube
 
 **Linux**
 ```
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 ```
 
 ## Install the Azure CLI
@@ -51,7 +51,7 @@ See the [full installation instructions](https://docs.microsoft.com/en-us/cli/az
 **MacOS**
 
 ```
-brew install azure-cli
+$ brew install azure-cli
 ```
 
 **Windows**
@@ -62,21 +62,21 @@ Download and run the [Azure CLI Installer (MSI)](https://aka.ms/InstallAzureCliW
 
 1. Add the azure-cli repo to your sources:
     ```
-    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
+    $ echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | \
          sudo tee /etc/apt/sources.list.d/azure-cli.list
     ```
 1. Run the following commands to install the Azure CLI and its dependencies:
     ```
-    sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
-    sudo apt-get install apt-transport-https
-    sudo apt-get update && sudo apt-get install azure-cli
+    $ sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893
+    $ sudo apt-get install apt-transport-https
+    $ sudo apt-get update && sudo apt-get install azure-cli
     ```
 
 ## Install the Kubernetes CLI
 Install `kubectl` by running the following command:
 
 ```
-az acs kubernetes install-cli
+$ az acs kubernetes install-cli
 ```
 
 ## Install the Helm CLI
@@ -85,7 +85,7 @@ Install `helm` by running the following command:
 
 **MacOS**
 ```
-brew install kubernetes-helm
+$ brew install kubernetes-helm
 ```
 
 **Windows**
@@ -95,7 +95,7 @@ brew install kubernetes-helm
 
 **Linux**
 ```
-curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+$ curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 ```
 
 ---
@@ -109,18 +109,18 @@ First let's identify your Azure subscription and save it for use later on in the
 1. Run `az login` and follow the instructions in the command output to authorize `az` to use your account
 1. List your Azure subscriptions:
     ```
-    az account list -o table
+    $ az account list -o table
     ```
 1. Copy your subscription ID and save it in an environment variable:
 
     **Bash**
     ```
-    export AZURE_SUBSCRIPTION_ID="<SubscriptionId>"
+    $ export AZURE_SUBSCRIPTION_ID="<SubscriptionId>"
     ```
 
     **PowerShell**
     ```
-    $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
+    > $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
     ```
 
 ## Create a resource group
@@ -129,11 +129,11 @@ for easy cleanup later.
 
 1. List the available Azure regions and select a region, for example `centralus`:
     ```
-    az account list-locations -o table
+    $ az account list-locations -o table
     ```
 1. Create a resource group for the quickstart:
     ```
-    az group create --name osba-quickstart --location <RegionName>
+    $ az group create --name osba-quickstart --location <RegionName>
     ```
 
 ## Create a service principal
@@ -142,22 +142,22 @@ resources on your account on behalf of Kubernetes.
 
 1. Create a service principal with RBAC enabled for the quickstart:
     ```
-    az ad sp create-for-rbac --name osba-quickstart -o table
+    $ az ad sp create-for-rbac --name osba-quickstart -o table
     ```
 1. Save the values from the command output in environment variables:
 
     **Bash**
     ```
-    export AZURE_TENANT_ID=<Tenant>
-    export AZURE_CLIENT_ID=<AppId>
-    export AZURE_CLIENT_SECRET=<Password>
+    $ export AZURE_TENANT_ID=<Tenant>
+    $ export AZURE_CLIENT_ID=<AppId>
+    $ export AZURE_CLIENT_SECRET=<Password>
     ```
 
     **PowerShell**
     ```
-    $env:AZURE_TENANT_ID = "<Tenant>"
-    $env:AZURE_CLIENT_ID = "<AppId>"
-    $env:AZURE_CLIENT_SECRET = "<Password>"
+    > $env:AZURE_TENANT_ID = "<Tenant>"
+    > $env:AZURE_CLIENT_ID = "<AppId>"
+    > $env:AZURE_CLIENT_SECRET = "<Password>"
     ```
 
 ## Create a Kubernetes cluster using Minikube
@@ -165,11 +165,11 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 
 1. Create an RBAC enabled cluster:
     ```
-    minikube start --extra-config=apiserver.Authorization.Mode=RBAC
+    $ minikube start --extra-config=apiserver.Authorization.Mode=RBAC
     ```
 1. Grant the `cluster-admin` role to the default system account:
     ```
-    kubectl create clusterrolebinding cluster-admin:kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:default
+    $ kubectl create clusterrolebinding cluster-admin:kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:default
     ```
 
 ## Configure the cluster with Open Service Broker for Azure
@@ -177,20 +177,20 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 1. Before we can use Helm to install applications such as Service Catalog and
     WordPress on the cluster, we first need to prepare the cluster to work with Helm:
     ```
-    kubectl create -f https://raw.githubusercontent.com/Azure/helm-charts/master/docs/prerequisities/helm-rbac-config.yaml
-    helm init --service-account tiller
+    $ kubectl create -f https://raw.githubusercontent.com/Azure/helm-charts/master/docs/prerequisities/helm-rbac-config.yaml
+    $ helm init --service-account tiller
     ```
 1. Deploy Service Catalog on the cluster:
     ```
-    helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
-    helm install svc-cat/catalog --name catalog --namespace catalog
+    $ helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
+    $ helm install svc-cat/catalog --name catalog --namespace catalog
     ```
 1. Deploy Open Service Broker for Azure on the cluster:
 
     **Bash**
     ```
-    helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
-    helm install azure/open-service-broker-azure --name osba --namespace osba \
+    $ helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+    $ helm install azure/open-service-broker-azure --name osba --namespace osba \
       --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
       --set azure.tenantId=$AZURE_TENANT_ID \
       --set azure.clientId=$AZURE_CLIENT_ID \
@@ -199,8 +199,8 @@ Next we will create a local cluster using Minikube. _Support for AKS is coming s
 
     **PowerShell**
     ```
-    helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
-    helm install azure/open-service-broker-azure --name osba --namespace osba `
+    > helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+    > helm install azure/open-service-broker-azure --name osba --namespace osba `
       --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
       --set azure.tenantId=$env:AZURE_TENANT_ID `
       --set azure.clientId=$env:AZURE_CLIENT_ID `
@@ -231,7 +231,7 @@ WordPress to Kubernetes and OSBA will handle provisioning an Azure MySQL databas
 and binding it to our WordPress installation.
 
 ```
-helm install azure/wordpress --name quickstart
+$ helm install azure/wordpress --name quickstart
 ```
 
 Note: when installing the wordpress chart on some versions of Minikube, you
@@ -259,24 +259,26 @@ quickstart-wordpress   1         1         1            1           2m
 
 1. Run the following command to open WordPress in your browser:
     ```
-    open http://$(minikube ip):$(kubectl get service quickstart-wordpress -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort})/admin 
+    $ open http://$(minikube ip):$(kubectl get service quickstart-wordpress -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort})/admin 
     ```
 
     **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
     the command from the WordPress deployment output because with Minikube the
-    WordPress service won't have a public IP address assigned. We are also using
-    kubectl in order to find the node port of the `http` port. 
-1. Login using the following credentials:
+    WordPress service won't have a public IP address assigned.
+
+1. To retrieve the password, run this command:
     ```
-    echo Username: user
-    echo Password: $(kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
+    $ kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode
     ```
 
+1. Login using the username `user` and the password you just retrieved.
+    
+    
 ## Optional: Cleanup
 Here's how to remove resources created by this quickstart:
 
 1. `az group delete --name osba-quickstart`
-1. `az ad sp delete --name osba-quickstart`
+1. `az ad sp delete --id http://osba-quickstart`
 1. `minikube delete`
 
 # Next Steps
