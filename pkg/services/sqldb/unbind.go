@@ -6,7 +6,14 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) Unbind(
+func (s *serverOnlyServiceManager) Unbind(
+	instance service.Instance,
+	bindingContext service.BindingContext,
+) error {
+	return nil
+}
+
+func (a *allInOneServiceManager) Unbind(
 	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
