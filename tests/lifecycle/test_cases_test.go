@@ -18,6 +18,7 @@ func getTestCases(resourceGroup string) ([]moduleLifecycleTestCase, error) {
 		armDeployer arm.Deployer,
 		resourceGroup string,
 	) ([]moduleLifecycleTestCase, error){
+		getRediscacheCases,
 		getACICases,
 		getCosmosdbCases,
 		getEventhubCases,
@@ -25,7 +26,6 @@ func getTestCases(resourceGroup string) ([]moduleLifecycleTestCase, error) {
 		getMssqlCases,
 		getMysqlCases,
 		getPostgresqlCases,
-		getRediscacheCases,
 		getSearchCases,
 		getServicebusCases,
 		getStorageCases,
