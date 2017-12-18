@@ -80,7 +80,16 @@ func (s *serviceManager) ValidateProvisioningParameters(
 	return nil
 }
 
-func (s *serviceManager) GetProvisioner(
+func (a *allInOneServiceManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
+	return service.NewProvisioner(
+		service.NewProvisioningStep("preProvision", a.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", a.deployARMTemplate),
+	)
+}
+
+func (s *serverOnlyServiceManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -89,7 +98,26 @@ func (s *serviceManager) GetProvisioner(
 	)
 }
 
-func (s *serviceManager) preProvision(
+func (s *serverOnlyServiceManager) preProvision(
+	_ context.Context,
+	instance service.Instance,
+	_ service.Plan,
+) (service.ProvisioningContext, error) {
+	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+		)
+	}
+	pc.ARMDeploymentName = uuid.NewV4().String()
+	pc.ServerName = uuid.NewV4().String()
+	pc.AdministratorLogin = generate.NewIdentifier()
+	pc.AdministratorLoginPassword = generate.NewPassword()
+
+	return pc, nil
+}
+
+func (a *allInOneServiceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
@@ -109,8 +137,7 @@ func (s *serviceManager) preProvision(
 	return pc, nil
 }
 
-func buildARMTemplateParameters(
-	plan service.Plan,
+func buildServerARMTemplateParameters(
 	provisioningContext *mssqlProvisioningContext,
 	provisioningParameters *ProvisioningParameters,
 ) map[string]interface{} {
@@ -118,12 +145,6 @@ func buildARMTemplateParameters(
 		"serverName":                 provisioningContext.ServerName,
 		"administratorLogin":         provisioningContext.AdministratorLogin,
 		"administratorLoginPassword": provisioningContext.AdministratorLoginPassword,
-		"databaseName":               provisioningContext.DatabaseName,
-		"edition":                    plan.GetProperties().Extended["edition"],
-		"requestedServiceObjectiveName": plan.GetProperties().
-			Extended["requestedServiceObjectiveName"],
-		"maxSizeBytes": plan.GetProperties().
-			Extended["maxSizeBytes"],
 	}
 	//Only include these if they are not empty.
 	//ARM Deployer will fail if the values included are not
@@ -137,8 +158,43 @@ func buildARMTemplateParameters(
 	return p
 }
 
-func (s *serviceManager) deployARMTemplate(
-	_ context.Context,
+func (a *allInOneServiceManager) buildARMTemplateParameters(
+	plan service.Plan,
+	provisioningContext *mssqlProvisioningContext,
+	provisioningParameters *ProvisioningParameters,
+) map[string]interface{} {
+	//First obtain the common server properties
+	p := buildServerARMTemplateParameters(
+		provisioningContext,
+		provisioningParameters,
+	)
+
+	//These are the database related properties that are needed
+	//for this deployment
+	p["databaseName"] = provisioningContext.DatabaseName
+	p["edition"] = plan.GetProperties().Extended["edition"]
+	p["requestedServiceObjectiveName"] = plan.GetProperties().
+		Extended["requestedServiceObjectiveName"]
+	p["maxSizeBytes"] = plan.GetProperties().Extended["maxSizeBytes"]
+
+	return p
+}
+
+func (s *serverOnlyServiceManager) buildARMTemplateParameters(
+	_ service.Plan,
+	provisioningContext *mssqlProvisioningContext,
+	provisioningParameters *ProvisioningParameters,
+) map[string]interface{} {
+	//In this deployment scenario, we need only the server
+	//parameters
+	return buildServerARMTemplateParameters(
+		provisioningContext,
+		provisioningParameters,
+	)
+}
+
+func (a *allInOneServiceManager) deployARMTemplate(
+	context context.Context,
 	instance service.Instance,
 	plan service.Plan,
 ) (service.ProvisioningContext, error) {
@@ -155,12 +211,60 @@ func (s *serviceManager) deployARMTemplate(
 				"*mssql.ProvisioningParameters",
 		)
 	}
-	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
+	armTemplateParameters := a.buildARMTemplateParameters(plan, pc, pp)
+	return a.serviceManager.deployARMTemplate(context,
+		instance,
+		plan,
+		armTemplateNewServerBytes,
+		armTemplateParameters,
+	)
+}
+
+func (s *serverOnlyServiceManager) deployARMTemplate(
+	context context.Context,
+	instance service.Instance,
+	plan service.Plan,
+) (service.ProvisioningContext, error) {
+	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+		)
+	}
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.ProvisioningParameters as " +
+				"*mssql.ProvisioningParameters",
+		)
+	}
+	armTemplateParameters := s.buildARMTemplateParameters(plan, pc, pp)
+	return s.serviceManager.deployARMTemplate(context,
+		instance,
+		plan,
+		armTemplateServerOnlyBytes,
+		armTemplateParameters,
+	)
+}
+
+func (s *serviceManager) deployARMTemplate(
+	_ context.Context,
+	instance service.Instance,
+	_ service.Plan,
+	armTemplateName []byte,
+	armTemplateParameters map[string]interface{},
+) (service.ProvisioningContext, error) {
+	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+		)
+	}
 	outputs, err := s.armDeployer.Deploy(
 		pc.ARMDeploymentName,
 		instance.StandardProvisioningContext.ResourceGroup,
 		instance.StandardProvisioningContext.Location,
-		armTemplateNewServerBytes,
+		armTemplateName,
 		nil, // Go template params
 		armTemplateParameters,
 		instance.StandardProvisioningContext.Tags,

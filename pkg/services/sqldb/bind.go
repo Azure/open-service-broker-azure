@@ -16,7 +16,14 @@ func (s *serviceManager) ValidateBindingParameters(
 	return nil
 }
 
-func (s *serviceManager) Bind(
+func (s *serverOnlyServiceManager) Bind(
+	instance service.Instance,
+	_ service.BindingParameters,
+) (service.BindingContext, service.Credentials, error) {
+	return nil, nil, nil
+}
+
+func (s *allInOneServiceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {

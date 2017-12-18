@@ -135,6 +135,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		}
 		instance.ProvisioningContext, err = step.Execute(ctx, instance, plan)
 		if err != nil {
+			log.Printf("Error in provision step: %v", err)
 			return err
 		}
 		stepName, ok = provisioner.GetNextStepName(stepName)
@@ -144,29 +145,34 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		}
 	}
 
-	// Bind
-	bc, credentials, err := serviceManager.Bind(instance, s.bindingParameters)
-	if err != nil {
-		return err
-	}
-
-	// Test the credentials
-	if s.testCredentials != nil {
-		err = s.testCredentials(credentials)
+	if svc.GetBindable() {
+		// Bind (need to skip if not bindable)
+		bc, credentials, bindErr := serviceManager.Bind(instance, s.bindingParameters)
 		if err != nil {
-			return err
+			log.Printf("Error in bind step: %v", bindErr)
+			return bindErr
+		}
+
+		// Test the credentials
+		if s.testCredentials != nil {
+			bindErr = s.testCredentials(credentials)
+			if err != nil {
+				log.Printf("Error in test step: %v", bindErr)
+				return bindErr
+			}
+		}
+
+		// Unbind (need to skip if not bindable)
+		bindErr = serviceManager.Unbind(instance, bc)
+		if bindErr != nil {
+			log.Printf("Error in unbind step: %v", bindErr)
+			return bindErr
 		}
 	}
-
-	// Unbind
-	err = serviceManager.Unbind(instance, bc)
-	if err != nil {
-		return err
-	}
-
 	// Deprovision...
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
+		log.Printf("Error in deprovision step: %v", err)
 		return nil
 	}
 	stepName, ok = deprovisioner.GetFirstStepName()
@@ -192,6 +198,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		// cleanup logic.
 		instance.ProvisioningContext, err = step.Execute(ctx, instance, plan)
 		if err != nil {
+			log.Printf("Error in deprovisioner step: %v", err)
 			return err
 		}
 		stepName, ok = deprovisioner.GetNextStepName(stepName)

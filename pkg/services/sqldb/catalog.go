@@ -13,7 +13,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:    true,
 				Tags:        []string{"Azure", "SQL", "Database"},
 			},
-			m.serviceManager,
+			m.allInOneServiceManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 				Name:        "basic",
@@ -145,6 +145,22 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "DW1200",
 					"maxSizeBytes":                  "1099511627776",
 				},
+			}),
+		),
+		service.NewService(
+			&service.ServiceProperties{
+				ID:          "2787cd60-8184-4b80-aa45-f507fa5a6ff4",
+				Name:        "azure-sqldb-server-only",
+				Description: "Azure SQL Server VM (Experimental)",
+				Bindable:    false,
+				Tags:        []string{"Azure", "SQL", "Server", "VM"},
+			},
+			m.serverOnlyServiceManager,
+			service.NewPlan(&service.PlanProperties{
+				ID:          "0f4baa94-92cb-4222-9d7e-600c394ec50d",
+				Name:        "sql-server",
+				Description: "Azure SQL Server - VM Only, No Database",
+				Free:        false,
 			}),
 		),
 	}), nil

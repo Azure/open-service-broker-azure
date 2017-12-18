@@ -7,12 +7,21 @@ import (
 )
 
 type module struct {
-	serviceManager *serviceManager
+	allInOneServiceManager   *allInOneServiceManager
+	serverOnlyServiceManager *serverOnlyServiceManager
 }
 
 type serviceManager struct {
 	armDeployer  arm.Deployer
 	mssqlManager mssql.Manager
+}
+
+type allInOneServiceManager struct {
+	serviceManager
+}
+
+type serverOnlyServiceManager struct {
+	serviceManager
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -22,10 +31,17 @@ func New(
 	armDeployer arm.Deployer,
 	mssqlManager mssql.Manager,
 ) service.Module {
+	sm := serviceManager{
+		armDeployer:  armDeployer,
+		mssqlManager: mssqlManager,
+	}
+
 	return &module{
-		serviceManager: &serviceManager{
-			armDeployer:  armDeployer,
-			mssqlManager: mssqlManager,
+		allInOneServiceManager: &allInOneServiceManager{
+			serviceManager: sm,
+		},
+		serverOnlyServiceManager: &serverOnlyServiceManager{
+			serviceManager: sm,
 		},
 	}
 }
