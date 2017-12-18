@@ -33,9 +33,12 @@ func getMssqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &sqldb.ProvisioningParameters{},
-			bindingParameters:      &sqldb.BindingParameters{},
-			testCredentials:        testMsSQLCreds(),
+			provisioningParameters: &sqldb.ProvisioningParameters{
+				FirewallIPStart: "0.0.0.0",
+				FirewallIPEnd:   "255.255.255.255",
+			},
+			bindingParameters: &sqldb.BindingParameters{},
+			testCredentials:   testMsSQLCreds(),
 		},
 	}, nil
 }

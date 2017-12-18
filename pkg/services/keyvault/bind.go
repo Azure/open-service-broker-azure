@@ -15,14 +15,14 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingParameters service.BindingParameters,
+	instance service.Instance,
+	_ service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*keyvaultProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*keyvaultProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as *keyvaultProvisioningContext",
+			"error casting instance.ProvisioningContext as " +
+				"*keyvaultProvisioningContext",
 		)
 	}
 

@@ -42,7 +42,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instance, ok, err := s.store.GetInstance(instanceID)
+	instance, ok, err := s.store.GetInstance(instanceID, nil, nil, nil)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -107,6 +107,24 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	serviceManager := svc.GetServiceManager()
+
+	// Now that we have a serviceManager, we can get empty objects of the correct
+	// types, so we can take a second pass at retrieving an instance from storage
+	// with more concrete details filled in.
+	instance, _, err = s.store.GetInstance(
+		instanceID,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+	)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"pre-deprovisioning error: error retrieving instance by id",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		return
+	}
 
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
