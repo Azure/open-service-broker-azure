@@ -172,7 +172,7 @@ func (a *allServiceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
+	_ service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
@@ -287,7 +287,7 @@ func (s *vmServiceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-	_ service.Instance, //reference instance
+	_ service.Instance, //referenace instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlServerOnlyInstanceDetails)
 	if !ok {
@@ -298,7 +298,7 @@ func (s *vmServiceManager) deployARMTemplate(
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
+			"error casting instance.ProvisioningParameters as " +
 				"*mssql.ProvisioningParameters",
 		)
 	}

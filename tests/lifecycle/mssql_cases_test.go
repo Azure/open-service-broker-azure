@@ -63,6 +63,13 @@ func getMssqlCases(
 	}, nil
 }
 
+func testNoOpCreds() func(credentials service.Credentials) error {
+	return func(credentials service.Credentials) error {
+		log.Printf("Running empty test creds")
+		return nil
+	}
+}
+
 func testMsSQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
 		log.Printf("Running not empty test creds")
