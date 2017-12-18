@@ -34,7 +34,7 @@ func TestBindingWithInstanceThatIsNotFullyProvisioned(t *testing.T) {
 	planID := getDisposablePlanID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  getDisposableServiceID(),
+		ServiceID:  fake.ServiceID,
 		PlanID:     planID,
 		Status:     service.InstanceStateProvisioning,
 	})
@@ -55,11 +55,10 @@ func TestBindingWithServiceIDDifferentFromInstanceServiceID(t *testing.T) {
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	planID := getDisposablePlanID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  getDisposableServiceID(),
-		PlanID:     planID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -68,7 +67,7 @@ func TestBindingWithServiceIDDifferentFromInstanceServiceID(t *testing.T) {
 		getDisposableBindingID(),
 		&BindingRequest{
 			ServiceID: getDisposableServiceID(),
-			PlanID:    planID,
+			PlanID:    fake.StandardPlanID,
 		},
 	)
 	assert.Nil(t, err)
@@ -82,11 +81,10 @@ func TestBindingWithPlanIDDifferentFromInstancePlanID(t *testing.T) {
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	serviceID := getDisposableServiceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
-		ServiceID:  serviceID,
-		PlanID:     getDisposablePlanID(),
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -94,7 +92,7 @@ func TestBindingWithPlanIDDifferentFromInstancePlanID(t *testing.T) {
 		instanceID,
 		getDisposableBindingID(),
 		&BindingRequest{
-			ServiceID: serviceID,
+			ServiceID: fake.ServiceID,
 			PlanID:    getDisposablePlanID(),
 		},
 	)
@@ -146,6 +144,7 @@ func TestBindingWithExistingBindingWithDifferentInstanceID(
 	err = s.store.WriteBinding(service.Binding{
 		InstanceID: getDisposableInstanceID(),
 		BindingID:  bindingID,
+		ServiceID:  fake.ServiceID,
 	})
 	assert.Nil(t, err)
 	req, err := getBindingRequest(
@@ -177,6 +176,7 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 	existingBinding := service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
+		ServiceID:  fake.ServiceID,
 		BindingParameters: &fake.BindingParameters{
 			SomeParameter: "foo",
 		},
@@ -216,6 +216,7 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 	err = s.store.WriteBinding(service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
+		ServiceID:  fake.ServiceID,
 		Status:     service.BindingStateBound,
 	})
 	assert.Nil(t, err)
@@ -248,6 +249,7 @@ func TestBindingWithExistingFailedBindingWithSameAttributes(
 	err = s.store.WriteBinding(service.Binding{
 		InstanceID: instanceID,
 		BindingID:  bindingID,
+		ServiceID:  fake.ServiceID,
 		Status:     service.BindingStateBindingFailed,
 	})
 	assert.Nil(t, err)

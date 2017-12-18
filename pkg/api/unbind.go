@@ -20,7 +20,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 
 	log.WithFields(logFields).Debug("received unbinding request")
 
-	binding, ok, err := s.store.GetBinding(bindingID, nil, nil, nil)
+	binding, ok, err := s.store.GetBinding(bindingID)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -50,7 +50,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instance, ok, err := s.store.GetInstance(instanceID, nil, nil, nil)
+	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -90,38 +90,6 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		serviceManager := svc.GetServiceManager()
-
-		// Now that we have a serviceManager, we can get empty objects of the
-		// correct types, so we can take a second pass at retrieving an instance
-		// and a binding from storage with more concrete details filled in.
-		instance, _, err = s.store.GetInstance(
-			instanceID,
-			serviceManager.GetEmptyProvisioningParameters(),
-			serviceManager.GetEmptyUpdatingParameters(),
-			serviceManager.GetEmptyProvisioningContext(),
-		)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"pre-unbinding error: error retrieving instance by id",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
-		binding, _, err = s.store.GetBinding(
-			bindingID,
-			serviceManager.GetEmptyBindingParameters(),
-			serviceManager.GetEmptyBindingContext(),
-			serviceManager.GetEmptyCredentials(),
-		)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"pre-unbinding error: error retrieving binding by id",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
 
 		// Starting here, if something goes wrong, we don't know what state service-
 		// specific code has left us in, so we'll attempt to record the error in
