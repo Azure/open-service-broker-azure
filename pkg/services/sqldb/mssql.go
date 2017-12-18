@@ -13,7 +13,6 @@ type module struct {
 type serviceManager struct {
 	armDeployer  arm.Deployer
 	mssqlManager mssql.Manager
-	mssqlConfig  Config
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -22,13 +21,11 @@ type serviceManager struct {
 func New(
 	armDeployer arm.Deployer,
 	mssqlManager mssql.Manager,
-	mssqlConfig Config,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
 			armDeployer:  armDeployer,
 			mssqlManager: mssqlManager,
-			mssqlConfig:  mssqlConfig,
 		},
 	}
 }
