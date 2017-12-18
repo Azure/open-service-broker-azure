@@ -266,7 +266,7 @@ quickstart-wordpress   1         1         1            1           2m
     the command from the WordPress deployment output because with Minikube the
     WordPress service won't have a public IP address assigned.
 
-1. To retrieve the password run this command
+1. To retrieve the password, run this command:
     ```
     echo Password: $(kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
     ```
