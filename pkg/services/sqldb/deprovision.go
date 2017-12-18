@@ -30,7 +30,6 @@ func (s *serviceManager) deleteARMDeployment(
 			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
 		)
 	}
-
 	err := s.armDeployer.Delete(
 		pc.ARMDeploymentName,
 		instance.StandardProvisioningContext.ResourceGroup,

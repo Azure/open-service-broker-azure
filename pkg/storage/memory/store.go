@@ -1,12 +1,15 @@
 package memory
 
 import (
+	"fmt"
+
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 )
 
 type store struct {
+	catalog   service.Catalog
 	codec     crypto.Codec
 	instances map[string][]byte
 	bindings  map[string][]byte
@@ -14,8 +17,9 @@ type store struct {
 
 // NewStore returns a new memory-based implementation of the storage.Store used
 // for testing
-func NewStore(codec crypto.Codec) storage.Store {
+func NewStore(catalog service.Catalog, codec crypto.Codec) storage.Store {
 	return &store{
+		catalog:   catalog,
 		codec:     codec,
 		instances: make(map[string][]byte),
 		bindings:  make(map[string][]byte),
@@ -31,12 +35,7 @@ func (s *store) WriteInstance(instance service.Instance) error {
 	return nil
 }
 
-func (s *store) GetInstance(
-	instanceID string,
-	pp service.ProvisioningParameters,
-	up service.UpdatingParameters,
-	pc service.ProvisioningContext,
-) (
+func (s *store) GetInstance(instanceID string) (
 	service.Instance,
 	bool,
 	error,
@@ -45,7 +44,27 @@ func (s *store) GetInstance(
 	if !ok {
 		return service.Instance{}, false, nil
 	}
-	instance, err := service.NewInstanceFromJSON(json, pp, up, pc, s.codec)
+	instance, err := service.NewInstanceFromJSON(json, nil, nil, nil, s.codec)
+	if err != nil {
+		return instance, false, err
+	}
+	svc, ok := s.catalog.GetService(instance.ServiceID)
+	if !ok {
+		return instance,
+			false,
+			fmt.Errorf(
+				`service not found in catalog for service ID "%s"`,
+				instance.ServiceID,
+			)
+	}
+	serviceManager := svc.GetServiceManager()
+	instance, err = service.NewInstanceFromJSON(
+		json,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+		s.codec,
+	)
 	return instance, err == nil, err
 }
 
@@ -67,17 +86,32 @@ func (s *store) WriteBinding(binding service.Binding) error {
 	return nil
 }
 
-func (s *store) GetBinding(
-	bindingID string,
-	bp service.BindingParameters,
-	bc service.BindingContext,
-	cr service.Credentials,
-) (service.Binding, bool, error) {
+func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	json, ok := s.bindings[bindingID]
 	if !ok {
 		return service.Binding{}, false, nil
 	}
-	binding, err := service.NewBindingFromJSON(json, bp, bc, cr, s.codec)
+	binding, err := service.NewBindingFromJSON(json, nil, nil, nil, s.codec)
+	if err != nil {
+		return binding, false, err
+	}
+	svc, ok := s.catalog.GetService(binding.ServiceID)
+	if !ok {
+		return binding,
+			false,
+			fmt.Errorf(
+				`service not found in catalog for service ID "%s"`,
+				binding.ServiceID,
+			)
+	}
+	serviceManager := svc.GetServiceManager()
+	binding, err = service.NewBindingFromJSON(
+		json,
+		serviceManager.GetEmptyBindingParameters(),
+		serviceManager.GetEmptyBindingContext(),
+		serviceManager.GetEmptyCredentials(),
+		s.codec,
+	)
 	return binding, err == nil, err
 }
 

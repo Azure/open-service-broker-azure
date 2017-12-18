@@ -12,13 +12,13 @@ import (
 func getSearchCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	searchManager, err := as.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{
 			module:    search.New(armDeployer, searchManager),
 			serviceID: "c54902aa-3027-4c5c-8e96-5b3d3b452f7f",

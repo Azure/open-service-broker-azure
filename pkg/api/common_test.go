@@ -59,7 +59,7 @@ func getTestServer(
 	noopCodec := noop.NewCodec()
 	s, err := NewServer(
 		8080,
-		memoryStorage.NewStore(noopCodec),
+		memoryStorage.NewStore(fakeCatalog, noopCodec),
 		fakeAsync.NewEngine(),
 		noopCodec,
 		always.NewAuthenticator(),

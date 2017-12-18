@@ -12,13 +12,13 @@ import (
 func getKeyvaultCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
-) ([]moduleLifecycleTestCase, error) {
+) ([]serviceLifecycleTestCase, error) {
 	keyvaultManager, err := kv.NewManager()
 	if err != nil {
 		return nil, err
 	}
 
-	return []moduleLifecycleTestCase{
+	return []serviceLifecycleTestCase{
 		{
 			module:    keyvault.New(armDeployer, keyvaultManager),
 			serviceID: "d90c881e-c9bb-4e07-a87b-fcfe87e03276",

@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"fmt"
+
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/go-redis/redis"
@@ -13,12 +15,7 @@ type Store interface {
 	WriteInstance(instance service.Instance) error
 	// GetInstance retrieves a persisted instance from the underlying storage by
 	// instance id
-	GetInstance(
-		instanceID string,
-		pp service.ProvisioningParameters,
-		up service.UpdatingParameters,
-		pc service.ProvisioningContext,
-	) (service.Instance, bool, error)
+	GetInstance(instanceID string) (service.Instance, bool, error)
 	// DeleteInstance deletes a persisted instance from the underlying storage by
 	// instance id
 	DeleteInstance(instanceID string) (bool, error)
@@ -26,12 +23,7 @@ type Store interface {
 	WriteBinding(binding service.Binding) error
 	// GetBinding retrieves a persisted instance from the underlying storage by
 	// binding id
-	GetBinding(
-		bindingID string,
-		bp service.BindingParameters,
-		bc service.BindingContext,
-		cr service.Credentials,
-	) (service.Binding, bool, error)
+	GetBinding(bindingID string) (service.Binding, bool, error)
 	// DeleteBinding deletes a persisted binding from the underlying storage by
 	// binding id
 	DeleteBinding(bindingID string) (bool, error)
@@ -42,13 +34,19 @@ type Store interface {
 
 type store struct {
 	redisClient *redis.Client
+	catalog     service.Catalog
 	codec       crypto.Codec
 }
 
 // NewStore returns a new Redis-based implementation of the Store interface
-func NewStore(redisClient *redis.Client, codec crypto.Codec) Store {
+func NewStore(
+	redisClient *redis.Client,
+	catalog service.Catalog,
+	codec crypto.Codec,
+) Store {
 	return &store{
 		redisClient: redisClient,
+		catalog:     catalog,
 		codec:       codec,
 	}
 }
@@ -61,12 +59,7 @@ func (s *store) WriteInstance(instance service.Instance) error {
 	return s.redisClient.Set(instance.InstanceID, json, 0).Err()
 }
 
-func (s *store) GetInstance(
-	instanceID string,
-	pp service.ProvisioningParameters,
-	up service.UpdatingParameters,
-	pc service.ProvisioningContext,
-) (service.Instance, bool, error) {
+func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 	strCmd := s.redisClient.Get(instanceID)
 	if err := strCmd.Err(); err == redis.Nil {
 		return service.Instance{}, false, nil
@@ -77,7 +70,27 @@ func (s *store) GetInstance(
 	if err != nil {
 		return service.Instance{}, false, err
 	}
-	instance, err := service.NewInstanceFromJSON(bytes, pp, up, pc, s.codec)
+	instance, err := service.NewInstanceFromJSON(bytes, nil, nil, nil, s.codec)
+	if err != nil {
+		return instance, false, err
+	}
+	svc, ok := s.catalog.GetService(instance.ServiceID)
+	if !ok {
+		return instance,
+			false,
+			fmt.Errorf(
+				`service not found in catalog for service ID "%s"`,
+				instance.ServiceID,
+			)
+	}
+	serviceManager := svc.GetServiceManager()
+	instance, err = service.NewInstanceFromJSON(
+		bytes,
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningContext(),
+		s.codec,
+	)
 	return instance, err == nil, err
 }
 
@@ -102,12 +115,7 @@ func (s *store) WriteBinding(binding service.Binding) error {
 	return s.redisClient.Set(binding.BindingID, json, 0).Err()
 }
 
-func (s *store) GetBinding(
-	bindingID string,
-	bp service.BindingParameters,
-	bc service.BindingContext,
-	cr service.Credentials,
-) (service.Binding, bool, error) {
+func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	strCmd := s.redisClient.Get(bindingID)
 	if err := strCmd.Err(); err == redis.Nil {
 		return service.Binding{}, false, nil
@@ -118,7 +126,27 @@ func (s *store) GetBinding(
 	if err != nil {
 		return service.Binding{}, false, err
 	}
-	binding, err := service.NewBindingFromJSON(bytes, bp, bc, cr, s.codec)
+	binding, err := service.NewBindingFromJSON(bytes, nil, nil, nil, s.codec)
+	if err != nil {
+		return binding, false, err
+	}
+	svc, ok := s.catalog.GetService(binding.ServiceID)
+	if !ok {
+		return binding,
+			false,
+			fmt.Errorf(
+				`service not found in catalog for service ID "%s"`,
+				binding.ServiceID,
+			)
+	}
+	serviceManager := svc.GetServiceManager()
+	binding, err = service.NewBindingFromJSON(
+		bytes,
+		serviceManager.GetEmptyBindingParameters(),
+		serviceManager.GetEmptyBindingContext(),
+		serviceManager.GetEmptyCredentials(),
+		s.codec,
+	)
 	return binding, err == nil, err
 }
 

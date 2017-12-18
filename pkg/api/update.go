@@ -130,12 +130,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instance, ok, err := s.store.GetInstance(
-		instanceID,
-		serviceManager.GetEmptyProvisioningParameters(),
-		serviceManager.GetEmptyUpdatingParameters(),
-		serviceManager.GetEmptyProvisioningContext(),
-	)
+	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
