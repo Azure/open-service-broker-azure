@@ -6,6 +6,8 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
+//TODO: What behavior do we want for unbind on a non-bindable service.
+//Appropriate error?
 func (s *serverOnlyServiceManager) Unbind(
 	instance service.Instance,
 	bindingContext service.BindingContext,
