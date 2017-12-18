@@ -7,7 +7,6 @@ import (
 )
 
 //TODO: What behavior do we want for unbind on a non-bindable service.
-//Appropriate error?
 func (s *vmServiceManager) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
