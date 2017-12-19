@@ -11,6 +11,7 @@ type DeprovisioningStepFunction func(
 	ctx context.Context,
 	instance Instance,
 	plan Plan,
+	refInstance Instance,
 ) (ProvisioningContext, error)
 
 // DeprovisioningStep is an interface to be implemented by types that represent
@@ -21,6 +22,7 @@ type DeprovisioningStep interface {
 		ctx context.Context,
 		instance Instance,
 		plan Plan,
+		refInstance Instance,
 	) (ProvisioningContext, error)
 }
 
@@ -64,6 +66,7 @@ func (d *deprovisioningStep) Execute(
 	ctx context.Context,
 	instance Instance,
 	plan Plan,
+	refInstance Instance,
 ) (ProvisioningContext, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -71,6 +74,7 @@ func (d *deprovisioningStep) Execute(
 		ctx,
 		instance,
 		plan,
+		refInstance,
 	)
 }
 
