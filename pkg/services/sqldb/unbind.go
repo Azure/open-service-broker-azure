@@ -15,7 +15,7 @@ func (s *serverOnlyServiceManager) Unbind(
 	return nil
 }
 
-func (a *allInOneServiceManager) Unbind(
+func (a *serviceManager) Unbind(
 	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {

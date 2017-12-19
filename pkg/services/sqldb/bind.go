@@ -16,6 +16,8 @@ func (s *serviceManager) ValidateBindingParameters(
 	return nil
 }
 
+//TODO: What behavior do we want for bind on a non-bindable service.
+//Appropriate error?
 func (s *serverOnlyServiceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
@@ -23,7 +25,7 @@ func (s *serverOnlyServiceManager) Bind(
 	return nil, nil, nil
 }
 
-func (s *allInOneServiceManager) Bind(
+func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
