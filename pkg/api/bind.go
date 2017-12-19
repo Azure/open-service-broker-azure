@@ -157,7 +157,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// respond with 200 if they're identical or 409 otherwise. It actually seems
 		// best to compare instanceIDs to ensure there's no conflict and then
 		// compare binding request parameters (not bindings) because binding objects
-		// also contain binding context and other status information.
+		// also contain binding details and other status information.
 		if instanceID != binding.InstanceID {
 			logFields["existingInstanceID"] = binding.InstanceID
 			log.WithFields(logFields).Debug(
@@ -233,7 +233,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
-	bindingContext, credentials, err := serviceManager.Bind(
+	bindingDetails, credentials, err := serviceManager.Bind(
 		instance,
 		bindingParameters,
 	)
@@ -255,7 +255,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		ServiceID:         instance.ServiceID,
 		BindingID:         bindingID,
 		BindingParameters: bindingParameters,
-		BindingContext:    bindingContext,
+		Details:           bindingDetails,
 		Credentials:       credentials,
 		Created:           time.Now(),
 	}

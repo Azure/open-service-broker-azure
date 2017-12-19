@@ -39,11 +39,11 @@ type UpdatingParameters interface{}
 // signatures and documentation.
 type BindingParameters interface{}
 
-// BindingContext is an interface to be implemented by module-specific types
-// that represent binding context. This interface doesn't require any functions
+// BindingDetails is an interface to be implemented by service-specific types
+// that represent binding details. This interface doesn't require any functions
 // to be implemented. It exists to improve the clarity of function signatures
 // and documentation.
-type BindingContext interface{}
+type BindingDetails interface{}
 
 // Credentials is an interface to be implemented by module-specific types
 // that represent service credentials. This interface doesn't require any

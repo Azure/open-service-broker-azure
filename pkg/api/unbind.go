@@ -94,7 +94,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		// Starting here, if something goes wrong, we don't know what state service-
 		// specific code has left us in, so we'll attempt to record the error in
 		// the datastore.
-		err = serviceManager.Unbind(instance, binding.BindingContext)
+		err = serviceManager.Unbind(instance, binding.Details)
 		if err != nil {
 			s.handleUnbindingError(
 				binding,

@@ -29,7 +29,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type cosmosdbBindingContext struct {
+type cosmosdbBindingDetails struct {
 }
 
 // Credentials encapsulates CosmosDB-specific connection details and
@@ -68,8 +68,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &cosmosdbBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &cosmosdbBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

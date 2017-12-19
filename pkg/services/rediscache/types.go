@@ -20,7 +20,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type redisBindingContext struct {
+type redisBindingDetails struct {
 }
 
 // Credentials encapsulates Redis-specific coonection details and credentials.
@@ -52,8 +52,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &redisBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &redisBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

@@ -19,7 +19,7 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
+) (service.BindingDetails, service.Credentials, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
@@ -101,7 +101,7 @@ func (s *serviceManager) Bind(
 		)
 	}
 
-	return &mssqlBindingContext{
+	return &mssqlBindingDetails{
 			LoginName: loginName,
 		},
 		&Credentials{

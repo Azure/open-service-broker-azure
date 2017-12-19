@@ -20,7 +20,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type searchBindingContext struct {
+type searchBindingDetails struct {
 }
 
 type searchCredentials struct {
@@ -50,8 +50,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &searchBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &searchBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

@@ -17,7 +17,7 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
+) (service.BindingDetails, service.Credentials, error) {
 	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
@@ -25,7 +25,7 @@ func (s *serviceManager) Bind(
 		)
 	}
 
-	return &aciBindingContext{},
+	return &aciBindingDetails{},
 		&aciCredentials{
 			PublicIPv4Address: dt.PublicIPv4Address,
 		},

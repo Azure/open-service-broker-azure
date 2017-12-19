@@ -17,7 +17,7 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
+) (service.BindingDetails, service.Credentials, error) {
 	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
@@ -33,7 +33,7 @@ func (s *serviceManager) Bind(
 			Password:         dt.PrimaryKey,
 			ConnectionString: dt.ConnectionString,
 		}
-		return &cosmosdbBindingContext{},
+		return &cosmosdbBindingDetails{},
 			cosmosDBCredentials,
 			nil
 	}
@@ -42,8 +42,7 @@ func (s *serviceManager) Bind(
 		PrimaryKey:              dt.PrimaryKey,
 		PrimaryConnectionString: dt.ConnectionString,
 	}
-	return &cosmosdbBindingContext{},
+	return &cosmosdbBindingDetails{},
 		cosmosDBCredentials,
 		nil
-
 }

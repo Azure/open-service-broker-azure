@@ -143,7 +143,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	binding, err = service.NewBindingFromJSON(
 		bytes,
 		serviceManager.GetEmptyBindingParameters(),
-		serviceManager.GetEmptyBindingContext(),
+		serviceManager.GetEmptyBindingDetails(),
 		serviceManager.GetEmptyCredentials(),
 		s.codec,
 	)

@@ -27,7 +27,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type mssqlBindingContext struct {
+type mssqlBindingDetails struct {
 	LoginName string `json:"loginName"`
 }
 
@@ -77,8 +77,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mssqlBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

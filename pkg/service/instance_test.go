@@ -35,7 +35,7 @@ func init() {
 	details := &ArbitraryType{
 		Foo: "baz",
 	}
-	encryptedProvisiongingContext := []byte(`{"foo":"baz"}`)
+	encryptedDetails := []byte(`{"foo":"baz"}`)
 	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
 	if err != nil {
 		panic(err)
@@ -54,7 +54,7 @@ func init() {
 		Location:                        location,
 		ResourceGroup:                   resourceGroup,
 		Tags:                            map[string]string{tagKey: tagVal},
-		EncryptedDetails:                encryptedProvisiongingContext,
+		EncryptedDetails:                encryptedDetails,
 		Details:                         details,
 		Created:                         created,
 	}
@@ -66,7 +66,7 @@ func init() {
 		encryptedUpdatingParameters,
 	)
 	b64EncryptedDetails := base64.StdEncoding.EncodeToString(
-		encryptedProvisiongingContext,
+		encryptedDetails,
 	)
 
 	testInstanceJSONStr := fmt.Sprintf(

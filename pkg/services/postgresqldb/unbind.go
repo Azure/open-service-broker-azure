@@ -8,7 +8,7 @@ import (
 
 func (s *serviceManager) Unbind(
 	instance service.Instance,
-	bindingContext service.BindingContext,
+	bindingDetails service.BindingDetails,
 ) error {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
@@ -16,10 +16,10 @@ func (s *serviceManager) Unbind(
 			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
-	bc, ok := bindingContext.(*postgresqlBindingContext)
+	bc, ok := bindingDetails.(*postgresqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingContext as *postgresqlBindingContext",
+			"error casting bindingDetails as *postgresqlBindingDetails",
 		)
 	}
 

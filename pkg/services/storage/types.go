@@ -28,7 +28,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type storageBindingContext struct {
+type storageBindingDetails struct {
 }
 
 // Credentials encapsulates Storage-specific coonection details and credentials.
@@ -60,8 +60,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &storageBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &storageBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

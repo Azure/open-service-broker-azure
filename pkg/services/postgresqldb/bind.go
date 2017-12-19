@@ -19,7 +19,7 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
+) (service.BindingDetails, service.Credentials, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
@@ -80,7 +80,7 @@ func (s *serviceManager) Bind(
 		return nil, nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
-	return &postgresqlBindingContext{
+	return &postgresqlBindingDetails{
 			LoginName: roleName,
 		},
 		&Credentials{

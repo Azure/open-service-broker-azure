@@ -24,7 +24,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type aciBindingContext struct {
+type aciBindingDetails struct {
 }
 
 type aciCredentials struct {
@@ -55,8 +55,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &aciBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &aciBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

@@ -26,7 +26,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type mysqlBindingContext struct {
+type mysqlBindingDetails struct {
 	LoginName string `json:"loginName"`
 }
 
@@ -61,8 +61,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mysqlBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mysqlBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

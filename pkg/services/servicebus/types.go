@@ -20,7 +20,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type serviceBusBindingContext struct {
+type serviceBusBindingDetails struct {
 }
 
 // Credentials encapsulates Service Bus-specific coonection details and
@@ -52,8 +52,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &serviceBusBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &serviceBusBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

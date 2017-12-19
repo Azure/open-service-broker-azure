@@ -8,7 +8,7 @@ import (
 
 func (s *serviceManager) Unbind(
 	instance service.Instance,
-	bindingContext service.BindingContext,
+	bindingDetails service.BindingDetails,
 ) error {
 	dt, ok := instance.Details.(*mysqlInstanceDetails)
 	if !ok {
@@ -16,10 +16,10 @@ func (s *serviceManager) Unbind(
 			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
-	bc, ok := bindingContext.(*mysqlBindingContext)
+	bc, ok := bindingDetails.(*mysqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingContext as *mysqlBindingContext",
+			"error casting bindingDetails as *mysqlBindingDetails",
 		)
 	}
 
