@@ -26,7 +26,7 @@ type BindingValidationFunction func(service.BindingParameters) error
 type BindFunction func(
 	service.Instance,
 	service.BindingParameters,
-) (service.BindingDetails, service.Credentials, error)
+) (service.BindingDetails, error)
 
 // UnbindFunction describes a function used to provide pluggable unbinding
 // behavior to the fake implementation of the service.Module interface
@@ -137,8 +137,17 @@ func (s *ServiceManager) ValidateBindingParameters(
 func (s *ServiceManager) Bind(
 	instance service.Instance,
 	bindingParameters service.BindingParameters,
-) (service.BindingDetails, service.Credentials, error) {
+) (service.BindingDetails, error) {
 	return s.BindBehavior(instance, bindingParameters)
+}
+
+// GetCredentials returns service-specific credentials populated from instance
+// and binding details
+func (s *ServiceManager) GetCredentials(
+	service.Instance,
+	service.Binding,
+) (service.Credentials, error) {
+	return &Credentials{}, nil
 }
 
 // Unbind synchronously unbinds from a service
@@ -184,15 +193,12 @@ func defaultBindingValidationBehavior(service.BindingParameters) error {
 }
 
 func defaultBindBehavior(
-	instance service.Instance,
-	bindingParameters service.BindingParameters,
-) (service.BindingDetails, service.Credentials, error) {
-	return instance.Details, &Credentials{}, nil
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &BindingDetails{}, nil
 }
 
-func defaultUnbindBehavior(
-	_ service.Instance,
-	_ service.BindingDetails,
-) error {
+func defaultUnbindBehavior(service.Instance, service.BindingDetails) error {
 	return nil
 }

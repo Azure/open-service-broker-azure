@@ -15,21 +15,25 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &redisBindingDetails{}, nil
+}
+
+func (s *serviceManager) GetCredentials(
 	instance service.Instance,
-	_ service.BindingParameters,
-) (service.BindingDetails, service.Credentials, error) {
+	_ service.Binding,
+) (service.Credentials, error) {
 	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
-
-	return &redisBindingDetails{},
-		&Credentials{
-			Host:     dt.FullyQualifiedDomainName,
-			Password: dt.PrimaryKey,
-			Port:     6379,
-		},
-		nil
+	return &Credentials{
+		Host:     dt.FullyQualifiedDomainName,
+		Password: dt.PrimaryKey,
+		Port:     6379,
+	}, nil
 }

@@ -61,7 +61,3 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &keyvaultBindingDetails{}
 }
-
-func (s *serviceManager) GetEmptyCredentials() service.Credentials {
-	return &Credentials{}
-}

@@ -94,9 +94,3 @@ func (s *ServiceManager) GetEmptyBindingParameters() service.BindingParameters {
 func (s *ServiceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &BindingDetails{}
 }
-
-// GetEmptyCredentials returns an empty instance of module-specific
-// credentials
-func (s *ServiceManager) GetEmptyCredentials() service.Credentials {
-	return &Credentials{}
-}

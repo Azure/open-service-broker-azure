@@ -15,20 +15,24 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &searchBindingDetails{}, nil
+}
+
+func (s *serviceManager) GetCredentials(
 	instance service.Instance,
-	_ service.BindingParameters,
-) (service.BindingDetails, service.Credentials, error) {
+	_ service.Binding,
+) (service.Credentials, error) {
 	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
-
-	return &searchBindingDetails{},
-		&searchCredentials{
-			ServiceName: dt.ServiceName,
-			APIKey:      dt.APIKey,
-		},
-		nil
+	return &searchCredentials{
+		ServiceName: dt.ServiceName,
+		APIKey:      dt.APIKey,
+	}, nil
 }

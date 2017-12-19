@@ -31,13 +31,13 @@ type ServiceManager interface { // nolint: golint
 	// returns an error if there is any problem
 	ValidateBindingParameters(BindingParameters) error
 	// Bind synchronously binds to a service
-	Bind(Instance, BindingParameters) (BindingDetails, Credentials, error)
+	Bind(Instance, BindingParameters) (BindingDetails, error)
 	// GetEmptyBindingDetails returns an empty instance of service-specific
 	// bindingDetails
 	GetEmptyBindingDetails() BindingDetails
-	// GetEmptyCredentials returns an empty instance of module-specific
-	// credentials
-	GetEmptyCredentials() Credentials
+	// GetCredentials returns service-specific credentials populated from instance
+	// and binding details
+	GetCredentials(Instance, Binding) (Credentials, error)
 	// Unbind synchronously unbinds from a service
 	Unbind(Instance, BindingDetails) error
 	// GetDeprovisioner returns a deprovisioner that defines the steps a module

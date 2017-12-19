@@ -15,34 +15,35 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &cosmosdbBindingDetails{}, nil
+}
+
+func (s *serviceManager) GetCredentials(
 	instance service.Instance,
-	_ service.BindingParameters,
-) (service.BindingDetails, service.Credentials, error) {
+	_ service.Binding,
+) (service.Credentials, error) {
 	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
 	if dt.DatabaseKind == databaseKindMongoDB {
-		cosmosDBCredentials := &Credentials{
+		return &Credentials{
 			Host: dt.FullyQualifiedDomainName,
 			Port: 10255,
 			// Username is the same as the database account name
 			Username:         dt.DatabaseAccountName,
 			Password:         dt.PrimaryKey,
 			ConnectionString: dt.ConnectionString,
-		}
-		return &cosmosdbBindingDetails{},
-			cosmosDBCredentials,
-			nil
+		}, nil
 	}
-	cosmosDBCredentials := &Credentials{
+	return &Credentials{
 		URI:                     dt.FullyQualifiedDomainName,
 		PrimaryKey:              dt.PrimaryKey,
 		PrimaryConnectionString: dt.ConnectionString,
-	}
-	return &cosmosdbBindingDetails{},
-		cosmosDBCredentials,
-		nil
+	}, nil
 }
