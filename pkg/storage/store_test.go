@@ -151,7 +151,6 @@ func TestGetExistingBinding(t *testing.T) {
 	// Blank out a few fields before we compare
 	retrievedBinding.EncryptedBindingParameters = nil
 	retrievedBinding.EncryptedDetails = nil
-	retrievedBinding.EncryptedCredentials = nil
 	assert.Equal(t, binding, retrievedBinding)
 }
 
@@ -208,6 +207,5 @@ func getTestBinding() service.Binding {
 		Status:            service.BindingStateBound,
 		StatusReason:      "",
 		Details:           fakeServiceManager.GetEmptyBindingDetails(),
-		Credentials:       fakeServiceManager.GetEmptyCredentials(),
 	}
 }

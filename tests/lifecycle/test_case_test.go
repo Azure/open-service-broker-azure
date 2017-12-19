@@ -144,7 +144,14 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Bind
-	bc, credentials, err := serviceManager.Bind(instance, s.bindingParameters)
+	bd, err := serviceManager.Bind(instance, s.bindingParameters)
+	if err != nil {
+		return err
+	}
+
+	binding := service.Binding{Details: bd}
+
+	credentials, err := serviceManager.GetCredentials(instance, binding)
 	if err != nil {
 		return err
 	}
@@ -158,7 +165,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Unbind
-	err = serviceManager.Unbind(instance, bc)
+	err = serviceManager.Unbind(instance, bd)
 	if err != nil {
 		return err
 	}

@@ -278,9 +278,9 @@ func TestBrandNewBinding(t *testing.T) {
 	m.ServiceManager.BindBehavior = func(
 		service.Instance,
 		service.BindingParameters,
-	) (service.BindingDetails, service.Credentials, error) {
+	) (service.BindingDetails, error) {
 		bindCalled = true
-		return nil, nil, nil
+		return nil, nil
 	}
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{

@@ -18,8 +18,6 @@ type Binding struct {
 	StatusReason               string            `json:"statusReason"`
 	EncryptedDetails           []byte            `json:"details"`
 	Details                    BindingDetails    `json:"-"`
-	EncryptedCredentials       []byte            `json:"credentials"`
-	Credentials                Credentials       `json:"-"`
 	Created                    time.Time         `json:"created"`
 }
 
@@ -29,13 +27,11 @@ func NewBindingFromJSON(
 	jsonBytes []byte,
 	bp BindingParameters,
 	bd BindingDetails,
-	cr Credentials,
 	codec crypto.Codec,
 ) (Binding, error) {
 	binding := Binding{
 		BindingParameters: bp,
 		Details:           bd,
-		Credentials:       cr,
 	}
 	if err := json.Unmarshal(jsonBytes, &binding); err != nil {
 		return binding, err
@@ -57,10 +53,7 @@ func (b Binding) encrypt(codec crypto.Codec) (Binding, error) {
 	if b, err = b.encryptBindingParameters(codec); err != nil {
 		return b, err
 	}
-	if b, err = b.encryptDetails(codec); err != nil {
-		return b, err
-	}
-	return b.encryptCredentials(codec)
+	return b.encryptDetails(codec)
 }
 
 func (b Binding) encryptBindingParameters(codec crypto.Codec) (Binding, error) {
@@ -81,24 +74,12 @@ func (b Binding) encryptDetails(codec crypto.Codec) (Binding, error) {
 	return b, err
 }
 
-func (b Binding) encryptCredentials(codec crypto.Codec) (Binding, error) {
-	jsonBytes, err := json.Marshal(b.Credentials)
-	if err != nil {
-		return b, err
-	}
-	b.EncryptedCredentials, err = codec.Encrypt(jsonBytes)
-	return b, err
-}
-
 func (b Binding) decrypt(codec crypto.Codec) (Binding, error) {
 	var err error
 	if b, err = b.decryptBindingParameters(codec); err != nil {
 		return b, err
 	}
-	if b, err = b.decryptDetails(codec); err != nil {
-		return b, err
-	}
-	return b.decryptCredentials(codec)
+	return b.decryptDetails(codec)
 }
 
 func (b Binding) decryptBindingParameters(codec crypto.Codec) (Binding, error) {
@@ -123,16 +104,4 @@ func (b Binding) decryptDetails(codec crypto.Codec) (Binding, error) {
 		return b, err
 	}
 	return b, json.Unmarshal(plaintext, b.Details)
-}
-
-func (b Binding) decryptCredentials(codec crypto.Codec) (Binding, error) {
-	if len(b.EncryptedCredentials) == 0 ||
-		b.Credentials == nil {
-		return b, nil
-	}
-	plaintext, err := codec.Decrypt(b.EncryptedCredentials)
-	if err != nil {
-		return b, err
-	}
-	return b, json.Unmarshal(plaintext, b.Credentials)
 }

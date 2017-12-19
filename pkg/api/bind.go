@@ -178,8 +178,18 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 			// choose to respond with a 409
 			switch binding.Status {
 			case service.BindingStateBound:
+				var credentials service.Credentials
+				credentials, err = serviceManager.GetCredentials(instance, binding)
+				if err != nil {
+					logFields["error"] = err
+					log.WithFields(logFields).Error(
+						"binding error: error extracting credentials from binding",
+					)
+					s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+					return
+				}
 				bindingResponse := &BindingResponse{
-					Credentials: binding.Credentials,
+					Credentials: credentials,
 				}
 				var bindingResponseJSON []byte
 				bindingResponseJSON, err = bindingResponse.ToJSON()
@@ -233,7 +243,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
-	bindingDetails, credentials, err := serviceManager.Bind(
+	bindingDetails, err := serviceManager.Bind(
 		instance,
 		bindingParameters,
 	)
@@ -256,7 +266,6 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		BindingID:         bindingID,
 		BindingParameters: bindingParameters,
 		Details:           bindingDetails,
-		Credentials:       credentials,
 		Created:           time.Now(),
 	}
 
@@ -275,11 +284,18 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// occur are errors in preparing or sending the response. Such errors do not
 	// need to affect the binding's state.
 
+	credentials, err := serviceManager.GetCredentials(instance, binding)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"post-binding error: error extracting credentials from binding",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		return
+	}
+
 	bindingResponse := &BindingResponse{
 		Credentials: credentials,
-	}
-	if bindingResponse.Credentials == nil {
-		bindingResponse.Credentials = serviceManager.GetEmptyCredentials()
 	}
 	bindingJSON, err := bindingResponse.ToJSON()
 	if err != nil {

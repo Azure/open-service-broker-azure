@@ -19,10 +19,10 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingDetails, service.Credentials, error) {
+) (service.BindingDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
@@ -32,13 +32,13 @@ func (s *serviceManager) Bind(
 
 	db, err := getDBConnection(dt, primaryDB)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	tx, err := db.Begin()
 	if err != nil {
-		return nil, nil, fmt.Errorf("error starting transaction: %s", err)
+		return nil, fmt.Errorf("error starting transaction: %s", err)
 	}
 	defer func() {
 		if err != nil {
@@ -50,7 +50,7 @@ func (s *serviceManager) Bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("create role %s with password '%s' login", roleName, password),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error creating role "%s": %s`,
 			roleName,
 			err,
@@ -59,7 +59,7 @@ func (s *serviceManager) Bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("grant %s to %s", dt.DatabaseName, roleName),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error adding role "%s" to role "%s": %s`,
 			dt.DatabaseName,
 			roleName,
@@ -69,7 +69,7 @@ func (s *serviceManager) Bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("alter role %s set role %s", roleName, dt.DatabaseName),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error making "%s" the default role for "%s" sessions: %s`,
 			dt.DatabaseName,
 			roleName,
@@ -77,18 +77,36 @@ func (s *serviceManager) Bind(
 		)
 	}
 	if err = tx.Commit(); err != nil {
-		return nil, nil, fmt.Errorf("error committing transaction: %s", err)
+		return nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
 	return &postgresqlBindingDetails{
-			LoginName: roleName,
-		},
-		&Credentials{
-			Host:     dt.FullyQualifiedDomainName,
-			Port:     5432,
-			Database: dt.DatabaseName,
-			Username: fmt.Sprintf("%s@%s", roleName, dt.ServerName),
-			Password: password,
-		},
-		nil
+		LoginName: roleName,
+		Password:  password,
+	}, nil
+}
+
+func (s *serviceManager) GetCredentials(
+	instance service.Instance,
+	binding service.Binding,
+) (service.Credentials, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *postgresqlInstanceDetails",
+		)
+	}
+	bd, ok := binding.Details.(*postgresqlBindingDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting binding.Details as *postgresqlBindingDetails",
+		)
+	}
+	return &Credentials{
+		Host:     dt.FullyQualifiedDomainName,
+		Port:     5432,
+		Database: dt.DatabaseName,
+		Username: fmt.Sprintf("%s@%s", bd.LoginName, dt.ServerName),
+		Password: bd.Password,
+	}, nil
 }
