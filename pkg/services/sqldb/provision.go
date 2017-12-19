@@ -80,7 +80,7 @@ func (a *allServiceManager) ValidateProvisioningParameters(
 	return nil
 }
 
-//TODO implement DB Only valiation
+//TODO implement DB Only scenario valiation
 func (d *dbServiceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
