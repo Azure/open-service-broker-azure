@@ -56,12 +56,10 @@ func getTestServer(
 	if err != nil {
 		return nil, nil, err
 	}
-	noopCodec := noop.NewCodec()
 	s, err := NewServer(
 		8080,
-		memoryStorage.NewStore(fakeCatalog, noopCodec),
+		memoryStorage.NewStore(fakeCatalog, noop.NewCodec()),
 		fakeAsync.NewEngine(),
-		noopCodec,
 		always.NewAuthenticator(),
 		fakeCatalog,
 		defaultAzureLocation,
