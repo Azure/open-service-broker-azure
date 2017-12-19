@@ -121,6 +121,7 @@ func (a *allInOneServiceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
+	_ service.Instance, // Reference instance
 ) (service.ProvisioningContext, error) {
 	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
 	if !ok {
@@ -222,6 +223,7 @@ func (s *serverOnlyServiceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
+	_ service.Instance, // Reference instance
 ) (service.ProvisioningContext, error) {
 	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
 	if !ok {

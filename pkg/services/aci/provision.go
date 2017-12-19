@@ -41,6 +41,7 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
+	_ service.Instance, // Reference instance
 ) (service.ProvisioningContext, error) {
 	pc, ok := instance.ProvisioningContext.(*aciProvisioningContext)
 	if !ok {
@@ -57,6 +58,7 @@ func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
+	_ service.Instance, // Reference instance
 ) (service.ProvisioningContext, error) {
 	pc, ok := instance.ProvisioningContext.(*aciProvisioningContext)
 	if !ok {
