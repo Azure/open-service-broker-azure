@@ -33,11 +33,10 @@ func getMssqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &sqldb.ProvisioningParameters{
+			provisioningParameters: &sqldb.ServerProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
-			bindingParameters: &sqldb.BindingParameters{},
 		},
 		{ // new server scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
@@ -47,7 +46,7 @@ func getMssqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &sqldb.ProvisioningParameters{
+			provisioningParameters: &sqldb.ServerProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
@@ -97,7 +96,8 @@ func testMsSQLCreds() func(credentials service.Credentials) error {
 		}
 		defer db.Close() // nolint: errcheck
 
-		rows, err := db.Query("SELECT 1 FROM fn_my_permissions (NULL, 'DATABASE') WHERE permission_name='CONTROL'") // nolint: lll
+		rows, err := db.Query(`SELECT 1 FROM fn_my_permissions (NULL, 'DATABASE') 
+			WHERE permission_name='CONTROL'`) // nolint: lll
 		if err != nil {
 			return fmt.Errorf(
 				`error querying SELECT from table fn_my_permissions: %s`,

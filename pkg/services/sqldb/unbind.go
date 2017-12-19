@@ -8,21 +8,22 @@ import (
 
 //TODO: What behavior do we want for unbind on a non-bindable service.
 //Appropriate error?
-func (s *serverOnlyServiceManager) Unbind(
+func (s *vmServiceManager) Unbind(
 	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
 	return nil
 }
 
-func (a *serviceManager) Unbind(
+func (a *allServiceManager) Unbind(
 	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*mssqlAllInOneProvisioningContext)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			`error casting instance.ProvisioningContext 
+			as *mssqlAllInOneProvisioningContext`,
 		)
 	}
 	bc, ok := bindingContext.(*mssqlBindingContext)
@@ -33,7 +34,12 @@ func (a *serviceManager) Unbind(
 	}
 
 	// connect to new database to drop user for the login
-	db, err := getDBConnection(pc, pc.DatabaseName)
+	db, err := getDBConnection(
+		pc.AdministratorLogin,
+		pc.AdministratorLoginPassword,
+		pc.FullyQualifiedDomainName,
+		pc.DatabaseName,
+	)
 	if err != nil {
 		return err
 	}
@@ -50,7 +56,12 @@ func (a *serviceManager) Unbind(
 	}
 
 	// connect to master database to drop login
-	masterDb, err := getDBConnection(pc, "master")
+	masterDb, err := getDBConnection(
+		pc.AdministratorLogin,
+		pc.AdministratorLoginPassword,
+		pc.FullyQualifiedDomainName,
+		"master",
+	)
 	if err != nil {
 		return err
 	}
@@ -66,5 +77,13 @@ func (a *serviceManager) Unbind(
 		)
 	}
 
+	return nil
+}
+
+//TODO implement db only scenario
+func (d *dbServiceManager) Unbind(
+	instance service.Instance,
+	bindingContext service.BindingContext,
+) error {
 	return nil
 }

@@ -2,14 +2,34 @@ package sqldb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters encapsulates MSSQL-specific provisioning options
-type ProvisioningParameters struct {
+// ServerProvisioningParameters encapsulates MSSQL-specific provisioning options
+// for provisioning involving server creation
+type ServerProvisioningParameters struct {
 	ServerName      string `json:"server"`
 	FirewallIPStart string `json:"firewallStartIPAddress"`
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
 
-type mssqlProvisioningContext struct {
+// DatabaseProvisioningParameters encapsulates MSSQL-specific provisioning
+// options for provisioning involving db only provisioning
+type DatabaseProvisioningParameters struct {
+	ServerName string `json:"server"`
+}
+
+type mssqlServerOnlyProvisioningContext struct {
+	ARMDeploymentName          string `json:"armDeployment"`
+	ServerName                 string `json:"server"`
+	AdministratorLogin         string `json:"administratorLogin"`
+	AdministratorLoginPassword string `json:"administratorLoginPassword"`
+	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
+}
+
+type mssqlDBOnlyProvisioningContext struct {
+	ARMDeploymentName string `json:"armDeployment"`
+	DatabaseName      string `json:"database"`
+}
+
+type mssqlAllInOneProvisioningContext struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLogin         string `json:"administratorLogin"`
@@ -54,32 +74,74 @@ type Config struct {
 	Servers map[string]ServerConfig
 }
 
-func (
-	s *serviceManager,
-) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
+func (a *allServiceManager) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &ServerProvisioningParameters{}
 }
 
-func (
-	s *serviceManager,
-) GetEmptyUpdatingParameters() service.UpdatingParameters {
+func (s *vmServiceManager) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &ServerProvisioningParameters{}
+}
+
+func (d *dbServiceManager) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &DatabaseProvisioningParameters{}
+}
+
+func (a *allServiceManager) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }
 
-func (
-	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mssqlProvisioningContext{}
+func (s *vmServiceManager) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
+func (d *dbServiceManager) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
+}
+
+func (a *allServiceManager) GetEmptyProvisioningContext() service.ProvisioningContext {
+	return &mssqlAllInOneProvisioningContext{}
+}
+
+func (d *dbServiceManager) GetEmptyProvisioningContext() service.ProvisioningContext {
+	return &mssqlDBOnlyProvisioningContext{}
+}
+
+func (s *vmServiceManager) GetEmptyProvisioningContext() service.ProvisioningContext {
+	return &mssqlServerOnlyProvisioningContext{}
+}
+
+func (a *allServiceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
+func (a *allServiceManager) GetEmptyBindingContext() service.BindingContext {
 	return &mssqlBindingContext{}
 }
 
-func (s *serviceManager) GetEmptyCredentials() service.Credentials {
+func (a *allServiceManager) GetEmptyCredentials() service.Credentials {
+	return &Credentials{}
+}
+
+func (s *vmServiceManager) GetEmptyBindingParameters() service.BindingParameters {
+	return &BindingParameters{}
+}
+
+func (s *vmServiceManager) GetEmptyBindingContext() service.BindingContext {
+	return &mssqlBindingContext{}
+}
+
+func (s *vmServiceManager) GetEmptyCredentials() service.Credentials {
+	return &Credentials{}
+}
+
+func (d *dbServiceManager) GetEmptyBindingParameters() service.BindingParameters {
+	return &BindingParameters{}
+}
+
+func (d *dbServiceManager) GetEmptyBindingContext() service.BindingContext {
+	return &mssqlBindingContext{}
+}
+
+func (d *dbSe) GetEmptyCredentials() service.Credentials {
 	return &Credentials{}
 }

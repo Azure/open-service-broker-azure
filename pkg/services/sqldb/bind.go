@@ -8,7 +8,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func (s *serviceManager) ValidateBindingParameters(
+func (a *allServiceManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to MSSQL, so there is nothing
@@ -16,20 +16,27 @@ func (s *serviceManager) ValidateBindingParameters(
 	return nil
 }
 
-//TODO: What behavior do we want for bind on a non-bindable service.
-//Appropriate error?
-func (s *serverOnlyServiceManager) Bind(
-	instance service.Instance,
-	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	return nil, nil, nil
+func (d *dbServiceManager) ValidateBindingParameters(
+	bindingParameters service.BindingParameters,
+) error {
+	// There are no parameters for binding to MSSQL, so there is nothing
+	// to validate
+	return nil
 }
 
-func (s *serviceManager) Bind(
+func (s *vmServiceManager) ValidateBindingParameters(
+	bindingParameters service.BindingParameters,
+) error {
+	// There are no parameters for binding to MSSQL, so there is nothing
+	// to validate
+	return nil
+}
+
+func (a *allServiceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	pc, ok := instance.ProvisioningContext.(*mssqlAllInOneProvisioningContext)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
@@ -40,7 +47,11 @@ func (s *serviceManager) Bind(
 	password := generate.NewPassword()
 
 	// connect to master database to create login
-	masterDb, err := getDBConnection(pc, "master")
+	masterDb, err := getDBConnection(
+		pc.AdministratorLogin,
+		pc.AdministratorLoginPassword,
+		pc.FullyQualifiedDomainName,
+		"master")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,7 +68,12 @@ func (s *serviceManager) Bind(
 	}
 
 	// connect to new database to create user for the login
-	db, err := getDBConnection(pc, pc.DatabaseName)
+	db, err := getDBConnection(
+		pc.AdministratorLogin,
+		pc.AdministratorLoginPassword,
+		pc.FullyQualifiedDomainName,
+		pc.DatabaseName,
+	)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -121,4 +137,21 @@ func (s *serviceManager) Bind(
 			Password: password,
 		},
 		nil
+}
+
+//TODO: Implement db only service
+func (d *dbServiceManager) Bind(
+	instance service.Instance,
+	_ service.BindingParameters,
+) (service.BindingContext, service.Credentials, error) {
+	return nil, nil, nil
+}
+
+//TODO: What behavior do we want for bind on a non-bindable service.
+//Appropriate error?
+func (s *vmServiceManager) Bind(
+	instance service.Instance,
+	_ service.BindingParameters,
+) (service.BindingContext, service.Credentials, error) {
+	return nil, nil, nil
 }

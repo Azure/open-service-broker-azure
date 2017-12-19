@@ -207,7 +207,7 @@ func (s *service) GetName() string {
 	return s.Name
 }
 
-// GetPlans returns all of the service's plans
+// GetBindable returns true if the service is bindable
 func (s *service) GetBindable() bool {
 	return s.Bindable
 }

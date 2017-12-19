@@ -7,21 +7,27 @@ import (
 )
 
 type module struct {
-	allInOneServiceManager   *allInOneServiceManager
-	serverOnlyServiceManager *serverOnlyServiceManager
+	allInOneServiceManager *allServiceManager
+	vmOnlyServiceManager   *vmServiceManager
+	dbOnlyServiceManager   *dbServiceManager
 }
 
-type serviceManager struct {
+//the default service manager for the all-in-one case
+type allServiceManager struct {
 	armDeployer  arm.Deployer
 	mssqlManager mssql.Manager
 }
 
-type allInOneServiceManager struct {
-	serviceManager
+//the service manager for the server only case
+type vmServiceManager struct {
+	armDeployer  arm.Deployer
+	mssqlManager mssql.Manager
 }
 
-type serverOnlyServiceManager struct {
-	serviceManager
+//the service manager for the db only case
+type dbServiceManager struct {
+	armDeployer  arm.Deployer
+	mssqlManager mssql.Manager
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -31,17 +37,19 @@ func New(
 	armDeployer arm.Deployer,
 	mssqlManager mssql.Manager,
 ) service.Module {
-	sm := serviceManager{
-		armDeployer:  armDeployer,
-		mssqlManager: mssqlManager,
-	}
 
 	return &module{
-		allInOneServiceManager: &allInOneServiceManager{
-			serviceManager: sm,
+		allInOneServiceManager: &allServiceManager{
+			armDeployer:  armDeployer,
+			mssqlManager: mssqlManager,
 		},
-		serverOnlyServiceManager: &serverOnlyServiceManager{
-			serviceManager: sm,
+		vmOnlyServiceManager: &vmServiceManager{
+			armDeployer:  armDeployer,
+			mssqlManager: mssqlManager,
+		},
+		dbOnlyServiceManager: &dbServiceManager{
+			armDeployer:  armDeployer,
+			mssqlManager: mssqlManager,
 		},
 	}
 }
