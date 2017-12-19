@@ -22,8 +22,7 @@ func (a *allServiceManager) Unbind(
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			`error casting instance.ProvisioningContext 
-			as *mssqlAllInOneProvisioningContext`,
+			"error casting instance.Details as  mssqlAllInOneInstanceDetails",
 		)
 	}
 	bc, ok := bindingDetails.(*mssqlBindingDetails)
