@@ -124,11 +124,14 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		location, ok = locIface.(string)
 		if !ok {
-			logFields["location"] = locIface
-			log.WithFields(logFields).Debug(
-				"bad provisioning request: location parameter was not a string",
+			s.handlePossibleValidationError(
+				service.NewValidationError(
+					"location",
+					fmt.Sprintf(`"%v" is not a string`, locIface),
+				),
+				w,
+				logFields,
 			)
-			s.writeResponse(w, http.StatusBadRequest, responseInvalidPlanID)
 			return
 		}
 	}
@@ -140,11 +143,14 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		requestedResourceGroup, ok = rgIface.(string)
 		if !ok {
-			logFields["resourceGroup"] = rgIface
-			log.WithFields(logFields).Debug(
-				"bad provisioning request: resourceGroup parameter was not a string",
+			s.handlePossibleValidationError(
+				service.NewValidationError(
+					"resourceGroup",
+					fmt.Sprintf(`"%v" is not a string`, rgIface),
+				),
+				w,
+				logFields,
 			)
-			s.writeResponse(w, http.StatusBadRequest, responseInvalidPlanID)
 			return
 		}
 	}
@@ -156,11 +162,15 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		tags, ok = tagsIface.(map[string]string)
 		if !ok {
-			logFields["tags"] = tagsIface
-			log.WithFields(logFields).Debug(
-				"bad provisioning request: resourceGroup parameter was not a " +
-					"map[stringstring]",
+			s.handlePossibleValidationError(
+				service.NewValidationError(
+					"tags",
+					fmt.Sprintf(`"%v" is not a map[string]string`, tagsIface),
+				),
+				w,
+				logFields,
 			)
+			return
 		}
 	}
 
