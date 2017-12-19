@@ -6,6 +6,9 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
+//module contains three service managers
+//to refelct the three services available
+//from sqldb.
 type module struct {
 	allInOneServiceManager *allServiceManager
 	vmOnlyServiceManager   *vmServiceManager
