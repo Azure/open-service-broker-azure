@@ -224,6 +224,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		if instance.ServiceID == serviceID &&
 			instance.PlanID == planID &&
 			instance.Location == location &&
+			// If resourceGroup wasn't specified, we know one would be generated, so
+			// we're going to not take the equality of the requested resourceGroup
+			// and the existing resourceGroup into account if the requested
+			// resourceGroup is the empty string...
 			(requestedResourceGroup == "" ||
 				instance.ResourceGroup == resourceGroup) &&
 			reflect.DeepEqual(instance.Tags, tags) &&
