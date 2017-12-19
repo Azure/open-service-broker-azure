@@ -213,7 +213,7 @@ func (a *allInOneServiceManager) deployARMTemplate(
 		)
 	}
 	armTemplateParameters := a.buildARMTemplateParameters(plan, pc, pp)
-	return a.serviceManager.deployARMTemplate(instance,
+	return a.deployTemplate(instance,
 		armTemplateNewServerBytes,
 		armTemplateParameters,
 	)
@@ -239,13 +239,13 @@ func (s *serverOnlyServiceManager) deployARMTemplate(
 		)
 	}
 	armTemplateParameters := s.buildARMTemplateParameters(plan, pc, pp)
-	return s.serviceManager.deployARMTemplate(instance,
+	return s.deployTemplate(instance,
 		armTemplateServerOnlyBytes,
 		armTemplateParameters,
 	)
 }
 
-func (s *serviceManager) deployARMTemplate(
+func (s *serviceManager) deployTemplate(
 	instance service.Instance,
 	armTemplateName []byte,
 	armTemplateParameters map[string]interface{},
