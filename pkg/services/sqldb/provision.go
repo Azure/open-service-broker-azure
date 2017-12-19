@@ -80,7 +80,7 @@ func (a *allServiceManager) ValidateProvisioningParameters(
 	return nil
 }
 
-//TODO implement DB Only scenario valiation
+//TODO implement DB Only valiation
 func (d *dbServiceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
@@ -172,7 +172,7 @@ func (a *allServiceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, //reference instance
+	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
@@ -299,7 +299,7 @@ func (s *vmServiceManager) deployARMTemplate(
 	if !ok {
 		return nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
-				"*mssql.ProvisioningParameters",
+				"*mssql.ServerProvisioningParameters",
 		)
 	}
 	armTemplateParams := map[string]interface{}{ // ARM template params

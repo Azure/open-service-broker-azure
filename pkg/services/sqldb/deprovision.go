@@ -136,7 +136,7 @@ func (s *vmServiceManager) deleteMsSQLServerOrDatabase(
 	dt, ok := instance.Details.(*mssqlServerOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlServerOnlyInstanceDetails",
 		)
 	}
 	if err := s.mssqlManager.DeleteServer(

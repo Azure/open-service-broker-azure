@@ -153,12 +153,14 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 
 	if svc.GetBindable() {
 		// Bind (need to skip if not bindable)
-		bd, err := serviceManager.Bind(instance, s.bindingParameters)
+		bd, bindErr := serviceManager.Bind(instance, s.bindingParameters)
 		if err != nil {
-			return err
+			log.Printf("Error in bind step: %v", bindErr)
+			return bindErr
 		}
 
 		binding := service.Binding{Details: bd}
+
 		credentials, err := serviceManager.GetCredentials(instance, binding)
 		if err != nil {
 			return err
@@ -177,9 +179,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		err = serviceManager.Unbind(instance, bd)
 		if err != nil {
 			return err
-
 		}
-
 	}
 	// Deprovision...
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)

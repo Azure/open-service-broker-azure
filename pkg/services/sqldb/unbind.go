@@ -29,7 +29,7 @@ func (a *allServiceManager) Unbind(
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as  mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	bc, ok := bindingDetails.(*mssqlBindingDetails)
@@ -83,5 +83,13 @@ func (a *allServiceManager) Unbind(
 		)
 	}
 
+	return nil
+}
+
+//TODO implement db only scenario
+func (d *dbServiceManager) Unbind(
+	_ service.Instance,
+	_ service.BindingDetails,
+) error {
 	return nil
 }

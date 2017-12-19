@@ -157,6 +157,7 @@ func (a *allServiceManager) GetCredentials(
 	}, nil
 }
 
+//TODO: Implement db only service
 func (d *dbServiceManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
@@ -173,17 +174,17 @@ func (v *vmServiceManager) GetCredentials(
 
 //TODO: Implement db only service
 func (d *dbServiceManager) Bind(
-	_ service.Instance,
+	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingDetails, error) {
-	return nil, nil
+	return instance.Details, nil
 }
 
 //TODO: What behavior do we want for bind on a non-bindable service.
 //Appropriate error?
 func (v *vmServiceManager) Bind(
-	_ service.Instance,
+	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingDetails, error) {
-	return nil, nil
+	return instance.Details, nil
 }
