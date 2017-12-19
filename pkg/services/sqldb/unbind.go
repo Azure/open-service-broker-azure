@@ -14,6 +14,14 @@ func (s *vmServiceManager) Unbind(
 	return nil
 }
 
+//TODO implement db only scenario unbind
+func (d *dbServiceManager) Unbind(
+	_ service.Instance,
+	_ service.BindingDetails,
+) error {
+	return nil
+}
+
 func (a *allServiceManager) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
@@ -75,13 +83,5 @@ func (a *allServiceManager) Unbind(
 		)
 	}
 
-	return nil
-}
-
-//TODO implement db only scenario unbind
-func (d *dbServiceManager) Unbind(
-	_ service.Instance,
-	_ service.BindingDetails,
-) error {
 	return nil
 }
