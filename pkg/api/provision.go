@@ -116,41 +116,61 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	serviceManager := svc.GetServiceManager()
 
-	// Unpack the parameter map in the request to structs
+	// Unpack the parameter map...
 
-	// Standard params (those common to all services) first
-	standardProvisioningParameters := service.StandardProvisioningParameters{}
-	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		TagName: "json",
-		Result:  &standardProvisioningParameters,
-	})
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"error building parameter map decoder",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
+	// Location...
+	location := ""
+	locIface, ok := provisioningRequest.Parameters["location"]
+	if ok {
+		location, ok = locIface.(string)
+		if !ok {
+			logFields["location"] = locIface
+			log.WithFields(logFields).Debug(
+				"bad provisioning request: location parameter was not a string",
+			)
+			s.writeResponse(w, http.StatusBadRequest, responseInvalidPlanID)
+			return
+		}
 	}
-	err = decoder.Decode(provisioningRequest.Parameters)
-	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad provisioning request: error decoding parameter map into " +
-				"standardParameters",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
-		return
+	location = s.getLocation(location)
+
+	// Resource group...
+	requestedResourceGroup := ""
+	rgIface, ok := provisioningRequest.Parameters["resourceGroup"]
+	if ok {
+		requestedResourceGroup, ok = rgIface.(string)
+		if !ok {
+			logFields["resourceGroup"] = rgIface
+			log.WithFields(logFields).Debug(
+				"bad provisioning request: resourceGroup parameter was not a string",
+			)
+			s.writeResponse(w, http.StatusBadRequest, responseInvalidPlanID)
+			return
+		}
+	}
+	resourceGroup := s.getResourceGroup(requestedResourceGroup)
+
+	// Tags...
+	var tags map[string]string
+	tagsIface, ok := provisioningRequest.Parameters["tags"]
+	if ok {
+		tags, ok = tagsIface.(map[string]string)
+		if !ok {
+			logFields["tags"] = tagsIface
+			log.WithFields(logFields).Debug(
+				"bad provisioning request: resourceGroup parameter was not a " +
+					"map[stringstring]",
+			)
+		}
 	}
 
-	// Then service-specific parameters
+	// Now service-specific parameters...
 	provisioningParameters := serviceManager.GetEmptyProvisioningParameters()
 	decoderConfig := &mapstructure.DecoderConfig{
 		TagName: "json",
 		Result:  provisioningParameters,
 	}
-	decoder, err = mapstructure.NewDecoder(decoderConfig)
+	decoder, err := mapstructure.NewDecoder(decoderConfig)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -190,14 +210,13 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// current request.
 		//
 		// Two requests are the same if they are for the same serviceID, the same,
-		// planID, and both standard and service-specific provisioning parameters
-		// are deeply equal.
+		// planID, and all other relevant fields are equal.
 		if instance.ServiceID == serviceID &&
 			instance.PlanID == planID &&
-			reflect.DeepEqual(
-				instance.StandardProvisioningParameters,
-				standardProvisioningParameters,
-			) &&
+			instance.Location == location &&
+			(requestedResourceGroup == "" ||
+				instance.ResourceGroup == resourceGroup) &&
+			reflect.DeepEqual(instance.Tags, tags) &&
 			reflect.DeepEqual(
 				instance.ProvisioningParameters,
 				provisioningParameters,
@@ -228,8 +247,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	// If we get to here, we need to provision a new instance.
 
-	// Start by validating all the standard provisioning parameters
-	err = s.validateStandardProvisioningParameters(standardProvisioningParameters)
+	// Start by validating the location
+	err = s.validateLocation(location)
 	if err != nil {
 		s.handlePossibleValidationError(err, w, logFields)
 		return
@@ -268,21 +287,16 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	instance = service.Instance{
-		InstanceID: instanceID,
-		ServiceID:  provisioningRequest.ServiceID,
-		PlanID:     provisioningRequest.PlanID,
-		StandardProvisioningParameters: standardProvisioningParameters,
-		ProvisioningParameters:         provisioningParameters,
-		Status:                         service.InstanceStateProvisioning,
-		Location: s.getLocation(
-			standardProvisioningParameters.Location,
-		),
-		ResourceGroup: s.getResourceGroup(
-			standardProvisioningParameters.ResourceGroup,
-		),
-		Tags:                standardProvisioningParameters.Tags,
-		ProvisioningContext: serviceManager.GetEmptyProvisioningContext(),
-		Created:             time.Now(),
+		InstanceID:             instanceID,
+		ServiceID:              provisioningRequest.ServiceID,
+		PlanID:                 provisioningRequest.PlanID,
+		ProvisioningParameters: provisioningParameters,
+		Status:                 service.InstanceStateProvisioning,
+		Location:               location,
+		ResourceGroup:          resourceGroup,
+		Tags:                   tags,
+		ProvisioningContext:    serviceManager.GetEmptyProvisioningContext(),
+		Created:                time.Now(),
 	}
 	if err = s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err
@@ -316,14 +330,12 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	log.WithFields(logFields).Debug("asynchronous provisioning initiated")
 }
 
-func (s *server) validateStandardProvisioningParameters(
-	spp service.StandardProvisioningParameters,
-) error {
-	if (spp.Location == "" && s.defaultAzureLocation == "") ||
-		(spp.Location != "" && !azure.IsValidLocation(spp.Location)) {
+func (s *server) validateLocation(location string) error {
+	if (location == "" && s.defaultAzureLocation == "") ||
+		(location != "" && !azure.IsValidLocation(location)) {
 		return service.NewValidationError(
 			"location",
-			fmt.Sprintf(`invalid location: "%s"`, spp.Location),
+			fmt.Sprintf(`invalid location: "%s"`, location),
 		)
 	}
 	return nil
@@ -352,10 +364,6 @@ func (s *server) getLocation(location string) string {
 	if location != "" {
 		return location
 	}
-	// Note: If standardProvisioningParameters.Location and
-	// s.defaultAzureLocation were both "", we would have failed validation
-	// earlier. So if standardProvisioningParameters.Location == "", we know
-	// s.defaultAzureLocation != "", so the following is safe.
 	return s.defaultAzureLocation
 }
 

@@ -185,14 +185,9 @@ func TestDeleteExistingBinding(t *testing.T) {
 
 func getTestInstance() service.Instance {
 	return service.Instance{
-		InstanceID: uuid.NewV4().String(),
-		ServiceID:  fake.ServiceID,
-		PlanID:     fake.StandardPlanID,
-		StandardProvisioningParameters: service.StandardProvisioningParameters{
-			Location:      "eastus",
-			ResourceGroup: "test",
-			Tags:          map[string]string{"foo": "bar"},
-		},
+		InstanceID:             uuid.NewV4().String(),
+		ServiceID:              fake.ServiceID,
+		PlanID:                 fake.StandardPlanID,
 		ProvisioningParameters: fakeServiceManager.GetEmptyProvisioningParameters(),
 		UpdatingParameters:     fakeServiceManager.GetEmptyUpdatingParameters(),
 		Status:                 service.InstanceStateProvisioned,

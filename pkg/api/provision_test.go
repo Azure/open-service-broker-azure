@@ -325,12 +325,10 @@ func TestGetLocation(t *testing.T) {
 	const defaultLocation = "default-location"
 	const location = "test-location"
 	testCases := []struct {
-		name                 string
-		defaultLocation      string
-		location             string
-		defaultResourceGroup string
-		resourceGroup        string
-		assertion            func(*testing.T, string)
+		name            string
+		defaultLocation string
+		location        string
+		assertion       func(*testing.T, string)
 	}{
 		{
 			name:     "location specified with no default location",
@@ -358,7 +356,7 @@ func TestGetLocation(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			s, _, err := getTestServer(
 				testCase.defaultLocation,
-				testCase.defaultResourceGroup,
+				"default-rg",
 			)
 			assert.Nil(t, err)
 			spc := s.getLocation(testCase.location)
@@ -372,8 +370,6 @@ func TestGetResourceGroup(t *testing.T) {
 	const resourceGroup = "test-rg"
 	testCases := []struct {
 		name                 string
-		defaultLocation      string
-		location             string
 		defaultResourceGroup string
 		resourceGroup        string
 		assertion            func(*testing.T, string)
@@ -416,7 +412,7 @@ func TestGetResourceGroup(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			s, _, err := getTestServer(
-				testCase.defaultLocation,
+				"default-location",
 				testCase.defaultResourceGroup,
 			)
 			assert.Nil(t, err)
