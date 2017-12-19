@@ -5,7 +5,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // ProvisioningParameters encapsulates Service Bus specific provisioning options
 type ProvisioningParameters struct{}
 
-type serviceBusProvisioningContext struct {
+type serviceBusInstanceDetails struct {
 	ARMDeploymentName       string `json:"armDeployment"`
 	ServiceBusNamespaceName string `json:"serviceBusNamespaceName"`
 	ConnectionString        string `json:"connectionString"`
@@ -44,8 +44,8 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &serviceBusProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &serviceBusInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

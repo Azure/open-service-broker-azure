@@ -10,11 +10,10 @@ func (s *serviceManager) Unbind(
 	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 	bc, ok := bindingContext.(*postgresqlBindingContext)
@@ -24,7 +23,7 @@ func (s *serviceManager) Unbind(
 		)
 	}
 
-	db, err := getDBConnection(pc, primaryDB)
+	db, err := getDBConnection(dt, primaryDB)
 	if err != nil {
 		return err
 	}

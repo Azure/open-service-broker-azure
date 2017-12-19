@@ -10,7 +10,7 @@ type ProvisioningParameters struct {
 	Ports       []int   `json:"ports"`
 }
 
-type aciProvisioningContext struct {
+type aciInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	ContainerName     string `json:"name"`
 	PublicIPv4Address string `json:"publicIPv4Address"`
@@ -47,10 +47,8 @@ func (
 	return &UpdatingParameters{}
 }
 
-func (
-	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &aciProvisioningContext{}
+func (s *serviceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &aciInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

@@ -92,11 +92,11 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -109,12 +109,12 @@ func (s *serviceManager) preProvision(
 
 	if pp.ServerName == "" {
 		// new server scenario
-		pc.ARMDeploymentName = uuid.NewV4().String()
-		pc.ServerName = uuid.NewV4().String()
-		pc.IsNewServer = true
-		pc.AdministratorLogin = generate.NewIdentifier()
-		pc.AdministratorLoginPassword = generate.NewPassword()
-		pc.DatabaseName = generate.NewIdentifier()
+		dt.ARMDeploymentName = uuid.NewV4().String()
+		dt.ServerName = uuid.NewV4().String()
+		dt.IsNewServer = true
+		dt.AdministratorLogin = generate.NewIdentifier()
+		dt.AdministratorLoginPassword = generate.NewPassword()
+		dt.DatabaseName = generate.NewIdentifier()
 	} else {
 		// exisiting server scenario
 		servers := s.mssqlConfig.Servers
@@ -126,12 +126,12 @@ func (s *serviceManager) preProvision(
 			)
 		}
 
-		pc.ARMDeploymentName = uuid.NewV4().String()
-		pc.ServerName = server.ServerName
-		pc.IsNewServer = false
-		pc.AdministratorLogin = server.AdministratorLogin
-		pc.AdministratorLoginPassword = server.AdministratorLoginPassword
-		pc.DatabaseName = generate.NewIdentifier()
+		dt.ARMDeploymentName = uuid.NewV4().String()
+		dt.ServerName = server.ServerName
+		dt.IsNewServer = false
+		dt.AdministratorLogin = server.AdministratorLogin
+		dt.AdministratorLoginPassword = server.AdministratorLoginPassword
+		dt.DatabaseName = generate.NewIdentifier()
 
 		// Ensure the server configuration works
 		azureConfig, err := azure.GetConfig()
@@ -143,25 +143,25 @@ func (s *serviceManager) preProvision(
 			return nil, err
 		}
 		sqlDatabaseDNSSuffix := azureEnvironment.SQLDatabaseDNSSuffix
-		pc.FullyQualifiedDomainName = fmt.Sprintf(
+		dt.FullyQualifiedDomainName = fmt.Sprintf(
 			"%s.%s",
 			server.ServerName,
 			sqlDatabaseDNSSuffix,
 		)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func buildARMTemplateParameters(
 	plan service.Plan,
-	provisioningContext *mssqlProvisioningContext,
+	details *mssqlInstanceDetails,
 	provisioningParameters *ProvisioningParameters,
 ) map[string]interface{} {
 	p := map[string]interface{}{ // ARM template params
-		"serverName":                 provisioningContext.ServerName,
-		"administratorLogin":         provisioningContext.AdministratorLogin,
-		"administratorLoginPassword": provisioningContext.AdministratorLoginPassword,
-		"databaseName":               provisioningContext.DatabaseName,
+		"serverName":                 details.ServerName,
+		"administratorLogin":         details.AdministratorLogin,
+		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"databaseName":               details.DatabaseName,
 		"edition":                    plan.GetProperties().Extended["edition"],
 		"requestedServiceObjectiveName": plan.GetProperties().
 			Extended["requestedServiceObjectiveName"],
@@ -184,11 +184,11 @@ func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -198,11 +198,11 @@ func (s *serviceManager) deployARMTemplate(
 				"*mssql.ProvisioningParameters",
 		)
 	}
-	if pc.IsNewServer {
-		armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
+	if dt.IsNewServer {
+		armTemplateParameters := buildARMTemplateParameters(plan, dt, pp)
 		// new server scenario
 		outputs, err := s.armDeployer.Deploy(
-			pc.ARMDeploymentName,
+			dt.ARMDeploymentName,
 			instance.ResourceGroup,
 			instance.Location,
 			armTemplateNewServerBytes,
@@ -220,7 +220,7 @@ func (s *serviceManager) deployARMTemplate(
 				err,
 			)
 		}
-		pc.FullyQualifiedDomainName = fullyQualifiedDomainName
+		dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 	} else {
 		// existing server scenario
 		servers := s.mssqlConfig.Servers
@@ -233,14 +233,14 @@ func (s *serviceManager) deployARMTemplate(
 		}
 
 		_, err := s.armDeployer.Deploy(
-			pc.ARMDeploymentName,
+			dt.ARMDeploymentName,
 			server.ResourceGroupName,
 			server.Location,
 			armTemplateExistingServerBytes,
 			nil, // Go template params
 			map[string]interface{}{ // ARM template params
-				"serverName":   pc.ServerName,
-				"databaseName": pc.DatabaseName,
+				"serverName":   dt.ServerName,
+				"databaseName": dt.DatabaseName,
 				"edition":      plan.GetProperties().Extended["edition"],
 				"requestedServiceObjectiveName": plan.GetProperties().
 					Extended["requestedServiceObjectiveName"],
@@ -254,5 +254,5 @@ func (s *serviceManager) deployARMTemplate(
 		}
 	}
 
-	return pc, nil
+	return dt, nil
 }

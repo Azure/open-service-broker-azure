@@ -5,7 +5,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // ProvisioningParameters encapsulates Azure Event Hub provisioning options
 type ProvisioningParameters struct{}
 
-type eventHubProvisioningContext struct {
+type eventHubInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	EventHubName      string `json:"eventHubName"`
 	EventHubNamespace string `json:"eventHubNamespace"`
@@ -45,8 +45,8 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &eventHubProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &eventHubInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

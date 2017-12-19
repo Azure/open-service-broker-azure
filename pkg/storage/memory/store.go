@@ -62,7 +62,7 @@ func (s *store) GetInstance(instanceID string) (
 		json,
 		serviceManager.GetEmptyProvisioningParameters(),
 		serviceManager.GetEmptyUpdatingParameters(),
-		serviceManager.GetEmptyProvisioningContext(),
+		serviceManager.GetEmptyInstanceDetails(),
 		s.codec,
 	)
 	return instance, err == nil, err

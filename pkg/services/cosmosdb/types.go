@@ -12,7 +12,7 @@ const (
 // ProvisioningParameters encapsulates CosmosDB-specific provisioning options
 type ProvisioningParameters struct{}
 
-type cosmosdbProvisioningContext struct {
+type cosmosdbInstanceDetails struct {
 	ARMDeploymentName        string       `json:"armDeployment"`
 	DatabaseAccountName      string       `json:"name"`
 	DatabaseKind             databaseKind `json:"kind"`
@@ -54,8 +54,8 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &cosmosdbProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &cosmosdbInstanceDetails{}
 }
 
 func (

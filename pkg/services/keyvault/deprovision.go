@@ -23,40 +23,38 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*keyvaultProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*keyvaultProvisioningContext",
+			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteKeyVaultServer(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*keyvaultProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*keyvaultProvisioningContext",
+			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
 	if err := s.keyvaultManager.DeleteVault(
-		pc.KeyVaultName,
+		dt.KeyVaultName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting key vault: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

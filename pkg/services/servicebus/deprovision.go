@@ -20,40 +20,38 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*serviceBusProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*serviceBusInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*serviceBusProvisioningContext",
+			"error casting instance.Details as *serviceBusInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteNamespace(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*serviceBusProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*serviceBusInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*serviceBusProvisioningContext",
+			"error casting instance.Details as *serviceBusInstanceDetails",
 		)
 	}
 	if err := s.serviceBusManager.DeleteNamespace(
-		pc.ServiceBusNamespaceName,
+		dt.ServiceBusNamespaceName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting service bus namespace: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

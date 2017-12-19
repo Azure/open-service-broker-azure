@@ -5,7 +5,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // ProvisioningParameters encapsulates Redis-specific provisioning options
 type ProvisioningParameters struct{}
 
-type redisProvisioningContext struct {
+type redisInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	ServerName               string `json:"server"`
 	PrimaryKey               string `json:"primaryKey"`
@@ -44,8 +44,8 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &redisProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &redisInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

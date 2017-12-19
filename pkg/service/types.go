@@ -23,9 +23,9 @@ const (
 // signatures and documentation.
 type ProvisioningParameters interface{}
 
-// ProvisioningContext is an interface to be implemented by module-specific
-// types that represent provisioning context.
-type ProvisioningContext interface{}
+// InstanceDetails is an interface to be implemented by service-specific
+// types that represent the details of a service instance.
+type InstanceDetails interface{}
 
 // UpdatingParameters is an interface to be implemented by module-specific
 // types that represent updating parameters. This interface doesn't require

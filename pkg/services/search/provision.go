@@ -29,39 +29,37 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*searchProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*searchProvisioningContext",
+			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServiceName = uuid.NewV4().String()
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServiceName = uuid.NewV4().String()
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*searchProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*searchProvisioningContext",
+			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
-			"searchServiceName": pc.ServiceName,
+			"searchServiceName": dt.ServiceName,
 			"searchServiceSku":  plan.GetProperties().Extended["searchServiceSku"],
 		},
 		instance.Tags,
@@ -77,7 +75,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.ServiceName = serviceName
+	dt.ServiceName = serviceName
 
 	apiKey, ok := outputs["apiKey"].(string)
 	if !ok {
@@ -86,7 +84,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.APIKey = apiKey
+	dt.APIKey = apiKey
 
-	return pc, nil
+	return dt, nil
 }

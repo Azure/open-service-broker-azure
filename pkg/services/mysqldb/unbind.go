@@ -10,10 +10,10 @@ func (s *serviceManager) Unbind(
 	instance service.Instance,
 	bindingContext service.BindingContext,
 ) error {
-	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
+	dt, ok := instance.Details.(*mysqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mysqlProvisioningContext",
+			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
 	bc, ok := bindingContext.(*mysqlBindingContext)
@@ -23,7 +23,7 @@ func (s *serviceManager) Unbind(
 		)
 	}
 
-	db, err := getDBConnection(pc)
+	db, err := getDBConnection(dt)
 	if err != nil {
 		return err
 	}

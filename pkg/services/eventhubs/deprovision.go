@@ -20,40 +20,38 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*eventHubProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*eventHubProvisioningContext",
+			"error casting instance.Details as *eventHubInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteNamespace(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*eventHubProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*eventHubProvisioningContext",
+			"error casting instance.Details as *eventHubInstanceDetails",
 		)
 	}
 	if err := s.eventHubManager.DeleteNamespace(
 		instance.ResourceGroup,
-		pc.EventHubNamespace,
+		dt.EventHubNamespace,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting event hub namespace: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

@@ -111,7 +111,7 @@ func (b *broker) doUpdateStep(
 			`updater does not know how to process step "%s"`,
 		)
 	}
-	updatedProvisioningContext, err := step.Execute(
+	updatedDetails, err := step.Execute(
 		ctx,
 		instance,
 		plan,
@@ -124,7 +124,7 @@ func (b *broker) doUpdateStep(
 			"error executing updating step",
 		)
 	}
-	instanceCopy.ProvisioningContext = updatedProvisioningContext
+	instanceCopy.Details = updatedDetails
 	if nextStepName, ok := updater.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instanceCopy); err != nil {
 			return b.handleUpdatingError(

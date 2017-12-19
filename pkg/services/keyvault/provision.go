@@ -53,29 +53,27 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*keyvaultProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*keyvaultProvisioningContext",
+			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.KeyVaultName = "sb" + uuid.NewV4().String()[:20]
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.KeyVaultName = "sb" + uuid.NewV4().String()[:20]
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*keyvaultProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*keyvaultProvisioningContext",
+			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -87,13 +85,13 @@ func (s *serviceManager) deployARMTemplate(
 	}
 
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
-			"keyVaultName": pc.KeyVaultName,
+			"keyVaultName": dt.KeyVaultName,
 			"vaultSku":     plan.GetProperties().Extended["vaultSku"],
 			"tenantId":     s.keyvaultManager.GetTenantID(),
 			"objectId":     pp.ObjectID,
@@ -111,9 +109,9 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.VaultURI = vaultURI
-	pc.ClientID = pp.ClientID
-	pc.ClientSecret = pp.ClientSecret
+	dt.VaultURI = vaultURI
+	dt.ClientID = pp.ClientID
+	dt.ClientSecret = pp.ClientSecret
 
-	return pc, nil
+	return dt, nil
 }

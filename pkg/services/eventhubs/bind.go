@@ -18,18 +18,17 @@ func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*eventHubProvisioningContext)
+	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"eventHubProvisioningContext",
+			"error casting instance.Details as *eventHubInstanceDetails",
 		)
 	}
 
 	return &eventHubBindingContext{},
 		&Credentials{
-			ConnectionString: pc.ConnectionString,
-			PrimaryKey:       pc.PrimaryKey,
+			ConnectionString: dt.ConnectionString,
+			PrimaryKey:       dt.PrimaryKey,
 		},
 		nil
 }

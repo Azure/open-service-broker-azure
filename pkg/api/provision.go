@@ -205,7 +205,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// obligates us to compare this instance to the one that was requested and
 		// respond with 200 if they're identical or 409 otherwise. It actually seems
 		// best to compare REQUESTS instead because instance objects also contain
-		// provisioning context and other status information. So, let's reverse
+		// instance details and other status information. So, let's reverse
 		// engineer a request from the existing instance then compare it to the
 		// current request.
 		//
@@ -295,7 +295,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		Location:               location,
 		ResourceGroup:          resourceGroup,
 		Tags:                   tags,
-		ProvisioningContext:    serviceManager.GetEmptyProvisioningContext(),
+		Details:                serviceManager.GetEmptyInstanceDetails(),
 		Created:                time.Now(),
 	}
 	if err = s.store.WriteInstance(instance); err != nil {

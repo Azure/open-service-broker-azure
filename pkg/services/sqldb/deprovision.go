@@ -23,80 +23,80 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	var err error
-	if pc.IsNewServer {
+	if dt.IsNewServer {
 		// new server scenario
 		err = s.armDeployer.Delete(
-			pc.ARMDeploymentName,
+			dt.ARMDeploymentName,
 			instance.ResourceGroup,
 		)
 	} else {
 		// exisiting server scenario
 		servers := s.mssqlConfig.Servers
-		server, ok := servers[pc.ServerName]
+		server, ok := servers[dt.ServerName]
 		if !ok {
 			return nil, fmt.Errorf(
 				`can't find serverName "%s" in Azure SQL Server configuration`,
-				pc.ServerName,
+				dt.ServerName,
 			)
 		}
 
 		err = s.armDeployer.Delete(
-			pc.ARMDeploymentName,
+			dt.ARMDeploymentName,
 			server.ResourceGroupName,
 		)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteMsSQLServerOrDatabase(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 
-	if pc.IsNewServer {
+	if dt.IsNewServer {
 		// new server scenario
 		if err := s.mssqlManager.DeleteServer(
-			pc.ServerName,
+			dt.ServerName,
 			instance.ResourceGroup,
 		); err != nil {
-			return pc, fmt.Errorf("error deleting mssql server: %s", err)
+			return dt, fmt.Errorf("error deleting mssql server: %s", err)
 		}
 	} else {
 		// exisiting server scenario
 		servers := s.mssqlConfig.Servers
-		server, ok := servers[pc.ServerName]
+		server, ok := servers[dt.ServerName]
 		if !ok {
 			return nil, fmt.Errorf(
 				`can't find serverName "%s" in Azure SQL Server configuration`,
-				pc.ServerName,
+				dt.ServerName,
 			)
 		}
 
 		if err := s.mssqlManager.DeleteDatabase(
-			pc.ServerName,
-			pc.DatabaseName,
+			dt.ServerName,
+			dt.DatabaseName,
 			server.ResourceGroupName,
 		); err != nil {
-			return pc, fmt.Errorf("error deleting mssql database: %s", err)
+			return dt, fmt.Errorf("error deleting mssql database: %s", err)
 		}
 	}
-	return pc, nil
+	return dt, nil
 }

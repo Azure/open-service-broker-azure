@@ -9,7 +9,7 @@ type ProvisioningParameters struct {
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
 
-type mssqlProvisioningContext struct {
+type mssqlInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	IsNewServer                bool   `json:"isNewServer"`
@@ -69,8 +69,8 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mssqlProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

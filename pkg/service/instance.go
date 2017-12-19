@@ -21,8 +21,8 @@ type Instance struct {
 	Location                        string                 `json:"location"`      // nolint: lll
 	ResourceGroup                   string                 `json:"resourceGroup"` // nolint: lll
 	Tags                            map[string]string      `json:"tags"`
-	EncryptedProvisioningContext    []byte                 `json:"provisioningContext"` // nolint: lll
-	ProvisioningContext             ProvisioningContext    `json:"-"`
+	EncryptedDetails                []byte                 `json:"details"` // nolint: lll
+	Details                         InstanceDetails        `json:"-"`
 	Created                         time.Time              `json:"created"` // nolint: lll
 }
 
@@ -32,13 +32,13 @@ func NewInstanceFromJSON(
 	jsonBytes []byte,
 	pp ProvisioningParameters,
 	up UpdatingParameters,
-	pc ProvisioningContext,
+	dt InstanceDetails,
 	codec crypto.Codec,
 ) (Instance, error) {
 	instance := Instance{
 		ProvisioningParameters: pp,
 		UpdatingParameters:     up,
-		ProvisioningContext:    pc,
+		Details:                dt,
 	}
 	if err := json.Unmarshal(jsonBytes, &instance); err != nil {
 		return instance, err
@@ -64,7 +64,7 @@ func (i Instance) encrypt(codec crypto.Codec) (Instance, error) {
 	if i, err = i.encryptUpdatingParameters(codec); err != nil {
 		return i, err
 	}
-	return i.encryptProvisioningContext(codec)
+	return i.encryptDetails(codec)
 }
 
 func (i Instance) encryptProvisioningParameters(
@@ -89,14 +89,14 @@ func (i Instance) encryptUpdatingParameters(
 	return i, err
 }
 
-func (i Instance) encryptProvisioningContext(
+func (i Instance) encryptDetails(
 	codec crypto.Codec,
 ) (Instance, error) {
-	jsonBytes, err := json.Marshal(i.ProvisioningContext)
+	jsonBytes, err := json.Marshal(i.Details)
 	if err != nil {
 		return i, err
 	}
-	i.EncryptedProvisioningContext, err = codec.Encrypt(jsonBytes)
+	i.EncryptedDetails, err = codec.Encrypt(jsonBytes)
 	return i, err
 }
 
@@ -108,7 +108,7 @@ func (i Instance) decrypt(codec crypto.Codec) (Instance, error) {
 	if i, err = i.decryptUpdatingParameters(codec); err != nil {
 		return i, err
 	}
-	return i.decryptProvisioningContext(codec)
+	return i.decryptDetails(codec)
 }
 
 func (i Instance) decryptProvisioningParameters(
@@ -139,16 +139,16 @@ func (i Instance) decryptUpdatingParameters(
 	return i, json.Unmarshal(plaintext, i.UpdatingParameters)
 }
 
-func (i Instance) decryptProvisioningContext(
+func (i Instance) decryptDetails(
 	codec crypto.Codec,
 ) (Instance, error) {
-	if len(i.EncryptedProvisioningContext) == 0 ||
-		i.ProvisioningContext == nil {
+	if len(i.EncryptedDetails) == 0 ||
+		i.Details == nil {
 		return i, nil
 	}
-	plaintext, err := codec.Decrypt(i.EncryptedProvisioningContext)
+	plaintext, err := codec.Decrypt(i.EncryptedDetails)
 	if err != nil {
 		return i, err
 	}
-	return i, json.Unmarshal(plaintext, i.ProvisioningContext)
+	return i, json.Unmarshal(plaintext, i.Details)
 }

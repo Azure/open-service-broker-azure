@@ -15,8 +15,7 @@ func (s *serviceManager) ValidateProvisioningParameters(
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return errors.New(
-			"error casting provisioningParameters as " +
-				"*aci.ProvisioningParameters",
+			"error casting provisioningParameters as *aci.ProvisioningParameters",
 		)
 	}
 	if pp.ImageName == "" {
@@ -41,27 +40,27 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*aciProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as *aciProvisioningContext",
+			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ContainerName = uuid.NewV4().String()
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ContainerName = uuid.NewV4().String()
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*aciProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as *aciProvisioningContext",
+			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -73,13 +72,13 @@ func (s *serviceManager) deployARMTemplate(
 	}
 
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
 		pp, // Go template params
 		map[string]interface{}{ // ARM template params
-			"name":       pc.ContainerName,
+			"name":       dt.ContainerName,
 			"image":      pp.ImageName,
 			"cpuCores":   pp.NumberCores,
 			"memoryInGb": fmt.Sprintf("%f", pp.Memory),
@@ -94,8 +93,8 @@ func (s *serviceManager) deployARMTemplate(
 	// scenario.
 	publicIPv4Address, ok := outputs["publicIPv4Address"].(string)
 	if ok {
-		pc.PublicIPv4Address = publicIPv4Address
+		dt.PublicIPv4Address = publicIPv4Address
 	}
 
-	return pc, nil
+	return dt, nil
 }

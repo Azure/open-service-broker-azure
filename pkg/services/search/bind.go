@@ -18,17 +18,17 @@ func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*searchProvisioningContext)
+	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as searchProvisioningContext",
+			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
 
 	return &searchBindingContext{},
 		&searchCredentials{
-			ServiceName: pc.ServiceName,
-			APIKey:      pc.APIKey,
+			ServiceName: dt.ServiceName,
+			APIKey:      dt.APIKey,
 		},
 		nil
 }

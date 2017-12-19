@@ -29,41 +29,39 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*eventHubProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*eventHubProvisioningContext",
+			"error casting instance.Details as *eventHubInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.EventHubName = uuid.NewV4().String()
-	pc.EventHubNamespace = "eh-" + uuid.NewV4().String()
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.EventHubName = uuid.NewV4().String()
+	dt.EventHubNamespace = "eh-" + uuid.NewV4().String()
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*eventHubProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*eventHubProvisioningContext",
+			"error casting instance.Details as *eventHubInstanceDetails",
 		)
 	}
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
-			"eventHubName":      pc.EventHubName,
-			"eventHubNamespace": pc.EventHubNamespace,
+			"eventHubName":      dt.EventHubName,
+			"eventHubNamespace": dt.EventHubNamespace,
 			"eventHubSku":       plan.GetProperties().Extended["eventHubSku"],
 		},
 		instance.Tags,
@@ -79,7 +77,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.ConnectionString = connectionString
+	dt.ConnectionString = connectionString
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
@@ -88,7 +86,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.PrimaryKey = primaryKey
+	dt.PrimaryKey = primaryKey
 
-	return pc, nil
+	return dt, nil
 }

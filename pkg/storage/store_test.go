@@ -79,7 +79,7 @@ func TestGetExistingInstance(t *testing.T) {
 	// Blank out a few fields before we compare
 	retrievedInstance.EncryptedProvisioningParameters = nil
 	retrievedInstance.EncryptedUpdatingParameters = nil
-	retrievedInstance.EncryptedProvisioningContext = nil
+	retrievedInstance.EncryptedDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -195,7 +195,7 @@ func getTestInstance() service.Instance {
 		Location:               "eastus",
 		ResourceGroup:          "test",
 		Tags:                   map[string]string{"foo": "bar"},
-		ProvisioningContext:    fakeServiceManager.GetEmptyProvisioningContext(),
+		Details:                fakeServiceManager.GetEmptyInstanceDetails(),
 	}
 }
 

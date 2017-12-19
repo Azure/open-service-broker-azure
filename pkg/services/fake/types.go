@@ -11,12 +11,12 @@ type ProvisioningParameters struct {
 	SomeParameter string `json:"someParameter"`
 }
 
-// ProvisioningContext represents context collected and modified over the course
-// of the fake service module's provisioning and deprovisioning processes. Note
-// that, ordinarily, service module-specific types such as this do not need to
-// be exported. An exception is made here because the fake service module is
-// used to facilitate testing of the broker framework itself.
-type ProvisioningContext struct {
+// InstanceDetails represents details collected and modified over the course
+// of a fake service instance's provisioning and deprovisioning processes. Note
+// that, ordinarily, service-specific types such as this do not need to be
+// exported. An exception is made here because the fake service module is used
+// to facilitate testing of the broker framework itself.
+type InstanceDetails struct {
 	ResourceGroupName string `json:"resourceGroup"`
 }
 
@@ -67,12 +67,12 @@ func (
 	return &ProvisioningParameters{}
 }
 
-// GetEmptyProvisioningContext returns an empty instance of a module-specific
-// provisioningContext
+// GetEmptyInstanceDetails returns an empty instance of a service-specific
+// instance details
 func (
 	s *ServiceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &ProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &InstanceDetails{}
 }
 
 // GetEmptyUpdatingParameters returns an empty instance of module-specific

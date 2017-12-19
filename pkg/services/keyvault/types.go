@@ -9,7 +9,7 @@ type ProvisioningParameters struct {
 	ClientSecret string `json:"clientSecret"`
 }
 
-type keyvaultProvisioningContext struct {
+type keyvaultInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	KeyVaultName      string `json:"keyVaultName"`
 	VaultURI          string `json:"vaultUri"`
@@ -50,8 +50,8 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &keyvaultProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &keyvaultInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

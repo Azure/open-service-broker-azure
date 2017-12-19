@@ -20,10 +20,10 @@ func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 
@@ -31,7 +31,7 @@ func (s *serviceManager) Bind(
 	password := generate.NewPassword()
 
 	// connect to master database to create login
-	masterDb, err := getDBConnection(pc, "master")
+	masterDb, err := getDBConnection(dt, "master")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -48,7 +48,7 @@ func (s *serviceManager) Bind(
 	}
 
 	// connect to new database to create user for the login
-	db, err := getDBConnection(pc, pc.DatabaseName)
+	db, err := getDBConnection(dt, dt.DatabaseName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -105,9 +105,9 @@ func (s *serviceManager) Bind(
 			LoginName: loginName,
 		},
 		&Credentials{
-			Host:     pc.FullyQualifiedDomainName,
+			Host:     dt.FullyQualifiedDomainName,
 			Port:     1433,
-			Database: pc.DatabaseName,
+			Database: dt.DatabaseName,
 			Username: loginName,
 			Password: password,
 		},

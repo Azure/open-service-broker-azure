@@ -23,40 +23,38 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deletePostgreSQLServer(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 	if err := s.postgresqlManager.DeleteServer(
-		pc.ServerName,
+		dt.ServerName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

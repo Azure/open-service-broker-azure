@@ -104,7 +104,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		// Force the resource group to be something known to this test executor
 		// to ensure good cleanup
 		ResourceGroup:          resourceGroup,
-		ProvisioningContext:    serviceManager.GetEmptyProvisioningContext(),
+		Details:                serviceManager.GetEmptyInstanceDetails(),
 		ProvisioningParameters: s.provisioningParameters,
 	}
 
@@ -132,7 +132,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 				stepName,
 			)
 		}
-		instance.ProvisioningContext, err = step.Execute(ctx, instance, plan)
+		instance.Details, err = step.Execute(ctx, instance, plan)
 		if err != nil {
 			return err
 		}
@@ -186,10 +186,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 				stepName,
 			)
 		}
-		// Assign results to temp variable in case they're nil. We don't want
-		// pc to ever be nil, or we risk a nil pointer dereference in the
-		// cleanup logic.
-		instance.ProvisioningContext, err = step.Execute(ctx, instance, plan)
+		instance.Details, err = step.Execute(ctx, instance, plan)
 		if err != nil {
 			return err
 		}

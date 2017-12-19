@@ -10,7 +10,7 @@ type ProvisioningParameters struct {
 	FirewallIPEnd   string   `json:"firewallEndIPAddress"`
 }
 
-type postgresqlProvisioningContext struct {
+type postgresqlInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
@@ -55,8 +55,8 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &postgresqlProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &postgresqlInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

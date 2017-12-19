@@ -49,16 +49,15 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*storageProvisioningContext",
+			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.StorageAccountName = generate.NewIdentifier()
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.StorageAccountName = generate.NewIdentifier()
 
 	storeKind, ok := plan.GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
@@ -70,22 +69,21 @@ func (s *serviceManager) preProvision(
 	// Add context that is specific to certain plans
 	switch storeKind {
 	case storageKindBlobContainer:
-		pc.ContainerName = uuid.NewV4().String()
+		dt.ContainerName = uuid.NewV4().String()
 	}
 
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*storageProvisioningContext",
+			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
 	storeKind, ok := plan.GetProperties().Extended[kindKey].(storageKind)
@@ -103,10 +101,10 @@ func (s *serviceManager) deployARMTemplate(
 		armTemplateBytes = armTemplateBytesBlobStorage
 	}
 	armTemplateParameters := map[string]interface{}{
-		"name": pc.StorageAccountName,
+		"name": dt.StorageAccountName,
 	}
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
@@ -118,7 +116,7 @@ func (s *serviceManager) deployARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	pc.AccessKey, ok = outputs["accessKey"].(string)
+	dt.AccessKey, ok = outputs["accessKey"].(string)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error retrieving primary access key from deployment: %s",
@@ -126,25 +124,24 @@ func (s *serviceManager) deployARMTemplate(
 		)
 	}
 
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) createBlobContainer(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext " +
-				"as *storageProvisioningContext",
+			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
 
-	client, _ := storage.NewBasicClient(pc.StorageAccountName, pc.AccessKey)
+	client, _ := storage.NewBasicClient(dt.StorageAccountName, dt.AccessKey)
 	blobCli := client.GetBlobService()
-	container := blobCli.GetContainerReference(pc.ContainerName)
+	container := blobCli.GetContainerReference(dt.ContainerName)
 	options := storage.CreateContainerOptions{
 		Access: storage.ContainerAccessTypePrivate,
 	}
@@ -155,5 +152,5 @@ func (s *serviceManager) createBlobContainer(
 		)
 	}
 
-	return pc, nil
+	return dt, nil
 }

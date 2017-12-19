@@ -20,38 +20,38 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mysqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mysqlProvisioningContext",
+			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
+		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteMySQLServer(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mysqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mysqlProvisioningContext",
+			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
 	if err := s.mysqlManager.DeleteServer(
-		pc.ServerName,
+		dt.ServerName,
 		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

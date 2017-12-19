@@ -32,7 +32,7 @@ func init() {
 	}
 	encryptedUpdatingParameters := []byte(`{"foo":"bat"}`)
 	statusReason := "in-progress"
-	provisioningContext := &ArbitraryType{
+	details := &ArbitraryType{
 		Foo: "baz",
 	}
 	encryptedProvisiongingContext := []byte(`{"foo":"baz"}`)
@@ -54,9 +54,9 @@ func init() {
 		Location:                        location,
 		ResourceGroup:                   resourceGroup,
 		Tags:                            map[string]string{tagKey: tagVal},
-		EncryptedProvisioningContext: encryptedProvisiongingContext,
-		ProvisioningContext:          provisioningContext,
-		Created:                      created,
+		EncryptedDetails:                encryptedProvisiongingContext,
+		Details:                         details,
+		Created:                         created,
 	}
 
 	b64EncryptedProvisioningParameters := base64.StdEncoding.EncodeToString(
@@ -65,7 +65,7 @@ func init() {
 	b64EncryptedUpdatingParameters := base64.StdEncoding.EncodeToString(
 		encryptedUpdatingParameters,
 	)
-	b64EncryptedProvisioningContext := base64.StdEncoding.EncodeToString(
+	b64EncryptedDetails := base64.StdEncoding.EncodeToString(
 		encryptedProvisiongingContext,
 	)
 
@@ -81,7 +81,7 @@ func init() {
 			"location":"%s",
 			"resourceGroup":"%s",
 			"tags":{"%s":"%s"},
-			"provisioningContext":"%s",
+			"details":"%s",
 			"created":"%s"
 		}`,
 		instanceID,
@@ -95,7 +95,7 @@ func init() {
 		resourceGroup,
 		tagKey,
 		tagVal,
-		b64EncryptedProvisioningContext,
+		b64EncryptedDetails,
 		created.Format(time.RFC3339),
 	)
 	testInstanceJSONStr = strings.Replace(testInstanceJSONStr, " ", "", -1)
@@ -150,16 +150,16 @@ func TestEncryptUpdatingParameters(t *testing.T) {
 	)
 }
 
-func TestEncryptProvisioningContext(t *testing.T) {
+func TestEncryptDetails(t *testing.T) {
 	instance := Instance{
-		ProvisioningContext: testArbitraryObject,
+		Details: testArbitraryObject,
 	}
 	var err error
-	instance, err = instance.encryptProvisioningContext(noopCodec)
+	instance, err = instance.encryptDetails(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		instance.EncryptedProvisioningContext,
+		instance.EncryptedDetails,
 		testArbitraryObjectJSON,
 	)
 }
@@ -186,13 +186,13 @@ func TestDecryptUpdatingParameters(t *testing.T) {
 	assert.Equal(t, testArbitraryObject, instance.UpdatingParameters)
 }
 
-func TestDecryptProvisioningContext(t *testing.T) {
+func TestDecryptDetails(t *testing.T) {
 	instance := Instance{
-		EncryptedProvisioningContext: testArbitraryObjectJSON,
-		ProvisioningContext:          &ArbitraryType{},
+		EncryptedDetails: testArbitraryObjectJSON,
+		Details:          &ArbitraryType{},
 	}
 	var err error
-	instance, err = instance.decryptProvisioningContext(noopCodec)
+	instance, err = instance.decryptDetails(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, instance.ProvisioningContext)
+	assert.Equal(t, testArbitraryObject, instance.Details)
 }
