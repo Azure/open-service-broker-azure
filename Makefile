@@ -9,11 +9,11 @@ BINARY_NAME := osba
 # See https://github.com/Azure/open-service-broker-azure/issues/100
 BASE_IMAGE_NAME        = azure-service-broker
 
-RC_IMAGE_NAME          = $(REGISTRY)$(BASE_IMAGE_NAME):$(GIT_VERSION)
-RC_MUTABLE_IMAGE_NAME  = $(REGISTRY)$(BASE_IMAGE_NAME):canary
+RC_IMAGE_NAME          = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(GIT_VERSION)
+RC_MUTABLE_IMAGE_NAME  = $(DOCKER_REPO)$(BASE_IMAGE_NAME):canary
 
-REL_IMAGE_NAME         = $(REGISTRY)$(BASE_IMAGE_NAME):$(REL_VERSION)
-REL_MUTABLE_IMAGE_NAME = $(REGISTRY)$(BASE_IMAGE_NAME):latest
+REL_IMAGE_NAME         = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(REL_VERSION)
+REL_MUTABLE_IMAGE_NAME = $(DOCKER_REPO)$(BASE_IMAGE_NAME):latest
 
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
