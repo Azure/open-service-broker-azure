@@ -39,7 +39,6 @@ func main() {
 		8080,
 		memoryStorage.NewStore(fakeCatalog, noopCodec),
 		fakeAsync.NewEngine(),
-		noopCodec,
 		authenticator,
 		fakeCatalog,
 		" ",
