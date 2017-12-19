@@ -168,26 +168,6 @@ func (d *dbServiceManager) GetProvisioner(
 	)
 }
 
-func (s *vmServiceManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
-	_ service.Plan,
-	_ service.Instance, // Reference instance
-) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlServerOnlyInstanceDetails)
-	if !ok {
-		return nil, errors.New(
-			"error casting instance.Details as *mssqlServerOnlyInstanceDetails",
-		)
-	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.ServerName = uuid.NewV4().String()
-	dt.AdministratorLogin = generate.NewIdentifier()
-	dt.AdministratorLoginPassword = generate.NewPassword()
-
-	return dt, nil
-}
-
 func (a *allServiceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
@@ -205,6 +185,26 @@ func (a *allServiceManager) preProvision(
 	dt.AdministratorLogin = generate.NewIdentifier()
 	dt.AdministratorLoginPassword = generate.NewPassword()
 	dt.DatabaseName = generate.NewIdentifier()
+	return dt, nil
+}
+
+func (s *vmServiceManager) preProvision(
+	_ context.Context,
+	instance service.Instance,
+	_ service.Plan,
+	_ service.Instance, // Reference instance
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlServerOnlyInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *mssqlServerOnlyInstanceDetails",
+		)
+	}
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLogin = generate.NewIdentifier()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+
 	return dt, nil
 }
 
