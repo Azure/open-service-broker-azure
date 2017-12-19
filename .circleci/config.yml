@@ -82,7 +82,7 @@ jobs:
     working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
-      REGISTRY: docker.io/microsoft/
+      DOCKER_REPO: microsoft/
     machine: true
     steps:
       - checkout
@@ -97,7 +97,7 @@ jobs:
           command: make docker-push-rc
   publish-release-images:
     environment:
-      REGISTRY: docker.io/microsoft/
+      DOCKER_REPO: microsoft/
     machine: true
     steps:
       - checkout
