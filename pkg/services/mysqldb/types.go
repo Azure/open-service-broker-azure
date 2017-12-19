@@ -9,7 +9,7 @@ type ProvisioningParameters struct {
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
 
-type mysqlProvisioningContext struct {
+type mysqlInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
@@ -26,7 +26,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type mysqlBindingContext struct {
+type mysqlBindingDetails struct {
 	LoginName string `json:"loginName"`
 }
 
@@ -53,16 +53,16 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mysqlProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mysqlInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mysqlBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mysqlBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

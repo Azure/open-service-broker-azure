@@ -20,38 +20,38 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*searchProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as searchProvisioningContext",
+			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteAzureSearch(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*searchProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as searchProvisioningContext",
+			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
 	if err := s.searchManager.DeleteServer(
-		pc.ServiceName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ServiceName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting Azure Search: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

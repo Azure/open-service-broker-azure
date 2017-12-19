@@ -92,12 +92,11 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -108,37 +107,37 @@ func (s *serviceManager) preProvision(
 		)
 	}
 
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServerName = uuid.NewV4().String()
-	pc.AdministratorLoginPassword = generate.NewPassword()
-	pc.DatabaseName = generate.NewIdentifier()
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+	dt.DatabaseName = generate.NewIdentifier()
 
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
 	switch sslEnforcement {
 	case "", "enabled":
-		pc.EnforceSSL = true
+		dt.EnforceSSL = true
 	case "disabled":
-		pc.EnforceSSL = false
+		dt.EnforceSSL = false
 	}
 
-	return pc, nil
+	return dt, nil
 }
 
 func buildARMTemplateParameters(
 	plan service.Plan,
-	provisioningContext *postgresqlProvisioningContext,
+	details *postgresqlInstanceDetails,
 	provisioningParameters *ProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
-	if provisioningContext.EnforceSSL {
+	if details.EnforceSSL {
 		sslEnforcement = "Enabled"
 	} else {
 		sslEnforcement = "Disabled"
 	}
 	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": provisioningContext.AdministratorLoginPassword,
-		"serverName":                 provisioningContext.ServerName,
-		"databaseName":               provisioningContext.DatabaseName,
+		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"serverName":                 details.ServerName,
+		"databaseName":               details.DatabaseName,
 		"skuName":                    plan.GetProperties().Extended["skuName"],
 		"skuTier":                    plan.GetProperties().Extended["skuTier"],
 		"skuCapacityDTU": plan.GetProperties().
@@ -161,12 +160,11 @@ func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -176,15 +174,15 @@ func (s *serviceManager) deployARMTemplate(
 				"*postgresql.ProvisioningParameters",
 		)
 	}
-	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
+	armTemplateParameters := buildARMTemplateParameters(plan, dt, pp)
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -197,25 +195,24 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.FullyQualifiedDomainName = fullyQualifiedDomainName
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 
-	db, err := getDBConnection(pc, primaryDB)
+	db, err := getDBConnection(dt, primaryDB)
 	if err != nil {
 		return nil, err
 	}
@@ -233,29 +230,29 @@ func (s *serviceManager) setupDatabase(
 		}
 	}()
 	if _, err = tx.Exec(
-		fmt.Sprintf("create role %s", pc.DatabaseName),
+		fmt.Sprintf("create role %s", dt.DatabaseName),
 	); err != nil {
-		return nil, fmt.Errorf(`error creating role "%s": %s`, pc.DatabaseName, err)
+		return nil, fmt.Errorf(`error creating role "%s": %s`, dt.DatabaseName, err)
 	}
 	if _, err = tx.Exec(
-		fmt.Sprintf("grant %s to postgres", pc.DatabaseName),
+		fmt.Sprintf("grant %s to postgres", dt.DatabaseName),
 	); err != nil {
 		return nil, fmt.Errorf(
 			`error adding role "%s" to role "postgres": %s`,
-			pc.DatabaseName,
+			dt.DatabaseName,
 			err,
 		)
 	}
 	if _, err = tx.Exec(
 		fmt.Sprintf(
 			"alter database %s owner to %s",
-			pc.DatabaseName,
-			pc.DatabaseName,
+			dt.DatabaseName,
+			dt.DatabaseName,
 		),
 	); err != nil {
 		return nil, fmt.Errorf(
 			`error updating database owner"%s": %s`,
-			pc.DatabaseName,
+			dt.DatabaseName,
 			err,
 		)
 	}
@@ -263,19 +260,18 @@ func (s *serviceManager) setupDatabase(
 		return nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -287,7 +283,7 @@ func (s *serviceManager) createExtensions(
 	}
 
 	if len(pp.Extensions) > 0 {
-		db, err := getDBConnection(pc, pc.DatabaseName)
+		db, err := getDBConnection(dt, dt.DatabaseName)
 		if err != nil {
 			return nil, err
 		}
@@ -319,5 +315,5 @@ func (s *serviceManager) createExtensions(
 			return nil, fmt.Errorf("error committing transaction: %s", err)
 		}
 	}
-	return pc, nil
+	return dt, nil
 }

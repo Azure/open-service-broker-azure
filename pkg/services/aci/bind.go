@@ -17,17 +17,17 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*aciProvisioningContext)
+) (service.BindingDetails, service.Credentials, error) {
+	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *aciProvisioningContext",
+			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
 
-	return &aciBindingContext{},
+	return &aciBindingDetails{},
 		&aciCredentials{
-			PublicIPv4Address: pc.PublicIPv4Address,
+			PublicIPv4Address: dt.PublicIPv4Address,
 		},
 		nil
 }

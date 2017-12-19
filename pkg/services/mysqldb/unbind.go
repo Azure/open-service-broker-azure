@@ -8,22 +8,22 @@ import (
 
 func (s *serviceManager) Unbind(
 	instance service.Instance,
-	bindingContext service.BindingContext,
+	bindingDetails service.BindingDetails,
 ) error {
-	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
+	dt, ok := instance.Details.(*mysqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mysqlProvisioningContext",
+			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
-	bc, ok := bindingContext.(*mysqlBindingContext)
+	bc, ok := bindingDetails.(*mysqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingContext as *mysqlBindingContext",
+			"error casting bindingDetails as *mysqlBindingDetails",
 		)
 	}
 
-	db, err := getDBConnection(pc)
+	db, err := getDBConnection(dt)
 	if err != nil {
 		return err
 	}

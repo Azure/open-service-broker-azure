@@ -11,12 +11,12 @@ type ProvisioningParameters struct {
 	SomeParameter string `json:"someParameter"`
 }
 
-// ProvisioningContext represents context collected and modified over the course
-// of the fake service module's provisioning and deprovisioning processes. Note
-// that, ordinarily, service module-specific types such as this do not need to
-// be exported. An exception is made here because the fake service module is
-// used to facilitate testing of the broker framework itself.
-type ProvisioningContext struct {
+// InstanceDetails represents details collected and modified over the course
+// of a fake service instance's provisioning and deprovisioning processes. Note
+// that, ordinarily, service-specific types such as this do not need to be
+// exported. An exception is made here because the fake service module is used
+// to facilitate testing of the broker framework itself.
+type InstanceDetails struct {
 	ResourceGroupName string `json:"resourceGroup"`
 }
 
@@ -30,20 +30,20 @@ type UpdatingParameters struct {
 }
 
 // BindingParameters represents parameters specific to binding to a service
-// instance using the fake service module. Note that, ordinarily, service
-// module-specific types such as this do not need to be exported. An exception
+// instance using the fake service module. Note that, ordinarily,
+// service-specific types such as this do not need to be exported. An exception
 // is made here because the fake service module is used to facilitate testing of
 // the broker framework itself.
 type BindingParameters struct {
 	SomeParameter string `json:"someParameter"`
 }
 
-// BindingContext represents context collected and modified over the course
-// of the fake service module's binding and unbinding processes. Note that,
-// ordinarily, service module-specific types such as this do not need to be
-// exported. An exception is made here because the fake service module is used
-// to facilitate testing of the broker framework itself.
-type BindingContext struct {
+// BindingDetails represents details collected and modified over the course
+// of a fake service instance's binding and unbinding processes. Note that,
+// ordinarily, service-specific types such as this do not need to be exported.
+// An exception is made here because the fake service module is used to
+// facilitate testing of the broker framework itself.
+type BindingDetails struct {
 }
 
 // Credentials generally represent credentials AND/OR ANY OTHER DETAILS (e.g.
@@ -67,12 +67,12 @@ func (
 	return &ProvisioningParameters{}
 }
 
-// GetEmptyProvisioningContext returns an empty instance of a module-specific
-// provisioningContext
+// GetEmptyInstanceDetails returns an empty instance of a service-specific
+// instance details
 func (
 	s *ServiceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &ProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &InstanceDetails{}
 }
 
 // GetEmptyUpdatingParameters returns an empty instance of module-specific
@@ -89,10 +89,10 @@ func (s *ServiceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-// GetEmptyBindingContext returns an empty instance of a module-specific
-// bindingContext
-func (s *ServiceManager) GetEmptyBindingContext() service.BindingContext {
-	return &BindingContext{}
+// GetEmptyBindingDetails returns an empty instance of a service-specific
+// bindingDetails
+func (s *ServiceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &BindingDetails{}
 }
 
 // GetEmptyCredentials returns an empty instance of module-specific

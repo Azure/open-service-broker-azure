@@ -17,18 +17,18 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*redisProvisioningContext)
+) (service.BindingDetails, service.Credentials, error) {
+	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *redisProvisioningContext",
+			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
 
-	return &redisBindingContext{},
+	return &redisBindingDetails{},
 		&Credentials{
-			Host:     pc.FullyQualifiedDomainName,
-			Password: pc.PrimaryKey,
+			Host:     dt.FullyQualifiedDomainName,
+			Password: dt.PrimaryKey,
 			Port:     6379,
 		},
 		nil

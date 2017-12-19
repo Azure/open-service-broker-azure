@@ -18,18 +18,18 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
+) (service.BindingDetails, service.Credentials, error) {
+	dt, ok := instance.Details.(*mysqlInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mysqlProvisioningContext",
+			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
 
 	userName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
-	db, err := getDBConnection(pc)
+	db, err := getDBConnection(dt)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -64,14 +64,14 @@ func (s *serviceManager) Bind(
 		)
 	}
 
-	return &mysqlBindingContext{
+	return &mysqlBindingDetails{
 			LoginName: userName,
 		},
 		&Credentials{
-			Host:     pc.FullyQualifiedDomainName,
+			Host:     dt.FullyQualifiedDomainName,
 			Port:     3306,
-			Database: pc.DatabaseName,
-			Username: fmt.Sprintf("%s@%s", userName, pc.ServerName),
+			Database: dt.DatabaseName,
+			Username: fmt.Sprintf("%s@%s", userName, dt.ServerName),
 			Password: password,
 		},
 		nil

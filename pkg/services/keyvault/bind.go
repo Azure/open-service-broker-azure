@@ -17,20 +17,19 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*keyvaultProvisioningContext)
+) (service.BindingDetails, service.Credentials, error) {
+	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*keyvaultProvisioningContext",
+			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
 
-	return &keyvaultBindingContext{},
+	return &keyvaultBindingDetails{},
 		&Credentials{
-			VaultURI:     pc.VaultURI,
-			ClientID:     pc.ClientID,
-			ClientSecret: pc.ClientSecret,
+			VaultURI:     dt.VaultURI,
+			ClientID:     dt.ClientID,
+			ClientSecret: dt.ClientSecret,
 		},
 		nil
 }

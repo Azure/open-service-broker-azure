@@ -8,23 +8,23 @@ import (
 
 func (s *serviceManager) Unbind(
 	instance service.Instance,
-	bindingContext service.BindingContext,
+	bindingDetails service.BindingDetails,
 ) error {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
-	bc, ok := bindingContext.(*mssqlBindingContext)
+	bc, ok := bindingDetails.(*mssqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingContext as *mssqlBindingContext",
+			"error casting bindingDetails as *mssqlBindingDetails",
 		)
 	}
 
 	// connect to new database to drop user for the login
-	db, err := getDBConnection(pc, pc.DatabaseName)
+	db, err := getDBConnection(dt, dt.DatabaseName)
 	if err != nil {
 		return err
 	}
@@ -41,7 +41,7 @@ func (s *serviceManager) Unbind(
 	}
 
 	// connect to master database to drop login
-	masterDb, err := getDBConnection(pc, "master")
+	masterDb, err := getDBConnection(dt, "master")
 	if err != nil {
 		return err
 	}

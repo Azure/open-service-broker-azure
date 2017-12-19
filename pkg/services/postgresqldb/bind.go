@@ -19,19 +19,18 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+) (service.BindingDetails, service.Credentials, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 
 	roleName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
-	db, err := getDBConnection(pc, primaryDB)
+	db, err := getDBConnection(dt, primaryDB)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -58,21 +57,21 @@ func (s *serviceManager) Bind(
 		)
 	}
 	if _, err = tx.Exec(
-		fmt.Sprintf("grant %s to %s", pc.DatabaseName, roleName),
+		fmt.Sprintf("grant %s to %s", dt.DatabaseName, roleName),
 	); err != nil {
 		return nil, nil, fmt.Errorf(
 			`error adding role "%s" to role "%s": %s`,
-			pc.DatabaseName,
+			dt.DatabaseName,
 			roleName,
 			err,
 		)
 	}
 	if _, err = tx.Exec(
-		fmt.Sprintf("alter role %s set role %s", roleName, pc.DatabaseName),
+		fmt.Sprintf("alter role %s set role %s", roleName, dt.DatabaseName),
 	); err != nil {
 		return nil, nil, fmt.Errorf(
 			`error making "%s" the default role for "%s" sessions: %s`,
-			pc.DatabaseName,
+			dt.DatabaseName,
 			roleName,
 			err,
 		)
@@ -81,14 +80,14 @@ func (s *serviceManager) Bind(
 		return nil, nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
-	return &postgresqlBindingContext{
+	return &postgresqlBindingDetails{
 			LoginName: roleName,
 		},
 		&Credentials{
-			Host:     pc.FullyQualifiedDomainName,
+			Host:     dt.FullyQualifiedDomainName,
 			Port:     5432,
-			Database: pc.DatabaseName,
-			Username: fmt.Sprintf("%s@%s", roleName, pc.ServerName),
+			Database: dt.DatabaseName,
+			Username: fmt.Sprintf("%s@%s", roleName, dt.ServerName),
 			Password: password,
 		},
 		nil

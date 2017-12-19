@@ -88,7 +88,7 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 		bytes,
 		serviceManager.GetEmptyProvisioningParameters(),
 		serviceManager.GetEmptyUpdatingParameters(),
-		serviceManager.GetEmptyProvisioningContext(),
+		serviceManager.GetEmptyInstanceDetails(),
 		s.codec,
 	)
 	return instance, err == nil, err
@@ -143,7 +143,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	binding, err = service.NewBindingFromJSON(
 		bytes,
 		serviceManager.GetEmptyBindingParameters(),
-		serviceManager.GetEmptyBindingContext(),
+		serviceManager.GetEmptyBindingDetails(),
 		serviceManager.GetEmptyCredentials(),
 		s.codec,
 	)

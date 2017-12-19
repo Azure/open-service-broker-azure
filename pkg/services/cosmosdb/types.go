@@ -12,7 +12,7 @@ const (
 // ProvisioningParameters encapsulates CosmosDB-specific provisioning options
 type ProvisioningParameters struct{}
 
-type cosmosdbProvisioningContext struct {
+type cosmosdbInstanceDetails struct {
 	ARMDeploymentName        string       `json:"armDeployment"`
 	DatabaseAccountName      string       `json:"name"`
 	DatabaseKind             databaseKind `json:"kind"`
@@ -29,7 +29,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type cosmosdbBindingContext struct {
+type cosmosdbBindingDetails struct {
 }
 
 // Credentials encapsulates CosmosDB-specific connection details and
@@ -54,8 +54,8 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &cosmosdbProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &cosmosdbInstanceDetails{}
 }
 
 func (
@@ -68,8 +68,8 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &cosmosdbBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &cosmosdbBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

@@ -13,7 +13,7 @@ const (
 // ProvisioningParameters encapsulates Storage-specific provisioning options
 type ProvisioningParameters struct{}
 
-type storageProvisioningContext struct {
+type storageInstanceDetails struct {
 	ARMDeploymentName  string `json:"armDeployment"`
 	StorageAccountName string `json:"storageAccountName"`
 	AccessKey          string `json:"accessKey"`
@@ -28,7 +28,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type storageBindingContext struct {
+type storageBindingDetails struct {
 }
 
 // Credentials encapsulates Storage-specific coonection details and credentials.
@@ -52,16 +52,16 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &storageProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &storageInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &storageBindingContext{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &storageBindingDetails{}
 }
 
 func (s *serviceManager) GetEmptyCredentials() service.Credentials {

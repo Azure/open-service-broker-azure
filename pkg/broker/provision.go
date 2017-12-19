@@ -111,7 +111,7 @@ func (b *broker) doProvisionStep(
 			`provisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedProvisioningContext, err := step.Execute(ctx, instance, plan)
+	updatedDetails, err := step.Execute(ctx, instance, plan)
 	if err != nil {
 		return b.handleProvisioningError(
 			instance,
@@ -120,7 +120,7 @@ func (b *broker) doProvisionStep(
 			"error executing provisioning step",
 		)
 	}
-	instanceCopy.ProvisioningContext = updatedProvisioningContext
+	instanceCopy.Details = updatedDetails
 	if nextStepName, ok := provisioner.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instanceCopy); err != nil {
 			return b.handleProvisioningError(

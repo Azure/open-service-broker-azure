@@ -17,20 +17,19 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
+) (service.BindingDetails, service.Credentials, error) {
+	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"storageProvisioningContext",
+			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
 
-	return &storageBindingContext{},
+	return &storageBindingDetails{},
 		&Credentials{
-			StorageAccountName: pc.StorageAccountName,
-			AccessKey:          pc.AccessKey,
-			ContainerName:      pc.ContainerName,
+			StorageAccountName: dt.StorageAccountName,
+			AccessKey:          dt.AccessKey,
+			ContainerName:      dt.ContainerName,
 		},
 		nil
 }
