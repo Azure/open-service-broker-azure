@@ -119,7 +119,6 @@ func NewBroker(
 		8080,
 		b.store,
 		b.asyncEngine,
-		b.codec,
 		authenticator,
 		b.catalog,
 		defaultAzureLocation,
