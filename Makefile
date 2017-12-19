@@ -3,11 +3,7 @@ GIT_VERSION = $(shell git describe --always --abbrev=7 --dirty)
 BINARY_DIR := bin
 BINARY_NAME := osba
 
-# This is left as 'azure-service-broker' because we don't yet have a docker repo
-# for 'open-service-broker-azure'
-#
-# See https://github.com/Azure/open-service-broker-azure/issues/100
-BASE_IMAGE_NAME        = azure-service-broker
+BASE_IMAGE_NAME        = azure-open-service-broker
 
 RC_IMAGE_NAME          = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(GIT_VERSION)
 RC_MUTABLE_IMAGE_NAME  = $(DOCKER_REPO)$(BASE_IMAGE_NAME):canary
