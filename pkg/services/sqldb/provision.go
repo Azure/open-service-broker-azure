@@ -98,10 +98,20 @@ func (s *serverOnlyServiceManager) GetProvisioner(
 	)
 }
 
+func (a *allInOneServiceManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
+	return service.NewProvisioner(
+		service.NewProvisioningStep("preProvision", a.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", a.deployARMTemplate),
+	)
+}
+
 func (s *serverOnlyServiceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
+	_ service.Instance, // Reference instance
 ) (service.ProvisioningContext, error) {
 	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
 	if !ok {
@@ -198,6 +208,7 @@ func (a *allInOneServiceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
+	_ service.Instance, // Reference instance
 ) (service.ProvisioningContext, error) {
 	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
 	if !ok {
