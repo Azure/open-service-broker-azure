@@ -32,21 +32,21 @@ func NewStore(db *mgo.Database, instCollName, bindCollName string) *Store {
 }
 
 // WriteInstance persists the given instance to the underlying storage
-func (s *Store) WriteInstance(instance *service.Instance) error {
+func (s *Store) WriteInstance(instance service.Instance) error {
 	coll := s.instColl()
 	return coll.Insert(instance)
 }
 
 // GetInstance retrieves a persisted instance from the underlying storage by
 // instance id
-func (s *Store) GetInstance(instanceID string) (*service.Instance, bool, error) {
+func (s *Store) GetInstance(instanceID string) (service.Instance, bool, error) {
 	res := new(service.Instance)
 	coll := s.instColl()
 	findErr := coll.Find(bson.M{"instanceId": instanceID}).One(res)
 	if findErr != nil {
-		return nil, false, findErr
+		return service.Instance{}, false, findErr
 	}
-	return res, true, nil
+	return *res, true, nil
 }
 
 // DeleteInstance deletes a persisted instance from the underlying storage by
@@ -60,21 +60,21 @@ func (s *Store) DeleteInstance(instanceID string) (bool, error) {
 }
 
 // WriteBinding persists the given binding to the underlying storage
-func (s *Store) WriteBinding(binding *service.Binding) error {
+func (s *Store) WriteBinding(binding service.Binding) error {
 	coll := s.bindColl()
 	return coll.Insert(binding)
 }
 
 // GetBinding retrieves a persisted instance from the underlying storage by
 // binding id
-func (s *Store) GetBinding(bindingID string) (*service.Binding, bool, error) {
+func (s *Store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	res := new(service.Binding)
 	coll := s.bindColl()
 	findErr := coll.Find(bson.M{"bindingId": bindingID}).One(res)
 	if findErr != nil {
-		return nil, false, findErr
+		return service.Binding{}, false, findErr
 	}
-	return res, true, nil
+	return *res, true, nil
 }
 
 // DeleteBinding deletes a persisted binding from the underlying storage by

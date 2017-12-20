@@ -96,6 +96,20 @@ func main() {
 		log.Fatal(err)
 	}
 
+	storageConfig, err := getStorageConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cosmosDBConfig := cosmosDBConfig{}
+	if storageConfig.StorageType == StorageTypeCosmosDB {
+		var err error
+		cosmosDBConfig, err = getCosmosDBConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	// Create broker
 	broker, err := broker.NewBroker(
 		redisClient,
@@ -105,6 +119,7 @@ func main() {
 		modulesConfig.MinStability,
 		azureConfig.DefaultLocation,
 		azureConfig.DefaultResourceGroup,
+		getCreateStorageFunc(redisClient, storageConfig, cosmosDBConfig),
 	)
 	if err != nil {
 		log.Fatal(err)
