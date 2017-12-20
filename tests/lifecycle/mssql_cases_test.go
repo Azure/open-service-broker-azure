@@ -5,7 +5,6 @@ package lifecycle
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
@@ -58,14 +57,11 @@ func getMssqlCases(
 
 func testMsSQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
-		log.Printf("Running not empty test creds")
 		cdts, ok := credentials.(*sqldb.Credentials)
 
 		if !ok {
 			return fmt.Errorf("error casting credentials as *mssql.Credentials")
 		}
-
-		log.Printf("cdts.Database : %v ", cdts.Database)
 		//Skip test if cdts.Database is empty, server only scenario.
 		if cdts.Database == "" {
 			return nil
