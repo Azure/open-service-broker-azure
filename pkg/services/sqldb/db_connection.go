@@ -9,7 +9,9 @@ import (
 )
 
 func getDBConnection(
-	pc *mssqlProvisioningContext,
+	administratorLogin string,
+	administratorPassword string,
+	fqdn string,
 	databaseName string,
 ) (*sql.DB, error) {
 
@@ -21,10 +23,10 @@ func getDBConnection(
 	u := &url.URL{
 		Scheme: "sqlserver",
 		User: url.UserPassword(
-			pc.AdministratorLogin,
-			pc.AdministratorLoginPassword,
+			administratorLogin,
+			administratorPassword,
 		),
-		Host:     fmt.Sprintf("%s:1433", pc.FullyQualifiedDomainName),
+		Host:     fmt.Sprintf("%s:1433", fqdn),
 		RawQuery: query.Encode(),
 	}
 

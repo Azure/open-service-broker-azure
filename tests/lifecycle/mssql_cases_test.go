@@ -24,6 +24,19 @@ func getMssqlCases(
 	}
 
 	return []serviceLifecycleTestCase{
+		{ // server only scenario
+			module:      sqldb.New(armDeployer, msSQLManager),
+			description: "new server only",
+			serviceID:   "2787cd60-8184-4b80-aa45-f507fa5a6ff4",
+			planID:      "0f4baa94-92cb-4222-9d7e-600c394ec50d",
+			standardProvisioningContext: service.StandardProvisioningContext{
+				Location: "southcentralus",
+			},
+			provisioningParameters: &sqldb.ServerProvisioningParameters{
+				FirewallIPStart: "0.0.0.0",
+				FirewallIPEnd:   "255.255.255.255",
+			},
+		},
 		{ // new server scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
 			description: "new server and database",
@@ -32,7 +45,7 @@ func getMssqlCases(
 			standardProvisioningContext: service.StandardProvisioningContext{
 				Location: "southcentralus",
 			},
-			provisioningParameters: &sqldb.ProvisioningParameters{
+			provisioningParameters: &sqldb.ServerProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
@@ -45,8 +58,13 @@ func getMssqlCases(
 func testMsSQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
 		cdts, ok := credentials.(*sqldb.Credentials)
+
 		if !ok {
 			return fmt.Errorf("error casting credentials as *mssql.Credentials")
+		}
+		//Skip test if cdts.Database is empty, server only scenario.
+		if cdts.Database == "" {
+			return nil
 		}
 
 		query := url.Values{}
@@ -74,7 +92,8 @@ func testMsSQLCreds() func(credentials service.Credentials) error {
 		}
 		defer db.Close() // nolint: errcheck
 
-		rows, err := db.Query("SELECT 1 FROM fn_my_permissions (NULL, 'DATABASE') WHERE permission_name='CONTROL'") // nolint: lll
+		rows, err := db.Query(`SELECT 1 FROM fn_my_permissions (NULL, 'DATABASE') 
+			WHERE permission_name='CONTROL'`) // nolint: lll
 		if err != nil {
 			return fmt.Errorf(
 				`error querying SELECT from table fn_my_permissions: %s`,

@@ -7,21 +7,43 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidateNoFirewallConfig(t *testing.T) {
+func TestValidateNoFirewallConfigAllInOne(t *testing.T) {
 
-	sm := &serviceManager{}
+	sm := &allServiceManager{}
 
-	pp := &ProvisioningParameters{}
+	pp := &ServerProvisioningParameters{}
 
 	error := sm.ValidateProvisioningParameters(pp)
 	assert.Nil(t, error)
 }
 
-func TestValidateGoodFirewallConfig(t *testing.T) {
+func TestValidateNoFirewallConfigServerVMOnly(t *testing.T) {
 
-	sm := &serviceManager{}
+	sm := &vmServiceManager{}
 
-	pp := &ProvisioningParameters{
+	pp := &ServerProvisioningParameters{}
+
+	error := sm.ValidateProvisioningParameters(pp)
+	assert.Nil(t, error)
+}
+
+func TestValidateGoodFirewallConfigAllInOne(t *testing.T) {
+
+	sm := &allServiceManager{}
+
+	pp := &ServerProvisioningParameters{
+		FirewallIPStart: "192.168.86.1",
+		FirewallIPEnd:   "192.168.86.100",
+	}
+
+	error := sm.ValidateProvisioningParameters(pp)
+	assert.Nil(t, error)
+}
+func TestValidateGoodFirewallConfigServerVMOnly(t *testing.T) {
+
+	sm := &vmServiceManager{}
+
+	pp := &ServerProvisioningParameters{
 		FirewallIPStart: "192.168.86.1",
 		FirewallIPEnd:   "192.168.86.100",
 	}
@@ -30,9 +52,9 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 	assert.Nil(t, error)
 }
 
-func TestValidateMissingEndFirewallConfig(t *testing.T) {
-	sm := &serviceManager{}
-	pp := &ProvisioningParameters{
+func TestValidateMissingEndFirewallConfigAllInOne(t *testing.T) {
+	sm := &allServiceManager{}
+	pp := &ServerProvisioningParameters{
 		FirewallIPStart: "192.168.86.1",
 	}
 	error := sm.ValidateProvisioningParameters(pp)
@@ -42,9 +64,21 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	assert.Equal(t, v.Field, "firewallEndIPAddress")
 }
 
-func TestValidateMissingStartFirewallConfig(t *testing.T) {
-	sm := &serviceManager{}
-	pp := &ProvisioningParameters{
+func TestValidateMissingEndFirewallConfigServerVMOnly(t *testing.T) {
+	sm := &vmServiceManager{}
+	pp := &ServerProvisioningParameters{
+		FirewallIPStart: "192.168.86.1",
+	}
+	error := sm.ValidateProvisioningParameters(pp)
+	assert.NotNil(t, error)
+	v, ok := error.(*service.ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, v.Field, "firewallEndIPAddress")
+}
+
+func TestValidateMissingStartFirewallConfigAllInOne(t *testing.T) {
+	sm := &allServiceManager{}
+	pp := &ServerProvisioningParameters{
 		FirewallIPEnd: "192.168.86.200",
 	}
 	error := sm.ValidateProvisioningParameters(pp)
@@ -54,9 +88,32 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	assert.Equal(t, v.Field, "firewallStartIPAddress")
 }
 
-func TestValidateInvalidIP(t *testing.T) {
-	sm := &serviceManager{}
-	pp := &ProvisioningParameters{
+func TestValidateMissingStartFirewallConfigServerVMOnly(t *testing.T) {
+	sm := &vmServiceManager{}
+	pp := &ServerProvisioningParameters{
+		FirewallIPEnd: "192.168.86.200",
+	}
+	error := sm.ValidateProvisioningParameters(pp)
+	assert.NotNil(t, error)
+	v, ok := error.(*service.ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, v.Field, "firewallStartIPAddress")
+}
+func TestValidateInvalidIPAllInOne(t *testing.T) {
+	sm := &allServiceManager{}
+	pp := &ServerProvisioningParameters{
+		FirewallIPStart: "decafbad",
+		FirewallIPEnd:   "192.168.86.200",
+	}
+	error := sm.ValidateProvisioningParameters(pp)
+	assert.NotNil(t, error)
+	v, ok := error.(*service.ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, v.Field, "firewallStartIPAddress")
+}
+func TestValidateInvalidIPServerVMOnly(t *testing.T) {
+	sm := &vmServiceManager{}
+	pp := &ServerProvisioningParameters{
 		FirewallIPStart: "decafbad",
 		FirewallIPEnd:   "192.168.86.200",
 	}
@@ -67,9 +124,21 @@ func TestValidateInvalidIP(t *testing.T) {
 	assert.Equal(t, v.Field, "firewallStartIPAddress")
 }
 
-func TestValidateIncompleteIP(t *testing.T) {
-	sm := &serviceManager{}
-	pp := &ProvisioningParameters{
+func TestValidateIncompleteIPAllInOne(t *testing.T) {
+	sm := &allServiceManager{}
+	pp := &ServerProvisioningParameters{
+		FirewallIPStart: "192.168.",
+		FirewallIPEnd:   "192.168.86.200",
+	}
+	error := sm.ValidateProvisioningParameters(pp)
+	assert.NotNil(t, error)
+	v, ok := error.(*service.ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, v.Field, "firewallStartIPAddress")
+}
+func TestValidateIncompleteIPServerVMOnly(t *testing.T) {
+	sm := &vmServiceManager{}
+	pp := &ServerProvisioningParameters{
 		FirewallIPStart: "192.168.",
 		FirewallIPEnd:   "192.168.86.200",
 	}

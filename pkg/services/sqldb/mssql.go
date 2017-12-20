@@ -7,10 +7,25 @@ import (
 )
 
 type module struct {
-	serviceManager *serviceManager
+	allInOneServiceManager *allServiceManager
+	vmOnlyServiceManager   *vmServiceManager
+	dbOnlyServiceManager   *dbServiceManager
 }
 
-type serviceManager struct {
+//the default service manager for the all-in-one case
+type allServiceManager struct {
+	armDeployer  arm.Deployer
+	mssqlManager mssql.Manager
+}
+
+//the service manager for the server only case
+type vmServiceManager struct {
+	armDeployer  arm.Deployer
+	mssqlManager mssql.Manager
+}
+
+//the service manager for the db only case
+type dbServiceManager struct {
 	armDeployer  arm.Deployer
 	mssqlManager mssql.Manager
 }
@@ -22,8 +37,17 @@ func New(
 	armDeployer arm.Deployer,
 	mssqlManager mssql.Manager,
 ) service.Module {
+
 	return &module{
-		serviceManager: &serviceManager{
+		allInOneServiceManager: &allServiceManager{
+			armDeployer:  armDeployer,
+			mssqlManager: mssqlManager,
+		},
+		vmOnlyServiceManager: &vmServiceManager{
+			armDeployer:  armDeployer,
+			mssqlManager: mssqlManager,
+		},
+		dbOnlyServiceManager: &dbServiceManager{
 			armDeployer:  armDeployer,
 			mssqlManager: mssqlManager,
 		},
