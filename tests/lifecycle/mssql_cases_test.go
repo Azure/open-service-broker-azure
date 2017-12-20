@@ -58,6 +58,7 @@ func testMsSQLCreds() func(credentials service.Credentials) error {
 		if !ok {
 			return fmt.Errorf("error casting credentials as *mssql.Credentials")
 		}
+
 		query := url.Values{}
 		query.Add("database", cdts.Database)
 		query.Add("encrypt", "true")
