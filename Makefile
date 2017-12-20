@@ -15,6 +15,12 @@ RC_MUTABLE_IMAGE_NAME  = $(DOCKER_REPO)$(BASE_IMAGE_NAME):canary
 REL_IMAGE_NAME         = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(REL_VERSION)
 REL_MUTABLE_IMAGE_NAME = $(DOCKER_REPO)$(BASE_IMAGE_NAME):latest
 
+ifeq ($(REL_VERSION),)
+REL_VERSION="devel"
+endif
+
+LDFLAGS = -w -X main.commit=$(COMMIT) -X main.commit=$(GIT_VERSION) -X main.version=$(REL_VERSION)
+
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
 .PHONY: check-docker
@@ -167,7 +173,7 @@ stop-test-redis: check-docker-compose
 .PHONY: build
 build: check-docker-compose
 	docker-compose run --rm dev \
-		go build -o ${BINARY_DIR}/${BINARY_NAME} ./cmd/broker
+		go build -o ${BINARY_DIR}/${BINARY_NAME} -ldflags '$(LDFLAGS)' ./cmd/broker
 
 # (Re)Build the Docker image for the osba and run it
 .PHONY: run
@@ -227,16 +233,19 @@ CLI_BINARY_NAME := broker-cli
 build-mac-broker-cli: check-docker-compose
 	docker-compose run --rm -e GOOS=darwin -e GOARCH=amd64 dev \
 		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
+		-ldflags '$(LDFLAGS)' \
 		./contrib/cmd/cli
 
 .PHONY: build-linux-broker-cli
 build-linux-broker-cli: check-docker-compose
 	docker-compose run --rm -e GOOS=linux -e GOARCH=amd64 dev \
 		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
+		-ldflags '$(LDFLAGS)' \
 		./contrib/cmd/cli
 
 .PHONY: build-win-broker-cli
 build-win-broker-cli: check-docker-compose
 	docker-compose run --rm -e GOOS=windows -e GOARCH=amd64 dev \
 		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
+		-ldflags '$(LDFLAGS)' \
 		./contrib/cmd/cli
