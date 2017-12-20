@@ -109,6 +109,7 @@ func (d *deployer) Deploy(
 		d.subscriptionID,
 	)
 	deploymentsClient.Authorizer = authorizer
+	deploymentsClient.UserAgent = userAgent("devel")
 
 	// Get the deployment and its current status
 	deployment, ds, err := getDeploymentAndStatus(
@@ -225,6 +226,7 @@ func (d *deployer) Delete(
 		d.azureEnvironment.ResourceManagerEndpoint,
 		d.subscriptionID,
 	)
+	deploymentsClient.UserAgent = userAgent("devel")
 	deploymentsClient.Authorizer = authorizer
 	cancelCh := make(chan struct{})
 	defer close(cancelCh)
@@ -301,6 +303,7 @@ func (d *deployer) doNewDeployment(
 		d.azureEnvironment.ResourceManagerEndpoint,
 		d.subscriptionID,
 	)
+	groupsClient.UserAgent = userAgent("devel")
 	groupsClient.Authorizer = authorizer
 	res, err := groupsClient.CheckExistence(resourceGroupName)
 	if err != nil {
