@@ -9,21 +9,22 @@ import (
 
 // Instance represents an instance of a service
 type Instance struct {
-	InstanceID                      string                 `json:"instanceId"`             // nolint: lll
-	ServiceID                       string                 `json:"serviceId"`              // nolint: lll
-	PlanID                          string                 `json:"planId"`                 // nolint: lll
-	EncryptedProvisioningParameters []byte                 `json:"provisioningParameters"` // nolint: lll
-	ProvisioningParameters          ProvisioningParameters `json:"-"`
-	EncryptedUpdatingParameters     []byte                 `json:"updatingParameters"` // nolint: lll
-	UpdatingParameters              UpdatingParameters     `json:"-"`
-	Status                          string                 `json:"status"`        // nolint: lll
-	StatusReason                    string                 `json:"statusReason"`  // nolint: lll
-	Location                        string                 `json:"location"`      // nolint: lll
-	ResourceGroup                   string                 `json:"resourceGroup"` // nolint: lll
-	Tags                            map[string]string      `json:"tags"`
-	EncryptedDetails                []byte                 `json:"details"` // nolint: lll
-	Details                         InstanceDetails        `json:"-"`
-	Created                         time.Time              `json:"created"` // nolint: lll
+	InstanceID                      string                 `json:"instanceId" bson:"instanceId"`                         // nolint: lll
+	ServiceID                       string                 `json:"serviceId" bson:"serviceId"`                           // nolint: lll
+	PlanID                          string                 `json:"planId" bson:"planId"`                                 // nolint: lll
+	EncryptedProvisioningParameters []byte                 `json:"provisioningParameters" bson:"provisioningParameters"` // nolint: lll
+	ProvisioningParameters          ProvisioningParameters `json:"-" bson:"-"`
+	EncryptedUpdatingParameters     []byte                 `json:"updatingParameters" bson:"updatingParameters"` // nolint: lll
+	UpdatingParameters              UpdatingParameters     `json:"-" bson:"-"`
+	Status                          string                 `json:"status" bson:"status"`               // nolint: lll
+	StatusReason                    string                 `json:"statusReason" bson:"statusReason"`   // nolint: lll
+	Location                        string                 `json:"location" bson:"location"`           // nolint: lll
+	ResourceGroup                   string                 `json:"resourceGroup" bson:"resourceGroup"` // nolint: lll
+	Tags                            map[string]string      `json:"tags" bson:"tags"`
+	EncryptedDetails                []byte                 `json:"details" bson:"details"` // nolint: lll
+	Details                         InstanceDetails        `json:"-" bson:"-"`
+	Created                         time.Time              `json:"created" bson:"created"` // nolint: lll
+
 }
 
 // NewInstanceFromJSON returns a new Instance unmarshalled from the provided

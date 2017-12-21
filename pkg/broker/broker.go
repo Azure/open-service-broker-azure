@@ -15,6 +15,11 @@ import (
 	"github.com/go-redis/redis"
 )
 
+// CreateStorageFunc is the function used to create a storage driver from a
+// catalog and a codec. Currently, the only supported storage drivers
+// are for redis and CosmosDB
+type CreateStorageFunc = func(service.Catalog, crypto.Codec) (storage.Store, error)
+
 type errAsyncEngineStopped struct {
 	err error
 }
@@ -47,7 +52,17 @@ type broker struct {
 	catalog     service.Catalog
 }
 
-// NewBroker returns a new Broker
+// NewBroker returns a new Broker. The redis client given will be used to create
+// the async engine, and the createStorage function will be called to create
+// the new storage. For example, if you want to use redis for storage and you
+// have a *redis.Client instance available, pass the following createFn
+// function as the createStorage parameter:
+//
+//	redisOpts := <omitted...>
+//	redisClient := redis.NewClient(redisOpts)
+//	createFn := func(catalog service.Catalog, codec crypto.Codec) storage.Store {
+// 		return storage.NewStore(redisClient, catalog, codec)
+// 	}
 func NewBroker(
 	redisClient *redis.Client,
 	codec crypto.Codec,
@@ -56,6 +71,7 @@ func NewBroker(
 	minStability service.Stability,
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,
+	createStorage CreateStorageFunc,
 ) (Broker, error) {
 	// Consolidate the catalogs from all the individual modules into a single
 	// catalog. Check as we go along to make sure that no two modules provide
@@ -89,15 +105,18 @@ func NewBroker(
 		}
 	}
 	catalog := service.NewCatalog(services)
+	storage, err := createStorage(catalog, codec)
+	if err != nil {
+		return nil, err
+	}
 	b := &broker{
-		store:       storage.NewStore(redisClient, catalog, codec),
+		store:       storage,
 		asyncEngine: async.NewEngine(redisClient),
 		codec:       codec,
 		catalog:     catalog,
 	}
 
-	err := b.asyncEngine.RegisterJob("provisionStep", b.doProvisionStep)
-	if err != nil {
+	if err := b.asyncEngine.RegisterJob("provisionStep", b.doProvisionStep); err != nil {
 		return nil, errors.New(
 			"error registering async job for executing provisioning steps",
 		)

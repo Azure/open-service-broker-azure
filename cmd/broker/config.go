@@ -9,6 +9,11 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+const (
+	StorageTypeCosmosDB = "cosmosdb"
+	StorageTypeRedis    = "redis"
+)
+
 // logConfig represents configuration options for the broker's leveled logging
 type logConfig struct {
 	LevelStr string `envconfig:"LOG_LEVEL" default:"INFO"`
@@ -45,6 +50,26 @@ type modulesConfig struct {
 type azureConfig struct {
 	DefaultLocation      string `envconfig:"AZURE_DEFAULT_LOCATION"`
 	DefaultResourceGroup string `envconfig:"AZURE_DEFAULT_RESOURCE_GROUP"`
+}
+
+// storageConfig exposes an environment variable that tells the broker
+// what kind of storage to use. The current choices are 'redis' and 'cosmosdb'
+//
+// this configuration will be used for stable storage like instances, bindings,
+// etc... It won't be used for the asynchronous queue
+//
+// If you pass 'cosmosdb' as the storage type, you need to also give the broker
+// a CosmosDB configuration (see the cosmosDBConfig struct). Regardless of what
+// you pass, you always need to pass a Redis config (see the redisConfig struct)
+type storageConfig struct {
+	StorageType string `envconfig:"STORAGE_TYPE" default:"redis"`
+}
+
+type cosmosDBConfig struct {
+	ConnectionURL          string `envconfig:"COSMOS_CONNECTION_URL"`
+	DBName                 string `envconfig:"COSMOS_DB_NAME"`
+	InstanceCollectionName string `envconfig:"COSMOS_INSTANCE_COLLECTION_NAME"`
+	BindingCollectionName  string `envconfig:"COSMOS_BINDING_COLLECTION_NAME"`
 }
 
 func getLogConfig() (logConfig, error) {
@@ -102,4 +127,16 @@ func getAzureConfig() (azureConfig, error) {
 	ac := azureConfig{}
 	err := envconfig.Process("", &ac)
 	return ac, err
+}
+
+func getStorageConfig() (storageConfig, error) {
+	sc := storageConfig{}
+	err := envconfig.Process("", &sc)
+	return sc, err
+}
+
+func getCosmosDBConfig() (cosmosDBConfig, error) {
+	cc := cosmosDBConfig{}
+	err := envconfig.Process("", &cc)
+	return cc, err
 }
