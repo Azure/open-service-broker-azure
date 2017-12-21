@@ -221,6 +221,8 @@ endif
 	docker pull $(RC_IMAGE_NAME)
 	docker tag $(RC_IMAGE_NAME) $(REL_IMAGE_NAME)
 	docker tag $(RC_IMAGE_NAME) $(REL_MUTABLE_IMAGE_NAME)
+	docker push $(REL_IMAGE_NAME)
+	docker push $(REL_MUTABLE_IMAGE_NAME)
 
 # ---------------------------------------------------------------------------- #
 # contrib/                                                                     #
