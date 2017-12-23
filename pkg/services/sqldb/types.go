@@ -9,7 +9,7 @@ type ProvisioningParameters struct {
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
 
-type mssqlProvisioningContext struct {
+type mssqlInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLogin         string `json:"administratorLogin"`
@@ -26,8 +26,9 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type mssqlBindingContext struct {
+type mssqlBindingDetails struct {
 	LoginName string `json:"loginName"`
+	Password  string `json:"password"`
 }
 
 // Credentials encapsulates MSSQL-specific coonection details and credentials.
@@ -68,18 +69,14 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mssqlProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mssqlBindingContext{}
-}
-
-func (s *serviceManager) GetEmptyCredentials() service.Credentials {
-	return &Credentials{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
 }

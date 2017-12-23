@@ -8,23 +8,22 @@ import (
 
 func (s *serviceManager) Unbind(
 	instance service.Instance,
-	bindingContext service.BindingContext,
+	bindingDetails service.BindingDetails,
 ) error {
-	pc, ok := instance.ProvisioningContext.(*postgresqlProvisioningContext)
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
-	bc, ok := bindingContext.(*postgresqlBindingContext)
+	bc, ok := bindingDetails.(*postgresqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingContext as *postgresqlBindingContext",
+			"error casting bindingDetails as *postgresqlBindingDetails",
 		)
 	}
 
-	db, err := getDBConnection(pc, primaryDB)
+	db, err := getDBConnection(dt, primaryDB)
 	if err != nil {
 		return err
 	}

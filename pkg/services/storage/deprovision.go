@@ -24,21 +24,20 @@ func (s *serviceManager) deleteARMDeployment(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"storageProvisioningContext",
+			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteStorageAccount(
@@ -46,19 +45,18 @@ func (s *serviceManager) deleteStorageAccount(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*storageProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"storageProvisioningContext",
+			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
 	if err := s.storageManager.DeleteStorageAccount(
-		pc.StorageAccountName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.StorageAccountName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting storage account: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

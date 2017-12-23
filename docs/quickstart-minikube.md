@@ -121,6 +121,7 @@ First let's identify your Azure subscription and save it for use later on in the
     **PowerShell**
     ```
     > $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
+<<<<<<< HEAD
     ```
 
 ## Create a resource group
@@ -134,6 +135,8 @@ for easy cleanup later.
 1. Create a resource group for the quickstart:
     ```
     $ az group create --name osba-quickstart --location <RegionName>
+=======
+>>>>>>> master
     ```
 
 ## Create a service principal
@@ -231,7 +234,7 @@ WordPress to Kubernetes and OSBA will handle provisioning an Azure MySQL databas
 and binding it to our WordPress installation.
 
 ```
-$ helm install azure/wordpress --name quickstart
+$ helm install azure/wordpress --name osba-quickstart --namespace osba-quickstart
 ```
 
 Note: when installing the wordpress chart on some versions of Minikube, you
@@ -241,25 +244,25 @@ If you're using
 the `persistence.enabled` parameter to `false` using the following command.
 
 ```console
-$ helm install azure/wordpress --name quickstart --set persistence.enabled=false
+$ helm install azure/wordpress --name osba-quickstart --namespace osba-quickstart --set persistence.enabled=false
 ```
 
 Use the following command to tell when WordPress is ready:
 
 ```console
-$ kubectl get deploy/quickstart-wordpress -w
+$ kubectl get deploy osba-quickstart-wordpress -n osba-quickstart -w
 
-NAME                DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-quickstart-wordpress   1         1         1            0           1m
+NAME                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+osba-quickstart-wordpress   1         1         1            0           1m
 ...
-quickstart-wordpress   1         1         1            1           2m
+osba-quickstart-wordpress   1         1         1            1           2m
 ```
 
 ## Login to WordPress
 
 1. Run the following command to open WordPress in your browser:
     ```
-    $ open http://$(minikube ip):$(kubectl get service quickstart-wordpress -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort})/admin 
+    $ open http://$(minikube ip):$(kubectl get service osba-quickstart-wordpress -n osba-quickstart -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort})/admin
     ```
 
     **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
@@ -268,18 +271,53 @@ quickstart-wordpress   1         1         1            1           2m
 
 1. To retrieve the password, run this command:
     ```
-    $ kubectl get secret quickstart-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode
+    $ kubectl get secret osba-quickstart-wordpress -n osba-quickstart -o jsonpath="{.data.wordpress-password}" | base64 --decode
     ```
 
 1. Login using the username `user` and the password you just retrieved.
-    
-    
-## Optional: Cleanup
-Here's how to remove resources created by this quickstart:
 
-1. `az group delete --name osba-quickstart`
-1. `az ad sp delete --id http://osba-quickstart`
-1. `minikube delete`
+## Uninstall WordPress
+
+Using Helm to uninstall the `osba-quickstart` release will delete all resources
+associated with the release, including the Azure MySQL database.
+
+```
+$ helm delete osba-quickstart --purge
+```
+
+Since deprovisioning occurs asynchronously, the corresponding `serviceinstance`
+resource will not be fully deleted until that process is complete. When the
+following command returns no resources, deprovisioning is complete:
+
+```
+$ kubectl get serviceinstances -n osba-quickstart
+No resources found.
+```
+
+## Optional: Further Cleanup
+
+At this point, the Azure MySQL database should have been fully deprovisioned.
+In the unlikely event that anything has gone wrong, to ensure that you are not
+billed for idle resources, you can delete the Azure resource group that
+contained the database. In the case of the WordPress chart, Azure MySQL was
+provisioned in a resource group whose name matches the Kubernetes namespace into
+which WordPress was deployed.
+
+```
+$ az group delete --name osba-quickstart --yes --no-wait
+```
+
+To remove the service principal:
+
+```
+$ az ad sp delete --id http://osba-quickstart`
+```
+
+To tear down minikube:
+
+```
+minikube delete
+```
 
 # Next Steps
 Minikube may seem like an odd choice for an Azure quickstart, but it demonstrates

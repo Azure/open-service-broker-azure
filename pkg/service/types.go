@@ -17,31 +17,15 @@ const (
 	StabilityStable
 )
 
-// StandardProvisioningParameters encapsulates the handful of provisioning
-// parameters that are widely required for ANYTHING provisioned in Azure.
-type StandardProvisioningParameters struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
-}
-
 // ProvisioningParameters is an interface to be implemented by module-specific
 // types that represent provisioning parameters. This interface doesn't require
 // any functions to be implemented. It exists to improve the clarity of function
 // signatures and documentation.
 type ProvisioningParameters interface{}
 
-// StandardProvisioningContext encapsulates the small amount of provisioning
-// context that is widely required for ANYTHING provisioned in Azure.
-type StandardProvisioningContext struct {
-	Location      string            `json:"location"`
-	ResourceGroup string            `json:"resourceGroup"`
-	Tags          map[string]string `json:"tags"`
-}
-
-// ProvisioningContext is an interface to be implemented by module-specific
-// types that represent provisioning context.
-type ProvisioningContext interface{}
+// InstanceDetails is an interface to be implemented by service-specific
+// types that represent the details of a service instance.
+type InstanceDetails interface{}
 
 // UpdatingParameters is an interface to be implemented by module-specific
 // types that represent updating parameters. This interface doesn't require
@@ -55,11 +39,11 @@ type UpdatingParameters interface{}
 // signatures and documentation.
 type BindingParameters interface{}
 
-// BindingContext is an interface to be implemented by module-specific types
-// that represent binding context. This interface doesn't require any functions
+// BindingDetails is an interface to be implemented by service-specific types
+// that represent binding details. This interface doesn't require any functions
 // to be implemented. It exists to improve the clarity of function signatures
 // and documentation.
-type BindingContext interface{}
+type BindingDetails interface{}
 
 // Credentials is an interface to be implemented by module-specific types
 // that represent service credentials. This interface doesn't require any

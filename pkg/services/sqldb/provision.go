@@ -36,20 +36,6 @@ func (s *serviceManager) ValidateProvisioningParameters(
 			)
 		}
 	}
-	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
-		if pp.FirewallIPStart == "" {
-			return service.NewValidationError(
-				"firewallStartIPAddress",
-				"must be set when firewallEndIPAddress is set",
-			)
-		}
-		if pp.FirewallIPEnd == "" {
-			return service.NewValidationError(
-				"firewallEndIPAddress",
-				"must be set when firewallStartIPAddress is set",
-			)
-		}
-	}
 	startIP := net.ParseIP(pp.FirewallIPStart)
 	if pp.FirewallIPStart != "" && startIP == nil {
 		return service.NewValidationError(
@@ -93,33 +79,32 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	_ service.Instance, //reference instance
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServerName = uuid.NewV4().String()
-	pc.AdministratorLogin = generate.NewIdentifier()
-	pc.AdministratorLoginPassword = generate.NewPassword()
-	pc.DatabaseName = generate.NewIdentifier()
-
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLogin = generate.NewIdentifier()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+	dt.DatabaseName = generate.NewIdentifier()
+	return dt, nil
 }
 
 func buildARMTemplateParameters(
 	plan service.Plan,
-	provisioningContext *mssqlProvisioningContext,
+	details *mssqlInstanceDetails,
 	provisioningParameters *ProvisioningParameters,
 ) map[string]interface{} {
 	p := map[string]interface{}{ // ARM template params
-		"serverName":                 provisioningContext.ServerName,
-		"administratorLogin":         provisioningContext.AdministratorLogin,
-		"administratorLoginPassword": provisioningContext.AdministratorLoginPassword,
-		"databaseName":               provisioningContext.DatabaseName,
+		"serverName":                 details.ServerName,
+		"administratorLogin":         details.AdministratorLogin,
+		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"databaseName":               details.DatabaseName,
 		"edition":                    plan.GetProperties().Extended["edition"],
 		"requestedServiceObjectiveName": plan.GetProperties().
 			Extended["requestedServiceObjectiveName"],
@@ -142,30 +127,31 @@ func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlProvisioningContext)
+	_ service.Instance, //reference instance
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
+			"error casting provisioningParameters as " +
 				"*mssql.ProvisioningParameters",
 		)
 	}
-	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
+	armTemplateParameters := buildARMTemplateParameters(plan, dt, pp)
+	// new server scenario
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateNewServerBytes,
 		nil, // Go template params
 		armTemplateParameters,
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -177,7 +163,6 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.FullyQualifiedDomainName = fullyQualifiedDomainName
-
-	return pc, nil
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
+	return dt, nil
 }

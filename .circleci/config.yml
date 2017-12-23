@@ -82,6 +82,7 @@ jobs:
     working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
       GOPATH: ~/go
+      DOCKER_REPO: microsoft/
     machine: true
     steps:
       - checkout
@@ -95,6 +96,8 @@ jobs:
           name: Publish Release Candidate Images to Docker Hub
           command: make docker-push-rc
   publish-release-images:
+    environment:
+      DOCKER_REPO: microsoft/
     machine: true
     steps:
       - checkout

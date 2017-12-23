@@ -10,7 +10,7 @@ type ProvisioningParameters struct {
 	FirewallIPEnd   string   `json:"firewallEndIPAddress"`
 }
 
-type postgresqlProvisioningContext struct {
+type postgresqlInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
@@ -27,8 +27,9 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type postgresqlBindingContext struct {
+type postgresqlBindingDetails struct {
 	LoginName string `json:"loginName"`
+	Password  string `json:"password"`
 }
 
 // Credentials encapsulates PostgreSQL-specific coonection details and
@@ -55,18 +56,14 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &postgresqlProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &postgresqlInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &postgresqlBindingContext{}
-}
-
-func (s *serviceManager) GetEmptyCredentials() service.Credentials {
-	return &Credentials{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &postgresqlBindingDetails{}
 }

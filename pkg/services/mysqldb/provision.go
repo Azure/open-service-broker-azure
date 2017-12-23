@@ -20,8 +20,7 @@ func (s *serviceManager) ValidateProvisioningParameters(
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return errors.New(
-			"error casting provisioningParameters as " +
-				"*mysql.ProvisioningParameters",
+			"error casting provisioningParameters as *mysql.ProvisioningParameters",
 		)
 	}
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
@@ -90,12 +89,11 @@ func (s *serviceManager) preProvision(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mysqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*mysqlProvisioningContext",
+			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -105,37 +103,37 @@ func (s *serviceManager) preProvision(
 				"*mysql.ProvisioningParameters",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServerName = uuid.NewV4().String()
-	pc.AdministratorLoginPassword = generate.NewPassword()
-	pc.DatabaseName = generate.NewIdentifier()
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+	dt.DatabaseName = generate.NewIdentifier()
 
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
 	switch sslEnforcement {
 	case "", "enabled":
-		pc.EnforceSSL = true
+		dt.EnforceSSL = true
 	case "disabled":
-		pc.EnforceSSL = false
+		dt.EnforceSSL = false
 	}
 
-	return pc, nil
+	return dt, nil
 }
 
 func buildARMTemplateParameters(
 	plan service.Plan,
-	provisioningContext *mysqlProvisioningContext,
+	details *mysqlInstanceDetails,
 	provisioningParameters *ProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
-	if provisioningContext.EnforceSSL {
+	if details.EnforceSSL {
 		sslEnforcement = "Enabled"
 	} else {
 		sslEnforcement = "Disabled"
 	}
 	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": provisioningContext.AdministratorLoginPassword,
-		"serverName":                 provisioningContext.ServerName,
-		"databaseName":               provisioningContext.DatabaseName,
+		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"serverName":                 details.ServerName,
+		"databaseName":               details.DatabaseName,
 		"skuName":                    plan.GetProperties().Extended["skuName"],
 		"skuTier":                    plan.GetProperties().Extended["skuTier"],
 		"skuCapacityDTU": plan.GetProperties().
@@ -160,30 +158,28 @@ func (s *serviceManager) deployARMTemplate(
 	instance service.Instance,
 	plan service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mysqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mysqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext " +
-				"as *mysqlProvisioningContext",
+			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*mysql.ProvisioningParameters",
+			"error casting provisioningParameters as *mysql.ProvisioningParameters",
 		)
 	}
-	armTemplateParameters := buildARMTemplateParameters(plan, pc, pp)
+	armTemplateParameters := buildARMTemplateParameters(plan, dt, pp)
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -196,7 +192,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.FullyQualifiedDomainName = fullyQualifiedDomainName
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return pc, nil
+	return dt, nil
 }

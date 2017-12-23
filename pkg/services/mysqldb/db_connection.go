@@ -11,9 +11,9 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-func getDBConnection(pc *mysqlProvisioningContext) (*sql.DB, error) {
+func getDBConnection(dt *mysqlInstanceDetails) (*sql.DB, error) {
 	var connectionStrTemplate string
-	if pc.EnforceSSL {
+	if dt.EnforceSSL {
 		azureConfig, err := az.GetConfig()
 		if err != nil {
 			return nil, err
@@ -45,10 +45,10 @@ func getDBConnection(pc *mysqlProvisioningContext) (*sql.DB, error) {
 
 	db, err := sql.Open("mysql", fmt.Sprintf(
 		connectionStrTemplate,
-		pc.ServerName,
-		pc.AdministratorLoginPassword,
-		pc.FullyQualifiedDomainName,
-		pc.DatabaseName,
+		dt.ServerName,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
 	))
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to the database: %s", err)
