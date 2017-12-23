@@ -15,21 +15,26 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingParameters service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*eventHubProvisioningContext)
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &eventHubBindingDetails{}, nil
+}
+
+func (s *serviceManager) GetCredentials(
+	instance service.Instance,
+	_ service.Binding,
+) (service.Credentials, error) {
+	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as eventHubProvisioningContext",
+		return nil, fmt.Errorf(
+			"error casting instance.ProvisioningContext as " +
+				"eventHubProvisioningContext",
 		)
 	}
-
-	return &eventHubBindingContext{},
-		&Credentials{
-			ConnectionString: pc.ConnectionString,
-			PrimaryKey:       pc.PrimaryKey,
+	return &Credentials{
+			ConnectionString: dt.ConnectionString,
+			PrimaryKey:       dt.PrimaryKey,
 		},
 		nil
 }

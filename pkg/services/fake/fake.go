@@ -24,17 +24,15 @@ type BindingValidationFunction func(service.BindingParameters) error
 // BindFunction describes a function used to provide pluggable binding behavior
 // to the fake implementation of the service.Module interface
 type BindFunction func(
-	service.StandardProvisioningContext,
-	service.ProvisioningContext,
+	service.Instance,
 	service.BindingParameters,
-) (service.BindingContext, service.Credentials, error)
+) (service.BindingDetails, error)
 
 // UnbindFunction describes a function used to provide pluggable unbinding
 // behavior to the fake implementation of the service.Module interface
 type UnbindFunction func(
-	service.StandardProvisioningContext,
-	service.ProvisioningContext,
-	service.BindingContext,
+	service.Instance,
+	service.BindingDetails,
 ) error
 
 // Module is a fake implementation of the service.Module interface used to
@@ -97,13 +95,10 @@ func (s *ServiceManager) GetProvisioner(
 
 func (s *ServiceManager) provision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 
 // ValidateUpdatingParameters validates the provided updatingParameters
@@ -124,13 +119,10 @@ func (s *ServiceManager) GetUpdater(service.Plan) (service.Updater, error) {
 
 func (s *ServiceManager) update(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.UpdatingParameters,
-) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 
 // ValidateBindingParameters validates the provided bindingParameters and
@@ -143,28 +135,27 @@ func (s *ServiceManager) ValidateBindingParameters(
 
 // Bind synchronously binds to a service
 func (s *ServiceManager) Bind(
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
+	instance service.Instance,
 	bindingParameters service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	return s.BindBehavior(
-		standardProvisioningContext,
-		provisioningContext,
-		bindingParameters,
-	)
+) (service.BindingDetails, error) {
+	return s.BindBehavior(instance, bindingParameters)
+}
+
+// GetCredentials returns service-specific credentials populated from instance
+// and binding details
+func (s *ServiceManager) GetCredentials(
+	service.Instance,
+	service.Binding,
+) (service.Credentials, error) {
+	return &Credentials{}, nil
 }
 
 // Unbind synchronously unbinds from a service
 func (s *ServiceManager) Unbind(
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingContext service.BindingContext,
+	instance service.Instance,
+	bindingDetails service.BindingDetails,
 ) error {
-	return s.UnbindBehavior(
-		standardProvisioningContext,
-		provisioningContext,
-		bindingContext,
-	)
+	return s.UnbindBehavior(instance, bindingDetails)
 }
 
 // GetDeprovisioner returns a deprovisioner that defines the steps a module
@@ -179,12 +170,10 @@ func (s *ServiceManager) GetDeprovisioner(
 
 func (s *ServiceManager) deprovision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-) (service.ProvisioningContext, error) {
-	return provisioningContext, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 
 func defaultProvisioningValidationBehavior(
@@ -204,17 +193,12 @@ func defaultBindingValidationBehavior(service.BindingParameters) error {
 }
 
 func defaultBindBehavior(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingParameters service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	return provisioningContext, &Credentials{}, nil
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &BindingDetails{}, nil
 }
 
-func defaultUnbindBehavior(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingContext service.BindingContext,
-) error {
+func defaultUnbindBehavior(service.Instance, service.BindingDetails) error {
 	return nil
 }

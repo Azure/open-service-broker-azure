@@ -15,21 +15,24 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingParameters service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*serviceBusProvisioningContext)
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &serviceBusBindingDetails{}, nil
+}
+
+func (s *serviceManager) GetCredentials(
+	instance service.Instance,
+	_ service.Binding,
+) (service.Credentials, error) {
+	pc, ok := instance.Details.(*serviceBusInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as serviceBusProvisioningContext",
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *serviceBusInstanceDetails",
 		)
 	}
-
-	return &serviceBusBindingContext{},
-		&Credentials{
-			ConnectionString: pc.ConnectionString,
-			PrimaryKey:       pc.PrimaryKey,
-		},
-		nil
+	return &Credentials{
+		ConnectionString: pc.ConnectionString,
+		PrimaryKey:       pc.PrimaryKey,
+	}, nil
 }

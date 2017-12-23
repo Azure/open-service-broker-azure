@@ -27,48 +27,42 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*searchProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *searchProvisioningContext",
+			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServiceName = uuid.NewV4().String()
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServiceName = uuid.NewV4().String()
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*searchProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *searchProvisioningContext",
+			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
-			"searchServiceName": pc.ServiceName,
+			"searchServiceName": dt.ServiceName,
 			"searchServiceSku":  plan.GetProperties().Extended["searchServiceSku"],
 		},
-		standardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -81,7 +75,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.ServiceName = serviceName
+	dt.ServiceName = serviceName
 
 	apiKey, ok := outputs["apiKey"].(string)
 	if !ok {
@@ -90,7 +84,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.APIKey = apiKey
+	dt.APIKey = apiKey
 
-	return pc, nil
+	return dt, nil
 }

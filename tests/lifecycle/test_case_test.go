@@ -10,45 +10,44 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	uuid "github.com/satori/go.uuid"
 )
 
-// moduleLifecycleTestCase encapsulates all the required things for a lifecycle
+// serviceLifecycleTestCase encapsulates all the required things for a lifecycle
 // test case. A case should defines both createDependency and
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
-type moduleLifecycleTestCase struct {
-	module                      service.Module
-	description                 string
-	setup                       func() error
-	serviceID                   string
-	planID                      string
-	standardProvisioningContext service.StandardProvisioningContext
-	provisioningParameters      service.ProvisioningParameters
-	bindingParameters           service.BindingParameters
-	testCredentials             func(credentials service.Credentials) error
+type serviceLifecycleTestCase struct {
+	module                 service.Module
+	description            string
+	setup                  func() error
+	serviceID              string
+	planID                 string
+	location               string
+	provisioningParameters service.ProvisioningParameters
+	bindingParameters      service.BindingParameters
+	testCredentials        func(credentials service.Credentials) error
 }
 
-func (m *moduleLifecycleTestCase) getName() string {
+func (s serviceLifecycleTestCase) getName() string {
 	base := fmt.Sprintf(
-		"TestModules/lifecycle/%s",
-		m.module.GetName(),
+		"TestServices/lifecycle/%s",
+		s.module.GetName(),
 	)
-	if m.description == "" {
+	if s.description == "" {
 		return base
 	}
 	return fmt.Sprintf(
 		"%s/%s",
 		base,
-		strings.Replace(m.description, " ", "_", -1),
+		strings.Replace(s.description, " ", "_", -1),
 	)
 }
 
-func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
+func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*20)
 	defer cancel()
 
-	name := m.getName()
+	name := s.getName()
 
 	log.Printf("----> %s: starting\n", name)
 
@@ -56,56 +55,60 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 
 	// This will periodically send status to stdout until the context is canceled.
 	// THIS is what stops CI from timing out these tests!
-	go m.showStatus(ctx)
+	go s.showStatus(ctx)
 
 	// Get the service and plan
-	cat, err := m.module.GetCatalog()
+	cat, err := s.module.GetCatalog()
 	if err != nil {
 		return fmt.Errorf(
 			`error gettting catalog from module "%s"`,
-			m.module.GetName(),
+			s.module.GetName(),
 		)
 	}
-	svc, ok := cat.GetService(m.serviceID)
+	svc, ok := cat.GetService(s.serviceID)
 	if !ok {
 		return fmt.Errorf(
 			`service "%s" not found in module "%s" catalog`,
-			m.serviceID,
-			m.module.GetName(),
+			s.serviceID,
+			s.module.GetName(),
 		)
 	}
-	plan, ok := svc.GetPlan(m.planID)
+	plan, ok := svc.GetPlan(s.planID)
 	if !ok {
 		return fmt.Errorf(
 			`plan "%s" not found for service "%s" in module "%s" catalog`,
-			m.planID,
-			m.serviceID,
-			m.module.GetName(),
+			s.planID,
+			s.serviceID,
+			s.module.GetName(),
 		)
 	}
 	serviceManager := svc.GetServiceManager()
 
-	err = serviceManager.ValidateProvisioningParameters(m.provisioningParameters)
+	err = serviceManager.ValidateProvisioningParameters(s.provisioningParameters)
 	if err != nil {
 		return err
 	}
 
-	pc := serviceManager.GetEmptyProvisioningContext()
-	var tempPC service.ProvisioningContext
-
-	// Force the resource group to be something known to this test executor
-	// to ensure good cleanup
-	m.standardProvisioningContext.ResourceGroup = resourceGroup
-
 	// Setup...
-	if m.setup != nil {
-		if err := m.setup(); err != nil {
+	if s.setup != nil {
+		if err := s.setup(); err != nil {
 			return err
 		}
 	}
 
+	// Build an instance from test case details
+	instance := service.Instance{
+		ServiceID: s.serviceID,
+		PlanID:    s.planID,
+		Location:  s.location,
+		// Force the resource group to be something known to this test executor
+		// to ensure good cleanup
+		ResourceGroup:          resourceGroup,
+		Details:                serviceManager.GetEmptyInstanceDetails(),
+		ProvisioningParameters: s.provisioningParameters,
+	}
+
 	// Provision...
-	iid := uuid.NewV4().String()
 	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
 		return err
@@ -115,7 +118,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	if !ok {
 		return fmt.Errorf(
 			`Module "%s" provisioner has no steps`,
-			m.module.GetName(),
+			s.module.GetName(),
 		)
 	}
 	// Execute provisioning steps until there are none left
@@ -125,25 +128,14 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		if !ok {
 			return fmt.Errorf(
 				`Module "%s" provisioning step "%s" not found`,
-				m.module.GetName(),
+				s.module.GetName(),
 				stepName,
 			)
 		}
-		// Assign results to temp variable in case they're nil. We don't want
-		// pc to ever be nil, or we risk a nil pointer dereference in the
-		// cleanup logic.
-		tempPC, err = step.Execute(
-			ctx,
-			iid,
-			plan,
-			m.standardProvisioningContext,
-			pc,
-			m.provisioningParameters,
-		)
+		instance.Details, err = step.Execute(ctx, instance, plan)
 		if err != nil {
 			return err
 		}
-		pc = tempPC
 		stepName, ok = provisioner.GetNextStepName(stepName)
 		// If there is no next step, we're done with provisioning
 		if !ok {
@@ -152,25 +144,28 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Bind
-	bc, credentials, err := serviceManager.Bind(
-		m.standardProvisioningContext,
-		pc,
-		m.bindingParameters,
-	)
+	bd, err := serviceManager.Bind(instance, s.bindingParameters)
+	if err != nil {
+		return err
+	}
+
+	binding := service.Binding{Details: bd}
+
+	credentials, err := serviceManager.GetCredentials(instance, binding)
 	if err != nil {
 		return err
 	}
 
 	// Test the credentials
-	if m.testCredentials != nil {
-		err = m.testCredentials(credentials)
+	if s.testCredentials != nil {
+		err = s.testCredentials(credentials)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Unbind
-	err = serviceManager.Unbind(m.standardProvisioningContext, pc, bc)
+	err = serviceManager.Unbind(instance, bd)
 	if err != nil {
 		return err
 	}
@@ -185,7 +180,7 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	if !ok {
 		return fmt.Errorf(
 			`Module "%s" deprovisioner has no steps`,
-			m.module.GetName(),
+			s.module.GetName(),
 		)
 	}
 	// Execute deprovisioning steps until there are none left
@@ -194,24 +189,14 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 		if !ok {
 			return fmt.Errorf(
 				`Module "%s" deprovisioning step "%s" not found`,
-				m.module.GetName(),
+				s.module.GetName(),
 				stepName,
 			)
 		}
-		// Assign results to temp variable in case they're nil. We don't want
-		// pc to ever be nil, or we risk a nil pointer dereference in the
-		// cleanup logic.
-		tempPC, err = step.Execute(
-			ctx,
-			iid,
-			nil, // Plan
-			m.standardProvisioningContext,
-			pc,
-		)
+		instance.Details, err = step.Execute(ctx, instance, plan)
 		if err != nil {
 			return err
 		}
-		pc = tempPC
 		stepName, ok = deprovisioner.GetNextStepName(stepName)
 		// If there is no next step, we're done with deprovisioning
 		if !ok {
@@ -222,8 +207,8 @@ func (m *moduleLifecycleTestCase) execute(resourceGroup string) error {
 	return nil
 }
 
-func (m *moduleLifecycleTestCase) showStatus(ctx context.Context) {
-	name := m.getName()
+func (s serviceLifecycleTestCase) showStatus(ctx context.Context) {
+	name := s.getName()
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
 	for {

@@ -18,44 +18,40 @@ func (s *serviceManager) GetDeprovisioner(
 
 func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*aciProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as *aciProvisioningContext",
+			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteACIServer(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*aciProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting provisioningContext as *aciProvisioningContext",
+			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
 	if err := s.aciManager.DeleteACI(
-		pc.ContainerName,
-		standardProvisioningContext.ResourceGroup,
+		dt.ContainerName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting key vault: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

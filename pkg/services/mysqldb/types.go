@@ -4,10 +4,12 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates MySQL-specific provisioning options
 type ProvisioningParameters struct {
-	SSLEnforcement string `json:"sslEnforcement"`
+	SSLEnforcement  string `json:"sslEnforcement"`
+	FirewallIPStart string `json:"firewallStartIPAddress"`
+	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
 
-type mysqlProvisioningContext struct {
+type mysqlInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
@@ -24,8 +26,9 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type mysqlBindingContext struct {
+type mysqlBindingDetails struct {
 	LoginName string `json:"loginName"`
+	Password  string `json:"password"`
 }
 
 // Credentials encapsulates MySQL-specific coonection details and credentials.
@@ -51,18 +54,14 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mysqlProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mysqlInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mysqlBindingContext{}
-}
-
-func (s *serviceManager) GetEmptyCredentials() service.Credentials {
-	return &Credentials{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mysqlBindingDetails{}
 }

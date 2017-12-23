@@ -15,20 +15,23 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingParameters service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*aciProvisioningContext)
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &aciBindingDetails{}, nil
+}
+
+func (s *serviceManager) GetCredentials(
+	instance service.Instance,
+	_ service.Binding,
+) (service.Credentials, error) {
+	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as *aciProvisioningContext",
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
-
-	return &aciBindingContext{},
-		&aciCredentials{
-			PublicIPv4Address: pc.PublicIPv4Address,
-		},
-		nil
+	return &aciCredentials{
+		PublicIPv4Address: dt.PublicIPv4Address,
+	}, nil
 }

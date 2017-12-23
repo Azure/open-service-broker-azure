@@ -6,18 +6,19 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 )
 
-func getTestCases(resourceGroup string) ([]moduleLifecycleTestCase, error) {
+func getTestCases(resourceGroup string) ([]serviceLifecycleTestCase, error) {
 	armDeployer, err := arm.NewDeployer()
 	if err != nil {
 		return nil, err
 	}
 
-	testCases := []moduleLifecycleTestCase{}
+	testCases := []serviceLifecycleTestCase{}
 
 	getTestCaseFuncs := []func(
 		armDeployer arm.Deployer,
 		resourceGroup string,
-	) ([]moduleLifecycleTestCase, error){
+	) ([]serviceLifecycleTestCase, error){
+		getRediscacheCases,
 		getACICases,
 		getAcrCases,
 		getCosmosdbCases,
@@ -26,7 +27,6 @@ func getTestCases(resourceGroup string) ([]moduleLifecycleTestCase, error) {
 		getMssqlCases,
 		getMysqlCases,
 		getPostgresqlCases,
-		getRediscacheCases,
 		getSearchCases,
 		getServicebusCases,
 		getStorageCases,

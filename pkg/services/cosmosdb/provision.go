@@ -28,38 +28,32 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*cosmosdbProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *cosmosdbProvisioningContext",
+			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.DatabaseAccountName = uuid.NewV4().String()
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.DatabaseAccountName = uuid.NewV4().String()
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*cosmosdbProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *cosmosdbProvisioningContext",
+			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
-	pc.DatabaseKind, ok = plan.GetProperties().Extended[kindKey].(databaseKind)
+	dt.DatabaseKind, ok = plan.GetProperties().Extended[kindKey].(databaseKind)
 	if !ok {
 		return nil, errors.New(
 			"error retrieving the kind from deployment",
@@ -67,16 +61,16 @@ func (s *serviceManager) deployARMTemplate(
 	}
 
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
-			"name": pc.DatabaseAccountName,
+			"name": dt.DatabaseAccountName,
 			"kind": plan.GetProperties().Extended[kindKey],
 		},
-		standardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -89,7 +83,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.FullyQualifiedDomainName = fullyQualifiedDomainName
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
@@ -98,9 +92,9 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.PrimaryKey = primaryKey
+	dt.PrimaryKey = primaryKey
 
-	switch pc.DatabaseKind {
+	switch dt.DatabaseKind {
 	case databaseKindMongoDB:
 		// Allow to remove the https:// and the port 443 on the FQDN
 		// This will allow to adapt the FQDN for Azure Public / Azure Gov ...
@@ -109,26 +103,26 @@ func (s *serviceManager) deployARMTemplate(
 		// After :
 		// 6bd965fd-a916-4c3c-9606-161ec4d726bf.documents.azure.com
 		hostnameNoHTTPS := strings.Join(
-			strings.Split(pc.FullyQualifiedDomainName, "https://"),
+			strings.Split(dt.FullyQualifiedDomainName, "https://"),
 			"",
 		)
-		pc.FullyQualifiedDomainName = strings.Join(
+		dt.FullyQualifiedDomainName = strings.Join(
 			strings.Split(hostnameNoHTTPS, ":443/"),
 			"",
 		)
-		pc.ConnectionString = fmt.Sprintf(
+		dt.ConnectionString = fmt.Sprintf(
 			"mongodb://%s:%s@%s:10255/?ssl=true&replicaSet=globaldb",
-			pc.DatabaseAccountName,
-			pc.PrimaryKey,
-			pc.FullyQualifiedDomainName,
+			dt.DatabaseAccountName,
+			dt.PrimaryKey,
+			dt.FullyQualifiedDomainName,
 		)
 	case databaseKindGlobalDocumentDB:
-		pc.ConnectionString = fmt.Sprintf(
+		dt.ConnectionString = fmt.Sprintf(
 			"AccountEndpoint=%s;AccountKey=%s;",
-			pc.FullyQualifiedDomainName,
-			pc.PrimaryKey,
+			dt.FullyQualifiedDomainName,
+			dt.PrimaryKey,
 		)
 	}
 
-	return pc, nil
+	return dt, nil
 }

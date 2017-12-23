@@ -15,8 +15,7 @@ func (s *serviceManager) ValidateProvisioningParameters(
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return errors.New(
-			"error casting provisioningParameters as " +
-				"*aci.ProvisioningParameters",
+			"error casting provisioningParameters as *aci.ProvisioningParameters",
 		)
 	}
 	if pp.ImageName == "" {
@@ -39,58 +38,52 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*aciProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *aciProvisioningContext",
+			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ContainerName = uuid.NewV4().String()
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ContainerName = uuid.NewV4().String()
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*aciProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *aciProvisioningContext",
+			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
+			"error casting instance.ProvisioningParameters as " +
 				"*aci.ProvisioningParameters",
 		)
 	}
 
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		pp, // Go template params
 		map[string]interface{}{ // ARM template params
-			"name":       pc.ContainerName,
+			"name":       dt.ContainerName,
 			"image":      pp.ImageName,
 			"cpuCores":   pp.NumberCores,
 			"memoryInGb": fmt.Sprintf("%f", pp.Memory),
 		},
-		standardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -100,8 +93,8 @@ func (s *serviceManager) deployARMTemplate(
 	// scenario.
 	publicIPv4Address, ok := outputs["publicIPv4Address"].(string)
 	if ok {
-		pc.PublicIPv4Address = publicIPv4Address
+		dt.PublicIPv4Address = publicIPv4Address
 	}
 
-	return pc, nil
+	return dt, nil
 }

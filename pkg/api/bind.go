@@ -157,7 +157,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// respond with 200 if they're identical or 409 otherwise. It actually seems
 		// best to compare instanceIDs to ensure there's no conflict and then
 		// compare binding request parameters (not bindings) because binding objects
-		// also contain binding context and other status information.
+		// also contain binding details and other status information.
 		if instanceID != binding.InstanceID {
 			logFields["existingInstanceID"] = binding.InstanceID
 			log.WithFields(logFields).Debug(
@@ -168,33 +168,22 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
 			return
 		}
-		previousBindingParams := serviceManager.GetEmptyBindingParameters()
-		if err = binding.GetBindingParameters(
-			previousBindingParams,
-			s.codec,
-		); err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"pre-binding error: error decoding persisted bindingParameters",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
 
 		if reflect.DeepEqual(
 			bindingParameters,
-			previousBindingParams,
+			binding.BindingParameters,
 		) {
 			// Per the spec, if bound, respond with a 200
 			// Filling in a gap in the spec-- if the status is anything else, we'll
 			// choose to respond with a 409
 			switch binding.Status {
 			case service.BindingStateBound:
-				credentials := serviceManager.GetEmptyCredentials()
-				if err = binding.GetCredentials(credentials, s.codec); err != nil {
+				var credentials service.Credentials
+				credentials, err = serviceManager.GetCredentials(instance, binding)
+				if err != nil {
 					logFields["error"] = err
 					log.WithFields(logFields).Error(
-						"binding error: error decoding persisted credentials",
+						"binding error: error extracting credentials from binding",
 					)
 					s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 					return
@@ -251,30 +240,12 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	provisioningContext := serviceManager.GetEmptyProvisioningContext()
-	err = instance.GetProvisioningContext(provisioningContext, s.codec)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"binding error: error decoding persisted provisioningContext",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
-
-	binding = &service.Binding{
-		InstanceID: instanceID,
-		BindingID:  bindingID,
-		Created:    time.Now(),
-	}
-
 	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
-	bindingContext, credentials, err := serviceManager.Bind(
-		instance.StandardProvisioningContext,
-		provisioningContext,
-		bindingRequest.Parameters,
+	bindingDetails, err := serviceManager.Bind(
+		instance,
+		bindingParameters,
 	)
 	if err != nil {
 		s.handleBindingError(
@@ -286,24 +257,16 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = binding.SetBindingContext(bindingContext, s.codec); err != nil {
-		s.handleBindingError(
-			binding,
-			err,
-			"error encoding bindingContext",
-			w,
-		)
-		return
-	}
-
-	if err = binding.SetCredentials(credentials, s.codec); err != nil {
-		s.handleBindingError(
-			binding,
-			err,
-			"error encoding credentials",
-			w,
-		)
-		return
+	binding = service.Binding{
+		InstanceID: instanceID,
+		// Storing the serviceID on the binding gives us a shortcut to finding
+		// the service and therefore the serviceManager later on-- even if the
+		// binding somehow gets orphaned and we can no longer find the instance.
+		ServiceID:         instance.ServiceID,
+		BindingID:         bindingID,
+		BindingParameters: bindingParameters,
+		Details:           bindingDetails,
+		Created:           time.Now(),
 	}
 
 	binding.Status = service.BindingStateBound
@@ -321,11 +284,18 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// occur are errors in preparing or sending the response. Such errors do not
 	// need to affect the binding's state.
 
+	credentials, err := serviceManager.GetCredentials(instance, binding)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"post-binding error: error extracting credentials from binding",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		return
+	}
+
 	bindingResponse := &BindingResponse{
 		Credentials: credentials,
-	}
-	if bindingResponse.Credentials == nil {
-		bindingResponse.Credentials = serviceManager.GetEmptyCredentials()
 	}
 	bindingJSON, err := bindingResponse.ToJSON()
 	if err != nil {
@@ -349,7 +319,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 // so we log that failure and kill the process. Barring such a failure, a nicely
 // formatted error message is logged.
 func (s *server) handleBindingError(
-	binding *service.Binding,
+	binding service.Binding,
 	e error,
 	msg string,
 	w http.ResponseWriter,

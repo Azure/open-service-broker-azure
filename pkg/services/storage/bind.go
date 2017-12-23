@@ -15,22 +15,25 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingParameters service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*storageProvisioningContext)
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &storageBindingDetails{}, nil
+}
+
+func (s *serviceManager) GetCredentials(
+	instance service.Instance,
+	_ service.Binding,
+) (service.Credentials, error) {
+	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as storageProvisioningContext",
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
-
-	return &storageBindingContext{},
-		&Credentials{
-			StorageAccountName: pc.StorageAccountName,
-			AccessKey:          pc.AccessKey,
-			ContainerName:      pc.ContainerName,
-		},
-		nil
+	return &Credentials{
+		StorageAccountName: dt.StorageAccountName,
+		AccessKey:          dt.AccessKey,
+		ContainerName:      dt.ContainerName,
+	}, nil
 }

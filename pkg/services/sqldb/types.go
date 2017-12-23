@@ -4,10 +4,12 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // ProvisioningParameters encapsulates MSSQL-specific provisioning options
 type ProvisioningParameters struct {
-	ServerName string `json:"server"`
+	ServerName      string `json:"server"`
+	FirewallIPStart string `json:"firewallStartIPAddress"`
+	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
 
-type mssqlProvisioningContext struct {
+type mssqlInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	IsNewServer                bool   `json:"isNewServer"`
@@ -25,8 +27,9 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type mssqlBindingContext struct {
+type mssqlBindingDetails struct {
 	LoginName string `json:"loginName"`
+	Password  string `json:"password"`
 }
 
 // Credentials encapsulates MSSQL-specific coonection details and credentials.
@@ -67,18 +70,14 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mssqlProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mssqlBindingContext{}
-}
-
-func (s *serviceManager) GetEmptyCredentials() service.Credentials {
-	return &Credentials{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
 }

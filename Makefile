@@ -9,11 +9,11 @@ BINARY_NAME := osba
 # See https://github.com/Azure/open-service-broker-azure/issues/100
 BASE_IMAGE_NAME        = azure-service-broker
 
-RC_IMAGE_NAME          = $(REGISTRY)$(BASE_IMAGE_NAME):$(GIT_VERSION)
-RC_MUTABLE_IMAGE_NAME  = $(REGISTRY)$(BASE_IMAGE_NAME):canary
+RC_IMAGE_NAME          = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(GIT_VERSION)
+RC_MUTABLE_IMAGE_NAME  = $(DOCKER_REPO)$(BASE_IMAGE_NAME):canary
 
-REL_IMAGE_NAME         = $(REGISTRY)$(BASE_IMAGE_NAME):$(REL_VERSION)
-REL_MUTABLE_IMAGE_NAME = $(REGISTRY)$(BASE_IMAGE_NAME):latest
+REL_IMAGE_NAME         = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(REL_VERSION)
+REL_MUTABLE_IMAGE_NAME = $(DOCKER_REPO)$(BASE_IMAGE_NAME):latest
 
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
@@ -84,7 +84,7 @@ verify-vendored-code: check-docker-compose
 	'
 
 .PHONY: test
-test: test-unit test-api-compliance test-module-lifecycles
+test: test-unit test-api-compliance test-service-lifecycles
 
 # Containerized unit tests-- requires docker-compose
 .PHONY: test-unit
@@ -92,9 +92,17 @@ test-unit: check-docker-compose
 	@# As of Go 1.9.0, testing ./... excludes tests on vendored code
 	docker-compose run --rm test bash -c 'go test -tags unit ./...'
 
-# Containerized module lifecycle tests-- requires docker-compose
-.PHONY: test-module-lifecycles
-test-module-lifecycles: check-docker-compose check-azure-env-vars
+# Containerized service lifecycle tests-- requires docker-compose
+.PHONY: test-service-lifecycles
+test-service-lifecycles: check-docker-compose check-azure-env-vars
+	@echo
+	##############################################################################
+	# WARNING! This creates services in Azure and will cost you real MONEY!      #
+	# If run to completion, these tests clean up after themselves, but if        #
+	# interrupted, you may need to perform some manual cleanup on your           #
+	# subscription!                                                              #
+	##############################################################################
+	@echo
 	docker-compose run \
 		--rm \
 		-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \
@@ -207,6 +215,8 @@ endif
 	docker pull $(RC_IMAGE_NAME)
 	docker tag $(RC_IMAGE_NAME) $(REL_IMAGE_NAME)
 	docker tag $(RC_IMAGE_NAME) $(REL_MUTABLE_IMAGE_NAME)
+	docker push $(REL_IMAGE_NAME)
+	docker push $(REL_MUTABLE_IMAGE_NAME)
 
 # ---------------------------------------------------------------------------- #
 # contrib/                                                                     #

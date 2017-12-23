@@ -15,36 +15,35 @@ func (s *serviceManager) ValidateBindingParameters(
 }
 
 func (s *serviceManager) Bind(
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	bindingParameters service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := provisioningContext.(*cosmosdbProvisioningContext)
+	service.Instance,
+	service.BindingParameters,
+) (service.BindingDetails, error) {
+	return &cosmosdbBindingDetails{}, nil
+}
+
+func (s *serviceManager) GetCredentials(
+	instance service.Instance,
+	_ service.Binding,
+) (service.Credentials, error) {
+	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting provisioningContext as *cosmosdbProvisioningContext",
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
-	if pc.DatabaseKind == databaseKindMongoDB {
-		cosmosDBCredentials := &Credentials{
-			Host: pc.FullyQualifiedDomainName,
+	if dt.DatabaseKind == databaseKindMongoDB {
+		return &Credentials{
+			Host: dt.FullyQualifiedDomainName,
 			Port: 10255,
 			// Username is the same as the database account name
-			Username:         pc.DatabaseAccountName,
-			Password:         pc.PrimaryKey,
-			ConnectionString: pc.ConnectionString,
-		}
-		return &cosmosdbBindingContext{},
-			cosmosDBCredentials,
-			nil
+			Username:         dt.DatabaseAccountName,
+			Password:         dt.PrimaryKey,
+			ConnectionString: dt.ConnectionString,
+		}, nil
 	}
-	cosmosDBCredentials := &Credentials{
-		URI:                     pc.FullyQualifiedDomainName,
-		PrimaryKey:              pc.PrimaryKey,
-		PrimaryConnectionString: pc.ConnectionString,
-	}
-	return &cosmosdbBindingContext{},
-		cosmosDBCredentials,
-		nil
-
+	return &Credentials{
+		URI:                     dt.FullyQualifiedDomainName,
+		PrimaryKey:              dt.PrimaryKey,
+		PrimaryConnectionString: dt.ConnectionString,
+	}, nil
 }

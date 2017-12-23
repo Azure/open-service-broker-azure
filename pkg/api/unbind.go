@@ -91,36 +91,10 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		}
 		serviceManager := svc.GetServiceManager()
 
-		provisioningContext := serviceManager.GetEmptyProvisioningContext()
-		err = instance.GetProvisioningContext(provisioningContext, s.codec)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"unbinding error: error decoding persisted provisioningContext",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
-
-		bindingContext := serviceManager.GetEmptyBindingContext()
-		err = binding.GetBindingContext(bindingContext, s.codec)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"unbinding error: error decoding persisted bindingContext",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
-
 		// Starting here, if something goes wrong, we don't know what state service-
 		// specific code has left us in, so we'll attempt to record the error in
 		// the datastore.
-		err = serviceManager.Unbind(
-			instance.StandardProvisioningContext,
-			provisioningContext,
-			bindingContext,
-		)
+		err = serviceManager.Unbind(instance, binding.Details)
 		if err != nil {
 			s.handleUnbindingError(
 				binding,
@@ -152,7 +126,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 // so we log that failure and kill the process. Barring such a failure, a nicely
 // formatted error message is logged.
 func (s *server) handleUnbindingError(
-	binding *service.Binding,
+	binding service.Binding,
 	e error,
 	msg string,
 	w http.ResponseWriter,

@@ -58,9 +58,8 @@ func getTestServer(
 	}
 	s, err := NewServer(
 		8080,
-		memoryStorage.NewStore(),
+		memoryStorage.NewStore(fakeCatalog, noop.NewCodec()),
 		fakeAsync.NewEngine(),
-		noop.NewCodec(),
 		always.NewAuthenticator(),
 		fakeCatalog,
 		defaultAzureLocation,

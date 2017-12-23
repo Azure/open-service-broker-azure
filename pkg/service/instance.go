@@ -9,135 +9,146 @@ import (
 
 // Instance represents an instance of a service
 type Instance struct {
-	InstanceID                      string                         `json:"instanceId"`                     // nolint: lll
-	ServiceID                       string                         `json:"serviceId"`                      // nolint: lll
-	PlanID                          string                         `json:"planId"`                         // nolint: lll
-	StandardProvisioningParameters  StandardProvisioningParameters `json:"standardProvisioningParameters"` // nolint: lll
-	EncryptedProvisioningParameters []byte                         `json:"provisioningParameters"`         // nolint: lll
-	EncryptedUpdatingParameters     []byte                         `json:"updatingParameters"`             // nolint: lll
-	Status                          string                         `json:"status"`                         // nolint: lll
-	StatusReason                    string                         `json:"statusReason"`                   // nolint: lll
-	StandardProvisioningContext     StandardProvisioningContext    `json:"standardProvisioningContext"`    // nolint: lll
-	EncryptedProvisioningContext    []byte                         `json:"provisioningContext"`            // nolint: lll
-	Created                         time.Time                      `json:"created"`                        // nolint: lll
+	InstanceID                      string                 `json:"instanceId"`             // nolint: lll
+	ServiceID                       string                 `json:"serviceId"`              // nolint: lll
+	PlanID                          string                 `json:"planId"`                 // nolint: lll
+	EncryptedProvisioningParameters []byte                 `json:"provisioningParameters"` // nolint: lll
+	ProvisioningParameters          ProvisioningParameters `json:"-"`
+	EncryptedUpdatingParameters     []byte                 `json:"updatingParameters"` // nolint: lll
+	UpdatingParameters              UpdatingParameters     `json:"-"`
+	Status                          string                 `json:"status"`        // nolint: lll
+	StatusReason                    string                 `json:"statusReason"`  // nolint: lll
+	Location                        string                 `json:"location"`      // nolint: lll
+	ResourceGroup                   string                 `json:"resourceGroup"` // nolint: lll
+	Tags                            map[string]string      `json:"tags"`
+	EncryptedDetails                []byte                 `json:"details"` // nolint: lll
+	Details                         InstanceDetails        `json:"-"`
+	Created                         time.Time              `json:"created"` // nolint: lll
 }
 
 // NewInstanceFromJSON returns a new Instance unmarshalled from the provided
 // JSON []byte
-func NewInstanceFromJSON(jsonBytes []byte) (*Instance, error) {
-	instance := &Instance{}
-	if err := json.Unmarshal(jsonBytes, instance); err != nil {
-		return nil, err
+func NewInstanceFromJSON(
+	jsonBytes []byte,
+	pp ProvisioningParameters,
+	up UpdatingParameters,
+	dt InstanceDetails,
+	codec crypto.Codec,
+) (Instance, error) {
+	instance := Instance{
+		ProvisioningParameters: pp,
+		UpdatingParameters:     up,
+		Details:                dt,
 	}
-	return instance, nil
+	if err := json.Unmarshal(jsonBytes, &instance); err != nil {
+		return instance, err
+	}
+	return instance.decrypt(codec)
 }
 
 // ToJSON returns a []byte containing a JSON representation of the
 // instance
-func (i *Instance) ToJSON() ([]byte, error) {
+func (i Instance) ToJSON(codec crypto.Codec) ([]byte, error) {
+	var err error
+	if i, err = i.encrypt(codec); err != nil {
+		return nil, err
+	}
 	return json.Marshal(i)
 }
 
-// SetProvisioningParameters marshals the provided provisioningParameters
-// object, encrypts the result, and stores it in the
-// EncryptedProvisioningParameters field
-func (i *Instance) SetProvisioningParameters(
-	params ProvisioningParameters,
-	codec crypto.Codec,
-) error {
-	jsonBytes, err := json.Marshal(params)
-	if err != nil {
-		return err
+func (i Instance) encrypt(codec crypto.Codec) (Instance, error) {
+	var err error
+	if i, err = i.encryptProvisioningParameters(codec); err != nil {
+		return i, err
 	}
-	ciphertext, err := codec.Encrypt(jsonBytes)
-	if err != nil {
-		return err
+	if i, err = i.encryptUpdatingParameters(codec); err != nil {
+		return i, err
 	}
-	i.EncryptedProvisioningParameters = ciphertext
-	return nil
+	return i.encryptDetails(codec)
 }
 
-// SetUpdatingParameters marshals the provided updatingParameters
-// object, encrypts the result, and stores it in the
-// EncryptedUpdatingParameters field
-func (i *Instance) SetUpdatingParameters(
-	params UpdatingParameters,
+func (i Instance) encryptProvisioningParameters(
 	codec crypto.Codec,
-) error {
-	jsonBytes, err := json.Marshal(params)
+) (Instance, error) {
+	jsonBytes, err := json.Marshal(i.ProvisioningParameters)
 	if err != nil {
-		return err
+		return i, err
 	}
-	ciphertext, err := codec.Encrypt(jsonBytes)
-	if err != nil {
-		return err
-	}
-	i.EncryptedUpdatingParameters = ciphertext
-	return nil
+	i.EncryptedProvisioningParameters, err = codec.Encrypt(jsonBytes)
+	return i, err
 }
 
-// GetProvisioningParameters decrypts the EncryptedProvisioningParameters field
-// and unmarshals the result into the provided provisioningParameters object
-func (i *Instance) GetProvisioningParameters(
-	params ProvisioningParameters,
+func (i Instance) encryptUpdatingParameters(
 	codec crypto.Codec,
-) error {
-	if len(i.EncryptedProvisioningParameters) == 0 {
-		return nil
+) (Instance, error) {
+	jsonBytes, err := json.Marshal(i.UpdatingParameters)
+	if err != nil {
+		return i, err
+	}
+	i.EncryptedUpdatingParameters, err = codec.Encrypt(jsonBytes)
+	return i, err
+}
+
+func (i Instance) encryptDetails(
+	codec crypto.Codec,
+) (Instance, error) {
+	jsonBytes, err := json.Marshal(i.Details)
+	if err != nil {
+		return i, err
+	}
+	i.EncryptedDetails, err = codec.Encrypt(jsonBytes)
+	return i, err
+}
+
+func (i Instance) decrypt(codec crypto.Codec) (Instance, error) {
+	var err error
+	if i, err = i.decryptProvisioningParameters(codec); err != nil {
+		return i, err
+	}
+	if i, err = i.decryptUpdatingParameters(codec); err != nil {
+		return i, err
+	}
+	return i.decryptDetails(codec)
+}
+
+func (i Instance) decryptProvisioningParameters(
+	codec crypto.Codec,
+) (Instance, error) {
+	if len(i.EncryptedProvisioningParameters) == 0 ||
+		i.ProvisioningParameters == nil {
+		return i, nil
 	}
 	plaintext, err := codec.Decrypt(i.EncryptedProvisioningParameters)
 	if err != nil {
-		return err
+		return i, err
 	}
-	return json.Unmarshal(plaintext, params)
+	return i, json.Unmarshal(plaintext, i.ProvisioningParameters)
 }
 
-// GetUpdatingParameters decrypts the EncryptedUpdatingParameters field
-// and unmarshals the result into the provided updatingParameters object
-func (i *Instance) GetUpdatingParameters(
-	params UpdatingParameters,
+func (i Instance) decryptUpdatingParameters(
 	codec crypto.Codec,
-) error {
-	if len(i.EncryptedUpdatingParameters) == 0 {
-		return nil
+) (Instance, error) {
+	if len(i.EncryptedUpdatingParameters) == 0 ||
+		i.UpdatingParameters == nil {
+		return i, nil
 	}
 	plaintext, err := codec.Decrypt(i.EncryptedUpdatingParameters)
 	if err != nil {
-		return err
+		return i, err
 	}
-	return json.Unmarshal(plaintext, params)
+	return i, json.Unmarshal(plaintext, i.UpdatingParameters)
 }
 
-// SetProvisioningContext marshals the provided provisioningContext object,
-// encrypts the result, and stores it in the EncrypredProvisioningContext field
-func (i *Instance) SetProvisioningContext(
-	context ProvisioningContext,
+func (i Instance) decryptDetails(
 	codec crypto.Codec,
-) error {
-	jsonBytes, err := json.Marshal(context)
+) (Instance, error) {
+	if len(i.EncryptedDetails) == 0 ||
+		i.Details == nil {
+		return i, nil
+	}
+	plaintext, err := codec.Decrypt(i.EncryptedDetails)
 	if err != nil {
-		return err
+		return i, err
 	}
-	ciphertext, err := codec.Encrypt(jsonBytes)
-	if err != nil {
-		return err
-	}
-	i.EncryptedProvisioningContext = ciphertext
-	return nil
-}
-
-// GetProvisioningContext decrypts the EncryptedProvisioningContext field and
-// unmarshals the result into the provided provisioningContext object
-func (i *Instance) GetProvisioningContext(
-	context ProvisioningContext,
-	codec crypto.Codec,
-) error {
-	if len(i.EncryptedProvisioningContext) == 0 {
-		return nil
-	}
-	plaintext, err := codec.Decrypt(i.EncryptedProvisioningContext)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(plaintext, context)
+	return i, json.Unmarshal(plaintext, i.Details)
 }

@@ -70,26 +70,26 @@ func (b *broker) doUpdateStep(
 		)
 	}
 	serviceManager := svc.GetServiceManager()
-	provisioningContext := serviceManager.GetEmptyProvisioningContext()
-	err = instance.GetProvisioningContext(provisioningContext, b.codec)
+
+	// Retrieve a second copy of the instance from storage. Why? We're about to
+	// pass the instance off to module specific code. It's passed by value, so
+	// we'd like to imagine that the modules can only modify copies of the
+	// instance, but some of the fields of an instance are pointers and a copy of
+	// a pointer still points back to the original thing-- meaning modules could
+	// modify parts of the instance in unexpected ways. What we'll do is take the
+	// one part of the instance that we intend for modules to modify (instance
+	// details) and add that to this untouched copy and write the untouched copy
+	// back to storage.
+	instanceCopy, _, err := b.store.GetInstance(instanceID)
 	if err != nil {
-		return b.handleUpdatingError(
-			instance,
+		return b.handleProvisioningError(
+			instanceID,
 			stepName,
 			err,
-			"error decoding provisioningContext from persisted instance",
+			"error loading persisted instance",
 		)
 	}
-	updatingParams := serviceManager.GetEmptyUpdatingParameters()
-	err = instance.GetUpdatingParameters(updatingParams, b.codec)
-	if err != nil {
-		return b.handleUpdatingError(
-			instance,
-			stepName,
-			err,
-			"error decoding updatingParameters from persisted instance",
-		)
-	}
+
 	updater, err := serviceManager.GetUpdater(plan)
 	if err != nil {
 		return b.handleUpdatingError(
@@ -111,13 +111,10 @@ func (b *broker) doUpdateStep(
 			`updater does not know how to process step "%s"`,
 		)
 	}
-	updatedProvisioningContext, err := step.Execute(
+	updatedDetails, err := step.Execute(
 		ctx,
-		instanceID,
+		instance,
 		plan,
-		instance.StandardProvisioningContext,
-		provisioningContext,
-		updatingParams,
 	)
 	if err != nil {
 		return b.handleUpdatingError(
@@ -127,19 +124,11 @@ func (b *broker) doUpdateStep(
 			"error executing updating step",
 		)
 	}
-	err = instance.SetProvisioningContext(updatedProvisioningContext, b.codec)
-	if err != nil {
-		return b.handleUpdatingError(
-			instance,
-			stepName,
-			err,
-			"error encoding modified provisioningContext",
-		)
-	}
+	instanceCopy.Details = updatedDetails
 	if nextStepName, ok := updater.GetNextStepName(step.GetName()); ok {
-		if err = b.store.WriteInstance(instance); err != nil {
+		if err = b.store.WriteInstance(instanceCopy); err != nil {
 			return b.handleUpdatingError(
-				instance,
+				instanceCopy,
 				stepName,
 				err,
 				"error persisting instance",
@@ -154,7 +143,7 @@ func (b *broker) doUpdateStep(
 		)
 		if err = b.asyncEngine.SubmitTask(task); err != nil {
 			return b.handleUpdatingError(
-				instance,
+				instanceCopy,
 				stepName,
 				err,
 				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
@@ -162,10 +151,10 @@ func (b *broker) doUpdateStep(
 		}
 	} else {
 		// No next step-- we're done updating!
-		instance.Status = service.InstanceStateUpdated
-		if err = b.store.WriteInstance(instance); err != nil {
+		instanceCopy.Status = service.InstanceStateUpdated
+		if err = b.store.WriteInstance(instanceCopy); err != nil {
 			return b.handleUpdatingError(
-				instance,
+				instanceCopy,
 				stepName,
 				err,
 				"error persisting instance",
@@ -188,7 +177,7 @@ func (b *broker) handleUpdatingError(
 	e error,
 	msg string,
 ) error {
-	instance, ok := instanceOrInstanceID.(*service.Instance)
+	instance, ok := instanceOrInstanceID.(service.Instance)
 	if !ok {
 		instanceID := instanceOrInstanceID
 		if e == nil {

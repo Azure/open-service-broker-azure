@@ -1,9 +1,11 @@
 package postgresqldb
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
@@ -28,7 +30,48 @@ func (s *serviceManager) ValidateProvisioningParameters(
 		sslEnforcement != "disabled" {
 		return service.NewValidationError(
 			"sslEnforcement",
-			fmt.Sprintf(`invalid sslEnforcement option: "%s"`, pp.SSLEnforcement),
+			fmt.Sprintf(`invalid option: "%s"`, pp.SSLEnforcement),
+		)
+	}
+	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
+		if pp.FirewallIPStart == "" {
+			return service.NewValidationError(
+				"firewallStartIPAddress",
+				"must be set when firewallEndIPAddress is set",
+			)
+		}
+		if pp.FirewallIPEnd == "" {
+			return service.NewValidationError(
+				"firewallEndIPAddress",
+				"must be set when firewallStartIPAddress is set",
+			)
+		}
+	}
+	startIP := net.ParseIP(pp.FirewallIPStart)
+	if pp.FirewallIPStart != "" && startIP == nil {
+		return service.NewValidationError(
+			"firewallStartIPAddress",
+			fmt.Sprintf(`invalid value: "%s"`, pp.FirewallIPStart),
+		)
+	}
+	endIP := net.ParseIP(pp.FirewallIPEnd)
+	if pp.FirewallIPEnd != "" && endIP == nil {
+		return service.NewValidationError(
+			"firewallEndIPAddress",
+			fmt.Sprintf(`invalid value: "%s"`, pp.FirewallIPEnd),
+		)
+	}
+	//The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
+	//Once converted,comparing two IP addresses can be done by using the
+	//bytes. Compare function. Per the ARM template documentation,
+	//startIP must be <= endIP.
+	startBytes := startIP.To4()
+	endBytes := endIP.To4()
+	if bytes.Compare(startBytes, endBytes) > 0 {
+		return service.NewValidationError(
+			"firewallEndIPAddress",
+			fmt.Sprintf(`invalid value: "%s". must be 
+				greater than or equal to firewallStartIPAddress`, pp.FirewallIPEnd),
 		)
 	}
 	return nil
@@ -47,78 +90,99 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.ProvisioningParameters as " +
+				"*postgresql.ProvisioningParameters",
+		)
+	}
+
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+	dt.DatabaseName = generate.NewIdentifier()
+
+	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
+	switch sslEnforcement {
+	case "", "enabled":
+		dt.EnforceSSL = true
+	case "disabled":
+		dt.EnforceSSL = false
+	}
+
+	return dt, nil
+}
+
+func buildARMTemplateParameters(
+	plan service.Plan,
+	details *postgresqlInstanceDetails,
+	provisioningParameters *ProvisioningParameters,
+) map[string]interface{} {
+	var sslEnforcement string
+	if details.EnforceSSL {
+		sslEnforcement = "Enabled"
+	} else {
+		sslEnforcement = "Disabled"
+	}
+	p := map[string]interface{}{ // ARM template params
+		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"serverName":                 details.ServerName,
+		"databaseName":               details.DatabaseName,
+		"skuName":                    plan.GetProperties().Extended["skuName"],
+		"skuTier":                    plan.GetProperties().Extended["skuTier"],
+		"skuCapacityDTU": plan.GetProperties().
+			Extended["skuCapacityDTU"],
+		"sslEnforcement": sslEnforcement,
+	}
+	//Only include these if they are not empty.
+	//ARM Deployer will fail if the values included are not
+	//valid IPV4 addresses (i.e. empty string wil fail)
+	if provisioningParameters.FirewallIPStart != "" {
+		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
+	}
+	if provisioningParameters.FirewallIPEnd != "" {
+		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
+	}
+	return p
+}
+
+func (s *serviceManager) deployARMTemplate(
+	_ context.Context,
+	instance service.Instance,
+	plan service.Plan,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *postgresqlInstanceDetails",
+		)
+	}
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
 			"error casting provisioningParameters as " +
 				"*postgresql.ProvisioningParameters",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServerName = uuid.NewV4().String()
-	pc.AdministratorLoginPassword = generate.NewPassword()
-	pc.DatabaseName = generate.NewIdentifier()
-
-	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	switch sslEnforcement {
-	case "", "enabled":
-		pc.EnforceSSL = true
-	case "disabled":
-		pc.EnforceSSL = false
-	}
-
-	return pc, nil
-}
-
-func (s *serviceManager) deployARMTemplate(
-	_ context.Context,
-	_ string, // instanceID
-	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
-	if !ok {
-		return nil, errors.New(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
-		)
-	}
-	var sslEnforcement string
-	if pc.EnforceSSL {
-		sslEnforcement = "Enabled"
-	} else {
-		sslEnforcement = "Disabled"
-	}
+	armTemplateParameters := buildARMTemplateParameters(plan, dt, pp)
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
-		map[string]interface{}{ // ARM template params
-			"administratorLoginPassword": pc.AdministratorLoginPassword,
-			"serverName":                 pc.ServerName,
-			"databaseName":               pc.DatabaseName,
-			"skuName":                    plan.GetProperties().Extended["skuName"],
-			"skuTier":                    plan.GetProperties().Extended["skuTier"],
-			"skuCapacityDTU": plan.GetProperties().
-				Extended["skuCapacityDTU"],
-			"sslEnforcement": sslEnforcement,
-		},
-		standardProvisioningContext.Tags,
+		armTemplateParameters,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -131,27 +195,24 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.FullyQualifiedDomainName = fullyQualifiedDomainName
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) setupDatabase(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
 
-	db, err := getDBConnection(pc, primaryDB)
+	db, err := getDBConnection(dt, primaryDB)
 	if err != nil {
 		return nil, err
 	}
@@ -169,29 +230,29 @@ func (s *serviceManager) setupDatabase(
 		}
 	}()
 	if _, err = tx.Exec(
-		fmt.Sprintf("create role %s", pc.DatabaseName),
+		fmt.Sprintf("create role %s", dt.DatabaseName),
 	); err != nil {
-		return nil, fmt.Errorf(`error creating role "%s": %s`, pc.DatabaseName, err)
+		return nil, fmt.Errorf(`error creating role "%s": %s`, dt.DatabaseName, err)
 	}
 	if _, err = tx.Exec(
-		fmt.Sprintf("grant %s to postgres", pc.DatabaseName),
+		fmt.Sprintf("grant %s to postgres", dt.DatabaseName),
 	); err != nil {
 		return nil, fmt.Errorf(
 			`error adding role "%s" to role "postgres": %s`,
-			pc.DatabaseName,
+			dt.DatabaseName,
 			err,
 		)
 	}
 	if _, err = tx.Exec(
 		fmt.Sprintf(
 			"alter database %s owner to %s",
-			pc.DatabaseName,
-			pc.DatabaseName,
+			dt.DatabaseName,
+			dt.DatabaseName,
 		),
 	); err != nil {
 		return nil, fmt.Errorf(
 			`error updating database owner"%s": %s`,
-			pc.DatabaseName,
+			dt.DatabaseName,
 			err,
 		)
 	}
@@ -199,33 +260,30 @@ func (s *serviceManager) setupDatabase(
 		return nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) createExtensions(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	provisioningParameters service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*postgresqlProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *postgresqlProvisioningContext",
+			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as " +
+			"error casting instance.ProvisioningParameters as " +
 				"*postgresql.ProvisioningParameters",
 		)
 	}
 
 	if len(pp.Extensions) > 0 {
-		db, err := getDBConnection(pc, pc.DatabaseName)
+		db, err := getDBConnection(dt, dt.DatabaseName)
 		if err != nil {
 			return nil, err
 		}
@@ -257,5 +315,5 @@ func (s *serviceManager) createExtensions(
 			return nil, fmt.Errorf("error committing transaction: %s", err)
 		}
 	}
-	return pc, nil
+	return dt, nil
 }

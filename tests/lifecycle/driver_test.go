@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestModules(t *testing.T) {
+func TestServices(t *testing.T) {
 	resourceGroup := "test-" + uuid.NewV4().String()
 
 	log.Printf("----> creating resource group \"%s\"\n", resourceGroup)

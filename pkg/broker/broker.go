@@ -57,12 +57,6 @@ func NewBroker(
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,
 ) (Broker, error) {
-	b := &broker{
-		store:       storage.NewStore(redisClient),
-		asyncEngine: async.NewEngine(redisClient),
-		codec:       codec,
-	}
-
 	// Consolidate the catalogs from all the individual modules into a single
 	// catalog. Check as we go along to make sure that no two modules provide
 	// services having the same ID.
@@ -94,7 +88,13 @@ func NewBroker(
 			}
 		}
 	}
-	b.catalog = service.NewCatalog(services)
+	catalog := service.NewCatalog(services)
+	b := &broker{
+		store:       storage.NewStore(redisClient, catalog, codec),
+		asyncEngine: async.NewEngine(redisClient),
+		codec:       codec,
+		catalog:     catalog,
+	}
 
 	err := b.asyncEngine.RegisterJob("provisionStep", b.doProvisionStep)
 	if err != nil {
@@ -117,9 +117,8 @@ func NewBroker(
 
 	b.apiServer, err = api.NewServer(
 		8080,
-		storage.NewStore(redisClient),
+		b.store,
 		b.asyncEngine,
-		b.codec,
 		authenticator,
 		b.catalog,
 		defaultAzureLocation,

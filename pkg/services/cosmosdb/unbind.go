@@ -5,9 +5,8 @@ import (
 )
 
 func (s *serviceManager) Unbind(
-	_ service.StandardProvisioningContext,
-	_ service.ProvisioningContext,
-	_ service.BindingContext,
+	_ service.Instance,
+	_ service.BindingDetails,
 ) error {
 	return nil
 }

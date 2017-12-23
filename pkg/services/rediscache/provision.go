@@ -27,50 +27,44 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*redisProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *redisProvisioningContext",
+			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServerName = uuid.NewV4().String()
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*redisProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *redisProvisioningContext",
+			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
-			"serverName":         pc.ServerName,
+			"serverName":         dt.ServerName,
 			"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
 			"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
 			"redisCacheCapacity": plan.GetProperties().Extended["redisCacheCapacity"],
 		},
-		standardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -83,7 +77,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.FullyQualifiedDomainName = fullyQualifiedDomainName
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
@@ -92,7 +86,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.PrimaryKey = primaryKey
+	dt.PrimaryKey = primaryKey
 
-	return pc, nil
+	return dt, nil
 }

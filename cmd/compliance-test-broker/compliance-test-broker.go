@@ -34,11 +34,11 @@ func main() {
 		password,
 	)
 
+	noopCodec := noop.NewCodec()
 	server, err := api.NewServer(
 		8080,
-		memoryStorage.NewStore(),
+		memoryStorage.NewStore(fakeCatalog, noopCodec),
 		fakeAsync.NewEngine(),
-		noop.NewCodec(),
 		authenticator,
 		fakeCatalog,
 		" ",

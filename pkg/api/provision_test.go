@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	"github.com/stretchr/testify/assert"
@@ -129,18 +128,14 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	existingInstance := &service.Instance{
+	existingInstance := service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-	}
-	err = existingInstance.SetProvisioningParameters(
-		&fake.ProvisioningParameters{
+		ProvisioningParameters: &fake.ProvisioningParameters{
 			SomeParameter: "foo",
 		},
-		noop.NewCodec(),
-	)
-	assert.Nil(t, err)
+	}
 	err = s.store.WriteInstance(existingInstance)
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -169,7 +164,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	err = s.store.WriteInstance(&service.Instance{
+	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
@@ -199,7 +194,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	err = s.store.WriteInstance(&service.Instance{
+	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
@@ -326,79 +321,34 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 	assert.Equal(t, responseProvisioningAccepted, rr.Body.Bytes())
 }
 
-func TestGetStandardProvisioningContext(t *testing.T) {
+func TestGetLocation(t *testing.T) {
 	const defaultLocation = "default-location"
 	const location = "test-location"
-	const defaultResourceGroup = "default-rg"
-	const resourceGroup = "test-rg"
 	testCases := []struct {
-		name                 string
-		defaultLocation      string
-		location             string
-		defaultResourceGroup string
-		resourceGroup        string
-		assertion            func(*testing.T, service.StandardProvisioningContext)
+		name            string
+		defaultLocation string
+		location        string
+		assertion       func(*testing.T, string)
 	}{
 		{
 			name:     "location specified with no default location",
 			location: location,
-			assertion: func(t *testing.T, spc service.StandardProvisioningContext) {
-				assert.Equal(t, location, spc.Location)
+			assertion: func(t *testing.T, loc string) {
+				assert.Equal(t, location, loc)
 			},
 		},
 		{
 			name:            "location specified with default location",
 			location:        location,
 			defaultLocation: defaultLocation,
-			assertion: func(t *testing.T, spc service.StandardProvisioningContext) {
-				assert.Equal(t, location, spc.Location)
+			assertion: func(t *testing.T, loc string) {
+				assert.Equal(t, location, loc)
 			},
 		},
 		{
 			name: "location not specified with no default location",
-			assertion: func(t *testing.T, spc service.StandardProvisioningContext) {
-				assert.Equal(t, "", spc.Location)
-			},
-		},
-		{
-			name:            "location not specified with default location",
-			defaultLocation: defaultLocation,
-			assertion: func(t *testing.T, spc service.StandardProvisioningContext) {
-				assert.Equal(t, defaultLocation, spc.Location)
-			},
-		},
-		{
-			name:          "resource group specified with no default resource group",
-			resourceGroup: resourceGroup,
-			assertion: func(t *testing.T, spc service.StandardProvisioningContext) {
-				assert.Equal(t, resourceGroup, spc.ResourceGroup)
-			},
-		},
-		{
-			name:                 "resource group specified with default resource group", // nolint: lll
-			resourceGroup:        resourceGroup,
-			defaultResourceGroup: defaultResourceGroup,
-			assertion: func(t *testing.T, spc service.StandardProvisioningContext) {
-				assert.Equal(t, resourceGroup, spc.ResourceGroup)
-			},
-		},
-		{
-			name: "resource group not specified with no default resource group",
-			assertion: func(t *testing.T, spc service.StandardProvisioningContext) {
-				assert.Regexp(
-					t,
-					regexp.MustCompile(
-						`^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$`,
-					),
-					spc.ResourceGroup,
-				)
-			},
-		},
-		{
-			name:                 "resource group not specified with default resource group", // nolint: lll
-			defaultResourceGroup: defaultResourceGroup,
-			assertion: func(t *testing.T, spc service.StandardProvisioningContext) {
-				assert.Equal(t, defaultResourceGroup, spc.ResourceGroup)
+			assertion: func(t *testing.T, loc string) {
+				assert.Equal(t, "", loc)
 			},
 		},
 	}
@@ -406,15 +356,67 @@ func TestGetStandardProvisioningContext(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			s, _, err := getTestServer(
 				testCase.defaultLocation,
+				"default-rg",
+			)
+			assert.Nil(t, err)
+			spc := s.getLocation(testCase.location)
+			testCase.assertion(t, spc)
+		})
+	}
+}
+
+func TestGetResourceGroup(t *testing.T) {
+	const defaultResourceGroup = "default-rg"
+	const resourceGroup = "test-rg"
+	testCases := []struct {
+		name                 string
+		defaultResourceGroup string
+		resourceGroup        string
+		assertion            func(*testing.T, string)
+	}{
+		{
+			name:          "resource group specified with no default resource group",
+			resourceGroup: resourceGroup,
+			assertion: func(t *testing.T, rg string) {
+				assert.Equal(t, resourceGroup, rg)
+			},
+		},
+		{
+			name:                 "resource group specified with default resource group", // nolint: lll
+			resourceGroup:        resourceGroup,
+			defaultResourceGroup: defaultResourceGroup,
+			assertion: func(t *testing.T, rg string) {
+				assert.Equal(t, resourceGroup, rg)
+			},
+		},
+		{
+			name: "resource group not specified with no default resource group",
+			assertion: func(t *testing.T, rg string) {
+				assert.Regexp(
+					t,
+					regexp.MustCompile(
+						`^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$`,
+					),
+					rg,
+				)
+			},
+		},
+		{
+			name:                 "resource group not specified with default resource group", // nolint: lll
+			defaultResourceGroup: defaultResourceGroup,
+			assertion: func(t *testing.T, rg string) {
+				assert.Equal(t, defaultResourceGroup, rg)
+			},
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			s, _, err := getTestServer(
+				"default-location",
 				testCase.defaultResourceGroup,
 			)
 			assert.Nil(t, err)
-			spc := s.getStandardProvisioningContext(
-				service.StandardProvisioningParameters{
-					Location:      testCase.location,
-					ResourceGroup: testCase.resourceGroup,
-				},
-			)
+			spc := s.getResourceGroup(testCase.resourceGroup)
 			testCase.assertion(t, spc)
 		})
 	}

@@ -27,48 +27,42 @@ func (s *serviceManager) GetProvisioner(
 
 func (s *serviceManager) preProvision(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	_ service.Plan,
-	_ service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*serviceBusProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*serviceBusInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *serviceBusProvisioningContext",
+			"error casting instance.Details as *serviceBusInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServiceBusNamespaceName = "sb-" + uuid.NewV4().String()
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServiceBusNamespaceName = "sb-" + uuid.NewV4().String()
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
-	_ string, // instanceID
+	instance service.Instance,
 	plan service.Plan,
-	standardProvisioningContext service.StandardProvisioningContext,
-	provisioningContext service.ProvisioningContext,
-	_ service.ProvisioningParameters,
-) (service.ProvisioningContext, error) {
-	pc, ok := provisioningContext.(*serviceBusProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*serviceBusInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningContext as *serviceBusProvisioningContext",
+			"error casting instance.Details as *serviceBusInstanceDetails",
 		)
 	}
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		standardProvisioningContext.ResourceGroup,
-		standardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
-			"serviceBusNamespaceName": pc.ServiceBusNamespaceName,
+			"serviceBusNamespaceName": dt.ServiceBusNamespaceName,
 			"serviceBusSku":           plan.GetProperties().Extended["serviceBusSku"],
 		},
-		standardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -81,7 +75,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.ConnectionString = connectionString
+	dt.ConnectionString = connectionString
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
@@ -90,7 +84,7 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.PrimaryKey = primaryKey
+	dt.PrimaryKey = primaryKey
 
-	return pc, nil
+	return dt, nil
 }
