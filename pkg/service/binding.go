@@ -16,10 +16,8 @@ type Binding struct {
 	BindingParameters          BindingParameters `json:"-"`
 	Status                     string            `json:"status"`
 	StatusReason               string            `json:"statusReason"`
-	EncryptedBindingContext    []byte            `json:"bindingContext"`
-	BindingContext             BindingContext    `json:"-"`
-	EncryptedCredentials       []byte            `json:"credentials"`
-	Credentials                Credentials       `json:"-"`
+	EncryptedDetails           []byte            `json:"details"`
+	Details                    BindingDetails    `json:"-"`
 	Created                    time.Time         `json:"created"`
 }
 
@@ -28,14 +26,12 @@ type Binding struct {
 func NewBindingFromJSON(
 	jsonBytes []byte,
 	bp BindingParameters,
-	bc BindingContext,
-	cr Credentials,
+	bd BindingDetails,
 	codec crypto.Codec,
 ) (Binding, error) {
 	binding := Binding{
 		BindingParameters: bp,
-		BindingContext:    bc,
-		Credentials:       cr,
+		Details:           bd,
 	}
 	if err := json.Unmarshal(jsonBytes, &binding); err != nil {
 		return binding, err
@@ -57,10 +53,7 @@ func (b Binding) encrypt(codec crypto.Codec) (Binding, error) {
 	if b, err = b.encryptBindingParameters(codec); err != nil {
 		return b, err
 	}
-	if b, err = b.encryptBindingContext(codec); err != nil {
-		return b, err
-	}
-	return b.encryptCredentials(codec)
+	return b.encryptDetails(codec)
 }
 
 func (b Binding) encryptBindingParameters(codec crypto.Codec) (Binding, error) {
@@ -72,21 +65,12 @@ func (b Binding) encryptBindingParameters(codec crypto.Codec) (Binding, error) {
 	return b, err
 }
 
-func (b Binding) encryptBindingContext(codec crypto.Codec) (Binding, error) {
-	jsonBytes, err := json.Marshal(b.BindingContext)
+func (b Binding) encryptDetails(codec crypto.Codec) (Binding, error) {
+	jsonBytes, err := json.Marshal(b.Details)
 	if err != nil {
 		return b, err
 	}
-	b.EncryptedBindingContext, err = codec.Encrypt(jsonBytes)
-	return b, err
-}
-
-func (b Binding) encryptCredentials(codec crypto.Codec) (Binding, error) {
-	jsonBytes, err := json.Marshal(b.Credentials)
-	if err != nil {
-		return b, err
-	}
-	b.EncryptedCredentials, err = codec.Encrypt(jsonBytes)
+	b.EncryptedDetails, err = codec.Encrypt(jsonBytes)
 	return b, err
 }
 
@@ -95,10 +79,7 @@ func (b Binding) decrypt(codec crypto.Codec) (Binding, error) {
 	if b, err = b.decryptBindingParameters(codec); err != nil {
 		return b, err
 	}
-	if b, err = b.decryptBindingContext(codec); err != nil {
-		return b, err
-	}
-	return b.decryptCredentials(codec)
+	return b.decryptDetails(codec)
 }
 
 func (b Binding) decryptBindingParameters(codec crypto.Codec) (Binding, error) {
@@ -113,26 +94,14 @@ func (b Binding) decryptBindingParameters(codec crypto.Codec) (Binding, error) {
 	return b, json.Unmarshal(plaintext, b.BindingParameters)
 }
 
-func (b Binding) decryptBindingContext(codec crypto.Codec) (Binding, error) {
-	if len(b.EncryptedBindingContext) == 0 ||
-		b.BindingContext == nil {
+func (b Binding) decryptDetails(codec crypto.Codec) (Binding, error) {
+	if len(b.EncryptedDetails) == 0 ||
+		b.Details == nil {
 		return b, nil
 	}
-	plaintext, err := codec.Decrypt(b.EncryptedBindingContext)
+	plaintext, err := codec.Decrypt(b.EncryptedDetails)
 	if err != nil {
 		return b, err
 	}
-	return b, json.Unmarshal(plaintext, b.BindingContext)
-}
-
-func (b Binding) decryptCredentials(codec crypto.Codec) (Binding, error) {
-	if len(b.EncryptedCredentials) == 0 ||
-		b.Credentials == nil {
-		return b, nil
-	}
-	plaintext, err := codec.Decrypt(b.EncryptedCredentials)
-	if err != nil {
-		return b, err
-	}
-	return b, json.Unmarshal(plaintext, b.Credentials)
+	return b, json.Unmarshal(plaintext, b.Details)
 }

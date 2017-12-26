@@ -12,9 +12,9 @@ type ServiceManager interface { // nolint: golint
 	// GetProvisioner returns a provisioner that defines the steps a module must
 	// execute asynchronously to provision a service.
 	GetProvisioner(Plan) (Provisioner, error)
-	// GetEmptyProvisioningContext returns an empty instance of a module-specific
-	// ProvisioningContext
-	GetEmptyProvisioningContext() ProvisioningContext
+	// GetEmptyInstanceDetails returns an empty instance of a service-specific
+	// instance details
+	GetEmptyInstanceDetails() InstanceDetails
 	// GetEmptyUpdatingParameters returns an empty instance of module-specific
 	// updatingParameters
 	GetEmptyUpdatingParameters() UpdatingParameters
@@ -31,15 +31,15 @@ type ServiceManager interface { // nolint: golint
 	// returns an error if there is any problem
 	ValidateBindingParameters(BindingParameters) error
 	// Bind synchronously binds to a service
-	Bind(Instance, BindingParameters) (BindingContext, Credentials, error)
-	// GetEmptyBindingContext returns an empty instance of a module-specific
-	// bindingContext
-	GetEmptyBindingContext() BindingContext
-	// GetEmptyCredentials returns an empty instance of module-specific
-	// credentials
-	GetEmptyCredentials() Credentials
+	Bind(Instance, BindingParameters) (BindingDetails, error)
+	// GetEmptyBindingDetails returns an empty instance of service-specific
+	// bindingDetails
+	GetEmptyBindingDetails() BindingDetails
+	// GetCredentials returns service-specific credentials populated from instance
+	// and binding details
+	GetCredentials(Instance, Binding) (Credentials, error)
 	// Unbind synchronously unbinds from a service
-	Unbind(Instance, BindingContext) error
+	Unbind(Instance, BindingDetails) error
 	// GetDeprovisioner returns a deprovisioner that defines the steps a module
 	// must execute asynchronously to deprovision a service
 	GetDeprovisioner(Plan) (Deprovisioner, error)

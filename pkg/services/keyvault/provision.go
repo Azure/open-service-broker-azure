@@ -54,17 +54,16 @@ func (s *serviceManager) preProvision(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*keyvaultProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*keyvaultProvisioningContext",
+			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.KeyVaultName = "sb" + uuid.NewV4().String()[:20]
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.KeyVaultName = "sb" + uuid.NewV4().String()[:20]
+	return dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
@@ -72,12 +71,11 @@ func (s *serviceManager) deployARMTemplate(
 	instance service.Instance,
 	plan service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*keyvaultProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*keyvaultProvisioningContext",
+			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
@@ -89,18 +87,18 @@ func (s *serviceManager) deployARMTemplate(
 	}
 
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateBytes,
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
-			"keyVaultName": pc.KeyVaultName,
+			"keyVaultName": dt.KeyVaultName,
 			"vaultSku":     plan.GetProperties().Extended["vaultSku"],
 			"tenantId":     s.keyvaultManager.GetTenantID(),
 			"objectId":     pp.ObjectID,
 		},
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -113,9 +111,9 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.VaultURI = vaultURI
-	pc.ClientID = pp.ClientID
-	pc.ClientSecret = pp.ClientSecret
+	dt.VaultURI = vaultURI
+	dt.ClientID = pp.ClientID
+	dt.ClientSecret = pp.ClientSecret
 
-	return pc, nil
+	return dt, nil
 }

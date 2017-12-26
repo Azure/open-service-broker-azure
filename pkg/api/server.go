@@ -8,7 +8,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
@@ -38,7 +37,6 @@ type server struct {
 	port            int
 	store           storage.Store
 	asyncEngine     async.Engine
-	codec           crypto.Codec
 	authenticator   authenticator.Authenticator
 	router          *mux.Router
 	catalog         service.Catalog
@@ -54,7 +52,6 @@ func NewServer(
 	port int,
 	store storage.Store,
 	asyncEngine async.Engine,
-	codec crypto.Codec,
 	authenticator authenticator.Authenticator,
 	catalog service.Catalog,
 	defaultAzureLocation string,
@@ -64,7 +61,6 @@ func NewServer(
 		port:                      port,
 		store:                     store,
 		asyncEngine:               asyncEngine,
-		codec:                     codec,
 		authenticator:             authenticator,
 		catalog:                   catalog,
 		defaultAzureLocation:      defaultAzureLocation,
