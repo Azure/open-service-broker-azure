@@ -121,22 +121,6 @@ First let's identify your Azure subscription and save it for use later on in the
     **PowerShell**
     ```
     > $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
-<<<<<<< HEAD
-    ```
-
-## Create a resource group
-We are using a resource group to isolate all the resources created in this quickstart
-for easy cleanup later.
-
-1. List the available Azure regions and select a region, for example `centralus`:
-    ```
-    $ az account list-locations -o table
-    ```
-1. Create a resource group for the quickstart:
-    ```
-    $ az group create --name osba-quickstart --location <RegionName>
-=======
->>>>>>> master
     ```
 
 ## Create a service principal

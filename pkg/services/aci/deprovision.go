@@ -20,7 +20,7 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance,
+	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
@@ -41,7 +41,7 @@ func (s *serviceManager) deleteACIServer(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance,
+	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {

@@ -200,9 +200,6 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 				stepName,
 			)
 		}
-		// Assign results to temp variable in case they're nil. We don't want
-		// pc to ever be nil, or we risk a nil pointer dereference in the
-		// cleanup logic.
 		instance.Details, err = step.Execute(
 			ctx,
 			instance,
