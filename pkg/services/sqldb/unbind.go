@@ -10,35 +10,35 @@ import (
 //Appropriate error?
 func (s *vmServiceManager) Unbind(
 	instance service.Instance,
-	bindingContext service.BindingContext,
+	bindingDetails service.BindingDetails,
 ) error {
 	return nil
 }
 
 func (a *allServiceManager) Unbind(
 	instance service.Instance,
-	bindingContext service.BindingContext,
+	bindingDetails service.BindingDetails,
 ) error {
-	pc, ok := instance.ProvisioningContext.(*mssqlAllInOneProvisioningContext)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
 			`error casting instance.ProvisioningContext 
 			as *mssqlAllInOneProvisioningContext`,
 		)
 	}
-	bc, ok := bindingContext.(*mssqlBindingContext)
+	bc, ok := bindingDetails.(*mssqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingContext as *mssqlBindingContext",
+			"error casting bindingDetails as *mssqlBindingDetails",
 		)
 	}
 
 	// connect to new database to drop user for the login
 	db, err := getDBConnection(
-		pc.AdministratorLogin,
-		pc.AdministratorLoginPassword,
-		pc.FullyQualifiedDomainName,
-		pc.DatabaseName,
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
 	)
 	if err != nil {
 		return err
@@ -57,9 +57,9 @@ func (a *allServiceManager) Unbind(
 
 	// connect to master database to drop login
 	masterDb, err := getDBConnection(
-		pc.AdministratorLogin,
-		pc.AdministratorLoginPassword,
-		pc.FullyQualifiedDomainName,
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
 		"master",
 	)
 	if err != nil {
@@ -82,8 +82,8 @@ func (a *allServiceManager) Unbind(
 
 //TODO implement db only scenario
 func (d *dbServiceManager) Unbind(
-	instance service.Instance,
-	bindingContext service.BindingContext,
+	_ service.Instance,
+	_ service.BindingDetails,
 ) error {
 	return nil
 }

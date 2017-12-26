@@ -21,20 +21,20 @@ func (s *serviceManager) deleteARMDeployment(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*redisProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *redisProvisioningContext",
+			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteRedisServer(
@@ -42,18 +42,18 @@ func (s *serviceManager) deleteRedisServer(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*redisProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *redisProvisioningContext",
+			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
 	if err := s.redisManager.DeleteServer(
-		pc.ServerName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ServerName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting redis server: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

@@ -24,7 +24,7 @@ func (d *dbServiceManager) ValidateBindingParameters(
 	return nil
 }
 
-func (s *vmServiceManager) ValidateBindingParameters(
+func (v *vmServiceManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to MSSQL, so there is nothing
@@ -35,11 +35,11 @@ func (s *vmServiceManager) ValidateBindingParameters(
 func (a *allServiceManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlAllInOneProvisioningContext)
+) (service.BindingDetails, error) {
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as *mssqlProvisioningContext",
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 
@@ -48,19 +48,19 @@ func (a *allServiceManager) Bind(
 
 	// connect to master database to create login
 	masterDb, err := getDBConnection(
-		pc.AdministratorLogin,
-		pc.AdministratorLoginPassword,
-		pc.FullyQualifiedDomainName,
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
 		"master")
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer masterDb.Close() // nolint: errcheck
 
 	if _, err = masterDb.Exec(
 		fmt.Sprintf("CREATE LOGIN \"%s\" WITH PASSWORD='%s'", loginName, password),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error creating login "%s": %s`,
 			loginName,
 			err,
@@ -69,19 +69,19 @@ func (a *allServiceManager) Bind(
 
 	// connect to new database to create user for the login
 	db, err := getDBConnection(
-		pc.AdministratorLogin,
-		pc.AdministratorLoginPassword,
-		pc.FullyQualifiedDomainName,
-		pc.DatabaseName,
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	tx, err := db.Begin()
 	if err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error starting transaction on the new database: %s",
 			err,
 		)
@@ -104,7 +104,7 @@ func (a *allServiceManager) Bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("CREATE USER \"%s\" FOR LOGIN \"%s\"", loginName, loginName),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error creating user "%s": %s`,
 			loginName,
 			err,
@@ -113,45 +113,77 @@ func (a *allServiceManager) Bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("GRANT CONTROL to \"%s\"", loginName),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error granting CONTROL to user "%s": %s`,
 			loginName,
 			err,
 		)
 	}
 	if err = tx.Commit(); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error committing transaction on the new database: %s",
 			err,
 		)
 	}
 
-	return &mssqlBindingContext{
-			LoginName: loginName,
-		},
-		&Credentials{
-			Host:     pc.FullyQualifiedDomainName,
-			Port:     1433,
-			Database: pc.DatabaseName,
-			Username: loginName,
-			Password: password,
-		},
-		nil
+	return &mssqlBindingDetails{
+		LoginName: loginName,
+		Password:  password,
+	}, nil
+}
+
+func (a *allServiceManager) GetCredentials(
+	instance service.Instance,
+	binding service.Binding,
+) (service.Credentials, error) {
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+		)
+	}
+	bd, ok := binding.Details.(*mssqlBindingDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting binding.Details as *mssqlBindingDetails",
+		)
+	}
+	return &Credentials{
+		Host:     dt.FullyQualifiedDomainName,
+		Port:     1433,
+		Database: dt.DatabaseName,
+		Username: bd.LoginName,
+		Password: bd.Password,
+	}, nil
+}
+
+func (d *dbServiceManager) GetCredentials(
+	instance service.Instance,
+	binding service.Binding,
+) (service.Credentials, error) {
+	return nil, nil
+}
+
+func (v *vmServiceManager) GetCredentials(
+	instance service.Instance,
+	binding service.Binding,
+) (service.Credentials, error) {
+	return nil, nil
 }
 
 //TODO: Implement db only service
 func (d *dbServiceManager) Bind(
-	instance service.Instance,
+	_ service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	return nil, nil, nil
+) (service.BindingDetails, error) {
+	return nil, nil
 }
 
 //TODO: What behavior do we want for bind on a non-bindable service.
 //Appropriate error?
-func (s *vmServiceManager) Bind(
-	instance service.Instance,
+func (v *vmServiceManager) Bind(
+	_ service.Instance,
 	_ service.BindingParameters,
-) (service.BindingContext, service.Credentials, error) {
-	return nil, nil, nil
+) (service.BindingDetails, error) {
+	return nil, nil
 }

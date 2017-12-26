@@ -17,15 +17,15 @@ import (
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
 type serviceLifecycleTestCase struct {
-	module                      service.Module
-	description                 string
-	setup                       func() error
-	serviceID                   string
-	planID                      string
-	standardProvisioningContext service.StandardProvisioningContext
-	provisioningParameters      service.ProvisioningParameters
-	bindingParameters           service.BindingParameters
-	testCredentials             func(credentials service.Credentials) error
+	module                 service.Module
+	description            string
+	setup                  func() error
+	serviceID              string
+	planID                 string
+	location               string
+	provisioningParameters service.ProvisioningParameters
+	bindingParameters      service.BindingParameters
+	testCredentials        func(credentials service.Credentials) error
 }
 
 func (s serviceLifecycleTestCase) getName() string {
@@ -89,10 +89,6 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		return err
 	}
 
-	// Force the resource group to be something known to this test executor
-	// to ensure good cleanup
-	s.standardProvisioningContext.ResourceGroup = resourceGroup
-
 	// Setup...
 	if s.setup != nil {
 		if err := s.setup(); err != nil {
@@ -104,9 +100,12 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	instance := service.Instance{
 		ServiceID: s.serviceID,
 		PlanID:    s.planID,
-		StandardProvisioningContext: s.standardProvisioningContext,
-		ProvisioningContext:         serviceManager.GetEmptyProvisioningContext(),
-		ProvisioningParameters:      s.provisioningParameters,
+		Location:  s.location,
+		// Force the resource group to be something known to this test executor
+		// to ensure good cleanup
+		ResourceGroup:          resourceGroup,
+		Details:                serviceManager.GetEmptyInstanceDetails(),
+		ProvisioningParameters: s.provisioningParameters,
 	}
 
 	// Provision...
@@ -133,7 +132,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 				stepName,
 			)
 		}
-		instance.ProvisioningContext, err = step.Execute(
+		instance.Details, err = step.Execute(
 			ctx,
 			instance,
 			plan,
@@ -154,27 +153,33 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 
 	if svc.GetBindable() {
 		// Bind (need to skip if not bindable)
-		bc, credentials, bindErr := serviceManager.Bind(instance, s.bindingParameters)
+		bd, err := serviceManager.Bind(instance, s.bindingParameters)
 		if err != nil {
-			log.Printf("Error in bind step: %v", bindErr)
-			return bindErr
+			return err
+		}
+
+		binding := service.Binding{Details: bd}
+		credentials, err := serviceManager.GetCredentials(instance, binding)
+		if err != nil {
+			return err
 		}
 
 		// Test the credentials
 		if s.testCredentials != nil {
-			bindErr = s.testCredentials(credentials)
+			err = s.testCredentials(credentials)
 			if err != nil {
-				log.Printf("Error in test step: %v", bindErr)
+				log.Printf("Error in bind step: %v", bindErr)
 				return bindErr
 			}
 		}
 
-		// Unbind (need to skip if not bindable)
-		bindErr = serviceManager.Unbind(instance, bc)
-		if bindErr != nil {
-			log.Printf("Error in unbind step: %v", bindErr)
-			return bindErr
+		// Unbind
+		err = serviceManager.Unbind(instance, bd)
+		if err != nil {
+			return err
+
 		}
+
 	}
 	// Deprovision...
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
@@ -200,10 +205,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 				stepName,
 			)
 		}
-		// Assign results to temp variable in case they're nil. We don't want
-		// pc to ever be nil, or we risk a nil pointer dereference in the
-		// cleanup logic.
-		instance.ProvisioningContext, err = step.Execute(
+		instance.Details, err = step.Execute(
 			ctx,
 			instance,
 			plan,

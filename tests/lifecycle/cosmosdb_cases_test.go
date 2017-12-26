@@ -28,25 +28,21 @@ func getCosmosdbCases(
 
 	return []serviceLifecycleTestCase{
 		{ // DocumentDB
-			module:      cosmosdb.New(armDeployer, cosmosdbManager),
-			description: "DocumentDB",
-			serviceID:   "6330de6f-a561-43ea-a15e-b99f44d183e6",
-			planID:      "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
-			standardProvisioningContext: service.StandardProvisioningContext{
-				Location: "eastus",
-			},
+			module:                 cosmosdb.New(armDeployer, cosmosdbManager),
+			description:            "DocumentDB",
+			serviceID:              "6330de6f-a561-43ea-a15e-b99f44d183e6",
+			planID:                 "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
+			location:               "eastus",
 			provisioningParameters: &cosmosdb.ProvisioningParameters{},
 			bindingParameters:      &cosmosdb.BindingParameters{},
 			testCredentials:        testDocumentDBCreds(),
 		},
 		{ // MongoDB
-			module:      cosmosdb.New(armDeployer, cosmosdbManager),
-			description: "MongoDB",
-			serviceID:   "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
-			planID:      "86fdda05-78d7-4026-a443-1325928e7b02",
-			standardProvisioningContext: service.StandardProvisioningContext{
-				Location: "eastus",
-			},
+			module:                 cosmosdb.New(armDeployer, cosmosdbManager),
+			description:            "MongoDB",
+			serviceID:              "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
+			planID:                 "86fdda05-78d7-4026-a443-1325928e7b02",
+			location:               "eastus",
 			provisioningParameters: &cosmosdb.ProvisioningParameters{},
 			bindingParameters:      &cosmosdb.BindingParameters{},
 			testCredentials:        testMongoDBCreds(),

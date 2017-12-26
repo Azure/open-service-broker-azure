@@ -6,7 +6,7 @@ import (
 
 func (s *serviceManager) Unbind(
 	_ service.Instance,
-	_ service.BindingContext,
+	_ service.BindingDetails,
 ) error {
 	return nil
 }

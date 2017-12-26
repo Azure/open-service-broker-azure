@@ -16,7 +16,7 @@ type DatabaseProvisioningParameters struct {
 	ServerName string `json:"server"`
 }
 
-type mssqlServerOnlyProvisioningContext struct {
+type mssqlServerOnlyInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLogin         string `json:"administratorLogin"`
@@ -24,12 +24,12 @@ type mssqlServerOnlyProvisioningContext struct {
 	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
 }
 
-type mssqlDBOnlyProvisioningContext struct {
+type mssqlDBOnlyInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	DatabaseName      string `json:"database"`
 }
 
-type mssqlAllInOneProvisioningContext struct {
+type mssqlAllInOneInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLogin         string `json:"administratorLogin"`
@@ -46,8 +46,9 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type mssqlBindingContext struct {
+type mssqlBindingDetails struct {
 	LoginName string `json:"loginName"`
+	Password  string `json:"password"`
 }
 
 // Credentials encapsulates MSSQL-specific coonection details and credentials.
@@ -98,24 +99,24 @@ func (d *dbServiceManager) GetEmptyUpdatingParameters() service.UpdatingParamete
 	return &UpdatingParameters{}
 }
 
-func (a *allServiceManager) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mssqlAllInOneProvisioningContext{}
+func (a *allServiceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlAllInOneInstanceDetails{}
 }
 
-func (d *dbServiceManager) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mssqlDBOnlyProvisioningContext{}
+func (d *dbServiceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlDBOnlyInstanceDetails{}
 }
 
-func (s *vmServiceManager) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &mssqlServerOnlyProvisioningContext{}
+func (s *vmServiceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlServerOnlyInstanceDetails{}
 }
 
 func (a *allServiceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (a *allServiceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mssqlBindingContext{}
+func (a *allServiceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
 }
 
 func (a *allServiceManager) GetEmptyCredentials() service.Credentials {
@@ -126,22 +127,18 @@ func (s *vmServiceManager) GetEmptyBindingParameters() service.BindingParameters
 	return &BindingParameters{}
 }
 
-func (s *vmServiceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mssqlBindingContext{}
-}
-
-func (s *vmServiceManager) GetEmptyCredentials() service.Credentials {
-	return &Credentials{}
+func (s *vmServiceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
 }
 
 func (d *dbServiceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (d *dbServiceManager) GetEmptyBindingContext() service.BindingContext {
-	return &mssqlBindingContext{}
+func (d *dbServiceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
 }
 
-func (d *dbSe) GetEmptyCredentials() service.Credentials {
+func (d *dbServiceManager) GetEmptyCredentials() service.Credentials {
 	return &Credentials{}
 }

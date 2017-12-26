@@ -12,7 +12,7 @@ type DeprovisioningStepFunction func(
 	instance Instance,
 	plan Plan,
 	refInstance Instance,
-) (ProvisioningContext, error)
+) (InstanceDetails, error)
 
 // DeprovisioningStep is an interface to be implemented by types that represent
 // a single step in a chain of steps that defines a deprovisioning process
@@ -23,7 +23,7 @@ type DeprovisioningStep interface {
 		instance Instance,
 		plan Plan,
 		refInstance Instance,
-	) (ProvisioningContext, error)
+	) (InstanceDetails, error)
 }
 
 type deprovisioningStep struct {
@@ -67,7 +67,7 @@ func (d *deprovisioningStep) Execute(
 	instance Instance,
 	plan Plan,
 	refInstance Instance,
-) (ProvisioningContext, error) {
+) (InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return d.fn(

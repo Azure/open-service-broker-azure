@@ -6,7 +6,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // Azure Search-specific provisioning options
 type ProvisioningParameters struct{}
 
-type searchProvisioningContext struct {
+type searchInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	ServiceName       string `json:"serviceName"`
 	APIKey            string `json:"apiKey"`
@@ -20,7 +20,7 @@ type UpdatingParameters struct {
 type BindingParameters struct {
 }
 
-type searchBindingContext struct {
+type searchBindingDetails struct {
 }
 
 type searchCredentials struct {
@@ -42,18 +42,14 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyProvisioningContext() service.ProvisioningContext {
-	return &searchProvisioningContext{}
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &searchInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingContext() service.BindingContext {
-	return &searchBindingContext{}
-}
-
-func (s *serviceManager) GetEmptyCredentials() service.Credentials {
-	return &searchCredentials{}
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &searchBindingDetails{}
 }

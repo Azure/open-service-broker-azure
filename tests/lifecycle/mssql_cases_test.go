@@ -29,9 +29,7 @@ func getMssqlCases(
 			description: "new server only",
 			serviceID:   "2787cd60-8184-4b80-aa45-f507fa5a6ff4",
 			planID:      "0f4baa94-92cb-4222-9d7e-600c394ec50d",
-			standardProvisioningContext: service.StandardProvisioningContext{
-				Location: "southcentralus",
-			},
+			location:    "southcentralus",
 			provisioningParameters: &sqldb.ServerProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
@@ -42,9 +40,7 @@ func getMssqlCases(
 			description: "new server and database",
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
-			standardProvisioningContext: service.StandardProvisioningContext{
-				Location: "southcentralus",
-			},
+			location:    "southcentralus",
 			provisioningParameters: &sqldb.ServerProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",

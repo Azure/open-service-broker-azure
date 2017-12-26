@@ -111,20 +111,6 @@ func (s *vmServiceManager) ValidateProvisioningParameters(
 			)
 		}
 	}
-	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
-		if pp.FirewallIPStart == "" {
-			return service.NewValidationError(
-				"firewallStartIPAddress",
-				"must be set when firewallEndIPAddress is set",
-			)
-		}
-		if pp.FirewallIPEnd == "" {
-			return service.NewValidationError(
-				"firewallEndIPAddress",
-				"must be set when firewallStartIPAddress is set",
-			)
-		}
-	}
 	startIP := net.ParseIP(pp.FirewallIPStart)
 	if pp.FirewallIPStart != "" && startIP == nil {
 		return service.NewValidationError(
@@ -187,20 +173,19 @@ func (s *vmServiceManager) preProvision(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlServerOnlyProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlServerOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*mssql.mssqlServerOnlyProvisioningContext",
+			"error casting instance.Details as *mssqlServerOnlyInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServerName = uuid.NewV4().String()
-	pc.AdministratorLogin = generate.NewIdentifier()
-	pc.AdministratorLoginPassword = generate.NewPassword()
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLogin = generate.NewIdentifier()
+	dt.AdministratorLoginPassword = generate.NewPassword()
 
-	return pc, nil
+	return dt, nil
 }
 
 func (a *allServiceManager) preProvision(
@@ -208,21 +193,19 @@ func (a *allServiceManager) preProvision(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlAllInOneProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*mssql.mssqlAllInOneProvisioningContext",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
-	pc.ARMDeploymentName = uuid.NewV4().String()
-	pc.ServerName = uuid.NewV4().String()
-	pc.AdministratorLogin = generate.NewIdentifier()
-	pc.AdministratorLoginPassword = generate.NewPassword()
-	pc.DatabaseName = generate.NewIdentifier()
-
-	return pc, nil
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLogin = generate.NewIdentifier()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+	dt.DatabaseName = generate.NewIdentifier()
+	return dt, nil
 }
 
 //TODO implement DB Only preProvision
@@ -231,8 +214,8 @@ func (d *dbServiceManager) preProvision(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	return instance.ProvisioningContext, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 
 func (a *allServiceManager) deployARMTemplate(
@@ -240,12 +223,11 @@ func (a *allServiceManager) deployARMTemplate(
 	instance service.Instance,
 	plan service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlAllInOneProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*mssql.mssqlAllInOneProvisioningContext",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
@@ -256,9 +238,9 @@ func (a *allServiceManager) deployARMTemplate(
 		)
 	}
 	armTemplateParams := map[string]interface{}{ // ARM template params
-		"serverName":                 pc.ServerName,
-		"administratorLogin":         pc.AdministratorLogin,
-		"administratorLoginPassword": pc.AdministratorLoginPassword,
+		"serverName":                 dt.ServerName,
+		"administratorLogin":         dt.AdministratorLogin,
+		"administratorLoginPassword": dt.AdministratorLoginPassword,
 	}
 	//Only include these if they are not empty.
 	//ARM Deployer will fail if the values included are not
@@ -271,20 +253,20 @@ func (a *allServiceManager) deployARMTemplate(
 	}
 	//These are the database related properties that are needed
 	//for this deployment
-	armTemplateParams["databaseName"] = pc.DatabaseName
+	armTemplateParams["databaseName"] = dt.DatabaseName
 	armTemplateParams["edition"] = plan.GetProperties().Extended["edition"]
 	armTemplateParams["requestedServiceObjectiveName"] = plan.GetProperties().
 		Extended["requestedServiceObjectiveName"]
 	armTemplateParams["maxSizeBytes"] = plan.GetProperties().
 		Extended["maxSizeBytes"]
 	outputs, err := a.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
 		armTemplateNewServerBytes,
 		nil, // Go template params
 		armTemplateParams,
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -296,35 +278,34 @@ func (a *allServiceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.FullyQualifiedDomainName = fullyQualifiedDomainName
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return pc, nil
+	return dt, nil
 }
 
 func (s *vmServiceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
-	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlServerOnlyProvisioningContext)
+	plan service.Plan,
+	_ service.Instance, //reference instance
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlServerOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningContext as " +
-				"*mssql.mssqlServerOnlyProvisioningContext",
+			"error casting instance.Details as *mssqlServerOnlyInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*mssql.ServerProvisioningParameters",
+			"error casting provisioningParameters as " +
+				"*mssql.ProvisioningParameters",
 		)
 	}
 	armTemplateParams := map[string]interface{}{ // ARM template params
-		"serverName":                 pc.ServerName,
-		"administratorLogin":         pc.AdministratorLogin,
-		"administratorLoginPassword": pc.AdministratorLoginPassword,
+		"serverName":                 dt.ServerName,
+		"administratorLogin":         dt.AdministratorLogin,
+		"administratorLoginPassword": dt.AdministratorLoginPassword,
 	}
 	if pp.FirewallIPStart != "" {
 		armTemplateParams["firewallStartIpAddress"] = pp.FirewallIPStart
@@ -332,14 +313,15 @@ func (s *vmServiceManager) deployARMTemplate(
 	if pp.FirewallIPEnd != "" {
 		armTemplateParams["firewallEndIpAddress"] = pp.FirewallIPEnd
 	}
+	// new server scenario
 	outputs, err := s.armDeployer.Deploy(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
-		instance.StandardProvisioningContext.Location,
-		armTemplateServerOnlyBytes,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
+		armTemplateNewServerBytes,
 		nil, // Go template params
 		armTemplateParams,
-		instance.StandardProvisioningContext.Tags,
+		instance.Tags,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -351,9 +333,8 @@ func (s *vmServiceManager) deployARMTemplate(
 			err,
 		)
 	}
-	pc.FullyQualifiedDomainName = fullyQualifiedDomainName
-
-	return pc, nil
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
+	return dt, nil
 }
 
 //TODO implement DB only scenario
@@ -362,6 +343,6 @@ func (d *dbServiceManager) deployARMTemplate(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	return instance.ProvisioningContext, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }

@@ -77,8 +77,8 @@ func (b *broker) doDeprovisionStep(
 	// instance, but some of the fields of an instance are pointers and a copy of
 	// a pointer still points back to the original thing-- meaning modules could
 	// modify parts of the instance in unexpected ways. What we'll do is take the
-	// one part of the instance that we inted for modules to modify (provisioning
-	// context) and add that to this untouched copy and write the untouched copy
+	// one part of the instance that we intend for modules to modify (instance
+	// details) and add that to this untouched copy and write the untouched copy
 	// back to storage.
 	instanceCopy, _, err := b.store.GetInstance(instanceID)
 	if err != nil {
@@ -111,7 +111,7 @@ func (b *broker) doDeprovisionStep(
 			`deprovisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedProvisioningContext, err := step.Execute(
+	updatedDetails, err := step.Execute(
 		ctx,
 		instance,
 		plan,
@@ -127,7 +127,7 @@ func (b *broker) doDeprovisionStep(
 			"error executing deprovisioning step",
 		)
 	}
-	instanceCopy.ProvisioningContext = updatedProvisioningContext
+	instanceCopy.Details = updatedDetails
 	if nextStepName, ok := deprovisioner.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instanceCopy); err != nil {
 			return b.handleDeprovisioningError(

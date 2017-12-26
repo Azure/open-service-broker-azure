@@ -79,7 +79,7 @@ func TestGetExistingInstance(t *testing.T) {
 	// Blank out a few fields before we compare
 	retrievedInstance.EncryptedProvisioningParameters = nil
 	retrievedInstance.EncryptedUpdatingParameters = nil
-	retrievedInstance.EncryptedProvisioningContext = nil
+	retrievedInstance.EncryptedDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -150,8 +150,7 @@ func TestGetExistingBinding(t *testing.T) {
 	assert.Nil(t, err)
 	// Blank out a few fields before we compare
 	retrievedBinding.EncryptedBindingParameters = nil
-	retrievedBinding.EncryptedBindingContext = nil
-	retrievedBinding.EncryptedCredentials = nil
+	retrievedBinding.EncryptedDetails = nil
 	assert.Equal(t, binding, retrievedBinding)
 }
 
@@ -185,24 +184,17 @@ func TestDeleteExistingBinding(t *testing.T) {
 
 func getTestInstance() service.Instance {
 	return service.Instance{
-		InstanceID: uuid.NewV4().String(),
-		ServiceID:  fake.ServiceID,
-		PlanID:     fake.StandardPlanID,
-		StandardProvisioningParameters: service.StandardProvisioningParameters{
-			Location:      "eastus",
-			ResourceGroup: "test",
-			Tags:          map[string]string{"foo": "bar"},
-		},
+		InstanceID:             uuid.NewV4().String(),
+		ServiceID:              fake.ServiceID,
+		PlanID:                 fake.StandardPlanID,
 		ProvisioningParameters: fakeServiceManager.GetEmptyProvisioningParameters(),
 		UpdatingParameters:     fakeServiceManager.GetEmptyUpdatingParameters(),
 		Status:                 service.InstanceStateProvisioned,
 		StatusReason:           "",
-		StandardProvisioningContext: service.StandardProvisioningContext{
-			Location:      "eastus",
-			ResourceGroup: "test",
-			Tags:          map[string]string{"foo": "bar"},
-		},
-		ProvisioningContext: fakeServiceManager.GetEmptyProvisioningContext(),
+		Location:               "eastus",
+		ResourceGroup:          "test",
+		Tags:                   map[string]string{"foo": "bar"},
+		Details:                fakeServiceManager.GetEmptyInstanceDetails(),
 	}
 }
 
@@ -214,7 +206,6 @@ func getTestBinding() service.Binding {
 		BindingParameters: fakeServiceManager.GetEmptyBindingParameters(),
 		Status:            service.BindingStateBound,
 		StatusReason:      "",
-		BindingContext:    fakeServiceManager.GetEmptyBindingContext(),
-		Credentials:       fakeServiceManager.GetEmptyCredentials(),
+		Details:           fakeServiceManager.GetEmptyBindingDetails(),
 	}
 }

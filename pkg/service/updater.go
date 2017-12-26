@@ -11,7 +11,7 @@ type UpdatingStepFunction func(
 	ctx context.Context,
 	instance Instance,
 	plan Plan,
-) (ProvisioningContext, error)
+) (InstanceDetails, error)
 
 // UpdatingStep is an interface to be implemented by types that represent
 // a single step in a chain of steps that defines a updating process
@@ -21,7 +21,7 @@ type UpdatingStep interface {
 		ctx context.Context,
 		instance Instance,
 		plan Plan,
-	) (ProvisioningContext, error)
+	) (InstanceDetails, error)
 }
 
 type updatingStep struct {
@@ -64,7 +64,7 @@ func (u *updatingStep) Execute(
 	ctx context.Context,
 	instance Instance,
 	plan Plan,
-) (ProvisioningContext, error) {
+) (InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return u.fn(

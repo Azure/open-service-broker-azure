@@ -24,21 +24,20 @@ func (s *serviceManager) deleteARMDeployment(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*cosmosdbProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*cosmosdbProvisioningContext",
+			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
 	if err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *serviceManager) deleteCosmosDBServer(
@@ -46,19 +45,18 @@ func (s *serviceManager) deleteCosmosDBServer(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*cosmosdbProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*cosmosdbProvisioningContext",
+			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
 	if err := s.cosmosdbManager.DeleteDatabaseAccount(
-		pc.DatabaseAccountName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.DatabaseAccountName,
+		instance.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

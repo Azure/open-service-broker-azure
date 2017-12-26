@@ -48,22 +48,21 @@ func (a *allServiceManager) deleteARMDeployment(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlAllInOneProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*mssql.mssqlAllInOneProvisioningContext",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	err := a.armDeployer.Delete(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (a *allServiceManager) deleteMsSQLServerOrDatabase(
@@ -71,21 +70,20 @@ func (a *allServiceManager) deleteMsSQLServerOrDatabase(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlAllInOneProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*mssql.mssqlAllInOneProvisioningContext",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	if err := a.mssqlManager.DeleteServer(
-		pc.ServerName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ServerName,
+		instance.ResourceGroup,
 	); err != nil {
-		return pc, fmt.Errorf("error deleting mssql server: %s", err)
+		return dt, fmt.Errorf("error deleting mssql server: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 //TODO: implement db only
@@ -94,8 +92,8 @@ func (d *dbServiceManager) deleteARMDeployment(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	return instance.ProvisioningContext, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 
 //TODO: implement db only
@@ -104,30 +102,29 @@ func (d *dbServiceManager) deleteMsSQLServerOrDatabase(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	return instance.ProvisioningContext, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 func (s *vmServiceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlServerOnlyProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlServerOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*mssql.mssqlServerOnlyProvisioningContext",
+			"error casting instance.Details as *mssqlServerOnlyInstanceDetails",
 		)
 	}
 	err := s.armDeployer.Delete(
-		pc.ARMDeploymentName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }
 
 func (s *vmServiceManager) deleteMsSQLServerOrDatabase(
@@ -135,19 +132,18 @@ func (s *vmServiceManager) deleteMsSQLServerOrDatabase(
 	instance service.Instance,
 	_ service.Plan,
 	_ service.Instance, // Reference instance
-) (service.ProvisioningContext, error) {
-	pc, ok := instance.ProvisioningContext.(*mssqlServerOnlyProvisioningContext)
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlServerOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"*mssql.mssqlServerOnlyProvisioningContext",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	if err := s.mssqlManager.DeleteServer(
-		pc.ServerName,
-		instance.StandardProvisioningContext.ResourceGroup,
+		dt.ServerName,
+		instance.ResourceGroup,
 	); err != nil {
-		return pc, fmt.Errorf("error deleting mssql server: %s", err)
+		return dt, fmt.Errorf("error deleting mssql server: %s", err)
 	}
-	return pc, nil
+	return dt, nil
 }

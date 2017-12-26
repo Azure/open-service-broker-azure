@@ -12,7 +12,7 @@ type ProvisioningStepFunction func(
 	instance Instance,
 	plan Plan,
 	refInstance Instance,
-) (ProvisioningContext, error)
+) (InstanceDetails, error)
 
 // ProvisioningStep is an interface to be implemented by types that represent
 // a single step in a chain of steps that defines a provisioning process
@@ -23,7 +23,7 @@ type ProvisioningStep interface {
 		instance Instance,
 		plan Plan,
 		refInstance Instance,
-	) (ProvisioningContext, error)
+	) (InstanceDetails, error)
 }
 
 type provisioningStep struct {
@@ -67,7 +67,7 @@ func (p *provisioningStep) Execute(
 	instance Instance,
 	plan Plan,
 	refInstance Instance,
-) (ProvisioningContext, error) {
+) (InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return p.fn(
