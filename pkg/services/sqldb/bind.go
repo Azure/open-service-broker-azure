@@ -8,7 +8,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func (a *allInOneManger) ValidateBindingParameters(
+func (a *allInOneManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to MSSQL, so there is nothing
@@ -32,7 +32,7 @@ func (d *dbOnlyManager) ValidateBindingParameters(
 	return nil
 }
 
-func (a *allInOneManger) Bind(
+func (a *allInOneManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingDetails, error) {
@@ -133,7 +133,7 @@ func (a *allInOneManger) Bind(
 	}, nil
 }
 
-func (a *allInOneManger) GetCredentials(
+func (a *allInOneManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {

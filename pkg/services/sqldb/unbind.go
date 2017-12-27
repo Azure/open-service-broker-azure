@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (a *allInOneManger) Unbind(
+func (a *allInOneManager) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
 ) error {

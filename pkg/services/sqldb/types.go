@@ -74,7 +74,7 @@ type Config struct {
 }
 
 func (
-	a *allInOneManger,
+	a *allInOneManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ServerProvisioningParams{}
 }
@@ -92,7 +92,7 @@ func (
 }
 
 func (
-	a *allInOneManger,
+	a *allInOneManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }
@@ -110,7 +110,7 @@ func (
 }
 
 func (
-	a *allInOneManger,
+	a *allInOneManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &mssqlAllInOneInstanceDetails{}
 }
@@ -128,7 +128,7 @@ func (
 }
 
 func (
-	a *allInOneManger,
+	a *allInOneManager,
 ) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
@@ -146,7 +146,7 @@ func (
 }
 
 func (
-	a *allInOneManger,
+	a *allInOneManager,
 ) GetEmptyBindingDetails() service.BindingDetails {
 	return &mssqlBindingDetails{}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (a *allInOneManger) GetDeprovisioner(
+func (a *allInOneManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
@@ -39,7 +39,7 @@ func (d *dbOnlyManager) GetDeprovisioner(
 	)
 }
 
-func (a *allInOneManger) deleteARMDeployment(
+func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
@@ -93,7 +93,7 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	return instance.Details, nil
 }
 
-func (a *allInOneManger) deleteMsSQLServerOrDatabase(
+func (a *allInOneManager) deleteMsSQLServerOrDatabase(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,

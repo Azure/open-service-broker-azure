@@ -12,7 +12,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (a *allInOneManger) ValidateProvisioningParameters(
+func (a *allInOneManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*ServerProvisioningParams)
@@ -127,7 +127,7 @@ func (d *dbOnlyManager) ValidateProvisioningParameters(
 	return nil
 }
 
-func (a *allInOneManger) GetProvisioner(
+func (a *allInOneManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -154,7 +154,7 @@ func (d *dbOnlyManager) GetProvisioner(
 	)
 }
 
-func (a *allInOneManger) preProvision(
+func (a *allInOneManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
@@ -219,7 +219,7 @@ func (d *dbOnlyManager) preProvision(
 	return dt, nil
 }
 
-func (a *allInOneManger) deployARMTemplate(
+func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
