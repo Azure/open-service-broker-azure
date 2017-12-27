@@ -6,14 +6,14 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) Unbind(
+func (a *allInOneManger) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
 ) error {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	bc, ok := bindingDetails.(*mssqlBindingDetails)
@@ -24,7 +24,11 @@ func (s *serviceManager) Unbind(
 	}
 
 	// connect to new database to drop user for the login
-	db, err := getDBConnection(dt, dt.DatabaseName)
+	db, err := getDBConnection(
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName)
 	if err != nil {
 		return err
 	}
@@ -41,7 +45,11 @@ func (s *serviceManager) Unbind(
 	}
 
 	// connect to master database to drop login
-	masterDb, err := getDBConnection(dt, "master")
+	masterDb, err := getDBConnection(
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		"master")
 	if err != nil {
 		return err
 	}
@@ -57,5 +65,22 @@ func (s *serviceManager) Unbind(
 		)
 	}
 
+	return nil
+}
+
+//TODO : Unbind is not valid for VM only.
+//Determine what to do.
+func (v *vmOnlyManager) Unbind(
+	_ service.Instance,
+	_ service.BindingDetails,
+) error {
+	return nil
+}
+
+//TODO: Implement DB Only Manager
+func (d *dbOnlyManager) Unbind(
+	_ service.Instance,
+	_ service.BindingDetails,
+) error {
 	return nil
 }

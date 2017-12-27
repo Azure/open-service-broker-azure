@@ -30,12 +30,24 @@ func getMssqlCases(
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			location:    "southcentralus",
-			provisioningParameters: &sqldb.ProvisioningParameters{
+			provisioningParameters: &sqldb.ServerProvisioningParams{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
 			bindingParameters: &sqldb.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),
+		},
+		//server only scenario
+		{ // new server scenario
+			module:      sqldb.New(armDeployer, msSQLManager),
+			description: "new server only",
+			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
+			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
+			location:    "southcentralus",
+			provisioningParameters: &sqldb.ServerProvisioningParams{
+				FirewallIPStart: "0.0.0.0",
+				FirewallIPEnd:   "255.255.255.255",
+			},
 		},
 	}, nil
 }

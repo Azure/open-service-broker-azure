@@ -150,33 +150,35 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		}
 	}
 
-	// Bind
-	bd, err := serviceManager.Bind(instance, s.bindingParameters)
-	if err != nil {
-		return err
-	}
+	//Only test the binding operations if the service is bindable
+	if svc.GetBindable() {
+		// Bind
+		bd, err := serviceManager.Bind(instance, s.bindingParameters)
+		if err != nil {
+			return err
+		}
 
-	binding := service.Binding{Details: bd}
+		binding := service.Binding{Details: bd}
 
-	credentials, err := serviceManager.GetCredentials(instance, binding)
-	if err != nil {
-		return err
-	}
+		credentials, err := serviceManager.GetCredentials(instance, binding)
+		if err != nil {
+			return err
+		}
 
-	// Test the credentials
-	if s.testCredentials != nil {
-		err = s.testCredentials(credentials)
+		// Test the credentials
+		if s.testCredentials != nil {
+			err = s.testCredentials(credentials)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Unbind
+		err = serviceManager.Unbind(instance, bd)
 		if err != nil {
 			return err
 		}
 	}
-
-	// Unbind
-	err = serviceManager.Unbind(instance, bd)
-	if err != nil {
-		return err
-	}
-
 	// Deprovision...
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
