@@ -162,10 +162,10 @@ func (a *allInOneManager) preProvision(
 	_ service.Plan,
 	_ service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
@@ -201,10 +201,10 @@ func (d *dbOnlyManager) preProvision(
 	_ service.Plan,
 	referenceInstance service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	//Assume refererence instance is a vm only instance?
@@ -248,10 +248,10 @@ func (a *allInOneManager) deployARMTemplate(
 	plan service.Plan,
 	_ service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParams)
@@ -368,11 +368,10 @@ func (d *dbOnlyManager) deployARMTemplate(
 	plan service.Plan,
 	referenceInstance service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as " +
-				"*mssqlDBOnlyInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	p := map[string]interface{}{ // ARM template params

@@ -45,10 +45,10 @@ func (a *allInOneManager) deleteARMDeployment(
 	_ service.Plan,
 	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	err := a.armDeployer.Delete(
@@ -89,10 +89,10 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	_ service.Plan,
 	referenceInstance service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	err := d.armDeployer.Delete(
@@ -111,10 +111,10 @@ func (a *allInOneManager) deleteMsSQLServer(
 	_ service.Plan,
 	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	if err := a.mssqlManager.DeleteServer(
@@ -132,10 +132,10 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 	_ service.Plan,
 	referenceInstance service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	if err := d.mssqlManager.DeleteDatabase(

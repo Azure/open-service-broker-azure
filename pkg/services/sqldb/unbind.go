@@ -6,29 +6,19 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (a *allInOneManager) Unbind(
-	instance service.Instance,
-	bindingDetails service.BindingDetails,
+func unbind(
+	administratorLogin string,
+	administratorPassword string,
+	fqdn string,
+	databaseName string,
+	bc *mssqlBindingDetails,
 ) error {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
-		)
-	}
-	bc, ok := bindingDetails.(*mssqlBindingDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting bindingDetails as *mssqlBindingDetails",
-		)
-	}
-
 	// connect to new database to drop user for the login
 	db, err := getDBConnection(
-		dt.AdministratorLogin,
-		dt.AdministratorLoginPassword,
-		dt.FullyQualifiedDomainName,
-		dt.DatabaseName)
+		administratorLogin,
+		administratorPassword,
+		fqdn,
+		databaseName)
 	if err != nil {
 		return err
 	}
@@ -46,9 +36,9 @@ func (a *allInOneManager) Unbind(
 
 	// connect to master database to drop login
 	masterDb, err := getDBConnection(
-		dt.AdministratorLogin,
-		dt.AdministratorLoginPassword,
-		dt.FullyQualifiedDomainName,
+		administratorLogin,
+		administratorPassword,
+		fqdn,
 		"master")
 	if err != nil {
 		return err
@@ -66,6 +56,32 @@ func (a *allInOneManager) Unbind(
 	}
 
 	return nil
+}
+
+func (a *allInOneManager) Unbind(
+	instance service.Instance,
+	bindingDetails service.BindingDetails,
+) error {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.Details as *mssqlInstanceDetails",
+		)
+	}
+	bc, ok := bindingDetails.(*mssqlBindingDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting bindingDetails as *mssqlBindingDetails",
+		)
+	}
+
+	return unbind(
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+		bc,
+	)
 }
 
 //TODO : Unbind is not valid for VM only.
@@ -81,10 +97,10 @@ func (d *dbOnlyManager) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
 ) error {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
 	bc, ok := bindingDetails.(*mssqlBindingDetails)
@@ -94,47 +110,11 @@ func (d *dbOnlyManager) Unbind(
 		)
 	}
 
-	// connect to new database to drop user for the login
-	db, err := getDBConnection(
+	return unbind(
 		dt.AdministratorLogin,
 		dt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
-		dt.DatabaseName)
-	if err != nil {
-		return err
-	}
-	defer db.Close() // nolint: errcheck
-
-	if _, err = db.Exec(
-		fmt.Sprintf("DROP USER \"%s\"", bc.LoginName),
-	); err != nil {
-		return fmt.Errorf(
-			`error dropping user "%s": %s`,
-			bc.LoginName,
-			err,
-		)
-	}
-
-	// connect to master database to drop login
-	masterDb, err := getDBConnection(
-		dt.AdministratorLogin,
-		dt.AdministratorLoginPassword,
-		dt.FullyQualifiedDomainName,
-		"master")
-	if err != nil {
-		return err
-	}
-	defer masterDb.Close() // nolint: errcheck
-
-	if _, err = masterDb.Exec(
-		fmt.Sprintf("DROP LOGIN \"%s\"", bc.LoginName),
-	); err != nil {
-		return fmt.Errorf(
-			`error dropping login "%s": %s`,
-			bc.LoginName,
-			err,
-		)
-	}
-
-	return nil
+		dt.DatabaseName,
+		bc,
+	)
 }

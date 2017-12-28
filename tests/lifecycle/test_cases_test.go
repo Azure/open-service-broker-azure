@@ -18,17 +18,17 @@ func getTestCases(resourceGroup string) ([]serviceLifecycleTestCase, error) {
 		armDeployer arm.Deployer,
 		resourceGroup string,
 	) ([]serviceLifecycleTestCase, error){
-		getRediscacheCases,
-		getACICases,
-		getCosmosdbCases,
-		getEventhubCases,
-		getKeyvaultCases,
+		//getRediscacheCases,
+		//getACICases,
+		//getCosmosdbCases,
+		//getEventhubCases,
+		//getKeyvaultCases,
 		getMssqlCases,
-		getMysqlCases,
-		getPostgresqlCases,
-		getSearchCases,
-		getServicebusCases,
-		getStorageCases,
+		//getMysqlCases,
+		//getPostgresqlCases,
+		//getSearchCases,
+		//getServicebusCases,
+		//getStorageCases,
 	}
 
 	for _, getTestCaseFunc := range getTestCaseFuncs {
