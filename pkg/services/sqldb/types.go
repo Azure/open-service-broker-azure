@@ -31,9 +31,12 @@ type mssqlVMOnlyInstanceDetails struct {
 }
 
 type mssqlDBOnlyInstanceDetails struct {
-	ARMDeploymentName string `json:"armDeployment"`
-	ServerName        string `json:"server"`
-	DatabaseName      string `json:"database"`
+	ARMDeploymentName          string `json:"armDeployment"`
+	ServerName                 string `json:"server"`
+	AdministratorLogin         string `json:"administratorLogin"`
+	AdministratorLoginPassword string `json:"administratorLoginPassword"`
+	DatabaseName               string `json:"database"`
+	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
 }
 
 // UpdatingParameters encapsulates MSSQL-specific updating options

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net"
 
+	az "github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
@@ -193,7 +195,6 @@ func (v *vmOnlyManager) preProvision(
 	return dt, nil
 }
 
-//TODO : Implement db only
 func (d *dbOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
@@ -214,8 +215,30 @@ func (d *dbOnlyManager) preProvision(
 				"*mssqlVMOnlyInstanceDetails",
 		)
 	}
-	dt.ServerName = rdt.ServerName
+
+	azureConfig, err := azure.GetConfig()
+	if err != nil {
+		return nil, err
+	}
+	azureEnvironment, err := az.EnvironmentFromName(azureConfig.Environment)
+	if err != nil {
+		return nil, err
+	}
+
 	dt.DatabaseName = generate.NewIdentifier()
+
+	//Build the instance details with the reference instance details
+	dt.ServerName = rdt.ServerName
+	dt.AdministratorLogin = rdt.AdministratorLogin
+	dt.AdministratorLoginPassword = rdt.AdministratorLoginPassword
+
+	sqlDatabaseDNSSuffix := azureEnvironment.SQLDatabaseDNSSuffix
+	dt.FullyQualifiedDomainName = fmt.Sprintf(
+		"%s.%s",
+		dt.ServerName,
+		sqlDatabaseDNSSuffix,
+	)
+
 	return dt, nil
 }
 
@@ -343,7 +366,7 @@ func (d *dbOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-	_ service.Instance, //reference instance
+	referenceInstance service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
@@ -364,8 +387,8 @@ func (d *dbOnlyManager) deployARMTemplate(
 	//No output, so ignore the output
 	_, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
+		referenceInstance.ResourceGroup,
+		referenceInstance.Location,
 		armTemplateDBOnlyBytes,
 		nil, // Go template params
 		p,

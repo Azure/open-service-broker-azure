@@ -37,8 +37,7 @@ func getMssqlCases(
 			bindingParameters: &sqldb.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),
 		},
-		//server only scenario
-		{ // new server scenario
+		{ //server only scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
 			description: "new server only",
 			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
@@ -48,7 +47,7 @@ func getMssqlCases(
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
-		},
+		}, //TODO: Add a lifecycle test for database only. Need to provision server first
 	}, nil
 }
 

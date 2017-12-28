@@ -13,8 +13,8 @@ func (a *allInOneManager) GetDeprovisioner(
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", a.deleteARMDeployment),
 		service.NewDeprovisioningStep(
-			"deleteMsSQLServerOrDatabase",
-			a.deleteMsSQLServerOrDatabase,
+			"deleteMsSQLServer",
+			a.deleteMsSQLServer,
 		),
 	)
 }
@@ -33,8 +33,8 @@ func (d *dbOnlyManager) GetDeprovisioner(
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", d.deleteARMDeployment),
 		service.NewDeprovisioningStep(
-			"deleteMsSQLServerOrDatabase",
-			d.deleteMsSQLServerOrDatabase,
+			"deleteMsSQLDatabase",
+			d.deleteMsSQLDatabase,
 		),
 	)
 }
@@ -83,17 +83,29 @@ func (v *vmOnlyManager) deleteARMDeployment(
 	return dt, nil
 }
 
-//TODO: Implement DB only logic
 func (d *dbOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
+	referenceInstance service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
-	return instance.Details, nil
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+		)
+	}
+	err := d.armDeployer.Delete(
+		dt.ARMDeploymentName,
+		referenceInstance.ResourceGroup,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+	}
+	return dt, nil
 }
 
-func (a *allInOneManager) deleteMsSQLServerOrDatabase(
+func (a *allInOneManager) deleteMsSQLServer(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
@@ -114,11 +126,11 @@ func (a *allInOneManager) deleteMsSQLServerOrDatabase(
 	return dt, nil
 }
 
-func (d *dbOnlyManager) deleteMsSQLServerOrDatabase(
+func (d *dbOnlyManager) deleteMsSQLDatabase(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
+	referenceInstance service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
@@ -126,11 +138,12 @@ func (d *dbOnlyManager) deleteMsSQLServerOrDatabase(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
-	if err := d.mssqlManager.DeleteServer(
+	if err := d.mssqlManager.DeleteDatabase(
 		dt.ServerName,
-		instance.ResourceGroup,
+		dt.DatabaseName,
+		referenceInstance.ResourceGroup,
 	); err != nil {
-		return dt, fmt.Errorf("error deleting mssql server: %s", err)
+		return dt, fmt.Errorf("error deleting mssql database: %s", err)
 	}
 	return dt, nil
 }
