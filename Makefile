@@ -21,7 +21,7 @@ else
 BROKER_VERSION=$(REL_VERSION)
 endif
 
-LDFLAGS = -w -X main.commit=$(COMMIT) -X main.commit=$(GIT_VERSION) -X main.version=$(BROKER_VERSION)
+LDFLAGS = -w -X main.commit=$(GIT_VERSION) -X main.version=$(BROKER_VERSION)
 
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
