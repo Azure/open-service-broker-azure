@@ -54,7 +54,13 @@ func init() {
 }
 
 func main() {
-	log.Printf("Broker starting with version %s, commit %s", version, commit)
+	log.WithFields(
+		log.Fields{
+			"version": version,
+			"commit":  commit,
+		},
+	).Info("Open Service Broker for Azure starting")
+
 	// Redis client
 	redisConfig, err := getRedisConfig()
 	if err != nil {
