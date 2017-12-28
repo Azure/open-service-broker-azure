@@ -237,19 +237,16 @@ CLI_BINARY_NAME := broker-cli
 build-mac-broker-cli: check-docker-compose
 	docker-compose run --rm -e GOOS=darwin -e GOARCH=amd64 dev \
 		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
-		-ldflags '$(LDFLAGS)' \
 		./contrib/cmd/cli
 
 .PHONY: build-linux-broker-cli
 build-linux-broker-cli: check-docker-compose
 	docker-compose run --rm -e GOOS=linux -e GOARCH=amd64 dev \
 		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
-		-ldflags '$(LDFLAGS)' \
 		./contrib/cmd/cli
 
 .PHONY: build-win-broker-cli
 build-win-broker-cli: check-docker-compose
 	docker-compose run --rm -e GOOS=windows -e GOARCH=amd64 dev \
 		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
-		-ldflags '$(LDFLAGS)' \
 		./contrib/cmd/cli
