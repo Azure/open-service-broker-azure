@@ -54,6 +54,7 @@ func init() {
 }
 
 func main() {
+	log.Printf("Broker starting with version %s, commit %s", version, commit)
 	// Redis client
 	redisConfig, err := getRedisConfig()
 	if err != nil {
