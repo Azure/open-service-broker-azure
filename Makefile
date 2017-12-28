@@ -16,10 +16,12 @@ REL_IMAGE_NAME         = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(REL_VERSION)
 REL_MUTABLE_IMAGE_NAME = $(DOCKER_REPO)$(BASE_IMAGE_NAME):latest
 
 ifeq ($(REL_VERSION),)
-REL_VERSION="devel"
+BROKER_VERSION="devel"
+else
+BROKER_VERSION=$(REL_VERSION)
 endif
 
-LDFLAGS = -w -X main.commit=$(COMMIT) -X main.commit=$(GIT_VERSION) -X main.version=$(REL_VERSION)
+LDFLAGS = -w -X main.commit=$(COMMIT) -X main.commit=$(GIT_VERSION) -X main.version=$(BROKER_VERSION)
 
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
