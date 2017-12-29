@@ -8,7 +8,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func (s *serviceManager) ValidateBindingParameters(
+func (a *allInOneManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to MSSQL, so there is nothing
@@ -16,22 +16,39 @@ func (s *serviceManager) ValidateBindingParameters(
 	return nil
 }
 
-func (s *serviceManager) Bind(
-	instance service.Instance,
-	_ service.BindingParameters,
+func (v *vmOnlyManager) ValidateBindingParameters(
+	bindingParameters service.BindingParameters,
+) error {
+	// There are no parameters for binding to MSSQL, so there is nothing
+	// to validate
+	return nil
+}
+
+func (d *dbOnlyManager) ValidateBindingParameters(
+	bindingParameters service.BindingParameters,
+) error {
+	// There are no parameters for binding to MSSQL, so there is nothing
+	// to validate
+	return nil
+}
+
+func bind(
+	administratorLogin string,
+	administratorPassword string,
+	fqdn string,
+	databaseName string,
 ) (service.BindingDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
-		)
-	}
 
 	loginName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
 	// connect to master database to create login
-	masterDb, err := getDBConnection(dt, "master")
+	masterDb, err := getDBConnection(
+		administratorLogin,
+		administratorPassword,
+		fqdn,
+		"master",
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +65,12 @@ func (s *serviceManager) Bind(
 	}
 
 	// connect to new database to create user for the login
-	db, err := getDBConnection(dt, dt.DatabaseName)
+	db, err := getDBConnection(
+		administratorLogin,
+		administratorPassword,
+		fqdn,
+		databaseName,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +129,87 @@ func (s *serviceManager) Bind(
 	}, nil
 }
 
-func (s *serviceManager) GetCredentials(
+func (a *allInOneManager) Bind(
+	instance service.Instance,
+	_ service.BindingParameters,
+) (service.BindingDetails, error) {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlInstanceDetails",
+		)
+	}
+
+	return bind(
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+	)
+}
+
+//Bind is not valid for VM only,
+//TBD behavior
+func (v *vmOnlyManager) Bind(
+	_ service.Instance,
+	_ service.BindingParameters,
+) (service.BindingDetails, error) {
+	return nil, nil
+}
+
+func (d *dbOnlyManager) Bind(
+	instance service.Instance,
+	_ service.BindingParameters,
+) (service.BindingDetails, error) {
+
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlInstanceDetails",
+		)
+	}
+
+	return bind(
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+	)
+}
+
+func (a *allInOneManager) GetCredentials(
+	instance service.Instance,
+	binding service.Binding,
+) (service.Credentials, error) {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlInstanceDetails",
+		)
+	}
+	bd, ok := binding.Details.(*mssqlBindingDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting binding.Details as *mssqlBindingDetails",
+		)
+	}
+	return &Credentials{
+		Host:     dt.FullyQualifiedDomainName,
+		Port:     1433,
+		Database: dt.DatabaseName,
+		Username: bd.LoginName,
+		Password: bd.Password,
+	}, nil
+}
+
+func (v *vmOnlyManager) GetCredentials(
+	instance service.Instance,
+	binding service.Binding,
+) (service.Credentials, error) {
+	return nil, nil
+}
+
+func (d *dbOnlyManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {

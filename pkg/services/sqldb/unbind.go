@@ -6,25 +6,19 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) Unbind(
-	instance service.Instance,
-	bindingDetails service.BindingDetails,
+func unbind(
+	administratorLogin string,
+	administratorPassword string,
+	fqdn string,
+	databaseName string,
+	bc *mssqlBindingDetails,
 ) error {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
-		)
-	}
-	bc, ok := bindingDetails.(*mssqlBindingDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting bindingDetails as *mssqlBindingDetails",
-		)
-	}
-
 	// connect to new database to drop user for the login
-	db, err := getDBConnection(dt, dt.DatabaseName)
+	db, err := getDBConnection(
+		administratorLogin,
+		administratorPassword,
+		fqdn,
+		databaseName)
 	if err != nil {
 		return err
 	}
@@ -41,7 +35,11 @@ func (s *serviceManager) Unbind(
 	}
 
 	// connect to master database to drop login
-	masterDb, err := getDBConnection(dt, "master")
+	masterDb, err := getDBConnection(
+		administratorLogin,
+		administratorPassword,
+		fqdn,
+		"master")
 	if err != nil {
 		return err
 	}
@@ -58,4 +56,65 @@ func (s *serviceManager) Unbind(
 	}
 
 	return nil
+}
+
+func (a *allInOneManager) Unbind(
+	instance service.Instance,
+	bindingDetails service.BindingDetails,
+) error {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.Details as *mssqlInstanceDetails",
+		)
+	}
+	bc, ok := bindingDetails.(*mssqlBindingDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting bindingDetails as *mssqlBindingDetails",
+		)
+	}
+
+	return unbind(
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+		bc,
+	)
+}
+
+//TODO : Unbind is not valid for VM only.
+//Determine what to do.
+func (v *vmOnlyManager) Unbind(
+	_ service.Instance,
+	_ service.BindingDetails,
+) error {
+	return nil
+}
+
+func (d *dbOnlyManager) Unbind(
+	instance service.Instance,
+	bindingDetails service.BindingDetails,
+) error {
+	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.Details as *mssqlInstanceDetails",
+		)
+	}
+	bc, ok := bindingDetails.(*mssqlBindingDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting bindingDetails as *mssqlBindingDetails",
+		)
+	}
+
+	return unbind(
+		dt.AdministratorLogin,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+		bc,
+	)
 }

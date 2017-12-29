@@ -39,6 +39,7 @@ type Service interface {
 	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
+	GetBindable() bool
 	GetServiceManager() ServiceManager
 	GetPlans() []Plan
 	GetPlan(planID string) (Plan, bool)
@@ -204,6 +205,11 @@ func (s *service) GetID() string {
 
 func (s *service) GetName() string {
 	return s.Name
+}
+
+// GetBindable returns true if a service is bindable
+func (s *service) GetBindable() bool {
+	return s.Bindable
 }
 
 func (s *service) GetServiceManager() ServiceManager {
