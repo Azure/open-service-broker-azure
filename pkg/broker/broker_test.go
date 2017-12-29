@@ -143,6 +143,7 @@ func getTestBroker() (*broker, error) {
 	b, err := NewBroker(
 		nil,
 		nil,
+		nil,
 		always.NewAuthenticator(),
 		nil,
 		service.StabilityExperimental,
