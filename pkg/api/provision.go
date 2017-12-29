@@ -160,7 +160,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	var tags map[string]string
 	tagsIface, ok := provisioningRequest.Parameters["tags"]
 	if ok {
-		tags, ok = tagsIface.(map[string]string)
+		mapTagsIfaces, ok := tagsIface.(map[string]interface{})
 		if !ok {
 			s.handlePossibleValidationError(
 				service.NewValidationError(
@@ -170,6 +170,28 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 				w,
 				logFields,
 			)
+			return
+		}
+		decoderConfig := &mapstructure.DecoderConfig{
+			Result: &tags,
+		}
+		decoder, err := mapstructure.NewDecoder(decoderConfig)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"error building tag map decoder",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+			return
+		}
+		err = decoder.Decode(mapTagsIfaces)
+		if err != nil {
+			log.WithFields(logFields).Debug(
+				"bad provisioning request: error decoding tags into map[string]string",
+			)
+			// This scenario is bad request because it means the tags weren't
+			// a map[string]string, as we expected.
+			s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
 			return
 		}
 	}
