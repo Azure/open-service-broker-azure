@@ -17,6 +17,11 @@ import (
 	"github.com/go-redis/redis"
 )
 
+var (
+	version string
+	commit  string
+)
+
 func init() {
 	// Initialize logging
 	// Split log output across stdout and stderr, depending on severity
@@ -49,6 +54,13 @@ func init() {
 }
 
 func main() {
+	log.WithFields(
+		log.Fields{
+			"version": version,
+			"commit":  commit,
+		},
+	).Info("Open Service Broker for Azure starting")
+
 	// Redis client
 	redisConfig, err := getRedisConfig()
 	if err != nil {
