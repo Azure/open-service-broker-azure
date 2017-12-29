@@ -47,7 +47,6 @@ func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -69,7 +68,6 @@ func (v *vmOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -91,7 +89,6 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	referenceInstance service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -101,7 +98,7 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	}
 	err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		referenceInstance.ResourceGroup,
+		instance.Parent.ResourceGroup,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
@@ -113,7 +110,6 @@ func (a *allInOneManager) deleteMsSQLServer(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -134,7 +130,6 @@ func (v *vmOnlyManager) deleteMsSQLServer(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -155,7 +150,6 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	referenceInstance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -166,7 +160,7 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 	if err := d.mssqlManager.DeleteDatabase(
 		dt.ServerName,
 		dt.DatabaseName,
-		referenceInstance.ResourceGroup,
+		instance.Parent.ResourceGroup,
 	); err != nil {
 		return dt, fmt.Errorf("error deleting mssql database: %s", err)
 	}

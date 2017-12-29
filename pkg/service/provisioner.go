@@ -11,7 +11,6 @@ type ProvisioningStepFunction func(
 	ctx context.Context,
 	instance Instance,
 	plan Plan,
-	refInstance Instance,
 ) (InstanceDetails, error)
 
 // ProvisioningStep is an interface to be implemented by types that represent
@@ -22,7 +21,6 @@ type ProvisioningStep interface {
 		ctx context.Context,
 		instance Instance,
 		plan Plan,
-		refInstance Instance,
 	) (InstanceDetails, error)
 }
 
@@ -66,7 +64,6 @@ func (p *provisioningStep) Execute(
 	ctx context.Context,
 	instance Instance,
 	plan Plan,
-	refInstance Instance,
 ) (InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -74,7 +71,6 @@ func (p *provisioningStep) Execute(
 		ctx,
 		instance,
 		plan,
-		refInstance,
 	)
 }
 

@@ -20,7 +20,6 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
@@ -41,7 +40,6 @@ func (s *serviceManager) deleteAzureSearch(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {

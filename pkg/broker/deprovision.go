@@ -115,9 +115,6 @@ func (b *broker) doDeprovisionStep(
 		ctx,
 		instance,
 		plan,
-		// TODO: Still need to come up with a way of finding a related instance
-		// (if applicable).
-		service.Instance{},
 	)
 	if err != nil {
 		return b.handleDeprovisioningError(

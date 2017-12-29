@@ -9,9 +9,10 @@ import (
 
 // Instance represents an instance of a service
 type Instance struct {
-	InstanceID                      string                 `json:"instanceId"`             // nolint: lll
-	ServiceID                       string                 `json:"serviceId"`              // nolint: lll
-	PlanID                          string                 `json:"planId"`                 // nolint: lll
+	InstanceID                      string                 `json:"instanceId"` // nolint: lll
+	ServiceID                       string                 `json:"serviceId"`  // nolint: lll
+	PlanID                          string                 `json:"planId"`     // nolint: lll
+	Parent                          *Instance              `json:"-"`
 	EncryptedProvisioningParameters []byte                 `json:"provisioningParameters"` // nolint: lll
 	ProvisioningParameters          ProvisioningParameters `json:"-"`
 	EncryptedUpdatingParameters     []byte                 `json:"updatingParameters"` // nolint: lll
