@@ -43,7 +43,6 @@ type broker struct {
 	store       storage.Store
 	apiServer   api.Server
 	asyncEngine async.Engine
-	codec       crypto.Codec
 	catalog     service.Catalog
 }
 
@@ -92,7 +91,6 @@ func NewBroker(
 	b := &broker{
 		store:       storage.NewStore(redisClient, catalog, codec),
 		asyncEngine: async.NewEngine(redisClient),
-		codec:       codec,
 		catalog:     catalog,
 	}
 
