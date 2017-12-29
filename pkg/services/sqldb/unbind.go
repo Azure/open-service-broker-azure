@@ -112,7 +112,7 @@ func (d *dbOnlyManager) Unbind(
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting Parent Details as" +
+			"error casting instance.Parent.Details as" +
 				"*mssqlVMOnlyInstanceDetails",
 		)
 	}
