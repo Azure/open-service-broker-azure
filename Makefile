@@ -3,6 +3,8 @@ GIT_VERSION = $(shell git describe --always --abbrev=7 --dirty)
 BINARY_DIR := bin
 BINARY_NAME := osba
 
+BASE_PACKAGE_NAME := github.com/Azure/open-service-broker-azure
+
 # This is left as 'azure-service-broker' because we don't yet have a docker repo
 # for 'open-service-broker-azure'
 #
@@ -21,7 +23,7 @@ else
 BROKER_VERSION=$(REL_VERSION)
 endif
 
-LDFLAGS = -w -X main.commit=$(GIT_VERSION) -X main.version=$(BROKER_VERSION)
+LDFLAGS = -w -X $(BASE_PACKAGE_NAME)/pkg/version.commit=$(GIT_VERSION) -X $(BASE_PACKAGE_NAME)/pkg/version.version=$(BROKER_VERSION)
 
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
@@ -121,7 +123,7 @@ test-service-lifecycles: check-docker-compose check-azure-env-vars
 		bash -c 'go test \
 			-parallel 10 \
 		  -timeout 60m \
-			github.com/Azure/open-service-broker-azure/tests/lifecycle -v'
+			$(BASE_PACKAGE_NAME)/tests/lifecycle -v'
 
 
 # Containerized API compliance check via osb-checker. Currently ignores exit code. 
