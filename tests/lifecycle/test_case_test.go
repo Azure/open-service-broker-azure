@@ -28,6 +28,10 @@ type serviceLifecycleTestCase struct {
 	testCredentials        func(credentials service.Credentials) error
 }
 
+func (s serviceLifecycleTestCase) getModule() service.Module {
+	return s.module
+}
+
 func (s serviceLifecycleTestCase) getName() string {
 	base := fmt.Sprintf(
 		"TestServices/lifecycle/%s",

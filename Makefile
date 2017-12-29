@@ -109,6 +109,7 @@ test-service-lifecycles: check-docker-compose check-azure-env-vars
 		-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
 		-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
 		-e AZURE_CLIENT_SECRET=$${AZURE_CLIENT_SECRET} \
+		-e TEST_MODULES=$${TEST_MODULES} \
 		test \
 		bash -c 'go test \
 			-parallel 10 \
