@@ -13,13 +13,9 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/basic"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
+	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
-)
-
-var (
-	version string
-	commit  string
 )
 
 func init() {
@@ -56,8 +52,8 @@ func init() {
 func main() {
 	log.WithFields(
 		log.Fields{
-			"version": version,
-			"commit":  commit,
+			"version": version.GetVersion(),
+			"commit":  version.GetCommit(),
 		},
 	).Info("Open Service Broker for Azure starting")
 
