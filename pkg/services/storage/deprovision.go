@@ -23,7 +23,6 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
@@ -44,7 +43,6 @@ func (s *serviceManager) deleteStorageAccount(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {

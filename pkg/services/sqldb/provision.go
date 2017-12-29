@@ -160,7 +160,6 @@ func (a *allInOneManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -180,7 +179,6 @@ func (v *vmOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -199,7 +197,6 @@ func (d *dbOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	referenceInstance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -208,7 +205,7 @@ func (d *dbOnlyManager) preProvision(
 		)
 	}
 	//Assume refererence instance is a vm only instance. Fail if not
-	rdt, ok := referenceInstance.Details.(*mssqlVMOnlyInstanceDetails)
+	rdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
 			"error casting referenceInstance.Details as " +
@@ -248,7 +245,6 @@ func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-	_ service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -311,7 +307,6 @@ func (v *vmOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, //reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -368,7 +363,6 @@ func (d *dbOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-	referenceInstance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -388,8 +382,8 @@ func (d *dbOnlyManager) deployARMTemplate(
 	//No output, so ignore the output
 	_, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		referenceInstance.ResourceGroup,
-		referenceInstance.Location,
+		instance.Parent.ResourceGroup,
+		instance.Parent.Location,
 		armTemplateDBOnlyBytes,
 		nil, // Go template params
 		p,

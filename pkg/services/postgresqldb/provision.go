@@ -92,7 +92,6 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
@@ -161,7 +160,6 @@ func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
@@ -206,7 +204,6 @@ func (s *serviceManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
@@ -270,7 +267,6 @@ func (s *serviceManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {

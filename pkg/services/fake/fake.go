@@ -97,7 +97,6 @@ func (s *ServiceManager) provision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	return instance.Details, nil
 }
@@ -173,7 +172,6 @@ func (s *ServiceManager) deprovision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	_ service.Instance, // Reference instance
 ) (service.InstanceDetails, error) {
 	return instance.Details, nil
 }

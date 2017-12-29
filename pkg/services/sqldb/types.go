@@ -13,7 +13,8 @@ type ServerProvisioningParams struct {
 type DBProvisioningParams struct {
 }
 
-// instance details are common to the DB only and All In One Service.
+// TODO: Fix this...
+// Instance details are common to the DB only and All In One Service.
 // Bind doesn't get passed reference instance info, so we need the
 // Server Name, and Administrator Info in order to complete Binding
 type mssqlInstanceDetails struct {
