@@ -48,10 +48,10 @@ func (a *allInOneManager) deleteARMDeployment(
 	instance service.Instance,
 	_ service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	err := a.armDeployer.Delete(
@@ -90,10 +90,10 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	instance service.Instance,
 	_ service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 	err := d.armDeployer.Delete(
@@ -111,10 +111,10 @@ func (a *allInOneManager) deleteMsSQLServer(
 	instance service.Instance,
 	_ service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	if err := a.mssqlManager.DeleteServer(
@@ -151,14 +151,22 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 	instance service.Instance,
 	_ service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
+	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Parent.Details as " +
+				"*mssqlVMOnlyInstanceDetails",
+		)
+	}
+
 	if err := d.mssqlManager.DeleteDatabase(
-		dt.ServerName,
+		pdt.ServerName,
 		dt.DatabaseName,
 		instance.Parent.ResourceGroup,
 	); err != nil {

@@ -13,25 +13,27 @@ type ServerProvisioningParams struct {
 type DBProvisioningParams struct {
 }
 
-// TODO: Fix this...
-// Instance details are common to the DB only and All In One Service.
-// Bind doesn't get passed reference instance info, so we need the
-// Server Name, and Administrator Info in order to complete Binding
-type mssqlInstanceDetails struct {
+type mssqlAllInOneInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
+	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
 	ServerName                 string `json:"server"`
 	AdministratorLogin         string `json:"administratorLogin"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 	DatabaseName               string `json:"database"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
 }
 
 type mssqlVMOnlyInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
+	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
 	ServerName                 string `json:"server"`
 	AdministratorLogin         string `json:"administratorLogin"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
+}
+
+type mssqlDBOnlyInstanceDetails struct {
+	ARMDeploymentName        string `json:"armDeployment"`
+	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
+	DatabaseName             string `json:"database"`
 }
 
 // UpdatingParameters encapsulates MSSQL-specific updating options
@@ -110,7 +112,7 @@ func (
 func (
 	a *allInOneManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &mssqlInstanceDetails{}
+	return &mssqlAllInOneInstanceDetails{}
 }
 
 func (
@@ -122,7 +124,7 @@ func (
 func (
 	d *dbOnlyManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &mssqlInstanceDetails{}
+	return &mssqlDBOnlyInstanceDetails{}
 }
 
 func (

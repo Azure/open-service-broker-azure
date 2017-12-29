@@ -62,10 +62,10 @@ func (a *allInOneManager) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
 ) error {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	bc, ok := bindingDetails.(*mssqlBindingDetails)
@@ -87,7 +87,7 @@ func (a *allInOneManager) Unbind(
 //TODO : Unbind is not valid for VM only.
 //Determine what to do.
 func (v *vmOnlyManager) Unbind(
-	_ service.Instance,
+	instance service.Instance,
 	_ service.BindingDetails,
 ) error {
 	return nil
@@ -97,10 +97,10 @@ func (d *dbOnlyManager) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
 ) error {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 	bc, ok := bindingDetails.(*mssqlBindingDetails)
@@ -109,10 +109,17 @@ func (d *dbOnlyManager) Unbind(
 			"error casting bindingDetails as *mssqlBindingDetails",
 		)
 	}
+	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting Parent Details as" +
+				"*mssqlVMOnlyInstanceDetails",
+		)
+	}
 
 	return unbind(
-		dt.AdministratorLogin,
-		dt.AdministratorLoginPassword,
+		pdt.AdministratorLogin,
+		pdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 		bc,
