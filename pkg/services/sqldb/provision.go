@@ -199,7 +199,7 @@ func (d *dbOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	referenceInstance service.Instance, //reference instance
+	referenceInstance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -207,7 +207,7 @@ func (d *dbOnlyManager) preProvision(
 			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
-	//Assume refererence instance is a vm only instance?
+	//Assume refererence instance is a vm only instance. Fail if not
 	rdt, ok := referenceInstance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
@@ -227,7 +227,9 @@ func (d *dbOnlyManager) preProvision(
 
 	dt.DatabaseName = generate.NewIdentifier()
 
-	//Build the instance details with the reference instance details
+	//Build the instance details with the reference instance details.
+	//These are needed right now because Bind doesn't deal with ref instance.
+	//Refactor this when it does
 	dt.ServerName = rdt.ServerName
 	dt.AdministratorLogin = rdt.AdministratorLogin
 	dt.AdministratorLoginPassword = rdt.AdministratorLoginPassword
@@ -366,7 +368,7 @@ func (d *dbOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	plan service.Plan,
-	referenceInstance service.Instance, //reference instance
+	referenceInstance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {

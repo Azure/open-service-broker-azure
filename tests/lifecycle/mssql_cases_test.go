@@ -24,9 +24,9 @@ func getMssqlCases(
 	}
 
 	return []serviceLifecycleTestCase{
-		{ // new server scenario
+		{ // all-in-one scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
-			description: "new server and database",
+			description: "new server and database (all in one)",
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			location:    "southcentralus",
@@ -47,7 +47,7 @@ func getMssqlCases(
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
-		}, //TODO: Add a lifecycle test for database only. Need to provision server first
+		}, //TODO: Add a lifecycle test for database only.
 	}, nil
 }
 

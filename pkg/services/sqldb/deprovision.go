@@ -24,6 +24,10 @@ func (v *vmOnlyManager) GetDeprovisioner(
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", v.deleteARMDeployment),
+		service.NewDeprovisioningStep(
+			"deleteMsSQLServer",
+			v.deleteMsSQLServer,
+		),
 	)
 }
 
@@ -126,11 +130,32 @@ func (a *allInOneManager) deleteMsSQLServer(
 	return dt, nil
 }
 
+func (v *vmOnlyManager) deleteMsSQLServer(
+	_ context.Context,
+	instance service.Instance,
+	_ service.Plan,
+	_ service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlInstanceDetails",
+		)
+	}
+	if err := v.mssqlManager.DeleteServer(
+		dt.ServerName,
+		instance.ResourceGroup,
+	); err != nil {
+		return dt, fmt.Errorf("error deleting mssql server: %s", err)
+	}
+	return dt, nil
+}
+
 func (d *dbOnlyManager) deleteMsSQLDatabase(
 	_ context.Context,
 	instance service.Instance,
 	_ service.Plan,
-	referenceInstance service.Instance, // Reference instance
+	referenceInstance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
