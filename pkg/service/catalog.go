@@ -31,6 +31,7 @@ type ServiceProperties struct { // nolint: golint
 	Bindable      bool     `json:"bindable"`
 	PlanUpdatable bool     `json:"plan_updateable"` // Misspelling is deliberate
 	// to match the spec
+	ParentServiceID string `json:"-"`
 }
 
 // Service is an interface to be implemented by types that represent a single
@@ -43,6 +44,7 @@ type Service interface {
 	GetServiceManager() ServiceManager
 	GetPlans() []Plan
 	GetPlan(planID string) (Plan, bool)
+	GetParentServiceID() string
 }
 
 type service struct {
@@ -226,6 +228,10 @@ func (s *service) GetPlans() []Plan {
 func (s *service) GetPlan(planID string) (Plan, bool) {
 	plan, ok := s.indexedPlans[planID]
 	return plan, ok
+}
+
+func (s *service) GetParentServiceID() string {
+	return s.ParentServiceID
 }
 
 // NewPlan initializes and returns a new Plan

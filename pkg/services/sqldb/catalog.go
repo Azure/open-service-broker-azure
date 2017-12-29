@@ -5,6 +5,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
+		// all-in-one (server and db) service
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
@@ -147,7 +148,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 		),
-		//vm only service
+		// vm only service
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "a7454e0e-be2c-46ac-b55f-8c4278117525",
@@ -164,14 +165,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 			}),
 		),
-		//db only services
+		// db only service
 		service.NewService(
 			&service.ServiceProperties{
-				ID:          "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-				Name:        "azure-sqldb-db-only",
-				Description: "Azure SQL Database Only(Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "SQL", "Database"},
+				ID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
+				Name:            "azure-sqldb-db-only",
+				Description:     "Azure SQL Database Only (Experimental)",
+				Bindable:        true,
+				Tags:            []string{"Azure", "SQL", "Database"},
+				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",
 			},
 			m.dbOnlyServiceManager,
 			service.NewPlan(&service.PlanProperties{
