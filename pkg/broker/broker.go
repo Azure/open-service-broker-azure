@@ -48,7 +48,8 @@ type broker struct {
 
 // NewBroker returns a new Broker
 func NewBroker(
-	redisClient *redis.Client,
+	storageRedisClient *redis.Client,
+	asyncRedisClient *redis.Client,
 	codec crypto.Codec,
 	authenticator authenticator.Authenticator,
 	modules []service.Module,
@@ -89,8 +90,8 @@ func NewBroker(
 	}
 	catalog := service.NewCatalog(services)
 	b := &broker{
-		store:       storage.NewStore(redisClient, catalog, codec),
-		asyncEngine: async.NewEngine(redisClient),
+		store:       storage.NewStore(storageRedisClient, catalog, codec),
+		asyncEngine: async.NewEngine(asyncRedisClient),
 		catalog:     catalog,
 	}
 
