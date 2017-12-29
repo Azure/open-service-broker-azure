@@ -15,6 +15,14 @@ RC_MUTABLE_IMAGE_NAME  = $(DOCKER_REPO)$(BASE_IMAGE_NAME):canary
 REL_IMAGE_NAME         = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(REL_VERSION)
 REL_MUTABLE_IMAGE_NAME = $(DOCKER_REPO)$(BASE_IMAGE_NAME):latest
 
+ifeq ($(REL_VERSION),)
+BROKER_VERSION="devel"
+else
+BROKER_VERSION=$(REL_VERSION)
+endif
+
+LDFLAGS = -w -X main.commit=$(GIT_VERSION) -X main.version=$(BROKER_VERSION)
+
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
 .PHONY: check-docker
@@ -167,7 +175,7 @@ stop-test-redis: check-docker-compose
 .PHONY: build
 build: check-docker-compose
 	docker-compose run --rm dev \
-		go build -o ${BINARY_DIR}/${BINARY_NAME} ./cmd/broker
+		go build -o ${BINARY_DIR}/${BINARY_NAME} -ldflags '$(LDFLAGS)' ./cmd/broker
 
 # (Re)Build the Docker image for the osba and run it
 .PHONY: run
