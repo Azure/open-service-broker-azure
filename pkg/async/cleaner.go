@@ -63,7 +63,7 @@ func (c *cleaner) defaultClean(workerSetName, mainWorkQueueName string) error {
 			return fmt.Errorf("error retrieving workers: %s", err)
 		}
 		for _, workerID := range workerIDs {
-			strCmd := c.redisClient.Get(workerID)
+			strCmd := c.redisClient.Get(getHeartbeatKey(workerID))
 			if strCmd.Err() == nil {
 				continue
 			}

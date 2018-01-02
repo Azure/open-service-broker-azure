@@ -87,7 +87,8 @@ func (h *heart) Start(ctx context.Context) error {
 // This is the default function for sending a heartbeat. It can be overridden
 // to facilitate testing.
 func (h *heart) defaultBeat() error {
-	statusCmd := h.redisClient.Set(h.workerID, aliveIndicator, h.ttl)
+	key := getHeartbeatKey(h.workerID)
+	statusCmd := h.redisClient.Set(key, aliveIndicator, h.ttl)
 	if statusCmd.Err() != nil {
 		return fmt.Errorf(
 			"error sending heartbeat for worker %s: %s",
@@ -96,4 +97,8 @@ func (h *heart) defaultBeat() error {
 		)
 	}
 	return nil
+}
+
+func getHeartbeatKey(workerID string) string {
+	return fmt.Sprintf("heartbeats:%s", workerID)
 }

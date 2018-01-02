@@ -52,15 +52,17 @@ func NewStore(
 }
 
 func (s *store) WriteInstance(instance service.Instance) error {
+	key := getInstanceKey(instance.InstanceID)
 	json, err := instance.ToJSON(s.codec)
 	if err != nil {
 		return err
 	}
-	return s.redisClient.Set(instance.InstanceID, json, 0).Err()
+	return s.redisClient.Set(key, json, 0).Err()
 }
 
 func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
-	strCmd := s.redisClient.Get(instanceID)
+	key := getInstanceKey(instanceID)
+	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
 		return service.Instance{}, false, nil
 	} else if err != nil {
@@ -95,28 +97,35 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 }
 
 func (s *store) DeleteInstance(instanceID string) (bool, error) {
-	strCmd := s.redisClient.Get(instanceID)
+	key := getInstanceKey(instanceID)
+	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
 		return false, nil
 	} else if err != nil {
 		return false, err
 	}
-	if err := s.redisClient.Del(instanceID).Err(); err != nil {
+	if err := s.redisClient.Del(key).Err(); err != nil {
 		return false, err
 	}
 	return true, nil
 }
 
+func getInstanceKey(instanceID string) string {
+	return fmt.Sprintf("instances:%s", instanceID)
+}
+
 func (s *store) WriteBinding(binding service.Binding) error {
+	key := getBindingKey(binding.BindingID)
 	json, err := binding.ToJSON(s.codec)
 	if err != nil {
 		return err
 	}
-	return s.redisClient.Set(binding.BindingID, json, 0).Err()
+	return s.redisClient.Set(key, json, 0).Err()
 }
 
 func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
-	strCmd := s.redisClient.Get(bindingID)
+	key := getBindingKey(bindingID)
+	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
 		return service.Binding{}, false, nil
 	} else if err != nil {
@@ -150,16 +159,21 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 }
 
 func (s *store) DeleteBinding(bindingID string) (bool, error) {
-	strCmd := s.redisClient.Get(bindingID)
+	key := getBindingKey(bindingID)
+	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
 		return false, nil
 	} else if err != nil {
 		return false, err
 	}
-	if err := s.redisClient.Del(bindingID).Err(); err != nil {
+	if err := s.redisClient.Del(key).Err(); err != nil {
 		return false, err
 	}
 	return true, nil
+}
+
+func getBindingKey(bindingID string) string {
+	return fmt.Sprintf("bindings:%s", bindingID)
 }
 
 func (s *store) TestConnection() error {
