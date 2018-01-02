@@ -13,6 +13,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/basic"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
+	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
@@ -49,23 +50,40 @@ func init() {
 }
 
 func main() {
-	// Redis client
+	log.WithFields(
+		log.Fields{
+			"version": version.GetVersion(),
+			"commit":  version.GetCommit(),
+		},
+	).Info("Open Service Broker for Azure starting")
+
+	// Redis clients
 	redisConfig, err := getRedisConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
-	redisOpts := &redis.Options{
+	storageRedisOpts := &redis.Options{
 		Addr:       fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
 		Password:   redisConfig.Password,
-		DB:         redisConfig.DB,
+		DB:         redisConfig.StorageDB,
+		MaxRetries: 5,
+	}
+	asyncRedisOpts := &redis.Options{
+		Addr:       fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
+		Password:   redisConfig.Password,
+		DB:         redisConfig.AsyncDB,
 		MaxRetries: 5,
 	}
 	if redisConfig.EnableTLS {
-		redisOpts.TLSConfig = &tls.Config{
+		storageRedisOpts.TLSConfig = &tls.Config{
+			ServerName: redisConfig.Host,
+		}
+		asyncRedisOpts.TLSConfig = &tls.Config{
 			ServerName: redisConfig.Host,
 		}
 	}
-	redisClient := redis.NewClient(redisOpts)
+	storageRedisClient := redis.NewClient(storageRedisOpts)
+	asyncRedisClient := redis.NewClient(asyncRedisOpts)
 
 	// Crypto
 	cryptoConfig, err := getCryptoConfig()
@@ -98,7 +116,8 @@ func main() {
 
 	// Create broker
 	broker, err := broker.NewBroker(
-		redisClient,
+		storageRedisClient,
+		asyncRedisClient,
 		codec,
 		authenticator,
 		modules,
