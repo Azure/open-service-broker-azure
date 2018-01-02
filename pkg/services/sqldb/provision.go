@@ -161,10 +161,10 @@ func (a *allInOneManager) preProvision(
 	instance service.Instance,
 	_ service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
@@ -198,17 +198,17 @@ func (d *dbOnlyManager) preProvision(
 	instance service.Instance,
 	_ service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 	//Assume refererence instance is a vm only instance. Fail if not
-	rdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting referenceInstance.Details as " +
+			"error casting instance.Parent.Details as " +
 				"*mssqlVMOnlyInstanceDetails",
 		)
 	}
@@ -224,17 +224,10 @@ func (d *dbOnlyManager) preProvision(
 
 	dt.DatabaseName = generate.NewIdentifier()
 
-	//Build the instance details with the reference instance details.
-	//These are needed right now because Bind doesn't deal with ref instance.
-	//Refactor this when it does
-	dt.ServerName = rdt.ServerName
-	dt.AdministratorLogin = rdt.AdministratorLogin
-	dt.AdministratorLoginPassword = rdt.AdministratorLoginPassword
-
 	sqlDatabaseDNSSuffix := azureEnvironment.SQLDatabaseDNSSuffix
 	dt.FullyQualifiedDomainName = fmt.Sprintf(
 		"%s.%s",
-		dt.ServerName,
+		pdt.ServerName,
 		sqlDatabaseDNSSuffix,
 	)
 
@@ -246,10 +239,10 @@ func (a *allInOneManager) deployARMTemplate(
 	instance service.Instance,
 	plan service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParams)
@@ -364,14 +357,21 @@ func (d *dbOnlyManager) deployARMTemplate(
 	instance service.Instance,
 	plan service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+		)
+	}
+	pdt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Parent.Details as " +
+				"*mssqlVMOnlyInstanceDetails",
 		)
 	}
 	p := map[string]interface{}{ // ARM template params
-		"serverName":   dt.ServerName,
+		"serverName":   pdt.ServerName,
 		"databaseName": dt.DatabaseName,
 		"edition":      plan.GetProperties().Extended["edition"],
 		"requestedServiceObjectiveName": plan.GetProperties().

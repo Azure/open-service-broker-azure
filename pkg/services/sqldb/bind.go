@@ -133,10 +133,10 @@ func (a *allInOneManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 
@@ -162,16 +162,22 @@ func (d *dbOnlyManager) Bind(
 	_ service.BindingParameters,
 ) (service.BindingDetails, error) {
 
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
-
+	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Parent.Details as " +
+				"*mssqlVMOnlyInstanceDetails",
+		)
+	}
 	return bind(
-		dt.AdministratorLogin,
-		dt.AdministratorLoginPassword,
+		pdt.AdministratorLogin,
+		pdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)
@@ -181,10 +187,10 @@ func (a *allInOneManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	bd, ok := binding.Details.(*mssqlBindingDetails)
@@ -213,10 +219,10 @@ func (d *dbOnlyManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 	bd, ok := binding.Details.(*mssqlBindingDetails)
