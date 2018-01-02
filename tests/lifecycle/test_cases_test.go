@@ -50,8 +50,11 @@ func getTestCases(resourceGroup string) ([]serviceLifecycleTestCase, error) {
 	return testCases, nil
 }
 
-func filter(testCases []serviceLifecycleTestCase, filters map[string]struct{}) []serviceLifecycleTestCase {
-	//If filters is empty, we are not filtering so include ethe testcase
+func filter(
+	testCases []serviceLifecycleTestCase,
+	filters map[string]struct{},
+) []serviceLifecycleTestCase {
+	//If filters is empty, we are not filtering so include all the testcases
 	if len(filters) == 0 {
 		return testCases
 	}
