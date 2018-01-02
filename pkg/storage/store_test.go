@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"log"
 	"testing"
 
@@ -41,21 +42,23 @@ func init() {
 
 func TestWriteInstance(t *testing.T) {
 	instance := getTestInstance()
+	key := getInstanceKey(instance.InstanceID)
 	// First assert that the instance doesn't exist in Redis
-	strCmd := redisClient.Get(instance.InstanceID)
+	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Store the instance
 	err := testStore.WriteInstance(instance)
 	assert.Nil(t, err)
 	// Assert that the instance is now in Redis
-	strCmd = redisClient.Get(instance.InstanceID)
+	strCmd = redisClient.Get(key)
 	assert.Nil(t, strCmd.Err())
 }
 
 func TestGetNonExistingInstance(t *testing.T) {
 	instanceID := uuid.NewV4().String()
+	key := getInstanceKey(instanceID)
 	// First assert that the instance doesn't exist in Redis
-	strCmd := redisClient.Get(instanceID)
+	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to retrieve the non-existing instance
 	_, ok, err := testStore.GetInstance(instanceID)
@@ -66,10 +69,11 @@ func TestGetNonExistingInstance(t *testing.T) {
 
 func TestGetExistingInstance(t *testing.T) {
 	instance := getTestInstance()
+	key := getInstanceKey(instance.InstanceID)
 	// First ensure the instance exists in Redis
 	json, err := instance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(instance.InstanceID, json, 0)
+	statCmd := redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Retrieve the instance
 	retrievedInstance, ok, err := testStore.GetInstance(instance.InstanceID)
@@ -85,8 +89,9 @@ func TestGetExistingInstance(t *testing.T) {
 
 func TestDeleteNonExistingInstance(t *testing.T) {
 	instanceID := uuid.NewV4().String()
+	key := getInstanceKey(instanceID)
 	// First assert that the instance doesn't exist in Redis
-	strCmd := redisClient.Get(instanceID)
+	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to delete the non-existing instance
 	ok, err := testStore.DeleteInstance(instanceID)
@@ -97,37 +102,40 @@ func TestDeleteNonExistingInstance(t *testing.T) {
 
 func TestDeleteExistingInstance(t *testing.T) {
 	instance := getTestInstance()
+	key := getInstanceKey(instance.InstanceID)
 	// First ensure the instance exists in Redis
 	json, err := instance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(instance.InstanceID, json, 0)
+	statCmd := redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Delete the instance
 	ok, err := testStore.DeleteInstance(instance.InstanceID)
 	// Assert that the delete was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	strCmd := redisClient.Get(instance.InstanceID)
+	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 }
 
 func TestWriteBinding(t *testing.T) {
 	binding := getTestBinding()
+	key := getBindingKey(binding.BindingID)
 	// First assert that the binding doesn't exist in Redis
-	strCmd := redisClient.Get(binding.BindingID)
+	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Store the binding
 	err := testStore.WriteBinding(binding)
 	assert.Nil(t, err)
 	// Assert that the binding is now in Redis
-	strCmd = redisClient.Get(binding.BindingID)
+	strCmd = redisClient.Get(key)
 	assert.Nil(t, strCmd.Err())
 }
 
 func TestGetNonExistingBinding(t *testing.T) {
 	bindingID := uuid.NewV4().String()
+	key := getBindingKey(bindingID)
 	// First assert that the binding doesn't exist in Redis
-	strCmd := redisClient.Get(bindingID)
+	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to retrieve the non-existing binding
 	_, ok, err := testStore.GetBinding(bindingID)
@@ -138,10 +146,11 @@ func TestGetNonExistingBinding(t *testing.T) {
 
 func TestGetExistingBinding(t *testing.T) {
 	binding := getTestBinding()
+	key := getBindingKey(binding.BindingID)
 	// First ensure the binding exists in Redis
 	json, err := binding.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(binding.BindingID, json, 0)
+	statCmd := redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Retrieve the binding
 	retrievedBinding, ok, err := testStore.GetBinding(binding.BindingID)
@@ -156,8 +165,9 @@ func TestGetExistingBinding(t *testing.T) {
 
 func TestDeleteNonExistingBinding(t *testing.T) {
 	bindingID := uuid.NewV4().String()
+	key := getBindingKey(bindingID)
 	// First assert that the binding doesn't exist in Redis
-	strCmd := redisClient.Get(bindingID)
+	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to delete the non-existing binding
 	ok, err := testStore.DeleteBinding(bindingID)
@@ -168,18 +178,31 @@ func TestDeleteNonExistingBinding(t *testing.T) {
 
 func TestDeleteExistingBinding(t *testing.T) {
 	binding := getTestBinding()
+	key := getBindingKey(binding.BindingID)
 	// First ensure the binding exists in Redis
 	json, err := binding.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(binding.BindingID, json, 0)
+	statCmd := redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Delete the binding
 	ok, err := testStore.DeleteBinding(binding.BindingID)
 	// Assert that the delete was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	strCmd := redisClient.Get(binding.BindingID)
+	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
+}
+
+func TestGetInstanceKey(t *testing.T) {
+	const rawKey = "foo"
+	expected := fmt.Sprintf("instances:%s", rawKey)
+	assert.Equal(t, expected, getInstanceKey(rawKey))
+}
+
+func TestGetBindingKey(t *testing.T) {
+	const rawKey = "foo"
+	expected := fmt.Sprintf("bindings:%s", rawKey)
+	assert.Equal(t, expected, getBindingKey(rawKey))
 }
 
 func getTestInstance() service.Instance {

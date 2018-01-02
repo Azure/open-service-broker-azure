@@ -49,14 +49,14 @@ func TestCleanerCleanInternalCleansDeadWorkers(t *testing.T) {
 	assert.Equal(t, expectedCount, cleanWorkerCallCount)
 }
 
-func TestCleanerCleanInternalDoesNotCleansLiveWorkers(t *testing.T) {
-	queueName := getDisposableQueueName()
+func TestCleanerCleanInternalDoesNotCleanLiveWorkers(t *testing.T) {
+	mainQueueName := getDisposableQueueName()
 	workerSetName := getDisposableWorkerSetName()
 	for range [5]struct{}{} {
 		workerID := getDisposableWorkerID()
 		intCmd := redisClient.SAdd(workerSetName, workerID)
 		assert.Nil(t, intCmd.Err())
-		statusCmd := redisClient.Set(workerID, aliveIndicator, 0)
+		statusCmd := redisClient.Set(getHeartbeatKey(workerID), aliveIndicator, 0)
 		assert.Nil(t, statusCmd.Err())
 	}
 	c := newCleaner(redisClient).(*cleaner)
@@ -65,7 +65,7 @@ func TestCleanerCleanInternalDoesNotCleansLiveWorkers(t *testing.T) {
 		cleanWorkerCallCount++
 		return nil
 	}
-	err := c.clean(workerSetName, queueName)
+	err := c.clean(workerSetName, mainQueueName)
 	assert.Nil(t, err)
 	assert.Equal(t, 0, cleanWorkerCallCount)
 }
