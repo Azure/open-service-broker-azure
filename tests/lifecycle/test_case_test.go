@@ -132,11 +132,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 				stepName,
 			)
 		}
-		instance.Details, err = step.Execute(
-			ctx,
-			instance,
-			plan,
-		)
+		instance.Details, err = step.Execute(ctx, instance, plan)
 		if err != nil {
 			return err
 		}
@@ -199,11 +195,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 				stepName,
 			)
 		}
-		instance.Details, err = step.Execute(
-			ctx,
-			instance,
-			plan,
-		)
+		instance.Details, err = step.Execute(ctx, instance, plan)
 		if err != nil {
 			return err
 		}
