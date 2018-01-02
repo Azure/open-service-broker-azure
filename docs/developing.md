@@ -152,6 +152,15 @@ after themselves.__
 $ make test-service-lifecycles
 ```
 
+If you'd like to run a subset of the service lifecycle tests, you can select
+a subset of the services by a comma delimited list of module names to the 
+TEST_MODULES environment variable. For example, to run only the `aci` and 
+`mssql` tests:
+
+```console
+$ TEST_MODULES=aci,mssql make test-service-lifecycles
+```
+
 Regardless of success or failure, after tests have completed, you can verify
 that they have cleaned up after themselves by searching for resource groups
 named using the scheme "test=*":
