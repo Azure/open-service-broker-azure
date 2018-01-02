@@ -22,7 +22,7 @@ func TestHeartBeat(t *testing.T) {
 	h := newHeart(getDisposableWorkerID(), time.Second, redisClient).(*heart)
 	err := h.Beat()
 	assert.Nil(t, err)
-	strCmd := redisClient.Get(h.workerID)
+	strCmd := redisClient.Get(getHeartbeatKey(h.workerID))
 	assert.Nil(t, strCmd.Err())
 	str, err := strCmd.Result()
 	assert.Nil(t, err)
