@@ -111,11 +111,7 @@ func (b *broker) doDeprovisionStep(
 			`deprovisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedDetails, err := step.Execute(
-		ctx,
-		instance,
-		plan,
-	)
+	updatedDetails, err := step.Execute(ctx, instance, plan)
 	if err != nil {
 		return b.handleDeprovisioningError(
 			instance,
