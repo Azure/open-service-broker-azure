@@ -63,7 +63,7 @@ func filter(
 	//map
 	filtered := testCases[:0]
 	for _, testCase := range testCases {
-		_, ok := filters[testCase.getModule().GetName()]
+		_, ok := filters[testCase.module.GetName()]
 		if ok {
 			filtered = append(filtered, testCase)
 		}
