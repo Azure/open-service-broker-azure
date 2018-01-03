@@ -151,11 +151,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		// vm only service
 		service.NewService(
 			&service.ServiceProperties{
-				ID:          "a7454e0e-be2c-46ac-b55f-8c4278117525",
-				Name:        "azure-sqldb-vm-only",
-				Description: "Azure SQL Server VM (Experimental)",
-				Bindable:    false,
-				Tags:        []string{"Azure", "SQL", "Server", "VM"},
+				ID:             "a7454e0e-be2c-46ac-b55f-8c4278117525",
+				Name:           "azure-sqldb-vm-only",
+				Description:    "Azure SQL Server VM (Experimental)",
+				Bindable:       false,
+				Tags:           []string{"Azure", "SQL", "Server", "VM"},
+				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 			},
 			m.vmOnlyServiceManager,
 			service.NewPlan(&service.PlanProperties{
