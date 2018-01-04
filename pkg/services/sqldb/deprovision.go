@@ -2,7 +2,6 @@ package sqldb
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -99,7 +98,7 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	}
 	//Parent should be set by the framework, but return an error if it is not set.
 	if instance.Parent == nil {
-		return nil, errors.New("parent instance not set")
+		return nil, fmt.Errorf("parent instance not set")
 	}
 	err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -164,7 +163,7 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 	}
 	//Parent should be set by the framework, but return an error if it is not set.
 	if instance.Parent == nil {
-		return nil, errors.New("parent instance not set")
+		return nil, fmt.Errorf("parent instance not set")
 	}
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {

@@ -1,7 +1,6 @@
 package sqldb
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -112,7 +111,7 @@ func (d *dbOnlyManager) Unbind(
 	}
 	//Parent should be set by the framework, but return an error if it is not set.
 	if instance.Parent == nil {
-		return errors.New("parent instance not set")
+		return fmt.Errorf("parent instance not set")
 	}
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {

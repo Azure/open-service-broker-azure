@@ -43,6 +43,9 @@ func getMssqlCases(
 		}
 
 		svc, plan, err := s.getServiceAndPlan()
+		if err != nil {
+			return nil, err
+		}
 		serviceManager := svc.GetServiceManager()
 
 		p := service.Instance{

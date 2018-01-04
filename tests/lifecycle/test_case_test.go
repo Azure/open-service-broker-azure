@@ -177,7 +177,11 @@ func (s serviceLifecycleTestCase) showStatus(ctx context.Context) {
 	}
 }
 
-func (s serviceLifecycleTestCase) getServiceAndPlan() (service.Service, service.Plan, error) {
+func (s serviceLifecycleTestCase) getServiceAndPlan() (
+	service.Service,
+	service.Plan,
+	error,
+) {
 	// Get the service and plan
 	cat, err := s.module.GetCatalog()
 	if err != nil {
