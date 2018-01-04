@@ -1,94 +1,53 @@
 version: 2
 jobs:
   lint:
-    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
-    environment:
-      GOPATH: ~/go
     machine: true
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
       - run:
           name: Run Lint
           command: make lint
   verify-vendored-code:
-    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
-    environment:
-      GOPATH: ~/go
     machine: true
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
       - run:
           name: Verify Vendored Code
           command: make verify-vendored-code
   test-unit:
-    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
-    environment:
-      GOPATH: ~/go
     machine: true
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
       - run:
           name: Run Unit Tests
           command: make test-unit
   test-api-compliance:
-    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
-    environment:
-      GOPATH: ~/go
     machine: true
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
       - run:
           name: Run API Compliance Tests
           command: make test-api-compliance
   build:
-    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
-    environment:
-      GOPATH: ~/go
     machine: true
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
       - run:
           name: Build Binary & Docker Image
           command: make docker-build
   test-service-lifecycles:
-    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
-    environment:
-      GOPATH: ~/go
     machine: true
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
       - run:
           name: Run Service Lifecycle Tests
           command: make test-service-lifecycles
   publish-rc-images:
-    working_directory: ~/go/src/github.com/Azure/open-service-broker-azure
     environment:
-      GOPATH: ~/go
       DOCKER_REPO: microsoft/
     machine: true
     steps:
       - checkout
-      - run:
-          name: Install Dependencies
-          command: ./scripts/install-deps.sh
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
