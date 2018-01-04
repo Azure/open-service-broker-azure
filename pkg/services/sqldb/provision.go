@@ -204,6 +204,11 @@ func (d *dbOnlyManager) preProvision(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
+
+	//Parent should be set by the framework, but return an error if it is not set.
+	if instance.Parent == nil {
+		return nil, errors.New("parent instance not set")
+	}
 	//Assume refererence instance is a vm only instance. Fail if not
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -221,9 +226,8 @@ func (d *dbOnlyManager) preProvision(
 	if err != nil {
 		return nil, err
 	}
-
+	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.DatabaseName = generate.NewIdentifier()
-
 	sqlDatabaseDNSSuffix := azureEnvironment.SQLDatabaseDNSSuffix
 	dt.FullyQualifiedDomainName = fmt.Sprintf(
 		"%s.%s",
@@ -363,7 +367,12 @@ func (d *dbOnlyManager) deployARMTemplate(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
-	pdt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+
+	//Parent should be set by the framework, but return an error if it is not set.
+	if instance.Parent == nil {
+		return nil, errors.New("parent instance not set")
+	}
+	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
 			"error casting instance.Parent.Details as " +

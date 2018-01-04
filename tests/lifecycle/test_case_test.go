@@ -19,7 +19,7 @@ import (
 type serviceLifecycleTestCase struct {
 	module                 service.Module
 	description            string
-	setup                  func() error
+	setup                  func() (*service.Instance, error)
 	serviceID              string
 	planID                 string
 	location               string
@@ -58,30 +58,11 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	go s.showStatus(ctx)
 
 	// Get the service and plan
-	cat, err := s.module.GetCatalog()
+	svc, plan, err := s.getServiceAndPlan()
 	if err != nil {
-		return fmt.Errorf(
-			`error gettting catalog from module "%s"`,
-			s.module.GetName(),
-		)
+		return err
 	}
-	svc, ok := cat.GetService(s.serviceID)
-	if !ok {
-		return fmt.Errorf(
-			`service "%s" not found in module "%s" catalog`,
-			s.serviceID,
-			s.module.GetName(),
-		)
-	}
-	plan, ok := svc.GetPlan(s.planID)
-	if !ok {
-		return fmt.Errorf(
-			`plan "%s" not found for service "%s" in module "%s" catalog`,
-			s.planID,
-			s.serviceID,
-			s.module.GetName(),
-		)
-	}
+
 	serviceManager := svc.GetServiceManager()
 
 	err = serviceManager.ValidateProvisioningParameters(s.provisioningParameters)
@@ -90,9 +71,11 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	}
 
 	// Setup...
+	var parent *service.Instance
 	if s.setup != nil {
-		if err := s.setup(); err != nil {
-			return err
+		parent, err = s.setup()
+		if err != nil {
+			return fmt.Errorf("error running setup %s", err)
 		}
 	}
 
@@ -106,41 +89,11 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		ResourceGroup:          resourceGroup,
 		Details:                serviceManager.GetEmptyInstanceDetails(),
 		ProvisioningParameters: s.provisioningParameters,
+		Parent:                 parent,
 	}
 
-	// Provision...
-	provisioner, err := serviceManager.GetProvisioner(plan)
-	if err != nil {
+	if _, err = s.provision(ctx, serviceManager, instance, plan); err != nil {
 		return err
-	}
-	stepName, ok := provisioner.GetFirstStepName()
-	// There MUST be a first step
-	if !ok {
-		return fmt.Errorf(
-			`Module "%s" provisioner has no steps`,
-			s.module.GetName(),
-		)
-	}
-	// Execute provisioning steps until there are none left
-	for {
-		var step service.ProvisioningStep
-		step, ok = provisioner.GetStep(stepName)
-		if !ok {
-			return fmt.Errorf(
-				`Module "%s" provisioning step "%s" not found`,
-				s.module.GetName(),
-				stepName,
-			)
-		}
-		instance.Details, err = step.Execute(ctx, instance, plan)
-		if err != nil {
-			return err
-		}
-		stepName, ok = provisioner.GetNextStepName(stepName)
-		// If there is no next step, we're done with provisioning
-		if !ok {
-			break
-		}
 	}
 
 	//Only test the binding operations if the service is bindable
@@ -172,12 +125,13 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 			return bErr
 		}
 	}
+
 	// Deprovision...
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
 		return nil
 	}
-	stepName, ok = deprovisioner.GetFirstStepName()
+	stepName, ok := deprovisioner.GetFirstStepName()
 	// There MUST be a first step
 	if !ok {
 		return fmt.Errorf(
@@ -221,4 +175,78 @@ func (s serviceLifecycleTestCase) showStatus(ctx context.Context) {
 			return
 		}
 	}
+}
+
+func (s serviceLifecycleTestCase) getServiceAndPlan() (service.Service, service.Plan, error) {
+	// Get the service and plan
+	cat, err := s.module.GetCatalog()
+	if err != nil {
+		return nil, nil, fmt.Errorf(
+			`error gettting catalog from module "%s"`,
+			s.module.GetName(),
+		)
+	}
+
+	svc, ok := cat.GetService(s.serviceID)
+	if !ok {
+		return nil, nil, fmt.Errorf(
+			`service "%s" not found in module "%s" catalog`,
+			s.serviceID,
+			s.module.GetName(),
+		)
+	}
+	plan, ok := svc.GetPlan(s.planID)
+	if !ok {
+		return nil, nil, fmt.Errorf(
+			`plan "%s" not found for service "%s" in module "%s" catalog`,
+			s.planID,
+			s.serviceID,
+			s.module.GetName(),
+		)
+	}
+
+	return svc, plan, nil
+}
+
+func (s serviceLifecycleTestCase) provision(
+	ctx context.Context,
+	serviceManager service.ServiceManager,
+	instance service.Instance,
+	plan service.Plan,
+) (service.InstanceDetails, error) {
+	// Provision...
+	provisioner, err := serviceManager.GetProvisioner(plan)
+	if err != nil {
+		return nil, err
+	}
+	stepName, ok := provisioner.GetFirstStepName()
+	// There MUST be a first step
+	if !ok {
+		return nil, fmt.Errorf(
+			`Module "%s" provisioner has no steps`,
+			s.module.GetName(),
+		)
+	}
+	// Execute provisioning steps until there are none left
+	for {
+		var step service.ProvisioningStep
+		step, ok = provisioner.GetStep(stepName)
+		if !ok {
+			return nil, fmt.Errorf(
+				`Module "%s" provisioning step "%s" not found`,
+				s.module.GetName(),
+				stepName,
+			)
+		}
+		instance.Details, err = step.Execute(ctx, instance, plan)
+		if err != nil {
+			return nil, err
+		}
+		stepName, ok = provisioner.GetNextStepName(stepName)
+		// If there is no next step, we're done with provisioning
+		if !ok {
+			break
+		}
+	}
+	return instance.Details, nil
 }
