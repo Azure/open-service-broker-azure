@@ -39,7 +39,7 @@ func getMssqlCases(
 		},
 		{ //server only scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
-			description: "new server",
+			description: "new server with database child test",
 			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
 			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 			location:    "southcentralus",
