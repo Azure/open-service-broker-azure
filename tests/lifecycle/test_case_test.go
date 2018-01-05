@@ -25,7 +25,7 @@ type serviceLifecycleTestCase struct {
 	planID                 string
 	location               string
 	provisioningParameters service.ProvisioningParameters
-	parentService          *service.Instance
+	parentServiceInstance  *service.Instance
 	childTestCases         []*serviceLifecycleTestCase
 	bindingParameters      service.BindingParameters
 	testCredentials        func(credentials service.Credentials) error
@@ -108,7 +108,7 @@ func (s serviceLifecycleTestCase) execute(
 		ResourceGroup:          resourceGroup,
 		Details:                serviceManager.GetEmptyInstanceDetails(),
 		ProvisioningParameters: s.provisioningParameters,
-		Parent:                 s.parentService,
+		Parent:                 s.parentServiceInstance,
 	}
 
 	// Provision...
@@ -179,7 +179,7 @@ func (s serviceLifecycleTestCase) execute(
 	//Iterate through any child test cases, setting the instnace from this
 	//test case as the parent.
 	for i, test := range s.childTestCases {
-		test.parentService = &instance
+		test.parentServiceInstance = &instance
 		var subTestName string
 		if test.description == "" {
 			subTestName = fmt.Sprintf("subtest-%v", i)
@@ -188,6 +188,7 @@ func (s serviceLifecycleTestCase) execute(
 		}
 		t.Run(subTestName, func(t *testing.T) {
 			tErr := test.execute(t, resourceGroup)
+			//This will fail this subtest, but also the parent lifecycle test
 			assert.Nil(t, tErr)
 		})
 	}
