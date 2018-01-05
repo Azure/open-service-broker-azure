@@ -3,11 +3,9 @@
 package lifecycle
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"net/url"
-	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	ss "github.com/Azure/open-service-broker-azure/pkg/azure/mssql"
@@ -23,47 +21,6 @@ func getMssqlCases(
 	msSQLManager, err := ss.NewManager()
 	if err != nil {
 		return nil, err
-	}
-
-	provisionServerOnly := func() (*service.Instance, error) {
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Minute*20)
-		defer cancel()
-
-		s := serviceLifecycleTestCase{
-			module:      sqldb.New(armDeployer, msSQLManager),
-			description: "new server only",
-			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
-			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
-			location:    "southcentralus",
-			provisioningParameters: &sqldb.ServerProvisioningParams{
-				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.255",
-			},
-		}
-
-		svc, plan, err := s.getServiceAndPlan()
-		if err != nil {
-			return nil, err
-		}
-		serviceManager := svc.GetServiceManager()
-
-		p := service.Instance{
-			ServiceID: s.serviceID,
-			PlanID:    s.planID,
-			Location:  s.location,
-			// Force the resource group to be something known to this test executor
-			// to ensure good cleanup
-			ResourceGroup:          resourceGroup,
-			Details:                serviceManager.GetEmptyInstanceDetails(),
-			ProvisioningParameters: s.provisioningParameters,
-		}
-
-		p.Details, err = s.provision(ctx, serviceManager, p, plan)
-		if err != nil {
-			return nil, fmt.Errorf("error creating parent instance %s", err)
-		}
-		return &p, nil
 	}
 
 	return []serviceLifecycleTestCase{
@@ -82,7 +39,7 @@ func getMssqlCases(
 		},
 		{ //server only scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
-			description: "new server only",
+			description: "new server",
 			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
 			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 			location:    "southcentralus",
@@ -90,16 +47,17 @@ func getMssqlCases(
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
-		},
-		{ // db only scenario
-			module:            sqldb.New(armDeployer, msSQLManager),
-			description:       "database on an existing server",
-			setup:             provisionServerOnly,
-			serviceID:         "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-			planID:            "8fa8d759-c142-45dd-ae38-b93482ddc04a",
-			location:          "", // This is actually irrelevant for this test
-			bindingParameters: &sqldb.BindingParameters{},
-			testCredentials:   testMsSQLCreds(),
+			childTestCases: []*serviceLifecycleTestCase{
+				{ // db only scenario
+					module:            sqldb.New(armDeployer, msSQLManager),
+					description:       "database on new server",
+					serviceID:         "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
+					planID:            "8fa8d759-c142-45dd-ae38-b93482ddc04a",
+					location:          "", // This is actually irrelevant for this test
+					bindingParameters: &sqldb.BindingParameters{},
+					testCredentials:   testMsSQLCreds(),
+				},
+			},
 		},
 	}, nil
 }
