@@ -9,20 +9,22 @@ import (
 )
 
 type store struct {
-	catalog   service.Catalog
-	codec     crypto.Codec
-	instances map[string][]byte
-	bindings  map[string][]byte
+	catalog         service.Catalog
+	codec           crypto.Codec
+	instances       map[string][]byte
+	instanceAliases map[string]string
+	bindings        map[string][]byte
 }
 
 // NewStore returns a new memory-based implementation of the storage.Store used
 // for testing
 func NewStore(catalog service.Catalog, codec crypto.Codec) storage.Store {
 	return &store{
-		catalog:   catalog,
-		codec:     codec,
-		instances: make(map[string][]byte),
-		bindings:  make(map[string][]byte),
+		catalog:         catalog,
+		codec:           codec,
+		instances:       make(map[string][]byte),
+		instanceAliases: make(map[string]string),
+		bindings:        make(map[string][]byte),
 	}
 }
 
@@ -32,6 +34,9 @@ func (s *store) WriteInstance(instance service.Instance) error {
 		return err
 	}
 	s.instances[instance.InstanceID] = json
+	if instance.Alias != "" {
+		s.instanceAliases[instance.Alias] = instance.InstanceID
+	}
 	return nil
 }
 
@@ -68,12 +73,30 @@ func (s *store) GetInstance(instanceID string) (
 	return instance, err == nil, err
 }
 
+func (s *store) GetInstanceByAlias(alias string) (
+	service.Instance,
+	bool,
+	error,
+) {
+	instanceID, ok := s.instanceAliases[alias]
+	if !ok {
+		return service.Instance{}, false, nil
+	}
+	return s.GetInstance(instanceID)
+}
+
 func (s *store) DeleteInstance(instanceID string) (bool, error) {
-	_, ok := s.instances[instanceID]
+	instance, ok, err := s.GetInstance(instanceID)
+	if err != nil {
+		return false, err
+	}
 	if !ok {
 		return false, nil
 	}
 	delete(s.instances, instanceID)
+	if instance.Alias != "" {
+		delete(s.instanceAliases, instance.Alias)
+	}
 	return true, nil
 }
 

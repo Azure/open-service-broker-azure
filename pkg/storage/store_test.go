@@ -46,12 +46,22 @@ func TestWriteInstance(t *testing.T) {
 	// First assert that the instance doesn't exist in Redis
 	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
+	// Nor does its alias
+	aliasKey := getInstanceAliasKey(instance.Alias)
+	strCmd = redisClient.Get(aliasKey)
+	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Store the instance
 	err := testStore.WriteInstance(instance)
 	assert.Nil(t, err)
 	// Assert that the instance is now in Redis
 	strCmd = redisClient.Get(key)
 	assert.Nil(t, strCmd.Err())
+	// Assert that the alias is as well
+	strCmd = redisClient.Get(aliasKey)
+	assert.Nil(t, strCmd.Err())
+	instanceID, err := strCmd.Result()
+	assert.Nil(t, err)
+	assert.Equal(t, instance.InstanceID, instanceID)
 }
 
 func TestGetNonExistingInstance(t *testing.T) {
@@ -87,6 +97,43 @@ func TestGetExistingInstance(t *testing.T) {
 	assert.Equal(t, instance, retrievedInstance)
 }
 
+func TestGetNonExistingInstanceByAlias(t *testing.T) {
+	alias := uuid.NewV4().String()
+	aliasKey := getInstanceAliasKey(alias)
+	// First assert that the alias doesn't exist in Redis
+	strCmd := redisClient.Get(aliasKey)
+	assert.Equal(t, redis.Nil, strCmd.Err())
+	// Try to retrieve the non-existing instance by alias
+	_, ok, err := testStore.GetInstanceByAlias(aliasKey)
+	// Assert that the retrieval failed
+	assert.False(t, ok)
+	assert.Nil(t, err)
+}
+
+func TestGetExistingInstanceByAlias(t *testing.T) {
+	instance := getTestInstance()
+	key := getInstanceKey(instance.InstanceID)
+	// First ensure the instance exists in Redis
+	json, err := instance.ToJSON(noopCodec)
+	assert.Nil(t, err)
+	statCmd := redisClient.Set(key, json, 0)
+	assert.Nil(t, statCmd.Err())
+	// And so does the alias
+	aliasKey := getInstanceAliasKey(instance.Alias)
+	statCmd = redisClient.Set(aliasKey, instance.InstanceID, 0)
+	assert.Nil(t, statCmd.Err())
+	// Retrieve the instance by alias
+	retrievedInstance, ok, err := testStore.GetInstanceByAlias(instance.Alias)
+	// Assert that the retrieval was successful
+	assert.Nil(t, err)
+	assert.True(t, ok)
+	// Blank out a few fields before we compare
+	retrievedInstance.EncryptedProvisioningParameters = nil
+	retrievedInstance.EncryptedUpdatingParameters = nil
+	retrievedInstance.EncryptedDetails = nil
+	assert.Equal(t, instance, retrievedInstance)
+}
+
 func TestDeleteNonExistingInstance(t *testing.T) {
 	instanceID := uuid.NewV4().String()
 	key := getInstanceKey(instanceID)
@@ -108,12 +155,19 @@ func TestDeleteExistingInstance(t *testing.T) {
 	assert.Nil(t, err)
 	statCmd := redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
+	// And so does the alias
+	aliasKey := getInstanceAliasKey(instance.Alias)
+	statCmd = redisClient.Set(aliasKey, instance.InstanceID, 0)
+	assert.Nil(t, statCmd.Err())
 	// Delete the instance
 	ok, err := testStore.DeleteInstance(instance.InstanceID)
 	// Assert that the delete was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
 	strCmd := redisClient.Get(key)
+	assert.Equal(t, redis.Nil, strCmd.Err())
+	// Assert that the alias is also gone
+	strCmd = redisClient.Get(aliasKey)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 }
 
@@ -208,6 +262,7 @@ func TestGetBindingKey(t *testing.T) {
 func getTestInstance() service.Instance {
 	return service.Instance{
 		InstanceID:             uuid.NewV4().String(),
+		Alias:                  uuid.NewV4().String(),
 		ServiceID:              fake.ServiceID,
 		PlanID:                 fake.StandardPlanID,
 		ProvisioningParameters: fakeServiceManager.GetEmptyProvisioningParameters(),
