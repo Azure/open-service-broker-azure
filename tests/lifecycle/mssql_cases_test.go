@@ -39,7 +39,7 @@ func getMssqlCases(
 		},
 		{ //server only scenario
 			module:      sqldb.New(armDeployer, msSQLManager),
-			description: "new server only",
+			description: "new server with database child test",
 			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
 			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 			location:    "southcentralus",
@@ -47,7 +47,18 @@ func getMssqlCases(
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
-		}, //TODO: Add a lifecycle test for database only.
+			childTestCases: []*serviceLifecycleTestCase{
+				{ // db only scenario
+					module:            sqldb.New(armDeployer, msSQLManager),
+					description:       "database on new server",
+					serviceID:         "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
+					planID:            "8fa8d759-c142-45dd-ae38-b93482ddc04a",
+					location:          "", // This is actually irrelevant for this test
+					bindingParameters: &sqldb.BindingParameters{},
+					testCredentials:   testMsSQLCreds(),
+				},
+			},
+		},
 	}, nil
 }
 
