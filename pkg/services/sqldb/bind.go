@@ -168,6 +168,10 @@ func (d *dbOnlyManager) Bind(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
+	//Parent should be set by the framework, but return an error if it is not set.
+	if instance.Parent == nil {
+		return nil, fmt.Errorf("parent instance not set")
+	}
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(

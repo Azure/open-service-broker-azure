@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"testing"
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/stretchr/testify/assert"
 )
 
 // serviceLifecycleTestCase encapsulates all the required things for a lifecycle
@@ -19,11 +21,12 @@ import (
 type serviceLifecycleTestCase struct {
 	module                 service.Module
 	description            string
-	setup                  func() error
 	serviceID              string
 	planID                 string
 	location               string
 	provisioningParameters service.ProvisioningParameters
+	parentServiceInstance  *service.Instance
+	childTestCases         []*serviceLifecycleTestCase
 	bindingParameters      service.BindingParameters
 	testCredentials        func(credentials service.Credentials) error
 }
@@ -43,7 +46,10 @@ func (s serviceLifecycleTestCase) getName() string {
 	)
 }
 
-func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
+func (s serviceLifecycleTestCase) execute(
+	t *testing.T,
+	resourceGroup string,
+) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*20)
 	defer cancel()
 
@@ -65,6 +71,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 			s.module.GetName(),
 		)
 	}
+
 	svc, ok := cat.GetService(s.serviceID)
 	if !ok {
 		return fmt.Errorf(
@@ -73,6 +80,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 			s.module.GetName(),
 		)
 	}
+
 	plan, ok := svc.GetPlan(s.planID)
 	if !ok {
 		return fmt.Errorf(
@@ -82,18 +90,12 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 			s.module.GetName(),
 		)
 	}
+
 	serviceManager := svc.GetServiceManager()
 
 	err = serviceManager.ValidateProvisioningParameters(s.provisioningParameters)
 	if err != nil {
 		return err
-	}
-
-	// Setup...
-	if s.setup != nil {
-		if err := s.setup(); err != nil {
-			return err
-		}
 	}
 
 	// Build an instance from test case details
@@ -106,6 +108,7 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 		ResourceGroup:          resourceGroup,
 		Details:                serviceManager.GetEmptyInstanceDetails(),
 		ProvisioningParameters: s.provisioningParameters,
+		Parent:                 s.parentServiceInstance,
 	}
 
 	// Provision...
@@ -172,6 +175,24 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 			return bErr
 		}
 	}
+
+	//Iterate through any child test cases, setting the instnace from this
+	//test case as the parent.
+	for i, test := range s.childTestCases {
+		test.parentServiceInstance = &instance
+		var subTestName string
+		if test.description == "" {
+			subTestName = fmt.Sprintf("subtest-%v", i)
+		} else {
+			subTestName = strings.Replace(test.description, " ", "_", -1)
+		}
+		t.Run(subTestName, func(t *testing.T) {
+			tErr := test.execute(t, resourceGroup)
+			//This will fail this subtest, but also the parent lifecycle test
+			assert.Nil(t, tErr)
+		})
+	}
+
 	// Deprovision...
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
@@ -205,7 +226,6 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 			break
 		}
 	}
-
 	return nil
 }
 
