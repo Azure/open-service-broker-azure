@@ -22,7 +22,7 @@ server that provisions managed services in the Microsoft Azure public cloud.
 * [Azure Event Hubs](docs/modules/eventhubs.md)
 * [Azure Key Vault](docs/modules/keyvault.md)
 * [Azure Redis Cache](docs/modules/rediscache.md)
-* [Azure SQL Database](docs/modules/sqldb.md)
+* [Azure SQL Database](docs/modules/mssqldb.md)
 * [Azure Search](docs/modules/search.md)
 * [Azure Service Bus](docs/modules/servicebus.md)
 * [Azure Storage](docs/modules/storage.md)
@@ -45,7 +45,7 @@ Instructions on how to install each prerequisite are linked below:
 - [A compatible Kubernetes cluster](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-1-create-a-compatible-kubernetes-cluster)
 - [A working Helm installation](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-2-initialize-helm-on-the-cluster)
 - [Service Catalog](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-3-install-service-catalog)
-- [Helm](https://kubernetes/helm)
+- [Helm](https://github.com/kubernetes/helm)
 
 #### Service Catalog CLI
 
