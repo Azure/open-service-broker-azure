@@ -13,7 +13,7 @@ server that provisions managed services in the Microsoft Azure public cloud.
 
 *CLOUD FOUNDRY and OPEN SERVICE BROKER are trademarks of the CloudFoundry.org Foundation in the United States and other countries.*
 
-## Supported services
+## Supported Services
 
 * [Azure Container Instances](docs/modules/aci.md)
 * [Azure CosmosDB](docs/modules/cosmosdb.md)
@@ -33,7 +33,7 @@ The [Minikube Quickstart](docs/quickstart-minikube.md) walks through using the
 Open Service Broker for Azure to deploy WordPress on a local Minikube cluster.
 Go from "_I have an Azure account that I have never used_" to "_I just deployed WordPress and know what OSBA means!_"
 
-## Getting started on Kubernetes
+## Getting Started on Kubernetes
 
 ### Installing
 
@@ -54,7 +54,7 @@ installed to introspect the Kubernetes cluster. Please refer to the
 [CLI installation instructions](https://github.com/Azure/service-catalog-cli#install)
 for details on how to install it onto your machine.
 
-#### Helm chart
+#### Helm Chart
 
 Use [Helm](https://helm.sh) to install Open Service Broker for Azure onto your Kubernetes
 cluster. Refer to the OSBA [Helm chart](https://github.com/Azure/helm-charts/tree/master/open-service-broker-azure)
@@ -136,7 +136,7 @@ You can observe the status to see that asynchronous deprovisioning is ongoing:
 $ svcat get instance my-postgresql-instance
 ```
 
-## Getting started on Cloud Foundry
+## Getting Started on Cloud Foundry
 
 ### Installing
 
