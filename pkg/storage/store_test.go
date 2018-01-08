@@ -46,6 +46,21 @@ func TestWriteInstance(t *testing.T) {
 	// First assert that the instance doesn't exist in Redis
 	strCmd := redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
+	// Store the instance
+	err := testStore.WriteInstance(instance)
+	assert.Nil(t, err)
+	// Assert that the instance is now in Redis
+	strCmd = redisClient.Get(key)
+	assert.Nil(t, strCmd.Err())
+}
+
+func TestWriteInstanceWithAlias(t *testing.T) {
+	instance := getTestInstance()
+	instance.Alias = uuid.NewV4().String()
+	key := getInstanceKey(instance.InstanceID)
+	// First assert that the instance doesn't exist in Redis
+	strCmd := redisClient.Get(key)
+	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Nor does its alias
 	aliasKey := getInstanceAliasKey(instance.Alias)
 	strCmd = redisClient.Get(aliasKey)
@@ -100,6 +115,7 @@ func TestGetExistingInstance(t *testing.T) {
 func TestGetExistingInstanceWithParent(t *testing.T) {
 	// Make a parent instance
 	parentInstance := getTestInstance()
+	parentInstance.Alias = uuid.NewV4().String()
 	parentKey := getInstanceKey(parentInstance.InstanceID)
 	// Ensure the parent instance exists in Redis
 	json, err := parentInstance.ToJSON(noopCodec)
@@ -187,6 +203,24 @@ func TestDeleteNonExistingInstance(t *testing.T) {
 
 func TestDeleteExistingInstance(t *testing.T) {
 	instance := getTestInstance()
+	key := getInstanceKey(instance.InstanceID)
+	// First ensure the instance exists in Redis
+	json, err := instance.ToJSON(noopCodec)
+	assert.Nil(t, err)
+	statCmd := redisClient.Set(key, json, 0)
+	assert.Nil(t, statCmd.Err())
+	// Delete the instance
+	ok, err := testStore.DeleteInstance(instance.InstanceID)
+	// Assert that the delete was successful
+	assert.True(t, ok)
+	assert.Nil(t, err)
+	strCmd := redisClient.Get(key)
+	assert.Equal(t, redis.Nil, strCmd.Err())
+}
+
+func TestDeleteExistingInstanceWithAlias(t *testing.T) {
+	instance := getTestInstance()
+	instance.Alias = uuid.NewV4().String()
 	key := getInstanceKey(instance.InstanceID)
 	// First ensure the instance exists in Redis
 	json, err := instance.ToJSON(noopCodec)
@@ -300,7 +334,6 @@ func TestGetBindingKey(t *testing.T) {
 func getTestInstance() service.Instance {
 	return service.Instance{
 		InstanceID:             uuid.NewV4().String(),
-		Alias:                  uuid.NewV4().String(),
 		ServiceID:              fake.ServiceID,
 		PlanID:                 fake.StandardPlanID,
 		ProvisioningParameters: fakeServiceManager.GetEmptyProvisioningParameters(),
