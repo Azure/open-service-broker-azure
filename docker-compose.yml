@@ -1,18 +1,16 @@
 version: "3.2"
 services:
   dev: # 
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+    image: quay.io/deis/lightweight-docker-go:v0.1.0
+    working_dir: /go/src/github.com/Azure/open-service-broker-azure
     environment:
       CGO_ENABLED: 0
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
     network_mode: host
   test: # Like dev, but linked to redis
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+    image: quay.io/deis/lightweight-docker-go:v0.1.0
+    working_dir: /go/src/github.com/Azure/open-service-broker-azure
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
     links:
@@ -24,9 +22,8 @@ services:
     links:
     - test-api-compliance-broker:broker
   test-api-compliance-broker:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+    image: quay.io/deis/lightweight-docker-go:v0.1.0
+    working_dir: /go/src/github.com/Azure/open-service-broker-azure
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
     command:  bash -c 'go run cmd/compliance-test-broker/compliance-test-broker.go'
