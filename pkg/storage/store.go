@@ -110,6 +110,24 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 		serviceManager.GetEmptyInstanceDetails(),
 		s.codec,
 	)
+	if instance.ParentAlias != "" {
+		parent, ok, err := s.GetInstanceByAlias(instance.ParentAlias)
+		if err != nil {
+			return instance, false, fmt.Errorf(
+				`error retrieving parent with alias "%s" for instance "%s"`,
+				instance.Alias,
+				instance.InstanceID,
+			)
+		}
+		if !ok {
+			return instance, false, fmt.Errorf(
+				`parent with alias "%s" for instance "%s" not found`,
+				instance.Alias,
+				instance.InstanceID,
+			)
+		}
+		instance.Parent = &parent
+	}
 	return instance, err == nil, err
 }
 
