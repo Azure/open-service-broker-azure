@@ -97,6 +97,44 @@ func TestGetExistingInstance(t *testing.T) {
 	assert.Equal(t, instance, retrievedInstance)
 }
 
+func TestGetExistingInstanceWithParent(t *testing.T) {
+	// Make a parent instance
+	parentInstance := getTestInstance()
+	parentKey := getInstanceKey(parentInstance.InstanceID)
+	// Ensure the parent instance exists in Redis
+	json, err := parentInstance.ToJSON(noopCodec)
+	assert.Nil(t, err)
+	statCmd := redisClient.Set(parentKey, json, 0)
+	assert.Nil(t, statCmd.Err())
+	// Ensure the parent instance's alias also exists in Redis
+	parentAliasKey := getInstanceAliasKey(parentInstance.Alias)
+	statCmd = redisClient.Set(parentAliasKey, parentInstance.InstanceID, 0)
+	assert.Nil(t, statCmd.Err())
+	// Make a child instance
+	instance := getTestInstance()
+	instance.ParentAlias = parentInstance.Alias
+	instance.Parent = &parentInstance
+	key := getInstanceKey(instance.InstanceID)
+	// Ensure the child instance exists in Redis
+	json, err = instance.ToJSON(noopCodec)
+	assert.Nil(t, err)
+	statCmd = redisClient.Set(key, json, 0)
+	assert.Nil(t, statCmd.Err())
+	// Retrieve the child instance
+	retrievedInstance, ok, err := testStore.GetInstance(instance.InstanceID)
+	// Assert that the retrieval was successful
+	assert.Nil(t, err)
+	assert.True(t, ok)
+	// Blank out a few fields before we compare
+	retrievedInstance.EncryptedProvisioningParameters = nil
+	retrievedInstance.Parent.EncryptedProvisioningParameters = nil
+	retrievedInstance.EncryptedUpdatingParameters = nil
+	retrievedInstance.Parent.EncryptedUpdatingParameters = nil
+	retrievedInstance.EncryptedDetails = nil
+	retrievedInstance.Parent.EncryptedDetails = nil
+	assert.Equal(t, instance, retrievedInstance)
+}
+
 func TestGetNonExistingInstanceByAlias(t *testing.T) {
 	alias := uuid.NewV4().String()
 	aliasKey := getInstanceAliasKey(alias)
