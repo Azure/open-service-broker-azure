@@ -178,8 +178,8 @@ func getInstanceKey(instanceID string) string {
 	return fmt.Sprintf("instances:%s", instanceID)
 }
 
-func getInstanceAliasKey(instanceID string) string {
-	return fmt.Sprintf("instances:aliases:%s", instanceID)
+func getInstanceAliasKey(alias string) string {
+	return fmt.Sprintf("instances:aliases:%s", alias)
 }
 
 func (s *store) WriteBinding(binding service.Binding) error {
