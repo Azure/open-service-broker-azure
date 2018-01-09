@@ -79,6 +79,34 @@ func TestWriteInstanceWithAlias(t *testing.T) {
 	assert.Equal(t, instance.InstanceID, instanceID)
 }
 
+func TestWriteInstanceWithParent(t *testing.T) {
+	instance := getTestInstance()
+	instance.ParentAlias = uuid.NewV4().String()
+	key := getInstanceKey(instance.InstanceID)
+	// First assert that the instance doesn't exist in Redis
+	strCmd := redisClient.Get(key)
+	assert.Equal(t, redis.Nil, strCmd.Err())
+	// Nor does any index of parent alias to children
+	parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
+	boolCmd := redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
+	assert.Nil(t, boolCmd.Err())
+	childFoundInIndex, err := boolCmd.Result()
+	assert.Nil(t, err)
+	assert.False(t, childFoundInIndex)
+	// Store the instance
+	err = testStore.WriteInstance(instance)
+	assert.Nil(t, err)
+	// Assert that the instance is now in Redis
+	strCmd = redisClient.Get(key)
+	assert.Nil(t, strCmd.Err())
+	// And the index for parent alias to children contains this instance
+	boolCmd = redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
+	assert.Nil(t, boolCmd.Err())
+	childFoundInIndex, err = boolCmd.Result()
+	assert.Nil(t, err)
+	assert.True(t, childFoundInIndex)
+}
+
 func TestGetNonExistingInstance(t *testing.T) {
 	instanceID := uuid.NewV4().String()
 	key := getInstanceKey(instanceID)
@@ -241,6 +269,60 @@ func TestDeleteExistingInstanceWithAlias(t *testing.T) {
 	// Assert that the alias is also gone
 	strCmd = redisClient.Get(aliasKey)
 	assert.Equal(t, redis.Nil, strCmd.Err())
+}
+
+func TestDeleteExistingInstanceWithParent(t *testing.T) {
+	// Make a parent instance
+	parentInstance := getTestInstance()
+	parentKey := getInstanceKey(parentInstance.InstanceID)
+	// Ensure the parent instance exists in Redis
+	json, err := parentInstance.ToJSON(noopCodec)
+	assert.Nil(t, err)
+	statCmd := redisClient.Set(parentKey, json, 0)
+	assert.Nil(t, statCmd.Err())
+	// Ensure the parent instance's alias also exists in Redis
+	parentAliasKey := getInstanceAliasKey(parentInstance.Alias)
+	statCmd = redisClient.Set(parentAliasKey, parentInstance.InstanceID, 0)
+	assert.Nil(t, statCmd.Err())
+	// Make a child instance
+	instance := getTestInstance()
+	instance.ParentAlias = parentInstance.Alias
+	instance.Parent = &parentInstance
+	key := getInstanceKey(instance.InstanceID)
+	// Ensure the child instance exists in Redis
+	json, err = instance.ToJSON(noopCodec)
+	assert.Nil(t, err)
+	statCmd = redisClient.Set(key, json, 0)
+	assert.Nil(t, statCmd.Err())
+	// Delete the instance
+	ok, err := testStore.DeleteInstance(instance.InstanceID)
+	// Assert that the delete was successful
+	assert.True(t, ok)
+	assert.Nil(t, err)
+	strCmd := redisClient.Get(key)
+	assert.Equal(t, redis.Nil, strCmd.Err())
+	// And the index of parent alias to children no longer contains this instance
+	parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
+	boolCmd := redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
+	assert.Nil(t, boolCmd.Err())
+	childFoundInIndex, err := boolCmd.Result()
+	assert.Nil(t, err)
+	assert.False(t, childFoundInIndex)
+}
+
+func TestGetInstanceChildCountByAlias(t *testing.T) {
+	const count = 5
+	instanceAlias := uuid.NewV4().String()
+	instanceAliasChildrenKey := getInstanceAliasChildrenKey(instanceAlias)
+	for i := 0; i < count; i++ {
+		// Add a new, unique, child instance ID to the index
+		redisClient.SAdd(instanceAliasChildrenKey, uuid.NewV4().String())
+		// Count the children
+		children, err := testStore.GetInstanceChildCountByAlias(instanceAlias)
+		assert.Nil(t, err)
+		// Assert the size of the index is what we expect
+		assert.Equal(t, int64(i+1), children)
+	}
 }
 
 func TestWriteBinding(t *testing.T) {
