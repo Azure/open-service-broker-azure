@@ -393,7 +393,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"provisioning error: error related to parent instance",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, responseParentInvalid)
 		return
 	}
 
