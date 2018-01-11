@@ -9,9 +9,17 @@ import (
 	"github.com/go-redis/redis"
 )
 
-type cleanFunction func(workerSetName, mainWorkQueueName string) error
+type cleanFunction func(
+	workerSetName string,
+	mainActiveWorkQueueName string,
+	mainDelayedWorkQueueName string,
+) error
 
-type cleanWorkerFunction func(workerID, mainWorkQueueName string) error
+type cleanWorkerFunction func(
+	workerID string,
+	mainActiveWorkQueueName string,
+	mainDelayedWorkQueueName string,
+) error
 
 // Cleaner is an interface to be implemented by components that re-queue work
 // assigned to dead workers
@@ -43,7 +51,11 @@ func (c *cleaner) Clean(ctx context.Context) error {
 	ticker := time.NewTicker(time.Second * 10)
 	defer ticker.Stop()
 	for {
-		if err := c.clean("workers", mainWorkQueueName); err != nil {
+		if err := c.clean(
+			"workers",
+			mainActiveWorkQueueName,
+			mainDelayedWorkQueueName,
+		); err != nil {
 			return &errCleaning{err: err}
 		}
 		select {
@@ -55,7 +67,11 @@ func (c *cleaner) Clean(ctx context.Context) error {
 	}
 }
 
-func (c *cleaner) defaultClean(workerSetName, mainWorkQueueName string) error {
+func (c *cleaner) defaultClean(
+	workerSetName string,
+	mainActiveWorkQueueName string,
+	mainDelayedWorkQueueName string,
+) error {
 	strsCmd := c.redisClient.SMembers(workerSetName)
 	if strsCmd.Err() == nil {
 		workerIDs, err := strsCmd.Result()
@@ -75,7 +91,11 @@ func (c *cleaner) defaultClean(workerSetName, mainWorkQueueName string) error {
 				)
 			}
 			// If we get to here, we have a dead worker on our hands
-			if err := c.cleanWorker(workerID, mainWorkQueueName); err != nil {
+			if err := c.cleanWorker(
+				workerID,
+				mainActiveWorkQueueName,
+				mainDelayedWorkQueueName,
+			); err != nil {
 				return fmt.Errorf(
 					`error cleaning up after dead worker "%s": %s`,
 					workerID,
@@ -97,18 +117,38 @@ func (c *cleaner) defaultClean(workerSetName, mainWorkQueueName string) error {
 	return nil
 }
 
-func (c *cleaner) defaultCleanWorker(workerID, mainWorkQueueName string) error {
+func (c *cleaner) defaultCleanWorker(
+	workerID string,
+	mainActiveWorkQueueName string,
+	mainDelayedWorkQueueName string,
+) error {
 	for {
 		strCmd := c.redisClient.RPopLPush(
-			getWorkerQueueName(workerID),
-			mainWorkQueueName,
+			getWorkerActiveQueueName(workerID),
+			mainActiveWorkQueueName,
+		)
+		if strCmd.Err() == redis.Nil {
+			break
+		}
+		if strCmd.Err() != nil {
+			return fmt.Errorf(
+				`error cleaning up after dead worker "%s" active queue: %s`,
+				workerID,
+				strCmd.Err(),
+			)
+		}
+	}
+	for {
+		strCmd := c.redisClient.RPopLPush(
+			getWorkerDelayedQueueName(workerID),
+			mainDelayedWorkQueueName,
 		)
 		if strCmd.Err() == redis.Nil {
 			return nil
 		}
 		if strCmd.Err() != nil {
 			return fmt.Errorf(
-				`error cleaning up after dead worker "%s": %s`,
+				`error cleaning up after dead worker "%s" delayed queue: %s`,
 				workerID,
 				strCmd.Err(),
 			)

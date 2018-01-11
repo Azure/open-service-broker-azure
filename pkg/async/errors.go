@@ -61,12 +61,28 @@ type errReceiveAndWorkStopped struct {
 	err      error
 }
 
+type errWatchDelayedTasksStopped struct {
+	workerID string
+	err      error
+}
+
 func (e *errReceiveAndWorkStopped) Error() string {
 	if e.err == nil {
 		return fmt.Sprintf(`worker "%s" errReceiveAndWork stopped`, e.workerID)
 	}
 	return fmt.Sprintf(
 		`worker "%s" errReceiveAndWork stopped: %s`,
+		e.workerID,
+		e.err,
+	)
+}
+
+func (e *errWatchDelayedTasksStopped) Error() string {
+	if e.err == nil {
+		return fmt.Sprintf(`worker "%s" watchDelayedTasks stopped`, e.workerID)
+	}
+	return fmt.Sprintf(
+		`worker "%s" watchDelayedTasks stopped: %s`,
 		e.workerID,
 		e.err,
 	)

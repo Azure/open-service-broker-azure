@@ -13,7 +13,16 @@ import (
 )
 
 type receiveAndWorkFunction func(ctx context.Context, queueName string) error
+type watchDelayedTasksFunction func(
+	ctx context.Context,
+	delayedQueueName string,
+	activeQueueName string,
+) error
 type workFunction func(ctx context.Context, task model.Task) error
+type shouldFireDelayedTaskFunction func(
+	ctx context.Context,
+	task model.Task,
+) (bool, error)
 
 // Worker is an interface to be implemented by components that receive and
 // asynchronously complete provisioning and deprovisioning tasks
@@ -37,7 +46,11 @@ type worker struct {
 	// This allows tests to inject an alternative implementation of this function
 	receiveAndWork receiveAndWorkFunction
 	// This allows tests to inject an alternative implementation of this function
+	watchDelayedTasks watchDelayedTasksFunction
+	// This allows tests to inject an alternative implementation of this function
 	work workFunction
+	// This allows tests to inject an alternative implementation of this function
+	shouldFireDelayedTask shouldFireDelayedTaskFunction
 }
 
 // newWorker returns a new Reids-based implementation of the Worker interface
@@ -50,7 +63,9 @@ func newWorker(redisClient *redis.Client) Worker {
 		jobsFns:     make(map[string]model.JobFunction),
 	}
 	w.receiveAndWork = w.defaultReceiveAndWork
+	w.watchDelayedTasks = w.defaultWatchDelayedTasks
 	w.work = w.defaultWork
+	w.shouldFireDelayedTask = w.defaultShouldFireDelayedTask
 	return w
 }
 
@@ -106,12 +121,26 @@ func (w *worker) Work(ctx context.Context) error {
 			select {
 			case errChan <- &errReceiveAndWorkStopped{
 				workerID: w.id,
-				err:      w.receiveAndWork(ctx, mainWorkQueueName),
+				err:      w.receiveAndWork(ctx, mainActiveWorkQueueName),
 			}:
 			case <-ctx.Done():
 			}
 		}()
 	}
+	// Watch delayed tasks
+	go func() {
+		select {
+		case errChan <- &errWatchDelayedTasksStopped{
+			workerID: w.id,
+			err: w.watchDelayedTasks(
+				ctx,
+				mainDelayedWorkQueueName,
+				mainActiveWorkQueueName,
+			),
+		}:
+		case <-ctx.Done():
+		}
+	}()
 	select {
 	case <-ctx.Done():
 		log.Debug("context canceled; async worker shutting down")
@@ -133,16 +162,17 @@ func (w *worker) defaultReceiveAndWork(
 	for {
 		strCmd := w.redisClient.BRPopLPush(
 			queueName,
-			getWorkerQueueName(w.id),
+			getWorkerActiveQueueName(w.id),
 			time.Second*5,
 		)
+		// If we actually got something...
 		if strCmd.Err() != redis.Nil {
 			if strCmd.Err() != nil {
-				return fmt.Errorf("error receiving task: %s", strCmd.Err())
+				return fmt.Errorf("error receiving active task: %s", strCmd.Err())
 			}
 			taskJSON, err := strCmd.Bytes()
 			if err != nil {
-				return fmt.Errorf("error receiving task: %s", err)
+				return fmt.Errorf("error receiving active task: %s", err)
 			}
 			task, err := model.NewTaskFromJSON(taskJSON)
 			if err != nil {
@@ -153,16 +183,16 @@ func (w *worker) defaultReceiveAndWork(
 				log.WithFields(log.Fields{
 					"taskJSON": taskJSON,
 					"error":    err,
-				}).Error("error decoding task")
+				}).Error("error decoding active task")
 				intCmd := w.redisClient.LRem(
-					getWorkerQueueName(w.id),
+					getWorkerActiveQueueName(w.id),
 					0,
 					taskJSON,
 				)
 				if intCmd.Err() != nil {
 					return fmt.Errorf(
-						"error removing malformed task from the worker's work queue; "+
-							"task: %s: %s",
+						"error removing malformed task from the worker's active work "+
+							"queue; task: %s: %s",
 						taskJSON,
 						err,
 					)
@@ -190,7 +220,7 @@ func (w *worker) defaultReceiveAndWork(
 					pipeline := w.redisClient.TxPipeline()
 					pipeline.LPush(queueName, newTaskJSON)
 					pipeline.LRem(
-						getWorkerQueueName(w.id),
+						getWorkerActiveQueueName(w.id),
 						0,
 						taskJSON,
 					)
@@ -215,7 +245,7 @@ func (w *worker) defaultReceiveAndWork(
 				}).Error("error executing job")
 			}
 			intCmd := w.redisClient.LRem(
-				getWorkerQueueName(w.id),
+				getWorkerActiveQueueName(w.id),
 				0,
 				taskJSON,
 			)
@@ -224,6 +254,104 @@ func (w *worker) defaultReceiveAndWork(
 					`error removing task %s from worker "%s" work queue: %s`,
 					taskJSON,
 					w.id,
+					err,
+				)
+			}
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+	}
+}
+
+func (w *worker) defaultWatchDelayedTasks(
+	ctx context.Context,
+	delayedQueueName string,
+	activeQueueName string,
+) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	for {
+		strCmd := w.redisClient.BRPopLPush(
+			delayedQueueName,
+			getWorkerDelayedQueueName(w.id),
+			time.Second*5,
+		)
+		// If we actually got something...
+		if strCmd.Err() != redis.Nil {
+			if strCmd.Err() != nil {
+				return fmt.Errorf("error receiving delayed task: %s", strCmd.Err())
+			}
+			taskJSON, err := strCmd.Bytes()
+			if err != nil {
+				return fmt.Errorf("error receiving delayed task: %s", err)
+			}
+			task, err := model.NewTaskFromJSON(taskJSON)
+			if err != nil {
+				// If the JSON is invalid, remove the message from this worker's queue,
+				// log this and move on. No other worker is going to be able to process
+				// this-- there's nothing we can do and there's no sense letting this
+				// whole process die over this.
+				log.WithFields(log.Fields{
+					"taskJSON": taskJSON,
+					"error":    err,
+				}).Error("error decoding delayed task")
+				intCmd := w.redisClient.LRem(
+					getWorkerDelayedQueueName(w.id),
+					0,
+					taskJSON,
+				)
+				if intCmd.Err() != nil {
+					return fmt.Errorf(
+						"error removing malformed task from the worker's delayed work "+
+							"queue; task: %s: %s",
+						taskJSON,
+						err,
+					)
+				}
+				continue
+			}
+			shouldFire, err := w.shouldFireDelayedTask(ctx, task)
+			if err != nil {
+				// The only errore that should happen here is the task didn't have a
+				// an executeTime
+				log.WithFields(log.Fields{
+					"job":    task.GetJobName(),
+					"taskID": task.GetID(),
+					"error":  err,
+				}).Error("error handling delayed task")
+				intCmd := w.redisClient.LRem(
+					getWorkerDelayedQueueName(w.id),
+					0,
+					taskJSON,
+				)
+				if intCmd.Err() != nil {
+					return fmt.Errorf(
+						"error removing task without executeTime from the worker's "+
+							"delayed work queue; task: %s: %s",
+						taskJSON,
+						err,
+					)
+				}
+			}
+			pipeline := w.redisClient.TxPipeline()
+			var queueType string
+			if shouldFire {
+				pipeline.LPush(activeQueueName, taskJSON)
+				queueType = "active"
+			} else {
+				pipeline.LPush(delayedQueueName, taskJSON)
+				queueType = "delayed"
+			}
+			pipeline.LRem(getWorkerDelayedQueueName(w.id), 0, taskJSON)
+			_, err = pipeline.Exec()
+			if err != nil {
+				return fmt.Errorf(
+					"error moving delayed task back to main %s work queue; task: %#v: %s",
+					queueType,
+					task,
 					err,
 				)
 			}
@@ -246,4 +374,23 @@ func (w *worker) defaultWork(ctx context.Context, task model.Task) error {
 		return &errJobNotFound{name: task.GetJobName()}
 	}
 	return jobFn(ctx, task.GetArgs())
+}
+
+func (w *worker) defaultShouldFireDelayedTask(
+	ctx context.Context,
+	task model.Task,
+) (bool, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	executeTime := task.GetExecuteTime()
+	if executeTime == nil {
+		// TODO: Remove from queue
+		// Need to LREM this, but we don't have the JSON
+		return false, fmt.Errorf(
+			`delayed task "%s" had no executeTime and was removed from the delayed `+
+				`task queue`,
+			task.GetID(),
+		)
+	}
+	return time.Now().After(*executeTime), nil
 }

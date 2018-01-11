@@ -52,7 +52,7 @@ func (e *engine) SubmitTask(task model.Task) error {
 	if err != nil {
 		return fmt.Errorf("error encoding task %#v: %s", task, err)
 	}
-	intCmd := e.redisClient.LPush(mainWorkQueueName, taskJSON)
+	intCmd := e.redisClient.LPush(mainActiveWorkQueueName, taskJSON)
 	if intCmd.Err() != nil {
 		return fmt.Errorf("error encoding task %#v: %s", task, err)
 	}

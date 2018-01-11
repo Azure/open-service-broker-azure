@@ -2,8 +2,15 @@ package async
 
 import "fmt"
 
-const mainWorkQueueName = "work"
+const (
+	mainActiveWorkQueueName  = "activeWork"
+	mainDelayedWorkQueueName = "delayedWork"
+)
 
-func getWorkerQueueName(workerID string) string {
-	return fmt.Sprintf("worker-queues:%s", workerID)
+func getWorkerActiveQueueName(workerID string) string {
+	return fmt.Sprintf("worker-active-queues:%s", workerID)
+}
+
+func getWorkerDelayedQueueName(workerID string) string {
+	return fmt.Sprintf("worker-delayed-queues:%s", workerID)
 }
