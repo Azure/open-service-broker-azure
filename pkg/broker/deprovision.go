@@ -89,7 +89,6 @@ func (b *broker) doDeprovisionStep(
 			"error loading persisted instance",
 		)
 	}
-
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
 		return b.handleDeprovisioningError(
@@ -155,6 +154,14 @@ func (b *broker) doDeprovisionStep(
 				err,
 				"error deleting deprovisioned instance",
 			)
+		}
+		if instance.ParentAlias != "" {
+			if err := b.asyncEngine.StartDelayedTasks(instance.ParentAlias); err != nil {
+				log.WithFields(log.Fields{
+					"instanceID": instance.InstanceID,
+					"error":      err,
+				}).Fatal("error starting waiting tasks")
+			}
 		}
 	}
 	return nil

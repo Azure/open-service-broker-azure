@@ -123,3 +123,17 @@ func TestEngineStartBlocksUntilContextCanceled(t *testing.T) {
 	assert.True(t, cleanerStopped)
 	assert.True(t, workerStopped)
 }
+
+func TestEngineStartBlocksUntilResumerErrors(t *testing.T) {
+	e := NewEngine(redisClient).(*engine)
+	r := fakeAsync.NewResumer()
+	r.RunBehavior = func(context.Context) error {
+		return errSome
+	}
+	e.resumer = r
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	err := e.Start(ctx)
+	assert.Equal(t, &errResumerStopped{err: errSome}, err)
+	time.Sleep(time.Second)
+}

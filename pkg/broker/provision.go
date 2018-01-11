@@ -89,7 +89,6 @@ func (b *broker) doProvisionStep(
 			"error loading persisted instance",
 		)
 	}
-
 	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
 		return b.handleProvisioningError(
@@ -155,6 +154,14 @@ func (b *broker) doProvisionStep(
 				err,
 				"error persisting instance",
 			)
+		}
+		if instance.Alias != "" {
+			if err := b.asyncEngine.StartDelayedTasks(instance.Alias); err != nil {
+				log.WithFields(log.Fields{
+					"instanceID": instance.InstanceID,
+					"error":      err,
+				}).Fatal("error starting delayed provision tasks")
+			}
 		}
 	}
 	return nil

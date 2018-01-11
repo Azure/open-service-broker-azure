@@ -16,7 +16,7 @@ type store struct {
 	instanceAliases               map[string]string
 	bindings                      map[string][]byte
 	instanceAliasChildCounts      map[string]int64
-	instanceAliasChildCountsMutex *sync.Mutex
+	instanceAliasChildCountsMutex sync.Mutex
 }
 
 // NewStore returns a new memory-based implementation of the storage.Store used

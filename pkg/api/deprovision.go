@@ -142,21 +142,54 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := model.NewTask(
-		"deprovisionStep",
-		map[string]string{
-			"stepName":   firstStepName,
-			"instanceID": instanceID,
-		},
-	)
-	if err = s.asyncEngine.SubmitTask(task); err != nil {
+	childCount, err := s.store.GetInstanceChildCountByAlias(instance.Alias)
+	if err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
-			"deprovisioning error: error submitting deprovisioning task",
+			"deprovisioning error: error determining child count",
 		)
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
+	}
+
+	if childCount > 0 {
+		task := model.NewTask(
+			"waitForChildrenStep",
+			map[string]string{
+				"deprovisionFirstStep": firstStepName,
+				"instanceID":           instanceID,
+			},
+		)
+		log.WithFields(logFields).Debug("children not deprovisioned, waiting")
+		if err = s.asyncEngine.SubmitDelayedTask(instance.Alias, task); err != nil {
+			logFields["step"] = "waitForChildrenStep"
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"provisioning error: error submitting delayed provisioning task",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+			return
+		}
+	} else {
+		task := model.NewTask(
+			"deprovisionStep",
+			map[string]string{
+				"stepName":   firstStepName,
+				"instanceID": instanceID,
+			},
+		)
+		log.WithFields(logFields).Debug(
+			"no provisioned children, starting deprovision",
+		)
+		if err = s.asyncEngine.SubmitTask(task); err != nil {
+			logFields["step"] = firstStepName
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"deprovisioning error: error submitting deprovisioning task",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+			return
+		}
 	}
 
 	// If we get all the way to here, we've been successful!

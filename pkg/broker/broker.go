@@ -114,6 +114,23 @@ func NewBroker(
 		)
 	}
 
+	err = b.asyncEngine.RegisterJob("waitForParentStep", b.doWaitForParentStep)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing wait for parent step",
+		)
+	}
+
+	err = b.asyncEngine.RegisterJob(
+		"waitForChildrenStep",
+		b.doWaitForChildrenStep,
+	)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing wait for parent step",
+		)
+	}
+
 	b.apiServer, err = api.NewServer(
 		8080,
 		b.store,
