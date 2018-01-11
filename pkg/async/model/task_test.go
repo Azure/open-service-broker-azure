@@ -30,7 +30,8 @@ func init() {
 			"id":"%s",
 			"jobName":"%s",
 			"args":{"%s":"%s"},
-			"workerRejectionCount": %d
+			"workerRejectionCount": %d,
+			"executeTime": null
 		}`,
 		testTask.GetID(),
 		jobName,
