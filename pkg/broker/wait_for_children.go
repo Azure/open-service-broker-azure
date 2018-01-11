@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async/model"
 	log "github.com/Sirupsen/logrus"
@@ -62,26 +63,18 @@ func (b *broker) doWaitForChildrenStep(
 	var task model.Task
 	if childCount > 0 {
 		//Put this task back into the queue
-		task = model.NewTask(
+		task = model.NewDelayedTask(
 			"waitForChildrenStep",
 			map[string]string{
 				"deprovisionFirstStep": deprovisionFirstStep,
 				"instanceID":           instanceID,
 			},
+			time.Minute*5,
 		)
 		log.WithFields(log.Fields{
 			"step":       "waitforChildrenStep",
 			"instanceID": instanceID,
 		}).Debug("children not deprovisioned, will wait again")
-		if err = b.asyncEngine.SubmitDelayedTask(instance.Alias, task); err != nil {
-			return b.handleDeprovisioningError(
-				instance,
-				"waitForChildrenStep",
-				err,
-				fmt.Sprintf(`error transitioning deprovision to: "%s"`,
-					deprovisionFirstStep),
-			)
-		}
 	} else {
 		//Put the real deprovision task into the queue
 		task = model.NewTask(
@@ -95,15 +88,15 @@ func (b *broker) doWaitForChildrenStep(
 			"step":       "waitforChildrenStep",
 			"instanceID": instanceID,
 		}).Debug("children deprovisioned,  sending start deprovision task")
-		if err = b.asyncEngine.SubmitTask(task); err != nil {
-			return b.handleDeprovisioningError(
-				instance,
-				"waitForChildrenStep",
-				err,
-				fmt.Sprintf(`error transitioning deprovision to: "%s"`,
-					deprovisionFirstStep),
-			)
-		}
+	}
+	if err = b.asyncEngine.SubmitTask(task); err != nil {
+		return b.handleDeprovisioningError(
+			instance,
+			"waitForChildrenStep",
+			err,
+			fmt.Sprintf(`error transitioning deprovision to: "%s"`,
+				deprovisionFirstStep),
+		)
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async/model"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -152,6 +153,38 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 	}
 
+	var task model.Task
+	if childCount > 0 {
+		task = model.NewDelayedTask(
+			"waitForChildrenStep",
+			map[string]string{
+				"deprovisionFirstStep": firstStepName,
+				"instanceID":           instanceID,
+			},
+			time.Minute*5,
+		)
+		log.WithFields(logFields).Debug("children not deprovisioned, waiting")
+	} else {
+		task = model.NewTask(
+			"deprovisionStep",
+			map[string]string{
+				"stepName":   firstStepName,
+				"instanceID": instanceID,
+			},
+		)
+		log.WithFields(logFields).Debug(
+			"no provisioned children, starting deprovision",
+		)
+	}
+	if err = s.asyncEngine.SubmitTask(task); err != nil {
+		logFields["step"] = firstStepName
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"deprovisioning error: error determining child count",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+	}
+
 	if childCount > 0 {
 		task := model.NewTask(
 			"waitForChildrenStep",
@@ -191,7 +224,6 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
 	// If we get all the way to here, we've been successful!
 	s.writeResponse(w, http.StatusAccepted, responseDeprovisioningAccepted)
 

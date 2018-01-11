@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async/model"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -44,7 +45,6 @@ func (b *broker) doWaitForParentStep(
 			"error loading persisted instance",
 		)
 	}
-
 	waitForParent, err := b.waitForParent(instance)
 	if err != nil {
 		return b.handleProvisioningError(
@@ -54,34 +54,22 @@ func (b *broker) doWaitForParentStep(
 			fmt.Sprintf("error: parent status invalid"),
 		)
 	}
-
+	var task model.Task
 	if waitForParent {
-		task := model.NewTask(
+		task = model.NewDelayedTask(
 			"waitForParentStep",
 			map[string]string{
 				"provisionFirstStep": provisionFirstStep,
 				"instanceID":         instanceID,
 			},
+			time.Minute*5,
 		)
 		log.WithFields(log.Fields{
 			"step":       "waitforParent",
 			"instanceID": instanceID,
 		}).Debug("parent not done, will wait again")
-		if err = b.asyncEngine.SubmitDelayedTask(
-			instance.ParentAlias,
-			task,
-		); err != nil {
-			return b.handleProvisioningError(
-				instance,
-				"waitForParentStep",
-				err,
-				fmt.Sprintf(`error starting next provision task step: "%s"`,
-					provisionFirstStep),
-			)
-		}
-
 	} else {
-		task := model.NewTask(
+		task = model.NewTask(
 			"provisionStep",
 			map[string]string{
 				"stepName":   provisionFirstStep,
@@ -92,17 +80,16 @@ func (b *broker) doWaitForParentStep(
 			"step":       "waitforParent",
 			"instanceID": instanceID,
 		}).Debug("parent done, sending start provision task")
-		if err = b.asyncEngine.SubmitTask(task); err != nil {
-			return b.handleProvisioningError(
-				instance,
-				"waitForParentStep",
-				err,
-				fmt.Sprintf(`error starting next provision task step: "%s"`,
-					provisionFirstStep),
-			)
-		}
 	}
-
+	if err = b.asyncEngine.SubmitTask(task); err != nil {
+		return b.handleProvisioningError(
+			instance,
+			"waitForParentStep",
+			err,
+			fmt.Sprintf(`error starting next provision task step: "%s"`,
+				provisionFirstStep),
+		)
+	}
 	return nil
 
 }

@@ -393,11 +393,45 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"provisioning error: error related to parent instance",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseParentInvalid)
+		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
 		return
 	}
 
 	if err = s.store.WriteInstance(instance); err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"provisioning error: error related to parent instance",
+		)
+		s.writeResponse(w, http.StatusBadRequest, responseParentInvalid)
+		return
+	}
+
+	var task model.Task
+	if waitForParent {
+		task = model.NewDelayedTask(
+			"waitForParentStep",
+			map[string]string{
+				"provisionFirstStep": firstStepName,
+				"instanceID":         instanceID,
+			},
+			time.Minute*5,
+		)
+		log.WithFields(logFields).Debug("parent not provisioned, waiting")
+	} else {
+		task = model.NewTask(
+			"provisionStep",
+			map[string]string{
+				"stepName":   firstStepName,
+				"instanceID": instanceID,
+			},
+		)
+		log.WithFields(logFields).Debug(
+			"no need to wait for parent, starting provision",
+		)
+	}
+
+	if err = s.asyncEngine.SubmitTask(task); err != nil {
+		logFields["step"] = firstStepName
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
 			"provisioning error: error persisting new instance",
@@ -405,47 +439,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
-
-	if waitForParent {
-		task := model.NewTask(
-			"waitForParentStep",
-			map[string]string{
-				"provisionFirstStep": firstStepName,
-				"instanceID":         instanceID,
-			},
-		)
-		log.WithFields(logFields).Debug("parent not provisioned, waiting")
-		if err = s.asyncEngine.SubmitDelayedTask(
-			instance.ParentAlias,
-			task,
-		); err != nil {
-			logFields["step"] = "waitForParentStep"
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"provisioning error: error submitting delayed provisioning task",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
-	} else {
-		task := model.NewTask(
-			"provisionStep",
-			map[string]string{
-				"stepName":   firstStepName,
-				"instanceID": instanceID,
-			},
-		)
-		if err = s.asyncEngine.SubmitTask(task); err != nil {
-			logFields["step"] = firstStepName
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"provisioning error: error submitting provisioning task",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
-	}
-
 	// If we get all the way to here, we've been successful!
 	s.writeResponse(w, http.StatusAccepted, responseProvisioningAccepted)
 
@@ -460,7 +453,7 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 
 	parent, parentFound, err := s.store.GetInstanceByAlias(instance.ParentAlias)
 
-	//Parent has not been submitted yet, so wait for that
+	//Parent has was not found, so wait for that that to occur
 	if !parentFound {
 		return true, nil
 	}
@@ -497,6 +490,7 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 		return false, fmt.Errorf("error provisioning: parent is deprovisioning")
 	}
 
+	//If parent is provisioned, then no need to wait.
 	if parent.Status == service.InstanceStateProvisioned {
 		return false, nil
 	}
