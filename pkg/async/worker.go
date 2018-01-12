@@ -13,16 +13,18 @@ import (
 )
 
 type receiveAndWorkFunction func(ctx context.Context, queueName string) error
-type watchDelayedTasksFunction func(
+type handleDelayedTasksFunction func(
 	ctx context.Context,
 	delayedQueueName string,
 	activeQueueName string,
 ) error
 type workFunction func(ctx context.Context, task model.Task) error
-type shouldFireDelayedTaskFunction func(
+type handleDelayedTaskFunction func(
 	ctx context.Context,
-	task model.Task,
-) (bool, error)
+	taskJSON []byte,
+	activeQueueName string,
+	errCh chan error,
+)
 
 // Worker is an interface to be implemented by components that receive and
 // asynchronously complete provisioning and deprovisioning tasks
@@ -46,11 +48,11 @@ type worker struct {
 	// This allows tests to inject an alternative implementation of this function
 	receiveAndWork receiveAndWorkFunction
 	// This allows tests to inject an alternative implementation of this function
-	watchDelayedTasks watchDelayedTasksFunction
+	handleDelayedTasks handleDelayedTasksFunction
 	// This allows tests to inject an alternative implementation of this function
 	work workFunction
 	// This allows tests to inject an alternative implementation of this function
-	shouldFireDelayedTask shouldFireDelayedTaskFunction
+	handleDelayedTask handleDelayedTaskFunction
 }
 
 // newWorker returns a new Reids-based implementation of the Worker interface
@@ -63,9 +65,9 @@ func newWorker(redisClient *redis.Client) Worker {
 		jobsFns:     make(map[string]model.JobFunction),
 	}
 	w.receiveAndWork = w.defaultReceiveAndWork
-	w.watchDelayedTasks = w.defaultWatchDelayedTasks
+	w.handleDelayedTasks = w.defaultHandleDelayedTasks
 	w.work = w.defaultWork
-	w.shouldFireDelayedTask = w.defaultShouldFireDelayedTask
+	w.handleDelayedTask = w.defaultHandleDelayedTask
 	return w
 }
 
@@ -127,12 +129,12 @@ func (w *worker) Work(ctx context.Context) error {
 			}
 		}()
 	}
-	// Watch delayed tasks
+	// Handle delayed tasks
 	go func() {
 		select {
 		case errChan <- &errWatchDelayedTasksStopped{
 			workerID: w.id,
-			err: w.watchDelayedTasks(
+			err: w.handleDelayedTasks(
 				ctx,
 				mainDelayedWorkQueueName,
 				mainActiveWorkQueueName,
@@ -266,13 +268,14 @@ func (w *worker) defaultReceiveAndWork(
 	}
 }
 
-func (w *worker) defaultWatchDelayedTasks(
+func (w *worker) defaultHandleDelayedTasks(
 	ctx context.Context,
 	delayedQueueName string,
 	activeQueueName string,
 ) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	handleDelayedTaskErrCh := make(chan error)
 	for {
 		strCmd := w.redisClient.BRPopLPush(
 			delayedQueueName,
@@ -288,75 +291,25 @@ func (w *worker) defaultWatchDelayedTasks(
 			if err != nil {
 				return fmt.Errorf("error receiving delayed task: %s", err)
 			}
-			task, err := model.NewTaskFromJSON(taskJSON)
-			if err != nil {
-				// If the JSON is invalid, remove the message from this worker's queue,
-				// log this and move on. No other worker is going to be able to process
-				// this-- there's nothing we can do and there's no sense letting this
-				// whole process die over this.
-				log.WithFields(log.Fields{
-					"taskJSON": taskJSON,
-					"error":    err,
-				}).Error("error decoding delayed task")
-				intCmd := w.redisClient.LRem(
-					getWorkerDelayedQueueName(w.id),
-					0,
-					taskJSON,
-				)
-				if intCmd.Err() != nil {
-					return fmt.Errorf(
-						"error removing malformed task from the worker's delayed work "+
-							"queue; task: %s: %s",
-						taskJSON,
-						err,
-					)
-				}
-				continue
-			}
-			shouldFire, err := w.shouldFireDelayedTask(ctx, task)
-			if err != nil {
-				// The only errore that should happen here is the task didn't have a
-				// an executeTime
-				log.WithFields(log.Fields{
-					"job":    task.GetJobName(),
-					"taskID": task.GetID(),
-					"error":  err,
-				}).Error("error handling delayed task")
-				intCmd := w.redisClient.LRem(
-					getWorkerDelayedQueueName(w.id),
-					0,
-					taskJSON,
-				)
-				if intCmd.Err() != nil {
-					return fmt.Errorf(
-						"error removing task without executeTime from the worker's "+
-							"delayed work queue; task: %s: %s",
-						taskJSON,
-						err,
-					)
-				}
-			}
-			pipeline := w.redisClient.TxPipeline()
-			var queueType string
-			if shouldFire {
-				pipeline.LPush(activeQueueName, taskJSON)
-				queueType = "active"
-			} else {
-				pipeline.LPush(delayedQueueName, taskJSON)
-				queueType = "delayed"
-			}
-			pipeline.LRem(getWorkerDelayedQueueName(w.id), 0, taskJSON)
-			_, err = pipeline.Exec()
-			if err != nil {
-				return fmt.Errorf(
-					"error moving delayed task back to main %s work queue; task: %#v: %s",
-					queueType,
-					task,
-					err,
-				)
-			}
+			// Launch a new goroutine to deal with it.
+			// krancour: Goroutines are very lightweight and it is practical to have
+			// even hundreds of thousands in a single process. We use a finite number
+			// of goroutines to do actual work because we cannot accurately forecast
+			// the resource requirements of the tasks that are being executed, but
+			// if ALL we need to do in this case is wait for a certain wall-clock time
+			// to roll around, a goroutine for handling that is very cheap.
+			// Practically speaking, we can afford to spawn as many of those as we
+			// like.
+			go w.handleDelayedTask(
+				ctx,
+				taskJSON,
+				activeQueueName,
+				handleDelayedTaskErrCh,
+			)
 		}
 		select {
+		case err := <-handleDelayedTaskErrCh:
+			return err
 		case <-ctx.Done():
 			return ctx.Err()
 		default:
@@ -376,21 +329,81 @@ func (w *worker) defaultWork(ctx context.Context, task model.Task) error {
 	return jobFn(ctx, task.GetArgs())
 }
 
-func (w *worker) defaultShouldFireDelayedTask(
+func (w *worker) defaultHandleDelayedTask(
 	ctx context.Context,
-	task model.Task,
-) (bool, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	taskJSON []byte,
+	mainActiveWorkQueueName string,
+	errCh chan error,
+) {
+	task, err := model.NewTaskFromJSON(taskJSON)
+	if err != nil {
+		// If the JSON is invalid, remove the message from this worker's queue,
+		// log this and move on. No other worker is going to be able to process
+		// this-- there's nothing we can do and there's no sense letting this
+		// whole process die over this.
+		log.WithFields(log.Fields{
+			"taskJSON": taskJSON,
+			"error":    err,
+		}).Error("error decoding delayed task")
+		intCmd := w.redisClient.LRem(
+			getWorkerDelayedQueueName(w.id),
+			0,
+			taskJSON,
+		)
+		if intCmd.Err() != nil {
+			errCh <- fmt.Errorf(
+				"error removing malformed task from the worker's delayed work "+
+					"queue; task: %s: %s",
+				taskJSON,
+				err,
+			)
+			return
+		}
+	}
 	executeTime := task.GetExecuteTime()
 	if executeTime == nil {
-		// TODO: Remove from queue
-		// Need to LREM this, but we don't have the JSON
-		return false, fmt.Errorf(
-			`delayed task "%s" had no executeTime and was removed from the delayed `+
-				`task queue`,
-			task.GetID(),
+		intCmd := w.redisClient.LRem(
+			getWorkerDelayedQueueName(w.id),
+			0,
+			taskJSON,
 		)
+		if intCmd.Err() != nil {
+			errCh <- fmt.Errorf(
+				"error removing task with no executeTime from the worker's delayed "+
+					"work queue; task: %s: %s",
+				taskJSON,
+				err,
+			)
+			return
+		}
+		log.WithFields(log.Fields{
+			"task": task.GetID(),
+		}).Error("delayed task had no executeTime and was removed from the " +
+			"delayed work queue")
+		return
 	}
-	return time.Now().After(*executeTime), nil
+	// Note if the duration passed to the timer is 0 or negative, it should go
+	// off immediately
+	timer := time.NewTimer(time.Until(*executeTime))
+	defer timer.Stop()
+	select {
+	case <-timer.C:
+		pipeline := w.redisClient.TxPipeline()
+		pipeline.LPush(mainActiveWorkQueueName, taskJSON)
+		pipeline.LRem(
+			getWorkerDelayedQueueName(w.id),
+			0,
+			taskJSON,
+		)
+		_, err = pipeline.Exec()
+		if err != nil {
+			errCh <- fmt.Errorf(
+				`error moving delayed task "%s" back to main work queue: %s`,
+				task.GetID(),
+				err,
+			)
+		}
+	case <-ctx.Done():
+		// Nothing to do here
+	}
 }

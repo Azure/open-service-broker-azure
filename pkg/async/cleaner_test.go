@@ -100,7 +100,7 @@ func TestCleanerCleanWorker(t *testing.T) {
 	const taskCount int64 = 5
 	for range [taskCount]struct{}{} {
 		// Put some dummy tasks onto the worker's active work queue
-		intCmd := redisClient.LPush(workerActiveWorkQueueName, "foo")
+		intCmd = redisClient.LPush(workerActiveWorkQueueName, "foo")
 		assert.Nil(t, intCmd.Err())
 		// Also put some dummy tasks onto the worker's delayed work queue
 		intCmd = redisClient.LPush(workerDelayedWorkQueueName, "foo")
@@ -121,7 +121,11 @@ func TestCleanerCleanWorker(t *testing.T) {
 	assert.Equal(t, taskCount, workerDelayedWorkQueueDepth)
 
 	c := newCleaner(redisClient).(*cleaner)
-	err = c.cleanWorker(workerID, mainActiveWorkQueueName, mainDelayedWorkQueueName)
+	err = c.cleanWorker(
+		workerID,
+		mainActiveWorkQueueName,
+		mainDelayedWorkQueueName,
+	)
 	assert.Nil(t, err)
 
 	// Assert that the main active work queue is now taskCount deep

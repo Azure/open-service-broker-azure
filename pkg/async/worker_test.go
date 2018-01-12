@@ -32,7 +32,7 @@ func TestWorkerWorkBlocksUntilHeartErrors(t *testing.T) {
 		return ctx.Err()
 	}
 	watchDelayedTasksStopped := false
-	w.watchDelayedTasks = func(
+	w.handleDelayedTasks = func(
 		ctx context.Context,
 		delayedQueueName string,
 		activeQueueName string,
@@ -68,7 +68,7 @@ func TestWorkerWorkBlocksUntilHeartReturns(t *testing.T) {
 		return ctx.Err()
 	}
 	watchDelayedTasksStopped := false
-	w.watchDelayedTasks = func(
+	w.handleDelayedTasks = func(
 		ctx context.Context,
 		delayedQueueName string,
 		activeQueueName string,
@@ -104,7 +104,7 @@ func TestWorkerWorkBlocksUntilReceiveAndWorkErrors(t *testing.T) {
 		return errSome
 	}
 	watchDelayedTasksStopped := false
-	w.watchDelayedTasks = func(
+	w.handleDelayedTasks = func(
 		ctx context.Context,
 		delayedQueueName string,
 		activeQueueName string,
@@ -140,7 +140,7 @@ func TestWorkerWorkBlocksUntilReceiveAndWorkReturns(t *testing.T) {
 		return nil
 	}
 	watchDelayedTasksStopped := false
-	w.watchDelayedTasks = func(
+	w.handleDelayedTasks = func(
 		ctx context.Context,
 		delayedQueueName string,
 		activeQueueName string,
@@ -179,7 +179,7 @@ func TestWorkerWorkBlocksUntilContextCanceled(t *testing.T) {
 		return ctx.Err()
 	}
 	watchDelayedTasksStopped := false
-	w.watchDelayedTasks = func(
+	w.handleDelayedTasks = func(
 		ctx context.Context,
 		delayedQueueName string,
 		activeQueueName string,
