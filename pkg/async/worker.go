@@ -196,7 +196,7 @@ func (w *worker) defaultReceiveAndWork(
 						"error removing malformed task from the worker's active work "+
 							"queue; task: %s: %s",
 						taskJSON,
-						err,
+						intCmd.Err(),
 					)
 				}
 				continue
@@ -256,7 +256,7 @@ func (w *worker) defaultReceiveAndWork(
 					`error removing task %s from worker "%s" work queue: %s`,
 					taskJSON,
 					w.id,
-					err,
+					intCmd.Err(),
 				)
 			}
 		}
@@ -355,10 +355,10 @@ func (w *worker) defaultHandleDelayedTask(
 				"error removing malformed task from the worker's delayed work "+
 					"queue; task: %s: %s",
 				taskJSON,
-				err,
+				intCmd.Err(),
 			)
-			return
 		}
+		return
 	}
 	executeTime := task.GetExecuteTime()
 	if executeTime == nil {
@@ -372,7 +372,7 @@ func (w *worker) defaultHandleDelayedTask(
 				"error removing task with no executeTime from the worker's delayed "+
 					"work queue; task: %s: %s",
 				taskJSON,
-				err,
+				intCmd.Err(),
 			)
 			return
 		}
@@ -404,6 +404,6 @@ func (w *worker) defaultHandleDelayedTask(
 			)
 		}
 	case <-ctx.Done():
-		// Nothing to do here
+		errCh <- ctx.Err()
 	}
 }
