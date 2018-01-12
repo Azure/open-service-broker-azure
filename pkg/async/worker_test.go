@@ -284,10 +284,9 @@ func TestWorkerReceiveAndWorkBlocksUntilContextCanceled(t *testing.T) {
 	assert.Equal(t, ctx.Err(), err)
 }
 
-func TestWorkerDoesNotMoveTaskEarly(t *testing.T) {
+func TestDelayedQueueWatcherDoesNotMoveTaskEarly(t *testing.T) {
 
 	mainActiveWorkQueueName := getDisposableQueueName()
-	mainDelayedWorkQueueName := getDisposableQueueName()
 
 	task := model.NewDelayedTask("jobName",
 		map[string]string{
@@ -296,16 +295,29 @@ func TestWorkerDoesNotMoveTaskEarly(t *testing.T) {
 		},
 		time.Minute*10,
 	)
-	taskJSON, _ := task.ToJSON()
-	redisClient.LPush(mainDelayedWorkQueueName, taskJSON)
 	w := newWorker(redisClient).(*worker)
+
+	taskJSON, _ := task.ToJSON()
+	redisClient.LPush(getWorkerDelayedQueueName(w.GetID()), taskJSON)
+	
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
-	_ = w.handleDelayedTasks(
+	errChan := make(chan error)
+
+	w.handleDelayedTask(
 		ctx,
-		mainDelayedWorkQueueName,
+		taskJSON,
 		mainActiveWorkQueueName,
+		errChan,
 	)
+
+	var taskError error
+	select {
+	case taskError = <-errChan:
+	case <-ctx.Done():
+	}
+
+	assert.Nil(t, taskError)
 
 	intCmd := redisClient.LLen(mainActiveWorkQueueName)
 	assert.Nil(t, intCmd.Err())
@@ -321,10 +333,9 @@ func TestWorkerDoesNotMoveTaskEarly(t *testing.T) {
 	assert.NotEmpty(t, workerDelayedQueueDepth)
 }
 
-func TestWorkerMovesOldTaskImmediately(t *testing.T) {
+func TestDelayedQueueWatcherMovesOldTaskImmediately(t *testing.T) {
 
 	mainActiveWorkQueueName := getDisposableQueueName()
-	mainDelayedWorkQueueName := getDisposableQueueName()
 
 	task := model.NewDelayedTask("jobName",
 		map[string]string{
@@ -334,16 +345,28 @@ func TestWorkerMovesOldTaskImmediately(t *testing.T) {
 		time.Minute*-10,
 	)
 
-	taskJSON, _ := task.ToJSON()
-	redisClient.LPush(mainDelayedWorkQueueName, taskJSON)
-
 	w := newWorker(redisClient).(*worker)
+
+	taskJSON, _ := task.ToJSON()
+	redisClient.LPush(getWorkerDelayedQueueName(w.GetID()), taskJSON)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	_ = w.handleDelayedTasks(ctx,
-		mainDelayedWorkQueueName,
+	errChan := make(chan error)
+	
+	w.handleDelayedTask(
+		ctx,
+		taskJSON,
 		mainActiveWorkQueueName,
+		errChan,
 	)
+
+	var taskError error
+	select {
+	case taskError = <-errChan:
+	case <-ctx.Done():
+	}
+
+	assert.Nil(t, taskError)
 
 	intCmd := redisClient.LLen(mainActiveWorkQueueName)
 	assert.Nil(t, intCmd.Err())
