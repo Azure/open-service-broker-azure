@@ -68,8 +68,8 @@ func TestCleanerCleanInternalDoesNotCleanLiveWorkers(t *testing.T) {
 		return nil
 	}
 	err := c.clean(
-		workerSetName, 
-		mainActiveWorkQueueName, 
+		workerSetName,
+		mainActiveWorkQueueName,
 		mainDelayedWorkQueueName,
 	)
 	assert.Nil(t, err)
@@ -79,24 +79,74 @@ func TestCleanerCleanInternalDoesNotCleanLiveWorkers(t *testing.T) {
 func TestCleanerCleanWorker(t *testing.T) {
 	mainActiveWorkQueueName := getDisposableQueueName()
 	mainDelayedWorkQueueName := getDisposableQueueName()
-	workerID := getDisposableWorkerID()
-	workerQueueName := getWorkerActiveQueueName(workerID)
-	const taskCount = 5
-	for range [taskCount]struct{}{} {
-		intCmd := redisClient.LPush(workerQueueName, "foo")
-		assert.Nil(t, intCmd.Err())
-	}
-	c := newCleaner(redisClient).(*cleaner)
-	err := c.cleanWorker(workerID, mainActiveWorkQueueName, mainDelayedWorkQueueName)
-	assert.Nil(t, err)
+
+	// Assert that the main active work queue starts out empty
 	intCmd := redisClient.LLen(mainActiveWorkQueueName)
 	assert.Nil(t, intCmd.Err())
-	mainQueueDepth, err := intCmd.Result()
+	mainActiveWorkQueueDepth, err := intCmd.Result()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(taskCount), mainQueueDepth)
-	intCmd = redisClient.LLen(workerQueueName)
+	assert.Empty(t, mainActiveWorkQueueDepth)
+	// Assert that the main delayed work queue also starts out empty
+	intCmd = redisClient.LLen(mainDelayedWorkQueueName)
 	assert.Nil(t, intCmd.Err())
-	workerQueueDepth, err := intCmd.Result()
+	mainDelayedWorkQueueDepth, err := intCmd.Result()
 	assert.Nil(t, err)
-	assert.Empty(t, workerQueueDepth)
+	assert.Empty(t, mainDelayedWorkQueueDepth)
+
+	workerID := getDisposableWorkerID()
+	workerActiveWorkQueueName := getWorkerActiveQueueName(workerID)
+	workerDelayedWorkQueueName := getWorkerDelayedQueueName(workerID)
+
+	const taskCount int64 = 5
+	for range [taskCount]struct{}{} {
+		// Put some dummy tasks onto the worker's active work queue
+		intCmd := redisClient.LPush(workerActiveWorkQueueName, "foo")
+		assert.Nil(t, intCmd.Err())
+		// Also put some dummy tasks onto the worker's delayed work queue
+		intCmd = redisClient.LPush(workerDelayedWorkQueueName, "foo")
+		assert.Nil(t, intCmd.Err())
+	}
+
+	// Assert that the worker's active work queue is taskCount deep
+	intCmd = redisClient.LLen(workerActiveWorkQueueName)
+	assert.Nil(t, intCmd.Err())
+	workerActiveWorkQueueDepth, err := intCmd.Result()
+	assert.Nil(t, err)
+	assert.Equal(t, taskCount, workerActiveWorkQueueDepth)
+	// Assert that the worker's delayed work queue also is taskCount deep
+	intCmd = redisClient.LLen(workerDelayedWorkQueueName)
+	assert.Nil(t, intCmd.Err())
+	workerDelayedWorkQueueDepth, err := intCmd.Result()
+	assert.Nil(t, err)
+	assert.Equal(t, taskCount, workerDelayedWorkQueueDepth)
+
+	c := newCleaner(redisClient).(*cleaner)
+	err = c.cleanWorker(workerID, mainActiveWorkQueueName, mainDelayedWorkQueueName)
+	assert.Nil(t, err)
+
+	// Assert that the main active work queue is now taskCount deep
+	intCmd = redisClient.LLen(mainActiveWorkQueueName)
+	assert.Nil(t, intCmd.Err())
+	mainActiveWorkQueueDepth, err = intCmd.Result()
+	assert.Nil(t, err)
+	assert.Equal(t, taskCount, mainActiveWorkQueueDepth)
+	// Assert that the main delayed work queue also is now taskCount deep
+	intCmd = redisClient.LLen(mainDelayedWorkQueueName)
+	assert.Nil(t, intCmd.Err())
+	mainDelayedWorkQueueDepth, err = intCmd.Result()
+	assert.Nil(t, err)
+	assert.Equal(t, taskCount, mainDelayedWorkQueueDepth)
+
+	// Assert that the worker's active work queue is now empty
+	intCmd = redisClient.LLen(workerActiveWorkQueueName)
+	assert.Nil(t, intCmd.Err())
+	workerActiveWorkQueueDepth, err = intCmd.Result()
+	assert.Nil(t, err)
+	assert.Empty(t, workerActiveWorkQueueDepth)
+	// Assert that the worker's delayed work queue also is now empty
+	intCmd = redisClient.LLen(workerDelayedWorkQueueName)
+	assert.Nil(t, intCmd.Err())
+	workerDelayedWorkQueueDepth, err = intCmd.Result()
+	assert.Nil(t, err)
+	assert.Empty(t, workerDelayedWorkQueueDepth)
 }
