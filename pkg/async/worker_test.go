@@ -31,6 +31,16 @@ func TestWorkerWorkBlocksUntilHeartErrors(t *testing.T) {
 		receiveAndWorkStopped = true
 		return ctx.Err()
 	}
+	watchDelayedTasksStopped := false
+	w.watchDelayedTasks = func(
+		ctx context.Context,
+		delayedQueueName string,
+		activeQueueName string,
+	) error {
+		<-ctx.Done()
+		watchDelayedTasksStopped = true
+		return ctx.Err()
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err := w.Work(ctx)
@@ -41,6 +51,7 @@ func TestWorkerWorkBlocksUntilHeartErrors(t *testing.T) {
 	)
 	time.Sleep(time.Second)
 	assert.True(t, receiveAndWorkStopped)
+	assert.True(t, watchDelayedTasksStopped)
 }
 
 func TestWorkerWorkBlocksUntilHeartReturns(t *testing.T) {
@@ -56,6 +67,16 @@ func TestWorkerWorkBlocksUntilHeartReturns(t *testing.T) {
 		receiveAndWorkStopped = true
 		return ctx.Err()
 	}
+	watchDelayedTasksStopped := false
+	w.watchDelayedTasks = func(
+		ctx context.Context,
+		delayedQueueName string,
+		activeQueueName string,
+	) error {
+		<-ctx.Done()
+		watchDelayedTasksStopped = true
+		return ctx.Err()
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err := w.Work(ctx)
@@ -66,6 +87,7 @@ func TestWorkerWorkBlocksUntilHeartReturns(t *testing.T) {
 	)
 	time.Sleep(time.Second)
 	assert.True(t, receiveAndWorkStopped)
+	assert.True(t, watchDelayedTasksStopped)
 }
 
 func TestWorkerWorkBlocksUntilReceiveAndWorkErrors(t *testing.T) {
@@ -81,6 +103,16 @@ func TestWorkerWorkBlocksUntilReceiveAndWorkErrors(t *testing.T) {
 	w.receiveAndWork = func(context.Context, string) error {
 		return errSome
 	}
+	watchDelayedTasksStopped := false
+	w.watchDelayedTasks = func(
+		ctx context.Context,
+		delayedQueueName string,
+		activeQueueName string,
+	) error {
+		<-ctx.Done()
+		watchDelayedTasksStopped = true
+		return ctx.Err()
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err := w.Work(ctx)
@@ -91,6 +123,7 @@ func TestWorkerWorkBlocksUntilReceiveAndWorkErrors(t *testing.T) {
 	)
 	time.Sleep(time.Second)
 	assert.True(t, heartStopped)
+	assert.True(t, watchDelayedTasksStopped)
 }
 
 func TestWorkerWorkBlocksUntilReceiveAndWorkReturns(t *testing.T) {
@@ -106,6 +139,16 @@ func TestWorkerWorkBlocksUntilReceiveAndWorkReturns(t *testing.T) {
 	w.receiveAndWork = func(context.Context, string) error {
 		return nil
 	}
+	watchDelayedTasksStopped := false
+	w.watchDelayedTasks = func(
+		ctx context.Context,
+		delayedQueueName string,
+		activeQueueName string,
+	) error {
+		<-ctx.Done()
+		watchDelayedTasksStopped = true
+		return ctx.Err()
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err := w.Work(ctx)
@@ -116,6 +159,7 @@ func TestWorkerWorkBlocksUntilReceiveAndWorkReturns(t *testing.T) {
 	)
 	time.Sleep(time.Second)
 	assert.True(t, heartStopped)
+	assert.True(t, watchDelayedTasksStopped)
 }
 
 func TestWorkerWorkBlocksUntilContextCanceled(t *testing.T) {
@@ -134,6 +178,16 @@ func TestWorkerWorkBlocksUntilContextCanceled(t *testing.T) {
 		receiveAndWorkStopped = true
 		return ctx.Err()
 	}
+	watchDelayedTasksStopped := false
+	w.watchDelayedTasks = func(
+		ctx context.Context,
+		delayedQueueName string,
+		activeQueueName string,
+	) error {
+		<-ctx.Done()
+		watchDelayedTasksStopped = true
+		return ctx.Err()
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	err := w.Work(ctx)
@@ -141,6 +195,7 @@ func TestWorkerWorkBlocksUntilContextCanceled(t *testing.T) {
 	time.Sleep(time.Second)
 	assert.True(t, heartStopped)
 	assert.True(t, receiveAndWorkStopped)
+	assert.True(t, watchDelayedTasksStopped)
 }
 
 func TestReceiveAndWorkCallsWorkOncePerTask(t *testing.T) {
