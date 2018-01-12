@@ -283,3 +283,78 @@ func TestWorkerReceiveAndWorkBlocksUntilContextCanceled(t *testing.T) {
 	err := w.receiveAndWork(ctx, getDisposableQueueName())
 	assert.Equal(t, ctx.Err(), err)
 }
+
+func TestWorkerDoesNotMoveTaskEarly(t *testing.T) {
+
+	mainActiveWorkQueueName := getDisposableQueueName()
+	mainDelayedWorkQueueName := getDisposableQueueName()
+
+	task := model.NewDelayedTask("jobName",
+		map[string]string{
+			"stepName":   "step",
+			"instanceID": "provision",
+		},
+		time.Minute*10,
+	)
+	taskJSON, _ := task.ToJSON()
+	redisClient.LPush(mainDelayedWorkQueueName, taskJSON)
+	w := newWorker(redisClient).(*worker)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+	_ = w.handleDelayedTasks(
+		ctx,
+		mainDelayedWorkQueueName,
+		mainActiveWorkQueueName,
+	)
+
+	intCmd := redisClient.LLen(mainActiveWorkQueueName)
+	assert.Nil(t, intCmd.Err())
+	mainActiveWorkQueueDepth, err := intCmd.Result()
+	assert.Nil(t, err)
+	assert.Empty(t, mainActiveWorkQueueDepth)
+
+	workerDelayedQueue := getWorkerDelayedQueueName(w.GetID())
+	intCmd = redisClient.LLen(workerDelayedQueue)
+	assert.Nil(t, intCmd.Err())
+	workerDelayedQueueDepth, err := intCmd.Result()
+	assert.Nil(t, err)
+	assert.NotEmpty(t, workerDelayedQueueDepth)
+}
+
+func TestWorkerMovesOldTaskImmediately(t *testing.T) {
+
+	mainActiveWorkQueueName := getDisposableQueueName()
+	mainDelayedWorkQueueName := getDisposableQueueName()
+
+	task := model.NewDelayedTask("jobName",
+		map[string]string{
+			"stepName":   "step",
+			"instanceID": "provision",
+		},
+		time.Minute*-10,
+	)
+
+	taskJSON, _ := task.ToJSON()
+	redisClient.LPush(mainDelayedWorkQueueName, taskJSON)
+
+	w := newWorker(redisClient).(*worker)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	_ = w.handleDelayedTasks(ctx,
+		mainDelayedWorkQueueName,
+		mainActiveWorkQueueName,
+	)
+
+	intCmd := redisClient.LLen(mainActiveWorkQueueName)
+	assert.Nil(t, intCmd.Err())
+	mainActiveWorkQueueDepth, err := intCmd.Result()
+	assert.Nil(t, err)
+	assert.NotEmpty(t, mainActiveWorkQueueDepth)
+
+	workerDelayedQueue := getWorkerDelayedQueueName(w.GetID())
+	intCmd = redisClient.LLen(workerDelayedQueue)
+	assert.Nil(t, intCmd.Err())
+	workerDelayedQueueDepth, err := intCmd.Result()
+	assert.Nil(t, err)
+	assert.Empty(t, workerDelayedQueueDepth)
+}
