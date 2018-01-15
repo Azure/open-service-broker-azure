@@ -8,11 +8,12 @@ import (
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 )
 
-func ensureResourceGroup(resourceGroup string, location string) error {
+func ensureResourceGroup(resourceGroup string) error {
 	groupsClient, err := getGroupsClient()
 	if err != nil {
 		return err
 	}
+	location := "eastus"
 	_, err = groupsClient.CreateOrUpdate(
 		resourceGroup,
 		resources.Group{
