@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"time"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -15,6 +16,7 @@ type Task interface {
 	GetWorkerRejectionCount() int
 	IncrementWorkerRejectionCount() int
 	ToJSON() ([]byte, error)
+	GetExecuteTime() *time.Time
 }
 
 type task struct {
@@ -22,6 +24,7 @@ type task struct {
 	JobName              string            `json:"jobName"`
 	Args                 map[string]string `json:"args"`
 	WorkerRejectionCount int               `json:"workerRejectionCount"`
+	ExecuteTime          *time.Time        `json:"executeTime"`
 }
 
 // NewTask returns a new task
@@ -31,6 +34,31 @@ func NewTask(jobName string, args map[string]string) Task {
 		Args:    args,
 	}
 	t.ID = uuid.NewV4().String()
+	return t
+}
+
+// NewDelayedTask returns a new task that will fire after a specified duration
+func NewDelayedTask(
+	jobName string,
+	args map[string]string,
+	delay time.Duration,
+) Task {
+	tIface := NewTask(jobName, args)
+	t := tIface.(*task)
+	executeTime := time.Now().Add(delay)
+	t.ExecuteTime = &executeTime
+	return t
+}
+
+// NewScheduledTask returns a new task that will fire after a specified time
+func NewScheduledTask(
+	jobName string,
+	args map[string]string,
+	time time.Time,
+) Task {
+	tIface := NewTask(jobName, args)
+	t := tIface.(*task)
+	t.ExecuteTime = &time
 	return t
 }
 
@@ -67,4 +95,8 @@ func (t *task) IncrementWorkerRejectionCount() int {
 // ToJSON returns a []byte containing a JSON representation of the task
 func (t *task) ToJSON() ([]byte, error) {
 	return json.Marshal(t)
+}
+
+func (t *task) GetExecuteTime() *time.Time {
+	return t.ExecuteTime
 }
