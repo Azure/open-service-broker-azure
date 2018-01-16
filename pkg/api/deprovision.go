@@ -180,7 +180,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		logFields["step"] = firstStepName
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
-			"deprovisioning error: error determining child count",
+			"deprovisioning error: error submitting deprovisioning",
 		)
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 	}

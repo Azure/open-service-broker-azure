@@ -400,7 +400,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	if err = s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
-			"provisioning error: error related to parent instance",
+			"provisioning error: error persisting new instance",
 		)
 		s.writeResponse(w, http.StatusBadRequest, responseParentInvalid)
 		return
@@ -434,7 +434,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		logFields["step"] = firstStepName
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
-			"provisioning error: error persisting new instance",
+			"provisioning error: error submitting provisioning task",
 		)
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
