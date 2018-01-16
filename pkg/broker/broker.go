@@ -114,6 +114,24 @@ func NewBroker(
 		)
 	}
 
+	err = b.asyncEngine.RegisterJob("checkParentStatus", b.doCheckParentStatus)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing check of parent status",
+		)
+	}
+
+	err = b.asyncEngine.RegisterJob(
+		"checkChildrenStatuses",
+		b.doCheckChildrenStatuses,
+	)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing check of children " +
+				"statuses",
+		)
+	}
+
 	b.apiServer, err = api.NewServer(
 		8080,
 		b.store,

@@ -386,6 +386,17 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		Details:                serviceManager.GetEmptyInstanceDetails(),
 		Created:                time.Now(),
 	}
+
+	waitForParent, err := s.isParentProvisioning(instance)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"provisioning error: error related to parent instance",
+		)
+		s.writeResponse(w, http.StatusBadRequest, responseParentInvalid)
+		return
+	}
+
 	if err = s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -395,13 +406,29 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := model.NewTask(
-		"provisionStep",
-		map[string]string{
-			"stepName":   firstStepName,
-			"instanceID": instanceID,
-		},
-	)
+	var task model.Task
+	if waitForParent {
+		task = model.NewDelayedTask(
+			"checkParentStatus",
+			map[string]string{
+				"instanceID": instanceID,
+			},
+			time.Minute*1,
+		)
+		log.WithFields(logFields).Debug("parent not provisioned, waiting")
+	} else {
+		task = model.NewTask(
+			"provisionStep",
+			map[string]string{
+				"stepName":   firstStepName,
+				"instanceID": instanceID,
+			},
+		)
+		log.WithFields(logFields).Debug(
+			"no need to wait for parent, starting provision",
+		)
+	}
+
 	if err = s.asyncEngine.SubmitTask(task); err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err
@@ -411,11 +438,66 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
-
 	// If we get all the way to here, we've been successful!
 	s.writeResponse(w, http.StatusAccepted, responseProvisioningAccepted)
 
 	log.WithFields(logFields).Debug("asynchronous provisioning initiated")
+}
+
+func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
+	//No parent, so no need to wait
+	if instance.ParentAlias == "" {
+		return false, nil
+	}
+
+	parent, parentFound, err := s.store.GetInstanceByAlias(instance.ParentAlias)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":       "waitforParent",
+			"instanceID":  instance.InstanceID,
+			"parentAlias": instance.ParentAlias,
+		}).Error(
+			"bad provision request: unable to retrieve parent",
+		)
+		return false, err
+	}
+
+	//Parent has was not found, so wait for that that to occur
+	if !parentFound {
+		return true, nil
+	}
+
+	//If parent failed, we should not even attempt to provision this
+	if parent.Status == service.InstanceStateProvisioningFailed {
+		log.WithFields(log.Fields{
+			"error":      "waitforParent",
+			"instanceID": instance.InstanceID,
+			"parentID":   instance.Parent.InstanceID,
+		}).Info(
+			"bad provision request: parent failed provisioning",
+		)
+		return false, fmt.Errorf("error provisioning: parent provision failed")
+	}
+
+	//If parent is deprovisioning, we should not even attempt to provision this
+	if parent.Status == service.InstanceStateDeprovisioning {
+		log.WithFields(log.Fields{
+			"error":      "waitforParent",
+			"instanceID": instance.InstanceID,
+			"parentID":   instance.Parent.InstanceID,
+		}).Info(
+			"bad provision request: parent is deprovisioning",
+		)
+		return false, fmt.Errorf("error provisioning: parent is deprovisioning")
+	}
+
+	//If parent is provisioned, then no need to wait.
+	if parent.Status == service.InstanceStateProvisioned {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (s *server) validateLocation(svc service.Service, location string) error {
