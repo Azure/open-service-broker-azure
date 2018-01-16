@@ -155,12 +155,13 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 
 	var task model.Task
 	if childCount > 0 {
+		logFields["provisionedChildren"] = childCount
 		task = model.NewDelayedTask(
 			"checkChildrenStatuses",
 			map[string]string{
 				"instanceID": instanceID,
 			},
-			time.Minute*5,
+			time.Minute*1,
 		)
 		log.WithFields(logFields).Debug("children not deprovisioned, waiting")
 	} else {

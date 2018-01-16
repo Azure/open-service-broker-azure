@@ -413,7 +413,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			map[string]string{
 				"instanceID": instanceID,
 			},
-			time.Minute*5,
+			time.Minute*1,
 		)
 		log.WithFields(logFields).Debug("parent not provisioned, waiting")
 	} else {

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -59,10 +60,11 @@ func (b *broker) doCheckChildrenStatuses(
 			map[string]string{
 				"instanceID": instanceID,
 			},
-			time.Minute*5,
+			time.Minute*1,
 		)
 		log.WithFields(log.Fields{
 			"instanceID": instanceID,
+			"provisionedChildren" : childCount,
 		}).Debug("children not deprovisioned, will wait again")
 	} else {
 		svc, ok := b.catalog.GetService(instance.ServiceID)
@@ -102,13 +104,14 @@ func (b *broker) doCheckChildrenStatuses(
 			)
 		}
 		serviceManager := svc.GetServiceManager()
-		deprovisioner, dErr := serviceManager.GetDeprovisioner(plan)
-		if dErr != nil {
+		var deprovisioner service.Deprovisioner
+		deprovisioner, err = serviceManager.GetDeprovisioner(plan)
+		if err != nil {
 			log.WithFields(log.Fields{
 				"instanceID": instanceID,
 				"serviceID":  instance.ServiceID,
 				"planID":     instance.PlanID,
-				"error":      dErr,
+				"error":      err,
 			}).Error(
 				"deprovisioning error: error retrieving deprovisioner for " +
 					"service and plan",
@@ -116,7 +119,7 @@ func (b *broker) doCheckChildrenStatuses(
 			return b.handleDeprovisioningError(
 				instance,
 				"checkChildrenStatus",
-				dErr,
+				err,
 				"error retrieving deprovisioner for service and service",
 			)
 		}

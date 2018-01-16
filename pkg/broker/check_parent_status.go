@@ -54,7 +54,7 @@ func (b *broker) doCheckParentStatus(
 			map[string]string{
 				"instanceID": instanceID,
 			},
-			time.Minute*5,
+			time.Minute*1,
 		)
 		log.WithFields(log.Fields{
 			"instanceID": instanceID,
@@ -96,8 +96,9 @@ func (b *broker) doCheckParentStatus(
 			)
 		}
 		serviceManager := svc.GetServiceManager()
-		provisioner, pErr := serviceManager.GetProvisioner(plan)
-		if pErr != nil {
+		var provisioner service.Provisioner
+		provisioner, err = serviceManager.GetProvisioner(plan)
+		if err != nil {
 			log.WithFields(log.Fields{
 				"instanceID": instanceID,
 				"serviceID":  instance.ServiceID,
@@ -110,7 +111,7 @@ func (b *broker) doCheckParentStatus(
 			return b.handleProvisioningError(
 				instanceID,
 				"checkParentStatus",
-				pErr,
+				err,
 				"error retrieving provisioner for service and plan",
 			)
 		}
