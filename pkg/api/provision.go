@@ -393,7 +393,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"provisioning error: error related to parent instance",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, responseParentInvalid)
 		return
 	}
 
@@ -409,10 +409,9 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	var task model.Task
 	if waitForParent {
 		task = model.NewDelayedTask(
-			"waitForParentStep",
+			"checkParentStatus",
 			map[string]string{
-				"provisionFirstStep": firstStepName,
-				"instanceID":         instanceID,
+				"instanceID": instanceID,
 			},
 			time.Minute*5,
 		)
@@ -455,8 +454,8 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"error":      "waitforParent",
-			"instanceID": instance.InstanceID,
+			"error":       "waitforParent",
+			"instanceID":  instance.InstanceID,
 			"parentAlias": instance.ParentAlias,
 		}).Error(
 			"bad provision request: unable to retrieve parent",
@@ -474,7 +473,7 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 		log.WithFields(log.Fields{
 			"error":      "waitforParent",
 			"instanceID": instance.InstanceID,
-			"parentID": instance.Parent.InstanceID, 
+			"parentID":   instance.Parent.InstanceID,
 		}).Info(
 			"bad provision request: parent failed provisioning",
 		)
@@ -486,7 +485,7 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 		log.WithFields(log.Fields{
 			"error":      "waitforParent",
 			"instanceID": instance.InstanceID,
-			"parentID" : instance.Parent.InstanceID,
+			"parentID":   instance.Parent.InstanceID,
 		}).Info(
 			"bad provision request: parent is deprovisioning",
 		)

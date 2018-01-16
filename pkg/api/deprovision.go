@@ -156,10 +156,9 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	var task model.Task
 	if childCount > 0 {
 		task = model.NewDelayedTask(
-			"waitForChildrenStep",
+			"checkChildrenStatuses",
 			map[string]string{
-				"deprovisionFirstStep": firstStepName,
-				"instanceID":           instanceID,
+				"instanceID": instanceID,
 			},
 			time.Minute*5,
 		)
