@@ -106,28 +106,6 @@ func (e *errDeferredTaskWatcherStopped) Error() string {
 	return fmt.Sprintf("%s: %s", baseMsg, e.err)
 }
 
-type errResuming struct {
-	err error
-}
-
-func (e *errResuming) Error() string {
-	return fmt.Sprintf(
-		`error resuming delayed tasks: %s`,
-		e.err,
-	)
-}
-
-type errResumerStopped struct {
-	err error
-}
-
-func (e *errResumerStopped) Error() string {
-	if e.err == nil {
-		return "resumer stopped"
-	}
-	return fmt.Sprintf("resumer stopped: %s", e.err)
-}
-
 type errDuplicateJob struct {
 	name string
 }

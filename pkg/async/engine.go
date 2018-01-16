@@ -30,7 +30,6 @@ type engine struct {
 	worker Worker
 	// This allows tests to inject an alternative implementation of Cleaner
 	cleaner Cleaner
-	resumer Resumer
 }
 
 // NewEngine returns a new Redis-based implementation of the Engine
@@ -40,7 +39,6 @@ func NewEngine(redisClient *redis.Client) Engine {
 		redisClient: redisClient,
 		cleaner:     newCleaner(redisClient),
 		worker:      newWorker(redisClient),
-		resumer:     newResumer(redisClient),
 	}
 }
 
