@@ -453,19 +453,20 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 
 	parent, parentFound, err := s.store.GetInstanceByAlias(instance.ParentAlias)
 
-	//Parent has was not found, so wait for that that to occur
-	if !parentFound {
-		return true, nil
-	}
-
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":      "waitforParent",
 			"instanceID": instance.InstanceID,
+			"parentAlias": instance.ParentAlias,
 		}).Error(
 			"bad provision request: unable to retrieve parent",
 		)
 		return false, err
+	}
+
+	//Parent has was not found, so wait for that that to occur
+	if !parentFound {
+		return true, nil
 	}
 
 	//If parent failed, we should not even attempt to provision this
@@ -473,6 +474,7 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 		log.WithFields(log.Fields{
 			"error":      "waitforParent",
 			"instanceID": instance.InstanceID,
+			"parentID": instance.Parent.InstanceID, 
 		}).Error(
 			"bad provision request: parent failed provisioning",
 		)
@@ -484,6 +486,7 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 		log.WithFields(log.Fields{
 			"error":      "waitforParent",
 			"instanceID": instance.InstanceID,
+			"parentID" : instance.Parent.InstanceID,
 		}).Error(
 			"bad provision request: parent is deprovisioning",
 		)

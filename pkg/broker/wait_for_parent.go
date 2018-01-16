@@ -95,52 +95,34 @@ func (b *broker) doWaitForParentStep(
 }
 
 func (b *broker) waitForParent(instance service.Instance) (bool, error) {
-
-	parent, parentFound, err := b.store.GetInstanceByAlias(instance.ParentAlias)
-
 	//Parent has not been submitted yet, so wait for that
-	if !parentFound {
+	if instance.Parent == nil {
 		return true, nil
 	}
-
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error":       "waitforParent",
-			"instanceID":  instance.InstanceID,
-			"parentAlias": instance.ParentAlias,
-		}).Error(
-			"bad provision request: unable to retrieve parent",
-		)
-		return false, err
-	}
-
 	//If parent failed, we should not even attempt to provision this
 	if parent.Status == service.InstanceStateProvisioningFailed {
 		log.WithFields(log.Fields{
 			"error":       "waitforParent",
 			"instanceID":  instance.InstanceID,
-			"parentAlias": instance.ParentAlias,
+			"parentID": instance.Parent.InstanceID,
 		}).Error(
 			"bad provision request: parent failed provisioning",
 		)
 		return false, fmt.Errorf("error provisioning: parent provision failed")
 	}
-
 	//If parent is deprovisioning, we should not even attempt to provision this
 	if parent.Status == service.InstanceStateDeprovisioning {
 		log.WithFields(log.Fields{
 			"error":       "waitforParent",
 			"instanceID":  instance.InstanceID,
-			"parentAlias": instance.ParentAlias,
+			"parentID": instance.Parent.InstanceID,
 		}).Error(
 			"bad provision request: parent is deprovisioning",
 		)
 		return false, fmt.Errorf("error provisioning: parent is deprovisioning")
 	}
-
 	if parent.Status == service.InstanceStateProvisioned {
 		return false, nil
 	}
-
 	return true, nil
 }
