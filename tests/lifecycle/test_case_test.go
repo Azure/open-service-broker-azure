@@ -71,7 +71,6 @@ func (s serviceLifecycleTestCase) execute(
 			s.module.GetName(),
 		)
 	}
-
 	svc, ok := cat.GetService(s.serviceID)
 	if !ok {
 		return fmt.Errorf(
@@ -80,7 +79,6 @@ func (s serviceLifecycleTestCase) execute(
 			s.module.GetName(),
 		)
 	}
-
 	plan, ok := svc.GetPlan(s.planID)
 	if !ok {
 		return fmt.Errorf(

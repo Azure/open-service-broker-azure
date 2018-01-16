@@ -2,8 +2,17 @@ package async
 
 import "fmt"
 
-const mainWorkQueueName = "work"
+const (
+	workerSetName         = "workers"
+	aliveIndicator        = "alive"
+	pendingTaskQueueName  = "pendingTasks"
+	deferredTaskQueueName = "deferredTasks"
+)
 
-func getWorkerQueueName(workerID string) string {
-	return fmt.Sprintf("worker-queues:%s", workerID)
+func getActiveTaskQueueName(workerID string) string {
+	return fmt.Sprintf("active-tasks:%s", workerID)
+}
+
+func getWatchedTaskQueueName(workerID string) string {
+	return fmt.Sprintf("watched-tasks:%s", workerID)
 }

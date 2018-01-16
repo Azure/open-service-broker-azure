@@ -9,7 +9,7 @@ import (
 // Engine is a fake implementation of async.Engine used for testing
 type Engine struct {
 	SubmittedTasks map[string]model.Task
-	RunBehavior    RunFunction
+	RunBehavior    RunFn
 }
 
 // NewEngine returns a new, fake implementation of async.Engine used for testing
@@ -21,7 +21,7 @@ func NewEngine() *Engine {
 }
 
 // RegisterJob registers a new Job with the async engine
-func (e *Engine) RegisterJob(name string, fn model.JobFunction) error {
+func (e *Engine) RegisterJob(name string, fn model.JobFn) error {
 	return nil
 }
 
@@ -32,8 +32,10 @@ func (e *Engine) SubmitTask(task model.Task) error {
 	return nil
 }
 
-// Start causes the async engine to begin executing queued tasks
-func (e *Engine) Start(ctx context.Context) error {
+// Run causes the async engine to carry out all of its functions. It blocks
+// until a fatal error is encountered or the context passed to it has been
+// canceled. Run always returns a non-nil error.
+func (e *Engine) Run(ctx context.Context) error {
 	return e.RunBehavior(ctx)
 }
 
