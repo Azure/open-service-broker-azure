@@ -83,13 +83,6 @@ func (e *engine) Run(ctx context.Context) error {
 		case <-ctx.Done():
 		}
 	}()
-	// Start the resumer
-	go func() {
-		select {
-		case errChan <- &errResumerStopped{err: e.resumer.Resume(ctx)}:
-		case <-ctx.Done():
-		}
-	}()
 	// Start the worker
 	go func() {
 		select {
