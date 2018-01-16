@@ -9,28 +9,15 @@ import (
 	"github.com/go-redis/redis"
 )
 
-const aliveIndicator = "alive"
-
-type errHeartbeat struct {
-	workerID string
-	err      error
-}
-
-func (e *errHeartbeat) Error() string {
-	return fmt.Sprintf(
-		`error sending heartbeat for worker "%s": %s`,
-		e.workerID,
-		e.err,
-	)
-}
-
 // Heart is an interface to be implemented by components that can send worker
 // heartbeats
 type Heart interface {
 	// Beat sends a single heartbeat
 	Beat() error
-	// Start sends heartbeats at regular intervals
-	Start(context.Context) error
+	// Run sends heartbeats at regular intervals.  It blocks until a fatal error
+	// is encountered or the context passed to it has been canceled. Run always
+	// returns a non-nil error.
+	Run(context.Context) error
 }
 
 // heart is a Redis-based implementation of the Heart interface
@@ -67,8 +54,10 @@ func (h *heart) Beat() error {
 	return nil
 }
 
-// Start sends heartbeats at regular intervals
-func (h *heart) Start(ctx context.Context) error {
+// Run sends heartbeats at regular intervals.  It blocks until a fatal error is
+// encountered or the context passed to it has been canceled. Run always returns
+// a non-nil error.
+func (h *heart) Run(ctx context.Context) error {
 	ticker := time.NewTicker(h.frequency)
 	defer ticker.Stop()
 	for {
@@ -88,12 +77,12 @@ func (h *heart) Start(ctx context.Context) error {
 // to facilitate testing.
 func (h *heart) defaultBeat() error {
 	key := getHeartbeatKey(h.workerID)
-	statusCmd := h.redisClient.Set(key, aliveIndicator, h.ttl)
-	if statusCmd.Err() != nil {
+	err := h.redisClient.Set(key, aliveIndicator, h.ttl).Err()
+	if err != nil {
 		return fmt.Errorf(
 			"error sending heartbeat for worker %s: %s",
 			h.workerID,
-			statusCmd.Err(),
+			err,
 		)
 	}
 	return nil

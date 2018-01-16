@@ -13,23 +13,14 @@ import (
 // asynchronously completing provisioning and deprovisioning tasks.
 type Engine interface {
 	// RegisterJob registers a new Job with the async engine
-	RegisterJob(name string, fn model.JobFunction) error
+	RegisterJob(name string, fn model.JobFn) error
 	// SubmitTask submits an idempotent task to the async engine for reliable,
 	// asynchronous completion
 	SubmitTask(model.Task) error
-	// SubmitDelayedTask submits an idempotent task to the async engine for
-	// reliable, asynchronous completion, in a delayed state. The task will be
-	// automatically started on a periodic basis in the future or can be
-	// started by a client. The task will be stored in a queue named by the
-	// identifier parameter
-	SubmitDelayedTask(identifier string, task model.Task) error
-	// StartDelayedTasks will transfer all delayed tasks from the queue
-	// identified by the identifier parameter to the main worker queue for
-	// processing. The resumer will also start these on a periodic basis if
-	// they have not been triggered by a client
-	StartDelayedTasks(identifier string) error
-	// Start causes the async engine to begin executing queued tasks
-	Start(context.Context) error
+	// Run causes the async engine to carry out all of its functions. It blocks
+	// until a fatal error is encountered or the context passed to it has been
+	// canceled. Run always returns a non-nil error.
+	Run(context.Context) error
 }
 
 // engine is a Redis-based implementation of the Engine interface.
@@ -54,7 +45,7 @@ func NewEngine(redisClient *redis.Client) Engine {
 }
 
 // RegisterJob registers a new Job with the async engine
-func (e *engine) RegisterJob(name string, fn model.JobFunction) error {
+func (e *engine) RegisterJob(name string, fn model.JobFn) error {
 	return e.worker.RegisterJob(name, fn)
 }
 
@@ -65,56 +56,32 @@ func (e *engine) SubmitTask(task model.Task) error {
 	if err != nil {
 		return fmt.Errorf("error encoding task %#v: %s", task, err)
 	}
-	intCmd := e.redisClient.LPush(mainWorkQueueName, taskJSON)
-	if intCmd.Err() != nil {
-		return fmt.Errorf("error encoding task %#v: %s", task, err)
-	}
-	return nil
-}
 
-// SubmitDelayedTask submits an idempotent task to the async engine for
-// reliable, asynchronous completion, in a delayed state. The task will be
-// automatically started on a periodic basis in the future or can be
-// started by a client. The task will be stored in a queue named by the
-// identifier parameter
-func (e *engine) SubmitDelayedTask(identifier string, task model.Task) error {
-	log.Debug(fmt.Sprintf("Submitting delayed tasks for %s", identifier))
-	taskJSON, err := task.ToJSON()
+	var queueName string
+	if task.GetExecuteTime() != nil {
+		queueName = deferredTaskQueueName
+	} else {
+		queueName = pendingTaskQueueName
+	}
+
+	err = e.redisClient.LPush(queueName, taskJSON).Err()
 	if err != nil {
 		return fmt.Errorf("error encoding task %#v: %s", task, err)
 	}
-	intCmd := e.redisClient.LPush(identifier, taskJSON)
-	if intCmd.Err() != nil {
-		return fmt.Errorf("error encoding task %#v: %s", task, err)
-	}
-	e.resumer.Watch(identifier)
 	return nil
 }
 
-// StartDelayedTasks will transfer all delayed tasks from the queue
-// identified by the identifier parameter to the main worker queue for
-// processing. The resumer will also start these on a periodic basis if
-// they have not been triggered by a client
-func (e *engine) StartDelayedTasks(identifier string) error {
-	log.Debug(fmt.Sprintf("Starting delayed tasks for %s", identifier))
-	strCmd := e.redisClient.RPopLPush(identifier, mainWorkQueueName)
-	for strCmd.Err() != redis.Nil {
-		if strCmd.Err() != nil {
-			return fmt.Errorf("error starting delayed task: %s", strCmd.Err())
-		}
-		strCmd = e.redisClient.RPopLPush(identifier, mainWorkQueueName)
-	}
-	return nil
-}
-
-func (e *engine) Start(ctx context.Context) error {
+// Run causes the async engine to carry out all of its functions. It blocks
+// until a fatal error is encountered or the context passed to it has been
+// canceled. Run always returns a non-nil error.
+func (e *engine) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	errChan := make(chan error)
+	errCh := make(chan error)
 	// Start the cleaner
 	go func() {
 		select {
-		case errChan <- &errCleanerStopped{err: e.cleaner.Clean(ctx)}:
+		case errCh <- &errCleanerStopped{err: e.cleaner.Run(ctx)}:
 		case <-ctx.Done():
 		}
 	}()
@@ -128,9 +95,9 @@ func (e *engine) Start(ctx context.Context) error {
 	// Start the worker
 	go func() {
 		select {
-		case errChan <- &errWorkerStopped{
+		case errCh <- &errWorkerStopped{
 			workerID: e.worker.GetID(),
-			err:      e.worker.Work(ctx),
+			err:      e.worker.Run(ctx),
 		}:
 		case <-ctx.Done():
 		}
@@ -139,7 +106,7 @@ func (e *engine) Start(ctx context.Context) error {
 	case <-ctx.Done():
 		log.Debug("context canceled; async engine shutting down")
 		return ctx.Err()
-	case err := <-errChan:
+	case err := <-errCh:
 		return err
 	}
 }

@@ -156,7 +156,7 @@ func (b *broker) Start(ctx context.Context) error {
 	// Start async engine
 	go func() {
 		select {
-		case errChan <- &errAsyncEngineStopped{err: b.asyncEngine.Start(ctx)}:
+		case errChan <- &errAsyncEngineStopped{err: b.asyncEngine.Run(ctx)}:
 		case <-ctx.Done():
 		}
 	}()

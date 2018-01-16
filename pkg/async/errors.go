@@ -26,10 +26,11 @@ type errCleanerStopped struct {
 }
 
 func (e *errCleanerStopped) Error() string {
+	baseMsg := "cleaner stopped"
 	if e.err == nil {
-		return "cleaner stopped"
+		return baseMsg
 	}
-	return fmt.Sprintf("cleaner stopped: %s", e.err)
+	return fmt.Sprintf("%s: %s", baseMsg, e.err)
 }
 
 type errWorkerStopped struct {
@@ -38,10 +39,11 @@ type errWorkerStopped struct {
 }
 
 func (e *errWorkerStopped) Error() string {
+	baseMsg := fmt.Sprintf(`worker "%s" stopped`, e.workerID)
 	if e.err == nil {
-		return fmt.Sprintf(`worker "%s" stopped`, e.workerID)
+		return baseMsg
 	}
-	return fmt.Sprintf(`worker "%s" stopped: %s`, e.workerID, e.err)
+	return fmt.Sprintf("%s: %s", baseMsg, e.err)
 }
 
 type errHeartStopped struct {
@@ -50,26 +52,58 @@ type errHeartStopped struct {
 }
 
 func (e *errHeartStopped) Error() string {
+	baseMsg := fmt.Sprintf(`worker "%s" heart stopped`, e.workerID)
 	if e.err == nil {
-		return fmt.Sprintf(`worker "%s" heart stopped`, e.workerID)
+		return baseMsg
 	}
-	return fmt.Sprintf(`worker "%s" heart stopped: %s`, e.workerID, e.err)
+	return fmt.Sprintf("%s: %s", baseMsg, e.err)
 }
 
-type errReceiveAndWorkStopped struct {
+type errReceiverStopped struct {
+	workerID  string
+	queueName string
+	err       error
+}
+
+func (e *errReceiverStopped) Error() string {
+	baseMsg := fmt.Sprintf(
+		`worker "%s" receiver for queue "%s" stopped`,
+		e.workerID,
+		e.queueName,
+	)
+	if e.err == nil {
+		return baseMsg
+	}
+	return fmt.Sprintf("%s: %s", baseMsg, e.err)
+}
+
+type errTaskExecutorStopped struct {
 	workerID string
 	err      error
 }
 
-func (e *errReceiveAndWorkStopped) Error() string {
+func (e *errTaskExecutorStopped) Error() string {
+	baseMsg := fmt.Sprintf(`worker "%s" task executor stopped`, e.workerID)
 	if e.err == nil {
-		return fmt.Sprintf(`worker "%s" errReceiveAndWork stopped`, e.workerID)
+		return baseMsg
 	}
-	return fmt.Sprintf(
-		`worker "%s" errReceiveAndWork stopped: %s`,
+	return fmt.Sprintf("%s: %s", baseMsg, e.err)
+}
+
+type errDeferredTaskWatcherStopped struct {
+	workerID string
+	err      error
+}
+
+func (e *errDeferredTaskWatcherStopped) Error() string {
+	baseMsg := fmt.Sprintf(
+		`worker "%s" deferred task watcher stopped`,
 		e.workerID,
-		e.err,
 	)
+	if e.err == nil {
+		return baseMsg
+	}
+	return fmt.Sprintf("%s: %s", baseMsg, e.err)
 }
 
 type errResuming struct {
@@ -102,10 +136,15 @@ func (e *errDuplicateJob) Error() string {
 	return fmt.Sprintf(`duplicate job name "%s"`, e.name)
 }
 
-type errJobNotFound struct {
-	name string
+type errHeartbeat struct {
+	workerID string
+	err      error
 }
 
-func (e *errJobNotFound) Error() string {
-	return fmt.Sprintf(`no job named "%s" is registered with the worker`, e.name)
+func (e *errHeartbeat) Error() string {
+	return fmt.Sprintf(
+		`error sending heartbeat for worker "%s": %s`,
+		e.workerID,
+		e.err,
+	)
 }

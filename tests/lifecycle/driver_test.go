@@ -14,7 +14,7 @@ func TestServices(t *testing.T) {
 	resourceGroup := "test-" + uuid.NewV4().String()
 
 	log.Printf("----> creating resource group \"%s\"\n", resourceGroup)
-	err := ensureResourceGroup(resourceGroup, "eastus")
+	err := ensureResourceGroup(resourceGroup)
 	assert.Nil(t, err)
 	log.Printf("----> created resource group \"%s\"\n", resourceGroup)
 
