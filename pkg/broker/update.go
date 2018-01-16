@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 )
@@ -134,7 +134,7 @@ func (b *broker) doUpdateStep(
 				"error persisting instance",
 			)
 		}
-		task := model.NewTask(
+		task := async.NewTask(
 			"updateStep",
 			map[string]string{
 				"stepName":   nextStepName,

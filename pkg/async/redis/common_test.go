@@ -1,14 +1,14 @@
-package async
+package redis
 
 import (
 	"errors"
 
-	"github.com/go-redis/redis"
+	goredis "github.com/go-redis/redis"
 	uuid "github.com/satori/go.uuid"
 )
 
 var (
-	redisClient = redis.NewClient(&redis.Options{
+	redisClient = goredis.NewClient(&goredis.Options{
 		Addr:     "redis:6379",
 		PoolSize: 20,
 	})

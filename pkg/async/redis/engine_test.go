@@ -1,11 +1,11 @@
-package async
+package redis
 
 import (
 	"context"
 	"testing"
 	"time"
 
-	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
+	"github.com/Azure/open-service-broker-azure/pkg/async/redis/fake"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +13,7 @@ func TestEngineRunBlocksUntilCleanerStops(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
 	// Create a fake cleaner that will just return an error when it runs
-	c := fakeAsync.NewCleaner()
+	c := fake.NewCleaner()
 	c.RunBehavior = func(context.Context) error {
 		return errSome
 	}
@@ -24,7 +24,7 @@ func TestEngineRunBlocksUntilCleanerStops(t *testing.T) {
 	// Create a fake worker that will just communicate when the context it was
 	// passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	w := fakeAsync.NewWorker()
+	w := fake.NewWorker()
 	w.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
@@ -69,7 +69,7 @@ func TestEngineRunBlocksUntilWorkerStops(t *testing.T) {
 	// Create a fake cleaner that will just communicate when the context it was
 	// passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	c := fakeAsync.NewCleaner()
+	c := fake.NewCleaner()
 	c.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
@@ -80,7 +80,7 @@ func TestEngineRunBlocksUntilWorkerStops(t *testing.T) {
 	e.cleaner = c
 
 	// Create a fake worker that will just return an error when it runs
-	w := fakeAsync.NewWorker()
+	w := fake.NewWorker()
 	w.RunBehavior = func(context.Context) error {
 		return errSome
 	}
@@ -122,7 +122,7 @@ func TestEngineRunRespondsToContextCanceled(t *testing.T) {
 
 	// Create a fake cleaner that will just run until the context it was passed
 	// is canceled
-	c := fakeAsync.NewCleaner()
+	c := fake.NewCleaner()
 	c.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
 		return ctx.Err()
@@ -133,7 +133,7 @@ func TestEngineRunRespondsToContextCanceled(t *testing.T) {
 
 	// Create a fake worker that will just run until the context it was passed
 	// is canceled
-	w := fakeAsync.NewWorker()
+	w := fake.NewWorker()
 	w.RunBehavior = func(ctx context.Context) error {
 		<-ctx.Done()
 		return ctx.Err()

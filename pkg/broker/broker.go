@@ -8,6 +8,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
+	redisAsync "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
@@ -91,7 +92,7 @@ func NewBroker(
 	catalog := service.NewCatalog(services)
 	b := &broker{
 		store:       storage.NewStore(storageRedisClient, catalog, codec),
-		asyncEngine: async.NewEngine(asyncRedisClient),
+		asyncEngine: redisAsync.NewEngine(asyncRedisClient),
 		catalog:     catalog,
 	}
 

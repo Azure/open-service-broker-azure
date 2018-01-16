@@ -1,4 +1,4 @@
-package async
+package redis
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"github.com/Azure/open-service-broker-azure/pkg/async/redis/fake"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,7 +24,7 @@ func TestNewWorkersHaveUniqueIDs(t *testing.T) {
 // stops beating.
 func TestWorkerRunBlocksUntilHeartStops(t *testing.T) {
 	// Use a fake heart
-	h := fakeAsync.NewHeart()
+	h := fake.NewHeart()
 
 	// Specify the fake heart's runtime behavior should just return an error
 	h.RunBehavior = func(context.Context) error {
@@ -83,7 +83,7 @@ func TestWorkerRunBlocksUntilHeartStops(t *testing.T) {
 // worker's goroutine that receives pending tasks stops running.
 func TestWorkerRunBlocksUntilPendingReceiverStops(t *testing.T) {
 	// Use a fake heart
-	h := fakeAsync.NewHeart()
+	h := fake.NewHeart()
 
 	// Specify the fake heart's runtime behavior should just communicates when the
 	// context it was passed has been canceled
@@ -157,7 +157,7 @@ func TestWorkerRunBlocksUntilPendingReceiverStops(t *testing.T) {
 // goroutine that executes pending tasks stops.
 func TestWorkerRunBlocksUntilExecuteTasksStop(t *testing.T) {
 	// Use a fake heart
-	h := fakeAsync.NewHeart()
+	h := fake.NewHeart()
 
 	// Specify the fake heart's runtime behavior should just communicates when the
 	// context it was passed has been canceled
@@ -221,7 +221,7 @@ func TestWorkerRunBlocksUntilExecuteTasksStop(t *testing.T) {
 // worker's goroutine that receives deferred tasks stops.
 func TestWorkerRunBlocksUntilDeferredReceiverStops(t *testing.T) {
 	// Use a fake heart
-	h := fakeAsync.NewHeart()
+	h := fake.NewHeart()
 
 	// Specify the fake heart's runtime behavior should just communicates when the
 	// context it was passed has been canceled
@@ -294,7 +294,7 @@ func TestWorkerRunBlocksUntilDeferredReceiverStops(t *testing.T) {
 // worker's goroutine that watches a deferred task errors.
 func TestWorkerRunBlocksUntilWatchDeferredTaskErrors(t *testing.T) {
 	// Use a fake heart
-	h := fakeAsync.NewHeart()
+	h := fake.NewHeart()
 
 	// Specify the fake heart's runtime behavior should just communicates when the
 	// context it was passed has been canceled
@@ -379,7 +379,7 @@ func TestWorkerRunBlocksUntilWatchDeferredTaskErrors(t *testing.T) {
 // passed to the Run function causes the Run function to return.
 func TestWorkerRunRespondsToContextCanceled(t *testing.T) {
 	// Use a fake heart
-	h := fakeAsync.NewHeart()
+	h := fake.NewHeart()
 
 	// Specify the fake heart's runtime behavior should just block until its
 	// context is canceled
@@ -521,13 +521,13 @@ func TestDefaultExecuteTasks(t *testing.T) {
 
 	// Define some tasks
 	invalidTaskJSON := []byte("bogus")
-	unregisteredTask := model.NewTask("nonExistingJob", map[string]string{})
+	unregisteredTask := async.NewTask("nonExistingJob", map[string]string{})
 	unregisteredTaskJSON, err := unregisteredTask.ToJSON()
 	assert.Nil(t, err)
-	badTask := model.NewTask("badJob", map[string]string{})
+	badTask := async.NewTask("badJob", map[string]string{})
 	badTaskJSON, err := badTask.ToJSON()
 	assert.Nil(t, err)
-	goodTask := model.NewTask("goodJob", map[string]string{})
+	goodTask := async.NewTask("goodJob", map[string]string{})
 	goodTaskJSON, err := goodTask.ToJSON()
 	assert.Nil(t, err)
 	assert.Nil(t, err)
@@ -674,7 +674,7 @@ func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
 	assert.Empty(t, pendingTaskQueueDepth)
 
 	// Put a task with no execute time on the worker's watched task queue
-	task := model.NewTask("foo", nil)
+	task := async.NewTask("foo", nil)
 	taskJSON, err := task.ToJSON()
 	assert.Nil(t, err)
 	err = redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
@@ -735,7 +735,7 @@ func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
 	assert.Empty(t, pendingTaskQueueDepth)
 
 	// Put a lapsed task on the worker's watched task queue
-	task := model.NewDelayedTask("foo", nil, time.Second*-1)
+	task := async.NewDelayedTask("foo", nil, time.Second*-1)
 	taskJSON, err := task.ToJSON()
 	assert.Nil(t, err)
 	err = redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
@@ -793,7 +793,7 @@ func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
 	assert.Empty(t, pendingTaskQueueDepth)
 
 	// Put task with a future execute time on the worker's watched tasks queue
-	task := model.NewDelayedTask("foo", nil, time.Second*5)
+	task := async.NewDelayedTask("foo", nil, time.Second*5)
 	taskJSON, err := task.ToJSON()
 	assert.Nil(t, err)
 	err = redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
