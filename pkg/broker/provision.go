@@ -89,6 +89,7 @@ func (b *broker) doProvisionStep(
 			"error loading persisted instance",
 		)
 	}
+	
 	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
 		return b.handleProvisioningError(

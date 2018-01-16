@@ -89,6 +89,7 @@ func (b *broker) doDeprovisionStep(
 			"error loading persisted instance",
 		)
 	}
+	
 	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
 	if err != nil {
 		return b.handleDeprovisioningError(
