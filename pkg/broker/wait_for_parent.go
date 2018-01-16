@@ -99,29 +99,30 @@ func (b *broker) waitForParent(instance service.Instance) (bool, error) {
 	if instance.Parent == nil {
 		return true, nil
 	}
+
 	//If parent failed, we should not even attempt to provision this
-	if parent.Status == service.InstanceStateProvisioningFailed {
+	if instance.Parent.Status == service.InstanceStateProvisioningFailed {
 		log.WithFields(log.Fields{
 			"error":       "waitforParent",
 			"instanceID":  instance.InstanceID,
 			"parentID": instance.Parent.InstanceID,
-		}).Error(
+		}).Info(
 			"bad provision request: parent failed provisioning",
 		)
 		return false, fmt.Errorf("error provisioning: parent provision failed")
 	}
 	//If parent is deprovisioning, we should not even attempt to provision this
-	if parent.Status == service.InstanceStateDeprovisioning {
+	if instance.Parent.Status == service.InstanceStateDeprovisioning {
 		log.WithFields(log.Fields{
 			"error":       "waitforParent",
 			"instanceID":  instance.InstanceID,
 			"parentID": instance.Parent.InstanceID,
-		}).Error(
+		}).Info(
 			"bad provision request: parent is deprovisioning",
 		)
 		return false, fmt.Errorf("error provisioning: parent is deprovisioning")
 	}
-	if parent.Status == service.InstanceStateProvisioned {
+	if instance.Parent.Status == service.InstanceStateProvisioned {
 		return false, nil
 	}
 	return true, nil

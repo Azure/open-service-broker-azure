@@ -475,7 +475,7 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 			"error":      "waitforParent",
 			"instanceID": instance.InstanceID,
 			"parentID": instance.Parent.InstanceID, 
-		}).Error(
+		}).Info(
 			"bad provision request: parent failed provisioning",
 		)
 		return false, fmt.Errorf("error provisioning: parent provision failed")
@@ -487,7 +487,7 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 			"error":      "waitforParent",
 			"instanceID": instance.InstanceID,
 			"parentID" : instance.Parent.InstanceID,
-		}).Error(
+		}).Info(
 			"bad provision request: parent is deprovisioning",
 		)
 		return false, fmt.Errorf("error provisioning: parent is deprovisioning")
