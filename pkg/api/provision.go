@@ -402,7 +402,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"provisioning error: error persisting new instance",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseParentInvalid)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
 
