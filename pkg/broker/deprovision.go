@@ -155,14 +155,6 @@ func (b *broker) doDeprovisionStep(
 				"error deleting deprovisioned instance",
 			)
 		}
-		if instance.ParentAlias != "" {
-			if err := b.asyncEngine.StartDelayedTasks(instance.ParentAlias); err != nil {
-				log.WithFields(log.Fields{
-					"instanceID": instance.InstanceID,
-					"error":      err,
-				}).Fatal("error starting waiting tasks")
-			}
-		}
 	}
 	return nil
 }

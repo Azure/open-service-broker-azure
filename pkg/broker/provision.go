@@ -155,14 +155,6 @@ func (b *broker) doProvisionStep(
 				"error persisting instance",
 			)
 		}
-		if instance.Alias != "" {
-			if err := b.asyncEngine.StartDelayedTasks(instance.Alias); err != nil {
-				log.WithFields(log.Fields{
-					"instanceID": instance.InstanceID,
-					"error":      err,
-				}).Fatal("error starting delayed provision tasks")
-			}
-		}
 	}
 	return nil
 }
