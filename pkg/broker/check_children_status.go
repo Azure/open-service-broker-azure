@@ -12,7 +12,7 @@ import (
 )
 
 func (b *broker) doCheckChildrenStatuses(
-	ctx context.Context,
+	_ context.Context,
 	args map[string]string,
 ) error {
 	instanceID, ok := args["instanceID"]
@@ -63,8 +63,8 @@ func (b *broker) doCheckChildrenStatuses(
 			time.Minute*1,
 		)
 		log.WithFields(log.Fields{
-			"instanceID": instanceID,
-			"provisionedChildren" : childCount,
+			"instanceID":          instanceID,
+			"provisionedChildren": childCount,
 		}).Debug("children not deprovisioned, will wait again")
 	} else {
 		svc, ok := b.catalog.GetService(instance.ServiceID)

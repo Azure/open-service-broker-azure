@@ -12,7 +12,7 @@ import (
 )
 
 func (b *broker) doCheckParentStatus(
-	ctx context.Context,
+	_ context.Context,
 	args map[string]string,
 ) error {
 
