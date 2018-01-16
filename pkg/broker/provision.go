@@ -10,7 +10,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func (b *broker) doProvisionStep(
+func (b *broker) executeProvisioningStep(
 	ctx context.Context,
 	args map[string]string,
 ) error {
@@ -131,7 +131,7 @@ func (b *broker) doProvisionStep(
 			)
 		}
 		task := async.NewTask(
-			"provisionStep",
+			"executeProvisioningStep",
 			map[string]string{
 				"stepName":   nextStepName,
 				"instanceID": instanceID,

@@ -344,7 +344,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := async.NewTask(
-		"provisionStep",
+		"executeProvisioningStep",
 		map[string]string{
 			"stepName":   firstStepName,
 			"instanceID": instanceID,

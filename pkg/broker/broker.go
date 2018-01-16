@@ -96,7 +96,10 @@ func NewBroker(
 		catalog:     catalog,
 	}
 
-	err := b.asyncEngine.RegisterJob("provisionStep", b.doProvisionStep)
+	err := b.asyncEngine.RegisterJob(
+		"executeProvisioningStep",
+		b.executeProvisioningStep,
+	)
 	if err != nil {
 		return nil, errors.New(
 			"error registering async job for executing provisioning steps",
@@ -108,7 +111,10 @@ func NewBroker(
 			"error registering async job for executing updating steps",
 		)
 	}
-	err = b.asyncEngine.RegisterJob("deprovisionStep", b.doDeprovisionStep)
+	err = b.asyncEngine.RegisterJob(
+		"executeDeprovisioningStep",
+		b.executeDeprovisioningStep,
+	)
 	if err != nil {
 		return nil, errors.New(
 			"error registering async job for executing deprovisioning steps",
