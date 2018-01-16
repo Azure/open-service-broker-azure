@@ -1,4 +1,4 @@
-package model
+package async
 
 import (
 	"encoding/json"

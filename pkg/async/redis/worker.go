@@ -1,4 +1,4 @@
-package async
+package redis
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 	uuid "github.com/satori/go.uuid"
@@ -44,7 +44,7 @@ type Worker interface {
 	// GetID returns the worker's ID
 	GetID() string
 	// RegisterJob registers a new Job with the worker
-	RegisterJob(name string, fn model.JobFn) error
+	RegisterJob(name string, fn async.JobFn) error
 	// Run causes the worker to complete tasks. It blocks until a fatal error is
 	// encountered or the context passed to it has been canceled. Run always
 	// returns a non-nil error.
@@ -57,7 +57,7 @@ type worker struct {
 	redisClient *redis.Client
 	// This allows tests to inject an alternative implementation
 	heart        Heart
-	jobsFns      map[string]model.JobFn
+	jobsFns      map[string]async.JobFn
 	jobsFnsMutex sync.RWMutex
 	// This allows tests to inject an alternative implementation of this function
 	receivePendingTasks receiveTasksFn
@@ -76,7 +76,7 @@ func newWorker(redisClient *redis.Client) Worker {
 		id:          workerID,
 		redisClient: redisClient,
 		heart:       newHeart(workerID, time.Second*30, redisClient),
-		jobsFns:     make(map[string]model.JobFn),
+		jobsFns:     make(map[string]async.JobFn),
 	}
 	w.receivePendingTasks = w.defaultReceiveTasks
 	w.receiveDeferredTasks = w.defaultReceiveTasks
@@ -91,7 +91,7 @@ func (w *worker) GetID() string {
 }
 
 // RegisterJob registers a new Job with the worker
-func (w *worker) RegisterJob(name string, fn model.JobFn) error {
+func (w *worker) RegisterJob(name string, fn async.JobFn) error {
 	w.jobsFnsMutex.Lock()
 	defer w.jobsFnsMutex.Unlock()
 	if _, ok := w.jobsFns[name]; ok {
@@ -429,8 +429,8 @@ func (w *worker) defaultWatchDeferredTask(
 func (w *worker) getTaskFromJSON(
 	taskJSON []byte,
 	queueName string,
-) (model.Task, error) {
-	task, err := model.NewTaskFromJSON(taskJSON)
+) (async.Task, error) {
+	task, err := async.NewTaskFromJSON(taskJSON)
 	if err != nil {
 		// If the JSON is invalid, remove the message from the queue, log this and
 		// move on. No other worker is going to be able to process this-- there's

@@ -1,4 +1,4 @@
-package async
+package redis
 
 import "fmt"
 

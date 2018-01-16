@@ -3,7 +3,7 @@ package fake
 import (
 	"context"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 )
 
 // Worker is a fake implementation of async.Worker used for testing
@@ -24,7 +24,7 @@ func (w *Worker) GetID() string {
 }
 
 // RegisterJob registers a new Job with the worker
-func (w *Worker) RegisterJob(name string, fn model.JobFn) error {
+func (w *Worker) RegisterJob(name string, fn async.JobFn) error {
 	return nil
 }
 
