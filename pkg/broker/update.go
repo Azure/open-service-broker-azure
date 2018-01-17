@@ -12,10 +12,11 @@ import (
 
 func (b *broker) doUpdateStep(
 	ctx context.Context,
-	args map[string]string,
+	task async.Task,
 ) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	args := task.GetArgs()
 	stepName, ok := args["stepName"]
 	if !ok {
 		return errors.New(`missing required argument "stepName"`)

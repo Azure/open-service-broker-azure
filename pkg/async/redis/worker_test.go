@@ -503,7 +503,7 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	var badJobCallCount int
 	err := w.RegisterJob(
 		"badJob",
-		func(_ context.Context, _ map[string]string) error {
+		func(_ context.Context, _ async.Task) error {
 			badJobCallCount++
 			return errors.New("a deliberate error")
 		},
@@ -512,7 +512,7 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	var goodJobCallCount int
 	err = w.RegisterJob(
 		"goodJob",
-		func(_ context.Context, _ map[string]string) error {
+		func(_ context.Context, _ async.Task) error {
 			goodJobCallCount++
 			return nil
 		},

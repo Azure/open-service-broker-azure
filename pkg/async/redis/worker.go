@@ -327,7 +327,7 @@ func (w *worker) defaultExecuteTasks(
 				}
 				continue
 			}
-			if err := jobFn(ctx, task.GetArgs()); err != nil {
+			if err := jobFn(ctx, task); err != nil {
 				// If we get to here, we have a legitimate failure executing the task.
 				// This isn't the worker's fault. Simply log this.
 				// krancour: This behavior is something we can revisit in the future, if
