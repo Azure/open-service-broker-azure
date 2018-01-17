@@ -131,32 +131,25 @@ func (b *broker) executeProvisioningStep(
 				"error persisting instance",
 			)
 		}
-		task := async.NewTask(
-			"executeProvisioningStep",
-			map[string]string{
-				"stepName":   nextStepName,
-				"instanceID": instanceID,
-			},
+		return []async.Task{
+			async.NewTask(
+				"executeProvisioningStep",
+				map[string]string{
+					"stepName":   nextStepName,
+					"instanceID": instanceID,
+				},
+			),
+		}, nil
+	}
+	// No next step-- we're done provisioning!
+	instanceCopy.Status = service.InstanceStateProvisioned
+	if err = b.store.WriteInstance(instanceCopy); err != nil {
+		return nil, b.handleProvisioningError(
+			instanceCopy,
+			stepName,
+			err,
+			"error persisting instance",
 		)
-		if err = b.asyncEngine.SubmitTask(task); err != nil {
-			return nil, b.handleProvisioningError(
-				instanceCopy,
-				stepName,
-				err,
-				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
-			)
-		}
-	} else {
-		// No next step-- we're done provisioning!
-		instanceCopy.Status = service.InstanceStateProvisioned
-		if err = b.store.WriteInstance(instanceCopy); err != nil {
-			return nil, b.handleProvisioningError(
-				instanceCopy,
-				stepName,
-				err,
-				"error persisting instance",
-			)
-		}
 	}
 	return nil, nil
 }

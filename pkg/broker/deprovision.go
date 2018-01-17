@@ -131,32 +131,25 @@ func (b *broker) executeDeprovisioningStep(
 				"error persisting instance",
 			)
 		}
-		task := async.NewTask(
-			"executeDeprovisioningStep",
-			map[string]string{
-				"stepName":   nextStepName,
-				"instanceID": instanceID,
-			},
+		return []async.Task{
+			async.NewTask(
+				"executeDeprovisioningStep",
+				map[string]string{
+					"stepName":   nextStepName,
+					"instanceID": instanceID,
+				},
+			),
+		}, nil
+	}
+	// No next step-- we're done deprovisioning!
+	_, err = b.store.DeleteInstance(instanceCopy.InstanceID)
+	if err != nil {
+		return nil, b.handleDeprovisioningError(
+			instanceCopy,
+			stepName,
+			err,
+			"error deleting deprovisioned instance",
 		)
-		if err = b.asyncEngine.SubmitTask(task); err != nil {
-			return nil, b.handleDeprovisioningError(
-				instanceCopy,
-				stepName,
-				err,
-				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
-			)
-		}
-	} else {
-		// No next step-- we're done deprovisioning!
-		_, err = b.store.DeleteInstance(instanceCopy.InstanceID)
-		if err != nil {
-			return nil, b.handleDeprovisioningError(
-				instanceCopy,
-				stepName,
-				err,
-				"error deleting deprovisioned instance",
-			)
-		}
 	}
 	return nil, nil
 }
