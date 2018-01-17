@@ -143,7 +143,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := async.NewTask(
-		"deprovisionStep",
+		"executeDeprovisioningStep",
 		map[string]string{
 			"stepName":   firstStepName,
 			"instanceID": instanceID,
