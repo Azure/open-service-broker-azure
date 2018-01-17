@@ -105,7 +105,7 @@ func NewBroker(
 			"error registering async job for executing provisioning steps",
 		)
 	}
-	err = b.asyncEngine.RegisterJob("updateStep", b.doUpdateStep)
+	err = b.asyncEngine.RegisterJob("executeUpdatingStep", b.executeUpdatingStep)
 	if err != nil {
 		return nil, errors.New(
 			"error registering async job for executing updating steps",

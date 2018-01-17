@@ -271,7 +271,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	task := async.NewTask(
-		"updateStep",
+		"executeUpdatingStep",
 		map[string]string{
 			"stepName":   firstStepName,
 			"instanceID": instanceID,
