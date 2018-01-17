@@ -1,9 +1,9 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
-  name: my-sqldb-binding
+  name: db-only-sqldb-secret
   namespace: default
 spec:
   instanceRef:
-    name: my-sqldb-instance
-  secretName: my-sqldb-secret
+    name: db-only-sqldb-instance
+  secretName: db-only-sqldb-secret
