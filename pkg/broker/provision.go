@@ -12,21 +12,22 @@ import (
 
 func (b *broker) executeProvisioningStep(
 	ctx context.Context,
-	args map[string]string,
-) error {
+	task async.Task,
+) ([]async.Task, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	args := task.GetArgs()
 	stepName, ok := args["stepName"]
 	if !ok {
-		return errors.New(`missing required argument "stepName"`)
+		return nil, errors.New(`missing required argument "stepName"`)
 	}
 	instanceID, ok := args["instanceID"]
 	if !ok {
-		return errors.New(`missing required argument "instanceID"`)
+		return nil, errors.New(`missing required argument "instanceID"`)
 	}
 	instance, ok, err := b.store.GetInstance(instanceID)
 	if err != nil {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instanceID,
 			stepName,
 			err,
@@ -34,7 +35,7 @@ func (b *broker) executeProvisioningStep(
 		)
 	}
 	if !ok {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instanceID,
 			stepName,
 			nil,
@@ -47,7 +48,7 @@ func (b *broker) executeProvisioningStep(
 	}).Debug("executing provisioning step")
 	svc, ok := b.catalog.GetService(instance.ServiceID)
 	if !ok {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instance,
 			stepName,
 			nil,
@@ -59,7 +60,7 @@ func (b *broker) executeProvisioningStep(
 	}
 	plan, ok := svc.GetPlan(instance.PlanID)
 	if !ok {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instance,
 			stepName,
 			nil,
@@ -82,7 +83,7 @@ func (b *broker) executeProvisioningStep(
 	// back to storage.
 	instanceCopy, _, err := b.store.GetInstance(instanceID)
 	if err != nil {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instanceID,
 			stepName,
 			err,
@@ -92,7 +93,7 @@ func (b *broker) executeProvisioningStep(
 
 	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instance,
 			stepName,
 			err,
@@ -104,7 +105,7 @@ func (b *broker) executeProvisioningStep(
 	}
 	step, ok := provisioner.GetStep(stepName)
 	if !ok {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instance,
 			stepName,
 			nil,
@@ -113,7 +114,7 @@ func (b *broker) executeProvisioningStep(
 	}
 	updatedDetails, err := step.Execute(ctx, instance, plan)
 	if err != nil {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instance,
 			stepName,
 			err,
@@ -123,41 +124,34 @@ func (b *broker) executeProvisioningStep(
 	instanceCopy.Details = updatedDetails
 	if nextStepName, ok := provisioner.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instanceCopy); err != nil {
-			return b.handleProvisioningError(
+			return nil, b.handleProvisioningError(
 				instanceCopy,
 				stepName,
 				err,
 				"error persisting instance",
 			)
 		}
-		task := async.NewTask(
-			"executeProvisioningStep",
-			map[string]string{
-				"stepName":   nextStepName,
-				"instanceID": instanceID,
-			},
-		)
-		if err = b.asyncEngine.SubmitTask(task); err != nil {
-			return b.handleProvisioningError(
-				instanceCopy,
-				stepName,
-				err,
-				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
-			)
-		}
-	} else {
-		// No next step-- we're done provisioning!
-		instanceCopy.Status = service.InstanceStateProvisioned
-		if err = b.store.WriteInstance(instanceCopy); err != nil {
-			return b.handleProvisioningError(
-				instanceCopy,
-				stepName,
-				err,
-				"error persisting instance",
-			)
-		}
+		return []async.Task{
+			async.NewTask(
+				"executeProvisioningStep",
+				map[string]string{
+					"stepName":   nextStepName,
+					"instanceID": instanceID,
+				},
+			),
+		}, nil
 	}
-	return nil
+	// No next step-- we're done provisioning!
+	instanceCopy.Status = service.InstanceStateProvisioned
+	if err = b.store.WriteInstance(instanceCopy); err != nil {
+		return nil, b.handleProvisioningError(
+			instanceCopy,
+			stepName,
+			err,
+			"error persisting instance",
+		)
+	}
+	return nil, nil
 }
 
 // handleProvisioningError tries to handle async provisioning errors. If an
