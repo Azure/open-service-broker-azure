@@ -503,18 +503,18 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	var badJobCallCount int
 	err := w.RegisterJob(
 		"badJob",
-		func(_ context.Context, _ async.Task) error {
+		func(_ context.Context, _ async.Task) ([]async.Task, error) {
 			badJobCallCount++
-			return errors.New("a deliberate error")
+			return nil, errors.New("a deliberate error")
 		},
 	)
 	assert.Nil(t, err)
 	var goodJobCallCount int
 	err = w.RegisterJob(
 		"goodJob",
-		func(_ context.Context, _ async.Task) error {
+		func(_ context.Context, _ async.Task) ([]async.Task, error) {
 			goodJobCallCount++
-			return nil
+			return nil, nil
 		},
 	)
 	assert.Nil(t, err)
