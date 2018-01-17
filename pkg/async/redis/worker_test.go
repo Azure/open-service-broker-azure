@@ -179,6 +179,7 @@ func TestWorkerRunBlocksUntilExecuteTasksStop(t *testing.T) {
 		ctx context.Context,
 		_ chan []byte,
 		_ string,
+		_ string,
 		errCh chan error,
 	) {
 		select {
@@ -497,6 +498,7 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	w := newWorker(redisClient).(*worker)
 
 	pendingTaskQueueName := getDisposableQueueName()
+	deferredTaskQueueName := getDisposableQueueName()
 	activeTaskQueueName := getActiveTaskQueueName(w.id)
 
 	// Register some jobs with the worker
@@ -514,7 +516,10 @@ func TestDefaultExecuteTasks(t *testing.T) {
 		"goodJob",
 		func(_ context.Context, _ async.Task) ([]async.Task, error) {
 			goodJobCallCount++
-			return nil, nil
+			return []async.Task{
+				async.NewTask("followUpJob", nil),
+				async.NewDelayedTask("followUpJob", nil, time.Minute),
+			}, nil
 		},
 	)
 	assert.Nil(t, err)
@@ -549,6 +554,11 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
+	// Assert that the deferred task queue is empty
+	deferredTaskQueueDepth, err := redisClient.LLen(deferredTaskQueueName).Result()
+	assert.Nil(t, err)
+	assert.Empty(t, deferredTaskQueueDepth)
+
 	// Assert that worker's active task queue has precisely len(tasks) tasks
 	activeTaskQueueDepth, err := redisClient.LLen(activeTaskQueueName).Result()
 	assert.Nil(t, err)
@@ -573,7 +583,13 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	}()
 
 	errCh := make(chan error)
-	go w.defaultExecuteTasks(ctx, inputCh, pendingTaskQueueName, errCh)
+	go w.defaultExecuteTasks(
+		ctx,
+		inputCh,
+		pendingTaskQueueName,
+		deferredTaskQueueName,
+		errCh,
+	)
 
 	select {
 	case <-errCh:
@@ -581,11 +597,18 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	case <-ctx.Done():
 	}
 
-	// Assert that the pending task queue has precisely one task-- the
-	// unprocessable task, which should have been returned to it
+	// Assert that the pending task queue has precisely two tasks-- the
+	// unprocessable task, which should have been returned to it, and a follow-up
+	// task
 	pendingTaskQueueDepth, err = redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), pendingTaskQueueDepth)
+	assert.Equal(t, int64(2), pendingTaskQueueDepth)
+
+	// Assert that the deferred task queue has precisely one task-- a follow-up
+	// task
+	deferredTaskQueueDepth, err = redisClient.LLen(deferredTaskQueueName).Result()
+	assert.Nil(t, err)
+	assert.Equal(t, int64(1), deferredTaskQueueDepth)
 
 	// Assert that the worker's active task queue is empty-- in all cases, the
 	// tasks should have been removed from this queue
