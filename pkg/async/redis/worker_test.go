@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/redis/fake"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,18 +20,12 @@ func TestNewWorkersHaveUniqueIDs(t *testing.T) {
 // TestWorkerRunBlocksUntilHeartStops tests what happens when a worker's heart
 // stops beating.
 func TestWorkerRunBlocksUntilHeartStops(t *testing.T) {
-	// Use a fake heart
-	h := fake.NewHeart()
-
-	// Specify the fake heart's runtime behavior should just return an error
-	h.RunBehavior = func(context.Context) error {
-		return errSome
-	}
-
 	w := newWorker(redisClient).(*worker)
 
-	// Make the worker use the fake heart
-	w.heart = h
+	// Override the worker's default runHeart function so it just returns an error
+	w.runHeart = func(context.Context) error {
+		return errSome
+	}
 
 	// Override the worker's default receivePendingTasks function so it just
 	// communicates when the context it was passed has been canceled
@@ -80,22 +73,16 @@ func TestWorkerRunBlocksUntilHeartStops(t *testing.T) {
 // TestWorkerRunBlocksUntilPendingReceiverStops tests what happens when a
 // worker's goroutine that receives pending tasks stops running.
 func TestWorkerRunBlocksUntilPendingReceiverStops(t *testing.T) {
-	// Use a fake heart
-	h := fake.NewHeart()
+	w := newWorker(redisClient).(*worker)
 
-	// Specify the fake heart's runtime behavior should just communicates when the
-	// context it was passed has been canceled
+	// Override the worker's default runHeart function so it just communicates
+	// when the context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	h.RunBehavior = func(ctx context.Context) error {
+	w.runHeart = func(ctx context.Context) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
 	}
-
-	w := newWorker(redisClient).(*worker)
-
-	// Make the worker use the fake heart
-	w.heart = h
 
 	// Override the worker's default receivePendingTasks function so it just
 	// returns an error and then blocks until the context it was passed is
@@ -154,22 +141,16 @@ func TestWorkerRunBlocksUntilPendingReceiverStops(t *testing.T) {
 // TestWorkerRunBlocksUntilExecuteTasksStops tests what happens when a worker's
 // goroutine that executes pending tasks stops.
 func TestWorkerRunBlocksUntilExecuteTasksStop(t *testing.T) {
-	// Use a fake heart
-	h := fake.NewHeart()
+	w := newWorker(redisClient).(*worker)
 
-	// Specify the fake heart's runtime behavior should just communicates when the
-	// context it was passed has been canceled
+	// Override the worker's default runHeart function so it just communicates
+	// when the context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	h.RunBehavior = func(ctx context.Context) error {
+	w.runHeart = func(ctx context.Context) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
 	}
-
-	w := newWorker(redisClient).(*worker)
-
-	// Make the worker use the fake heart
-	w.heart = h
 
 	// Override the worker's default executeTasks function so it just sends an
 	// error and then blocks until the context it was passed is canceled
@@ -219,22 +200,16 @@ func TestWorkerRunBlocksUntilExecuteTasksStop(t *testing.T) {
 // TestWorkerRunBlocksUntilDeferredReceiverStops tests what happens when a
 // worker's goroutine that receives deferred tasks stops.
 func TestWorkerRunBlocksUntilDeferredReceiverStops(t *testing.T) {
-	// Use a fake heart
-	h := fake.NewHeart()
+	w := newWorker(redisClient).(*worker)
 
-	// Specify the fake heart's runtime behavior should just communicates when the
-	// context it was passed has been canceled
+	// Override the worker's default runHeart function so it just communicates
+	// when the context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	h.RunBehavior = func(ctx context.Context) error {
+	w.runHeart = func(ctx context.Context) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
 	}
-
-	w := newWorker(redisClient).(*worker)
-
-	// Make the worker use the fake heart
-	w.heart = h
 
 	// Override the worker's default receiveDeferredTasks function so it just
 	// sends an error and then blocks until the context it was passed is canceled
@@ -292,22 +267,16 @@ func TestWorkerRunBlocksUntilDeferredReceiverStops(t *testing.T) {
 // TestWorkerRunBlocksUntilWatchDeferredTaskErrors tests what happens when a
 // worker's goroutine that watches a deferred task errors.
 func TestWorkerRunBlocksUntilWatchDeferredTaskErrors(t *testing.T) {
-	// Use a fake heart
-	h := fake.NewHeart()
+	w := newWorker(redisClient).(*worker)
 
-	// Specify the fake heart's runtime behavior should just communicates when the
-	// context it was passed has been canceled
+	// Override the worker's default runHeart function so it just communicates
+	// when the context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	h.RunBehavior = func(ctx context.Context) error {
+	w.runHeart = func(ctx context.Context) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
 	}
-
-	w := newWorker(redisClient).(*worker)
-
-	// Make the worker use the fake heart
-	w.heart = h
 
 	// Override the worker's default receiveDeferredTasks function so it just
 	// sends a result (to trigger a new goroutine running the watchDeferredTask
@@ -377,20 +346,16 @@ func TestWorkerRunBlocksUntilWatchDeferredTaskErrors(t *testing.T) {
 // TestWorkerRunRespondsToContextCanceled tests that canceling the context
 // passed to the Run function causes the Run function to return.
 func TestWorkerRunRespondsToContextCanceled(t *testing.T) {
-	// Use a fake heart
-	h := fake.NewHeart()
-
-	// Specify the fake heart's runtime behavior should just block until its
-	// context is canceled
-	h.RunBehavior = func(ctx context.Context) error {
-		<-ctx.Done()
-		return ctx.Err()
-	}
-
 	w := newWorker(redisClient).(*worker)
 
-	// Make the worker use the fake heart
-	w.heart = h
+	// Override the worker's default runHeart function so it just communicates
+	// when the context it was passed has been canceled
+	contextCanceledCh := make(chan struct{})
+	w.runHeart = func(ctx context.Context) error {
+		<-ctx.Done()
+		close(contextCanceledCh)
+		return ctx.Err()
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

@@ -8,65 +8,51 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBeatError(t *testing.T) {
-	h := newHeart(getDisposableWorkerID(), time.Second, redisClient).(*heart)
+func TestDefaultRunHeartBlocksUntilBeatErrors(t *testing.T) {
+	w := newWorker(redisClient).(*worker)
 
-	// Override the default beat function to just returns an error
-	h.beat = func() error {
-		return errSome
-	}
-
-	err := h.Beat()
-
-	// Assert that the error returned from the Beat function wraps the error that
-	// the fake beat function generated
-	assert.Equal(t, &errHeartbeat{workerID: h.workerID, err: errSome}, err)
-}
-
-func TestHeartRunBlocksUntilBeatErrors(t *testing.T) {
-	h := newHeart(getDisposableWorkerID(), time.Second, redisClient).(*heart)
-
-	h.beat = func() error {
+	// Override default heartbeat function so it just returns an error
+	w.heartbeat = func() error {
 		return errSome
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Call Run in a goroutine. If it never unblocks, as we hope it does, we don't
-	// want the test to stall.
+	// Call defaultRunHeart in a goroutine. If it never unblocks, as we hope it
+	// does, we don't want the test to stall.
 	errCh := make(chan error)
 	go func() {
-		errCh <- h.Run(ctx)
+		errCh <- w.defaultRunHeart(ctx)
 	}()
 
-	// Assert that the error received from the Run function wraps the error that
-	// the overridden watchDeferredTask function generated
+	// Assert that the error received from the defaultRunHeart function is the
+	// error that the overridden heartbeat function generated
 	select {
 	case err := <-errCh:
-		assert.Equal(t, &errHeartbeat{workerID: h.workerID, err: errSome}, err)
+		assert.Equal(t, errSome, err)
 	case <-time.After(time.Second):
 		assert.Fail(t, "an error should have been received, but wasn't")
 	}
 }
 
-func TestHeartRunRespondsToContextCanceled(t *testing.T) {
-	h := newHeart(getDisposableWorkerID(), time.Second, redisClient).(*heart)
+func TestDefaultRunHeartRespondsToContextCanceled(t *testing.T) {
+	w := newWorker(redisClient).(*worker)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Call Run in a goroutine. If it never unblocks, as we hope it does, we don't
-	// want the test to stall.
+	// Call defaultRunHeart in a goroutine. If it never unblocks, as we hope it
+	// does, we don't want the test to stall.
 	errCh := make(chan error)
 	go func() {
-		errCh <- h.Run(ctx)
+		errCh <- w.defaultRunHeart(ctx)
 	}()
 
 	cancel()
 
-	// Assert that the error returned from Run indicates that the context was
-	// canceled
+	// Assert that the error returned from defaultRunHeart indicates that the
+	// context was canceled
 	select {
 	case err := <-errCh:
 		assert.Equal(t, ctx.Err(), err)
@@ -78,19 +64,19 @@ func TestHeartRunRespondsToContextCanceled(t *testing.T) {
 	}
 }
 
-// TestDefaultBeat tests the happy path for sending a single heartbeat. The
-// expected result is that the heartnbeat is visible, with a TTL, in Redis.
-func TestDefaultBeat(t *testing.T) {
-	h := newHeart(getDisposableWorkerID(), time.Second, redisClient).(*heart)
+// TestDefaultHeartbeat tests the happy path for sending a single heartbeat. The
+// expected result is that the heartbeat is visible, with a TTL, in Redis.
+func TestDefaultHeartbeat(t *testing.T) {
+	w := newWorker(redisClient).(*worker)
 
-	err := h.defaultBeat()
+	err := w.defaultHeartbeat()
 	assert.Nil(t, err)
 
 	// Assert that the heartbeat is visible, with a TTL, in Redis.
-	str, err := redisClient.Get(getHeartbeatKey(h.workerID)).Result()
+	str, err := redisClient.Get(getHeartbeatKey(w.id)).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, aliveIndicator, str)
-	ttl, err := redisClient.TTL(getHeartbeatKey(h.workerID)).Result()
+	ttl, err := redisClient.TTL(getHeartbeatKey(w.id)).Result()
 	assert.Nil(t, err)
 	assert.True(t, ttl > 0)
 }

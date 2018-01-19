@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	log "github.com/Sirupsen/logrus"
@@ -27,12 +26,14 @@ type Worker interface {
 
 // worker is a Redis-based implementation of the Worker interface
 type worker struct {
-	id          string
-	redisClient *redis.Client
-	// This allows tests to inject an alternative implementation
-	heart        Heart
+	id           string
 	jobsFns      map[string]async.JobFn
 	jobsFnsMutex sync.RWMutex
+	redisClient  *redis.Client
+	// This allows tests to inject an alternative implementation of this function
+	runHeart runHeartFn
+	// This allows tests to inject an alternative implementation of this function
+	heartbeat heartbeatFn
 	// This allows tests to inject an alternative implementation of this function
 	receivePendingTasks receiveTasksFn
 	// This allows tests to inject an alternative implementation of this function
@@ -49,9 +50,10 @@ func newWorker(redisClient *redis.Client) Worker {
 	w := &worker{
 		id:          workerID,
 		redisClient: redisClient,
-		heart:       newHeart(workerID, time.Second*30, redisClient),
 		jobsFns:     make(map[string]async.JobFn),
 	}
+	w.runHeart = w.defaultRunHeart
+	w.heartbeat = w.defaultHeartbeat
 	w.receivePendingTasks = w.defaultReceiveTasks
 	w.receiveDeferredTasks = w.defaultReceiveTasks
 	w.executeTasks = w.defaultExecuteTasks
@@ -88,13 +90,13 @@ func (w *worker) Run(ctx context.Context) error {
 	// loop (which we'll shortly start in its own goroutine) will have sent the
 	// first heartbeat BEFORE the worker is added to the workers set. To account
 	// for this, we synchronously send the first heartbeat.
-	if err := w.heart.Beat(); err != nil {
+	if err := w.heartbeat(); err != nil {
 		return err
 	}
 	// Heartbeat loop
 	go func() {
 		select {
-		case errCh <- &errHeartStopped{workerID: w.id, err: w.heart.Run(ctx)}:
+		case errCh <- &errHeartStopped{workerID: w.id, err: w.runHeart(ctx)}:
 		case <-ctx.Done():
 		}
 	}()

@@ -113,16 +113,3 @@ type errDuplicateJob struct {
 func (e *errDuplicateJob) Error() string {
 	return fmt.Sprintf(`duplicate job name "%s"`, e.name)
 }
-
-type errHeartbeat struct {
-	workerID string
-	err      error
-}
-
-func (e *errHeartbeat) Error() string {
-	return fmt.Sprintf(
-		`error sending heartbeat for worker "%s": %s`,
-		e.workerID,
-		e.err,
-	)
-}

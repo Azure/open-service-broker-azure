@@ -6,62 +6,19 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/go-redis/redis"
 )
 
-// Heart is an interface to be implemented by components that can send worker
-// heartbeats
-type Heart interface {
-	// Beat sends a single heartbeat
-	Beat() error
-	// Run sends heartbeats at regular intervals.  It blocks until a fatal error
-	// is encountered or the context passed to it has been canceled. Run always
-	// returns a non-nil error.
-	Run(context.Context) error
-}
+// runHeartFn defines functions used to implement a beating heart
+type runHeartFn func(ctx context.Context) error
 
-// heart is a Redis-based implementation of the Heart interface
-type heart struct {
-	workerID    string
-	frequency   time.Duration
-	ttl         time.Duration
-	redisClient *redis.Client
-	// This allows tests to inject an alternative implementation of this function
-	beat func() error
-}
+// heartbeatFn defines functions used to implement a single heartbeat
+type heartbeatFn func() error
 
-// newHeart returns a new Redis-based implementation of the Heart interface
-func newHeart(
-	workerID string,
-	frequency time.Duration,
-	redisClient *redis.Client,
-) Heart {
-	h := &heart{
-		workerID:    workerID,
-		frequency:   frequency,
-		ttl:         frequency * 2,
-		redisClient: redisClient,
-	}
-	h.beat = h.defaultBeat
-	return h
-}
-
-// Beat sends a single heartbeat
-func (h *heart) Beat() error {
-	if err := h.beat(); err != nil {
-		return &errHeartbeat{workerID: h.workerID, err: err}
-	}
-	return nil
-}
-
-// Run sends heartbeats at regular intervals.  It blocks until a fatal error is
-// encountered or the context passed to it has been canceled. Run always returns
-// a non-nil error.
-func (h *heart) Run(ctx context.Context) error {
-	ticker := time.NewTicker(h.frequency)
+func (w *worker) defaultRunHeart(ctx context.Context) error {
+	ticker := time.NewTicker(time.Second * 30)
 	defer ticker.Stop()
 	for {
-		if err := h.Beat(); err != nil {
+		if err := w.heartbeat(); err != nil {
 			return err
 		}
 		select {
@@ -73,15 +30,13 @@ func (h *heart) Run(ctx context.Context) error {
 	}
 }
 
-// This is the default function for sending a heartbeat. It can be overridden
-// to facilitate testing.
-func (h *heart) defaultBeat() error {
-	key := getHeartbeatKey(h.workerID)
-	err := h.redisClient.Set(key, aliveIndicator, h.ttl).Err()
+func (w *worker) defaultHeartbeat() error {
+	key := getHeartbeatKey(w.id)
+	err := w.redisClient.Set(key, aliveIndicator, time.Second*60).Err()
 	if err != nil {
 		return fmt.Errorf(
 			"error sending heartbeat for worker %s: %s",
-			h.workerID,
+			w.id,
 			err,
 		)
 	}
