@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +15,7 @@ import (
 // that the task is discarded and the defaultWatchDeferredTask function adds no
 // error to its error channel.
 func TestDefaultWatchDeferredTaskWithInvalidTask(t *testing.T) {
-	w := newWorker(redisClient).(*worker)
+	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
 
 	pendingTaskQueueName := getDisposableQueueName()
 	watchedTaskQueueName := getWatchedTaskQueueName(w.id)
@@ -74,7 +75,7 @@ func TestDefaultWatchDeferredTaskWithInvalidTask(t *testing.T) {
 // behavior is that the task is discarded and the defaultWatchDeferredTask
 // function adds no error to its error channel.
 func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
-	w := newWorker(redisClient).(*worker)
+	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
 
 	pendingTaskQueueName := getDisposableQueueName()
 	watchedTaskQueueName := getWatchedTaskQueueName(w.id)
@@ -135,7 +136,7 @@ func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
 // defaultWatchDeferredTask is invoked for a task whose execute time has already
 // lapsed, that task is moved IMMEDIATELY to the pending task queue.
 func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
-	w := newWorker(redisClient).(*worker)
+	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
 
 	pendingTaskQueueName := getDisposableQueueName()
 	watchedTaskQueueName := getWatchedTaskQueueName(w.id)
@@ -193,7 +194,7 @@ func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
 // defaultWatchDeferredTask is waiting for a tasks execute time to lapse, it
 // will abort if context is canceled.
 func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
-	w := newWorker(redisClient).(*worker)
+	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
 
 	pendingTaskQueueName := getDisposableQueueName()
 	watchedTaskQueueName := getWatchedTaskQueueName(w.id)

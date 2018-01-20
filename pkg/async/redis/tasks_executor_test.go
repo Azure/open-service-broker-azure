@@ -7,11 +7,12 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDefaultExecuteTasks(t *testing.T) {
-	w := newWorker(redisClient).(*worker)
+	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
 
 	pendingTaskQueueName := getDisposableQueueName()
 	deferredTaskQueueName := getDisposableQueueName()

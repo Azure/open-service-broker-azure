@@ -9,10 +9,10 @@ import (
 )
 
 func TestDefaultRunHeartBlocksUntilBeatErrors(t *testing.T) {
-	w := newWorker(redisClient).(*worker)
+	e := NewEngine(redisClient).(*engine)
 
 	// Override default heartbeat function so it just returns an error
-	w.heartbeat = func() error {
+	e.heartbeat = func() error {
 		return errSome
 	}
 
@@ -23,7 +23,7 @@ func TestDefaultRunHeartBlocksUntilBeatErrors(t *testing.T) {
 	// does, we don't want the test to stall.
 	errCh := make(chan error)
 	go func() {
-		errCh <- w.defaultRunHeart(ctx)
+		errCh <- e.defaultRunHeart(ctx)
 	}()
 
 	// Assert that the error received from the defaultRunHeart function is the
@@ -37,7 +37,7 @@ func TestDefaultRunHeartBlocksUntilBeatErrors(t *testing.T) {
 }
 
 func TestDefaultRunHeartRespondsToContextCanceled(t *testing.T) {
-	w := newWorker(redisClient).(*worker)
+	e := NewEngine(redisClient).(*engine)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -46,7 +46,7 @@ func TestDefaultRunHeartRespondsToContextCanceled(t *testing.T) {
 	// does, we don't want the test to stall.
 	errCh := make(chan error)
 	go func() {
-		errCh <- w.defaultRunHeart(ctx)
+		errCh <- e.defaultRunHeart(ctx)
 	}()
 
 	cancel()
@@ -67,16 +67,16 @@ func TestDefaultRunHeartRespondsToContextCanceled(t *testing.T) {
 // TestDefaultHeartbeat tests the happy path for sending a single heartbeat. The
 // expected result is that the heartbeat is visible, with a TTL, in Redis.
 func TestDefaultHeartbeat(t *testing.T) {
-	w := newWorker(redisClient).(*worker)
+	e := NewEngine(redisClient).(*engine)
 
-	err := w.defaultHeartbeat()
+	err := e.defaultHeartbeat()
 	assert.Nil(t, err)
 
 	// Assert that the heartbeat is visible, with a TTL, in Redis.
-	str, err := redisClient.Get(getHeartbeatKey(w.id)).Result()
+	str, err := redisClient.Get(getHeartbeatKey(e.workerID)).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, aliveIndicator, str)
-	ttl, err := redisClient.TTL(getHeartbeatKey(w.id)).Result()
+	ttl, err := redisClient.TTL(getHeartbeatKey(e.workerID)).Result()
 	assert.Nil(t, err)
 	assert.True(t, ttl > 0)
 }

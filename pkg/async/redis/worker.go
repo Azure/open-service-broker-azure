@@ -8,7 +8,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Worker is an interface to be implemented by components that receive and
@@ -31,10 +30,6 @@ type worker struct {
 	jobsFnsMutex sync.RWMutex
 	redisClient  *redis.Client
 	// This allows tests to inject an alternative implementation of this function
-	runHeart runHeartFn
-	// This allows tests to inject an alternative implementation of this function
-	heartbeat heartbeatFn
-	// This allows tests to inject an alternative implementation of this function
 	receivePendingTasks receiveTasksFn
 	// This allows tests to inject an alternative implementation of this function
 	receiveDeferredTasks receiveTasksFn
@@ -45,15 +40,12 @@ type worker struct {
 }
 
 // newWorker returns a new Redis-based implementation of the Worker interface
-func newWorker(redisClient *redis.Client) Worker {
-	workerID := uuid.NewV4().String()
+func newWorker(redisClient *redis.Client, workerID string) Worker {
 	w := &worker{
 		id:          workerID,
 		redisClient: redisClient,
 		jobsFns:     make(map[string]async.JobFn),
 	}
-	w.runHeart = w.defaultRunHeart
-	w.heartbeat = w.defaultHeartbeat
 	w.receivePendingTasks = w.defaultReceiveTasks
 	w.receiveDeferredTasks = w.defaultReceiveTasks
 	w.executeTasks = w.defaultExecuteTasks
@@ -84,31 +76,6 @@ func (w *worker) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	errCh := make(chan error)
-	// As soon as we add the worker to the workers set, it's eligible for the
-	// cleaner to clean up after it, so it's important that we guarantee the
-	// cleaner will see this worker as alive. We can't trust that the heartbeat
-	// loop (which we'll shortly start in its own goroutine) will have sent the
-	// first heartbeat BEFORE the worker is added to the workers set. To account
-	// for this, we synchronously send the first heartbeat.
-	if err := w.heartbeat(); err != nil {
-		return err
-	}
-	// Heartbeat loop
-	go func() {
-		select {
-		case errCh <- &errHeartStopped{workerID: w.id, err: w.runHeart(ctx)}:
-		case <-ctx.Done():
-		}
-	}()
-	// Announce this worker's existence
-	err := w.redisClient.SAdd(workerSetName, w.id).Err()
-	if err != nil {
-		return fmt.Errorf(
-			`error adding worker "%s" to worker set: %s`,
-			w.id,
-			err,
-		)
-	}
 	// Assemble and execute a pipeline to receive and execute pending tasks...
 	go func() {
 		pendingReceiverRetCh := make(chan []byte)
