@@ -12,20 +12,27 @@ import (
 // engine is a Redis-based implementation of the Engine interface.
 type engine struct {
 	redisClient *redis.Client
+	// This allows tests to inject an alternative implementation of this function
+	clean cleanFn
+	// This allows tests to inject an alternative implementation of this function
+	cleanActiveTaskQueue cleanWorkerQueueFn
+	// This allows tests to inject an alternative implementation of this function
+	cleanWatchedTaskQueue cleanWorkerQueueFn
 	// This allows tests to inject an alternative implementation of Worker
 	worker Worker
-	// This allows tests to inject an alternative implementation of Cleaner
-	cleaner Cleaner
 }
 
 // NewEngine returns a new Redis-based implementation of the aync.Engine
 // interface
 func NewEngine(redisClient *redis.Client) async.Engine {
-	return &engine{
+	e := &engine{
 		redisClient: redisClient,
-		cleaner:     newCleaner(redisClient),
 		worker:      newWorker(redisClient),
 	}
+	e.clean = e.defaultClean
+	e.cleanActiveTaskQueue = e.defaultCleanWorkerQueue
+	e.cleanWatchedTaskQueue = e.defaultCleanWorkerQueue
+	return e
 }
 
 // RegisterJob registers a new async.JobFn with the async engine
@@ -65,7 +72,14 @@ func (e *engine) Run(ctx context.Context) error {
 	// Start the cleaner
 	go func() {
 		select {
-		case errCh <- &errCleanerStopped{err: e.cleaner.Run(ctx)}:
+		case errCh <- &errCleanerStopped{
+			err: e.clean(
+				ctx,
+				workerSetName,
+				pendingTaskQueueName,
+				deferredTaskQueueName,
+			),
+		}:
 		case <-ctx.Done():
 		}
 	}()

@@ -12,14 +12,10 @@ import (
 func TestEngineRunBlocksUntilCleanerStops(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
-	// Create a fake cleaner that will just return an error when it runs
-	c := fake.NewCleaner()
-	c.RunBehavior = func(context.Context) error {
+	// Override the engine's default clean function so it just returns an error
+	e.clean = func(context.Context, string, string, string) error {
 		return errSome
 	}
-
-	// Make the engine use the fake cleaner
-	e.cleaner = c
 
 	// Create a fake worker that will just communicate when the context it was
 	// passed has been canceled
@@ -66,18 +62,14 @@ func TestEngineRunBlocksUntilCleanerStops(t *testing.T) {
 func TestEngineRunBlocksUntilWorkerStops(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
-	// Create a fake cleaner that will just communicate when the context it was
-	// passed has been canceled
+	// Override the worker's default clean function so it just communicates when
+	// the context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	c := fake.NewCleaner()
-	c.RunBehavior = func(ctx context.Context) error {
+	e.clean = func(ctx context.Context, _ string, _ string, _ string) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
 	}
-
-	// Make the engine use the fake cleaner
-	e.cleaner = c
 
 	// Create a fake worker that will just return an error when it runs
 	w := fake.NewWorker()
@@ -120,16 +112,14 @@ func TestEngineRunBlocksUntilWorkerStops(t *testing.T) {
 func TestEngineRunRespondsToContextCanceled(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
-	// Create a fake cleaner that will just run until the context it was passed
-	// is canceled
-	c := fake.NewCleaner()
-	c.RunBehavior = func(ctx context.Context) error {
+	// Override the worker's default clean function so it just communicates when
+	// the context it was passed has been canceled
+	contextCanceledCh := make(chan struct{})
+	e.clean = func(ctx context.Context, _ string, _ string, _ string) error {
 		<-ctx.Done()
+		close(contextCanceledCh)
 		return ctx.Err()
 	}
-
-	// Make the engine use the fake cleaner
-	e.cleaner = c
 
 	// Create a fake worker that will just run until the context it was passed
 	// is canceled

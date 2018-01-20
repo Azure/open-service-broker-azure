@@ -3,7 +3,6 @@ package redis
 import (
 	"context"
 	"fmt"
-	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
@@ -23,69 +22,13 @@ type cleanWorkerQueueFn func(
 	deferredTaskQueueName string,
 ) error
 
-// Cleaner is an interface to be implemented by components that re-queue tasks
-// assigned to dead workers
-type Cleaner interface {
-	// Run causes the cleaner to clean up after dead worker. It blocks until a
-	// fatal error is encountered or the context passed to it has been canceled.
-	// Run always returns a non-nil error.
-	Run(context.Context) error
-}
-
-// cleaner is a Redis-based implementation of the Cleaner interface
-type cleaner struct {
-	redisClient *redis.Client
-	// This allows tests to inject an alternative implementation of this function
-	clean cleanFn
-	// This allows tests to inject an alternative implementation of this function
-	cleanActiveTaskQueue cleanWorkerQueueFn
-	// This allows tests to inject an alternative implementation of this function
-	cleanWatchedTaskQueue cleanWorkerQueueFn
-}
-
-func newCleaner(redisClient *redis.Client) Cleaner {
-	c := &cleaner{
-		redisClient: redisClient,
-	}
-	c.clean = c.defaultClean
-	c.cleanActiveTaskQueue = c.defaultCleanWorkerQueue
-	c.cleanWatchedTaskQueue = c.defaultCleanWorkerQueue
-	return c
-}
-
-// Run causes the cleaner to clean up after dead worker. It blocks until a fatal
-// error is encountered or the context passed to it has been canceled. Run
-// always returns a non-nil error.
-func (c *cleaner) Run(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-	ticker := time.NewTicker(time.Second * 10)
-	defer ticker.Stop()
-	for {
-		if err := c.clean(
-			ctx,
-			workerSetName,
-			pendingTaskQueueName,
-			deferredTaskQueueName,
-		); err != nil {
-			return &errCleaning{err: err}
-		}
-		select {
-		case <-ticker.C:
-		case <-ctx.Done():
-			log.Debug("context canceled; async worker cleaner shutting down")
-			return ctx.Err()
-		}
-	}
-}
-
-func (c *cleaner) defaultClean(
+func (e *engine) defaultClean(
 	ctx context.Context,
 	workerSetName string,
 	pendingTaskQueueName string,
 	deferredTaskQueueName string,
 ) error {
-	workerIDs, err := c.redisClient.SMembers(workerSetName).Result()
+	workerIDs, err := e.redisClient.SMembers(workerSetName).Result()
 	if err == redis.Nil {
 		return nil
 	}
@@ -93,7 +36,7 @@ func (c *cleaner) defaultClean(
 		return fmt.Errorf("error retrieving workers: %s", err)
 	}
 	for _, workerID := range workerIDs {
-		err := c.redisClient.Get(getHeartbeatKey(workerID)).Err()
+		err := e.redisClient.Get(getHeartbeatKey(workerID)).Err()
 		if err == nil {
 			select {
 			case <-ctx.Done():
@@ -110,7 +53,7 @@ func (c *cleaner) defaultClean(
 			)
 		}
 		// If we get to here, we have a dead worker on our hands
-		if err := c.cleanActiveTaskQueue(
+		if err := e.cleanActiveTaskQueue(
 			ctx,
 			workerID,
 			getActiveTaskQueueName(workerID),
@@ -118,7 +61,7 @@ func (c *cleaner) defaultClean(
 		); err != nil {
 			return err
 		}
-		if err := c.cleanWatchedTaskQueue(
+		if err := e.cleanWatchedTaskQueue(
 			ctx,
 			workerID,
 			getWatchedTaskQueueName(workerID),
@@ -126,7 +69,7 @@ func (c *cleaner) defaultClean(
 		); err != nil {
 			return err
 		}
-		err = c.redisClient.SRem(workerSetName, workerID).Err()
+		err = e.redisClient.SRem(workerSetName, workerID).Err()
 		if err != nil && err != redis.Nil {
 			return fmt.Errorf(
 				`error removing dead worker "%s" from worker set: %s`,
@@ -136,6 +79,7 @@ func (c *cleaner) defaultClean(
 		}
 		select {
 		case <-ctx.Done():
+			log.Debug("context canceled; async worker cleaner shutting down")
 			return ctx.Err()
 		default:
 		}
@@ -143,7 +87,7 @@ func (c *cleaner) defaultClean(
 	return nil
 }
 
-func (c *cleaner) defaultCleanWorkerQueue(
+func (e *engine) defaultCleanWorkerQueue(
 	ctx context.Context,
 	workerID string,
 	sourceQueueName string,
@@ -155,7 +99,7 @@ func (c *cleaner) defaultCleanWorkerQueue(
 			return ctx.Err()
 		default:
 		}
-		err := c.redisClient.RPopLPush(sourceQueueName, destinationQueueName).Err()
+		err := e.redisClient.RPopLPush(sourceQueueName, destinationQueueName).Err()
 		if err == redis.Nil {
 			return nil
 		}
