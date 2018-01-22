@@ -83,21 +83,9 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	// or has failed provisioning. We need to kick off asynchronous
 	// deprovisioning.
 
-	plan, ok := instance.Service.GetPlan(instance.PlanID)
-	if !ok {
-		// If we don't find the Service in the catalog, something is really wrong.
-		// (It should exist, because an instance with this serviceID exists.)
-		logFields["serviceID"] = instance.ServiceID
-		logFields["planID"] = instance.PlanID
-		log.WithFields(logFields).Error(
-			"pre-deprovisioning error: no Plan found for planID in Service",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
 	serviceManager := instance.Service.GetServiceManager()
 
-	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
+	deprovisioner, err := serviceManager.GetDeprovisioner(instance.Plan)
 	if err != nil {
 		logFields["serviceID"] = instance.ServiceID
 		logFields["planID"] = instance.PlanID

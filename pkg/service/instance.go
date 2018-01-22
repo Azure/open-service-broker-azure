@@ -13,6 +13,7 @@ type Instance struct {
 	ServiceID                       string                 `json:"serviceId"`
 	Service                         Service                `json:"-"`
 	PlanID                          string                 `json:"planId"`
+	Plan                            Plan                   `json:"-"`
 	EncryptedProvisioningParameters []byte                 `json:"provisioningParameters"` // nolint: lll
 	ProvisioningParameters          ProvisioningParameters `json:"-"`
 	EncryptedUpdatingParameters     []byte                 `json:"updatingParameters"` // nolint: lll

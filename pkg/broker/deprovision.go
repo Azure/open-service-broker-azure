@@ -46,18 +46,6 @@ func (b *broker) executeDeprovisioningStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing deprovisioning step")
-	plan, ok := instance.Service.GetPlan(instance.PlanID)
-	if !ok {
-		return nil, b.handleDeprovisioningError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no plan was found for handling planID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
 	serviceManager := instance.Service.GetServiceManager()
 
 	// Retrieve a second copy of the instance from storage. Why? We're about to
@@ -79,7 +67,7 @@ func (b *broker) executeDeprovisioningStep(
 		)
 	}
 
-	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
+	deprovisioner, err := serviceManager.GetDeprovisioner(instance.Plan)
 	if err != nil {
 		return nil, b.handleDeprovisioningError(
 			instance,
@@ -100,7 +88,7 @@ func (b *broker) executeDeprovisioningStep(
 			`deprovisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedDetails, err := step.Execute(ctx, instance, plan)
+	updatedDetails, err := step.Execute(ctx, instance, instance.Plan)
 	if err != nil {
 		return nil, b.handleDeprovisioningError(
 			instance,

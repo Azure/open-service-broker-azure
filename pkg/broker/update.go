@@ -46,18 +46,6 @@ func (b *broker) executeUpdatingStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing updating step")
-	plan, ok := instance.Service.GetPlan(instance.PlanID)
-	if !ok {
-		return nil, b.handleUpdatingError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no plan was found for handling planID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
 	serviceManager := instance.Service.GetServiceManager()
 
 	// Retrieve a second copy of the instance from storage. Why? We're about to
@@ -79,7 +67,7 @@ func (b *broker) executeUpdatingStep(
 		)
 	}
 
-	updater, err := serviceManager.GetUpdater(plan)
+	updater, err := serviceManager.GetUpdater(instance.Plan)
 	if err != nil {
 		return nil, b.handleUpdatingError(
 			instance,
@@ -103,7 +91,7 @@ func (b *broker) executeUpdatingStep(
 	updatedDetails, err := step.Execute(
 		ctx,
 		instance,
-		plan,
+		instance.Plan,
 	)
 	if err != nil {
 		return nil, b.handleUpdatingError(

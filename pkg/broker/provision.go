@@ -46,18 +46,6 @@ func (b *broker) executeProvisioningStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing provisioning step")
-	plan, ok := instance.Service.GetPlan(instance.PlanID)
-	if !ok {
-		return nil, b.handleProvisioningError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no plan was found for handling planID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
 	serviceManager := instance.Service.GetServiceManager()
 
 	// Retrieve a second copy of the instance from storage. Why? We're about to
@@ -79,7 +67,7 @@ func (b *broker) executeProvisioningStep(
 		)
 	}
 
-	provisioner, err := serviceManager.GetProvisioner(plan)
+	provisioner, err := serviceManager.GetProvisioner(instance.Plan)
 	if err != nil {
 		return nil, b.handleProvisioningError(
 			instance,
@@ -100,7 +88,7 @@ func (b *broker) executeProvisioningStep(
 			`provisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedDetails, err := step.Execute(ctx, instance, plan)
+	updatedDetails, err := step.Execute(ctx, instance, instance.Plan)
 	if err != nil {
 		return nil, b.handleProvisioningError(
 			instance,
