@@ -50,10 +50,9 @@ func (e *engine) defaultReceiveTasks(
 				sourceQueueName,
 				err,
 			):
-				continue
 			case <-ctx.Done():
-				return
 			}
+			return
 		}
 		select {
 		case retCh <- taskJSON:
