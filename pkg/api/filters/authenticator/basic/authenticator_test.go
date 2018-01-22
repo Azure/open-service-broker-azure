@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +22,7 @@ func TestAuthHeaderMissing(t *testing.T) {
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.Filter(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
@@ -36,7 +36,7 @@ func TestAuthHeaderNotBasic(t *testing.T) {
 	req.Header.Add("Authorization", "Digest foo")
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.Filter(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
@@ -50,7 +50,7 @@ func TestAuthUsernamePasswordNotBase64(t *testing.T) {
 	req.Header.Add("Authorization", "Basic foo")
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.Filter(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
@@ -71,7 +71,7 @@ func TestAuthUsernamePasswordInvalid(t *testing.T) {
 	)
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.Filter(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
@@ -92,7 +92,7 @@ func TestAuthUsernamePasswordValid(t *testing.T) {
 	)
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.Filter(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)

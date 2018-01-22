@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/basic"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator/basic" //nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
 	"github.com/Azure/open-service-broker-azure/pkg/version"

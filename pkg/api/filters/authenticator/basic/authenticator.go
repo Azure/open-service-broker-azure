@@ -5,28 +5,28 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
 )
 
-// basicAuthenticator is a implementation of the authenticator.Authenticator
+// basicAuthenticator is a implementation of the filters.Filter
 // interface that authenticates HTTP requests using Basic Auth
 type basicAuthenticator struct {
 	Username string
 	Password string
 }
 
-// NewAuthenticator returns an implementation of the authenticator.Authenticator
+// NewAuthenticator returns an implementation of the filters.Filter
 // interface that authenticates HTTP requests using Basic Auth
-func NewAuthenticator(username, password string) authenticator.Authenticator {
+func NewAuthenticator(username, password string) filters.Filter {
 	return &basicAuthenticator{
 		Username: username,
 		Password: password,
 	}
 }
 
-func (b *basicAuthenticator) Authenticate(
-	handle authenticator.HandlerFunction,
-) authenticator.HandlerFunction {
+func (b *basicAuthenticator) Filter(
+	handle http.HandlerFunc,
+) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		headerValue := r.Header.Get("Authorization")
 		if headerValue == "" {

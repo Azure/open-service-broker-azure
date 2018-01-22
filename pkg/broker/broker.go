@@ -6,7 +6,9 @@ import (
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters/headers"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	redisAsync "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
@@ -121,11 +123,20 @@ func NewBroker(
 		)
 	}
 
+	//Build a filter chain with an extensible set of filters to be appleid
+	//against requests. Right now, authentication and header validation
+	filterChain := filters.NewFilterChain(
+		[]filters.Filter{
+			authenticator,
+			headers.NewValidator(),
+		},
+	)
+
 	b.apiServer, err = api.NewServer(
 		8080,
 		b.store,
 		b.asyncEngine,
-		authenticator,
+		filterChain,
 		b.catalog,
 		defaultAzureLocation,
 		defaultAzureResourceGroup,

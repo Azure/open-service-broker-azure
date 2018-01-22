@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/basic"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator/basic" //nolint: lll
+	"github.com/Azure/open-service-broker-azure/pkg/api/filters/headers"
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
@@ -33,13 +35,19 @@ func main() {
 		username,
 		password,
 	)
+	filterChain := filters.NewFilterChain(
+		[]filters.Filter{
+			authenticator,
+			headers.NewValidator(),
+		},
+	)
 
 	noopCodec := noop.NewCodec()
 	server, err := api.NewServer(
 		8080,
 		memoryStorage.NewStore(fakeCatalog, noopCodec),
 		fakeAsync.NewEngine(),
-		authenticator,
+		filterChain,
 		fakeCatalog,
 		" ",
 		" ",
