@@ -16,7 +16,7 @@ func NewAuthenticator() filters.Filter {
 	return &alwaysAuthenticator{}
 }
 
-func (a *alwaysAuthenticator) Filter(
+func (a *alwaysAuthenticator) Execute(
 	handler http.HandlerFunc,
 ) http.HandlerFunc {
 	return handler

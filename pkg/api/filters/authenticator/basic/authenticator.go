@@ -24,7 +24,7 @@ func NewAuthenticator(username, password string) filters.Filter {
 	}
 }
 
-func (b *basicAuthenticator) Filter(
+func (b *basicAuthenticator) Execute(
 	handle http.HandlerFunc,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

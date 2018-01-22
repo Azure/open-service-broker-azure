@@ -123,7 +123,7 @@ func NewBroker(
 		)
 	}
 
-	//Build a filter chain with an extensible set of filters to be appleid
+	//Build a filter chain with an extensible set of filters to be applied
 	//against requests. Right now, authentication and header validation
 	filterChain := filters.NewFilterChain(
 		[]filters.Filter{

@@ -4,11 +4,11 @@ import "net/http"
 
 //Filter is a wrapper around a http.HandlerFunc.
 type Filter interface {
-	Filter(http.HandlerFunc) http.HandlerFunc
+	Execute(http.HandlerFunc) http.HandlerFunc
 }
 
 //Chain represents a chain of Filters that can be applied
-//to a http.HandlrFunc. 
+//to a http.HandlrFunc.
 type Chain interface {
 	Filter(http.HandlerFunc) http.HandlerFunc
 }
@@ -34,7 +34,7 @@ func (h chain) Filter(
 	handler := target
 	for i := len(h.filters) - 1; i >= 0; i-- {
 		filter := h.filters[i]
-		handler = filter.Filter(handler)
+		handler = filter.Execute(handler)
 	}
 	return handler
 }

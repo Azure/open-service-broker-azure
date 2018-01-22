@@ -14,7 +14,7 @@ func TestVersionHeaderMissing(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handlerCalled := false
 	v := NewValidator()
-	v.Filter(func(http.ResponseWriter, *http.Request) {
+	v.Execute(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusPreconditionFailed, rr.Code)
@@ -28,7 +28,7 @@ func TestVersionHeaderPresent(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handlerCalled := false
 	v := NewValidator()
-	v.Filter(func(http.ResponseWriter, *http.Request) {
+	v.Execute(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
@@ -42,7 +42,7 @@ func TestVersionHeaderIncorrect(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handlerCalled := false
 	v := NewValidator()
-	v.Filter(func(http.ResponseWriter, *http.Request) {
+	v.Execute(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusPreconditionFailed, rr.Code)

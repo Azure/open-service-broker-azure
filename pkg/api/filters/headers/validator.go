@@ -26,7 +26,7 @@ func NewValidator() filters.Filter {
 }
 
 //Filter validates that required headers are present
-func (v *validator) Filter(handler http.HandlerFunc) http.HandlerFunc {
+func (v *validator) Execute(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		apiVersion := r.Header.Get("X-Broker-API-Version")
 		if apiVersion == "" {
