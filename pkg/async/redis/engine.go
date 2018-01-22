@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	log "github.com/Sirupsen/logrus"
@@ -12,8 +13,10 @@ import (
 
 // engine is a Redis-based implementation of the Engine interface.
 type engine struct {
-	redisClient *redis.Client
-	workerID    string
+	workerID     string
+	jobsFns      map[string]async.JobFn
+	jobsFnsMutex sync.RWMutex
+	redisClient  *redis.Client
 	// This allows tests to inject an alternative implementation of this function
 	clean cleanFn
 	// This allows tests to inject an alternative implementation of this function
@@ -24,8 +27,14 @@ type engine struct {
 	runHeart runHeartFn
 	// This allows tests to inject an alternative implementation of this function
 	heartbeat heartbeatFn
-	// This allows tests to inject an alternative implementation of Worker
-	worker Worker
+	// This allows tests to inject an alternative implementation of this function
+	receivePendingTasks receiveTasksFn
+	// This allows tests to inject an alternative implementation of this function
+	receiveDeferredTasks receiveTasksFn
+	// This allows tests to inject an alternative implementation of this function
+	executeTasks executeTasksFn
+	// This allows tests to inject an alternative implementation of this function
+	watchDeferredTask watchDeferredTaskFn
 }
 
 // NewEngine returns a new Redis-based implementation of the aync.Engine
@@ -34,20 +43,30 @@ func NewEngine(redisClient *redis.Client) async.Engine {
 	workerID := uuid.NewV4().String()
 	e := &engine{
 		workerID:    workerID,
+		jobsFns:     make(map[string]async.JobFn),
 		redisClient: redisClient,
-		worker:      newWorker(redisClient, workerID),
 	}
 	e.clean = e.defaultClean
 	e.cleanActiveTaskQueue = e.defaultCleanWorkerQueue
 	e.cleanWatchedTaskQueue = e.defaultCleanWorkerQueue
 	e.runHeart = e.defaultRunHeart
 	e.heartbeat = e.defaultHeartbeat
+	e.receivePendingTasks = e.defaultReceiveTasks
+	e.receiveDeferredTasks = e.defaultReceiveTasks
+	e.executeTasks = e.defaultExecuteTasks
+	e.watchDeferredTask = e.defaultWatchDeferredTask
 	return e
 }
 
 // RegisterJob registers a new async.JobFn with the async engine
 func (e *engine) RegisterJob(name string, fn async.JobFn) error {
-	return e.worker.RegisterJob(name, fn)
+	e.jobsFnsMutex.Lock()
+	defer e.jobsFnsMutex.Unlock()
+	if _, ok := e.jobsFns[name]; ok {
+		return &errDuplicateJob{name: name}
+	}
+	e.jobsFns[name] = fn
+	return nil
 }
 
 // SubmitTask submits an idempotent task to the async engine for reliable,
@@ -118,16 +137,81 @@ func (e *engine) Run(ctx context.Context) error {
 			err,
 		)
 	}
-	// Start the worker
+	// Assemble and execute a pipeline to receive and execute pending tasks...
 	go func() {
+		pendingReceiverRetCh := make(chan []byte)
+		pendingReceiverErrCh := make(chan error)
+		executorErrCh := make(chan error)
+		go e.receivePendingTasks(
+			ctx,
+			pendingTaskQueueName,
+			getActiveTaskQueueName(e.workerID),
+			pendingReceiverRetCh,
+			pendingReceiverErrCh,
+		)
+		// Fan out to 5 executors
+		for range [5]struct{}{} {
+			go e.executeTasks(
+				ctx,
+				pendingReceiverRetCh,
+				pendingTaskQueueName,
+				deferredTaskQueueName,
+				executorErrCh,
+			)
+		}
 		select {
-		case errCh <- &errWorkerStopped{
-			workerID: e.worker.GetID(),
-			err:      e.worker.Run(ctx),
-		}:
+		case err := <-pendingReceiverErrCh:
+			errCh <- &errReceiverStopped{
+				workerID:  e.workerID,
+				queueName: pendingTaskQueueName,
+				err:       err,
+			}
+		case err := <-executorErrCh:
+			errCh <- &errTaskExecutorStopped{workerID: e.workerID, err: err}
 		case <-ctx.Done():
 		}
 	}()
+	// Assemble and execute a pipeline to receive and watch deferred tasks...
+	go func() {
+		deferredReceiverRetCh := make(chan []byte)
+		deferredReceiverErrCh := make(chan error)
+		watcherErrCh := make(chan error)
+		go e.receiveDeferredTasks(
+			ctx,
+			deferredTaskQueueName,
+			getWatchedTaskQueueName(e.workerID),
+			deferredReceiverRetCh,
+			deferredReceiverErrCh,
+		)
+		// Fan out to as many watchers as we need
+		go func() {
+			for {
+				select {
+				case taskJSON := <-deferredReceiverRetCh:
+					e.watchDeferredTask(
+						ctx,
+						taskJSON,
+						pendingTaskQueueName,
+						watcherErrCh,
+					)
+				case <-ctx.Done():
+					return
+				}
+			}
+		}()
+		select {
+		case err := <-deferredReceiverErrCh:
+			errCh <- &errReceiverStopped{
+				workerID:  e.workerID,
+				queueName: deferredTaskQueueName,
+				err:       err,
+			}
+		case err := <-watcherErrCh:
+			errCh <- &errDeferredTaskWatcherStopped{workerID: e.workerID, err: err}
+		case <-ctx.Done():
+		}
+	}()
+	// Now wait...
 	select {
 	case <-ctx.Done():
 		log.Debug("context canceled; async engine shutting down")

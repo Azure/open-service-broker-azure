@@ -20,7 +20,7 @@ type receiveTasksFn func(
 
 // defaultReceive receives tasks from a source queue and dispatches them to a
 // to both a destination queue and a return channel.
-func (w *worker) defaultReceiveTasks(
+func (e *engine) defaultReceiveTasks(
 	ctx context.Context,
 	sourceQueueName string,
 	destinationQueueName string,
@@ -30,7 +30,7 @@ func (w *worker) defaultReceiveTasks(
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	for {
-		taskJSON, err := w.redisClient.BRPopLPush(
+		taskJSON, err := e.redisClient.BRPopLPush(
 			sourceQueueName,
 			destinationQueueName,
 			time.Second*5,

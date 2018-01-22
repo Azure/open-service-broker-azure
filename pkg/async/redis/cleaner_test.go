@@ -108,7 +108,7 @@ func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
 	assert.Equal(t, 0, cleanWatchedTaskQueueCallCount)
 }
 
-func TestDefaultCleanRespondsToContextCanceled(t *testing.T) {
+func TestDefaultCleanRespondsToCanceledContext(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
 	// Add one worker to the worker set. Do not add a heartbeat. This should
@@ -214,7 +214,7 @@ func TestDefaultCleanWorkerQueue(t *testing.T) {
 	assert.Equal(t, taskCount, destinationQueueDepth)
 }
 
-func TestDefaultCleanWorkerQueueRespondsToContextCanceled(t *testing.T) {
+func TestDefaultCleanWorkerQueueRespondsToCanceledContext(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
 	ctx, cancel := context.WithCancel(context.Background())

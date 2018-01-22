@@ -36,7 +36,7 @@ func TestDefaultRunHeartBlocksUntilBeatErrors(t *testing.T) {
 	}
 }
 
-func TestDefaultRunHeartRespondsToContextCanceled(t *testing.T) {
+func TestDefaultRunHeartRespondsToCanceledContext(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
 	ctx, cancel := context.WithCancel(context.Background())

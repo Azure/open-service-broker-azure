@@ -16,7 +16,7 @@ type executeTasksFn func(
 	errCh chan error,
 )
 
-func (w *worker) defaultExecuteTasks(
+func (e *engine) defaultExecuteTasks(
 	ctx context.Context,
 	inputCh chan []byte,
 	pendingTaskQueueName string,
@@ -28,7 +28,10 @@ func (w *worker) defaultExecuteTasks(
 	for {
 		select {
 		case taskJSON := <-inputCh:
-			task, err := w.getTaskFromJSON(taskJSON, getActiveTaskQueueName(w.id))
+			task, err := e.getTaskFromJSON(
+				taskJSON,
+				getActiveTaskQueueName(e.workerID),
+			)
 			if err != nil {
 				select {
 				case errCh <- err:
@@ -40,9 +43,9 @@ func (w *worker) defaultExecuteTasks(
 			if task == nil {
 				continue
 			}
-			w.jobsFnsMutex.RLock()
-			defer w.jobsFnsMutex.RUnlock()
-			jobFn, ok := w.jobsFns[task.GetJobName()]
+			e.jobsFnsMutex.RLock()
+			defer e.jobsFnsMutex.RUnlock()
+			jobFn, ok := e.jobsFns[task.GetJobName()]
 			if !ok {
 				// This worker doesn't know how to process this task. That doesn't mean
 				// another worker doesn't know how. Re-queue the task.
@@ -65,9 +68,9 @@ func (w *worker) defaultExecuteTasks(
 						return
 					}
 				}
-				pipeline := w.redisClient.TxPipeline()
+				pipeline := e.redisClient.TxPipeline()
 				pipeline.LPush(pendingTaskQueueName, newTaskJSON)
-				pipeline.LRem(getActiveTaskQueueName(w.id), -1, taskJSON)
+				pipeline.LRem(getActiveTaskQueueName(e.workerID), -1, taskJSON)
 				_, err = pipeline.Exec()
 				if err != nil {
 					select {
@@ -133,8 +136,8 @@ func (w *worker) defaultExecuteTasks(
 			}
 			// Regardless of success or failure, we're done with this task. Remove it
 			// from the active task queue.
-			pipeline := w.redisClient.TxPipeline()
-			pipeline.LRem(getActiveTaskQueueName(w.id), -1, taskJSON)
+			pipeline := e.redisClient.TxPipeline()
+			pipeline.LRem(getActiveTaskQueueName(e.workerID), -1, taskJSON)
 			// If the task was successful and we had no trouble marshaling the
 			// follow-up tasks, we can add them to the appropriate queues
 			if taskSuccess && !hadMarshalingError {
@@ -155,8 +158,8 @@ func (w *worker) defaultExecuteTasks(
 				case errCh <- fmt.Errorf(
 					`error removing task "%s" from queue "%s" and submitting follow-up `+
 						`tasks: %s`,
-					w.id,
-					getActiveTaskQueueName(w.id),
+					e.workerID,
+					getActiveTaskQueueName(e.workerID),
 					err,
 				):
 					continue

@@ -5,14 +5,11 @@ import (
 	"testing"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-// TestDefaultReceiveTasks tests the happy path for the defaultReceiveTasks
-// function that transplants tasks from a source queue into a destination queue.
 func TestDefaultReceiveTasks(t *testing.T) {
-	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
+	e := getTestEngine()
 
 	sourceQueueName := getDisposableQueueName()
 	destinationQueueName := getDisposableQueueName()
@@ -44,7 +41,7 @@ func TestDefaultReceiveTasks(t *testing.T) {
 
 	retCh := make(chan []byte)
 	errCh := make(chan error)
-	go w.defaultReceiveTasks(
+	go e.defaultReceiveTasks(
 		ctx,
 		sourceQueueName,
 		destinationQueueName,

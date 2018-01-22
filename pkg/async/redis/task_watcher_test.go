@@ -6,19 +6,14 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
-// TestDefaultWatchDeferredTaskWithInvalidTask tests a specific failure
-// condition for the defaultWatchDeferredTask function. The expected behavior is
-// that the task is discarded and the defaultWatchDeferredTask function adds no
-// error to its error channel.
 func TestDefaultWatchDeferredTaskWithInvalidTask(t *testing.T) {
-	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
+	e := getTestEngine()
 
 	pendingTaskQueueName := getDisposableQueueName()
-	watchedTaskQueueName := getWatchedTaskQueueName(w.id)
+	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
 
 	// Assert that the pending task queue is empty
 	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
@@ -47,7 +42,7 @@ func TestDefaultWatchDeferredTaskWithInvalidTask(t *testing.T) {
 	// function doesn't handle the failure case we're testing properly and return
 	// quickly, we do not want to stall this test.
 	errCh := make(chan error)
-	go w.defaultWatchDeferredTask(
+	go e.defaultWatchDeferredTask(
 		ctx,
 		invalidTaskJSON,
 		pendingTaskQueueName,
@@ -70,15 +65,11 @@ func TestDefaultWatchDeferredTaskWithInvalidTask(t *testing.T) {
 	assert.Empty(t, watchedTaskQueueDepth)
 }
 
-// TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime tests a specific
-// failure condition for the defaultWatchDeferredTask function. The expected
-// behavior is that the task is discarded and the defaultWatchDeferredTask
-// function adds no error to its error channel.
 func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
-	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
+	e := getTestEngine()
 
 	pendingTaskQueueName := getDisposableQueueName()
-	watchedTaskQueueName := getWatchedTaskQueueName(w.id)
+	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
 
 	// Assert that the pending task queue is empty
 	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
@@ -109,7 +100,7 @@ func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
 	// function doesn't handle the failure case we're testing properly and return
 	// quickly, we do not want to stall this test.
 	errCh := make(chan error)
-	go w.defaultWatchDeferredTask(
+	go e.defaultWatchDeferredTask(
 		ctx,
 		taskJSON,
 		pendingTaskQueueName,
@@ -132,14 +123,11 @@ func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
 	assert.Empty(t, watchedTaskQueueDepth)
 }
 
-// TestDefaultWatchDeferredTaskWithLapsedTask tests that when
-// defaultWatchDeferredTask is invoked for a task whose execute time has already
-// lapsed, that task is moved IMMEDIATELY to the pending task queue.
 func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
-	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
+	e := getTestEngine()
 
 	pendingTaskQueueName := getDisposableQueueName()
-	watchedTaskQueueName := getWatchedTaskQueueName(w.id)
+	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
 
 	// Assert that the pending task queue is empty
 	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
@@ -167,7 +155,7 @@ func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
 	// we're testing properly and return quickly, we do not want to stall this
 	// test.
 	errCh := make(chan error)
-	go w.defaultWatchDeferredTask(
+	go e.defaultWatchDeferredTask(
 		ctx,
 		taskJSON,
 		pendingTaskQueueName,
@@ -194,10 +182,10 @@ func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
 // defaultWatchDeferredTask is waiting for a tasks execute time to lapse, it
 // will abort if context is canceled.
 func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
-	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
+	e := getTestEngine()
 
 	pendingTaskQueueName := getDisposableQueueName()
-	watchedTaskQueueName := getWatchedTaskQueueName(w.id)
+	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
 
 	// Assert that the pending task queue is empty
 	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
@@ -226,7 +214,7 @@ func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
 	// function doesn't handle context cancelation properly and return quickly, we
 	// do not want to stall this test.
 	errCh := make(chan error)
-	go w.defaultWatchDeferredTask(
+	go e.defaultWatchDeferredTask(
 		ctx,
 		taskJSON,
 		pendingTaskQueueName,

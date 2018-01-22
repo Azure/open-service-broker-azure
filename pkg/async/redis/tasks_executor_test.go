@@ -7,20 +7,19 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDefaultExecuteTasks(t *testing.T) {
-	w := newWorker(redisClient, uuid.NewV4().String()).(*worker)
+	e := getTestEngine()
 
 	pendingTaskQueueName := getDisposableQueueName()
 	deferredTaskQueueName := getDisposableQueueName()
-	activeTaskQueueName := getActiveTaskQueueName(w.id)
+	activeTaskQueueName := getActiveTaskQueueName(e.workerID)
 
 	// Register some jobs with the worker
 	var badJobCallCount int
-	err := w.RegisterJob(
+	err := e.RegisterJob(
 		"badJob",
 		func(_ context.Context, _ async.Task) ([]async.Task, error) {
 			badJobCallCount++
@@ -29,7 +28,7 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	)
 	assert.Nil(t, err)
 	var goodJobCallCount int
-	err = w.RegisterJob(
+	err = e.RegisterJob(
 		"goodJob",
 		func(_ context.Context, _ async.Task) ([]async.Task, error) {
 			goodJobCallCount++
@@ -100,7 +99,7 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	}()
 
 	errCh := make(chan error)
-	go w.defaultExecuteTasks(
+	go e.defaultExecuteTasks(
 		ctx,
 		inputCh,
 		pendingTaskQueueName,
