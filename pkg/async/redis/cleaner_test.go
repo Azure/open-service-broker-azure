@@ -115,7 +115,7 @@ func TestDefaultCleanRespondsToCanceledContext(t *testing.T) {
 	// guarantee that some cleanup must take place. This is imporant because
 	// we'll override the default cleanActiveTaskQueue function to block us for a
 	// while, giving us the opportunity to test that defaultClean responds to
-	// context cancelation.
+	// context cancellation.
 	workerSetName := getDisposableWorkerSetName()
 	workerID := getDisposableWorkerID()
 	err := redisClient.SAdd(workerSetName, workerID).Err()

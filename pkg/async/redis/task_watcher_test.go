@@ -178,9 +178,6 @@ func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
 	assert.Empty(t, watchedTaskQueueDepth)
 }
 
-// TestDefaultWatchDeferredTaskRespondsToCanceledContext tests that when
-// defaultWatchDeferredTask is waiting for a tasks execute time to lapse, it
-// will abort if context is canceled.
 func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
 	e := getTestEngine()
 
@@ -211,8 +208,8 @@ func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
 
 	// Call defaultWatchDeferredTask in a goroutine. Under nominal conditions,
 	// this function has the potential to run for a long time. In case the
-	// function doesn't handle context cancelation properly and return quickly, we
-	// do not want to stall this test.
+	// function doesn't handle context cancellation properly and return quickly,
+	// we do not want to stall this test.
 	errCh := make(chan error)
 	go e.defaultWatchDeferredTask(
 		ctx,

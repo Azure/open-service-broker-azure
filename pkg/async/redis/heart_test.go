@@ -64,8 +64,6 @@ func TestDefaultRunHeartRespondsToCanceledContext(t *testing.T) {
 	}
 }
 
-// TestDefaultHeartbeat tests the happy path for sending a single heartbeat. The
-// expected result is that the heartbeat is visible, with a TTL, in Redis.
 func TestDefaultHeartbeat(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
