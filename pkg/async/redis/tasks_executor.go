@@ -35,10 +35,9 @@ func (e *engine) defaultExecuteTasks(
 			if err != nil {
 				select {
 				case errCh <- err:
-					continue
 				case <-ctx.Done():
-					return
 				}
+				return
 			}
 			if task == nil {
 				continue
@@ -63,10 +62,9 @@ func (e *engine) defaultExecuteTasks(
 						pendingTaskQueueName,
 						err,
 					):
-						continue
 					case <-ctx.Done():
-						return
 					}
+					return
 				}
 				pipeline := e.redisClient.TxPipeline()
 				pipeline.LPush(pendingTaskQueueName, newTaskJSON)
@@ -81,8 +79,8 @@ func (e *engine) defaultExecuteTasks(
 						err,
 					):
 					case <-ctx.Done():
-						return
 					}
+					return
 				}
 				continue
 			}
@@ -162,10 +160,9 @@ func (e *engine) defaultExecuteTasks(
 					getActiveTaskQueueName(e.workerID),
 					err,
 				):
-					continue
 				case <-ctx.Done():
-					return
 				}
+				return
 			}
 		case <-ctx.Done():
 			return
