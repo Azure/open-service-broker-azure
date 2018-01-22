@@ -88,7 +88,7 @@ func (b *broker) executeProvisioningStep(
 			`provisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedDetails, err := step.Execute(ctx, instance, instance.Plan)
+	updatedDetails, err := step.Execute(ctx, instance)
 	if err != nil {
 		return nil, b.handleProvisioningError(
 			instance,

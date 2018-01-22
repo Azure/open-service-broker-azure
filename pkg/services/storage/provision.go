@@ -48,7 +48,6 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
@@ -59,7 +58,8 @@ func (s *serviceManager) preProvision(
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.StorageAccountName = generate.NewIdentifier()
 
-	storeKind, ok := plan.GetProperties().Extended[kindKey].(storageKind)
+	storeKind, ok := instance.Plan.
+		GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
 		return nil, errors.New(
 			"error retrieving the storage kind from the plan",
@@ -78,7 +78,6 @@ func (s *serviceManager) preProvision(
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
@@ -86,7 +85,7 @@ func (s *serviceManager) deployARMTemplate(
 			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
-	storeKind, ok := plan.GetProperties().Extended[kindKey].(storageKind)
+	storeKind, ok := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
 		return nil, errors.New(
 			"error retrieving the storage kind from the plan",
@@ -130,7 +129,6 @@ func (s *serviceManager) deployARMTemplate(
 func (s *serviceManager) createBlobContainer(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {

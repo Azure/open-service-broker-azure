@@ -96,7 +96,6 @@ func (s *ServiceManager) GetProvisioner(
 func (s *ServiceManager) provision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	return instance.Details, nil
 }
