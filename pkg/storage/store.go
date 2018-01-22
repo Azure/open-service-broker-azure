@@ -93,6 +93,7 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 		serviceManager.GetEmptyInstanceDetails(),
 		s.codec,
 	)
+	instance.Service = svc
 	return instance, err == nil, err
 }
 
