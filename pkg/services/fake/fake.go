@@ -170,7 +170,6 @@ func (s *ServiceManager) GetDeprovisioner(
 func (s *ServiceManager) deprovision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	return instance.Details, nil
 }
