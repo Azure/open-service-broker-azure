@@ -5,12 +5,17 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // ServerProvisioningParams encapsulates MSSQL-server specific provisioning
 //options
 type ServerProvisioningParams struct {
-	FirewallIPStart string `json:"firewallStartIPAddress"`
-	FirewallIPEnd   string `json:"firewallEndIPAddress"`
+	FirewallIPStart            string `json:"firewallStartIPAddress"`
+	FirewallIPEnd              string `json:"firewallEndIPAddress"`
+	ResourceGroup              string `json:"resourceGroup"`
+	ServerName                 string `json:"serverName"`
+	AdministratorLogin         string `json:"administratorLogin"`
+	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 }
 
 // DBProvisioningParams encapsulates MSSQL-specific provisioning options
 type DBProvisioningParams struct {
+	DatabaseName string `json:"databaseName"`
 }
 
 type mssqlAllInOneInstanceDetails struct {

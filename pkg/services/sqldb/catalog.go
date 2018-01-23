@@ -165,6 +165,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure SQL Server VM Only",
 				Free:        false,
 			}),
+			service.NewPlan(&service.PlanProperties{
+				ID:          "2bff6bfc-8ee4-4893-8a99-db092928436d",
+				Name:        "migration",
+				Description: "Base on existing server on Azure",
+				Free:        false,
+			}),
 		),
 		// db only service
 		service.NewService(
@@ -308,6 +314,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "DW1200",
 					"maxSizeBytes":                  "1099511627776",
 				},
+			}),
+			service.NewPlan(&service.PlanProperties{
+				ID:          "35dc0d0b-04a2-4101-a4c3-ee9ef0df04b6",
+				Name:        "migration",
+				Description: "Base on existing database on Azure",
+				Free:        false,
 			}),
 		),
 	}), nil

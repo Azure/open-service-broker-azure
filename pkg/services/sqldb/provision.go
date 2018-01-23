@@ -61,7 +61,7 @@ func (a *allInOneManager) ValidateProvisioningParameters(
 	if bytes.Compare(startBytes, endBytes) > 0 {
 		return service.NewValidationError(
 			"firewallEndIPAddress",
-			fmt.Sprintf(`invalid value: "%s". must be 
+			fmt.Sprintf(`invalid value: "%s". must be
 				greater than or equal to firewallStartIPAddress`, pp.FirewallIPEnd),
 		)
 	}
@@ -115,7 +115,7 @@ func (v *vmOnlyManager) ValidateProvisioningParameters(
 	if bytes.Compare(startBytes, endBytes) > 0 {
 		return service.NewValidationError(
 			"firewallEndIPAddress",
-			fmt.Sprintf(`invalid value: "%s". must be 
+			fmt.Sprintf(`invalid value: "%s". must be
 				greater than or equal to firewallStartIPAddress`, pp.FirewallIPEnd),
 		)
 	}
@@ -139,21 +139,36 @@ func (a *allInOneManager) GetProvisioner(
 }
 
 func (v *vmOnlyManager) GetProvisioner(
-	service.Plan,
+	plan service.Plan,
 ) (service.Provisioner, error) {
-	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", v.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", v.deployARMTemplate),
-	)
+	if (plan.GetName() == "migration") {
+		return service.NewProvisioner(
+			service.NewProvisioningStep("verifyServer", v.verifyServer),
+			service.NewProvisioningStep("verifyAdmin", v.verifyAdmin),
+			service.NewProvisioningStep("assignInstanceDetails", v.assignInstanceDetails),
+		)
+	} else {
+		return service.NewProvisioner(
+			service.NewProvisioningStep("preProvision", v.preProvision),
+			service.NewProvisioningStep("deployARMTemplate", v.deployARMTemplate),
+		)
+	}
 }
 
 func (d *dbOnlyManager) GetProvisioner(
-	service.Plan,
+	plan service.Plan,
 ) (service.Provisioner, error) {
-	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", d.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", d.deployARMTemplate),
-	)
+	if (plan.GetName() == "migration") {
+		return service.NewProvisioner(
+			service.NewProvisioningStep("verifyDatabase", d.verifyDatabase),
+			service.NewProvisioningStep("assignInstanceDetails", d.assignInstanceDetails),
+		)
+	} else {
+		return service.NewProvisioner(
+			service.NewProvisioningStep("preProvision", d.preProvision),
+			service.NewProvisioningStep("deployARMTemplate", d.deployARMTemplate),
+		)
+	}
 }
 
 func (a *allInOneManager) preProvision(
