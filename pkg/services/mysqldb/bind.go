@@ -51,12 +51,12 @@ func (s *serviceManager) Bind(
 	}
 
 	if _, err = db.Exec(
-		fmt.Sprintf("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, "+
-			"PROCESS, INDEX, ALTER, SHOW DATABASES, CREATE TEMPORARY TABLES, "+
-			"LOCK TABLES, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, "+
-			"CREATE USER, REFERENCES, EVENT, "+
-			"TRIGGER ON *.* TO '%s'@'%%' WITH GRANT OPTION",
-			userName)); err != nil {
+		fmt.Sprintf("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, "+
+			"INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, "+
+			"CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, "+
+			"EXECUTE, REFERENCES, EVENT, "+
+			"TRIGGER ON %s.* TO '%s'@'%%'",
+			dt.DatabaseName, userName)); err != nil {
 		return nil, fmt.Errorf(
 			`error granting permission to "%s": %s`,
 			userName,
