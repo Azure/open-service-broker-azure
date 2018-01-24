@@ -99,7 +99,9 @@ func (s serviceLifecycleTestCase) execute(resourceGroup string) error {
 	// Build an instance from test case details
 	instance := service.Instance{
 		ServiceID: s.serviceID,
+		Service:   svc,
 		PlanID:    s.planID,
+		Plan:      plan,
 		Location:  s.location,
 		// Force the resource group to be something known to this test executor
 		// to ensure good cleanup
