@@ -2,12 +2,12 @@
 
 This is the official roadmap for the Open Service Broker for Azure (OSBA) project. OSBA is currently available as an alpha release and this roadmap represents our plan to deliver (OSBA) and the services it provides in a stable form.
 
-This roadmap addressess stability in terms of two dimensions:
+This roadmap addresses stability in terms of two dimensions:
 
 * Services/Plans
 * Database Schemas
 
-See below for more information concerining stability plans for each.
+See below for more information concerning stability plans for each.
 
 # Services and Plans
 
