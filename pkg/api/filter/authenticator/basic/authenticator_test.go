@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter/authenticator"
 	"github.com/stretchr/testify/assert"
 )
 

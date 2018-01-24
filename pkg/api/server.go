@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
@@ -37,7 +37,7 @@ type server struct {
 	port            int
 	store           storage.Store
 	asyncEngine     async.Engine
-	filterChain     filters.Filter
+	filterChain     filter.Filter
 	router          *mux.Router
 	catalog         service.Catalog
 	catalogResponse []byte
@@ -52,7 +52,7 @@ func NewServer(
 	port int,
 	store storage.Store,
 	asyncEngine async.Engine,
-	filterChain filters.Filter,
+	filterChain filter.Filter,
 	catalog service.Catalog,
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,

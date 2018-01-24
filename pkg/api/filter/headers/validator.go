@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter"
 	log "github.com/Sirupsen/logrus"
 )
 
 type validator struct{}
 
 // NewValidator creates a new instance of the header validator
-func NewValidator() filters.Filter {
+func NewValidator() filter.Filter {
 	return &validator{}
 }
 

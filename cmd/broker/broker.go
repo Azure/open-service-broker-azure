@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator/basic" //nolint: lll
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters/headers"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter/authenticator/basic" //nolint: lll
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter/headers"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
@@ -116,8 +116,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	filterChain := filters.NewFilterChain(
-		[]filters.Filter{
+	filterChain := filter.NewFilterChain(
+		[]filter.Filter{
 			authenticator,
 			headers.NewValidator(),
 		},

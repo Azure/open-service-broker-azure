@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter"
 )
 
 // basicAuthenticator is a implementation of the filter.Filter
@@ -17,7 +17,7 @@ type basicAuthenticator struct {
 
 // NewAuthenticator returns an implementation of the filter.Filter
 // interface that authenticates HTTP requests using Basic Auth
-func NewAuthenticator(username, password string) filters.Filter {
+func NewAuthenticator(username, password string) filter.Filter {
 	return &basicAuthenticator{
 		Username: username,
 		Password: password,

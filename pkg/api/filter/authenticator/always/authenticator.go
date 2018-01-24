@@ -3,7 +3,7 @@ package always
 import (
 	"net/http"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter"
 )
 
 // alwaysAuthenticator is a implementation of the filter.Filter
@@ -12,7 +12,7 @@ type alwaysAuthenticator struct{}
 
 // NewAuthenticator returns an implementation of the filter.Filter
 // interface useful for testing. It unconditionally authenticates all requests.
-func NewAuthenticator() filters.Filter {
+func NewAuthenticator() filter.Filter {
 	return &alwaysAuthenticator{}
 }
 

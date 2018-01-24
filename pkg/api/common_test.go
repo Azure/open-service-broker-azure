@@ -3,8 +3,8 @@ package api
 import (
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator/always" //nolint: lll
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter"
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter/authenticator/always" //nolint: lll
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
@@ -58,8 +58,8 @@ func getTestServer(
 		return nil, nil, err
 	}
 	authenticator := always.NewAuthenticator()
-	fakeFilterChain := filters.NewFilterChain(
-		[]filters.Filter{
+	fakeFilterChain := filter.NewFilterChain(
+		[]filter.Filter{
 			authenticator,
 		},
 	)

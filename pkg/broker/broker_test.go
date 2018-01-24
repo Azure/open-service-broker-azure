@@ -7,7 +7,7 @@ import (
 	"time"
 
 	fakeAPI "github.com/Azure/open-service-broker-azure/pkg/api/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator/always" ///nolint: lll
+	"github.com/Azure/open-service-broker-azure/pkg/api/filter/authenticator/always" ///nolint: lll
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/stretchr/testify/assert"
