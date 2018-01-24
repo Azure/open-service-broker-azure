@@ -81,6 +81,8 @@ func TestGetExistingInstance(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, ok)
 	// Blank out a few fields before we compare
+	retrievedInstance.Service = nil
+	retrievedInstance.Plan = nil
 	retrievedInstance.EncryptedProvisioningParameters = nil
 	retrievedInstance.EncryptedUpdatingParameters = nil
 	retrievedInstance.EncryptedDetails = nil
