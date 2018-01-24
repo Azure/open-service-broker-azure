@@ -16,7 +16,6 @@ func (f *failingFilter) Filter(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		f.called = true
 		w.WriteHeader(http.StatusBadRequest)
-		return
 	}
 }
 
