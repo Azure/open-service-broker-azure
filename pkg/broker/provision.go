@@ -46,31 +46,7 @@ func (b *broker) executeProvisioningStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing provisioning step")
-	svc, ok := b.catalog.GetService(instance.ServiceID)
-	if !ok {
-		return nil, b.handleProvisioningError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no service was found for handling serviceID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
-	plan, ok := svc.GetPlan(instance.PlanID)
-	if !ok {
-		return nil, b.handleProvisioningError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no plan was found for handling planID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
-	serviceManager := svc.GetServiceManager()
+	serviceManager := instance.Service.GetServiceManager()
 
 	// Retrieve a second copy of the instance from storage. Why? We're about to
 	// pass the instance off to module specific code. It's passed by value, so
@@ -91,7 +67,7 @@ func (b *broker) executeProvisioningStep(
 		)
 	}
 
-	provisioner, err := serviceManager.GetProvisioner(plan)
+	provisioner, err := serviceManager.GetProvisioner(instance.Plan)
 	if err != nil {
 		return nil, b.handleProvisioningError(
 			instance,
@@ -112,7 +88,7 @@ func (b *broker) executeProvisioningStep(
 			`provisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedDetails, err := step.Execute(ctx, instance, plan)
+	updatedDetails, err := step.Execute(ctx, instance)
 	if err != nil {
 		return nil, b.handleProvisioningError(
 			instance,

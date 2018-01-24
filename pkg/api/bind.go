@@ -100,21 +100,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// At this point, there's absolute agreement on what service we're dealing
-	// with. We can go ahead and find the Service itself to get the
-	// ServiceManager.
-	svc, ok := s.catalog.GetService(instance.ServiceID)
-	if !ok {
-		// If we don't find the Service in the catalog, something is really wrong.
-		// (It should exist, because an instance with this serviceID exists.)
-		logFields["serviceID"] = instance.ServiceID
-		log.WithFields(logFields).Error(
-			"pre-binding error: no Service found for serviceID",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
-	serviceManager := svc.GetServiceManager()
+	serviceManager := instance.Service.GetServiceManager()
 
 	// Unpack the parameter map in the request to a struct
 	bindingParameters := serviceManager.GetEmptyBindingParameters()
