@@ -8,14 +8,14 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
 )
 
-// basicAuthenticator is a implementation of the filters.Filter
+// basicAuthenticator is a implementation of the filter.Filter
 // interface that authenticates HTTP requests using Basic Auth
 type basicAuthenticator struct {
 	Username string
 	Password string
 }
 
-// NewAuthenticator returns an implementation of the filters.Filter
+// NewAuthenticator returns an implementation of the filter.Filter
 // interface that authenticates HTTP requests using Basic Auth
 func NewAuthenticator(username, password string) filters.Filter {
 	return &basicAuthenticator{
@@ -24,7 +24,7 @@ func NewAuthenticator(username, password string) filters.Filter {
 	}
 }
 
-func (b *basicAuthenticator) Execute(
+func (b *basicAuthenticator) Filter(
 	handle http.HandlerFunc,
 ) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

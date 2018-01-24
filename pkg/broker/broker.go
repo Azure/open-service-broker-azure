@@ -7,8 +7,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	"github.com/Azure/open-service-broker-azure/pkg/api/filters"
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters/authenticator"
-	"github.com/Azure/open-service-broker-azure/pkg/api/filters/headers"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	redisAsync "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
@@ -54,7 +52,7 @@ func NewBroker(
 	storageRedisClient *redis.Client,
 	asyncRedisClient *redis.Client,
 	codec crypto.Codec,
-	authenticator authenticator.Authenticator,
+	filterChain filters.Filter,
 	modules []service.Module,
 	minStability service.Stability,
 	defaultAzureLocation string,
@@ -122,16 +120,6 @@ func NewBroker(
 			"error registering async job for executing deprovisioning steps",
 		)
 	}
-
-	//Build a filter chain with an extensible set of filters to be applied
-	//against requests. Right now, authentication and header validation
-	filterChain := filters.NewFilterChain(
-		[]filters.Filter{
-			authenticator,
-			headers.NewValidator(),
-		},
-	)
-
 	b.apiServer, err = api.NewServer(
 		8080,
 		b.store,

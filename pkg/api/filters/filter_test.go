@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type failingFilter struct{
+type failingFilter struct {
 	called bool
 }
 
-func (f *failingFilter) Execute(handler http.HandlerFunc) http.HandlerFunc {
+func (f *failingFilter) Filter(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		f.called = true
 		w.WriteHeader(http.StatusBadRequest)
@@ -20,14 +20,14 @@ func (f *failingFilter) Execute(handler http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-type passingFilter struct{
+type passingFilter struct {
 	called bool
 }
 
-func (p *passingFilter) Execute(handler http.HandlerFunc) http.HandlerFunc {
+func (p *passingFilter) Filter(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p.called = true
-		handler(w,r)
+		handler(w, r)
 	}
 }
 
@@ -36,12 +36,12 @@ func TestFilterChainWithNoFilters(t *testing.T) {
 	f1 := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
-	filterChain :=  NewFilterChain([]Filter{})
+	filterChain := NewFilterChain([]Filter{})
 	filtered := filterChain.Filter(f1)
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
-	filtered(rr,req)
+	filtered(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.True(t, handlerCalled)
 }
@@ -52,14 +52,14 @@ func TestFilterChainWithFailingFilter(t *testing.T) {
 	f1 := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
-	filterChain :=  NewFilterChain([]Filter{
+	filterChain := NewFilterChain([]Filter{
 		failing,
 	})
 	filtered := filterChain.Filter(f1)
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
-	filtered(rr,req)
+	filtered(rr, req)
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.False(t, handlerCalled)
 	assert.True(t, failing.called)
@@ -71,14 +71,14 @@ func TestFilterChainWithPassingFilter(t *testing.T) {
 	f1 := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
-	filterChain :=  NewFilterChain([]Filter{
+	filterChain := NewFilterChain([]Filter{
 		passing,
 	})
 	filtered := filterChain.Filter(f1)
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
-	filtered(rr,req)
+	filtered(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.True(t, handlerCalled)
 	assert.True(t, passing.called)
@@ -91,7 +91,7 @@ func TestFilterChainWithMixedFilters(t *testing.T) {
 	f1 := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
-	filterChain :=  NewFilterChain([]Filter{
+	filterChain := NewFilterChain([]Filter{
 		passing,
 		failing,
 	})
@@ -99,7 +99,7 @@ func TestFilterChainWithMixedFilters(t *testing.T) {
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
-	filtered(rr,req)
+	filtered(rr, req)
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.False(t, handlerCalled)
 	assert.True(t, passing.called)

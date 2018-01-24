@@ -37,7 +37,7 @@ type server struct {
 	port            int
 	store           storage.Store
 	asyncEngine     async.Engine
-	filterChain     filters.Chain
+	filterChain     filters.Filter
 	router          *mux.Router
 	catalog         service.Catalog
 	catalogResponse []byte
@@ -52,7 +52,7 @@ func NewServer(
 	port int,
 	store storage.Store,
 	asyncEngine async.Engine,
-	filterChain filters.Chain,
+	filterChain filters.Filter,
 	catalog service.Catalog,
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,

@@ -8,25 +8,15 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-var responseMissingAPIVersion = []byte(
-	`{ "error": "MissingAPIVersion", "description": "The request did not ` +
-		`include the X-Broker-API-Version header"}`,
-)
-
-var responseAPIVersionIncorrect = []byte(
-	`{ "error": "APIVersionIncorrect", "description": "X-Broker-API-Verson ` +
-		`header includes an incompatible version"}`,
-)
-
 type validator struct{}
 
-//NewValidator creates a new instance of the header validator
+// NewValidator creates a new instance of the header validator
 func NewValidator() filters.Filter {
 	return &validator{}
 }
 
-//Filter validates that required headers are present
-func (v *validator) Execute(handler http.HandlerFunc) http.HandlerFunc {
+// Filter validates that required headers are present
+func (v *validator) Filter(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		apiVersion := r.Header.Get("X-Broker-API-Version")
 		if apiVersion == "" {
