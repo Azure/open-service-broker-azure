@@ -28,7 +28,6 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*serviceBusInstanceDetails)
 	if !ok {
@@ -44,7 +43,6 @@ func (s *serviceManager) preProvision(
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*serviceBusInstanceDetails)
 	if !ok {
@@ -60,7 +58,8 @@ func (s *serviceManager) deployARMTemplate(
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
 			"serviceBusNamespaceName": dt.ServiceBusNamespaceName,
-			"serviceBusSku":           plan.GetProperties().Extended["serviceBusSku"],
+			"serviceBusSku": instance.Plan.
+				GetProperties().Extended["serviceBusSku"],
 		},
 		instance.Tags,
 	)

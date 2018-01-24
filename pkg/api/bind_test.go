@@ -31,11 +31,10 @@ func TestBindingWithInstanceThatIsNotFullyProvisioned(t *testing.T) {
 	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
-	planID := getDisposablePlanID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
-		PlanID:     planID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioning,
 	})
 	assert.Nil(t, err)

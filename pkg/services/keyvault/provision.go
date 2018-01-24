@@ -52,7 +52,6 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
@@ -68,7 +67,6 @@ func (s *serviceManager) preProvision(
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
@@ -92,7 +90,7 @@ func (s *serviceManager) deployARMTemplate(
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
 			"keyVaultName": dt.KeyVaultName,
-			"vaultSku":     plan.GetProperties().Extended["vaultSku"],
+			"vaultSku":     instance.Plan.GetProperties().Extended["vaultSku"],
 			"tenantId":     s.keyvaultManager.GetTenantID(),
 			"objectId":     pp.ObjectID,
 		},

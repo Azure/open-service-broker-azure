@@ -85,6 +85,16 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 				instance.ServiceID,
 			)
 	}
+	plan, ok := svc.GetPlan(instance.PlanID)
+	if !ok {
+		return instance,
+			false,
+			fmt.Errorf(
+				`plan not found for planID "%s" for service "%s" in the catalog`,
+				instance.PlanID,
+				instance.ServiceID,
+			)
+	}
 	serviceManager := svc.GetServiceManager()
 	instance, err = service.NewInstanceFromJSON(
 		bytes,
@@ -93,6 +103,8 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 		serviceManager.GetEmptyInstanceDetails(),
 		s.codec,
 	)
+	instance.Service = svc
+	instance.Plan = plan
 	return instance, err == nil, err
 }
 
