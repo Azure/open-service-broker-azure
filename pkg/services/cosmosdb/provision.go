@@ -4,11 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	log "github.com/Sirupsen/logrus"
 	uuid "github.com/satori/go.uuid"
 )
+
+const ascii = "1234567890abcdefghijklmnopqrstuvwxyz"
 
 func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
@@ -38,8 +42,30 @@ func (s *serviceManager) preProvision(
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.DatabaseAccountName = uuid.NewV4().String()
+	dt.DatabaseAccountName = generateDatabaseName(instance.Location)
 	return dt, nil
+}
+
+func generateDatabaseName(location string) string {
+	databaseName := uuid.NewV4().String()
+	// CosmosDB currently limits database name to 50 characters,
+	// which includes location and a - character. Check if we will
+	// exceed this and truncate.
+	effectiveNameLength := len(location) + len(databaseName)
+	if effectiveNameLength > 49 {
+		nameLength := 49 - len(location)
+		b := make([]byte, nameLength)
+		for i := range b {
+			b[i] = ascii[rand.Intn(len(ascii))]
+		}
+		databaseName = string(b)
+		logFields := log.Fields{
+			"name":   databaseName,
+			"length": len(databaseName),
+		}
+		log.WithFields(logFields).Debug("returning fallback database name")
+	}
+	return databaseName
 }
 
 func (s *serviceManager) deployARMTemplate(
