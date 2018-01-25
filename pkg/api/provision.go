@@ -69,7 +69,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// krancour: Choosing to interpret this scenario as a bad request, as a
 		// valid request, obviously contains valid, well-formed JSON
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, responseMalformedRequestBody)
 		return
 	}
 
@@ -191,7 +191,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			)
 			// This scenario is bad request because it means the tags weren't
 			// a map[string]string, as we expected.
-			s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+			s.writeResponse(w, http.StatusBadRequest, responseTagsMalformed)
 			return
 		}
 	}
@@ -219,7 +219,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		)
 		// krancour: Choosing to interpret this scenario as a bad request since the
 		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, responseIncorrectRequestBody)
 		return
 	}
 
@@ -269,7 +269,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 				return
 			default:
 				// TODO: Write a more detailed response
-				s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+				s.writeResponse(w, http.StatusConflict, responseConflict)
 				return
 			}
 		}
@@ -277,7 +277,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// We land in here if an existing instance was found, but its atrributes
 		// vary from what was requested. The spec requires us to respond with a
 		// 409
-		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, responseConflict)
 		return
 	}
 
@@ -390,7 +390,13 @@ func (s *server) handlePossibleValidationError(
 			"bad provisioning request: validation error",
 		)
 		// TODO: Send the correct response body-- this is a placeholder
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		response := []byte(
+			fmt.Sprintf(responseValidationFailedTemplate,
+				validationErr.Field,
+				validationErr.Issue,
+			),
+		)
+		s.writeResponse(w, http.StatusBadRequest, response)
 		return
 	}
 	s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)

@@ -52,6 +52,9 @@ var responseFailed = []byte(
 
 var responseEmptyJSON = []byte("{}")
 
+var responseConflict = []byte(`{ "description": "A service instance exists ` +
+	`with the specified service id" }`)
+
 // The following are custom to this broker-- i.e. not explicitly declared by
 // the OSB spec
 
@@ -68,4 +71,17 @@ var responseOperationRequired = []byte(
 var responseOperationInvalid = []byte(
 	`{ "error": "OperationInvalid", "description": "The polling request ` +
 		`included an invalid value for the required operation query parameter" }`,
+)
+
+var responseTagsMalformed = []byte(`{ "error": "MalformedRequestTags", ` +
+	`"description": The provided tags were not well-formed JSON" }`,
+)
+
+var responseIncorrectRequestBody = []byte(`{ "error": "MalformedRequest", ` +
+	`"description": The provided request did not match what was expected for ` +
+	`the service" }`,
+)
+
+var responseValidationFailedTemplate = string(`{ "error": "ValidationError", ` +
+	`"description": The value provided for %s is invalid. %s" }`,
 )
