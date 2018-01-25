@@ -6,10 +6,10 @@ import (
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
-	"github.com/Azure/open-service-broker-azure/pkg/api/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	redisAsync "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
@@ -52,7 +52,7 @@ func NewBroker(
 	storageRedisClient *redis.Client,
 	asyncRedisClient *redis.Client,
 	codec crypto.Codec,
-	filterChain filter.Chain,
+	filterChain filter.Filter,
 	modules []service.Module,
 	minStability service.Stability,
 	defaultAzureLocation string,

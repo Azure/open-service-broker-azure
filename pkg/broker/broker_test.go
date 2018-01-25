@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+
 	fakeAPI "github.com/Azure/open-service-broker-azure/pkg/api/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/api/filter"
-	"github.com/Azure/open-service-broker-azure/pkg/api/filter/authenticator/always" ///nolint: lll
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/stretchr/testify/assert"
@@ -141,14 +141,11 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 }
 
 func getTestBroker() (*broker, error) {
-
-	filterChain := filter.NewChain(always.NewAuthenticator())
-
 	b, err := NewBroker(
 		nil,
 		nil,
 		nil,
-		filterChain,
+		filter.NewChain(),
 		nil,
 		service.StabilityExperimental,
 		"",

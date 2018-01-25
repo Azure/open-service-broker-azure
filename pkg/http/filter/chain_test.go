@@ -12,7 +12,7 @@ type failingFilter struct {
 	called bool
 }
 
-func (f *failingFilter) Filter(handler http.HandlerFunc) http.HandlerFunc {
+func (f *failingFilter) GetHandler(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		f.called = true
 		w.WriteHeader(http.StatusBadRequest)
@@ -23,7 +23,7 @@ type passingFilter struct {
 	called bool
 }
 
-func (p *passingFilter) Filter(handler http.HandlerFunc) http.HandlerFunc {
+func (p *passingFilter) GetHandler(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p.called = true
 		handler(w, r)
