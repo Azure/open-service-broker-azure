@@ -28,7 +28,6 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
@@ -45,7 +44,6 @@ func (s *serviceManager) preProvision(
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
@@ -62,7 +60,8 @@ func (s *serviceManager) deployARMTemplate(
 		map[string]interface{}{ // ARM template params
 			"eventHubName":      dt.EventHubName,
 			"eventHubNamespace": dt.EventHubNamespace,
-			"eventHubSku":       plan.GetProperties().Extended["eventHubSku"],
+			"eventHubSku": instance.Plan.
+				GetProperties().Extended["eventHubSku"],
 		},
 		instance.Tags,
 	)

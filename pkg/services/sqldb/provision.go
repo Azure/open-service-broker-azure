@@ -91,7 +91,6 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -183,7 +182,6 @@ func buildARMTemplateParameters(
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlInstanceDetails)
 	if !ok {
@@ -198,6 +196,7 @@ func (s *serviceManager) deployARMTemplate(
 				"*mssql.ProvisioningParameters",
 		)
 	}
+	plan := instance.Plan
 	if dt.IsNewServer {
 		armTemplateParameters := buildARMTemplateParameters(plan, dt, pp)
 		// new server scenario

@@ -10,9 +10,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/basic"
+	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
@@ -95,13 +97,17 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Assemble the filter chain
 	basicAuthConfig, err := getBasicAuthConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
-	authenticator := basic.NewAuthenticator(
-		basicAuthConfig.Username,
-		basicAuthConfig.Password,
+	filterChain := filter.NewChain(
+		filters.NewBasicAuthFilter(
+			basicAuthConfig.Username,
+			basicAuthConfig.Password,
+		),
+		apiFilters.NewAPIVersionFilter(),
 	)
 
 	modulesConfig, err := getModulesConfig()
@@ -119,7 +125,7 @@ func main() {
 		storageRedisClient,
 		asyncRedisClient,
 		codec,
-		authenticator,
+		filterChain,
 		modules,
 		modulesConfig.MinStability,
 		azureConfig.DefaultLocation,

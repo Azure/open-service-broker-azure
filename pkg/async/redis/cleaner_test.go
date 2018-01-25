@@ -8,72 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCleanerRunBlocksUntilCleanErrors(t *testing.T) {
-	c := newCleaner(redisClient).(*cleaner)
-
-	// Override the default clean function to just return an error
-	c.clean = func(context.Context, string, string, string) error {
-		return errSome
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Call Run in a goroutine. If it never unblocks, as we hope it does, we don't
-	// want the test to stall.
-	errCh := make(chan error)
-	go func() {
-		errCh <- c.Run(ctx)
-	}()
-
-	// Assert that the error returned from the Run function is the error that
-	// the overridden clean function generated
-	select {
-	case err := <-errCh:
-		assert.Equal(t, &errCleaning{err: errSome}, err)
-	case <-time.After(time.Second):
-		assert.Fail(
-			t,
-			"an error error should have been returned, but wasn't",
-		)
-	}
-}
-
-func TestCleanerRunRespondsToCanceledContext(t *testing.T) {
-	c := newCleaner(redisClient).(*cleaner)
-
-	// Override the default clean function to be a no-op
-	c.clean = func(context.Context, string, string, string) error {
-		return nil
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Call Run in a goroutine. If it never unblocks, as we hope it does, we don't
-	// want the test to stall.
-	errCh := make(chan error)
-	go func() {
-		errCh <- c.Run(ctx)
-	}()
-
-	cancel()
-
-	// Assert that the error returned from Work indicates that the context was
-	// canceled
-	select {
-	case err := <-errCh:
-		assert.Equal(t, ctx.Err(), err)
-	case <-time.After(time.Second):
-		assert.Fail(
-			t,
-			"a context canceled error should have been returned, but wasn't",
-		)
-	}
-}
-
 func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
-	c := newCleaner(redisClient).(*cleaner)
+	e := NewEngine(redisClient).(*engine)
 
 	// Add some workers to the worker set, but do not add any heartbeats for these
 	// workers. i.e. They should appear dead.
@@ -87,7 +23,7 @@ func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
 	// Override the default cleanActiveTaskQueue function to just count how many
 	// times it is invoked
 	var cleanActiveTaskQueueCallCount int
-	c.cleanActiveTaskQueue = func(context.Context, string, string, string) error {
+	e.cleanActiveTaskQueue = func(context.Context, string, string, string) error {
 		cleanActiveTaskQueueCallCount++
 		return nil
 	}
@@ -95,7 +31,7 @@ func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
 	// Override the default cleanWatchedTaskQueue function to just count how many
 	// times it is invoked
 	var cleanWatchedTaskQueueCallCount int
-	c.cleanWatchedTaskQueue = func(
+	e.cleanWatchedTaskQueue = func(
 		context.Context,
 		string,
 		string,
@@ -108,7 +44,7 @@ func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err := c.defaultClean(
+	err := e.defaultClean(
 		ctx,
 		workerSetName,
 		getDisposableQueueName(),
@@ -123,7 +59,7 @@ func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
 }
 
 func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
-	c := newCleaner(redisClient).(*cleaner)
+	e := NewEngine(redisClient).(*engine)
 
 	// Add a worker to the worker set. Also add a heartbeat so this worker appears
 	// to be alive.
@@ -137,7 +73,7 @@ func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
 	// Override the default cleanActiveTaskQueue function to just count how many
 	// times it is invoked
 	var cleanActiveTaskQueueCallCount int
-	c.cleanActiveTaskQueue = func(context.Context, string, string, string) error {
+	e.cleanActiveTaskQueue = func(context.Context, string, string, string) error {
 		cleanActiveTaskQueueCallCount++
 		return nil
 	}
@@ -145,7 +81,7 @@ func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
 	// Override the default cleanWatchedTaskQueue function to just count how many
 	// times it is invoked
 	var cleanWatchedTaskQueueCallCount int
-	c.cleanWatchedTaskQueue = func(
+	e.cleanWatchedTaskQueue = func(
 		context.Context,
 		string,
 		string,
@@ -158,7 +94,7 @@ func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err = c.defaultClean(
+	err = e.defaultClean(
 		ctx,
 		workerSetName,
 		getDisposableQueueName(),
@@ -172,14 +108,14 @@ func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
 	assert.Equal(t, 0, cleanWatchedTaskQueueCallCount)
 }
 
-func TestDefaultCleanRespondsToContextCanceled(t *testing.T) {
-	c := newCleaner(redisClient).(*cleaner)
+func TestDefaultCleanRespondsToCanceledContext(t *testing.T) {
+	e := NewEngine(redisClient).(*engine)
 
 	// Add one worker to the worker set. Do not add a heartbeat. This should
 	// guarantee that some cleanup must take place. This is imporant because
 	// we'll override the default cleanActiveTaskQueue function to block us for a
 	// while, giving us the opportunity to test that defaultClean responds to
-	// context cancelation.
+	// context cancellation.
 	workerSetName := getDisposableWorkerSetName()
 	workerID := getDisposableWorkerID()
 	err := redisClient.SAdd(workerSetName, workerID).Err()
@@ -187,7 +123,7 @@ func TestDefaultCleanRespondsToContextCanceled(t *testing.T) {
 
 	// Override the default cleanActiveTaskQueue function to block until the
 	// context it is passed is canceled.
-	c.cleanActiveTaskQueue = func(
+	e.cleanActiveTaskQueue = func(
 		ctx context.Context,
 		_ string,
 		_ string,
@@ -210,7 +146,7 @@ func TestDefaultCleanRespondsToContextCanceled(t *testing.T) {
 	// won't stall.
 	errCh := make(chan error)
 	go func() {
-		errCh <- c.defaultClean(
+		errCh <- e.defaultClean(
 			ctx,
 			workerSetName,
 			getDisposableQueueName(),
@@ -234,7 +170,7 @@ func TestDefaultCleanRespondsToContextCanceled(t *testing.T) {
 }
 
 func TestDefaultCleanWorkerQueue(t *testing.T) {
-	c := newCleaner(redisClient).(*cleaner)
+	e := NewEngine(redisClient).(*engine)
 
 	sourceQueueName := getDisposableQueueName()
 	destinationQueueName := getDisposableQueueName()
@@ -259,7 +195,7 @@ func TestDefaultCleanWorkerQueue(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	err = c.defaultCleanWorkerQueue(
+	err = e.defaultCleanWorkerQueue(
 		ctx,
 		getDisposableWorkerID(),
 		sourceQueueName,
@@ -278,8 +214,8 @@ func TestDefaultCleanWorkerQueue(t *testing.T) {
 	assert.Equal(t, taskCount, destinationQueueDepth)
 }
 
-func TestDefaultCleanWorkerQueueRespondsToContextCanceled(t *testing.T) {
-	c := newCleaner(redisClient).(*cleaner)
+func TestDefaultCleanWorkerQueueRespondsToCanceledContext(t *testing.T) {
+	e := NewEngine(redisClient).(*engine)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -289,7 +225,7 @@ func TestDefaultCleanWorkerQueueRespondsToContextCanceled(t *testing.T) {
 	// a chance to cancel the context.
 	cancel()
 
-	err := c.defaultCleanWorkerQueue(
+	err := e.defaultCleanWorkerQueue(
 		ctx,
 		getDisposableWorkerID(),
 		getDisposableQueueName(),

@@ -6,7 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/always"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+
 	fakeAPI "github.com/Azure/open-service-broker-azure/pkg/api/fake"
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -144,7 +145,7 @@ func getTestBroker() (*broker, error) {
 		nil,
 		nil,
 		nil,
-		always.NewAuthenticator(),
+		filter.NewChain(),
 		nil,
 		service.StabilityExperimental,
 		"",
