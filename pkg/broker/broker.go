@@ -52,7 +52,7 @@ func NewBroker(
 	storageRedisClient *redis.Client,
 	asyncRedisClient *redis.Client,
 	codec crypto.Codec,
-	filterChain filter.Filter,
+	filterChain filter.Chain,
 	modules []service.Module,
 	minStability service.Stability,
 	defaultAzureLocation string,

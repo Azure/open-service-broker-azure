@@ -35,8 +35,8 @@ func TestFilterChainWithNoFilters(t *testing.T) {
 	f1 := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
-	filterChain := NewFilterChain([]Filter{})
-	filtered := filterChain.Filter(f1)
+	filterChain := NewChain()
+	filtered := filterChain.GetHandler(f1)
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
@@ -51,10 +51,8 @@ func TestFilterChainWithFailingFilter(t *testing.T) {
 	f1 := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
-	filterChain := NewFilterChain([]Filter{
-		failing,
-	})
-	filtered := filterChain.Filter(f1)
+	filterChain := NewChain(failing)
+	filtered := filterChain.GetHandler(f1)
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
@@ -70,10 +68,8 @@ func TestFilterChainWithPassingFilter(t *testing.T) {
 	f1 := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
-	filterChain := NewFilterChain([]Filter{
-		passing,
-	})
-	filtered := filterChain.Filter(f1)
+	filterChain := NewChain(passing)
+	filtered := filterChain.GetHandler(f1)
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
@@ -90,11 +86,8 @@ func TestFilterChainWithMixedFilters(t *testing.T) {
 	f1 := func(w http.ResponseWriter, r *http.Request) {
 		handlerCalled = true
 	}
-	filterChain := NewFilterChain([]Filter{
-		passing,
-		failing,
-	})
-	filtered := filterChain.Filter(f1)
+	filterChain := NewChain(passing, failing)
+	filtered := filterChain.GetHandler(f1)
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()

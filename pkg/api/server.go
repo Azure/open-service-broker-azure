@@ -37,7 +37,7 @@ type server struct {
 	port            int
 	store           storage.Store
 	asyncEngine     async.Engine
-	filterChain     filter.Filter
+	filterChain     filter.Chain
 	router          *mux.Router
 	catalog         service.Catalog
 	catalogResponse []byte
@@ -52,7 +52,7 @@ func NewServer(
 	port int,
 	store storage.Store,
 	asyncEngine async.Engine,
-	filterChain filter.Filter,
+	filterChain filter.Chain,
 	catalog service.Catalog,
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,
@@ -71,31 +71,31 @@ func NewServer(
 	router.StrictSlash(true)
 	router.HandleFunc(
 		"/v2/catalog",
-		filterChain.Filter(s.getCatalog),
+		filterChain.GetHandler(s.getCatalog),
 	).Methods(http.MethodGet)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}",
-		filterChain.Filter(s.provision),
+		filterChain.GetHandler(s.provision),
 	).Methods(http.MethodPut)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}",
-		filterChain.Filter(s.update),
+		filterChain.GetHandler(s.update),
 	).Methods(http.MethodPatch)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/last_operation",
-		filterChain.Filter(s.poll),
+		filterChain.GetHandler(s.poll),
 	).Methods(http.MethodGet)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/service_bindings/{binding_id}",
-		filterChain.Filter(s.bind),
+		filterChain.GetHandler(s.bind),
 	).Methods(http.MethodPut)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/service_bindings/{binding_id}",
-		filterChain.Filter(s.unbind),
+		filterChain.GetHandler(s.unbind),
 	).Methods(http.MethodDelete)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}",
-		filterChain.Filter(s.deprovision),
+		filterChain.GetHandler(s.deprovision),
 	).Methods(http.MethodDelete)
 	router.HandleFunc(
 		"/healthz",

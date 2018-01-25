@@ -58,11 +58,7 @@ func getTestServer(
 		return nil, nil, err
 	}
 	authenticator := always.NewAuthenticator()
-	fakeFilterChain := filter.NewFilterChain(
-		[]filter.Filter{
-			authenticator,
-		},
-	)
+	fakeFilterChain := filter.NewChain(authenticator)
 	s, err := NewServer(
 		8080,
 		memoryStorage.NewStore(fakeCatalog, noop.NewCodec()),

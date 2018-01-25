@@ -116,11 +116,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	filterChain := filter.NewFilterChain(
-		[]filter.Filter{
-			authenticator,
-			headers.NewValidator(),
-		},
+	filterChain := filter.NewChain(
+		authenticator,
+		headers.NewValidator(),
 	)
 
 	// Create broker

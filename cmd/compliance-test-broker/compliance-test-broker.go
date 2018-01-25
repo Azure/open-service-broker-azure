@@ -35,12 +35,7 @@ func main() {
 		username,
 		password,
 	)
-	filterChain := filter.NewFilterChain(
-		[]filter.Filter{
-			authenticator,
-			headers.NewValidator(),
-		},
-	)
+	filterChain := filter.NewChain(authenticator, headers.NewValidator())
 
 	noopCodec := noop.NewCodec()
 	server, err := api.NewServer(
