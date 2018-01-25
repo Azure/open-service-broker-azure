@@ -1,4 +1,4 @@
-package basic
+package filters
 
 import (
 	"encoding/base64"
@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,49 +16,49 @@ const (
 	testPassword = "password"
 )
 
-func TestAuthHeaderMissing(t *testing.T) {
-	a := getTestAuthenticator()
+func TestBasicAuthFilterWithHeaderMissing(t *testing.T) {
+	a := getTestBasicAuthFilter()
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.GetHandler(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 	assert.False(t, handlerCalled)
 }
 
-func TestAuthHeaderNotBasic(t *testing.T) {
-	a := getTestAuthenticator()
+func TestBasicAuthFilterWithHeaderNotBasic(t *testing.T) {
+	a := getTestBasicAuthFilter()
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	req.Header.Add("Authorization", "Digest foo")
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.GetHandler(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 	assert.False(t, handlerCalled)
 }
 
-func TestAuthUsernamePasswordNotBase64(t *testing.T) {
-	a := getTestAuthenticator()
+func TestBasicAuthFilterWithUsernamePasswordNotBase64(t *testing.T) {
+	a := getTestBasicAuthFilter()
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	req.Header.Add("Authorization", "Basic foo")
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.GetHandler(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 	assert.False(t, handlerCalled)
 }
 
-func TestAuthUsernamePasswordInvalid(t *testing.T) {
-	a := getTestAuthenticator()
+func TestBasicAuthFilterWithUsernamePasswordInvalid(t *testing.T) {
+	a := getTestBasicAuthFilter()
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	usernameAndPassword := fmt.Sprintf("%s:%s", "foo", "bar")
@@ -71,15 +71,15 @@ func TestAuthUsernamePasswordInvalid(t *testing.T) {
 	)
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.GetHandler(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusUnauthorized, rr.Code)
 	assert.False(t, handlerCalled)
 }
 
-func TestAuthUsernamePasswordValid(t *testing.T) {
-	a := getTestAuthenticator()
+func TestBasicAuthFilterWithUsernamePasswordValid(t *testing.T) {
+	a := getTestBasicAuthFilter()
 	req, err := http.NewRequest(http.MethodGet, "/", nil)
 	assert.Nil(t, err)
 	usernameAndPassword := fmt.Sprintf("%s:%s", testUsername, testPassword)
@@ -92,13 +92,13 @@ func TestAuthUsernamePasswordValid(t *testing.T) {
 	)
 	rr := httptest.NewRecorder()
 	handlerCalled := false
-	a.Authenticate(func(http.ResponseWriter, *http.Request) {
+	a.GetHandler(func(http.ResponseWriter, *http.Request) {
 		handlerCalled = true
 	})(rr, req)
 	assert.Equal(t, http.StatusOK, rr.Code)
 	assert.True(t, handlerCalled)
 }
 
-func getTestAuthenticator() authenticator.Authenticator {
-	return NewAuthenticator(testUsername, testPassword)
+func getTestBasicAuthFilter() filter.Filter {
+	return NewBasicAuthFilter(testUsername, testPassword)
 }

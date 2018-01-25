@@ -8,9 +8,11 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator/basic"
+	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	memoryStorage "github.com/Azure/open-service-broker-azure/pkg/storage/memory"
 	log "github.com/Sirupsen/logrus"
@@ -29,9 +31,9 @@ func main() {
 	username := "username"
 	password := "password"
 
-	authenticator := basic.NewAuthenticator(
-		username,
-		password,
+	filterChain := filter.NewChain(
+		filters.NewBasicAuthFilter(username, password),
+		apiFilters.NewAPIVersionFilter(),
 	)
 
 	noopCodec := noop.NewCodec()
@@ -39,7 +41,7 @@ func main() {
 		8080,
 		memoryStorage.NewStore(fakeCatalog, noopCodec),
 		fakeAsync.NewEngine(),
-		authenticator,
+		filterChain,
 		fakeCatalog,
 		" ",
 		" ",
