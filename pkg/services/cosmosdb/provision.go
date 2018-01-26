@@ -4,15 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math/rand"
 	"strings"
 
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	uuid "github.com/satori/go.uuid"
 )
-
-const ascii = "1234567890abcdefghijklmnopqrstuvwxyz"
 
 func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
@@ -49,15 +47,11 @@ func generateDatabaseName(location string) string {
 	databaseName := uuid.NewV4().String()
 	// CosmosDB currently limits database name to 50 characters,
 	// which includes location and a - character. Check if we will
-	// exceed this and truncate.
+	// exceed this and generate a shorter random identifier if needed.
 	effectiveNameLength := len(location) + len(databaseName)
 	if effectiveNameLength > 49 {
 		nameLength := 49 - len(location)
-		b := make([]byte, nameLength)
-		for i := range b {
-			b[i] = ascii[rand.Intn(len(ascii))]
-		}
-		databaseName = string(b)
+		databaseName = generate.NewIdentifierOfLength(nameLength)
 		logFields := log.Fields{
 			"name":   databaseName,
 			"length": len(databaseName),
