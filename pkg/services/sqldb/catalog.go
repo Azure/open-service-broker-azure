@@ -11,8 +11,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 				Name:        "azure-sqldb",
 				Description: "Azure SQL Database (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "SQL", "Database"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName:      "Azure SQL Database",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					LongDescription:  "The intelligent relational cloud database service",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "SQL", "Database"},
 			},
 			m.allInOneServiceManager,
 			service.NewPlan(&service.PlanProperties{

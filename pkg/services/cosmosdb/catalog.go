@@ -13,6 +13,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Description: "Azure DocumentDB (Experimental) provided by CosmosDB " +
 						"and accessible via SQL (DocumentDB), Gremlin (Graph), and Table " +
 						"(Key-Value) APIs",
+					Metadata: &service.ServiceMetadata{
+						DisplayName:      "Azure Cosmos DB",
+						ImageUrl:         "https://azure.microsoft.com/svghandler/cosmos-db/?width=200",
+						LongDescription:  "Globally distributed, multi-model database service",
+						DocumentationUrl: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
+						SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+					},
 					Bindable: true,
 					Tags: []string{"Azure",
 						"CosmosDB",

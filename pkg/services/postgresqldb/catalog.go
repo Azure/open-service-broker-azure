@@ -9,8 +9,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 				Name:        "azure-postgresqldb",
 				Description: "Azure Database for PostgreSQL (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "PostgreSQL", "Database"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName:      "Azure Database for PostgreSQL",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					LongDescription:  "Enterprise-ready fully managed community PostgreSQL",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/postgresql/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "PostgreSQL", "Database"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{

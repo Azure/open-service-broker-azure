@@ -24,15 +24,26 @@ type catalog struct {
 // instantiated and passed to the NewService() constructor function which will
 // carry out all necessary initialization.
 type ServiceProperties struct { // nolint: golint
-	Name          string   `json:"name"`
-	ID            string   `json:"id"`
-	Description   string   `json:"description"`
-	Tags          []string `json:"tags"`
-	Bindable      bool     `json:"bindable"`
-	PlanUpdatable bool     `json:"plan_updateable"` // Misspelling is deliberate
+	Name          string           `json:"name"`
+	ID            string           `json:"id"`
+	Description   string           `json:"description"`
+	Metadata      *ServiceMetadata `json:"metadata,omitempty"`
+	Tags          []string         `json:"tags"`
+	Bindable      bool             `json:"bindable"`
+	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is deliberate
 	// to match the spec
 	ParentServiceID string `json:"-"`
 	ChildServiceID  string `json:"-"`
+}
+
+// ServiceMetadata contains metadata about the service classes
+type ServiceMetadata struct {
+	DisplayName         string `json:"displayName,omitempty"`
+	ImageUrl            string `json:"imageUrl,omitempty"`
+	LongDescription     string `json:"longDescription,omitempty"`
+	ProviderDisplayName string `json:"providerDisplayName,omitempty"`
+	DocumentationUrl    string `json:"documentationUrl,omitempty"`
+	SupportUrl          string `json:"supportUrl,omitempty"`
 }
 
 // Service is an interface to be implemented by types that represent a single

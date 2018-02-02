@@ -9,8 +9,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "7bade660-32f1-4fd7-b9e6-d416d975170b",
 				Name:        "azure-eventhubs",
 				Description: "Azure Event Hubs (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "Event", "Hubs"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName:      "Azure Event Hubs",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/event-hubs/?width=200",
+					LongDescription:  "Cloud-scale telemetry ingestion from websites, apps, and any streams of data",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/event-hubs/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Event", "Hubs"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{

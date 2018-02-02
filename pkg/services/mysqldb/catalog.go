@@ -9,8 +9,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "997b8372-8dac-40ac-ae65-758b4a5075a5",
 				Name:        "azure-mysqldb",
 				Description: "Azure Database for MySQL (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "MySQL", "Database"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName:      "Azure Database for MySQL",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
+					LongDescription:  "A fully managed MySQL database service for app developers",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/mysql/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "MySQL", "Database"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{

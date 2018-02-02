@@ -13,8 +13,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
 				Name:        "azure-storage",
 				Description: "Azure Storage (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "Storage"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName:      "Azure Storage",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/storage/?width=200",
+					LongDescription:  "Offload the heavy lifting of datacenter management",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/storage/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Storage"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{

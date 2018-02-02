@@ -7,10 +7,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "c54902aa-3027-4c5c-8e96-5b3d3b452f7f",
-				Name:        "azuresearch",
+				Name:        "azure-search",
 				Description: "Azure Search (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "Search", "Elasticsearch"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName:      "Azure Search",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/search/?width=200",
+					LongDescription:  "Cloud search service for web and mobile app development",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/search/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Search", "Elasticsearch"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{

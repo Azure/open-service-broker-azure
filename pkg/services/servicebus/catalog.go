@@ -9,8 +9,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",
 				Name:        "azure-servicebus",
 				Description: "Azure Service Bus (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "Service", "Bus"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName:      "Azure Service Bus",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/service-bus/?width=200",
+					LongDescription:  "Reliable cloud messaging as a service (MaaS) and simple hybrid integration",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/service-bus/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Service", "Bus"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
