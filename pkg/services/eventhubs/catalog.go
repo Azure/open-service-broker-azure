@@ -11,7 +11,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure Event Hubs (Experimental)",
 				Metadata: &service.ServiceMetadata{
 					DisplayName:      "Azure Event Hubs",
-					ImageUrl:         "https://azure.microsoft.com/svghandler/event-hubs/?width=200",
+					ImageUrl:         "https://overview.azureedge.net/cdn/Event%20Hubs.png",
 					LongDescription:  "Cloud-scale telemetry ingestion from websites, apps, and any streams of data",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/event-hubs/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
