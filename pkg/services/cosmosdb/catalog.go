@@ -14,8 +14,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"and accessible via SQL (DocumentDB), Gremlin (Graph), and Table " +
 						"(Key-Value) APIs",
 					Metadata: &service.ServiceMetadata{
-						DisplayName:      "Azure Cosmos DB",
-						ImageUrl:         "https://azure.microsoft.com/svghandler/cosmos-db/?width=200",
+						DisplayName:      "Azure Cosmos DB (DocumentDB)",
+						ImageUrl:         "https://azure.microsoft.com/svghandler/documentdb/?width=200",
 						LongDescription:  "Globally distributed, multi-model database service",
 						DocumentationUrl: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
 						SupportUrl:       "https://azure.microsoft.com/en-us/support/",
@@ -49,7 +49,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ID:          "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
 					Name:        "azure-cosmos-mongo-db",
 					Description: "MongoDB on Azure (Experimental) provided by CosmosDB",
-					Bindable:    true,
+					Metadata: &service.ServiceMetadata{
+						DisplayName:      "Azure Cosmos DB (MongoDB)",
+						ImageUrl:         "https://azure.microsoft.com/svghandler/cosmos-db/?width=200",
+						LongDescription:  "Globally distributed, multi-model database service",
+						DocumentationUrl: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
+						SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+					},
+					Bindable: true,
 					Tags: []string{"Azure",
 						"CosmosDB",
 						"Database",
