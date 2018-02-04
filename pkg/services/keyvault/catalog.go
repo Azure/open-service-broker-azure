@@ -28,6 +28,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					"vaultSku": "Standard",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "6893b1de-0a7b-42bb-b28d-1636c4b81f75",
@@ -36,6 +39,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 				Extended: map[string]interface{}{
 					"vaultSku": "Premium",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Premium Tier",
 				},
 			}),
 		),

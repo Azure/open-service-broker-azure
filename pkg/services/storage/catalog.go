@@ -33,6 +33,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					kindKey: storageKindGeneralPurposeStorageAcccount,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "General Purpose Storage Account",
+					Bullets: []string{"Azure general-purpose storage account",
+						"Create your own containers, files, and tables within this account",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "800a17e1-f20a-463d-a290-20516052f647",
@@ -44,6 +50,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					kindKey: storageKindBlobStorageAccount,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Blob Storage Account",
+					Bullets: []string{"Specialized Azure storage account for storing " +
+						"block blobs and append blobs",
+						"Create your own containers, files, and tables within this account",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "189d3b8f-8307-4b3f-8c74-03d069237f70",
@@ -54,6 +67,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free: false,
 				Extended: map[string]interface{}{
 					kindKey: storageKindBlobContainer,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Blob Container",
+					Bullets: []string{"A specialized Azure storage account for storing " +
+						"block blobs and append blobs",
+						"Automatically provisions a blob container within the account",
+					},
 				},
 			}),
 		),

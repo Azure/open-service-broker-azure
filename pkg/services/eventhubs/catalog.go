@@ -28,6 +28,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					"eventHubSku": "Basic",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets: []string{"1 Consumer group",
+						"100 Brokered connections",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "264ab981-9e37-44ba-b6bb-2d0fe3e80565",
@@ -38,6 +44,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free: false,
 				Extended: map[string]interface{}{
 					"eventHubSku": "Standard",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{"20 Consumer groups",
+						"1000 Brokered connections",
+						"Additional Storage",
+						"Publisher Policies",
+					},
 				},
 			}),
 		),

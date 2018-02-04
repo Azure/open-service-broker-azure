@@ -32,6 +32,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "Basic",
 					"maxSizeBytes":                  "2147483648",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets: []string{"5 DTUs",
+						"2GB",
+						"7 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "2497b7f3-341b-4ac6-82fb-d4a48c005e19",
@@ -42,6 +49,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "Standard",
 					"requestedServiceObjectiveName": "S0",
 					"maxSizeBytes":                  "268435456000",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{"10 DTUs",
+						"250GB",
+						"35 days point-in-time restore",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -54,6 +68,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "S1",
 					"maxSizeBytes":                  "268435456000",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "StandardS1 Tier",
+					Bullets: []string{"20 DTUs",
+						"250GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "a5537f8e-d816-4b0e-9546-a13811944bdd",
@@ -64,6 +85,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "Standard",
 					"requestedServiceObjectiveName": "S2",
 					"maxSizeBytes":                  "268435456000",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "StandardS2 Tier",
+					Bullets: []string{"50 DTUs",
+						"250GB",
+						"35 days point-in-time restore",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -76,6 +104,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "S3",
 					"maxSizeBytes":                  "268435456000",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "StandardS3 Tier",
+					Bullets: []string{"100 DTUs",
+						"250GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "f9a3cc8e-a6e2-474d-b032-9837ea3dfcaa",
@@ -86,6 +121,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "Premium",
 					"requestedServiceObjectiveName": "P1",
 					"maxSizeBytes":                  "536870912000",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP1 Tier",
+					Bullets: []string{"125 DTUs",
+						"500GB",
+						"35 days point-in-time restore",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -98,6 +140,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "P2",
 					"maxSizeBytes":                  "536870912000",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP2 Tier",
+					Bullets: []string{"250 DTUs",
+						"500GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "85d54d69-55ee-4fe8-a207-66bc96ecf9e7",
@@ -108,6 +157,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "Premium",
 					"requestedServiceObjectiveName": "P4",
 					"maxSizeBytes":                  "536870912000",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP4 Tier",
+					Bullets: []string{"500 DTUs",
+						"500GB",
+						"35 days point-in-time restore",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -120,6 +176,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "P6",
 					"maxSizeBytes":                  "536870912000",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP6 Tier",
+					Bullets: []string{"1000 DTUs",
+						"500GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "408f5f35-5f5e-48f3-98cf-9e10c1abc4e5",
@@ -131,6 +194,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "P11",
 					"maxSizeBytes":                  "1099511627776",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP11 Tier",
+					Bullets: []string{"1024GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "b69af389-7af5-47bd-9ccf-c1ffdc2620d9",
@@ -141,6 +210,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "DataWarehouse",
 					"requestedServiceObjectiveName": "DW100",
 					"maxSizeBytes":                  "1099511627776",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "DataWarehouse100 Tier",
+					Bullets: []string{"1024GB",
+						"100 DWUs",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -314,6 +389,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "DataWarehouse",
 					"requestedServiceObjectiveName": "DW1200",
 					"maxSizeBytes":                  "1099511627776",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "DataWarehouse1200 Tier",
+					Bullets: []string{"1024GB",
+						"1200 DWUs",
+					},
 				},
 			}),
 		),

@@ -25,6 +25,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "aci",
 				Description: "Azure Container Instances",
 				Free:        false,
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Azure Container Instances",
+				},
 			}),
 		),
 	}), nil

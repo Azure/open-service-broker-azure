@@ -28,6 +28,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					"searchServiceSku": "free",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Free Tier",
+					Bullets: []string{"Max 3 Indexes",
+						"50MB Storage/Partition",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "4a50e008-5513-42d3-8b2f-d8b3ad43f7eb",
@@ -37,6 +43,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					"searchServiceSku": "basic",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets: []string{"Max 5 Indexes",
+						"2GB Storage/Partition",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "65e89af2-8da2-4559-b103-8dd2dd8fdd40",
@@ -45,6 +57,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        true,
 				Extended: map[string]interface{}{
 					"searchServiceSku": "standard",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "S1 Tier",
+					Bullets: []string{"Max 50 Indexes",
+						"25GB Storage/Partition",
+					},
 				},
 			}),
 		),

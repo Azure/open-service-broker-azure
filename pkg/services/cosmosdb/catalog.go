@@ -42,6 +42,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Extended: map[string]interface{}{
 						kindKey: databaseKindGlobalDocumentDB,
 					},
+					Metadata: &service.ServicePlanMetadata{
+						DisplayName: "Azure DocumentDB",
+					},
 				}),
 			),
 			service.NewService(
@@ -71,6 +74,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Free:        false,
 					Extended: map[string]interface{}{
 						kindKey: databaseKindMongoDB,
+					},
+					Metadata: &service.ServicePlanMetadata{
+						DisplayName: "Azure MongoDB",
 					},
 				}),
 			),

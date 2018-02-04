@@ -30,6 +30,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"redisCacheFamily":   "C",
 					"redisCacheCapacity": 0,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"250MB Cache"},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "4af8bbd1-962d-4e26-84f1-f72d1d959d87",
@@ -41,6 +45,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"redisCacheFamily":   "C",
 					"redisCacheCapacity": 1,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets:     []string{"1GB Cache"},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "b1057a8f-9a01-423a-bc35-e168d5c04cf0",
@@ -51,6 +59,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"redisCacheSKU":      "Premium",
 					"redisCacheFamily":   "P",
 					"redisCacheCapacity": 1,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Premium Tier",
+					Bullets:     []string{"6GB Cache"},
 				},
 			}),
 		),

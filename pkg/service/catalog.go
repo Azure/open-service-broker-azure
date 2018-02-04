@@ -77,7 +77,19 @@ type PlanProperties struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	Free        bool                   `json:"free"`
+	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"`
 	Extended    map[string]interface{} `json:"-"`
+}
+
+type ServicePlanMetadata struct {
+	DisplayName string            `json:"displayName,omitempty"`
+	Bullets     []string          `json:"bullets,omitempty"`
+	Costs       []ServicePlanCost `json:"costs,omitempty"`
+}
+
+type ServicePlanCost struct {
+	Amount map[string]float64 `json:"amount"`
+	Unit   string             `json:"unit"`
 }
 
 // Plan is an interface to be implemented by types that represent a single

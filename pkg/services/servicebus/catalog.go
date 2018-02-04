@@ -28,6 +28,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Basic",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"Shared Capacity"},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "6be0d8b5-381f-4d68-bdfd-a131425d3835",
@@ -38,6 +42,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Standard",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{"Shared Capacity",
+						"Topics",
+						"12.5M Messaging Operations/Month",
+						"Variable Pricing",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "cec378a7-6452-4203-beca-d34898edbadc",
@@ -47,6 +59,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free: false,
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Premium",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Premium Tier",
+					Bullets: []string{"Dedicated Capacity",
+						"Recommended For Production Workloads",
+						"Fixed Pricing",
+					},
 				},
 			}),
 		),

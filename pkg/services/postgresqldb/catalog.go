@@ -30,6 +30,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuTier":        "Basic",
 					"skuCapacityDTU": 50,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"50 DTUs"},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "843d7d03-9306-447e-8c19-25ccc4ac30d7",
@@ -40,6 +44,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuName":        "PGSQLB100",
 					"skuTier":        "Basic",
 					"skuCapacityDTU": 100,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"100 DTUs"},
 				},
 			}),
 		),
