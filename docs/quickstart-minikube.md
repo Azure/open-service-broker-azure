@@ -148,7 +148,7 @@ resources on your account on behalf of Kubernetes.
     ```
 
 ## Create a Kubernetes cluster using Minikube
-Next we will create a local cluster using Minikube. You can also [try OSBA on the Azure Container Service (AKS)](quickstart-aks.md)
+Next we will create a local cluster using Minikube. You can also [try OSBA on the Azure Container Service (AKS)](quickstart-aks.md).
 
 1. Create an RBAC enabled cluster:
     ```
