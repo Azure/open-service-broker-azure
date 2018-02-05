@@ -99,7 +99,9 @@ func (s serviceLifecycleTestCase) execute(
 	// Build an instance from test case details
 	instance := service.Instance{
 		ServiceID: s.serviceID,
+		Service:   svc,
 		PlanID:    s.planID,
+		Plan:      plan,
 		Location:  s.location,
 		// Force the resource group to be something known to this test executor
 		// to ensure good cleanup
@@ -133,7 +135,7 @@ func (s serviceLifecycleTestCase) execute(
 				stepName,
 			)
 		}
-		instance.Details, err = step.Execute(ctx, instance, plan)
+		instance.Details, err = step.Execute(ctx, instance)
 		if err != nil {
 			return err
 		}
@@ -214,7 +216,7 @@ func (s serviceLifecycleTestCase) execute(
 				stepName,
 			)
 		}
-		instance.Details, err = step.Execute(ctx, instance, plan)
+		instance.Details, err = step.Execute(ctx, instance)
 		if err != nil {
 			return err
 		}

@@ -46,7 +46,6 @@ func (d *dbOnlyManager) GetDeprovisioner(
 func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
@@ -67,7 +66,6 @@ func (a *allInOneManager) deleteARMDeployment(
 func (v *vmOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -88,7 +86,6 @@ func (v *vmOnlyManager) deleteARMDeployment(
 func (d *dbOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
@@ -113,7 +110,6 @@ func (d *dbOnlyManager) deleteARMDeployment(
 func (a *allInOneManager) deleteMsSQLServer(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
@@ -133,7 +129,6 @@ func (a *allInOneManager) deleteMsSQLServer(
 func (v *vmOnlyManager) deleteMsSQLServer(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -153,7 +148,6 @@ func (v *vmOnlyManager) deleteMsSQLServer(
 func (d *dbOnlyManager) deleteMsSQLDatabase(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {

@@ -77,19 +77,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 			"unbinding an orphaned binding",
 		)
 	} else {
-		// We can go ahead and find the Service itself to get the ServiceManager.
-		svc, ok := s.catalog.GetService(instance.ServiceID)
-		if !ok {
-			// If we don't find the Service in the catalog, something is really wrong.
-			// (It should exist, because an instance with this serviceID exists.)
-			logFields["serviceID"] = instance.ServiceID
-			log.WithFields(logFields).Error(
-				"pre-unbinding error: no Service found for serviceID",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
-		serviceManager := svc.GetServiceManager()
+		serviceManager := instance.Service.GetServiceManager()
 
 		// Starting here, if something goes wrong, we don't know what state service-
 		// specific code has left us in, so we'll attempt to record the error in

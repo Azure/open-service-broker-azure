@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
@@ -406,9 +406,9 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var task model.Task
+	var task async.Task
 	if waitForParent {
-		task = model.NewDelayedTask(
+		task = async.NewDelayedTask(
 			"checkParentStatus",
 			map[string]string{
 				"instanceID": instanceID,
@@ -417,8 +417,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		)
 		log.WithFields(logFields).Debug("parent not provisioned, waiting")
 	} else {
-		task = model.NewTask(
-			"provisionStep",
+		task = async.NewTask(
+			"executeProvisioningStep",
 			map[string]string{
 				"stepName":   firstStepName,
 				"instanceID": instanceID,

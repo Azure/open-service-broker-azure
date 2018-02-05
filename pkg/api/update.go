@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -270,8 +270,8 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := model.NewTask(
-		"updateStep",
+	task := async.NewTask(
+		"executeUpdatingStep",
 		map[string]string{
 			"stepName":   firstStepName,
 			"instanceID": instanceID,

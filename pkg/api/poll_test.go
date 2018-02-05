@@ -40,6 +40,7 @@ func TestPollingWithInstanceProvisioning(t *testing.T) {
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioning,
 	})
 	assert.Nil(t, err)
@@ -58,6 +59,7 @@ func TestPollingWithInstanceProvisioned(t *testing.T) {
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
@@ -76,6 +78,7 @@ func TestPollingWithInstanceProvisioningFailed(t *testing.T) {
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioningFailed,
 	})
 	assert.Nil(t, err)
@@ -94,6 +97,7 @@ func TestPollingWithInstanceDeprovisioning(t *testing.T) {
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateDeprovisioning,
 	})
 	assert.Nil(t, err)
@@ -127,6 +131,7 @@ func TestPollingWithInstanceDeprovisioningFailed(t *testing.T) {
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateDeprovisioningFailed,
 	})
 	assert.Nil(t, err)

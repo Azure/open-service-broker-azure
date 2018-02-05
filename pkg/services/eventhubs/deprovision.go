@@ -19,7 +19,6 @@ func (s *serviceManager) GetDeprovisioner(
 func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
@@ -39,7 +38,6 @@ func (s *serviceManager) deleteARMDeployment(
 func (s *serviceManager) deleteNamespace(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {

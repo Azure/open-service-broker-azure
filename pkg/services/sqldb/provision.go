@@ -119,6 +119,20 @@ func (v *vmOnlyManager) ValidateProvisioningParameters(
 				greater than or equal to firewallStartIPAddress`, pp.FirewallIPEnd),
 		)
 	}
+	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
+		if pp.FirewallIPStart == "" {
+			return service.NewValidationError(
+				"firewallStartIPAddress",
+				"must be set when firewallEndIPAddress is set",
+			)
+		}
+		if pp.FirewallIPEnd == "" {
+			return service.NewValidationError(
+				"firewallEndIPAddress",
+				"must be set when firewallStartIPAddress is set",
+			)
+		}
+	}
 	return nil
 }
 
@@ -159,7 +173,6 @@ func (d *dbOnlyManager) GetProvisioner(
 func (a *allInOneManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
@@ -178,7 +191,6 @@ func (a *allInOneManager) preProvision(
 func (v *vmOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -196,7 +208,6 @@ func (v *vmOnlyManager) preProvision(
 func (d *dbOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
@@ -241,7 +252,6 @@ func (d *dbOnlyManager) preProvision(
 func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
@@ -261,11 +271,11 @@ func (a *allInOneManager) deployARMTemplate(
 		"administratorLogin":         dt.AdministratorLogin,
 		"administratorLoginPassword": dt.AdministratorLoginPassword,
 		"databaseName":               dt.DatabaseName,
-		"edition":                    plan.GetProperties().Extended["edition"],
-		"requestedServiceObjectiveName": plan.GetProperties().
+		"edition": instance.Plan.GetProperties().
+			Extended["edition"],
+		"requestedServiceObjectiveName": instance.Plan.GetProperties().
 			Extended["requestedServiceObjectiveName"],
-		"maxSizeBytes": plan.GetProperties().
-			Extended["maxSizeBytes"],
+		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
 	//Only include these if they are not empty.
 	//ARM Deployer will fail if the values included are not
@@ -303,7 +313,6 @@ func (a *allInOneManager) deployARMTemplate(
 func (v *vmOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
@@ -359,7 +368,6 @@ func (v *vmOnlyManager) deployARMTemplate(
 func (d *dbOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
@@ -382,11 +390,10 @@ func (d *dbOnlyManager) deployARMTemplate(
 	p := map[string]interface{}{ // ARM template params
 		"serverName":   pdt.ServerName,
 		"databaseName": dt.DatabaseName,
-		"edition":      plan.GetProperties().Extended["edition"],
-		"requestedServiceObjectiveName": plan.GetProperties().
+		"edition":      instance.Plan.GetProperties().Extended["edition"],
+		"requestedServiceObjectiveName": instance.Plan.GetProperties().
 			Extended["requestedServiceObjectiveName"],
-		"maxSizeBytes": plan.GetProperties().
-			Extended["maxSizeBytes"],
+		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
 	//No output, so ignore the output
 	_, err := d.armDeployer.Deploy(

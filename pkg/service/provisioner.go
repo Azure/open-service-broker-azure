@@ -10,7 +10,6 @@ import (
 type ProvisioningStepFunction func(
 	ctx context.Context,
 	instance Instance,
-	plan Plan,
 ) (InstanceDetails, error)
 
 // ProvisioningStep is an interface to be implemented by types that represent
@@ -20,7 +19,6 @@ type ProvisioningStep interface {
 	Execute(
 		ctx context.Context,
 		instance Instance,
-		plan Plan,
 	) (InstanceDetails, error)
 }
 
@@ -63,14 +61,12 @@ func (p *provisioningStep) GetName() string {
 func (p *provisioningStep) Execute(
 	ctx context.Context,
 	instance Instance,
-	plan Plan,
 ) (InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return p.fn(
 		ctx,
 		instance,
-		plan,
 	)
 }
 
