@@ -107,7 +107,6 @@ func generateOperationFailedResponse() []byte {
 
 var responseEmptyJSON = []byte("{}")
 
-<<<<<<< HEAD
 func generateEmptyResponse() []byte {
 	return responseEmptyJSON
 }
@@ -119,11 +118,6 @@ func generateConflictResponse() []byte {
 	return responseConflict
 }
 
-=======
-var responseConflict = []byte(`{ "description": "A service instance exists ` +
-	`with the specified service id" }`)
-
->>>>>>> Replacing empty json responses with error messages.
 // The following are custom to this broker-- i.e. not explicitly declared by
 // the OSB spec
 
