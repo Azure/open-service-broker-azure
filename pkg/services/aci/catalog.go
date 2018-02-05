@@ -10,11 +10,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-aci",
 				Description: "Azure Container Instances (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Container Instances",
-					ImageUrl:         "https://azure.microsoft.com/svghandler/container-instances/?width=200",
-					LongDescription:  "Easily run containers on Azure with a single command",
-					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/container-instances/",
-					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+					DisplayName: "Azure Container Instances",
+					ImageUrl: "https://azure.microsoft.com/svghandler/container-instances/" +
+						"?width=200",
+					LongDescription: "Easily run containers on Azure with a single command",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/" +
+						"container-instances/",
+					SupportUrl: "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "Container", "Instance"},

@@ -12,8 +12,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-sqldb",
 				Description: "Azure SQL Database (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure SQL Database",
-					ImageUrl:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL Database",
+					ImageUrl: "https://azure.microsoft.com/svghandler/sql-database/" +
+						"?width=200",
 					LongDescription:  "The intelligent relational cloud database service",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
@@ -34,7 +35,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Basic Tier",
-					Bullets: []string{"5 DTUs",
+					Bullets: []string{
+						"5 DTUs",
 						"2GB",
 						"7 days point-in-time restore",
 					},
@@ -52,7 +54,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
-					Bullets: []string{"10 DTUs",
+					Bullets: []string{
+						"10 DTUs",
 						"250GB",
 						"35 days point-in-time restore",
 					},
@@ -70,7 +73,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS1 Tier",
-					Bullets: []string{"20 DTUs",
+					Bullets: []string{
+						"20 DTUs",
 						"250GB",
 						"35 days point-in-time restore",
 					},
@@ -88,7 +92,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS2 Tier",
-					Bullets: []string{"50 DTUs",
+					Bullets: []string{
+						"50 DTUs",
 						"250GB",
 						"35 days point-in-time restore",
 					},
@@ -106,7 +111,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS3 Tier",
-					Bullets: []string{"100 DTUs",
+					Bullets: []string{
+						"100 DTUs",
 						"250GB",
 						"35 days point-in-time restore",
 					},
@@ -124,7 +130,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP1 Tier",
-					Bullets: []string{"125 DTUs",
+					Bullets: []string{
+						"125 DTUs",
 						"500GB",
 						"35 days point-in-time restore",
 					},
@@ -142,7 +149,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP2 Tier",
-					Bullets: []string{"250 DTUs",
+					Bullets: []string{
+						"250 DTUs",
 						"500GB",
 						"35 days point-in-time restore",
 					},
@@ -160,7 +168,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP4 Tier",
-					Bullets: []string{"500 DTUs",
+					Bullets: []string{
+						"500 DTUs",
 						"500GB",
 						"35 days point-in-time restore",
 					},
@@ -178,7 +187,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP6 Tier",
-					Bullets: []string{"1000 DTUs",
+					Bullets: []string{
+						"1000 DTUs",
 						"500GB",
 						"35 days point-in-time restore",
 					},
@@ -196,7 +206,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP11 Tier",
-					Bullets: []string{"1024GB",
+					Bullets: []string{
+						"1024GB",
 						"35 days point-in-time restore",
 					},
 				},
@@ -213,7 +224,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "DataWarehouse100 Tier",
-					Bullets: []string{"1024GB",
+					Bullets: []string{
+						"1024GB",
 						"100 DWUs",
 					},
 				},
@@ -392,7 +404,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "DataWarehouse1200 Tier",
-					Bullets: []string{"1024GB",
+					Bullets: []string{
+						"1024GB",
 						"1200 DWUs",
 					},
 				},

@@ -10,9 +10,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-mysqldb",
 				Description: "Azure Database for MySQL (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL",
-					ImageUrl:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "A fully managed MySQL database service for app developers",
+					DisplayName: "Azure Database for MySQL",
+					ImageUrl: "https://azure.microsoft.com/svghandler/mysql/" +
+						"?width=200",
+					LongDescription: "A fully managed MySQL database service for " +
+						"app developers",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

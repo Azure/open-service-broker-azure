@@ -14,8 +14,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-storage",
 				Description: "Azure Storage (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Storage",
-					ImageUrl:         "https://azure.microsoft.com/svghandler/storage/?width=200",
+					DisplayName: "Azure Storage",
+					ImageUrl: "https://azure.microsoft.com/svghandler/storage/" +
+						"?width=200",
 					LongDescription:  "Offload the heavy lifting of datacenter management",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",

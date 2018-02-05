@@ -10,9 +10,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-eventhubs",
 				Description: "Azure Event Hubs (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Event Hubs",
-					ImageUrl:         "https://overview.azureedge.net/cdn/Event%20Hubs.png",
-					LongDescription:  "Cloud-scale telemetry ingestion from websites, apps, and any streams of data",
+					DisplayName: "Azure Event Hubs",
+					ImageUrl:    "https://overview.azureedge.net/cdn/Event%20Hubs.png",
+					LongDescription: "Cloud-scale telemetry ingestion from websites, apps, " +
+						"and any streams of data",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/event-hubs/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -30,7 +31,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Basic Tier",
-					Bullets: []string{"1 Consumer group",
+					Bullets: []string{
+						"1 Consumer group",
 						"100 Brokered connections",
 					},
 				},
@@ -47,7 +49,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
-					Bullets: []string{"20 Consumer groups",
+					Bullets: []string{
+						"20 Consumer groups",
 						"1000 Brokered connections",
 						"Additional Storage",
 						"Publisher Policies",

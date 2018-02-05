@@ -10,9 +10,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-search",
 				Description: "Azure Search (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Search",
-					ImageUrl:         "https://azure.microsoft.com/svghandler/search/?width=200",
-					LongDescription:  "Cloud search service for web and mobile app development",
+					DisplayName: "Azure Search",
+					ImageUrl: "https://azure.microsoft.com/svghandler/search/" +
+						"?width=200",
+					LongDescription: "Cloud search service for web and mobile app " +
+						"development",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/search/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -30,7 +32,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Free Tier",
-					Bullets: []string{"Max 3 Indexes",
+					Bullets: []string{
+						"Max 3 Indexes",
 						"50MB Storage/Partition",
 					},
 				},
@@ -45,7 +48,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Basic Tier",
-					Bullets: []string{"Max 5 Indexes",
+					Bullets: []string{
+						"Max 5 Indexes",
 						"2GB Storage/Partition",
 					},
 				},
@@ -60,7 +64,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "S1 Tier",
-					Bullets: []string{"Max 50 Indexes",
+					Bullets: []string{
+						"Max 50 Indexes",
 						"25GB Storage/Partition",
 					},
 				},

@@ -10,9 +10,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-servicebus",
 				Description: "Azure Service Bus (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Service Bus",
-					ImageUrl:         "https://azure.microsoft.com/svghandler/service-bus/?width=200",
-					LongDescription:  "Reliable cloud messaging as a service (MaaS) and simple hybrid integration",
+					DisplayName: "Azure Service Bus",
+					ImageUrl: "https://azure.microsoft.com/svghandler/service-bus/" +
+						"?width=200",
+					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
+						"simple hybrid integration",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/service-bus/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -44,7 +46,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
-					Bullets: []string{"Shared Capacity",
+					Bullets: []string{
+						"Shared Capacity",
 						"Topics",
 						"12.5M Messaging Operations/Month",
 						"Variable Pricing",
@@ -62,7 +65,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Premium Tier",
-					Bullets: []string{"Dedicated Capacity",
+					Bullets: []string{
+						"Dedicated Capacity",
 						"Recommended For Production Workloads",
 						"Fixed Pricing",
 					},

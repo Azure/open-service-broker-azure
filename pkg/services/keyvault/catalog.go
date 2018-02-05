@@ -10,9 +10,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-keyvault",
 				Description: "Azure Key Vault (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Key Vault",
-					ImageUrl:         "https://azure.microsoft.com/svghandler/key-vault/?width=200",
-					LongDescription:  "Safeguard cryptographic keys and other secrets used by cloud apps and services",
+					DisplayName: "Azure Key Vault",
+					ImageUrl: "https://azure.microsoft.com/svghandler/key-vault/" +
+						"?width=200",
+					LongDescription: "Safeguard cryptographic keys and other secrets " +
+						"used by cloud apps and services",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/key-vault/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

@@ -30,8 +30,8 @@ type ServiceProperties struct { // nolint: golint
 	Metadata      *ServiceMetadata `json:"metadata,omitempty"`
 	Tags          []string         `json:"tags"`
 	Bindable      bool             `json:"bindable"`
-	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is deliberate
-	// to match the spec
+	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
+	// deliberate to match the spec
 	ParentServiceID string `json:"-"`
 	ChildServiceID  string `json:"-"`
 }
@@ -81,15 +81,10 @@ type PlanProperties struct {
 	Extended    map[string]interface{} `json:"-"`
 }
 
+// ServicePlanMetadata contains metadata about the service plans
 type ServicePlanMetadata struct {
-	DisplayName string            `json:"displayName,omitempty"`
-	Bullets     []string          `json:"bullets,omitempty"`
-	Costs       []ServicePlanCost `json:"costs,omitempty"`
-}
-
-type ServicePlanCost struct {
-	Amount map[string]float64 `json:"amount"`
-	Unit   string             `json:"unit"`
+	DisplayName string   `json:"displayName,omitempty"`
+	Bullets     []string `json:"bullets,omitempty"`
 }
 
 // Plan is an interface to be implemented by types that represent a single
