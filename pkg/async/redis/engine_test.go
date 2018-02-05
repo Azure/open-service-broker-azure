@@ -21,14 +21,14 @@ func TestRunBlocksUntilCleanReturnsError(t *testing.T) {
 	e := getTestEngine()
 
 	// Override the engine's clean function so it just returns an error
-	e.clean = func(context.Context, string, string, string) error {
+	e.clean = func(context.Context, string, string, string, time.Duration) error {
 		return errSome
 	}
 
 	// Override the engine's runHeart function so it just communicates when the
 	// context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	e.runHeart = func(ctx context.Context) error {
+	e.runHeart = func(ctx context.Context, _ time.Duration) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
@@ -69,14 +69,20 @@ func TestRunBlocksUntilRunHeartReturnsError(t *testing.T) {
 	// Override the engine's clean function so it just communicates when the
 	// context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	e.clean = func(ctx context.Context, _ string, _ string, _ string) error {
+	e.clean = func(
+		ctx context.Context,
+		_ string,
+		_ string,
+		_ string,
+		_ time.Duration,
+	) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
 	}
 
 	// Override the engine's runHeart function so it just returns an error
-	e.runHeart = func(context.Context) error {
+	e.runHeart = func(context.Context, time.Duration) error {
 		return errSome
 	}
 
@@ -115,7 +121,13 @@ func TestRunBlocksUntilReceivePendingTasksSendsError(t *testing.T) {
 	// Override the engine's clean function so it just communicates when the
 	// context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	e.clean = func(ctx context.Context, _ string, _ string, _ string) error {
+	e.clean = func(
+		ctx context.Context,
+		_ string,
+		_ string,
+		_ string,
+		_ time.Duration,
+	) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
@@ -179,7 +191,13 @@ func TestRunBlocksUntilExecuteTasksSendsError(t *testing.T) {
 	// Override the engine's clean function so it just communicates when the
 	// context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	e.clean = func(ctx context.Context, _ string, _ string, _ string) error {
+	e.clean = func(
+		ctx context.Context,
+		_ string,
+		_ string,
+		_ string,
+		_ time.Duration,
+	) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
@@ -241,7 +259,13 @@ func TestRunBlocksUntilReceiveDeferredTasksSendError(t *testing.T) {
 	// Override the engine's clean function so it just communicates when the
 	// context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	e.clean = func(ctx context.Context, _ string, _ string, _ string) error {
+	e.clean = func(
+		ctx context.Context,
+		_ string,
+		_ string,
+		_ string,
+		_ time.Duration,
+	) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
@@ -374,7 +398,13 @@ func TestRunRespondsToCanceledContext(t *testing.T) {
 	// Override the engine's clean function so it just communicates when the
 	// context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	e.clean = func(ctx context.Context, _ string, _ string, _ string) error {
+	e.clean = func(
+		ctx context.Context,
+		_ string,
+		_ string,
+		_ string,
+		_ time.Duration,
+	) error {
 		<-ctx.Done()
 		close(contextCanceledCh)
 		return ctx.Err()
@@ -412,12 +442,18 @@ func TestRunRespondsToCanceledContext(t *testing.T) {
 func getTestEngine() *engine {
 	e := NewEngine(redisClient).(*engine)
 	// Cleaner loop
-	e.clean = func(ctx context.Context, _ string, _ string, _ string) error {
+	e.clean = func(
+		ctx context.Context,
+		_ string,
+		_ string,
+		_ string,
+		_ time.Duration,
+	) error {
 		<-ctx.Done()
 		return ctx.Err()
 	}
 	// Heartbeat loop
-	e.runHeart = func(ctx context.Context) error {
+	e.runHeart = func(ctx context.Context, _ time.Duration) error {
 		<-ctx.Done()
 		return ctx.Err()
 	}
