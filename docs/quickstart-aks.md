@@ -75,7 +75,7 @@ Install `helm` by running the following command:
 brew install kubernetes-helm
 ```
 
-#### Windows**
+#### Windows
 
 1. Download the latest [Helm release](https://storage.googleapis.com/kubernetes-helm/helm-v2.7.2-windows-amd64.tar.gz).
 1. Decompress the tar file.
@@ -111,7 +111,7 @@ First let's identify your Azure subscription and save it for use later on in the
 
     **PowerShell**
     ```console
-    > $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
+    $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
     ```
 
 ### Create a service principal
@@ -134,17 +134,17 @@ resources on your account on behalf of Kubernetes.
 
     **PowerShell**
     ```console
-    > $env:AZURE_TENANT_ID = "<Tenant>"
-    > $env:AZURE_CLIENT_ID = "<AppId>"
-    > $env:AZURE_CLIENT_SECRET = "<Password>"
+    $env:AZURE_TENANT_ID = "<Tenant>"
+    $env:AZURE_CLIENT_ID = "<AppId>"
+    $env:AZURE_CLIENT_SECRET = "<Password>"
     ```
 
 ### Create a Kubernetes cluster using AKS
 
-Next we will create a managed Kubernetes cluster using AKS. AKS will create a managed Kubernetes cluster for you. Once the cluster is created, geting started with OSBA is very similar to doing so on Minikube, with a few exceptions: 
+Next we will create a managed Kubernetes cluster using AKS. AKS will create a managed Kubernetes cluster for you. Once the cluster is created, geting started with OSBA is very similar to doing so on [Minikube](quickstart-minikube.md), with a few exceptions: 
 
 * As AKS is currently in preview, you will need to enable it in your subscription
-* AKS currently does _not_ support RBAC, so we will need to explicityly disable that when we install service catalog.
+* AKS currently does _not_ support RBAC, so we will need to explicity disable that when we install service catalog.
 
 1. Enable AKS in your subscription, use the following command with the az cli:
     ```console
@@ -206,8 +206,8 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
 
     **PowerShell**
     ```console
-    > helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
-    > helm install azure/open-service-broker-azure --name osba --namespace osba `
+    helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+    helm install azure/open-service-broker-azure --name osba --namespace osba `
       --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
       --set azure.tenantId=$env:AZURE_TENANT_ID `
       --set azure.clientId=$env:AZURE_CLIENT_ID `
