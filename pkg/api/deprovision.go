@@ -28,7 +28,11 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad deprovisioning request: request is missing required query parameter",
 		)
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
+		s.writeResponse(
+			w,
+			http.StatusUnprocessableEntity,
+			generateAsyncRequiredResponse(),
+		)
 		return
 	}
 	acceptsIncomplete, err := strconv.ParseBool(acceptsIncompleteStr)
@@ -38,7 +42,11 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			`bad deprovisioning request: query parameter has invalid value; only ` +
 				`"true" is accepted`,
 		)
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
+		s.writeResponse(
+			w,
+			http.StatusUnprocessableEntity,
+			generateAsyncRequiredResponse(),
+		)
 		return
 	}
 
@@ -48,7 +56,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-deprovisioning error: error retrieving instance by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if !ok {
@@ -56,7 +64,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			"no such instance remains to be deprovisioned",
 		)
 		// No instance was found-- per spec, we return a 410
-		s.writeResponse(w, http.StatusGone, responseEmptyJSON)
+		s.writeResponse(w, http.StatusGone, generateEmptyResponse())
 		return
 	}
 	switch instance.Status {
@@ -64,7 +72,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"deprovisioning is already in progress",
 		)
-		s.writeResponse(w, http.StatusAccepted, responseDeprovisioningAccepted)
+		s.writeResponse(w, http.StatusAccepted, generateDeprovisionAcceptedResponse())
 		return
 	case service.InstanceStateProvisioned:
 	case service.InstanceStateProvisioningFailed:
@@ -75,7 +83,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"cannot deprovision instance in its current state",
 		)
-		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 		return
 	}
 
@@ -94,7 +102,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			"pre-deprovisioning error: error retrieving deprovisioner for service " +
 				"and plan",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	firstStepName, ok := deprovisioner.GetFirstStepName()
@@ -105,7 +113,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			"pre-deprovisioning error: no steps found for deprovisioning service " +
 				"and plan",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -115,7 +123,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"deprovisioning error: error persisting updated instance",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -132,12 +140,12 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"deprovisioning error: error submitting deprovisioning task",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
 	// If we get all the way to here, we've been successful!
-	s.writeResponse(w, http.StatusAccepted, responseDeprovisioningAccepted)
+	s.writeResponse(w, http.StatusAccepted, generateDeprovisionAcceptedResponse())
 
 	log.WithFields(logFields).Debug("asynchronous deprovisioning initiated")
 }

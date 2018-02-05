@@ -35,7 +35,11 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: request is missing required query parameter",
 		)
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
+		s.writeResponse(
+			w,
+			http.StatusUnprocessableEntity,
+			generateAsyncRequiredResponse(),
+		)
 		return
 	}
 	acceptsIncomplete, err := strconv.ParseBool(acceptsIncompleteStr)
@@ -45,7 +49,11 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			`bad provisioning request: query parameter has invalid value; only ` +
 				`"true" is accepted`,
 		)
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
+		s.writeResponse(
+			w,
+			http.StatusUnprocessableEntity,
+			generateAsyncRequiredResponse(),
+		)
 		return
 	}
 
@@ -55,7 +63,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-provisioning error: error reading request body",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	defer r.Body.Close() // nolint: errcheck
@@ -69,7 +77,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// krancour: Choosing to interpret this scenario as a bad request, as a
 		// valid request, obviously contains valid, well-formed JSON
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusBadRequest, responseMalformedRequestBody)
+		s.writeResponse(w, http.StatusBadRequest, generateMalformedRequestResponse())
 		return
 	}
 
@@ -79,7 +87,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: required request body field is missing",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseServiceIDRequired)
+		s.writeResponse(w, http.StatusBadRequest, generateServiceIDRequiredResponse())
 		return
 	}
 
@@ -89,7 +97,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: required request body field is missing",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responsePlanIDRequired)
+		s.writeResponse(w, http.StatusBadRequest, generatePlanIDRequiredResponse())
 		return
 	}
 
@@ -99,7 +107,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: invalid serviceID",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseInvalidServiceID)
+		s.writeResponse(w, http.StatusBadRequest, generateInvalidServiceIDResponse())
 		return
 	}
 
@@ -110,7 +118,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: invalid planID for service",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseInvalidPlanID)
+		s.writeResponse(w, http.StatusBadRequest, generateInvalidPlanIDResponse())
 		return
 	}
 
@@ -181,7 +189,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			log.WithFields(logFields).Error(
 				"error building tag map decoder",
 			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 			return
 		}
 		err = decoder.Decode(mapTagsIfaces)
@@ -191,7 +199,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			)
 			// This scenario is bad request because it means the tags weren't
 			// a map[string]string, as we expected.
-			s.writeResponse(w, http.StatusBadRequest, responseTagsMalformed)
+			s.writeResponse(w, http.StatusBadRequest, generateMalformedTagsResponse())
 			return
 		}
 	}
@@ -208,7 +216,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"error building parameter map decoder",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	err = decoder.Decode(provisioningRequest.Parameters)
@@ -219,7 +227,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		)
 		// krancour: Choosing to interpret this scenario as a bad request since the
 		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, responseIncorrectRequestBody)
+		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
 		return
 	}
 
@@ -229,7 +237,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-provisioning error: error retrieving instance by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if ok {
@@ -262,14 +270,14 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			// choose to respond with a 409
 			switch instance.Status {
 			case service.InstanceStateProvisioning:
-				s.writeResponse(w, http.StatusAccepted, responseProvisioningAccepted)
+				s.writeResponse(w, http.StatusAccepted, generateProvisionAcceptedResponse())
 				return
 			case service.InstanceStateProvisioned:
-				s.writeResponse(w, http.StatusOK, responseEmptyJSON)
+				s.writeResponse(w, http.StatusOK, generateEmptyResponse())
 				return
 			default:
 				// TODO: Write a more detailed response
-				s.writeResponse(w, http.StatusConflict, responseConflict)
+				s.writeResponse(w, http.StatusConflict, generateConflictResponse())
 				return
 			}
 		}
@@ -277,7 +285,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// We land in here if an existing instance was found, but its atrributes
 		// vary from what was requested. The spec requires us to respond with a
 		// 409
-		s.writeResponse(w, http.StatusConflict, responseConflict)
+		s.writeResponse(w, http.StatusConflict, generateConflictResponse())
 		return
 	}
 
@@ -306,7 +314,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			"pre-provisioning error: error retrieving provisioner for service and " +
 				"plan",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -318,7 +326,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			"pre-provisioning error: no steps found for provisioning service and " +
 				"plan",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -339,7 +347,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"provisioning error: error persisting new instance",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -356,12 +364,12 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"provisioning error: error submitting provisioning task",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
 	// If we get all the way to here, we've been successful!
-	s.writeResponse(w, http.StatusAccepted, responseProvisioningAccepted)
+	s.writeResponse(w, http.StatusAccepted, generateProvisionAcceptedResponse())
 
 	log.WithFields(logFields).Debug("asynchronous provisioning initiated")
 }
@@ -389,17 +397,11 @@ func (s *server) handlePossibleValidationError(
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: validation error",
 		)
-		// TODO: Send the correct response body-- this is a placeholder
-		response := []byte(
-			fmt.Sprintf(responseValidationFailedTemplate,
-				validationErr.Field,
-				validationErr.Issue,
-			),
-		)
+		response := generateValidationFailedResponse(validationErr)
 		s.writeResponse(w, http.StatusBadRequest, response)
 		return
 	}
-	s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+	s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 }
 
 func (s *server) getLocation(location string) string {

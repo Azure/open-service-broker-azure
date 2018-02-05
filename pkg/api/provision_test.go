@@ -249,13 +249,11 @@ func TestValidatingLocationParameterFails(t *testing.T) {
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.False(t, moduleSpecificValidationCalled)
-	responseError := []byte(
-		fmt.Sprintf(
-			responseValidationFailedTemplate,
-			"location",
-			`invalid location: "upsidedown"`,
-		),
+	locationError := service.NewValidationError(
+		"location",
+		`invalid location: "upsidedown"`,
 	)
+	responseError := generateValidationFailedResponse(locationError)
 	assert.Equal(t, responseError, rr.Body.Bytes())
 }
 
@@ -292,13 +290,7 @@ func TestModuleSpecificValidationFails(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.True(t, moduleSpecificValidationCalled)
 
-	responseError := []byte(
-		fmt.Sprintf(
-			responseValidationFailedTemplate,
-			fooError.Field,
-			fooError.Issue,
-		),
-	)
+	responseError := generateValidationFailedResponse(fooError)
 	assert.Equal(t, responseError, rr.Body.Bytes())
 }
 
