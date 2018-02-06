@@ -17,10 +17,12 @@ var (
 
 func init() {
 	instanceID := "test-instance-id"
+	alias := "test-alias"
 	serviceID := "test-service-id"
 	planID := "test-plan-id"
 	location := "test-location"
 	resourceGroup := "test-rg"
+	parentAlias := "test-parent-alias"
 	tagKey := "foo"
 	tagVal := "bar"
 	provisioningParameters := &ArbitraryType{
@@ -43,6 +45,7 @@ func init() {
 
 	testInstance = Instance{
 		InstanceID: instanceID,
+		Alias:      alias,
 		ServiceID:  serviceID,
 		PlanID:     planID,
 		EncryptedProvisioningParameters: encryptedProvisiongingParameters,
@@ -53,6 +56,7 @@ func init() {
 		StatusReason:                    statusReason,
 		Location:                        location,
 		ResourceGroup:                   resourceGroup,
+		ParentAlias:                     parentAlias,
 		Tags:                            map[string]string{tagKey: tagVal},
 		EncryptedDetails:                encryptedDetails,
 		Details:                         details,
@@ -72,6 +76,7 @@ func init() {
 	testInstanceJSONStr := fmt.Sprintf(
 		`{
 			"instanceId":"%s",
+			"alias":"%s",
 			"serviceId":"%s",
 			"planId":"%s",
 			"provisioningParameters":"%s",
@@ -80,11 +85,13 @@ func init() {
 			"statusReason":"%s",
 			"location":"%s",
 			"resourceGroup":"%s",
+			"parentAlias":"%s",
 			"tags":{"%s":"%s"},
 			"details":"%s",
 			"created":"%s"
 		}`,
 		instanceID,
+		alias,
 		serviceID,
 		planID,
 		b64EncryptedProvisioningParameters,
@@ -93,6 +100,7 @@ func init() {
 		statusReason,
 		location,
 		resourceGroup,
+		parentAlias,
 		tagKey,
 		tagVal,
 		b64EncryptedDetails,

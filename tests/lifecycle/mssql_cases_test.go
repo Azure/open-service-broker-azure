@@ -4,160 +4,60 @@ package lifecycle
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"net/url"
-	"os"
 
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	ss "github.com/Azure/open-service-broker-azure/pkg/azure/mssql"
-	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/sqldb"
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
-	uuid "github.com/satori/go.uuid"
 )
-
-// nolint: lll
-var armTemplateNewServerBytes = []byte(`
-{
-	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
-	"contentVersion": "1.0.0.0",
-	"parameters": {
-		"location": {
-			"type": "string"
-		},
-		"serverName": {
-			"type": "string"
-		},
-		"administratorLogin": {
-			"type": "string"
-		},
-		"administratorLoginPassword": {
-			"type": "securestring"
-		},
-		"tags": {
-			"type": "object"
-		}
-	},
-	"variables": {
-		"SQLapiVersion": "2014-04-01"
-	},
-	"resources": [
-		{
-			"type": "Microsoft.Sql/servers",
-			"name": "[parameters('serverName')]",
-			"apiVersion": "[variables('SQLapiVersion')]",
-			"location": "[parameters('location')]",
-			"properties": {
-				"administratorLogin": "[parameters('administratorLogin')]",
-				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-				"version": "12.0"
-			},
-			"resources": [
-				{
-					"type": "firewallrules",
-					"name": "all",
-					"apiVersion": "[variables('SQLapiVersion')]",
-					"location": "[parameters('location')]",
-					"properties": {
-						"startIpAddress": "0.0.0.0",
-						"endIpAddress": "255.255.255.255"
-					},
-					"dependsOn": [
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
-					]
-				}
-			]
-		}
-	],
-	"outputs": {
-	}
-}
-`)
 
 func getMssqlCases(
 	armDeployer arm.Deployer,
 	resourceGroup string,
 ) ([]serviceLifecycleTestCase, error) {
-	// Creating a SQL server for existing server case only
-	serverName := uuid.NewV4().String()
-	administratorLogin := generate.NewIdentifier()
-	administratorLoginPassword := generate.NewPassword()
-	location := "southcentralus"
-	createSQLServer := func() error {
-		if _, err := armDeployer.Deploy(
-			uuid.NewV4().String(),
-			resourceGroup,
-			location,
-			armTemplateNewServerBytes,
-			nil, // Go template params
-			map[string]interface{}{ // ARM template params
-				"serverName":                 serverName,
-				"administratorLogin":         administratorLogin,
-				"administratorLoginPassword": administratorLoginPassword,
-			},
-			map[string]string{},
-		); err != nil {
-			return fmt.Errorf("error deploying ARM template: %s", err)
-		}
-		return nil
-	}
-
-	serverConfig := sqldb.ServerConfig{
-		ServerName:                 serverName,
-		ResourceGroupName:          resourceGroup,
-		Location:                   location,
-		AdministratorLogin:         administratorLogin,
-		AdministratorLoginPassword: administratorLoginPassword,
-	}
-	serverConfigs := []sqldb.ServerConfig{serverConfig}
-	serverConfigsBytes, err := json.Marshal(serverConfigs)
-	if err != nil {
-		return nil, err
-	}
-	if err = os.Setenv(
-		"AZURE_SQL_SERVERS",
-		string(serverConfigsBytes),
-	); err != nil {
-		return nil, err
-	}
-
 	msSQLManager, err := ss.NewManager()
-	if err != nil {
-		return nil, err
-	}
-	msSQLConfig, err := sqldb.GetConfig()
 	if err != nil {
 		return nil, err
 	}
 
 	return []serviceLifecycleTestCase{
-		{ // new server scenario
-			module:      sqldb.New(armDeployer, msSQLManager, msSQLConfig),
-			description: "new server and database",
+		{ // all-in-one scenario
+			module:      sqldb.New(armDeployer, msSQLManager),
+			description: "new server and database (all in one)",
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			location:    "southcentralus",
-			provisioningParameters: &sqldb.ProvisioningParameters{
+			provisioningParameters: &sqldb.ServerProvisioningParams{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
 			bindingParameters: &sqldb.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),
 		},
-		{ // existing server scenario
-			module:      sqldb.New(armDeployer, msSQLManager, msSQLConfig),
-			description: "database on an existing server",
-			setup:       createSQLServer,
-			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
-			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
-			location:    "southcentralus", // This is actually irrelevant for this test
-			provisioningParameters: &sqldb.ProvisioningParameters{
-				ServerName: serverName,
+		{ //server only scenario
+			module:      sqldb.New(armDeployer, msSQLManager),
+			description: "new server with database child test",
+			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
+			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
+			location:    "southcentralus",
+			provisioningParameters: &sqldb.ServerProvisioningParams{
+				FirewallIPStart: "0.0.0.0",
+				FirewallIPEnd:   "255.255.255.255",
 			},
-			bindingParameters: &sqldb.BindingParameters{},
-			testCredentials:   testMsSQLCreds(),
+			childTestCases: []*serviceLifecycleTestCase{
+				{ // db only scenario
+					module:            sqldb.New(armDeployer, msSQLManager),
+					description:       "database on new server",
+					serviceID:         "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
+					planID:            "8fa8d759-c142-45dd-ae38-b93482ddc04a",
+					location:          "", // This is actually irrelevant for this test
+					bindingParameters: &sqldb.BindingParameters{},
+					testCredentials:   testMsSQLCreds(),
+				},
+			},
 		},
 	}, nil
 }

@@ -198,3 +198,13 @@ func generateValidationFailedResponse(
 	}
 	return responseBody
 }
+
+var responseParentInvalid = []byte(
+	`{ "error": "InvalidParent", "description": "The parentAlias provided ` +
+		`refers to a service instance that failed to provision or is currently ` +
+		`deprovisioning"  }`,
+)
+
+func generateParentInvalidResponse() []byte {
+	return responseParentInvalid
+}
