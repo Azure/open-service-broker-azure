@@ -12,7 +12,7 @@ func TestDefaultRunHeartBlocksUntilBeatErrors(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
 	// Override default heartbeat function so it just returns an error
-	e.heartbeat = func() error {
+	e.heartbeat = func(time.Duration) error {
 		return errSome
 	}
 
@@ -23,7 +23,7 @@ func TestDefaultRunHeartBlocksUntilBeatErrors(t *testing.T) {
 	// does, we don't want the test to stall.
 	errCh := make(chan error)
 	go func() {
-		errCh <- e.defaultRunHeart(ctx)
+		errCh <- e.defaultRunHeart(ctx, time.Second)
 	}()
 
 	// Assert that the error received from the defaultRunHeart function is the
@@ -46,7 +46,7 @@ func TestDefaultRunHeartRespondsToCanceledContext(t *testing.T) {
 	// does, we don't want the test to stall.
 	errCh := make(chan error)
 	go func() {
-		errCh <- e.defaultRunHeart(ctx)
+		errCh <- e.defaultRunHeart(ctx, time.Second)
 	}()
 
 	cancel()
@@ -67,7 +67,7 @@ func TestDefaultRunHeartRespondsToCanceledContext(t *testing.T) {
 func TestDefaultHeartbeat(t *testing.T) {
 	e := NewEngine(redisClient).(*engine)
 
-	err := e.defaultHeartbeat()
+	err := e.defaultHeartbeat(time.Second)
 	assert.Nil(t, err)
 
 	// Assert that the heartbeat is visible, with a TTL, in Redis.
