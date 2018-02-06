@@ -10,10 +10,12 @@ import (
 // Instance represents an instance of a service
 type Instance struct {
 	InstanceID                      string                 `json:"instanceId"`
+	Alias                           string                 `json:"alias"`
 	ServiceID                       string                 `json:"serviceId"`
 	Service                         Service                `json:"-"`
 	PlanID                          string                 `json:"planId"`
 	Plan                            Plan                   `json:"-"`
+	Parent                          *Instance              `json:"-"`
 	EncryptedProvisioningParameters []byte                 `json:"provisioningParameters"` // nolint: lll
 	ProvisioningParameters          ProvisioningParameters `json:"-"`
 	EncryptedUpdatingParameters     []byte                 `json:"updatingParameters"` // nolint: lll
@@ -22,6 +24,7 @@ type Instance struct {
 	StatusReason                    string                 `json:"statusReason"`
 	Location                        string                 `json:"location"`
 	ResourceGroup                   string                 `json:"resourceGroup"`
+	ParentAlias                     string                 `json:"parentAlias"`
 	Tags                            map[string]string      `json:"tags"`
 	EncryptedDetails                []byte                 `json:"details"`
 	Details                         InstanceDetails        `json:"-"`

@@ -65,10 +65,6 @@ func initModules() error {
 	if err != nil {
 		return fmt.Errorf("error initializing mssql manager: %s", err)
 	}
-	msSQLConfig, err := sqldb.GetConfig()
-	if err != nil {
-		return fmt.Errorf("error parsing mssql configuration: %s", err)
-	}
 	cosmosDBManager, err := cd.NewManager()
 	if err != nil {
 		return fmt.Errorf("error initializing cosmosdb manager: %s", err)
@@ -93,7 +89,7 @@ func initModules() error {
 		servicebus.New(armDeployer, serviceBusManager),
 		eventhubs.New(armDeployer, eventHubManager),
 		keyvault.New(armDeployer, keyvaultManager),
-		sqldb.New(armDeployer, msSQLManager, msSQLConfig),
+		sqldb.New(armDeployer, msSQLManager),
 		cosmosdb.New(armDeployer, cosmosDBManager),
 		storage.New(armDeployer, storageManager),
 		search.New(armDeployer, searchManager),

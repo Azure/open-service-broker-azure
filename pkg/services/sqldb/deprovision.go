@@ -7,94 +7,172 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) GetDeprovisioner(
+func (a *allInOneManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep("deleteARMDeployment", s.deleteARMDeployment),
+		service.NewDeprovisioningStep("deleteARMDeployment", a.deleteARMDeployment),
 		service.NewDeprovisioningStep(
-			"deleteMsSQLServerOrDatabase",
-			s.deleteMsSQLServerOrDatabase,
+			"deleteMsSQLServer",
+			a.deleteMsSQLServer,
 		),
 	)
 }
 
-func (s *serviceManager) deleteARMDeployment(
+func (v *vmOnlyManager) GetDeprovisioner(
+	service.Plan,
+) (service.Deprovisioner, error) {
+	return service.NewDeprovisioner(
+		service.NewDeprovisioningStep("deleteARMDeployment", v.deleteARMDeployment),
+		service.NewDeprovisioningStep(
+			"deleteMsSQLServer",
+			v.deleteMsSQLServer,
+		),
+	)
+}
+
+func (d *dbOnlyManager) GetDeprovisioner(
+	service.Plan,
+) (service.Deprovisioner, error) {
+	return service.NewDeprovisioner(
+		service.NewDeprovisioningStep("deleteARMDeployment", d.deleteARMDeployment),
+		service.NewDeprovisioningStep(
+			"deleteMsSQLDatabase",
+			d.deleteMsSQLDatabase,
+		),
+	)
+}
+
+func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
-	var err error
-	if dt.IsNewServer {
-		// new server scenario
-		err = s.armDeployer.Delete(
-			dt.ARMDeploymentName,
-			instance.ResourceGroup,
-		)
-	} else {
-		// exisiting server scenario
-		servers := s.mssqlConfig.Servers
-		server, ok := servers[dt.ServerName]
-		if !ok {
-			return nil, fmt.Errorf(
-				`can't find serverName "%s" in Azure SQL Server configuration`,
-				dt.ServerName,
-			)
-		}
-
-		err = s.armDeployer.Delete(
-			dt.ARMDeploymentName,
-			server.ResourceGroupName,
-		)
-	}
+	err := a.armDeployer.Delete(
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
 	return dt, nil
 }
 
-func (s *serviceManager) deleteMsSQLServerOrDatabase(
+func (v *vmOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
+		)
+	}
+	err := v.armDeployer.Delete(
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+	}
+	return dt, nil
+}
+
+func (d *dbOnlyManager) deleteARMDeployment(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+		)
+	}
+	//Parent should be set by the framework, but return an error if it is not set.
+	if instance.Parent == nil {
+		return nil, fmt.Errorf("parent instance not set")
+	}
+	err := d.armDeployer.Delete(
+		dt.ARMDeploymentName,
+		instance.Parent.ResourceGroup,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+	}
+	return dt, nil
+}
+
+func (a *allInOneManager) deleteMsSQLServer(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+		)
+	}
+	if err := a.mssqlManager.DeleteServer(
+		dt.ServerName,
+		instance.ResourceGroup,
+	); err != nil {
+		return dt, fmt.Errorf("error deleting mssql server: %s", err)
+	}
+	return dt, nil
+}
+
+func (v *vmOnlyManager) deleteMsSQLServer(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
+	if err := v.mssqlManager.DeleteServer(
+		dt.ServerName,
+		instance.ResourceGroup,
+	); err != nil {
+		return dt, fmt.Errorf("error deleting mssql server: %s", err)
+	}
+	return dt, nil
+}
 
-	if dt.IsNewServer {
-		// new server scenario
-		if err := s.mssqlManager.DeleteServer(
-			dt.ServerName,
-			instance.ResourceGroup,
-		); err != nil {
-			return dt, fmt.Errorf("error deleting mssql server: %s", err)
-		}
-	} else {
-		// exisiting server scenario
-		servers := s.mssqlConfig.Servers
-		server, ok := servers[dt.ServerName]
-		if !ok {
-			return nil, fmt.Errorf(
-				`can't find serverName "%s" in Azure SQL Server configuration`,
-				dt.ServerName,
-			)
-		}
+func (d *dbOnlyManager) deleteMsSQLDatabase(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+		)
+	}
+	//Parent should be set by the framework, but return an error if it is not set.
+	if instance.Parent == nil {
+		return nil, fmt.Errorf("parent instance not set")
+	}
+	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Parent.Details as " +
+				"*mssqlVMOnlyInstanceDetails",
+		)
+	}
 
-		if err := s.mssqlManager.DeleteDatabase(
-			dt.ServerName,
-			dt.DatabaseName,
-			server.ResourceGroupName,
-		); err != nil {
-			return dt, fmt.Errorf("error deleting mssql database: %s", err)
-		}
+	if err := d.mssqlManager.DeleteDatabase(
+		pdt.ServerName,
+		dt.DatabaseName,
+		instance.Parent.ResourceGroup,
+	); err != nil {
+		return dt, fmt.Errorf("error deleting mssql database: %s", err)
 	}
 	return dt, nil
 }

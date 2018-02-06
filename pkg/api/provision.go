@@ -196,6 +196,42 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Alias
+	alias := ""
+	aliasIface, ok := provisioningRequest.Parameters["alias"]
+	if ok {
+		alias, ok = aliasIface.(string)
+		if !ok {
+			s.handlePossibleValidationError(
+				service.NewValidationError(
+					"alias",
+					fmt.Sprintf(`"%v" is not a string`, locIface),
+				),
+				w,
+				logFields,
+			)
+			return
+		}
+	}
+
+	// Parent alias
+	parentAlias := ""
+	parentAliasIface, ok := provisioningRequest.Parameters["parentAlias"]
+	if ok {
+		parentAlias, ok = parentAliasIface.(string)
+		if !ok {
+			s.handlePossibleValidationError(
+				service.NewValidationError(
+					"parentAlias",
+					fmt.Sprintf(`"%v" is not a string`, parentAlias),
+				),
+				w,
+				logFields,
+			)
+			return
+		}
+	}
+
 	// Now service-specific parameters...
 	provisioningParameters := serviceManager.GetEmptyProvisioningParameters()
 	decoderConfig := &mapstructure.DecoderConfig{
@@ -284,7 +320,21 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// If we get to here, we need to provision a new instance.
 
 	// Start by validating the location
-	err = s.validateLocation(location)
+	err = s.validateLocation(svc, location)
+	if err != nil {
+		s.handlePossibleValidationError(err, w, logFields)
+		return
+	}
+
+	// Validate alias (only applies if this service type has children)
+	err = s.validateAlias(svc, alias)
+	if err != nil {
+		s.handlePossibleValidationError(err, w, logFields)
+		return
+	}
+
+	// Validate parent alias (only applies if this service type has a parent)
+	err = s.validateParentAlias(svc, parentAlias)
 	if err != nil {
 		s.handlePossibleValidationError(err, w, logFields)
 		return
@@ -324,16 +374,29 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	instance = service.Instance{
 		InstanceID:             instanceID,
+		Alias:                  alias,
 		ServiceID:              provisioningRequest.ServiceID,
 		PlanID:                 provisioningRequest.PlanID,
 		ProvisioningParameters: provisioningParameters,
 		Status:                 service.InstanceStateProvisioning,
 		Location:               location,
 		ResourceGroup:          resourceGroup,
+		ParentAlias:            parentAlias,
 		Tags:                   tags,
 		Details:                serviceManager.GetEmptyInstanceDetails(),
 		Created:                time.Now(),
 	}
+
+	waitForParent, err := s.isParentProvisioning(instance)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"provisioning error: error related to parent instance",
+		)
+		s.writeResponse(w, http.StatusBadRequest, responseParentInvalid)
+		return
+	}
+
 	if err = s.store.WriteInstance(instance); err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -343,13 +406,29 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := async.NewTask(
-		"executeProvisioningStep",
-		map[string]string{
-			"stepName":   firstStepName,
-			"instanceID": instanceID,
-		},
-	)
+	var task async.Task
+	if waitForParent {
+		task = async.NewDelayedTask(
+			"checkParentStatus",
+			map[string]string{
+				"instanceID": instanceID,
+			},
+			time.Minute*1,
+		)
+		log.WithFields(logFields).Debug("parent not provisioned, waiting")
+	} else {
+		task = async.NewTask(
+			"executeProvisioningStep",
+			map[string]string{
+				"stepName":   firstStepName,
+				"instanceID": instanceID,
+			},
+		)
+		log.WithFields(logFields).Debug(
+			"no need to wait for parent, starting provision",
+		)
+	}
+
 	if err = s.asyncEngine.SubmitTask(task); err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err
@@ -359,19 +438,101 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
 		return
 	}
-
 	// If we get all the way to here, we've been successful!
 	s.writeResponse(w, http.StatusAccepted, responseProvisioningAccepted)
 
 	log.WithFields(logFields).Debug("asynchronous provisioning initiated")
 }
 
-func (s *server) validateLocation(location string) error {
-	if (location == "" && s.defaultAzureLocation == "") ||
-		(location != "" && !azure.IsValidLocation(location)) {
+func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
+	//No parent, so no need to wait
+	if instance.ParentAlias == "" {
+		return false, nil
+	}
+
+	parent, parentFound, err := s.store.GetInstanceByAlias(instance.ParentAlias)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":       "waitforParent",
+			"instanceID":  instance.InstanceID,
+			"parentAlias": instance.ParentAlias,
+		}).Error(
+			"bad provision request: unable to retrieve parent",
+		)
+		return false, err
+	}
+
+	//Parent has was not found, so wait for that that to occur
+	if !parentFound {
+		return true, nil
+	}
+
+	//If parent failed, we should not even attempt to provision this
+	if parent.Status == service.InstanceStateProvisioningFailed {
+		log.WithFields(log.Fields{
+			"error":      "waitforParent",
+			"instanceID": instance.InstanceID,
+			"parentID":   instance.Parent.InstanceID,
+		}).Info(
+			"bad provision request: parent failed provisioning",
+		)
+		return false, fmt.Errorf("error provisioning: parent provision failed")
+	}
+
+	//If parent is deprovisioning, we should not even attempt to provision this
+	if parent.Status == service.InstanceStateDeprovisioning {
+		log.WithFields(log.Fields{
+			"error":      "waitforParent",
+			"instanceID": instance.InstanceID,
+			"parentID":   instance.Parent.InstanceID,
+		}).Info(
+			"bad provision request: parent is deprovisioning",
+		)
+		return false, fmt.Errorf("error provisioning: parent is deprovisioning")
+	}
+
+	//If parent is provisioned, then no need to wait.
+	if parent.Status == service.InstanceStateProvisioned {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (s *server) validateLocation(svc service.Service, location string) error {
+	// Validate location only if this is a "root" service type (i.e. has no
+	// parent)
+	if svc.GetParentServiceID() == "" {
+		if (location == "" && s.defaultAzureLocation == "") ||
+			(location != "" && !azure.IsValidLocation(location)) {
+			return service.NewValidationError(
+				"location",
+				fmt.Sprintf(`invalid location: "%s"`, location),
+			)
+		}
+	}
+	return nil
+}
+
+func (s *server) validateAlias(svc service.Service, alias string) error {
+	if svc.GetChildServiceID() != "" && alias == "" {
 		return service.NewValidationError(
-			"location",
-			fmt.Sprintf(`invalid location: "%s"`, location),
+			"alias",
+			fmt.Sprintf(`invalid alias: "%s"`, alias),
+		)
+	}
+	return nil
+}
+
+func (s *server) validateParentAlias(
+	svc service.Service,
+	parentAlias string,
+) error {
+	if svc.GetParentServiceID() != "" && parentAlias == "" {
+		return service.NewValidationError(
+			"parentAlias",
+			fmt.Sprintf(`invalid parentAlias: "%s"`, parentAlias),
 		)
 	}
 	return nil

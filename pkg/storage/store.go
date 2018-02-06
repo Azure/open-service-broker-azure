@@ -16,6 +16,11 @@ type Store interface {
 	// GetInstance retrieves a persisted instance from the underlying storage by
 	// instance id
 	GetInstance(instanceID string) (service.Instance, bool, error)
+	// GetInstanceByID retrieves a persisted instance from the underlying storage
+	// by alias
+	GetInstanceByAlias(alias string) (service.Instance, bool, error)
+	// GetInstanceChildCountByAlias returns the number of child instances
+	GetInstanceChildCountByAlias(alias string) (int64, error)
 	// DeleteInstance deletes a persisted instance from the underlying storage by
 	// instance id
 	DeleteInstance(instanceID string) (bool, error)
@@ -57,7 +62,25 @@ func (s *store) WriteInstance(instance service.Instance) error {
 	if err != nil {
 		return err
 	}
-	return s.redisClient.Set(key, json, 0).Err()
+	pipeline := s.redisClient.TxPipeline()
+	pipeline.Set(key, json, 0)
+	if instance.Alias != "" {
+		aliasKey := getInstanceAliasKey(instance.Alias)
+		pipeline.Set(aliasKey, instance.InstanceID, 0)
+	}
+	if instance.ParentAlias != "" {
+		parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
+		pipeline.SAdd(parentAliasChildrenKey, instance.InstanceID)
+	}
+	_, err = pipeline.Exec()
+	if err != nil {
+		return fmt.Errorf(
+			`error writing instance "%s": %s`,
+			instance.InstanceID,
+			err,
+		)
+	}
+	return err
 }
 
 func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
@@ -105,25 +128,84 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 	)
 	instance.Service = svc
 	instance.Plan = plan
+	if instance.ParentAlias != "" {
+		parent, ok, err := s.GetInstanceByAlias(instance.ParentAlias)
+		if err != nil {
+			return instance, false, fmt.Errorf(
+				`error retrieving parent with alias "%s" for instance "%s"`,
+				instance.ParentAlias,
+				instance.InstanceID,
+			)
+		}
+		if ok {
+			instance.Parent = &parent
+		}
+	}
 	return instance, err == nil, err
 }
 
-func (s *store) DeleteInstance(instanceID string) (bool, error) {
-	key := getInstanceKey(instanceID)
+func (s *store) GetInstanceByAlias(
+	alias string,
+) (service.Instance, bool, error) {
+	key := getInstanceAliasKey(alias)
 	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
-		return false, nil
+		return service.Instance{}, false, nil
 	} else if err != nil {
+		return service.Instance{}, false, err
+	}
+	instanceID, err := strCmd.Result()
+	if err != nil {
+		return service.Instance{}, false, err
+	}
+	return s.GetInstance(instanceID)
+}
+
+func (s *store) DeleteInstance(instanceID string) (bool, error) {
+	instance, ok, err := s.GetInstance(instanceID)
+	if err != nil {
 		return false, err
 	}
-	if err := s.redisClient.Del(key).Err(); err != nil {
-		return false, err
+	if !ok {
+		return false, nil
+	}
+	key := getInstanceKey(instanceID)
+	pipeline := s.redisClient.TxPipeline()
+	pipeline.Del(key)
+	if instance.Alias != "" {
+		aliasKey := getInstanceAliasKey(instance.Alias)
+		pipeline.Del(aliasKey)
+	}
+	if instance.ParentAlias != "" {
+		parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
+		pipeline.SRem(parentAliasChildrenKey, instance.InstanceID)
+	}
+	_, err = pipeline.Exec()
+	if err != nil {
+		return false, fmt.Errorf(
+			`error deleting instance "%s": %s`,
+			instance.InstanceID,
+			err,
+		)
 	}
 	return true, nil
 }
 
+func (s *store) GetInstanceChildCountByAlias(alias string) (int64, error) {
+	aliasChildrenKey := getInstanceAliasChildrenKey(alias)
+	return s.redisClient.SCard(aliasChildrenKey).Result()
+}
+
 func getInstanceKey(instanceID string) string {
 	return fmt.Sprintf("instances:%s", instanceID)
+}
+
+func getInstanceAliasKey(alias string) string {
+	return fmt.Sprintf("instances:aliases:%s", alias)
+}
+
+func getInstanceAliasChildrenKey(alias string) string {
+	return fmt.Sprintf("instances:aliases:%s:children", alias)
 }
 
 func (s *store) WriteBinding(binding service.Binding) error {
