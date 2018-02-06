@@ -22,7 +22,7 @@ func (b *broker) doCheckChildrenStatuses(
 	if !ok {
 		return nil, b.handleDeprovisioningError(
 			instanceID,
-			"checkChildrenStatus",
+			"checkChildrenStatuses",
 			nil,
 			"error loading persisted instance",
 		)
@@ -30,7 +30,7 @@ func (b *broker) doCheckChildrenStatuses(
 	if err != nil {
 		return nil, b.handleDeprovisioningError(
 			instanceID,
-			"checkChildrenStatus",
+			"checkChildrenStatuses",
 			err,
 			"error loading persisted instance",
 		)
@@ -38,7 +38,7 @@ func (b *broker) doCheckChildrenStatuses(
 	childCount, err := b.store.GetInstanceChildCountByAlias(instance.Alias)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"step":       "checkChildrenStatus",
+			"step":       "checkChildrenStatuses",
 			"instanceID": instanceID,
 			"error":      err,
 		}).Error(
@@ -46,7 +46,7 @@ func (b *broker) doCheckChildrenStatuses(
 		)
 		return nil, b.handleDeprovisioningError(
 			instance,
-			"checkChildrenStatus",
+			"checkChildrenStatuses",
 			err,
 			"error determining child count",
 		)
@@ -59,7 +59,7 @@ func (b *broker) doCheckChildrenStatuses(
 		}).Debug("children not deprovisioned, will wait again")
 		return []async.Task{
 			async.NewDelayedTask(
-				"checkChildrenStatus",
+				"checkChildrenStatuses",
 				map[string]string{
 					"instanceID": instanceID,
 				},
@@ -82,7 +82,7 @@ func (b *broker) doCheckChildrenStatuses(
 		)
 		return nil, b.handleDeprovisioningError(
 			instance,
-			"checkChildrenStatus",
+			"checkChildrenStatuses",
 			err,
 			"error retrieving deprovisioner for service and service",
 		)
@@ -99,7 +99,7 @@ func (b *broker) doCheckChildrenStatuses(
 		)
 		return nil, b.handleDeprovisioningError(
 			instance,
-			"checkChildrenStatus",
+			"checkChildrenStatuses",
 			nil,
 			"error: no steps found for deprovisioning service ance plan",
 		)
@@ -107,7 +107,7 @@ func (b *broker) doCheckChildrenStatuses(
 
 	//Put the real deprovision task into the queue
 	log.WithFields(log.Fields{
-		"step":       "checkChildrenStatus",
+		"step":       "checkChildrenStatuses",
 		"instanceID": instanceID,
 	}).Debug("children deprovisioned,  sending start deprovision task")
 	return []async.Task{
