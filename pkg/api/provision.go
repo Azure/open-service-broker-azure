@@ -240,6 +240,42 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Alias
+	alias := ""
+	aliasIface, ok := provisioningRequest.Parameters["alias"]
+	if ok {
+		alias, ok = aliasIface.(string)
+		if !ok {
+			s.handlePossibleValidationError(
+				service.NewValidationError(
+					"alias",
+					fmt.Sprintf(`"%v" is not a string`, locIface),
+				),
+				w,
+				logFields,
+			)
+			return
+		}
+	}
+
+	// Parent alias
+	parentAlias := ""
+	parentAliasIface, ok := provisioningRequest.Parameters["parentAlias"]
+	if ok {
+		parentAlias, ok = parentAliasIface.(string)
+		if !ok {
+			s.handlePossibleValidationError(
+				service.NewValidationError(
+					"parentAlias",
+					fmt.Sprintf(`"%v" is not a string`, parentAlias),
+				),
+				w,
+				logFields,
+			)
+			return
+		}
+	}
+
 	// Now service-specific parameters...
 	provisioningParameters := serviceManager.GetEmptyProvisioningParameters()
 	decoderConfig := &mapstructure.DecoderConfig{
