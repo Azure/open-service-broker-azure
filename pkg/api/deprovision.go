@@ -160,6 +160,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			"deprovisioning error: error submitting deprovisioning task",
 		)
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		return
 	}
 
 	// If we get all the way to here, we've been successful!

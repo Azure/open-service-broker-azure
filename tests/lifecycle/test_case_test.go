@@ -147,7 +147,7 @@ func (s serviceLifecycleTestCase) execute(
 	}
 
 	//Only test the binding operations if the service is bindable
-	if svc.GetBindable() {
+	if svc.IsBindable() {
 		// Bind
 		bd, bErr := serviceManager.Bind(instance, s.bindingParameters)
 		if bErr != nil {
