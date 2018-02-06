@@ -9,16 +9,19 @@ import (
 )
 
 // runHeartFn defines functions used to implement a beating heart
-type runHeartFn func(ctx context.Context) error
+type runHeartFn func(ctx context.Context, interval time.Duration) error
 
 // heartbeatFn defines functions used to implement a single heartbeat
-type heartbeatFn func() error
+type heartbeatFn func(ttl time.Duration) error
 
-func (e *engine) defaultRunHeart(ctx context.Context) error {
-	ticker := time.NewTicker(time.Second * 30)
+func (e *engine) defaultRunHeart(
+	ctx context.Context,
+	interval time.Duration,
+) error {
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	for {
-		if err := e.heartbeat(); err != nil {
+		if err := e.heartbeat(interval * 2); err != nil {
 			return err
 		}
 		select {
@@ -30,9 +33,9 @@ func (e *engine) defaultRunHeart(ctx context.Context) error {
 	}
 }
 
-func (e *engine) defaultHeartbeat() error {
+func (e *engine) defaultHeartbeat(ttl time.Duration) error {
 	key := getHeartbeatKey(e.workerID)
-	err := e.redisClient.Set(key, aliveIndicator, time.Second*60).Err()
+	err := e.redisClient.Set(key, aliveIndicator, ttl).Err()
 	if err != nil {
 		return fmt.Errorf(
 			"error sending heartbeat for worker %s: %s",

@@ -41,16 +41,37 @@ func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
 		return nil
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	// Under nominal conditions, defaultClean could block for a very long time,
+	// unless the context it is passed is canceled. Use a context that will cancel
+	// itself after 2 seconds to make defaultClean STOP working so we can then
+	// examine what it accomplished.
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	err := e.defaultClean(
-		ctx,
-		workerSetName,
-		getDisposableQueueName(),
-		getDisposableQueueName(),
-	)
-	assert.Nil(t, err)
+	// Call defaultClean in a goroutine. If it never unblocks, as we hope it does,
+	// we don't want the test to stall.
+	errCh := make(chan error)
+	go func() {
+		errCh <- e.defaultClean(
+			ctx,
+			workerSetName,
+			getDisposableQueueName(),
+			getDisposableQueueName(),
+			time.Second,
+		)
+	}()
+
+	// Assert that the error returned from defaultClean indicates that the
+	// context was canceled
+	select {
+	case err := <-errCh:
+		assert.Equal(t, ctx.Err(), err)
+	case <-time.After(time.Second * 3):
+		assert.Fail(
+			t,
+			"a context canceled error should have been returned, but wasn't",
+		)
+	}
 
 	// Assert cleanActiveTaskQueue and cleanWatchedTaskQueue were each invoked
 	// once per dead worker
@@ -91,59 +112,15 @@ func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
 		return nil
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
+	// Under nominal conditions, defaultClean could block for a very long time,
+	// unless the context it is passed is canceled. Use a context that will cancel
+	// itself after 2 seconds to make defaultClean STOP working so we can then
+	// examine what it accomplished.
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	err = e.defaultClean(
-		ctx,
-		workerSetName,
-		getDisposableQueueName(),
-		getDisposableQueueName(),
-	)
-	assert.Nil(t, err)
-
-	// Assert neither cleanActiveTaskQueue and cleanWatchedTaskQueue were ever
-	// invoked
-	assert.Equal(t, 0, cleanActiveTaskQueueCallCount)
-	assert.Equal(t, 0, cleanWatchedTaskQueueCallCount)
-}
-
-func TestDefaultCleanRespondsToCanceledContext(t *testing.T) {
-	e := NewEngine(redisClient).(*engine)
-
-	// Add one worker to the worker set. Do not add a heartbeat. This should
-	// guarantee that some cleanup must take place. This is imporant because
-	// we'll override the default cleanActiveTaskQueue function to block us for a
-	// while, giving us the opportunity to test that defaultClean responds to
-	// context cancellation.
-	workerSetName := getDisposableWorkerSetName()
-	workerID := getDisposableWorkerID()
-	err := redisClient.SAdd(workerSetName, workerID).Err()
-	assert.Nil(t, err)
-
-	// Override the default cleanActiveTaskQueue function to block until the
-	// context it is passed is canceled.
-	e.cleanActiveTaskQueue = func(
-		ctx context.Context,
-		_ string,
-		_ string,
-		_ string,
-	) error {
-		<-ctx.Done()
-		return ctx.Err()
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// defaultClean doesn't normally have a possibility of blocking indefinitely,
-	// but we've overridden the default cleanActiveTaskQueue function that
-	// defaultClean calls. We've done this so we can test our ability to
-	// short-circuit defaultClean with a canceled context, but in doing so, we've
-	// created the possibility for defaultClean to block indefinitely if it does
-	// not responds to the canceled context as we hope it does. So, here, we
-	// invoke defaultClean in a goroutine so that, in the worst case, the test
-	// won't stall.
+	// Call defaultClean in a goroutine. If it never unblocks, as we hope it does,
+	// we don't want the test to stall.
 	errCh := make(chan error)
 	go func() {
 		errCh <- e.defaultClean(
@@ -151,22 +128,26 @@ func TestDefaultCleanRespondsToCanceledContext(t *testing.T) {
 			workerSetName,
 			getDisposableQueueName(),
 			getDisposableQueueName(),
+			time.Second,
 		)
 	}()
 
-	cancel()
-
-	// Assert that the error returned from defaultClean indicates that the context
-	// was canceled
+	// Assert that the error returned from defaultClean indicates that the
+	// context was canceled
 	select {
 	case err := <-errCh:
 		assert.Equal(t, ctx.Err(), err)
-	case <-time.After(time.Second):
+	case <-time.After(time.Second * 3):
 		assert.Fail(
 			t,
 			"a context canceled error should have been returned, but wasn't",
 		)
 	}
+
+	// Assert neither cleanActiveTaskQueue and cleanWatchedTaskQueue were ever
+	// invoked
+	assert.Equal(t, 0, cleanActiveTaskQueueCallCount)
+	assert.Equal(t, 0, cleanWatchedTaskQueueCallCount)
 }
 
 func TestDefaultCleanWorkerQueue(t *testing.T) {
