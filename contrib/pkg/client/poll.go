@@ -24,16 +24,9 @@ func Poll(
 		getBaseURL(host, port),
 		instanceID,
 	)
-	req, err := http.NewRequest(
-		http.MethodGet,
-		url,
-		nil,
-	)
+	req, err := newRequest(http.MethodGet, url, username, password, nil)
 	if err != nil {
-		return "", fmt.Errorf("error building request: %s", err)
-	}
-	if username != "" || password != "" {
-		addAuthHeader(req, username, password)
+		return "", err
 	}
 	q := req.URL.Query()
 	q.Add("operation", operation)

@@ -20,16 +20,9 @@ func Unbind(
 		instanceID,
 		bindingID,
 	)
-	req, err := http.NewRequest(
-		http.MethodDelete,
-		url,
-		nil,
-	)
+	req, err := newRequest(http.MethodDelete, url, username, password, nil)
 	if err != nil {
-		return fmt.Errorf("error building request: %s", err)
-	}
-	if username != "" || password != "" {
-		addAuthHeader(req, username, password)
+		return err
 	}
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)
