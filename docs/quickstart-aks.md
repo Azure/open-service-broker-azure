@@ -1,9 +1,9 @@
 # Quickstart: Open Service Broker for Azure on an Azure Container Service managed cluster
 
-This quickstart walks-through using the Open Service Broker for Azure (OSBA) to
+This quickstart walks through using the Open Service Broker for Azure (OSBA) to
 deploy WordPress on an [Azure Container Service (AKS)](https://azure.microsoft.com/en-us/services/container-service/) managed cluster.
 
-WordPress requires a backend MySQL database. Without OSBA, we would create a database
+WordPress requires a back-end MySQL database. Without OSBA, we would create a database
 in the Azure portal, and then manually configure the connection information. Now
 with OSBA our Kubernetes manifests can provision an Azure Database for MySQL on our behalf,
 save the connection information in Kubernetes secrets, and then bind them to our WordPress instance.
@@ -11,9 +11,9 @@ save the connection information in Kubernetes secrets, and then bind them to our
 * [Prerequisites](#prerequisites)
 * [Cluster Setup](#cluster-setup)
   * [Configure your Azure account](#configure-your-azure-account)
-  * [Create a resource group](#create-a-resource-group)
+  * [Create a Resource Group for AKS](#create-a-resource-group-for-aks)
   * [Create a service principal](#create-a-service-principal)
-  * [Create a Kubernetes cluster using AKS](#create-an-aks-cluster)
+  * [Create a Kubernetes cluster using AKS](#create-a-kubernetes-cluster-using-aks)
   * [Configure the cluster with Open Service Broker for Azure](#configure-the-cluster-with-open-service-broker-for-azure)
 * [Deploy WordPress](#deploy-wordpress)
 * [Next Steps](#next-steps)
@@ -61,7 +61,7 @@ Download and run the [Azure CLI Installer (MSI)](https://aka.ms/InstallAzureCliW
 Install `kubectl` by running the following command:
 
 ```console
-az acs kubernetes install-cli
+az aks install-cli
 ```
 
 ### Install the Helm CLI
@@ -114,6 +114,14 @@ First let's identify your Azure subscription and save it for use later on in the
     $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
     ```
 
+### Create a Resource Group for AKS
+
+When you create an AKS cluster, you must provide a resource group. Create one with the az cli using the following command.
+
+```console
+az group create --name aks-group --location eastus
+```
+
 ### Create a service principal
 
 This creates an identity for Open Service Broker for Azure to use when provisioning
@@ -152,14 +160,9 @@ Next we will create a managed Kubernetes cluster using AKS. AKS will create a ma
     ```
 
 You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` providers are registered in your subscription. If you need to enable them:
-    ```console 
+    ```console
     az provider register -n Microsoft.Compute
     az provider register -n Microsoft.Network
-    ```
-
-1. Create a Resource Group for AKS
-    ```console
-    az group create --name aks-group --location eastus
     ```
 
 1. Create the AKS cluster!
@@ -253,7 +256,7 @@ osba-quickstart-wordpress   1         1         1            0           1m
 osba-quickstart-wordpress   1         1         1            1           2m
 ```
 
-Note:  While provisioning Wordpress and Azure Database for MySQL using Helm, all of the required resources are created in Kubernetes at the same time. As a result of these requests, Service Catalog will create a secret containing the the binding credentials for the database. This secret will not be created until after the Azure Database for MySQL is created, however. The wordpress container will depend on this secret being created before the container will fully start. Kubernetes and Service Catalog both employ a retry backoff, so you may need to wait several minutes for everything to be fully proviisoned.
+Note:  While provisioning WordPress and Azure Database for MySQL using Helm, all of the required resources are created in Kubernetes at the same time. As a result of these requests, Service Catalog will create a secret containing the the binding credentials for the database. This secret will not be created until after the Azure Database for MySQL is created, however. The WordPress container will depend on this secret being created before the container will fully start. Kubernetes and Service Catalog both employ a retry backoff, so you may need to wait several minutes for everything to be fully provisioned.
 
 ## Login to WordPress
 
@@ -304,7 +307,7 @@ az group delete --name osba-quickstart --yes --no-wait
 To remove the service principal:
 
 ```console
-az ad sp delete --id http://osba-quickstart`
+az ad sp delete --id http://osba-quickstart
 ```
 
 To tear down the AKS cluster:
