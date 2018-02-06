@@ -69,3 +69,9 @@ var responseOperationInvalid = []byte(
 	`{ "error": "OperationInvalid", "description": "The polling request ` +
 		`included an invalid value for the required operation query parameter" }`,
 )
+
+var responseParentInvalid = []byte(
+	`{ "error": "InvalidParent", "description": "The parentAlias provided ` +
+		`refers to a service instance that failed to provision or is currently ` +
+		`deprovisioning"  }`,
+)

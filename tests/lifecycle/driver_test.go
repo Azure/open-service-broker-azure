@@ -46,7 +46,7 @@ func TestServices(t *testing.T) {
 			t.Run(tc.getName(), func(t *testing.T) {
 				// Run subtests in parallel!
 				t.Parallel()
-				err := tc.execute(resourceGroup)
+				err := tc.execute(t, resourceGroup)
 				assert.Nil(t, err)
 			})
 		}

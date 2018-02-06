@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -119,13 +120,39 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := async.NewTask(
-		"executeDeprovisioningStep",
-		map[string]string{
-			"stepName":   firstStepName,
-			"instanceID": instanceID,
-		},
-	)
+	childCount, err := s.store.GetInstanceChildCountByAlias(instance.Alias)
+	if err != nil {
+		logFields["step"] = firstStepName
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"deprovisioning error: error determining child count",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+	}
+
+	var task async.Task
+	if childCount > 0 {
+		logFields["provisionedChildren"] = childCount
+		task = async.NewDelayedTask(
+			"checkChildrenStatuses",
+			map[string]string{
+				"instanceID": instanceID,
+			},
+			time.Minute*1,
+		)
+		log.WithFields(logFields).Debug("children not deprovisioned, waiting")
+	} else {
+		task = async.NewTask(
+			"executeDeprovisioningStep",
+			map[string]string{
+				"stepName":   firstStepName,
+				"instanceID": instanceID,
+			},
+		)
+		log.WithFields(logFields).Debug(
+			"no provisioned children, starting deprovision",
+		)
+	}
 	if err = s.asyncEngine.SubmitTask(task); err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err

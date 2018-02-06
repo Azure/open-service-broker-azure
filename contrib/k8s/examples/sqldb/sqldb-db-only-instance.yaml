@@ -1,0 +1,10 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: db-only-sqldb-instance
+  namespace: default
+spec:
+  clusterServiceClassExternalName: azure-sqldb-db-only
+  clusterServicePlanExternalName: basic
+  parameters:
+    parentAlias: vm-only-sqldb

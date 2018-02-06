@@ -107,6 +107,7 @@ func (e *engine) Run(ctx context.Context) error {
 				workerSetName,
 				pendingTaskQueueName,
 				deferredTaskQueueName,
+				cleaningInterval,
 			),
 		}:
 		case <-ctx.Done():
@@ -118,13 +119,16 @@ func (e *engine) Run(ctx context.Context) error {
 	// loop (which we'll shortly start in its own goroutine) will have sent the
 	// first heartbeat BEFORE the worker is added to the workers set. To account
 	// for this, we synchronously send the first heartbeat.
-	if err := e.heartbeat(); err != nil {
+	if err := e.heartbeat(cleaningInterval * 2); err != nil {
 		return err
 	}
 	// Heartbeat loop
 	go func() {
 		select {
-		case errCh <- &errHeartStopped{workerID: e.workerID, err: e.runHeart(ctx)}:
+		case errCh <- &errHeartStopped{
+			workerID: e.workerID,
+			err:      e.runHeart(ctx, cleaningInterval),
+		}:
 		case <-ctx.Done():
 		}
 	}()
