@@ -5,28 +5,29 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 )
 
-func (b *broker) doUpdateStep(
+func (b *broker) executeUpdatingStep(
 	ctx context.Context,
-	args map[string]string,
-) error {
+	task async.Task,
+) ([]async.Task, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	args := task.GetArgs()
 	stepName, ok := args["stepName"]
 	if !ok {
-		return errors.New(`missing required argument "stepName"`)
+		return nil, errors.New(`missing required argument "stepName"`)
 	}
 	instanceID, ok := args["instanceID"]
 	if !ok {
-		return errors.New(`missing required argument "instanceID"`)
+		return nil, errors.New(`missing required argument "instanceID"`)
 	}
 	instance, ok, err := b.store.GetInstance(instanceID)
 	if err != nil {
-		return b.handleUpdatingError(
+		return nil, b.handleUpdatingError(
 			instanceID,
 			stepName,
 			err,
@@ -34,7 +35,7 @@ func (b *broker) doUpdateStep(
 		)
 	}
 	if !ok {
-		return b.handleUpdatingError(
+		return nil, b.handleUpdatingError(
 			instanceID,
 			stepName,
 			nil,
@@ -45,31 +46,7 @@ func (b *broker) doUpdateStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing updating step")
-	svc, ok := b.catalog.GetService(instance.ServiceID)
-	if !ok {
-		return b.handleUpdatingError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no service was found for handling serviceID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
-	plan, ok := svc.GetPlan(instance.PlanID)
-	if !ok {
-		return b.handleUpdatingError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no plan was found for handling planID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
-	serviceManager := svc.GetServiceManager()
+	serviceManager := instance.Service.GetServiceManager()
 
 	// Retrieve a second copy of the instance from storage. Why? We're about to
 	// pass the instance off to module specific code. It's passed by value, so
@@ -82,7 +59,7 @@ func (b *broker) doUpdateStep(
 	// back to storage.
 	instanceCopy, _, err := b.store.GetInstance(instanceID)
 	if err != nil {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instanceID,
 			stepName,
 			err,
@@ -90,9 +67,9 @@ func (b *broker) doUpdateStep(
 		)
 	}
 
-	updater, err := serviceManager.GetUpdater(plan)
+	updater, err := serviceManager.GetUpdater(instance.Plan)
 	if err != nil {
-		return b.handleUpdatingError(
+		return nil, b.handleUpdatingError(
 			instance,
 			stepName,
 			err,
@@ -104,20 +81,16 @@ func (b *broker) doUpdateStep(
 	}
 	step, ok := updater.GetStep(stepName)
 	if !ok {
-		return b.handleUpdatingError(
+		return nil, b.handleUpdatingError(
 			instance,
 			stepName,
 			nil,
 			`updater does not know how to process step "%s"`,
 		)
 	}
-	updatedDetails, err := step.Execute(
-		ctx,
-		instance,
-		plan,
-	)
+	updatedDetails, err := step.Execute(ctx, instance)
 	if err != nil {
-		return b.handleUpdatingError(
+		return nil, b.handleUpdatingError(
 			instance,
 			stepName,
 			err,
@@ -127,41 +100,34 @@ func (b *broker) doUpdateStep(
 	instanceCopy.Details = updatedDetails
 	if nextStepName, ok := updater.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instanceCopy); err != nil {
-			return b.handleUpdatingError(
+			return nil, b.handleUpdatingError(
 				instanceCopy,
 				stepName,
 				err,
 				"error persisting instance",
 			)
 		}
-		task := model.NewTask(
-			"updateStep",
-			map[string]string{
-				"stepName":   nextStepName,
-				"instanceID": instanceID,
-			},
-		)
-		if err = b.asyncEngine.SubmitTask(task); err != nil {
-			return b.handleUpdatingError(
-				instanceCopy,
-				stepName,
-				err,
-				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
-			)
-		}
-	} else {
-		// No next step-- we're done updating!
-		instanceCopy.Status = service.InstanceStateUpdated
-		if err = b.store.WriteInstance(instanceCopy); err != nil {
-			return b.handleUpdatingError(
-				instanceCopy,
-				stepName,
-				err,
-				"error persisting instance",
-			)
-		}
+		return []async.Task{
+			async.NewTask(
+				"executeUpdatingStep",
+				map[string]string{
+					"stepName":   nextStepName,
+					"instanceID": instanceID,
+				},
+			),
+		}, nil
 	}
-	return nil
+	// No next step-- we're done updating!
+	instanceCopy.Status = service.InstanceStateUpdated
+	if err = b.store.WriteInstance(instanceCopy); err != nil {
+		return nil, b.handleUpdatingError(
+			instanceCopy,
+			stepName,
+			err,
+			"error persisting instance",
+		)
+	}
+	return nil, nil
 }
 
 // handleUpdatingError tries to handle async updating errors. If an

@@ -5,28 +5,29 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 )
 
-func (b *broker) doDeprovisionStep(
+func (b *broker) executeDeprovisioningStep(
 	ctx context.Context,
-	args map[string]string,
-) error {
+	task async.Task,
+) ([]async.Task, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	args := task.GetArgs()
 	stepName, ok := args["stepName"]
 	if !ok {
-		return errors.New(`missing required argument "stepName"`)
+		return nil, errors.New(`missing required argument "stepName"`)
 	}
 	instanceID, ok := args["instanceID"]
 	if !ok {
-		return errors.New(`missing required argument "instanceID"`)
+		return nil, errors.New(`missing required argument "instanceID"`)
 	}
 	instance, ok, err := b.store.GetInstance(instanceID)
 	if err != nil {
-		return b.handleDeprovisioningError(
+		return nil, b.handleDeprovisioningError(
 			instanceID,
 			stepName,
 			err,
@@ -34,7 +35,7 @@ func (b *broker) doDeprovisionStep(
 		)
 	}
 	if !ok {
-		return b.handleDeprovisioningError(
+		return nil, b.handleDeprovisioningError(
 			instanceID,
 			stepName,
 			nil,
@@ -45,31 +46,7 @@ func (b *broker) doDeprovisionStep(
 		"step":       stepName,
 		"instanceID": instance.InstanceID,
 	}).Debug("executing deprovisioning step")
-	svc, ok := b.catalog.GetService(instance.ServiceID)
-	if !ok {
-		return b.handleDeprovisioningError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no service was found for handling serviceID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
-	plan, ok := svc.GetPlan(instance.PlanID)
-	if !ok {
-		return b.handleDeprovisioningError(
-			instance,
-			stepName,
-			nil,
-			fmt.Sprintf(
-				`no plan was found for handling planID "%s"`,
-				instance.ServiceID,
-			),
-		)
-	}
-	serviceManager := svc.GetServiceManager()
+	serviceManager := instance.Service.GetServiceManager()
 
 	// Retrieve a second copy of the instance from storage. Why? We're about to
 	// pass the instance off to module specific code. It's passed by value, so
@@ -82,16 +59,17 @@ func (b *broker) doDeprovisionStep(
 	// back to storage.
 	instanceCopy, _, err := b.store.GetInstance(instanceID)
 	if err != nil {
-		return b.handleProvisioningError(
+		return nil, b.handleProvisioningError(
 			instanceID,
 			stepName,
 			err,
 			"error loading persisted instance",
 		)
 	}
-	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
+
+	deprovisioner, err := serviceManager.GetDeprovisioner(instance.Plan)
 	if err != nil {
-		return b.handleDeprovisioningError(
+		return nil, b.handleDeprovisioningError(
 			instance,
 			stepName,
 			err,
@@ -103,16 +81,16 @@ func (b *broker) doDeprovisionStep(
 	}
 	step, ok := deprovisioner.GetStep(stepName)
 	if !ok {
-		return b.handleDeprovisioningError(
+		return nil, b.handleDeprovisioningError(
 			instance,
 			stepName,
 			nil,
 			`deprovisioner does not know how to process step "%s"`,
 		)
 	}
-	updatedDetails, err := step.Execute(ctx, instance, plan)
+	updatedDetails, err := step.Execute(ctx, instance)
 	if err != nil {
-		return b.handleDeprovisioningError(
+		return nil, b.handleDeprovisioningError(
 			instance,
 			stepName,
 			err,
@@ -122,41 +100,34 @@ func (b *broker) doDeprovisionStep(
 	instanceCopy.Details = updatedDetails
 	if nextStepName, ok := deprovisioner.GetNextStepName(step.GetName()); ok {
 		if err = b.store.WriteInstance(instanceCopy); err != nil {
-			return b.handleDeprovisioningError(
+			return nil, b.handleDeprovisioningError(
 				instanceCopy,
 				stepName,
 				err,
 				"error persisting instance",
 			)
 		}
-		task := model.NewTask(
-			"deprovisionStep",
-			map[string]string{
-				"stepName":   nextStepName,
-				"instanceID": instanceID,
-			},
-		)
-		if err = b.asyncEngine.SubmitTask(task); err != nil {
-			return b.handleDeprovisioningError(
-				instanceCopy,
-				stepName,
-				err,
-				fmt.Sprintf(`error enqueing next step: "%s"`, nextStepName),
-			)
-		}
-	} else {
-		// No next step-- we're done deprovisioning!
-		_, err = b.store.DeleteInstance(instanceCopy.InstanceID)
-		if err != nil {
-			return b.handleDeprovisioningError(
-				instanceCopy,
-				stepName,
-				err,
-				"error deleting deprovisioned instance",
-			)
-		}
+		return []async.Task{
+			async.NewTask(
+				"executeDeprovisioningStep",
+				map[string]string{
+					"stepName":   nextStepName,
+					"instanceID": instanceID,
+				},
+			),
+		}, nil
 	}
-	return nil
+	// No next step-- we're done deprovisioning!
+	_, err = b.store.DeleteInstance(instanceCopy.InstanceID)
+	if err != nil {
+		return nil, b.handleDeprovisioningError(
+			instanceCopy,
+			stepName,
+			err,
+			"error deleting deprovisioned instance",
+		)
+	}
+	return nil, nil
 }
 
 // handleDeprovisioningError tries to handle async deprovisioning errors. If an

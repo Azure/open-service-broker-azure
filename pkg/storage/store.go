@@ -108,6 +108,16 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 				instance.ServiceID,
 			)
 	}
+	plan, ok := svc.GetPlan(instance.PlanID)
+	if !ok {
+		return instance,
+			false,
+			fmt.Errorf(
+				`plan not found for planID "%s" for service "%s" in the catalog`,
+				instance.PlanID,
+				instance.ServiceID,
+			)
+	}
 	serviceManager := svc.GetServiceManager()
 	instance, err = service.NewInstanceFromJSON(
 		bytes,
@@ -116,23 +126,20 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 		serviceManager.GetEmptyInstanceDetails(),
 		s.codec,
 	)
+	instance.Service = svc
+	instance.Plan = plan
 	if instance.ParentAlias != "" {
 		parent, ok, err := s.GetInstanceByAlias(instance.ParentAlias)
 		if err != nil {
 			return instance, false, fmt.Errorf(
 				`error retrieving parent with alias "%s" for instance "%s"`,
-				instance.Alias,
+				instance.ParentAlias,
 				instance.InstanceID,
 			)
 		}
-		if !ok {
-			return instance, false, fmt.Errorf(
-				`parent with alias "%s" for instance "%s" not found`,
-				instance.Alias,
-				instance.InstanceID,
-			)
+		if ok {
+			instance.Parent = &parent
 		}
-		instance.Parent = &parent
 	}
 	return instance, err == nil, err
 }
