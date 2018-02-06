@@ -10,6 +10,7 @@ import (
 // Instance represents an instance of a service
 type Instance struct {
 	InstanceID                      string                 `json:"instanceId"`
+	Alias                           string                 `json:"alias"`
 	ServiceID                       string                 `json:"serviceId"`
 	Service                         Service                `json:"-"`
 	PlanID                          string                 `json:"planId"`
@@ -22,6 +23,8 @@ type Instance struct {
 	StatusReason                    string                 `json:"statusReason"`
 	Location                        string                 `json:"location"`
 	ResourceGroup                   string                 `json:"resourceGroup"`
+	Parent                          *Instance              `json:"-"`
+	ParentAlias                     string                 `json:"parentAlias"`
 	Tags                            map[string]string      `json:"tags"`
 	EncryptedDetails                []byte                 `json:"details"`
 	Details                         InstanceDetails        `json:"-"`
