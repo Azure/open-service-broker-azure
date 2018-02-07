@@ -15,7 +15,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL Database",
 					ImageUrl: "https://azure.microsoft.com/svghandler/sql-database/" +
 						"?width=200",
-					LongDescription:  "The intelligent relational cloud database service",
+					LongDescription: "The intelligent relational cloud database service" +
+						" (Experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

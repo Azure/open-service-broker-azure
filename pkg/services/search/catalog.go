@@ -14,7 +14,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageUrl: "https://azure.microsoft.com/svghandler/search/" +
 						"?width=200",
 					LongDescription: "Cloud search service for web and mobile app " +
-						"development",
+						"development (Experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/search/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

@@ -14,7 +14,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageUrl: "https://azure.microsoft.com/svghandler/redis-cache/" +
 						"?width=200",
 					LongDescription: "High throughput and consistent low-latency data " +
-						"access to power fast, scalable Azure applications",
+						"access to power fast, scalable Azure applications (Experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/redis-cache/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

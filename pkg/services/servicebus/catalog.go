@@ -14,7 +14,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageUrl: "https://azure.microsoft.com/svghandler/service-bus/" +
 						"?width=200",
 					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
-						"simple hybrid integration",
+						"simple hybrid integration (Experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/service-bus/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

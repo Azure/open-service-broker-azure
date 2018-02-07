@@ -14,7 +14,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageUrl: "https://azure.microsoft.com/svghandler/mysql/" +
 						"?width=200",
 					LongDescription: "A fully managed MySQL database service for " +
-						"app developers",
+						"app developers (Experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -67,7 +67,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
-					Bullets: []string{"100 DTUs",
+					Bullets: []string{
+						"100 DTUs",
 						"Additional Storage",
 					},
 				},
@@ -85,7 +86,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
-					Bullets: []string{"200 DTUs",
+					Bullets: []string{
+						"200 DTUs",
 						"Additional Storage",
 					},
 				},
@@ -103,7 +105,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
-					Bullets: []string{"400 DTUs",
+					Bullets: []string{
+						"400 DTUs",
 						"Additional Storage",
 					},
 				},
@@ -121,7 +124,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
-					Bullets: []string{"800 DTUs",
+					Bullets: []string{
+						"800 DTUs",
 						"Additional Storage",
 					},
 				},

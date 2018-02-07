@@ -13,7 +13,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Container Instances",
 					ImageUrl: "https://azure.microsoft.com/svghandler/container-instances/" +
 						"?width=200",
-					LongDescription: "Easily run containers on Azure with a single command",
+					LongDescription: "Easily run containers on Azure with a single command" +
+						" (Experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/" +
 						"container-instances/",
 					SupportUrl: "https://azure.microsoft.com/en-us/support/",

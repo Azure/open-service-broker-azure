@@ -13,7 +13,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Database for PostgreSQL",
 					ImageUrl: "https://azure.microsoft.com/svghandler/postgresql/" +
 						"?width=200",
-					LongDescription:  "Enterprise-ready fully managed community PostgreSQL",
+					LongDescription: "Enterprise-ready fully managed community PostgreSQL" +
+						" (Experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

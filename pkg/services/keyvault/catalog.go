@@ -14,7 +14,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageUrl: "https://azure.microsoft.com/svghandler/key-vault/" +
 						"?width=200",
 					LongDescription: "Safeguard cryptographic keys and other secrets " +
-						"used by cloud apps and services",
+						"used by cloud apps and services (Experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/key-vault/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

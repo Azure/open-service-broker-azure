@@ -17,7 +17,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						DisplayName: "Azure Cosmos DB (DocumentDB)",
 						ImageUrl: "https://azure.microsoft.com/svghandler/documentdb/" +
 							"?width=200",
-						LongDescription:  "Globally distributed, multi-model database service",
+						LongDescription: "Globally distributed, multi-model database service" +
+							" (Experimental)",
 						DocumentationUrl: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
 						SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 					},
@@ -57,7 +58,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						DisplayName: "Azure Cosmos DB (MongoDB)",
 						ImageUrl: "https://azure.microsoft.com/svghandler/cosmos-db/" +
 							"?width=200",
-						LongDescription:  "Globally distributed, multi-model database service",
+						LongDescription: "Globally distributed, multi-model database service" +
+							" (Experimental)",
 						DocumentationUrl: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
 						SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 					},
