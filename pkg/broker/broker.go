@@ -6,9 +6,10 @@ import (
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
+	redisAsync "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
@@ -51,7 +52,7 @@ func NewBroker(
 	storageRedisClient *redis.Client,
 	asyncRedisClient *redis.Client,
 	codec crypto.Codec,
-	authenticator authenticator.Authenticator,
+	filterChain filter.Filter,
 	modules []service.Module,
 	minStability service.Stability,
 	defaultAzureLocation string,
@@ -91,26 +92,50 @@ func NewBroker(
 	catalog := service.NewCatalog(services)
 	b := &broker{
 		store:       storage.NewStore(storageRedisClient, catalog, codec),
-		asyncEngine: async.NewEngine(asyncRedisClient),
+		asyncEngine: redisAsync.NewEngine(asyncRedisClient),
 		catalog:     catalog,
 	}
 
-	err := b.asyncEngine.RegisterJob("provisionStep", b.doProvisionStep)
+	err := b.asyncEngine.RegisterJob(
+		"executeProvisioningStep",
+		b.executeProvisioningStep,
+	)
 	if err != nil {
 		return nil, errors.New(
 			"error registering async job for executing provisioning steps",
 		)
 	}
-	err = b.asyncEngine.RegisterJob("updateStep", b.doUpdateStep)
+	err = b.asyncEngine.RegisterJob("executeUpdatingStep", b.executeUpdatingStep)
 	if err != nil {
 		return nil, errors.New(
 			"error registering async job for executing updating steps",
 		)
 	}
-	err = b.asyncEngine.RegisterJob("deprovisionStep", b.doDeprovisionStep)
+	err = b.asyncEngine.RegisterJob(
+		"executeDeprovisioningStep",
+		b.executeDeprovisioningStep,
+	)
 	if err != nil {
 		return nil, errors.New(
 			"error registering async job for executing deprovisioning steps",
+		)
+	}
+
+	err = b.asyncEngine.RegisterJob("checkParentStatus", b.doCheckParentStatus)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing check of parent status",
+		)
+	}
+
+	err = b.asyncEngine.RegisterJob(
+		"checkChildrenStatuses",
+		b.doCheckChildrenStatuses,
+	)
+	if err != nil {
+		return nil, errors.New(
+			"error registering async job for executing check of children " +
+				"statuses",
 		)
 	}
 
@@ -118,7 +143,7 @@ func NewBroker(
 		8080,
 		b.store,
 		b.asyncEngine,
-		authenticator,
+		filterChain,
 		b.catalog,
 		defaultAzureLocation,
 		defaultAzureResourceGroup,
@@ -139,7 +164,7 @@ func (b *broker) Start(ctx context.Context) error {
 	// Start async engine
 	go func() {
 		select {
-		case errChan <- &errAsyncEngineStopped{err: b.asyncEngine.Start(ctx)}:
+		case errChan <- &errAsyncEngineStopped{err: b.asyncEngine.Run(ctx)}:
 		case <-ctx.Done():
 		}
 	}()

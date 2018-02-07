@@ -9,21 +9,26 @@ import (
 
 // Instance represents an instance of a service
 type Instance struct {
-	InstanceID                      string                 `json:"instanceId"`             // nolint: lll
-	ServiceID                       string                 `json:"serviceId"`              // nolint: lll
-	PlanID                          string                 `json:"planId"`                 // nolint: lll
+	InstanceID                      string                 `json:"instanceId"`
+	Alias                           string                 `json:"alias"`
+	ServiceID                       string                 `json:"serviceId"`
+	Service                         Service                `json:"-"`
+	PlanID                          string                 `json:"planId"`
+	Plan                            Plan                   `json:"-"`
 	EncryptedProvisioningParameters []byte                 `json:"provisioningParameters"` // nolint: lll
 	ProvisioningParameters          ProvisioningParameters `json:"-"`
 	EncryptedUpdatingParameters     []byte                 `json:"updatingParameters"` // nolint: lll
 	UpdatingParameters              UpdatingParameters     `json:"-"`
-	Status                          string                 `json:"status"`        // nolint: lll
-	StatusReason                    string                 `json:"statusReason"`  // nolint: lll
-	Location                        string                 `json:"location"`      // nolint: lll
-	ResourceGroup                   string                 `json:"resourceGroup"` // nolint: lll
+	Status                          string                 `json:"status"`
+	StatusReason                    string                 `json:"statusReason"`
+	Location                        string                 `json:"location"`
+	ResourceGroup                   string                 `json:"resourceGroup"`
+	Parent                          *Instance              `json:"-"`
+	ParentAlias                     string                 `json:"parentAlias"`
 	Tags                            map[string]string      `json:"tags"`
-	EncryptedDetails                []byte                 `json:"details"` // nolint: lll
+	EncryptedDetails                []byte                 `json:"details"`
 	Details                         InstanceDetails        `json:"-"`
-	Created                         time.Time              `json:"created"` // nolint: lll
+	Created                         time.Time              `json:"created"`
 }
 
 // NewInstanceFromJSON returns a new Instance unmarshalled from the provided

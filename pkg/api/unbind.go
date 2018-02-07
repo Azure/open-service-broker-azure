@@ -26,7 +26,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-unbinding error: error retrieving binding by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if !ok {
@@ -34,7 +34,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 			"no such binding remains to be unbound",
 		)
 		// No binding was found-- per spec, we return a 410
-		s.writeResponse(w, http.StatusGone, responseEmptyJSON)
+		s.writeResponse(w, http.StatusGone, generateEmptyResponse())
 		return
 	}
 
@@ -46,7 +46,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 				"binding",
 		)
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 		return
 	}
 
@@ -56,7 +56,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-unbinding error: error retrieving instance by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if !ok {
@@ -77,19 +77,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 			"unbinding an orphaned binding",
 		)
 	} else {
-		// We can go ahead and find the Service itself to get the ServiceManager.
-		svc, ok := s.catalog.GetService(instance.ServiceID)
-		if !ok {
-			// If we don't find the Service in the catalog, something is really wrong.
-			// (It should exist, because an instance with this serviceID exists.)
-			logFields["serviceID"] = instance.ServiceID
-			log.WithFields(logFields).Error(
-				"pre-unbinding error: no Service found for serviceID",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-			return
-		}
-		serviceManager := svc.GetServiceManager()
+		serviceManager := instance.Service.GetServiceManager()
 
 		// Starting here, if something goes wrong, we don't know what state service-
 		// specific code has left us in, so we'll attempt to record the error in
@@ -117,7 +105,7 @@ func (s *server) unbind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.writeResponse(w, http.StatusOK, responseEmptyJSON)
+	s.writeResponse(w, http.StatusOK, generateEmptyResponse())
 }
 
 // handleUnbindingError tries to handle the most serious unbinding errors. The
@@ -156,5 +144,5 @@ func (s *server) handleUnbindingError(
 	log.WithFields(logFields).Error(
 		fmt.Sprintf(`unbinding error: %s`, msg),
 	)
-	s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+	s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 }

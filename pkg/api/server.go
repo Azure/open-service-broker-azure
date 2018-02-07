@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api/authenticator"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
@@ -37,7 +37,7 @@ type server struct {
 	port            int
 	store           storage.Store
 	asyncEngine     async.Engine
-	authenticator   authenticator.Authenticator
+	filterChain     filter.Filter
 	router          *mux.Router
 	catalog         service.Catalog
 	catalogResponse []byte
@@ -52,7 +52,7 @@ func NewServer(
 	port int,
 	store storage.Store,
 	asyncEngine async.Engine,
-	authenticator authenticator.Authenticator,
+	filterChain filter.Filter,
 	catalog service.Catalog,
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,
@@ -61,44 +61,45 @@ func NewServer(
 		port:                      port,
 		store:                     store,
 		asyncEngine:               asyncEngine,
-		authenticator:             authenticator,
+		filterChain:               filterChain,
 		catalog:                   catalog,
 		defaultAzureLocation:      defaultAzureLocation,
 		defaultAzureResourceGroup: defaultAzureResourceGroup,
 	}
+
 	router := mux.NewRouter()
 	router.StrictSlash(true)
 	router.HandleFunc(
 		"/v2/catalog",
-		s.authenticator.Authenticate(s.getCatalog),
+		filterChain.GetHandler(s.getCatalog),
 	).Methods(http.MethodGet)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}",
-		s.authenticator.Authenticate(s.provision),
+		filterChain.GetHandler(s.provision),
 	).Methods(http.MethodPut)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}",
-		s.authenticator.Authenticate(s.update),
+		filterChain.GetHandler(s.update),
 	).Methods(http.MethodPatch)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/last_operation",
-		s.authenticator.Authenticate(s.poll),
+		filterChain.GetHandler(s.poll),
 	).Methods(http.MethodGet)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/service_bindings/{binding_id}",
-		s.authenticator.Authenticate(s.bind),
+		filterChain.GetHandler(s.bind),
 	).Methods(http.MethodPut)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}/service_bindings/{binding_id}",
-		s.authenticator.Authenticate(s.unbind),
+		filterChain.GetHandler(s.unbind),
 	).Methods(http.MethodDelete)
 	router.HandleFunc(
 		"/v2/service_instances/{instance_id}",
-		s.authenticator.Authenticate(s.deprovision),
+		filterChain.GetHandler(s.deprovision),
 	).Methods(http.MethodDelete)
 	router.HandleFunc(
 		"/healthz",
-		s.healthCheck, // No authentication on this request
+		s.healthCheck, // Filter chain not applied to this reqeust
 	).Methods(http.MethodGet)
 	s.router = router
 

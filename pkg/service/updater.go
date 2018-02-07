@@ -10,7 +10,6 @@ import (
 type UpdatingStepFunction func(
 	ctx context.Context,
 	instance Instance,
-	plan Plan,
 ) (InstanceDetails, error)
 
 // UpdatingStep is an interface to be implemented by types that represent
@@ -20,7 +19,6 @@ type UpdatingStep interface {
 	Execute(
 		ctx context.Context,
 		instance Instance,
-		plan Plan,
 	) (InstanceDetails, error)
 }
 
@@ -63,14 +61,12 @@ func (u *updatingStep) GetName() string {
 func (u *updatingStep) Execute(
 	ctx context.Context,
 	instance Instance,
-	plan Plan,
 ) (InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	return u.fn(
 		ctx,
 		instance,
-		plan,
 	)
 }
 

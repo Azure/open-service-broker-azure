@@ -96,7 +96,6 @@ func (s *ServiceManager) GetProvisioner(
 func (s *ServiceManager) provision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	return instance.Details, nil
 }
@@ -120,7 +119,6 @@ func (s *ServiceManager) GetUpdater(service.Plan) (service.Updater, error) {
 func (s *ServiceManager) update(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	return instance.Details, nil
 }
@@ -171,7 +169,6 @@ func (s *ServiceManager) GetDeprovisioner(
 func (s *ServiceManager) deprovision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	return instance.Details, nil
 }

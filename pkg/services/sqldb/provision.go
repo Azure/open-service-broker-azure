@@ -14,26 +14,15 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s *serviceManager) ValidateProvisioningParameters(
+func (a *allInOneManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := provisioningParameters.(*ServerProvisioningParams)
 	if !ok {
 		return errors.New(
 			"error casting provisioningParameters as " +
-				"*mssql.ProvisioningParameters",
+				"*mssql.ServerProvisioningParams",
 		)
-	}
-	if pp.ServerName != "" {
-		if _, ok := s.mssqlConfig.Servers[pp.ServerName]; !ok {
-			return service.NewValidationError(
-				"serverName",
-				fmt.Sprintf(
-					`can't find serverName "%s" in Azure SQL Server configuration`,
-					pp.ServerName,
-				),
-			)
-		}
 	}
 	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
 		if pp.FirewallIPStart == "" {
@@ -79,180 +68,359 @@ func (s *serviceManager) ValidateProvisioningParameters(
 	return nil
 }
 
-func (s *serviceManager) GetProvisioner(
+func (v *vmOnlyManager) ValidateProvisioningParameters(
+	provisioningParameters service.ProvisioningParameters,
+) error {
+	pp, ok := provisioningParameters.(*ServerProvisioningParams)
+	if !ok {
+		return errors.New(
+			"error casting provisioningParameters as " +
+				"*mssql.ServerProvisioningParams",
+		)
+	}
+	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
+		if pp.FirewallIPStart == "" {
+			return service.NewValidationError(
+				"firewallStartIPAddress",
+				"must be set when firewallEndIPAddress is set",
+			)
+		}
+		if pp.FirewallIPEnd == "" {
+			return service.NewValidationError(
+				"firewallEndIPAddress",
+				"must be set when firewallStartIPAddress is set",
+			)
+		}
+	}
+	startIP := net.ParseIP(pp.FirewallIPStart)
+	if pp.FirewallIPStart != "" && startIP == nil {
+		return service.NewValidationError(
+			"firewallStartIPAddress",
+			fmt.Sprintf(`invalid value: "%s"`, pp.FirewallIPStart),
+		)
+	}
+	endIP := net.ParseIP(pp.FirewallIPEnd)
+	if pp.FirewallIPEnd != "" && endIP == nil {
+		return service.NewValidationError(
+			"firewallEndIPAddress",
+			fmt.Sprintf(`invalid value: "%s"`, pp.FirewallIPEnd),
+		)
+	}
+	//The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
+	//Once converted,comparing two IP addresses can be done by using the
+	//bytes. Compare function. Per the ARM template documentation,
+	//startIP must be <= endIP.
+	startBytes := startIP.To4()
+	endBytes := endIP.To4()
+	if bytes.Compare(startBytes, endBytes) > 0 {
+		return service.NewValidationError(
+			"firewallEndIPAddress",
+			fmt.Sprintf(`invalid value: "%s". must be 
+				greater than or equal to firewallStartIPAddress`, pp.FirewallIPEnd),
+		)
+	}
+	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
+		if pp.FirewallIPStart == "" {
+			return service.NewValidationError(
+				"firewallStartIPAddress",
+				"must be set when firewallEndIPAddress is set",
+			)
+		}
+		if pp.FirewallIPEnd == "" {
+			return service.NewValidationError(
+				"firewallEndIPAddress",
+				"must be set when firewallStartIPAddress is set",
+			)
+		}
+	}
+	if pp.FirewallIPStart != "" || pp.FirewallIPEnd != "" {
+		if pp.FirewallIPStart == "" {
+			return service.NewValidationError(
+				"firewallStartIPAddress",
+				"must be set when firewallEndIPAddress is set",
+			)
+		}
+		if pp.FirewallIPEnd == "" {
+			return service.NewValidationError(
+				"firewallEndIPAddress",
+				"must be set when firewallStartIPAddress is set",
+			)
+		}
+	}
+	return nil
+}
+
+//TODO: implement db only validation
+func (d *dbOnlyManager) ValidateProvisioningParameters(
+	_ service.ProvisioningParameters,
+) error {
+	return nil
+}
+
+func (a *allInOneManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", s.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", a.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", a.deployARMTemplate),
 	)
 }
 
-func (s *serviceManager) preProvision(
+func (v *vmOnlyManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
+	return service.NewProvisioner(
+		service.NewProvisioningStep("preProvision", v.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", v.deployARMTemplate),
+	)
+}
+
+func (d *dbOnlyManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
+	return service.NewProvisioner(
+		service.NewProvisioningStep("preProvision", d.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", d.deployARMTemplate),
+	)
+}
+
+func (a *allInOneManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*mssql.ProvisioningParameters",
-		)
-	}
-
-	if pp.ServerName == "" {
-		// new server scenario
-		dt.ARMDeploymentName = uuid.NewV4().String()
-		dt.ServerName = uuid.NewV4().String()
-		dt.IsNewServer = true
-		dt.AdministratorLogin = generate.NewIdentifier()
-		dt.AdministratorLoginPassword = generate.NewPassword()
-		dt.DatabaseName = generate.NewIdentifier()
-	} else {
-		// exisiting server scenario
-		servers := s.mssqlConfig.Servers
-		server, ok := servers[pp.ServerName]
-		if !ok {
-			return nil, fmt.Errorf(
-				`can't find serverName "%s" in Azure SQL Server configuration`,
-				pp.ServerName,
-			)
-		}
-
-		dt.ARMDeploymentName = uuid.NewV4().String()
-		dt.ServerName = server.ServerName
-		dt.IsNewServer = false
-		dt.AdministratorLogin = server.AdministratorLogin
-		dt.AdministratorLoginPassword = server.AdministratorLoginPassword
-		dt.DatabaseName = generate.NewIdentifier()
-
-		// Ensure the server configuration works
-		azureConfig, err := azure.GetConfig()
-		if err != nil {
-			return nil, err
-		}
-		azureEnvironment, err := az.EnvironmentFromName(azureConfig.Environment)
-		if err != nil {
-			return nil, err
-		}
-		sqlDatabaseDNSSuffix := azureEnvironment.SQLDatabaseDNSSuffix
-		dt.FullyQualifiedDomainName = fmt.Sprintf(
-			"%s.%s",
-			server.ServerName,
-			sqlDatabaseDNSSuffix,
-		)
-	}
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLogin = generate.NewIdentifier()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+	dt.DatabaseName = generate.NewIdentifier()
 	return dt, nil
 }
 
-func buildARMTemplateParameters(
-	plan service.Plan,
-	details *mssqlInstanceDetails,
-	provisioningParameters *ProvisioningParameters,
-) map[string]interface{} {
+func (v *vmOnlyManager) preProvision(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
+		)
+	}
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLogin = generate.NewIdentifier()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+	return dt, nil
+}
+
+func (d *dbOnlyManager) preProvision(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+		)
+	}
+
+	//Parent should be set by the framework, but return an error if it is not set.
+	if instance.Parent == nil {
+		return nil, errors.New("parent instance not set")
+	}
+	//Assume refererence instance is a vm only instance. Fail if not
+	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Parent.Details as " +
+				"*mssqlVMOnlyInstanceDetails",
+		)
+	}
+
+	azureConfig, err := azure.GetConfig()
+	if err != nil {
+		return nil, err
+	}
+	azureEnvironment, err := az.EnvironmentFromName(azureConfig.Environment)
+	if err != nil {
+		return nil, err
+	}
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.DatabaseName = generate.NewIdentifier()
+	sqlDatabaseDNSSuffix := azureEnvironment.SQLDatabaseDNSSuffix
+	dt.FullyQualifiedDomainName = fmt.Sprintf(
+		"%s.%s",
+		pdt.ServerName,
+		sqlDatabaseDNSSuffix,
+	)
+
+	return dt, nil
+}
+
+func (a *allInOneManager) deployARMTemplate(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+		)
+	}
+	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParams)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mssql.ServerProvisioningParams",
+		)
+	}
 	p := map[string]interface{}{ // ARM template params
-		"serverName":                 details.ServerName,
-		"administratorLogin":         details.AdministratorLogin,
-		"administratorLoginPassword": details.AdministratorLoginPassword,
-		"databaseName":               details.DatabaseName,
-		"edition":                    plan.GetProperties().Extended["edition"],
-		"requestedServiceObjectiveName": plan.GetProperties().
+		"serverName":                 dt.ServerName,
+		"administratorLogin":         dt.AdministratorLogin,
+		"administratorLoginPassword": dt.AdministratorLoginPassword,
+		"databaseName":               dt.DatabaseName,
+		"edition": instance.Plan.GetProperties().
+			Extended["edition"],
+		"requestedServiceObjectiveName": instance.Plan.GetProperties().
 			Extended["requestedServiceObjectiveName"],
-		"maxSizeBytes": plan.GetProperties().
-			Extended["maxSizeBytes"],
+		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
 	//Only include these if they are not empty.
 	//ARM Deployer will fail if the values included are not
 	//valid IPV4 addresses (i.e. empty string wil fail)
-	if provisioningParameters.FirewallIPStart != "" {
-		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
+	if pp.FirewallIPStart != "" {
+		p["firewallStartIpAddress"] = pp.FirewallIPStart
 	}
-	if provisioningParameters.FirewallIPEnd != "" {
-		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
+	if pp.FirewallIPEnd != "" {
+		p["firewallEndIpAddress"] = pp.FirewallIPEnd
 	}
-	return p
+	// new server scenario
+	outputs, err := a.armDeployer.Deploy(
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
+		armTemplateNewServerBytes,
+		nil, // Go template params
+		p,
+		instance.Tags,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+	}
+	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error retrieving fully qualified domain name from deployment: %s",
+			err,
+		)
+	}
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
+	return dt, nil
 }
 
-func (s *serviceManager) deployARMTemplate(
+func (v *vmOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlInstanceDetails)
+	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParams)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*mssql.ProvisioningParameters",
+			"error casting provisioningParameters as " +
+				"*mssql.ServerProvisioningParams",
 		)
 	}
-	if dt.IsNewServer {
-		armTemplateParameters := buildARMTemplateParameters(plan, dt, pp)
-		// new server scenario
-		outputs, err := s.armDeployer.Deploy(
-			dt.ARMDeploymentName,
-			instance.ResourceGroup,
-			instance.Location,
-			armTemplateNewServerBytes,
-			nil, // Go template params
-			armTemplateParameters,
-			instance.Tags,
+	p := map[string]interface{}{ // ARM template params
+		"serverName":                 dt.ServerName,
+		"administratorLogin":         dt.AdministratorLogin,
+		"administratorLoginPassword": dt.AdministratorLoginPassword,
+	}
+	//Only include these if they are not empty.
+	//ARM Deployer will fail if the values included are not
+	//valid IPV4 addresses (i.e. empty string wil fail)
+	if pp.FirewallIPStart != "" {
+		p["firewallStartIpAddress"] = pp.FirewallIPStart
+	}
+	if pp.FirewallIPEnd != "" {
+		p["firewallEndIpAddress"] = pp.FirewallIPEnd
+	}
+	// new server scenario
+	outputs, err := v.armDeployer.Deploy(
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
+		armTemplateServerOnlyBytes,
+		nil, // Go template params
+		p,
+		instance.Tags,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+	}
+	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error retrieving fully qualified domain name from deployment: %s",
+			err,
 		)
-		if err != nil {
-			return nil, fmt.Errorf("error deploying ARM template: %s", err)
-		}
-		fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
-		if !ok {
-			return nil, fmt.Errorf(
-				"error retrieving fully qualified domain name from deployment: %s",
-				err,
-			)
-		}
-		dt.FullyQualifiedDomainName = fullyQualifiedDomainName
-	} else {
-		// existing server scenario
-		servers := s.mssqlConfig.Servers
-		server, ok := servers[pp.ServerName]
-		if !ok {
-			return nil, fmt.Errorf(
-				`can't find serverName "%s" in Azure SQL Server configuration`,
-				pp.ServerName,
-			)
-		}
+	}
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
+	return dt, nil
+}
 
-		_, err := s.armDeployer.Deploy(
-			dt.ARMDeploymentName,
-			server.ResourceGroupName,
-			server.Location,
-			armTemplateExistingServerBytes,
-			nil, // Go template params
-			map[string]interface{}{ // ARM template params
-				"serverName":   dt.ServerName,
-				"databaseName": dt.DatabaseName,
-				"edition":      plan.GetProperties().Extended["edition"],
-				"requestedServiceObjectiveName": plan.GetProperties().
-					Extended["requestedServiceObjectiveName"],
-				"maxSizeBytes": plan.GetProperties().
-					Extended["maxSizeBytes"],
-			},
-			instance.Tags,
+func (d *dbOnlyManager) deployARMTemplate(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
-		if err != nil {
-			return nil, fmt.Errorf("error deploying ARM template: %s", err)
-		}
 	}
 
+	//Parent should be set by the framework, but return an error if it is not set.
+	if instance.Parent == nil {
+		return nil, errors.New("parent instance not set")
+	}
+	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Parent.Details as " +
+				"*mssqlVMOnlyInstanceDetails",
+		)
+	}
+	p := map[string]interface{}{ // ARM template params
+		"serverName":   pdt.ServerName,
+		"databaseName": dt.DatabaseName,
+		"edition":      instance.Plan.GetProperties().Extended["edition"],
+		"requestedServiceObjectiveName": instance.Plan.GetProperties().
+			Extended["requestedServiceObjectiveName"],
+		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
+	}
+	//No output, so ignore the output
+	_, err := d.armDeployer.Deploy(
+		dt.ARMDeploymentName,
+		instance.Parent.ResourceGroup,
+		instance.Parent.Location,
+		armTemplateDBOnlyBytes,
+		nil, // Go template params
+		p,
+		instance.Tags,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+	}
 	return dt, nil
 }

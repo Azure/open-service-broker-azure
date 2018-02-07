@@ -2,21 +2,38 @@ package sqldb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters encapsulates MSSQL-specific provisioning options
-type ProvisioningParameters struct {
-	ServerName      string `json:"server"`
+// ServerProvisioningParams encapsulates MSSQL-server specific provisioning
+//options
+type ServerProvisioningParams struct {
 	FirewallIPStart string `json:"firewallStartIPAddress"`
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
 
-type mssqlInstanceDetails struct {
+// DBProvisioningParams encapsulates MSSQL-specific provisioning options
+type DBProvisioningParams struct {
+}
+
+type mssqlAllInOneInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
+	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
 	ServerName                 string `json:"server"`
-	IsNewServer                bool   `json:"isNewServer"`
 	AdministratorLogin         string `json:"administratorLogin"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 	DatabaseName               string `json:"database"`
+}
+
+type mssqlVMOnlyInstanceDetails struct {
+	ARMDeploymentName          string `json:"armDeployment"`
 	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
+	ServerName                 string `json:"server"`
+	AdministratorLogin         string `json:"administratorLogin"`
+	AdministratorLoginPassword string `json:"administratorLoginPassword"`
+}
+
+type mssqlDBOnlyInstanceDetails struct {
+	ARMDeploymentName        string `json:"armDeployment"`
+	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
+	DatabaseName             string `json:"database"`
 }
 
 // UpdatingParameters encapsulates MSSQL-specific updating options
@@ -57,27 +74,91 @@ type Config struct {
 }
 
 func (
-	s *serviceManager,
+	a *allInOneManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
+	return &ServerProvisioningParams{}
 }
 
 func (
-	s *serviceManager,
+	v *vmOnlyManager,
+) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &ServerProvisioningParams{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &DBProvisioningParams{}
+}
+
+func (
+	a *allInOneManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }
 
 func (
-	s *serviceManager,
-) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &mssqlInstanceDetails{}
+	v *vmOnlyManager,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
+func (
+	d *dbOnlyManager,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlAllInOneInstanceDetails{}
+}
+
+func (
+	v *vmOnlyManager,
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlVMOnlyInstanceDetails{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlDBOnlyInstanceDetails{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+func (
+	v *vmOnlyManager,
+) GetEmptyBindingParameters() service.BindingParameters {
+	return &BindingParameters{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptyBindingParameters() service.BindingParameters {
+	return &BindingParameters{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
+}
+
+func (
+	v *vmOnlyManager,
+) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptyBindingDetails() service.BindingDetails {
 	return &mssqlBindingDetails{}
 }

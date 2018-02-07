@@ -91,7 +91,6 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
@@ -159,7 +158,6 @@ func buildARMTemplateParameters(
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-	plan service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
@@ -174,7 +172,7 @@ func (s *serviceManager) deployARMTemplate(
 				"*postgresql.ProvisioningParameters",
 		)
 	}
-	armTemplateParameters := buildARMTemplateParameters(plan, dt, pp)
+	armTemplateParameters := buildARMTemplateParameters(instance.Plan, dt, pp)
 	outputs, err := s.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
@@ -203,7 +201,6 @@ func (s *serviceManager) deployARMTemplate(
 func (s *serviceManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
@@ -266,7 +263,6 @@ func (s *serviceManager) setupDatabase(
 func (s *serviceManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
-	_ service.Plan,
 ) (service.InstanceDetails, error) {
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {

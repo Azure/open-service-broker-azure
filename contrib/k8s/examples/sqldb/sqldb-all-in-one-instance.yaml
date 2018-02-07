@@ -1,0 +1,13 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: all-in-one-sqldb-instance
+  namespace: default
+spec:
+  clusterServiceClassExternalName: azure-sqldb
+  clusterServicePlanExternalName: basic
+  parameters:
+    location: eastus
+    resourceGroup: demo
+    firewallStartIPAddress: "0.0.0.0"
+    firewallEndIPAddress: "255.255.255.255"

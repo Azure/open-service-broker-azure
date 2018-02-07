@@ -17,12 +17,9 @@ func GetCatalog(
 	password string,
 ) (service.Catalog, error) {
 	url := fmt.Sprintf("%s/v2/catalog", getBaseURL(host, port))
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	req, err := newRequest(http.MethodGet, url, username, password, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error building request: %s", err)
-	}
-	if username != "" || password != "" {
-		addAuthHeader(req, username, password)
+		return nil, err
 	}
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)

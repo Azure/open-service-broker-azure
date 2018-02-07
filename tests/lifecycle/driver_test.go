@@ -14,7 +14,7 @@ func TestServices(t *testing.T) {
 	resourceGroup := "test-" + uuid.NewV4().String()
 
 	log.Printf("----> creating resource group \"%s\"\n", resourceGroup)
-	err := ensureResourceGroup(resourceGroup, "eastus")
+	err := ensureResourceGroup(resourceGroup)
 	assert.Nil(t, err)
 	log.Printf("----> created resource group \"%s\"\n", resourceGroup)
 
@@ -46,7 +46,7 @@ func TestServices(t *testing.T) {
 			t.Run(tc.getName(), func(t *testing.T) {
 				// Run subtests in parallel!
 				t.Parallel()
-				err := tc.execute(resourceGroup)
+				err := tc.execute(t, resourceGroup)
 				assert.Nil(t, err)
 			})
 		}

@@ -2,6 +2,7 @@ package memory
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -9,20 +10,25 @@ import (
 )
 
 type store struct {
-	catalog   service.Catalog
-	codec     crypto.Codec
-	instances map[string][]byte
-	bindings  map[string][]byte
+	catalog                       service.Catalog
+	codec                         crypto.Codec
+	instances                     map[string][]byte
+	instanceAliases               map[string]string
+	bindings                      map[string][]byte
+	instanceAliasChildCounts      map[string]int64
+	instanceAliasChildCountsMutex sync.Mutex
 }
 
 // NewStore returns a new memory-based implementation of the storage.Store used
 // for testing
 func NewStore(catalog service.Catalog, codec crypto.Codec) storage.Store {
 	return &store{
-		catalog:   catalog,
-		codec:     codec,
-		instances: make(map[string][]byte),
-		bindings:  make(map[string][]byte),
+		catalog:                  catalog,
+		codec:                    codec,
+		instances:                make(map[string][]byte),
+		instanceAliases:          make(map[string]string),
+		bindings:                 make(map[string][]byte),
+		instanceAliasChildCounts: make(map[string]int64),
 	}
 }
 
@@ -32,6 +38,14 @@ func (s *store) WriteInstance(instance service.Instance) error {
 		return err
 	}
 	s.instances[instance.InstanceID] = json
+	if instance.Alias != "" {
+		s.instanceAliases[instance.Alias] = instance.InstanceID
+	}
+	if instance.ParentAlias != "" {
+		s.instanceAliasChildCountsMutex.Lock()
+		defer s.instanceAliasChildCountsMutex.Unlock()
+		s.instanceAliasChildCounts[instance.ParentAlias]++
+	}
 	return nil
 }
 
@@ -57,6 +71,16 @@ func (s *store) GetInstance(instanceID string) (
 				instance.ServiceID,
 			)
 	}
+	plan, ok := svc.GetPlan(instance.PlanID)
+	if !ok {
+		return instance,
+			false,
+			fmt.Errorf(
+				`plan not found for planID "%s" for service "%s" in the catalog`,
+				instance.PlanID,
+				instance.ServiceID,
+			)
+	}
 	serviceManager := svc.GetServiceManager()
 	instance, err = service.NewInstanceFromJSON(
 		json,
@@ -65,16 +89,47 @@ func (s *store) GetInstance(instanceID string) (
 		serviceManager.GetEmptyInstanceDetails(),
 		s.codec,
 	)
+	instance.Service = svc
+	instance.Plan = plan
 	return instance, err == nil, err
 }
 
+func (s *store) GetInstanceByAlias(alias string) (
+	service.Instance,
+	bool,
+	error,
+) {
+	instanceID, ok := s.instanceAliases[alias]
+	if !ok {
+		return service.Instance{}, false, nil
+	}
+	return s.GetInstance(instanceID)
+}
+
 func (s *store) DeleteInstance(instanceID string) (bool, error) {
-	_, ok := s.instances[instanceID]
+	instance, ok, err := s.GetInstance(instanceID)
+	if err != nil {
+		return false, err
+	}
 	if !ok {
 		return false, nil
 	}
 	delete(s.instances, instanceID)
+	if instance.Alias != "" {
+		delete(s.instanceAliases, instance.Alias)
+	}
+	if instance.ParentAlias != "" {
+		s.instanceAliasChildCountsMutex.Lock()
+		defer s.instanceAliasChildCountsMutex.Unlock()
+		s.instanceAliasChildCounts[instance.ParentAlias]--
+	}
 	return true, nil
+}
+
+func (s *store) GetInstanceChildCountByAlias(alias string) (int64, error) {
+	s.instanceAliasChildCountsMutex.Lock()
+	defer s.instanceAliasChildCountsMutex.Unlock()
+	return s.instanceAliasChildCounts[alias], nil
 }
 
 func (s *store) WriteBinding(binding service.Binding) error {

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -31,7 +31,11 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad updating request: request is missing required query parameter",
 		)
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
+		s.writeResponse(
+			w,
+			http.StatusUnprocessableEntity,
+			generateAsyncRequiredResponse(),
+		)
 		return
 	}
 	acceptsIncomplete, err := strconv.ParseBool(acceptsIncompleteStr)
@@ -41,7 +45,11 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 			`bad updating request: query parameter has invalid value; only ` +
 				`"true" is accepted`,
 		)
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
+		s.writeResponse(
+			w,
+			http.StatusUnprocessableEntity,
+			generateAsyncRequiredResponse(),
+		)
 		return
 	}
 
@@ -51,7 +59,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-updating error: error reading request body",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	defer r.Body.Close() // nolint: errcheck
@@ -65,7 +73,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		// krancour: Choosing to interpret this scenario as a bad request, as a
 		// valid request, obviously contains valid, well-formed JSON
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
 		return
 	}
 
@@ -74,7 +82,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad updating request: required request body field is missing",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseServiceIDRequired)
+		s.writeResponse(w, http.StatusBadRequest, generateServiceIDRequiredResponse())
 		return
 	}
 
@@ -84,7 +92,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad updating request: invalid serviceID",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseInvalidServiceID)
+		s.writeResponse(w, http.StatusBadRequest, generateInvalidServiceIDResponse())
 		return
 	}
 
@@ -97,7 +105,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 			log.WithFields(logFields).Debug(
 				"bad updating request: invalid planID for service",
 			)
-			s.writeResponse(w, http.StatusBadRequest, responseInvalidPlanID)
+			s.writeResponse(w, http.StatusBadRequest, generateInvalidPlanIDResponse())
 			return
 		}
 	}
@@ -116,7 +124,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"error building parameter map decoder",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	err = decoder.Decode(updatingRequest.Parameters)
@@ -126,7 +134,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		)
 		// krancour: Choosing to interpret this scenario as a bad request since the
 		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
 		return
 	}
 
@@ -136,7 +144,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-updating error: error retrieving instance by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if !ok {
@@ -146,7 +154,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		// The instance to update does not exist
 		// krancour: Choosing to interpret this scenario as a bad request
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
 		return
 	}
 
@@ -168,7 +176,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 				"serviceID or previousPlanID on the instance",
 		)
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 		return
 	}
 
@@ -183,14 +191,14 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		// choose to respond with a 409
 		switch instance.Status {
 		case service.InstanceStateUpdating:
-			s.writeResponse(w, http.StatusAccepted, responseUpdatingAccepted)
+			s.writeResponse(w, http.StatusAccepted, generateUpdateAcceptedResponse())
 			return
 		case service.InstanceStateUpdated:
-			s.writeResponse(w, http.StatusOK, responseEmptyJSON)
+			s.writeResponse(w, http.StatusOK, generateEmptyResponse())
 			return
 		default:
 			// TODO: Write a more detailed response
-			s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 			return
 		}
 	} else if instance.Status != service.InstanceStateProvisioned {
@@ -201,7 +209,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		// The instance to update is not in a provisioned state
 		// krancour: Choosing to interpret this scenario as unprocessable
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseEmptyJSON)
+		s.writeResponse(w, http.StatusUnprocessableEntity, generateEmptyResponse())
 		return
 	}
 
@@ -217,10 +225,10 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 				"bad updating request: validation error",
 			)
 			// TODO: Send the correct response body-- this is a placeholder
-			s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
 			return
 		}
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -232,7 +240,11 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 			log.WithFields(logFields).Error(
 				"pre-updating error: no Plan found for planID in Service",
 			)
-			s.writeResponse(w, http.StatusInternalServerError, responseInvalidPlanID)
+			s.writeResponse(
+				w,
+				http.StatusInternalServerError,
+				generateInvalidPlanIDResponse(),
+			)
 			return
 		}
 	}
@@ -244,7 +256,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-updating error: error retrieving updater for service and plan",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	firstStepName, ok := updater.GetFirstStepName()
@@ -254,7 +266,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-updating error: no steps found for updating service and plan",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -266,12 +278,12 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"updating error: error persisting updated instance",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
-	task := model.NewTask(
-		"updateStep",
+	task := async.NewTask(
+		"executeUpdatingStep",
 		map[string]string{
 			"stepName":   firstStepName,
 			"instanceID": instanceID,
@@ -283,12 +295,12 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"updating error: error submitting updating task",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
 	// If we get all the way to here, we've been successful!
-	s.writeResponse(w, http.StatusAccepted, responseUpdatingAccepted)
+	s.writeResponse(w, http.StatusAccepted, generateUpdateAcceptedResponse())
 
 	log.WithFields(logFields).Debug("asynchronous updating initiated")
 }

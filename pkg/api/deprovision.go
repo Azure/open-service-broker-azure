@@ -3,8 +3,9 @@ package api
 import (
 	"net/http"
 	"strconv"
+	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async/model"
+	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -28,7 +29,11 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"bad deprovisioning request: request is missing required query parameter",
 		)
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
+		s.writeResponse(
+			w,
+			http.StatusUnprocessableEntity,
+			generateAsyncRequiredResponse(),
+		)
 		return
 	}
 	acceptsIncomplete, err := strconv.ParseBool(acceptsIncompleteStr)
@@ -38,7 +43,11 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			`bad deprovisioning request: query parameter has invalid value; only ` +
 				`"true" is accepted`,
 		)
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseAsyncRequired)
+		s.writeResponse(
+			w,
+			http.StatusUnprocessableEntity,
+			generateAsyncRequiredResponse(),
+		)
 		return
 	}
 
@@ -48,7 +57,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-deprovisioning error: error retrieving instance by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if !ok {
@@ -56,7 +65,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			"no such instance remains to be deprovisioned",
 		)
 		// No instance was found-- per spec, we return a 410
-		s.writeResponse(w, http.StatusGone, responseEmptyJSON)
+		s.writeResponse(w, http.StatusGone, generateEmptyResponse())
 		return
 	}
 	switch instance.Status {
@@ -64,7 +73,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"deprovisioning is already in progress",
 		)
-		s.writeResponse(w, http.StatusAccepted, responseDeprovisioningAccepted)
+		s.writeResponse(w, http.StatusAccepted, generateDeprovisionAcceptedResponse())
 		return
 	case service.InstanceStateProvisioned:
 	case service.InstanceStateProvisioningFailed:
@@ -75,7 +84,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Debug(
 			"cannot deprovision instance in its current state",
 		)
-		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 		return
 	}
 
@@ -83,32 +92,9 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	// or has failed provisioning. We need to kick off asynchronous
 	// deprovisioning.
 
-	svc, ok := s.catalog.GetService(instance.ServiceID)
-	if !ok {
-		// If we don't find the Service in the catalog, something is really wrong.
-		// (It should exist, because an instance with this serviceID exists.)
-		logFields["serviceID"] = instance.ServiceID
-		log.WithFields(logFields).Error(
-			"pre-deprovisioning error: no Service found for serviceID",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
-	plan, ok := svc.GetPlan(instance.PlanID)
-	if !ok {
-		// If we don't find the Service in the catalog, something is really wrong.
-		// (It should exist, because an instance with this serviceID exists.)
-		logFields["serviceID"] = instance.ServiceID
-		logFields["planID"] = instance.PlanID
-		log.WithFields(logFields).Error(
-			"pre-deprovisioning error: no Plan found for planID in Service",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-		return
-	}
-	serviceManager := svc.GetServiceManager()
+	serviceManager := instance.Service.GetServiceManager()
 
-	deprovisioner, err := serviceManager.GetDeprovisioner(plan)
+	deprovisioner, err := serviceManager.GetDeprovisioner(instance.Plan)
 	if err != nil {
 		logFields["serviceID"] = instance.ServiceID
 		logFields["planID"] = instance.PlanID
@@ -117,7 +103,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			"pre-deprovisioning error: error retrieving deprovisioner for service " +
 				"and plan",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	firstStepName, ok := deprovisioner.GetFirstStepName()
@@ -128,7 +114,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			"pre-deprovisioning error: no steps found for deprovisioning service " +
 				"and plan",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -138,29 +124,55 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"deprovisioning error: error persisting updated instance",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
-	task := model.NewTask(
-		"deprovisionStep",
-		map[string]string{
-			"stepName":   firstStepName,
-			"instanceID": instanceID,
-		},
-	)
+	childCount, err := s.store.GetInstanceChildCountByAlias(instance.Alias)
+	if err != nil {
+		logFields["step"] = firstStepName
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"deprovisioning error: error determining child count",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+	}
+
+	var task async.Task
+	if childCount > 0 {
+		logFields["provisionedChildren"] = childCount
+		task = async.NewDelayedTask(
+			"checkChildrenStatuses",
+			map[string]string{
+				"instanceID": instanceID,
+			},
+			time.Minute*1,
+		)
+		log.WithFields(logFields).Debug("children not deprovisioned, waiting")
+	} else {
+		task = async.NewTask(
+			"executeDeprovisioningStep",
+			map[string]string{
+				"stepName":   firstStepName,
+				"instanceID": instanceID,
+			},
+		)
+		log.WithFields(logFields).Debug(
+			"no provisioned children, starting deprovision",
+		)
+	}
 	if err = s.asyncEngine.SubmitTask(task); err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
 			"deprovisioning error: error submitting deprovisioning task",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
 	// If we get all the way to here, we've been successful!
-	s.writeResponse(w, http.StatusAccepted, responseDeprovisioningAccepted)
+	s.writeResponse(w, http.StatusAccepted, generateDeprovisionAcceptedResponse())
 
 	log.WithFields(logFields).Debug("asynchronous deprovisioning initiated")
 }
