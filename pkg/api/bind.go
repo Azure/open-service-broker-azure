@@ -30,7 +30,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-binding error: error retrieving instance by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if !ok {
@@ -40,7 +40,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// The instance to bind to does not exist
 		// krancour: Choosing to interpret this scenario as a bad request
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
 		return
 	}
 
@@ -51,7 +51,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// The instance to bind to does not exist
 		// krancour: Choosing to interpret this scenario as unprocessable
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusUnprocessableEntity, responseEmptyJSON)
+		s.writeResponse(w, http.StatusUnprocessableEntity, generateEmptyResponse())
 		return
 	}
 
@@ -61,7 +61,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-binding error: error reading request body",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	defer r.Body.Close() // nolint: errcheck
@@ -74,7 +74,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		)
 		// This scenario is a bad request, as a valid request obviously must contain
 		// valid, well-formed JSON
-		s.writeResponse(w, http.StatusBadRequest, responseMalformedRequestBody)
+		s.writeResponse(w, http.StatusBadRequest, generateMalformedRequestResponse())
 		return
 	}
 
@@ -96,7 +96,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 				"planID on the instance",
 		)
 		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 		return
 	}
 
@@ -114,7 +114,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"error building parameter map decoder",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	err = decoder.Decode(bindingRequest.Parameters)
@@ -124,7 +124,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		)
 		// krancour: Choosing to interpret this scenario as a bad request since the
 		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
 		return
 	}
 
@@ -134,7 +134,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"pre-binding error: error retrieving binding by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if ok {
@@ -151,7 +151,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 					"instanceID of existing binding",
 			)
 			// TODO: Write a more detailed response
-			s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 			return
 		}
 
@@ -171,7 +171,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 					log.WithFields(logFields).Error(
 						"binding error: error extracting credentials from binding",
 					)
-					s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+					s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 					return
 				}
 				bindingResponse := &BindingResponse{
@@ -184,7 +184,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 					log.WithFields(logFields).Error(
 						"binding error: error marshaling binding response",
 					)
-					s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+					s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 					return
 				}
 				// TODO: krancour: Is this a vulnerability? If I am interpreting the
@@ -195,7 +195,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 				return
 			default:
 				// TODO: Write a more detailed response
-				s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+				s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 				return
 			}
 		}
@@ -203,7 +203,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// We land in here if an existing binding was found, but its atrributes
 		// vary from what was requested. The spec requires us to respond with a
 		// 409
-		s.writeResponse(w, http.StatusConflict, responseEmptyJSON)
+		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 		return
 	}
 
@@ -219,10 +219,14 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 				"bad binding request: validation error",
 			)
 			// TODO: Send the correct response body-- this is a placeholder
-			s.writeResponse(w, http.StatusBadRequest, responseEmptyJSON)
+			s.writeResponse(
+				w,
+				http.StatusBadRequest,
+				generateValidationFailedResponse(validationErr),
+			)
 			return
 		}
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -276,7 +280,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"post-binding error: error extracting credentials from binding",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -289,7 +293,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(logFields).Error(
 			"post-binding error: error marshaling bindingResponse",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -334,5 +338,5 @@ func (s *server) handleBindingError(
 	log.WithFields(logFields).Error(
 		fmt.Sprintf(`binding error: %s`, msg),
 	)
-	s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+	s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 }

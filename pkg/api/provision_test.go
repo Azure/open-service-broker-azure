@@ -155,7 +155,7 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusConflict, rr.Code)
-	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
+	assert.Equal(t, responseConflict, rr.Body.Bytes())
 }
 
 func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
@@ -249,17 +249,23 @@ func TestValidatingLocationParameterFails(t *testing.T) {
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.False(t, moduleSpecificValidationCalled)
-	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
+	locationError := service.NewValidationError(
+		"location",
+		`invalid location: "upsidedown"`,
+	)
+	responseError := generateValidationFailedResponse(locationError)
+	assert.Equal(t, responseError, rr.Body.Bytes())
 }
 
 func TestModuleSpecificValidationFails(t *testing.T) {
 	s, m, err := getTestServer("", "")
 	assert.Nil(t, err)
+	fooError := service.NewValidationError("foo", "bar")
 	moduleSpecificValidationCalled := false
 	m.ServiceManager.ProvisioningValidationBehavior =
 		func(service.ProvisioningParameters) error {
 			moduleSpecificValidationCalled = true
-			return service.NewValidationError("foo", "bar")
+			return fooError
 		}
 	instanceID := getDisposableInstanceID()
 	req, err := getProvisionRequest(
@@ -283,7 +289,9 @@ func TestModuleSpecificValidationFails(t *testing.T) {
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.True(t, moduleSpecificValidationCalled)
-	assert.Equal(t, responseEmptyJSON, rr.Body.Bytes())
+
+	responseError := generateValidationFailedResponse(fooError)
+	assert.Equal(t, responseError, rr.Body.Bytes())
 }
 
 func TestKickOffNewAsyncProvisioning(t *testing.T) {

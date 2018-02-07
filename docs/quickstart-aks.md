@@ -1,19 +1,19 @@
-# Quickstart: Open Service Broker for Azure on a Minikube cluster
+# Quickstart: Open Service Broker for Azure on an Azure Container Service managed cluster
 
 This quickstart walks through using the Open Service Broker for Azure (OSBA) to
-deploy WordPress on a local Minikube cluster.
+deploy WordPress on an [Azure Container Service (AKS)](https://azure.microsoft.com/en-us/services/container-service/) managed cluster.
 
 WordPress requires a back-end MySQL database. Without OSBA, we would create a database
 in the Azure portal, and then manually configure the connection information. Now
-with OSBA our Kubernetes manifests can provision an Azure MySQL database on our behalf,
+with OSBA our Kubernetes manifests can provision an Azure Database for MySQL on our behalf,
 save the connection information in Kubernetes secrets, and then bind them to our WordPress instance.
 
 * [Prerequisites](#prerequisites)
 * [Cluster Setup](#cluster-setup)
   * [Configure your Azure account](#configure-your-azure-account)
-  * [Create a resource group](#create-a-resource-group)
+  * [Create a Resource Group for AKS](#create-a-resource-group-for-aks)
   * [Create a service principal](#create-a-service-principal)
-  * [Create a Kubernetes cluster using Minikube](#create-a-kubernetes-cluster-using-minikube)
+  * [Create a Kubernetes cluster using AKS](#create-a-kubernetes-cluster-using-aks)
   * [Configure the cluster with Open Service Broker for Azure](#configure-the-cluster-with-open-service-broker-for-azure)
 * [Deploy WordPress](#deploy-wordpress)
 * [Next Steps](#next-steps)
@@ -23,32 +23,9 @@ save the connection information in Kubernetes secrets, and then bind them to our
 ## Prerequisites
 
 * A [Microsoft Azure account](https://azure.microsoft.com/en-us/free/).
-* Install [Minikube](#install-minikube).
 * Install the [Azure CLI](#install-the-azure-cli).
 * Install the [Kubernetes CLI](#install-the-kubernetes-cli).
 * Install the [Helm CLI](#install-the-helm-cli).
-
-### Install Minikube
-
-[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer.
-
-#### MacOS
-
-```console
-brew cask install minikube
-```
-
-#### Windows
-
-1. Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe) file.
-1. Rename it to **minikube.exe**.
-1. Add it to a directory on your PATH.
-
-#### Linux
-
-```console
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
-```
 
 ### Install the Azure CLI
 
@@ -137,12 +114,12 @@ First let's identify your Azure subscription and save it for use later on in the
     $env:AZURE_SUBSCRIPTION_ID = "<SubscriptionId>"
     ```
 
-### Create a Resource Group
+### Create a Resource Group for AKS
 
-Create a resource group to contain the resources you'll be creating with the quickstart.
+When you create an AKS cluster, you must provide a resource group. Create one with the az cli using the following command.
 
 ```console
-az group create --name osba-quickstart --location eastus
+az group create --name aks-group --location eastus
 ```
 
 ### Create a service principal
@@ -170,17 +147,37 @@ resources on your account on behalf of Kubernetes.
     $env:AZURE_CLIENT_SECRET = "<Password>"
     ```
 
-### Create a Kubernetes cluster using Minikube
+### Create a Kubernetes cluster using AKS
 
-Next we will create a local cluster using Minikube. You can also [try OSBA on the Azure Container Service (AKS)](quickstart-aks.md).
+Next we will create a managed Kubernetes cluster using AKS. AKS will create a managed Kubernetes cluster for you. Once the cluster is created, geting started with OSBA is very similar to doing so on [Minikube](quickstart-minikube.md), with a few exceptions: 
 
-1. Create an RBAC enabled cluster:
+* As AKS is currently in preview, you will need to enable it in your subscription
+* AKS currently does _not_ support RBAC, so we will need to explicity disable that when we install service catalog.
+
+1. Enable AKS in your subscription, use the following command with the az cli:
     ```console
-    minikube start --extra-config=apiserver.Authorization.Mode=RBAC
+    az provider register -n Microsoft.ContainerService
     ```
-1. Grant the `cluster-admin` role to the default system account:
+
+You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` providers are registered in your subscription. If you need to enable them:
     ```console
-    kubectl create clusterrolebinding cluster-admin:kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:default
+    az provider register -n Microsoft.Compute
+    az provider register -n Microsoft.Network
+    ```
+
+1. Create the AKS cluster!
+    ```console
+    az aks create --resource-group aks-group --name osba-quickstart-cluster --generate-ssh-keys
+    ```
+
+1. Configure kubectl to use the new cluster
+    ```console
+    az aks get-credentials --resource-group aks-group --name osba-quickstart-cluster
+    ```
+
+1. Verify your cluster is up and running
+    ```console
+    kubectl get nodes
     ```
 
 ### Configure the cluster with Open Service Broker for Azure
@@ -188,14 +185,16 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
 1. Before we can use Helm to install applications such as Service Catalog and
     WordPress on the cluster, we first need to prepare the cluster to work with Helm:
     ```console
-    kubectl create -f https://raw.githubusercontent.com/Azure/helm-charts/master/docs/prerequisities/helm-rbac-config.yaml
-    helm init --service-account tiller
+    helm init
     ```
 1. Deploy Service Catalog on the cluster:
     ```console
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
-    helm install svc-cat/catalog --name catalog --namespace catalog
+    helm install svc-cat/catalog --name catalog --namespace catalog --set rbacEnable=false
     ```
+
+    Note: the AKS preview does not _currently_ support RBAC, so you must disable RBAC as shown above.
+
 1. Deploy Open Service Broker for Azure on the cluster:
 
     **Bash**
@@ -239,21 +238,11 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
 ## Deploy WordPress
 
 Now that we have a cluster with Open Service Broker for Azure, we can deploy
-WordPress to Kubernetes and OSBA will handle provisioning an Azure MySQL database
+WordPress to Kubernetes and OSBA will handle provisioning an Azure Database for MySQL
 and binding it to our WordPress installation.
 
 ```console
 helm install azure/wordpress --name osba-quickstart --namespace osba-quickstart
-```
-
-Note: when installing the wordpress chart on some versions of Minikube, you
-may encounter issues due to [kubernetes/minikube#2256](https://github.com/kubernetes/minikube/issues/2256).
-If you're using
-[v0.24.1](https://github.com/kubernetes/minikube/releases/tag/v0.24.1), we recommend setting
-the `persistence.enabled` parameter to `false` using the following command.
-
-```console
-helm install azure/wordpress --name osba-quickstart --namespace osba-quickstart --set persistence.enabled=false
 ```
 
 Use the following command to tell when WordPress is ready:
@@ -267,16 +256,15 @@ osba-quickstart-wordpress   1         1         1            0           1m
 osba-quickstart-wordpress   1         1         1            1           2m
 ```
 
+Note:  While provisioning WordPress and Azure Database for MySQL using Helm, all of the required resources are created in Kubernetes at the same time. As a result of these requests, Service Catalog will create a secret containing the the binding credentials for the database. This secret will not be created until after the Azure Database for MySQL is created, however. The WordPress container will depend on this secret being created before the container will fully start. Kubernetes and Service Catalog both employ a retry backoff, so you may need to wait several minutes for everything to be fully provisioned.
+
 ## Login to WordPress
 
 1. Run the following command to open WordPress in your browser:
     ```console
-    open http://$(minikube ip):$(kubectl get service osba-quickstart-wordpress -n osba-quickstart -o jsonpath={.spec.ports[?\(@.name==\"http\"\)].nodePort})/admin
+    export SERVICE_IP=$(kubectl get svc --namespace osba-quickstart osba-quickstart-wordpress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    open http://$SERVICE_IP/admin
     ```
-
-    **Note**: We are using the `minikube ip` to get the WordPress URL, instead of
-    the command from the WordPress deployment output because with Minikube the
-    WordPress service won't have a public IP address assigned.
 
 1. To retrieve the password, run this command:
     ```console
@@ -288,7 +276,7 @@ osba-quickstart-wordpress   1         1         1            1           2m
 ## Uninstall WordPress
 
 Using Helm to uninstall the `osba-quickstart` release will delete all resources
-associated with the release, including the Azure MySQL database.
+associated with the release, including the Azure Database for MySQL instance.
 
 ```console
 helm delete osba-quickstart --purge
@@ -305,10 +293,10 @@ No resources found.
 
 ## Optional: Further Cleanup
 
-At this point, the Azure MySQL database should have been fully deprovisioned.
+At this point, the Azure Database of MySQL instance should have been fully deprovisioned.
 In the unlikely event that anything has gone wrong, to ensure that you are not
 billed for idle resources, you can delete the Azure resource group that
-contained the database. In the case of the WordPress chart, Azure MySQL was
+contained the database. In the case of the WordPress chart, Azure Database for MySQL was
 provisioned in a resource group whose name matches the Kubernetes namespace into
 which WordPress was deployed.
 
@@ -322,18 +310,16 @@ To remove the service principal:
 az ad sp delete --id http://osba-quickstart
 ```
 
-To tear down minikube:
+To tear down the AKS cluster:
 
 ```console
-minikube delete
+az aks delete -resource-group aks-group --name osba-quickstart-cluster --no-wait
 ```
 
 ## Next Steps
 
-Minikube may seem like an odd choice for an Azure quickstart, but it demonstrates
-that Open Service Broker for Azure isn't limited to clusters running on Azure!
-Our local Kubernetes cluster communicated with Azure via OSBA, provisioned an Azure
-MySQL database, and bound our local WordPress installation to that new database.
+Our AKS managed Kubernetes cluster communicated with Azure via OSBA, provisioned an Azure Database for
+MySQL instance, and bound our WordPress installation to that new database.
 
 With OSBA _any_ cluster can rely on Azure to provide all those pesky "as a service"
 goodies that make life easier.

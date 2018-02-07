@@ -27,7 +27,7 @@ func (s *server) poll(
 		log.WithFields(logFields).Debug(
 			"bad polling request: request is missing required query parameter",
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseOperationRequired)
+		s.writeResponse(w, http.StatusBadRequest, generateOperationRequiredResponse())
 		return
 	}
 	if operation != OperationProvisioning &&
@@ -43,7 +43,7 @@ func (s *server) poll(
 				OperationUpdating,
 			),
 		)
-		s.writeResponse(w, http.StatusBadRequest, responseOperationInvalid)
+		s.writeResponse(w, http.StatusBadRequest, generateOperationInvalidResponse())
 		return
 	}
 
@@ -55,15 +55,15 @@ func (s *server) poll(
 		log.WithFields(logFields).Error(
 			"polling error: error retrieving instance by id",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 	if !ok {
 		if operation == OperationDeprovisioning {
-			s.writeResponse(w, http.StatusGone, responseEmptyJSON)
+			s.writeResponse(w, http.StatusGone, generateEmptyResponse())
 			return
 		}
-		s.writeResponse(w, http.StatusNotFound, responseEmptyJSON)
+		s.writeResponse(w, http.StatusNotFound, generateEmptyResponse())
 		return
 	}
 
@@ -75,22 +75,22 @@ func (s *server) poll(
 			log.WithFields(logFields).Debug(
 				"provisioning is in progress",
 			)
-			s.writeResponse(w, http.StatusOK, responseInProgress)
+			s.writeResponse(w, http.StatusOK, generateOperationInProgressResponse())
 		case service.InstanceStateProvisioned:
 			log.WithFields(logFields).Debug(
 				"provisioning is complete",
 			)
-			s.writeResponse(w, http.StatusOK, responseSucceeded)
+			s.writeResponse(w, http.StatusOK, generateOperationSucceededResponse())
 		case service.InstanceStateProvisioningFailed:
 			log.WithFields(logFields).Debug(
 				"provisioning has failed",
 			)
-			s.writeResponse(w, http.StatusOK, responseFailed)
+			s.writeResponse(w, http.StatusOK, generateOperationFailedResponse())
 		default:
 			log.WithFields(logFields).Error(
 				"polling error: instance is in an unknown or invalid state",
 			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		}
 		return
 	}
@@ -101,22 +101,22 @@ func (s *server) poll(
 			log.WithFields(logFields).Debug(
 				"updating is in progress",
 			)
-			s.writeResponse(w, http.StatusOK, responseInProgress)
+			s.writeResponse(w, http.StatusOK, generateOperationInProgressResponse())
 		case service.InstanceStateUpdated:
 			log.WithFields(logFields).Debug(
 				"updating is complete",
 			)
-			s.writeResponse(w, http.StatusOK, responseSucceeded)
+			s.writeResponse(w, http.StatusOK, generateOperationSucceededResponse())
 		case service.InstanceStateUpdatingFailed:
 			log.WithFields(logFields).Debug(
 				"updating has failed",
 			)
-			s.writeResponse(w, http.StatusOK, responseFailed)
+			s.writeResponse(w, http.StatusOK, generateOperationFailedResponse())
 		default:
 			log.WithFields(logFields).Error(
 				"polling error: instance is in an unknown or invalid state",
 			)
-			s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		}
 		return
 	}
@@ -126,17 +126,17 @@ func (s *server) poll(
 		log.WithFields(logFields).Debug(
 			"deprovisioning is in progress",
 		)
-		s.writeResponse(w, http.StatusOK, responseInProgress)
+		s.writeResponse(w, http.StatusOK, generateOperationInProgressResponse())
 	case service.InstanceStateDeprovisioningFailed:
 		log.WithFields(logFields).Debug(
 			"deprovisioning has failed",
 		)
-		s.writeResponse(w, http.StatusOK, responseFailed)
+		s.writeResponse(w, http.StatusOK, generateOperationFailedResponse())
 	default:
 		log.WithFields(logFields).Error(
 			"polling error: instance is in an unknown or invalid state",
 		)
-		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 	}
 
 }
