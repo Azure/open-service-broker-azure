@@ -3,6 +3,7 @@ package servicebus
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -45,10 +46,17 @@ func (s *serviceManager) deleteNamespace(
 			"error casting instance.Details as *serviceBusInstanceDetails",
 		)
 	}
-	if err := s.serviceBusManager.DeleteNamespace(
-		dt.ServiceBusNamespaceName,
+	cancelCh := make(chan struct{})
+	_, errChan := s.namespacesClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
+		dt.ServiceBusNamespaceName,
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
+		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
+		if strings.Contains(err.Error(), "StatusCode=404") {
+			return dt, nil
+		}
 		return nil, fmt.Errorf("error deleting service bus namespace: %s", err)
 	}
 	return dt, nil

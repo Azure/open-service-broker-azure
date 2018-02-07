@@ -1,8 +1,8 @@
 package sqldb
 
 import (
+	sqlSDK "github.com/Azure/azure-sdk-for-go/arm/sql"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/azure/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -13,18 +13,19 @@ type module struct {
 }
 
 type allInOneManager struct {
-	armDeployer  arm.Deployer
-	mssqlManager mssql.Manager
+	armDeployer     arm.Deployer
+	serversClient   sqlSDK.ServersClient
+	databasesClient sqlSDK.DatabasesClient
 }
 
 type vmOnlyManager struct {
-	armDeployer  arm.Deployer
-	mssqlManager mssql.Manager
+	armDeployer   arm.Deployer
+	serversClient sqlSDK.ServersClient
 }
 
 type dbOnlyManager struct {
-	armDeployer  arm.Deployer
-	mssqlManager mssql.Manager
+	armDeployer     arm.Deployer
+	databasesClient sqlSDK.DatabasesClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -32,20 +33,22 @@ type dbOnlyManager struct {
 // using "Azure SQL Database"
 func New(
 	armDeployer arm.Deployer,
-	mssqlManager mssql.Manager,
+	serversClient sqlSDK.ServersClient,
+	databasesClient sqlSDK.DatabasesClient,
 ) service.Module {
 	return &module{
 		allInOneServiceManager: &allInOneManager{
-			armDeployer:  armDeployer,
-			mssqlManager: mssqlManager,
+			armDeployer:     armDeployer,
+			serversClient:   serversClient,
+			databasesClient: databasesClient,
 		},
 		vmOnlyServiceManager: &vmOnlyManager{
-			armDeployer:  armDeployer,
-			mssqlManager: mssqlManager,
+			armDeployer:   armDeployer,
+			serversClient: serversClient,
 		},
 		dbOnlyServiceManager: &dbOnlyManager{
-			armDeployer:  armDeployer,
-			mssqlManager: mssqlManager,
+			armDeployer:     armDeployer,
+			databasesClient: databasesClient,
 		},
 	}
 }

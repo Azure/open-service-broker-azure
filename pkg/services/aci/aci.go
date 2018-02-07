@@ -1,7 +1,7 @@
 package aci
 
 import (
-	"github.com/Azure/open-service-broker-azure/pkg/azure/aci"
+	"github.com/Azure/azure-sdk-for-go/arm/containerinstance"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -12,19 +12,19 @@ type module struct {
 
 type serviceManager struct {
 	armDeployer arm.Deployer
-	aciManager  aci.Manager
+	aciClient   containerinstance.ContainerGroupsClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
 // interface and is capable of provisioning Key Vault using "Azure Key Vault"
 func New(
 	armDeployer arm.Deployer,
-	aciManager aci.Manager,
+	aciClient containerinstance.ContainerGroupsClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
 			armDeployer: armDeployer,
-			aciManager:  aciManager,
+			aciClient:   aciClient,
 		},
 	}
 }

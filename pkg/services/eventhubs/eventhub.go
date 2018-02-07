@@ -1,8 +1,8 @@
 package eventhubs
 
 import (
+	eventHubSDK "github.com/Azure/azure-sdk-for-go/arm/eventhub"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/azure/eventhub"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -11,20 +11,20 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer     arm.Deployer
-	eventHubManager eventhub.Manager
+	armDeployer      arm.Deployer
+	namespacesClient eventHubSDK.NamespacesClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
 // interface and is capable of provisioning Azure Event Hub
 func New(
 	armDeployer arm.Deployer,
-	eventHubManager eventhub.Manager,
+	namespacesClient eventHubSDK.NamespacesClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:     armDeployer,
-			eventHubManager: eventHubManager,
+			armDeployer:      armDeployer,
+			namespacesClient: namespacesClient,
 		},
 	}
 }

@@ -45,10 +45,13 @@ func (s *serviceManager) deleteRedisServer(
 			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
-	if err := s.redisManager.DeleteServer(
-		dt.ServerName,
+	cancelCh := make(chan struct{})
+	_, errChan := s.groupClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
+		dt.ServerName,
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
 		return nil, fmt.Errorf("error deleting redis server: %s", err)
 	}
 	return dt, nil

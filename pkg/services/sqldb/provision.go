@@ -8,7 +8,7 @@ import (
 	"net"
 
 	az "github.com/Azure/go-autorest/autorest/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
@@ -243,7 +243,7 @@ func (d *dbOnlyManager) preProvision(
 		)
 	}
 
-	azureConfig, err := azure.GetConfig()
+	azureConfig, err := config.GetAzureConfig()
 	if err != nil {
 		return nil, err
 	}

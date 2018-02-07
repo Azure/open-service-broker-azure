@@ -12,6 +12,7 @@ import (
 
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
+	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
@@ -34,7 +35,7 @@ func init() {
 		FullTimestamp: true,
 	}
 	log.SetFormatter(formatter)
-	logConfig, err := getLogConfig()
+	logConfig, err := config.GetLogConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -60,7 +61,7 @@ func main() {
 	).Info("Open Service Broker for Azure starting")
 
 	// Redis clients
-	redisConfig, err := getRedisConfig()
+	redisConfig, err := config.GetRedisConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -88,7 +89,7 @@ func main() {
 	asyncRedisClient := redis.NewClient(asyncRedisOpts)
 
 	// Crypto
-	cryptoConfig, err := getCryptoConfig()
+	cryptoConfig, err := config.GetCryptoConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +99,7 @@ func main() {
 	}
 
 	// Assemble the filter chain
-	basicAuthConfig, err := getBasicAuthConfig()
+	basicAuthConfig, err := config.GetBasicAuthConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -110,12 +111,12 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	modulesConfig, err := getModulesConfig()
+	modulesConfig, err := config.GetModulesConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	azureConfig, err := getAzureConfig()
+	azureConfig, err := config.GetAzureConfig()
 	if err != nil {
 		log.Fatal(err)
 	}

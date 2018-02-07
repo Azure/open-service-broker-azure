@@ -48,11 +48,12 @@ func (s *serviceManager) deleteKeyVaultServer(
 			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
-	if err := s.keyvaultManager.DeleteVault(
-		dt.KeyVaultName,
+	_, err := s.vaultsClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
-		return nil, fmt.Errorf("error deleting key vault: %s", err)
+		dt.KeyVaultName,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deleting keyvault: %s", err)
 	}
 	return dt, nil
 }

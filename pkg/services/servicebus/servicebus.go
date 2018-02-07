@@ -1,8 +1,8 @@
 package servicebus
 
 import (
+	servicebusSDK "github.com/Azure/azure-sdk-for-go/arm/servicebus"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/azure/servicebus"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -11,20 +11,20 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer       arm.Deployer
-	serviceBusManager servicebus.Manager
+	armDeployer      arm.Deployer
+	namespacesClient servicebusSDK.NamespacesClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
 // interface and is capable of provisioning Azure Service Bus
 func New(
 	armDeployer arm.Deployer,
-	serviceBusManager servicebus.Manager,
+	namespacesClient servicebusSDK.NamespacesClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:       armDeployer,
-			serviceBusManager: serviceBusManager,
+			armDeployer:      armDeployer,
+			namespacesClient: namespacesClient,
 		},
 	}
 }

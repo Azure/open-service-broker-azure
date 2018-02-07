@@ -1,8 +1,8 @@
 package mysqldb
 
 import (
+	mysqlSDK "github.com/Azure/azure-sdk-for-go/arm/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/azure/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -11,8 +11,8 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer  arm.Deployer
-	mysqlManager mysql.Manager
+	armDeployer   arm.Deployer
+	serversClient mysqlSDK.ServersClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -20,12 +20,12 @@ type serviceManager struct {
 // using "Azure Database for MySQL"
 func New(
 	armDeployer arm.Deployer,
-	mysqlManager mysql.Manager,
+	serversClient mysqlSDK.ServersClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:  armDeployer,
-			mysqlManager: mysqlManager,
+			armDeployer:   armDeployer,
+			serversClient: serversClient,
 		},
 	}
 }

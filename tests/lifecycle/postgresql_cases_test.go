@@ -3,23 +3,27 @@
 package lifecycle
 
 import (
+	postgresSDK "github.com/Azure/azure-sdk-for-go/arm/postgresql"
+	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	pg "github.com/Azure/open-service-broker-azure/pkg/azure/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresqldb"
 )
 
 func getPostgresqlCases(
+	azureEnvironment azure.Environment,
+	subscriptionID string,
+	authorizer autorest.Authorizer,
 	armDeployer arm.Deployer,
-	resourceGroup string,
 ) ([]serviceLifecycleTestCase, error) {
-	postgreSQLManager, err := pg.NewManager()
-	if err != nil {
-		return nil, err
-	}
-
+	serversClient := postgresSDK.NewServersClientWithBaseURI(
+		azureEnvironment.ResourceManagerEndpoint,
+		subscriptionID,
+	)
+	serversClient.Authorizer = authorizer
 	return []serviceLifecycleTestCase{
 		{
-			module:    postgresqldb.New(armDeployer, postgreSQLManager),
+			module:    postgresqldb.New(armDeployer, serversClient),
 			serviceID: "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 			planID:    "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
 			location:  "southcentralus",

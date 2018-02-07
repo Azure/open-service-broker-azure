@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Azure/go-autorest/autorest/azure"
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/config"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-sql-driver/mysql"
 )
@@ -14,7 +14,7 @@ import (
 func getDBConnection(dt *mysqlInstanceDetails) (*sql.DB, error) {
 	var connectionStrTemplate string
 	if dt.EnforceSSL {
-		azureConfig, err := az.GetConfig()
+		azureConfig, err := config.GetAzureConfig()
 		if err != nil {
 			return nil, err
 		}

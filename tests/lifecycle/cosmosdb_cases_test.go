@@ -9,8 +9,10 @@ import (
 	"strconv"
 	"time"
 
+	cosmosSDK "github.com/Azure/azure-sdk-for-go/arm/cosmos-db"
+	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	cd "github.com/Azure/open-service-broker-azure/pkg/azure/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	mgo "gopkg.in/mgo.v2"
@@ -18,17 +20,19 @@ import (
 )
 
 func getCosmosdbCases(
+	azureEnvironment azure.Environment,
+	subscriptionID string,
+	authorizer autorest.Authorizer,
 	armDeployer arm.Deployer,
-	resourceGroup string,
 ) ([]serviceLifecycleTestCase, error) {
-	cosmosdbManager, err := cd.NewManager()
-	if err != nil {
-		return nil, err
-	}
-
+	dbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
+		azureEnvironment.ResourceManagerEndpoint,
+		subscriptionID,
+	)
+	dbAccountsClient.Authorizer = authorizer
 	return []serviceLifecycleTestCase{
 		{ // DocumentDB
-			module:                 cosmosdb.New(armDeployer, cosmosdbManager),
+			module:                 cosmosdb.New(armDeployer, dbAccountsClient),
 			description:            "DocumentDB",
 			serviceID:              "6330de6f-a561-43ea-a15e-b99f44d183e6",
 			planID:                 "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
@@ -38,7 +42,7 @@ func getCosmosdbCases(
 			testCredentials:        testDocumentDBCreds(),
 		},
 		{ // MongoDB
-			module:                 cosmosdb.New(armDeployer, cosmosdbManager),
+			module:                 cosmosdb.New(armDeployer, dbAccountsClient),
 			description:            "MongoDB",
 			serviceID:              "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
 			planID:                 "86fdda05-78d7-4026-a443-1325928e7b02",

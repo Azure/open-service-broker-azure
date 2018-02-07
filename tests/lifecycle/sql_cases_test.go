@@ -7,25 +7,35 @@ import (
 	"fmt"
 	"net/url"
 
+	sqlSDK "github.com/Azure/azure-sdk-for-go/arm/sql"
+	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	ss "github.com/Azure/open-service-broker-azure/pkg/azure/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/sqldb"
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
 )
 
 func getMssqlCases(
+	azureEnvironment azure.Environment,
+	subscriptionID string,
+	authorizer autorest.Authorizer,
 	armDeployer arm.Deployer,
-	resourceGroup string,
 ) ([]serviceLifecycleTestCase, error) {
-	msSQLManager, err := ss.NewManager()
-	if err != nil {
-		return nil, err
-	}
-
+	sqlServersClient := sqlSDK.NewServersClientWithBaseURI(
+		azureEnvironment.ResourceManagerEndpoint,
+		subscriptionID,
+	)
+	sqlServersClient.Authorizer = authorizer
+	sqlDatabasesClient := sqlSDK.NewDatabasesClientWithBaseURI(
+		azureEnvironment.ResourceManagerEndpoint,
+		subscriptionID,
+	)
+	sqlDatabasesClient.Authorizer = authorizer
+	module := sqldb.New(armDeployer, sqlServersClient, sqlDatabasesClient)
 	return []serviceLifecycleTestCase{
 		{ // all-in-one scenario
-			module:      sqldb.New(armDeployer, msSQLManager),
+			module:      module,
 			description: "new server and database (all in one)",
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
@@ -38,7 +48,7 @@ func getMssqlCases(
 			testCredentials:   testMsSQLCreds(),
 		},
 		{ //server only scenario
-			module:      sqldb.New(armDeployer, msSQLManager),
+			module:      module,
 			description: "new server with database child test",
 			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
 			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
@@ -49,7 +59,7 @@ func getMssqlCases(
 			},
 			childTestCases: []*serviceLifecycleTestCase{
 				{ // db only scenario
-					module:            sqldb.New(armDeployer, msSQLManager),
+					module:            module,
 					description:       "database on new server",
 					serviceID:         "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 					planID:            "8fa8d759-c142-45dd-ae38-b93482ddc04a",

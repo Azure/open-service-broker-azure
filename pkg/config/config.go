@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"fmt"
@@ -9,16 +9,16 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-// logConfig represents configuration options for the broker's leveled logging
-type logConfig struct {
+// LogConfig represents configuration options for the broker's leveled logging
+type LogConfig struct {
 	LevelStr string `envconfig:"LOG_LEVEL" default:"INFO"`
 	Level    log.Level
 }
 
-// redisConfig represents details for connecting to the Redis instance that
+// RedisConfig represents details for connecting to the Redis instance that
 // the broker itself relies on for storing state and orchestrating asynchronous
 // processes
-type redisConfig struct {
+type RedisConfig struct {
 	Host      string `envconfig:"REDIS_HOST" required:"true"`
 	Port      int    `envconfig:"REDIS_PORT" default:"6379"`
 	Password  string `envconfig:"REDIS_PASSWORD" default:""`
@@ -27,29 +27,41 @@ type redisConfig struct {
 	EnableTLS bool   `envconfig:"REDIS_ENABLE_TLS" default:"false"`
 }
 
-// cryptoConfig represents details (e.g. key) for encrypting and decrypting any
+// CryptoConfig represents details (e.g. key) for encrypting and decrypting any
 // (potentially) sensitive information
-type cryptoConfig struct {
+type CryptoConfig struct {
 	AES256Key string `envconfig:"AES256_KEY" required:"true"`
 }
 
-type basicAuthConfig struct {
+// BasicAuthConfig represents details such as username and password that will
+// be used to secure the broker using basic auth
+type BasicAuthConfig struct {
 	Username string `envconfig:"BASIC_AUTH_USERNAME" required:"true"`
 	Password string `envconfig:"BASIC_AUTH_PASSWORD" required:"true"`
 }
 
-type modulesConfig struct {
+// ModulesConfig represents details re: which modules should be included or
+// excluded when the broker is started
+type ModulesConfig struct {
 	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"EXPERIMENTAL"`
 	MinStability    service.Stability
 }
 
-type azureConfig struct {
+// AzureConfig represents details necessary for the broker to interact with
+// an Azure subscription
+type AzureConfig struct {
+	Environment          string `envconfig:"AZURE_ENVIRONMENT" default:"AzurePublicCloud"` // nolint: lll
+	SubscriptionID       string `envconfig:"AZURE_SUBSCRIPTION_ID" required:"true"`        // nolint: lll
+	TenantID             string `envconfig:"AZURE_TENANT_ID" required:"true"`
+	ClientID             string `envconfig:"AZURE_CLIENT_ID" required:"true"`
+	ClientSecret         string `envconfig:"AZURE_CLIENT_SECRET" required:"true"`
 	DefaultLocation      string `envconfig:"AZURE_DEFAULT_LOCATION"`
 	DefaultResourceGroup string `envconfig:"AZURE_DEFAULT_RESOURCE_GROUP"`
 }
 
-func getLogConfig() (logConfig, error) {
-	lc := logConfig{}
+// GetLogConfig returns log configuration
+func GetLogConfig() (LogConfig, error) {
+	lc := LogConfig{}
 	err := envconfig.Process("", &lc)
 	if err != nil {
 		return lc, err
@@ -58,26 +70,30 @@ func getLogConfig() (logConfig, error) {
 	return lc, err
 }
 
-func getRedisConfig() (redisConfig, error) {
-	rc := redisConfig{}
+// GetRedisConfig returns Redis configuration
+func GetRedisConfig() (RedisConfig, error) {
+	rc := RedisConfig{}
 	err := envconfig.Process("", &rc)
 	return rc, err
 }
 
-func getCryptoConfig() (cryptoConfig, error) {
-	cc := cryptoConfig{}
+// GetCryptoConfig returns crypto configuration
+func GetCryptoConfig() (CryptoConfig, error) {
+	cc := CryptoConfig{}
 	err := envconfig.Process("", &cc)
 	return cc, err
 }
 
-func getBasicAuthConfig() (basicAuthConfig, error) {
-	bac := basicAuthConfig{}
+// GetBasicAuthConfig returns basic auth configuration
+func GetBasicAuthConfig() (BasicAuthConfig, error) {
+	bac := BasicAuthConfig{}
 	err := envconfig.Process("", &bac)
 	return bac, err
 }
 
-func getModulesConfig() (modulesConfig, error) {
-	mc := modulesConfig{}
+// GetModulesConfig returns modules configuration
+func GetModulesConfig() (ModulesConfig, error) {
+	mc := ModulesConfig{}
 	err := envconfig.Process("", &mc)
 	if err != nil {
 		return mc, err
@@ -99,8 +115,9 @@ func getModulesConfig() (modulesConfig, error) {
 	return mc, nil
 }
 
-func getAzureConfig() (azureConfig, error) {
-	ac := azureConfig{}
+// GetAzureConfig returns Azure subscription configuration
+func GetAzureConfig() (AzureConfig, error) {
+	ac := AzureConfig{}
 	err := envconfig.Process("", &ac)
 	return ac, err
 }

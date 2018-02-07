@@ -33,7 +33,7 @@ func TestServices(t *testing.T) {
 		}
 	}()
 
-	testCases, err := getTestCases(resourceGroup)
+	testCases, err := getTestCases()
 	assert.Nil(t, err)
 
 	t.Run("lifecycle", func(t *testing.T) {

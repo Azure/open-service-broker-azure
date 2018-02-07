@@ -3,23 +3,27 @@
 package lifecycle
 
 import (
-	ac "github.com/Azure/open-service-broker-azure/pkg/azure/aci"
+	aciSDK "github.com/Azure/azure-sdk-for-go/arm/containerinstance"
+	"github.com/Azure/go-autorest/autorest"
+	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
 )
 
 func getACICases(
+	azureEnvironment azure.Environment,
+	subscriptionID string,
+	authorizer autorest.Authorizer,
 	armDeployer arm.Deployer,
-	resourceGroup string,
 ) ([]serviceLifecycleTestCase, error) {
-	aciManager, err := ac.NewManager()
-	if err != nil {
-		return nil, err
-	}
-
+	containerGroupsClient := aciSDK.NewContainerGroupsClientWithBaseURI(
+		azureEnvironment.ResourceManagerEndpoint,
+		subscriptionID,
+	)
+	containerGroupsClient.Authorizer = authorizer
 	return []serviceLifecycleTestCase{
 		{
-			module:    aci.New(armDeployer, aciManager),
+			module:    aci.New(armDeployer, containerGroupsClient),
 			serviceID: "451d5d19-4575-4d4a-9474-116f705ecc95",
 			planID:    "d48798e2-21db-405b-abc7-aa6f0ff08f6c",
 			location:  "eastus",
