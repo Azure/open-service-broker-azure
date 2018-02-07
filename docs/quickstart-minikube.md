@@ -178,10 +178,6 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
     ```console
     minikube start --extra-config=apiserver.Authorization.Mode=RBAC
     ```
-1. Grant the `cluster-admin` role to the default system account:
-    ```console
-    kubectl create clusterrolebinding cluster-admin:kube-system --clusterrole=cluster-admin --serviceaccount=kube-system:default
-    ```
 
 ### Configure the cluster with Open Service Broker for Azure
 
