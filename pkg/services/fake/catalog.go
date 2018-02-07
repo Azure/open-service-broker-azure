@@ -18,8 +18,15 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				ID:          ServiceID,
 				Name:        "fake",
 				Description: "Fake Service",
-				Bindable:    true,
-				Tags:        []string{"Fake"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName:      "fake",
+					ImageUrl:         "fake",
+					LongDescription:  "Fake Service",
+					DocumentationUrl: "fake",
+					SupportUrl:       "fake",
+				},
+				Bindable: true,
+				Tags:     []string{"Fake"},
 			},
 			m.ServiceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -27,6 +34,12 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				Name:        "standard",
 				Description: "The ONLY sort of fake service-- one that's fake!",
 				Free:        false,
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Fake",
+					Bullets: []string{"Fake 1",
+						"Fake 2",
+					},
+				},
 			}),
 		),
 	}), nil

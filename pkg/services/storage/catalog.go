@@ -13,8 +13,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
 				Name:        "azure-storage",
 				Description: "Azure Storage (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "Storage"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName: "Azure Storage",
+					ImageUrl: "https://azure.microsoft.com/svghandler/storage/" +
+						"?width=200",
+					LongDescription: "Offload the heavy lifting of datacenter management" +
+						" (Experimental)",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/storage/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Storage"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -25,6 +34,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free: false,
 				Extended: map[string]interface{}{
 					kindKey: storageKindGeneralPurposeStorageAcccount,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "General Purpose Storage Account",
+					Bullets: []string{"Azure general-purpose storage account",
+						"Create your own containers, files, and tables within this account",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -37,6 +52,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					kindKey: storageKindBlobStorageAccount,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Blob Storage Account",
+					Bullets: []string{"Specialized Azure storage account for storing " +
+						"block blobs and append blobs",
+						"Create your own containers, files, and tables within this account",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "189d3b8f-8307-4b3f-8c74-03d069237f70",
@@ -47,6 +69,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free: false,
 				Extended: map[string]interface{}{
 					kindKey: storageKindBlobContainer,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Blob Container",
+					Bullets: []string{"A specialized Azure storage account for storing " +
+						"block blobs and append blobs",
+						"Automatically provisions a blob container within the account",
+					},
 				},
 			}),
 		),

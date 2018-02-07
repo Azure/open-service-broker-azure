@@ -9,8 +9,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",
 				Name:        "azure-servicebus",
 				Description: "Azure Service Bus (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "Service", "Bus"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName: "Azure Service Bus",
+					ImageUrl: "https://azure.microsoft.com/svghandler/service-bus/" +
+						"?width=200",
+					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
+						"simple hybrid integration (Experimental)",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/service-bus/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Service", "Bus"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -20,6 +29,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Basic",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"Shared Capacity"},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -31,6 +44,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Standard",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{
+						"Shared Capacity",
+						"Topics",
+						"12.5M Messaging Operations/Month",
+						"Variable Pricing",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "cec378a7-6452-4203-beca-d34898edbadc",
@@ -40,6 +62,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free: false,
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Premium",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Premium Tier",
+					Bullets: []string{
+						"Dedicated Capacity",
+						"Recommended For Production Workloads",
+						"Fixed Pricing",
+					},
 				},
 			}),
 		),

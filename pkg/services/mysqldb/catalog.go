@@ -9,8 +9,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "997b8372-8dac-40ac-ae65-758b4a5075a5",
 				Name:        "azure-mysqldb",
 				Description: "Azure Database for MySQL (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "MySQL", "Database"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName: "Azure Database for MySQL",
+					ImageUrl: "https://azure.microsoft.com/svghandler/mysql/" +
+						"?width=200",
+					LongDescription: "A fully managed MySQL database service for " +
+						"app developers (Experimental)",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/mysql/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "MySQL", "Database"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -24,6 +33,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuCapacityDTU": 50,
 					"skuSizeMB":      51200,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"50 DTUs"},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "1a538e06-9bcc-4077-8480-966cbf85bf36",
@@ -35,6 +48,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuTier":        "Basic",
 					"skuCapacityDTU": 100,
 					"skuSizeMB":      51200,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"100 DTUs"},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -48,6 +65,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuCapacityDTU": 100,
 					"skuSizeMB":      128000,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{
+						"100 DTUs",
+						"Additional Storage",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "9995c891-48ba-46cc-8dae-83595c1f443f",
@@ -59,6 +83,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuTier":        "Standard",
 					"skuCapacityDTU": 200,
 					"skuSizeMB":      128000,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{
+						"200 DTUs",
+						"Additional Storage",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -72,6 +103,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuCapacityDTU": 400,
 					"skuSizeMB":      128000,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{
+						"400 DTUs",
+						"Additional Storage",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "08e4b43a-36bc-447e-a81f-8202b13e339c",
@@ -83,6 +121,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuTier":        "Standard",
 					"skuCapacityDTU": 800,
 					"skuSizeMB":      128000,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{
+						"800 DTUs",
+						"Additional Storage",
+					},
 				},
 			}),
 		),

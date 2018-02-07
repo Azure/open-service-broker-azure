@@ -8,9 +8,19 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "451d5d19-4575-4d4a-9474-116f705ecc95",
 				Name:        "azure-aci",
-				Description: "Azure Container Instance (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "Container", "Instance"},
+				Description: "Azure Container Instances (Experimental)",
+				Metadata: &service.ServiceMetadata{
+					DisplayName: "Azure Container Instances",
+					ImageUrl: "https://azure.microsoft.com/svghandler/container-instances/" +
+						"?width=200",
+					LongDescription: "Easily run containers on Azure with a single command" +
+						" (Experimental)",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/" +
+						"container-instances/",
+					SupportUrl: "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Container", "Instance"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -18,6 +28,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "aci",
 				Description: "Azure Container Instances",
 				Free:        false,
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Azure Container Instances",
+				},
 			}),
 		),
 	}), nil

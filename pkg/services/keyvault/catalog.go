@@ -9,8 +9,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "d90c881e-c9bb-4e07-a87b-fcfe87e03276",
 				Name:        "azure-keyvault",
 				Description: "Azure Key Vault (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "Key", "Vault"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName: "Azure Key Vault",
+					ImageUrl: "https://azure.microsoft.com/svghandler/key-vault/" +
+						"?width=200",
+					LongDescription: "Safeguard cryptographic keys and other secrets " +
+						"used by cloud apps and services (Experimental)",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/key-vault/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Key", "Vault"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -21,6 +30,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Extended: map[string]interface{}{
 					"vaultSku": "Standard",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "6893b1de-0a7b-42bb-b28d-1636c4b81f75",
@@ -29,6 +41,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 				Extended: map[string]interface{}{
 					"vaultSku": "Premium",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Premium Tier",
 				},
 			}),
 		),

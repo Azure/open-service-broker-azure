@@ -9,8 +9,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 				Name:        "azure-postgresqldb",
 				Description: "Azure Database for PostgreSQL (Experimental)",
-				Bindable:    true,
-				Tags:        []string{"Azure", "PostgreSQL", "Database"},
+				Metadata: &service.ServiceMetadata{
+					DisplayName: "Azure Database for PostgreSQL",
+					ImageUrl: "https://azure.microsoft.com/svghandler/postgresql/" +
+						"?width=200",
+					LongDescription: "Enterprise-ready fully managed community PostgreSQL" +
+						" (Experimental)",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/postgresql/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "PostgreSQL", "Database"},
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -23,6 +32,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuTier":        "Basic",
 					"skuCapacityDTU": 50,
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"50 DTUs"},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "843d7d03-9306-447e-8c19-25ccc4ac30d7",
@@ -33,6 +46,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"skuName":        "PGSQLB100",
 					"skuTier":        "Basic",
 					"skuCapacityDTU": 100,
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets:     []string{"100 DTUs"},
 				},
 			}),
 		),
