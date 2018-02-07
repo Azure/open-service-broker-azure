@@ -241,14 +241,30 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "DW1200",
 					"maxSizeBytes":                  "1099511627776",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "DataWarehouse1200 Tier",
+					Bullets: []string{
+						"1024GB",
+						"1200 DWUs",
+					},
+				},
 			}),
 		),
 		// vm only service
 		service.NewService(
 			&service.ServiceProperties{
-				ID:             "a7454e0e-be2c-46ac-b55f-8c4278117525",
-				Name:           "azure-sqldb-vm-only",
-				Description:    "Azure SQL Server VM (Experimental)",
+				ID:          "a7454e0e-be2c-46ac-b55f-8c4278117525",
+				Name:        "azure-sqldb-vm-only",
+				Description: "Azure SQL Server VM (Experimental)",
+				Metadata: &service.ServiceMetadata{
+					DisplayName: "Azure SQL Server (VM Only)",
+					ImageUrl: "https://azure.microsoft.com/svghandler/sql-database/" +
+						"?width=200",
+					LongDescription: "The intelligent relational cloud database service" +
+						" (Experimental)",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
 				Bindable:       false,
 				Tags:           []string{"Azure", "SQL", "Server", "VM"},
 				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
@@ -259,6 +275,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "sqldb-vm-only",
 				Description: "Azure SQL Server VM Only",
 				Free:        false,
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Azure SQL Server (VM Only)",
+				},
 			}),
 		),
 		// db only service
@@ -270,6 +289,15 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:        true,
 				Tags:            []string{"Azure", "SQL", "Database"},
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",
+				Metadata: &service.ServiceMetadata{
+					DisplayName: "Azure SQL Server (Database Only)",
+					ImageUrl: "https://azure.microsoft.com/svghandler/sql-database/" +
+						"?width=200",
+					LongDescription: "The intelligent relational cloud database service" +
+						" (Experimental)",
+					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
+					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+				},
 			},
 			m.dbOnlyServiceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -282,6 +310,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "Basic",
 					"maxSizeBytes":                  "2147483648",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Basic Tier",
+					Bullets: []string{
+						"5 DTUs",
+						"2GB",
+						"7 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "9d36b6b3-b5f3-4907-a713-5cc13b785409",
@@ -292,6 +328,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "Standard",
 					"requestedServiceObjectiveName": "S0",
 					"maxSizeBytes":                  "268435456000",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "Standard Tier",
+					Bullets: []string{
+						"10 DTUs",
+						"250GB",
+						"35 days point-in-time restore",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -304,6 +348,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "S1",
 					"maxSizeBytes":                  "268435456000",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "StandardS1 Tier",
+					Bullets: []string{
+						"20 DTUs",
+						"250GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "9cd114a0-8356-4247-9b71-2e685e5a29f3",
@@ -314,6 +366,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "Standard",
 					"requestedServiceObjectiveName": "S2",
 					"maxSizeBytes":                  "268435456000",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "StandardS2 Tier",
+					Bullets: []string{
+						"50 DTUs",
+						"250GB",
+						"35 days point-in-time restore",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -326,6 +386,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "S3",
 					"maxSizeBytes":                  "268435456000",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "StandardS3 Tier",
+					Bullets: []string{
+						"100 DTUs",
+						"250GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "220e922a-a5b2-43e4-9388-fe45a32bbf31",
@@ -336,6 +404,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "Premium",
 					"requestedServiceObjectiveName": "P1",
 					"maxSizeBytes":                  "536870912000",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP1 Tier",
+					Bullets: []string{
+						"125 DTUs",
+						"500GB",
+						"35 days point-in-time restore",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -348,6 +424,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "P2",
 					"maxSizeBytes":                  "536870912000",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP2 Tier",
+					Bullets: []string{
+						"250 DTUs",
+						"500GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "feb25d68-2b52-41b5-a249-28a747bc2c2e",
@@ -358,6 +442,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "Premium",
 					"requestedServiceObjectiveName": "P4",
 					"maxSizeBytes":                  "536870912000",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP4 Tier",
+					Bullets: []string{
+						"500 DTUs",
+						"500GB",
+						"35 days point-in-time restore",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
@@ -370,6 +462,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "P6",
 					"maxSizeBytes":                  "536870912000",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP6 Tier",
+					Bullets: []string{
+						"1000 DTUs",
+						"500GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "a561c45a-33c8-412e-9315-411c1d7035da",
@@ -381,6 +481,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"requestedServiceObjectiveName": "P11",
 					"maxSizeBytes":                  "1099511627776",
 				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "PremiumP11 Tier",
+					Bullets: []string{
+						"1024GB",
+						"35 days point-in-time restore",
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "7a466f47-f137-4b9c-a63d-c5cbe724b874",
@@ -391,6 +498,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"edition":                       "DataWarehouse",
 					"requestedServiceObjectiveName": "DW100",
 					"maxSizeBytes":                  "1099511627776",
+				},
+				Metadata: &service.ServicePlanMetadata{
+					DisplayName: "DataWarehouse100 Tier",
+					Bullets: []string{
+						"1024GB",
+						"100 DWUs",
+					},
 				},
 			}),
 			service.NewPlan(&service.PlanProperties{
