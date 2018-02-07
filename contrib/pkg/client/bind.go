@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -33,16 +32,9 @@ func Bind(
 	if err != nil {
 		return "", nil, fmt.Errorf("error encoding request body: %s", err)
 	}
-	req, err := http.NewRequest(
-		http.MethodPut,
-		url,
-		bytes.NewBuffer(json),
-	)
+	req, err := newRequest(http.MethodPut, url, username, password, json)
 	if err != nil {
-		return "", nil, fmt.Errorf("error building request: %s", err)
-	}
-	if username != "" || password != "" {
-		addAuthHeader(req, username, password)
+		return "", nil, err
 	}
 	httpClient := &http.Client{}
 	resp, err := httpClient.Do(req)

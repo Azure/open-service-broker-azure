@@ -1,7 +1,6 @@
 package client
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 
@@ -36,16 +35,9 @@ func Provision(
 	if err != nil {
 		return "", fmt.Errorf("error encoding request body: %s", err)
 	}
-	req, err := http.NewRequest(
-		http.MethodPut,
-		url,
-		bytes.NewBuffer(json),
-	)
+	req, err := newRequest(http.MethodPut, url, username, password, json)
 	if err != nil {
-		return "", fmt.Errorf("error building request: %s", err)
-	}
-	if username != "" || password != "" {
-		addAuthHeader(req, username, password)
+		return "", err
 	}
 	q := req.URL.Query()
 	q.Add("accepts_incomplete", "true")

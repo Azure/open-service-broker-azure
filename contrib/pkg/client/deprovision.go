@@ -18,16 +18,9 @@ func Deprovision(
 		getBaseURL(host, port),
 		instanceID,
 	)
-	req, err := http.NewRequest(
-		http.MethodDelete,
-		url,
-		nil,
-	)
+	req, err := newRequest(http.MethodDelete, url, username, password, nil)
 	if err != nil {
-		return fmt.Errorf("error building request: %s", err)
-	}
-	if username != "" || password != "" {
-		addAuthHeader(req, username, password)
+		return err
 	}
 	q := req.URL.Query()
 	q.Add("accepts_incomplete", "true")
