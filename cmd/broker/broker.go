@@ -40,11 +40,12 @@ func main() {
 		log.Fatal(err)
 	}
 	log.SetLevel(log.InfoLevel)
+	logLevel := logConfig.GetLevel()
 	log.WithField(
 		"logLevel",
-		strings.ToUpper(logConfig.Level.String()),
+		strings.ToUpper(logLevel.String()),
 	).Info("setting log level")
-	log.SetLevel(logConfig.Level)
+	log.SetLevel(logLevel)
 
 	azureConfig, err := config.GetAzureConfig()
 	if err != nil {

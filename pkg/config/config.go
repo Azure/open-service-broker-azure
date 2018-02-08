@@ -6,15 +6,8 @@ import (
 
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	log "github.com/Sirupsen/logrus"
 	"github.com/kelseyhightower/envconfig"
 )
-
-// LogConfig represents configuration options for the broker's leveled logging
-type LogConfig struct {
-	LevelStr string `envconfig:"LOG_LEVEL" default:"INFO"`
-	Level    log.Level
-}
 
 // RedisConfig represents details for connecting to the Redis instance that
 // the broker itself relies on for storing state and orchestrating asynchronous
@@ -59,17 +52,6 @@ type AzureConfig struct {
 	ClientSecret         string `envconfig:"AZURE_CLIENT_SECRET" required:"true"`
 	DefaultLocation      string `envconfig:"AZURE_DEFAULT_LOCATION"`
 	DefaultResourceGroup string `envconfig:"AZURE_DEFAULT_RESOURCE_GROUP"`
-}
-
-// GetLogConfig returns log configuration
-func GetLogConfig() (LogConfig, error) {
-	lc := LogConfig{}
-	err := envconfig.Process("", &lc)
-	if err != nil {
-		return lc, err
-	}
-	lc.Level, err = log.ParseLevel(lc.LevelStr)
-	return lc, err
 }
 
 // GetRedisConfig returns Redis configuration
