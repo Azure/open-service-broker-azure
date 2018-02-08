@@ -117,8 +117,8 @@ func main() {
 	}
 	filterChain := filter.NewChain(
 		filters.NewBasicAuthFilter(
-			basicAuthConfig.Username,
-			basicAuthConfig.Password,
+			basicAuthConfig.GetUsername(),
+			basicAuthConfig.GetPassword(),
 		),
 		apiFilters.NewAPIVersionFilter(),
 	)
