@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
@@ -30,10 +31,19 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 		return nil, err
 	}
 
-	armDeployer := arm.NewDeployer(
-		azureConfig.Environment,
+	resourceGroupsClient := resources.NewGroupsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
-		authorizer,
+	)
+	resourceGroupsClient.Authorizer = authorizer
+	resourceDeploymentsClient := resources.NewDeploymentsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureConfig.SubscriptionID,
+	)
+	resourceDeploymentsClient.Authorizer = authorizer
+	armDeployer := arm.NewDeployer(
+		resourceGroupsClient,
+		resourceDeploymentsClient,
 	)
 
 	testCases := []serviceLifecycleTestCase{}

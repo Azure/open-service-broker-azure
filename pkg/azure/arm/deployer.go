@@ -9,7 +9,6 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/template"
 	log "github.com/Sirupsen/logrus"
 )
@@ -47,30 +46,9 @@ type deployer struct {
 
 // NewDeployer returns a new ARM-based implementation of the Deployer interface
 func NewDeployer(
-	azureEnvironment azure.Environment,
-	subscriptionID string,
-	authorizer autorest.Authorizer,
+	groupsClient resources.GroupsClient,
+	deploymentsClient resources.DeploymentsClient,
 ) Deployer {
-	groupsClient := resources.NewGroupsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
-		subscriptionID,
-	)
-	groupsClient.UserAgent = fmt.Sprintf(
-		"%s; %s",
-		groupsClient.UserAgent,
-		userAgent(),
-	)
-	groupsClient.Authorizer = authorizer
-	deploymentsClient := resources.NewDeploymentsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
-		subscriptionID,
-	)
-	deploymentsClient.UserAgent = fmt.Sprintf(
-		"%s; %s",
-		deploymentsClient.UserAgent,
-		userAgent(),
-	)
-	deploymentsClient.Authorizer = authorizer
 	return &deployer{
 		groupsClient:      groupsClient,
 		deploymentsClient: deploymentsClient,
