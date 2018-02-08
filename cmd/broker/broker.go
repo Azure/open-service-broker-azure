@@ -135,7 +135,7 @@ func main() {
 		codec,
 		filterChain,
 		modules,
-		modulesConfig.MinStability,
+		modulesConfig.GetMinStability(),
 		azureConfig.DefaultLocation,
 		azureConfig.DefaultResourceGroup,
 	)
