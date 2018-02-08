@@ -48,10 +48,13 @@ func (s *serviceManager) deletePostgreSQLServer(
 			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
-	if err := s.postgresqlManager.DeleteServer(
-		dt.ServerName,
+	cancelCh := make(chan struct{})
+	_, errChan := s.serversClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
+		dt.ServerName,
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
 	return dt, nil

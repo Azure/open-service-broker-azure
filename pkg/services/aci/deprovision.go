@@ -45,11 +45,11 @@ func (s *serviceManager) deleteACIServer(
 			"error casting instance.Details as *aciInstanceDetails",
 		)
 	}
-	if err := s.aciManager.DeleteACI(
-		dt.ContainerName,
+	if _, err := s.aciClient.Delete(
 		instance.ResourceGroup,
+		dt.ContainerName,
 	); err != nil {
-		return nil, fmt.Errorf("error deleting key vault: %s", err)
+		return nil, fmt.Errorf("error deleting aci group: %s", err)
 	}
 	return dt, nil
 }

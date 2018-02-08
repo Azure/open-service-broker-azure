@@ -4,8 +4,8 @@ package lifecycle
 
 import (
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
-	"github.com/Azure/go-autorest/autorest/azure"
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/config"
 )
 
 func ensureResourceGroup(resourceGroup string) error {
@@ -38,20 +38,16 @@ func deleteResourceGroup(
 }
 
 func getGroupsClient() (*resources.GroupsClient, error) {
-	azureConfig, err := az.GetConfig()
-	if err != nil {
-		return nil, err
-	}
-	azureEnvironment, err := azure.EnvironmentFromName(azureConfig.Environment)
+	azureConfig, err := config.GetAzureConfig()
 	if err != nil {
 		return nil, err
 	}
 	groupsClient := resources.NewGroupsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	authorizer, err := az.GetBearerTokenAuthorizer(
-		azureEnvironment,
+		azureConfig.Environment,
 		azureConfig.TenantID,
 		azureConfig.ClientID,
 		azureConfig.ClientSecret,

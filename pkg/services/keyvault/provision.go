@@ -91,7 +91,7 @@ func (s *serviceManager) deployARMTemplate(
 		map[string]interface{}{ // ARM template params
 			"keyVaultName": dt.KeyVaultName,
 			"vaultSku":     instance.Plan.GetProperties().Extended["vaultSku"],
-			"tenantId":     s.keyvaultManager.GetTenantID(),
+			"tenantId":     s.tenantID,
 			"objectId":     pp.ObjectID,
 		},
 		instance.Tags,

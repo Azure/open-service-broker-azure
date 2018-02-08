@@ -1,8 +1,8 @@
 package keyvault
 
 import (
+	keyVaultSDK "github.com/Azure/azure-sdk-for-go/arm/keyvault"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/azure/keyvault"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -11,20 +11,23 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer     arm.Deployer
-	keyvaultManager keyvault.Manager
+	tenantID     string
+	armDeployer  arm.Deployer
+	vaultsClient keyVaultSDK.VaultsClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
 // interface and is capable of provisioning Key Vault using "Azure Key Vault"
 func New(
+	tenantID string,
 	armDeployer arm.Deployer,
-	keyvaultManager keyvault.Manager,
+	vaultsClient keyVaultSDK.VaultsClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:     armDeployer,
-			keyvaultManager: keyvaultManager,
+			tenantID:     tenantID,
+			armDeployer:  armDeployer,
+			vaultsClient: vaultsClient,
 		},
 	}
 }

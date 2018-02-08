@@ -29,7 +29,7 @@ func (s *serviceManager) Bind(
 	userName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
-	db, err := getDBConnection(dt)
+	db, err := s.getDBConnection(dt)
 	if err != nil {
 		return nil, err
 	}

@@ -1,8 +1,8 @@
 package cosmosdb
 
 import (
+	cosmosSDK "github.com/Azure/azure-sdk-for-go/arm/cosmos-db"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/azure/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -11,8 +11,8 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer     arm.Deployer
-	cosmosdbManager cosmosdb.Manager
+	armDeployer            arm.Deployer
+	databaseAccountsClient cosmosSDK.DatabaseAccountsClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -20,12 +20,12 @@ type serviceManager struct {
 // using "Azure Database for CosmosDB"
 func New(
 	armDeployer arm.Deployer,
-	cosmosdbManager cosmosdb.Manager,
+	databaseAccountsClient cosmosSDK.DatabaseAccountsClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:     armDeployer,
-			cosmosdbManager: cosmosdbManager,
+			armDeployer:            armDeployer,
+			databaseAccountsClient: databaseAccountsClient,
 		},
 	}
 }

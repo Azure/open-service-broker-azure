@@ -12,6 +12,7 @@ import (
 
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
+	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
@@ -20,7 +21,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func init() {
+func main() {
 	// Initialize logging
 	// Split log output across stdout and stderr, depending on severity
 	// krancour: This functionality is currently dependent on a fork of
@@ -34,7 +35,7 @@ func init() {
 		FullTimestamp: true,
 	}
 	log.SetFormatter(formatter)
-	logConfig, err := getLogConfig()
+	logConfig, err := config.GetLogConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,13 +46,16 @@ func init() {
 	).Info("setting log level")
 	log.SetLevel(logConfig.Level)
 
-	// Initialize modules
-	if err = initModules(); err != nil {
+	azureConfig, err := config.GetAzureConfig()
+	if err != nil {
 		log.Fatal(err)
 	}
-}
 
-func main() {
+	// Initialize modules
+	if err = initModules(azureConfig); err != nil {
+		log.Fatal(err)
+	}
+
 	log.WithFields(
 		log.Fields{
 			"version": version.GetVersion(),
@@ -60,7 +64,7 @@ func main() {
 	).Info("Open Service Broker for Azure starting")
 
 	// Redis clients
-	redisConfig, err := getRedisConfig()
+	redisConfig, err := config.GetRedisConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -88,7 +92,7 @@ func main() {
 	asyncRedisClient := redis.NewClient(asyncRedisOpts)
 
 	// Crypto
-	cryptoConfig, err := getCryptoConfig()
+	cryptoConfig, err := config.GetCryptoConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -98,7 +102,7 @@ func main() {
 	}
 
 	// Assemble the filter chain
-	basicAuthConfig, err := getBasicAuthConfig()
+	basicAuthConfig, err := config.GetBasicAuthConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -110,12 +114,7 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	modulesConfig, err := getModulesConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	azureConfig, err := getAzureConfig()
+	modulesConfig, err := config.GetModulesConfig()
 	if err != nil {
 		log.Fatal(err)
 	}

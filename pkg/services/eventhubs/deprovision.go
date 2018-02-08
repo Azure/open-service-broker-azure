@@ -3,6 +3,7 @@ package eventhubs
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -45,11 +46,18 @@ func (s *serviceManager) deleteNamespace(
 			"error casting instance.Details as *eventHubInstanceDetails",
 		)
 	}
-	if err := s.eventHubManager.DeleteNamespace(
+	cancelCh := make(chan struct{})
+	_, errChan := s.namespacesClient.Delete(
 		instance.ResourceGroup,
 		dt.EventHubNamespace,
-	); err != nil {
-		return nil, fmt.Errorf("error deleting event hub namespace: %s", err)
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
+		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
+		if strings.Contains(err.Error(), "StatusCode=404") {
+			return dt, nil
+		}
+		return dt, fmt.Errorf("error deleting event hub namespace: %s", err)
 	}
 	return dt, nil
 }

@@ -48,10 +48,11 @@ func (s *serviceManager) deleteStorageAccount(
 			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
-	if err := s.storageManager.DeleteStorageAccount(
-		dt.StorageAccountName,
+	_, err := s.accountsClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
+		dt.StorageAccountName,
+	)
+	if err != nil {
 		return nil, fmt.Errorf("error deleting storage account: %s", err)
 	}
 	return dt, nil

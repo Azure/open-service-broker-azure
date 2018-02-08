@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"net"
 
-	az "github.com/Azure/go-autorest/autorest/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
@@ -243,21 +241,12 @@ func (d *dbOnlyManager) preProvision(
 		)
 	}
 
-	azureConfig, err := azure.GetConfig()
-	if err != nil {
-		return nil, err
-	}
-	azureEnvironment, err := az.EnvironmentFromName(azureConfig.Environment)
-	if err != nil {
-		return nil, err
-	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.DatabaseName = generate.NewIdentifier()
-	sqlDatabaseDNSSuffix := azureEnvironment.SQLDatabaseDNSSuffix
 	dt.FullyQualifiedDomainName = fmt.Sprintf(
 		"%s.%s",
 		pdt.ServerName,
-		sqlDatabaseDNSSuffix,
+		d.sqlDatabaseDNSSuffix,
 	)
 
 	return dt, nil

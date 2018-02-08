@@ -45,10 +45,8 @@ func (s *serviceManager) deleteAzureSearch(
 			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
-	if err := s.searchManager.DeleteServer(
-		dt.ServiceName,
-		instance.ResourceGroup,
-	); err != nil {
+	_, err := s.servicesClient.Delete(instance.ResourceGroup, dt.ServiceName, nil)
+	if err != nil {
 		return nil, fmt.Errorf("error deleting Azure Search: %s", err)
 	}
 	return dt, nil

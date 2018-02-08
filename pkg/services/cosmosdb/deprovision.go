@@ -3,6 +3,7 @@ package cosmosdb
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -48,11 +49,18 @@ func (s *serviceManager) deleteCosmosDBServer(
 			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
-	if err := s.cosmosdbManager.DeleteDatabaseAccount(
-		dt.DatabaseAccountName,
+	cancelCh := make(chan struct{})
+	_, errChan := s.databaseAccountsClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
-		return nil, fmt.Errorf("error deleting cosmosdb server: %s", err)
+		dt.DatabaseAccountName,
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
+		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
+		if strings.Contains(err.Error(), "StatusCode=404") {
+			return dt, nil
+		}
+		return dt, fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}
 	return dt, nil
 }

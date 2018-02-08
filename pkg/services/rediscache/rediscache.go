@@ -1,8 +1,8 @@
 package rediscache
 
 import (
+	redisSDK "github.com/Azure/azure-sdk-for-go/arm/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/azure/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -11,20 +11,20 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer  arm.Deployer
-	redisManager rediscache.Manager
+	armDeployer arm.Deployer
+	groupClient redisSDK.GroupClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
 // interface and is capable of provisioning Redis using "Azure Redis Cache"
 func New(
 	armDeployer arm.Deployer,
-	redisManager rediscache.Manager,
+	groupClient redisSDK.GroupClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:  armDeployer,
-			redisManager: redisManager,
+			armDeployer: armDeployer,
+			groupClient: groupClient,
 		},
 	}
 }

@@ -117,11 +117,14 @@ func (a *allInOneManager) deleteMsSQLServer(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
-	if err := a.mssqlManager.DeleteServer(
-		dt.ServerName,
+	cancelCh := make(chan struct{})
+	_, errChan := a.serversClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
-		return dt, fmt.Errorf("error deleting mssql server: %s", err)
+		dt.ServerName,
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
+		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return dt, nil
 }
@@ -136,11 +139,14 @@ func (v *vmOnlyManager) deleteMsSQLServer(
 			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
-	if err := v.mssqlManager.DeleteServer(
-		dt.ServerName,
+	cancelCh := make(chan struct{})
+	_, errChan := v.serversClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
-		return dt, fmt.Errorf("error deleting mssql server: %s", err)
+		dt.ServerName,
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
+		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return dt, nil
 }
@@ -167,12 +173,12 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 		)
 	}
 
-	if err := d.mssqlManager.DeleteDatabase(
+	if _, err := d.databasesClient.Delete(
+		instance.ResourceGroup,
 		pdt.ServerName,
 		dt.DatabaseName,
-		instance.Parent.ResourceGroup,
 	); err != nil {
-		return dt, fmt.Errorf("error deleting mssql database: %s", err)
+		return nil, fmt.Errorf("error deleting sql database: %s", err)
 	}
 	return dt, nil
 }

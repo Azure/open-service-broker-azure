@@ -9,8 +9,6 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/go-autorest/autorest/azure"
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/template"
 	log "github.com/Sirupsen/logrus"
 )
@@ -42,33 +40,19 @@ type Deployer interface {
 
 // deployer is an ARM-based implementation of the Deployer interface
 type deployer struct {
-	azureEnvironment azure.Environment
-	subscriptionID   string
-	tenantID         string
-	clientID         string
-	clientSecret     string
+	groupsClient      resources.GroupsClient
+	deploymentsClient resources.DeploymentsClient
 }
 
 // NewDeployer returns a new ARM-based implementation of the Deployer interface
-func NewDeployer() (Deployer, error) {
-	azureConfig, err := az.GetConfig()
-	if err != nil {
-		return nil, err
-	}
-	azureEnvironment, err := azure.EnvironmentFromName(azureConfig.Environment)
-	if err != nil {
-		return nil, fmt.Errorf(
-			`error parsing Azure environment name "%s"`,
-			azureConfig.Environment,
-		)
-	}
+func NewDeployer(
+	groupsClient resources.GroupsClient,
+	deploymentsClient resources.DeploymentsClient,
+) Deployer {
 	return &deployer{
-		azureEnvironment: azureEnvironment,
-		subscriptionID:   azureConfig.SubscriptionID,
-		tenantID:         azureConfig.TenantID,
-		clientID:         azureConfig.ClientID,
-		clientSecret:     azureConfig.ClientSecret,
-	}, nil
+		groupsClient:      groupsClient,
+		deploymentsClient: deploymentsClient,
+	}
 }
 
 // Deploy idempotently handles ARM deployments. To do this, it checks for the
@@ -88,36 +72,8 @@ func (d *deployer) Deploy(
 		"deployment":    deploymentName,
 	}
 
-	authorizer, err := az.GetBearerTokenAuthorizer(
-		d.azureEnvironment,
-		d.tenantID,
-		d.clientID,
-		d.clientSecret,
-	)
-	if err != nil {
-		return nil, fmt.Errorf(
-			`error deploying "%s" in resource group "%s": error getting bearer `+
-				`token authorizer: %s`,
-			deploymentName,
-			resourceGroupName,
-			err,
-		)
-	}
-
-	deploymentsClient := resources.NewDeploymentsClientWithBaseURI(
-		d.azureEnvironment.ResourceManagerEndpoint,
-		d.subscriptionID,
-	)
-	deploymentsClient.Authorizer = authorizer
-	deploymentsClient.UserAgent = fmt.Sprintf(
-		"%s; %s",
-		deploymentsClient.UserAgent,
-		userAgent(),
-	)
-
 	// Get the deployment and its current status
-	deployment, ds, err := getDeploymentAndStatus(
-		deploymentsClient,
+	deployment, ds, err := d.getDeploymentAndStatus(
 		deploymentName,
 		resourceGroupName,
 	)
@@ -140,8 +96,6 @@ func (d *deployer) Deploy(
 			"deployment does not already exist; beginning new deployment",
 		)
 		if deployment, err = d.doNewDeployment(
-			deploymentsClient,
-			authorizer,
 			deploymentName,
 			resourceGroupName,
 			location,
@@ -165,7 +119,6 @@ func (d *deployer) Deploy(
 			"deployment exists and is in-progress; polling until complete",
 		)
 		if deployment, err = d.pollUntilComplete(
-			deploymentsClient,
 			deploymentName,
 			resourceGroupName,
 		); err != nil {
@@ -210,35 +163,9 @@ func (d *deployer) Delete(
 	deploymentName string,
 	resourceGroupName string,
 ) error {
-	authorizer, err := az.GetBearerTokenAuthorizer(
-		d.azureEnvironment,
-		d.tenantID,
-		d.clientID,
-		d.clientSecret,
-	)
-	if err != nil {
-		return fmt.Errorf(
-			`error deleting deployment "%s" from resource group "%s": error `+
-				`getting bearer token authorizer: %s`,
-			deploymentName,
-			resourceGroupName,
-			err,
-		)
-	}
-
-	deploymentsClient := resources.NewDeploymentsClientWithBaseURI(
-		d.azureEnvironment.ResourceManagerEndpoint,
-		d.subscriptionID,
-	)
-	deploymentsClient.UserAgent = fmt.Sprintf(
-		"%s; %s",
-		deploymentsClient.UserAgent,
-		userAgent(),
-	)
-	deploymentsClient.Authorizer = authorizer
 	cancelCh := make(chan struct{})
 	defer close(cancelCh)
-	_, errChan := deploymentsClient.Delete(
+	_, errChan := d.deploymentsClient.Delete(
 		resourceGroupName,
 		deploymentName,
 		cancelCh,
@@ -271,12 +198,11 @@ func (d *deployer) Delete(
 // deployment and let the caller check status itself, because in the case a
 // given deployment doesn't exist, there isn't one to return. Returning a
 // separate status indicator resolves that problem.)
-func getDeploymentAndStatus(
-	deploymentsClient resources.DeploymentsClient,
+func (d *deployer) getDeploymentAndStatus(
 	deploymentName string,
 	resourceGroupName string,
 ) (*resources.DeploymentExtended, deploymentStatus, error) {
-	deployment, err := deploymentsClient.Get(resourceGroupName, deploymentName)
+	deployment, err := d.deploymentsClient.Get(resourceGroupName, deploymentName)
 	if err != nil {
 		detailedErr, ok := err.(autorest.DetailedError)
 		if !ok || detailedErr.StatusCode != http.StatusNotFound {
@@ -297,8 +223,6 @@ func getDeploymentAndStatus(
 }
 
 func (d *deployer) doNewDeployment(
-	deploymentsClient resources.DeploymentsClient,
-	authorizer autorest.Authorizer,
 	deploymentName string,
 	resourceGroupName string,
 	location string,
@@ -307,17 +231,7 @@ func (d *deployer) doNewDeployment(
 	armParams map[string]interface{},
 	tags map[string]string,
 ) (*resources.DeploymentExtended, error) {
-	groupsClient := resources.NewGroupsClientWithBaseURI(
-		d.azureEnvironment.ResourceManagerEndpoint,
-		d.subscriptionID,
-	)
-	groupsClient.UserAgent = fmt.Sprintf(
-		"%s; %s",
-		groupsClient.UserAgent,
-		userAgent(),
-	)
-	groupsClient.Authorizer = authorizer
-	res, err := groupsClient.CheckExistence(resourceGroupName)
+	res, err := d.groupsClient.CheckExistence(resourceGroupName)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"error checking existence of resource group: %s",
@@ -325,7 +239,7 @@ func (d *deployer) doNewDeployment(
 		)
 	}
 	if res.StatusCode == http.StatusNotFound {
-		if _, err = groupsClient.CreateOrUpdate(
+		if _, err = d.groupsClient.CreateOrUpdate(
 			resourceGroupName,
 			resources.Group{
 				Name:     &resourceGroupName,
@@ -388,7 +302,7 @@ func (d *deployer) doNewDeployment(
 	// Deploy the template
 	cancelCh := make(chan struct{})
 	defer close(cancelCh)
-	_, errChan := deploymentsClient.CreateOrUpdate(
+	_, errChan := d.deploymentsClient.CreateOrUpdate(
 		resourceGroupName,
 		deploymentName,
 		resources.Deployment{
@@ -413,7 +327,7 @@ func (d *deployer) doNewDeployment(
 
 	// Deployment object found on the result channel doesn't include properties,
 	// so we need to make a separate call to retrieve the deployment
-	deployment, err := deploymentsClient.Get(resourceGroupName, deploymentName)
+	deployment, err := d.deploymentsClient.Get(resourceGroupName, deploymentName)
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving completed deployment: %s", err)
 	}
@@ -424,7 +338,6 @@ func (d *deployer) doNewDeployment(
 // pollUntilComplete polls the status of a deployment periodically until the
 // deployment succeeds or fails, polling fails, or a timeout is reached
 func (d *deployer) pollUntilComplete(
-	deploymentsClient resources.DeploymentsClient,
 	deploymentName string,
 	resourceGroupName string,
 ) (*resources.DeploymentExtended, error) {
@@ -438,8 +351,7 @@ func (d *deployer) pollUntilComplete(
 	for {
 		select {
 		case <-ticker.C:
-			if deployment, ds, err = getDeploymentAndStatus(
-				deploymentsClient,
+			if deployment, ds, err = d.getDeploymentAndStatus(
 				deploymentName,
 				resourceGroupName,
 			); err != nil {

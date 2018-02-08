@@ -23,7 +23,7 @@ func (s *serviceManager) Unbind(
 		)
 	}
 
-	db, err := getDBConnection(dt)
+	db, err := s.getDBConnection(dt)
 	if err != nil {
 		return err
 	}

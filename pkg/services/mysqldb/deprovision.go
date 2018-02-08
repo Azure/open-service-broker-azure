@@ -45,10 +45,13 @@ func (s *serviceManager) deleteMySQLServer(
 			"error casting instance.Details as *mysqlInstanceDetails",
 		)
 	}
-	if err := s.mysqlManager.DeleteServer(
-		dt.ServerName,
+	cancelCh := make(chan struct{})
+	_, errChan := s.serversClient.Delete(
 		instance.ResourceGroup,
-	); err != nil {
+		dt.ServerName,
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
 		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
 	return dt, nil
