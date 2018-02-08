@@ -40,11 +40,12 @@ func main() {
 		log.Fatal(err)
 	}
 	log.SetLevel(log.InfoLevel)
+	logLevel := logConfig.GetLevel()
 	log.WithField(
 		"logLevel",
-		strings.ToUpper(logConfig.Level.String()),
+		strings.ToUpper(logLevel.String()),
 	).Info("setting log level")
-	log.SetLevel(logConfig.Level)
+	log.SetLevel(logLevel)
 
 	azureConfig, err := config.GetAzureConfig()
 	if err != nil {
@@ -69,23 +70,31 @@ func main() {
 		log.Fatal(err)
 	}
 	storageRedisOpts := &redis.Options{
-		Addr:       fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
-		Password:   redisConfig.Password,
-		DB:         redisConfig.StorageDB,
+		Addr: fmt.Sprintf(
+			"%s:%d",
+			redisConfig.GetHost(),
+			redisConfig.GetPort(),
+		),
+		Password:   redisConfig.GetPassword(),
+		DB:         redisConfig.GetStorageDB(),
 		MaxRetries: 5,
 	}
 	asyncRedisOpts := &redis.Options{
-		Addr:       fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
-		Password:   redisConfig.Password,
-		DB:         redisConfig.AsyncDB,
+		Addr: fmt.Sprintf(
+			"%s:%d",
+			redisConfig.GetHost(),
+			redisConfig.GetPort(),
+		),
+		Password:   redisConfig.GetPassword(),
+		DB:         redisConfig.GetAsyncDB(),
 		MaxRetries: 5,
 	}
-	if redisConfig.EnableTLS {
+	if redisConfig.IsTLSEnabled() {
 		storageRedisOpts.TLSConfig = &tls.Config{
-			ServerName: redisConfig.Host,
+			ServerName: redisConfig.GetHost(),
 		}
 		asyncRedisOpts.TLSConfig = &tls.Config{
-			ServerName: redisConfig.Host,
+			ServerName: redisConfig.GetHost(),
 		}
 	}
 	storageRedisClient := redis.NewClient(storageRedisOpts)
@@ -96,7 +105,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	codec, err := aes256.NewCodec([]byte(cryptoConfig.AES256Key))
+	codec, err := aes256.NewCodec([]byte(cryptoConfig.GetAES256Key()))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,8 +117,8 @@ func main() {
 	}
 	filterChain := filter.NewChain(
 		filters.NewBasicAuthFilter(
-			basicAuthConfig.Username,
-			basicAuthConfig.Password,
+			basicAuthConfig.GetUsername(),
+			basicAuthConfig.GetPassword(),
 		),
 		apiFilters.NewAPIVersionFilter(),
 	)
@@ -126,9 +135,9 @@ func main() {
 		codec,
 		filterChain,
 		modules,
-		modulesConfig.MinStability,
-		azureConfig.DefaultLocation,
-		azureConfig.DefaultResourceGroup,
+		modulesConfig.GetMinStability(),
+		azureConfig.GetDefaultLocation(),
+		azureConfig.GetDefaultResourceGroup(),
 	)
 	if err != nil {
 		log.Fatal(err)

@@ -23,12 +23,16 @@ func getKeyvaultCases(
 	}
 	vaultsClient := keyVaultSDK.NewVaultsClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureConfig.GetSubscriptionID(),
 	)
 	vaultsClient.Authorizer = authorizer
 	return []serviceLifecycleTestCase{
 		{
-			module:    keyvault.New(azureConfig.TenantID, armDeployer, vaultsClient),
+			module: keyvault.New(
+				azureConfig.GetTenantID(),
+				armDeployer,
+				vaultsClient,
+			),
 			serviceID: "d90c881e-c9bb-4e07-a87b-fcfe87e03276",
 			planID:    "3577ee4a-75fc-44b3-b354-9d33d52ef486",
 			location:  "southcentralus",

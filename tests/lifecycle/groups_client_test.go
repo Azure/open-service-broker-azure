@@ -43,14 +43,14 @@ func getGroupsClient() (*resources.GroupsClient, error) {
 		return nil, err
 	}
 	groupsClient := resources.NewGroupsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureConfig.GetEnvironment().ResourceManagerEndpoint,
+		azureConfig.GetSubscriptionID(),
 	)
 	authorizer, err := az.GetBearerTokenAuthorizer(
-		azureConfig.Environment,
-		azureConfig.TenantID,
-		azureConfig.ClientID,
-		azureConfig.ClientSecret,
+		azureConfig.GetEnvironment(),
+		azureConfig.GetTenantID(),
+		azureConfig.GetClientID(),
+		azureConfig.GetClientSecret(),
 	)
 	if err != nil {
 		return nil, err

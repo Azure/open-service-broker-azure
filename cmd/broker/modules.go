@@ -37,25 +37,28 @@ import (
 var modules []service.Module
 
 func initModules(azureConfig config.AzureConfig) error {
+	azureEnvironment := azureConfig.GetEnvironment()
+	azureSubscriptionID := azureConfig.GetSubscriptionID()
+
 	authorizer, err := az.GetBearerTokenAuthorizer(
-		azureConfig.Environment,
-		azureConfig.TenantID,
-		azureConfig.ClientID,
-		azureConfig.ClientSecret,
+		azureEnvironment,
+		azureConfig.GetTenantID(),
+		azureConfig.GetClientID(),
+		azureConfig.GetClientSecret(),
 	)
 	if err != nil {
 		return fmt.Errorf("error getting bearer token authorizer: %s", err)
 	}
 
 	resourceGroupsClient := resources.NewGroupsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	resourceGroupsClient.Authorizer = authorizer
 	resourceGroupsClient.UserAgent = getUserAgent(resourceGroupsClient.Client)
 	resourceDeploymentsClient := resources.NewDeploymentsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	resourceDeploymentsClient.Authorizer = authorizer
 	resourceDeploymentsClient.UserAgent =
@@ -66,86 +69,86 @@ func initModules(azureConfig config.AzureConfig) error {
 	)
 
 	aciClient := aciSDK.NewContainerGroupsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	aciClient.Authorizer = authorizer
 	aciClient.UserAgent = getUserAgent(aciClient.Client)
 
 	cosmosdbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	cosmosdbAccountsClient.Authorizer = authorizer
 	cosmosdbAccountsClient.UserAgent = getUserAgent(cosmosdbAccountsClient.Client)
 
 	eventHubNamespacesClient := eventHubSDK.NewNamespacesClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	eventHubNamespacesClient.Authorizer = authorizer
 	eventHubNamespacesClient.UserAgent =
 		getUserAgent(eventHubNamespacesClient.Client)
 
 	keyVaultsClient := keyVaultSDK.NewVaultsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	keyVaultsClient.Authorizer = authorizer
 	keyVaultsClient.UserAgent = getUserAgent(keyVaultsClient.Client)
 
 	mysqlServersClient := mysqlSDK.NewServersClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	mysqlServersClient.Authorizer = authorizer
 	mysqlServersClient.UserAgent = getUserAgent(mysqlServersClient.Client)
 
 	postgresServersClient := postgresSDK.NewServersClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	postgresServersClient.Authorizer = authorizer
 	postgresServersClient.UserAgent = getUserAgent(postgresServersClient.Client)
 
 	sqlServersClient := sqlSDK.NewServersClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	sqlServersClient.Authorizer = authorizer
 	sqlServersClient.UserAgent = getUserAgent(sqlServersClient.Client)
 	sqlDatabasesClient := sqlSDK.NewDatabasesClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	sqlDatabasesClient.Authorizer = authorizer
 	sqlDatabasesClient.UserAgent = getUserAgent(sqlDatabasesClient.Client)
 
 	redisGroupClient := redisSDK.NewGroupClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	redisGroupClient.Authorizer = authorizer
 	redisGroupClient.UserAgent = getUserAgent(redisGroupClient.Client)
 
 	searchServicesClient := searchSDK.NewServicesClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	searchServicesClient.Authorizer = authorizer
 	searchServicesClient.UserAgent = getUserAgent(searchServicesClient.Client)
 
 	serviceBusNamespacesClient := servicebusSDK.NewNamespacesClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	serviceBusNamespacesClient.Authorizer = authorizer
 	serviceBusNamespacesClient.UserAgent =
 		getUserAgent(serviceBusNamespacesClient.Client)
 
 	storageAccountsClient := storageSDK.NewAccountsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	storageAccountsClient.Authorizer = authorizer
 	storageAccountsClient.UserAgent = getUserAgent(storageAccountsClient.Client)
@@ -153,12 +156,12 @@ func initModules(azureConfig config.AzureConfig) error {
 	modules = []service.Module{
 		postgresqldb.New(armDeployer, postgresServersClient),
 		rediscache.New(armDeployer, redisGroupClient),
-		mysqldb.New(azureConfig.Environment, armDeployer, mysqlServersClient),
+		mysqldb.New(azureEnvironment, armDeployer, mysqlServersClient),
 		servicebus.New(armDeployer, serviceBusNamespacesClient),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
-		keyvault.New(azureConfig.TenantID, armDeployer, keyVaultsClient),
+		keyvault.New(azureConfig.GetTenantID(), armDeployer, keyVaultsClient),
 		sqldb.New(
-			azureConfig.Environment,
+			azureEnvironment,
 			armDeployer,
 			sqlServersClient,
 			sqlDatabasesClient,
