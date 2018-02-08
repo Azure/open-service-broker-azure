@@ -4,8 +4,8 @@
 [[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
   packages = ["arm/containerinstance","arm/cosmos-db","arm/eventhub","arm/keyvault","arm/mysql","arm/postgresql","arm/redis","arm/resources/resources","arm/search","arm/servicebus","arm/sql","arm/storage","storage"]
-  revision = "df4dd90d076ebbf6e87d08d3f00bfac8ff4bde1a"
-  version = "v10.3.1-beta"
+  revision = "f111fc2fa3861c5fdced76cae4c9c71821969577"
+  version = "v12.4.0-beta"
 
 [[projects]]
   name = "github.com/Azure/go-autorest"
@@ -100,6 +100,11 @@
   revision = "e42267488fe361b9dc034be7a6bffef5b195bceb"
 
 [[projects]]
+  name = "github.com/marstr/guid"
+  packages = ["."]
+  revision = "8bdf7d1a087ccc975cf37dd6507da50698fd19ca"
+
+[[projects]]
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
@@ -111,10 +116,10 @@
   revision = "d8ed2627bdf02c080bf22230dbb337003b7aba2d"
 
 [[projects]]
-  branch = "master"
   name = "github.com/satori/go.uuid"
   packages = ["."]
-  revision = "5bf94b69c6b68ee1b541973bb8e1144db23a194b"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -157,6 +162,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0f163c42629a9cfd4b6b14e76f4ddb68d1ea5463187b01ef08843fd175ee1381"
+  inputs-digest = "c13a83a0ef12ce9d1d5514f0de6f38f95135396b79321a5ccda1c57db7f73d33"
   solver-name = "gps-cdcl"
   solver-version = 1
