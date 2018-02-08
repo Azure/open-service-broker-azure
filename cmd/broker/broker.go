@@ -70,23 +70,31 @@ func main() {
 		log.Fatal(err)
 	}
 	storageRedisOpts := &redis.Options{
-		Addr:       fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
-		Password:   redisConfig.Password,
-		DB:         redisConfig.StorageDB,
+		Addr: fmt.Sprintf(
+			"%s:%d",
+			redisConfig.GetHost(),
+			redisConfig.GetPort(),
+		),
+		Password:   redisConfig.GetPassword(),
+		DB:         redisConfig.GetStorageDB(),
 		MaxRetries: 5,
 	}
 	asyncRedisOpts := &redis.Options{
-		Addr:       fmt.Sprintf("%s:%d", redisConfig.Host, redisConfig.Port),
-		Password:   redisConfig.Password,
-		DB:         redisConfig.AsyncDB,
+		Addr: fmt.Sprintf(
+			"%s:%d",
+			redisConfig.GetHost(),
+			redisConfig.GetPort(),
+		),
+		Password:   redisConfig.GetPassword(),
+		DB:         redisConfig.GetAsyncDB(),
 		MaxRetries: 5,
 	}
-	if redisConfig.EnableTLS {
+	if redisConfig.IsTLSEnabled() {
 		storageRedisOpts.TLSConfig = &tls.Config{
-			ServerName: redisConfig.Host,
+			ServerName: redisConfig.GetHost(),
 		}
 		asyncRedisOpts.TLSConfig = &tls.Config{
-			ServerName: redisConfig.Host,
+			ServerName: redisConfig.GetHost(),
 		}
 	}
 	storageRedisClient := redis.NewClient(storageRedisOpts)

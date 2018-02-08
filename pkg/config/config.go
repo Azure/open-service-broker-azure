@@ -9,18 +9,6 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-// RedisConfig represents details for connecting to the Redis instance that
-// the broker itself relies on for storing state and orchestrating asynchronous
-// processes
-type RedisConfig struct {
-	Host      string `envconfig:"REDIS_HOST" required:"true"`
-	Port      int    `envconfig:"REDIS_PORT" default:"6379"`
-	Password  string `envconfig:"REDIS_PASSWORD" default:""`
-	StorageDB int    `envconfig:"REDIS_STORAGE_DB" default:"0"`
-	AsyncDB   int    `envconfig:"REDIS_ASYNC_DB" default:"1"`
-	EnableTLS bool   `envconfig:"REDIS_ENABLE_TLS" default:"false"`
-}
-
 // CryptoConfig represents details (e.g. key) for encrypting and decrypting any
 // (potentially) sensitive information
 type CryptoConfig struct {
@@ -52,13 +40,6 @@ type AzureConfig struct {
 	ClientSecret         string `envconfig:"AZURE_CLIENT_SECRET" required:"true"`
 	DefaultLocation      string `envconfig:"AZURE_DEFAULT_LOCATION"`
 	DefaultResourceGroup string `envconfig:"AZURE_DEFAULT_RESOURCE_GROUP"`
-}
-
-// GetRedisConfig returns Redis configuration
-func GetRedisConfig() (RedisConfig, error) {
-	rc := RedisConfig{}
-	err := envconfig.Process("", &rc)
-	return rc, err
 }
 
 // GetCryptoConfig returns crypto configuration
