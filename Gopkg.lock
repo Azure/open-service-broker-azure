@@ -10,8 +10,8 @@
 [[projects]]
   name = "github.com/Azure/go-autorest"
   packages = ["autorest","autorest/adal","autorest/azure","autorest/date","autorest/to","autorest/validation"]
-  revision = "48a8154950f853ae1f2a9c409e0eb1fb71119bc8"
-  version = "v8.2.0"
+  revision = "fc3b03a2d2d1f43fad3007038bd16f044f870722"
+  version = "v9.10.0"
 
 [[projects]]
   name = "github.com/Masterminds/semver"
@@ -157,6 +157,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e45681a944a3b70ab8ee034a7f619f38a5b79eff180c807a10d8e723dda9b5ab"
+  inputs-digest = "0f163c42629a9cfd4b6b14e76f4ddb68d1ea5463187b01ef08843fd175ee1381"
   solver-name = "gps-cdcl"
   solver-version = 1
