@@ -20,13 +20,8 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 		return nil, err
 	}
 
-	azureEnvironment, err := azure.EnvironmentFromName(azureConfig.Environment)
-	if err != nil {
-		return nil, err
-	}
-
 	authorizer, err := az.GetBearerTokenAuthorizer(
-		azureEnvironment,
+		azureConfig.Environment,
 		azureConfig.TenantID,
 		azureConfig.ClientID,
 		azureConfig.ClientSecret,
@@ -36,7 +31,7 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 	}
 
 	armDeployer := arm.NewDeployer(
-		azureEnvironment,
+		azureConfig.Environment,
 		azureConfig.SubscriptionID,
 		authorizer,
 	)
@@ -66,7 +61,7 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 
 	for _, getTestCaseFunc := range getTestCaseFuncs {
 		if tcs, err := getTestCaseFunc(
-			azureEnvironment,
+			azureConfig.Environment,
 			azureConfig.SubscriptionID,
 			authorizer,
 			armDeployer,

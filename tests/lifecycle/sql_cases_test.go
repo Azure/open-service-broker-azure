@@ -32,7 +32,12 @@ func getMssqlCases(
 		subscriptionID,
 	)
 	sqlDatabasesClient.Authorizer = authorizer
-	module := sqldb.New(armDeployer, sqlServersClient, sqlDatabasesClient)
+	module := sqldb.New(
+		azureEnvironment,
+		armDeployer,
+		sqlServersClient,
+		sqlDatabasesClient,
+	)
 	return []serviceLifecycleTestCase{
 		{ // all-in-one scenario
 			module:      module,

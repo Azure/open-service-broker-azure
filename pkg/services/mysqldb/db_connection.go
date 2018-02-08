@@ -5,31 +5,22 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Azure/go-autorest/autorest/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/config"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-sql-driver/mysql"
 )
 
-func getDBConnection(dt *mysqlInstanceDetails) (*sql.DB, error) {
+func (s *serviceManager) getDBConnection(
+	dt *mysqlInstanceDetails,
+) (*sql.DB, error) {
 	var connectionStrTemplate string
 	if dt.EnforceSSL {
-		azureConfig, err := config.GetAzureConfig()
-		if err != nil {
-			return nil, err
-		}
-		azureEnvironment, err := azure.EnvironmentFromName(azureConfig.Environment)
-		if err != nil {
-			return nil, err
-		}
-		sqlDatabaseDNSSuffix := azureEnvironment.SQLDatabaseDNSSuffix
-		serverName := fmt.Sprintf("*.%s", sqlDatabaseDNSSuffix)
+		serverName := fmt.Sprintf("*.%s", s.sqlDatabaseDNSSuffix)
 
 		log.WithField(
 			"serverName", serverName,
 		).Debug("Azure ENV SQLDatabaseDNSSuffix")
 
-		err = mysql.RegisterTLSConfig("custom", &tls.Config{
+		err := mysql.RegisterTLSConfig("custom", &tls.Config{
 			ServerName: serverName,
 		})
 		if err != nil {

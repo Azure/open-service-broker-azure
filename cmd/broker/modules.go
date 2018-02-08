@@ -14,7 +14,6 @@ import (
 	servicebusSDK "github.com/Azure/azure-sdk-for-go/arm/servicebus"
 	sqlSDK "github.com/Azure/azure-sdk-for-go/arm/sql"
 	storageSDK "github.com/Azure/azure-sdk-for-go/arm/storage"
-	"github.com/Azure/go-autorest/autorest/azure"
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/config"
@@ -34,22 +33,9 @@ import (
 
 var modules []service.Module
 
-func initModules() error {
-	azureConfig, err := config.GetAzureConfig()
-	if err != nil {
-		return fmt.Errorf("error getting azure configuration: %s", err)
-	}
-
-	azureEnvironment, err := azure.EnvironmentFromName(azureConfig.Environment)
-	if err != nil {
-		return fmt.Errorf(
-			"error getting azure environment from environment name: %s",
-			err,
-		)
-	}
-
+func initModules(azureConfig config.AzureConfig) error {
 	authorizer, err := az.GetBearerTokenAuthorizer(
-		azureEnvironment,
+		azureConfig.Environment,
 		azureConfig.TenantID,
 		azureConfig.ClientID,
 		azureConfig.ClientSecret,
@@ -59,78 +45,78 @@ func initModules() error {
 	}
 
 	armDeployer := arm.NewDeployer(
-		azureEnvironment,
+		azureConfig.Environment,
 		azureConfig.SubscriptionID,
 		authorizer,
 	)
 
 	aciClient := aciSDK.NewContainerGroupsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	aciClient.Authorizer = authorizer
 
 	cosmosdbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	cosmosdbAccountsClient.Authorizer = authorizer
 
 	eventHubNamespacesClient := eventHubSDK.NewNamespacesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	eventHubNamespacesClient.Authorizer = authorizer
 
 	keyVaultsClient := keyVaultSDK.NewVaultsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	keyVaultsClient.Authorizer = authorizer
 
 	mysqlServersClient := mysqlSDK.NewServersClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	mysqlServersClient.Authorizer = authorizer
 
 	postgresServersClient := postgresSDK.NewServersClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	postgresServersClient.Authorizer = authorizer
 
 	sqlServersClient := sqlSDK.NewServersClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	sqlServersClient.Authorizer = authorizer
 	sqlDatabasesClient := sqlSDK.NewDatabasesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	sqlDatabasesClient.Authorizer = authorizer
 
 	redisGroupClient := redisSDK.NewGroupClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	redisGroupClient.Authorizer = authorizer
 
 	searchServicesClient := searchSDK.NewServicesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	searchServicesClient.Authorizer = authorizer
 
 	serviceBusNamespacesClient := servicebusSDK.NewNamespacesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	serviceBusNamespacesClient.Authorizer = authorizer
 
 	storageAccountsClient := storageSDK.NewAccountsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureConfig.SubscriptionID,
 	)
 	storageAccountsClient.Authorizer = authorizer
@@ -138,11 +124,16 @@ func initModules() error {
 	modules = []service.Module{
 		postgresqldb.New(armDeployer, postgresServersClient),
 		rediscache.New(armDeployer, redisGroupClient),
-		mysqldb.New(armDeployer, mysqlServersClient),
+		mysqldb.New(azureConfig.Environment, armDeployer, mysqlServersClient),
 		servicebus.New(armDeployer, serviceBusNamespacesClient),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
 		keyvault.New(azureConfig.TenantID, armDeployer, keyVaultsClient),
-		sqldb.New(armDeployer, sqlServersClient, sqlDatabasesClient),
+		sqldb.New(
+			azureConfig.Environment,
+			armDeployer,
+			sqlServersClient,
+			sqlDatabasesClient,
+		),
 		cosmosdb.New(armDeployer, cosmosdbAccountsClient),
 		storage.New(armDeployer, storageAccountsClient),
 		search.New(armDeployer, searchServicesClient),

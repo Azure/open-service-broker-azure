@@ -21,7 +21,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func init() {
+func main() {
 	// Initialize logging
 	// Split log output across stdout and stderr, depending on severity
 	// krancour: This functionality is currently dependent on a fork of
@@ -46,13 +46,16 @@ func init() {
 	).Info("setting log level")
 	log.SetLevel(logConfig.Level)
 
-	// Initialize modules
-	if err = initModules(); err != nil {
+	azureConfig, err := config.GetAzureConfig()
+	if err != nil {
 		log.Fatal(err)
 	}
-}
 
-func main() {
+	// Initialize modules
+	if err = initModules(azureConfig); err != nil {
+		log.Fatal(err)
+	}
+
 	log.WithFields(
 		log.Fields{
 			"version": version.GetVersion(),
@@ -112,11 +115,6 @@ func main() {
 	)
 
 	modulesConfig, err := config.GetModulesConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	azureConfig, err := config.GetAzureConfig()
 	if err != nil {
 		log.Fatal(err)
 	}

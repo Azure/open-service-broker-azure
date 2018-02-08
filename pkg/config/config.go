@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/kelseyhightower/envconfig"
@@ -50,8 +51,9 @@ type ModulesConfig struct {
 // AzureConfig represents details necessary for the broker to interact with
 // an Azure subscription
 type AzureConfig struct {
-	Environment          string `envconfig:"AZURE_ENVIRONMENT" default:"AzurePublicCloud"` // nolint: lll
-	SubscriptionID       string `envconfig:"AZURE_SUBSCRIPTION_ID" required:"true"`        // nolint: lll
+	EnvironmentStr       string `envconfig:"AZURE_ENVIRONMENT" default:"AzurePublicCloud"` // nolint: lll
+	Environment          azure.Environment
+	SubscriptionID       string `envconfig:"AZURE_SUBSCRIPTION_ID" required:"true"` // nolint: lll
 	TenantID             string `envconfig:"AZURE_TENANT_ID" required:"true"`
 	ClientID             string `envconfig:"AZURE_CLIENT_ID" required:"true"`
 	ClientSecret         string `envconfig:"AZURE_CLIENT_SECRET" required:"true"`
@@ -119,5 +121,9 @@ func GetModulesConfig() (ModulesConfig, error) {
 func GetAzureConfig() (AzureConfig, error) {
 	ac := AzureConfig{}
 	err := envconfig.Process("", &ac)
+	if err != nil {
+		return ac, err
+	}
+	ac.Environment, err = azure.EnvironmentFromName(ac.EnvironmentStr)
 	return ac, err
 }

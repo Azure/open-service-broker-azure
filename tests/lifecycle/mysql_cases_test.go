@@ -23,7 +23,7 @@ func getMysqlCases(
 	serversClient.Authorizer = authorizer
 	return []serviceLifecycleTestCase{
 		{
-			module:    mysqldb.New(armDeployer, serversClient),
+			module:    mysqldb.New(azureEnvironment, armDeployer, serversClient),
 			serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
 			planID:    "427559f1-bf2a-45d3-8844-32374a3e58aa",
 			location:  "southcentralus",
