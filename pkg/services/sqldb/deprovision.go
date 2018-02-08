@@ -117,10 +117,13 @@ func (a *allInOneManager) deleteMsSQLServer(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
-	if _, err := a.serversClient.Delete(
+	cancelCh := make(chan struct{})
+	_, errChan := a.serversClient.Delete(
 		instance.ResourceGroup,
 		dt.ServerName,
-	); err != nil {
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
 		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return dt, nil
@@ -136,10 +139,13 @@ func (v *vmOnlyManager) deleteMsSQLServer(
 			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
-	if _, err := v.serversClient.Delete(
+	cancelCh := make(chan struct{})
+	_, errChan := v.serversClient.Delete(
 		instance.ResourceGroup,
 		dt.ServerName,
-	); err != nil {
+		cancelCh,
+	)
+	if err := <-errChan; err != nil {
 		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return dt, nil
