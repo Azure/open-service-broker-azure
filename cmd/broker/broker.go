@@ -136,8 +136,8 @@ func main() {
 		filterChain,
 		modules,
 		modulesConfig.GetMinStability(),
-		azureConfig.DefaultLocation,
-		azureConfig.DefaultResourceGroup,
+		azureConfig.GetDefaultLocation(),
+		azureConfig.GetDefaultResourceGroup(),
 	)
 	if err != nil {
 		log.Fatal(err)

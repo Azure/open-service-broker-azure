@@ -21,24 +21,27 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 		return nil, err
 	}
 
+	azureEnvironment := azureConfig.GetEnvironment()
+	azureSubscriptionID := azureConfig.GetSubscriptionID()
+
 	authorizer, err := az.GetBearerTokenAuthorizer(
-		azureConfig.Environment,
-		azureConfig.TenantID,
-		azureConfig.ClientID,
-		azureConfig.ClientSecret,
+		azureEnvironment,
+		azureConfig.GetTenantID(),
+		azureConfig.GetClientID(),
+		azureConfig.GetClientSecret(),
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	resourceGroupsClient := resources.NewGroupsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	resourceGroupsClient.Authorizer = authorizer
 	resourceDeploymentsClient := resources.NewDeploymentsClientWithBaseURI(
-		azureConfig.Environment.ResourceManagerEndpoint,
-		azureConfig.SubscriptionID,
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
 	)
 	resourceDeploymentsClient.Authorizer = authorizer
 	armDeployer := arm.NewDeployer(
@@ -71,8 +74,8 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 
 	for _, getTestCaseFunc := range getTestCaseFuncs {
 		if tcs, err := getTestCaseFunc(
-			azureConfig.Environment,
-			azureConfig.SubscriptionID,
+			azureEnvironment,
+			azureSubscriptionID,
 			authorizer,
 			armDeployer,
 		); err == nil {
