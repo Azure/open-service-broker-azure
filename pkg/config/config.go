@@ -9,12 +9,6 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-// CryptoConfig represents details (e.g. key) for encrypting and decrypting any
-// (potentially) sensitive information
-type CryptoConfig struct {
-	AES256Key string `envconfig:"AES256_KEY" required:"true"`
-}
-
 // BasicAuthConfig represents details such as username and password that will
 // be used to secure the broker using basic auth
 type BasicAuthConfig struct {
@@ -40,13 +34,6 @@ type AzureConfig struct {
 	ClientSecret         string `envconfig:"AZURE_CLIENT_SECRET" required:"true"`
 	DefaultLocation      string `envconfig:"AZURE_DEFAULT_LOCATION"`
 	DefaultResourceGroup string `envconfig:"AZURE_DEFAULT_RESOURCE_GROUP"`
-}
-
-// GetCryptoConfig returns crypto configuration
-func GetCryptoConfig() (CryptoConfig, error) {
-	cc := CryptoConfig{}
-	err := envconfig.Process("", &cc)
-	return cc, err
 }
 
 // GetBasicAuthConfig returns basic auth configuration

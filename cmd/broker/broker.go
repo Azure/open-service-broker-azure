@@ -105,7 +105,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	codec, err := aes256.NewCodec([]byte(cryptoConfig.AES256Key))
+	codec, err := aes256.NewCodec([]byte(cryptoConfig.GetAES256Key()))
 	if err != nil {
 		log.Fatal(err)
 	}
