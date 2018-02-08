@@ -118,28 +118,18 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instance.Status = service.InstanceStateDeprovisioning
-	if err = s.store.WriteInstance(instance); err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"deprovisioning error: error persisting updated instance",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-
-	childCount, err := s.store.GetInstanceChildCountByAlias(instance.Alias)
-	if err != nil {
+	var task async.Task
+	if childCount, err :=
+		s.store.GetInstanceChildCountByAlias(instance.Alias); err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
 			"deprovisioning error: error determining child count",
 		)
 		s.writeResponse(w, http.StatusInternalServerError, responseEmptyJSON)
-	}
-
-	var task async.Task
-	if childCount > 0 {
+		return
+	} else if childCount > 0 {
+		instance.Status = service.InstanceStateDeprovisioningDeferred
 		logFields["provisionedChildren"] = childCount
 		task = async.NewDelayedTask(
 			"checkChildrenStatuses",
@@ -150,6 +140,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		)
 		log.WithFields(logFields).Debug("children not deprovisioned, waiting")
 	} else {
+		instance.Status = service.InstanceStateDeprovisioning
 		task = async.NewTask(
 			"executeDeprovisioningStep",
 			map[string]string{
@@ -161,6 +152,16 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			"no provisioned children, starting deprovision",
 		)
 	}
+
+	if err = s.store.WriteInstance(instance); err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"deprovisioning error: error persisting updated instance",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+
 	if err = s.asyncEngine.SubmitTask(task); err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err

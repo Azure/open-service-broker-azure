@@ -71,6 +71,13 @@ func (s *server) poll(
 
 	if operation == OperationProvisioning {
 		switch instance.Status {
+		case service.InstanceStateProvisioningDeferred:
+			log.WithFields(logFields).Debug(
+				"provisioning is deferred",
+			)
+			// We'll still send an "in progress" response because the OSB spec doesn't
+			// currently define a "deferred" state
+			s.writeResponse(w, http.StatusOK, generateOperationInProgressResponse())
 		case service.InstanceStateProvisioning:
 			log.WithFields(logFields).Debug(
 				"provisioning is in progress",
@@ -122,6 +129,13 @@ func (s *server) poll(
 	}
 
 	switch instance.Status {
+	case service.InstanceStateDeprovisioningDeferred:
+		log.WithFields(logFields).Debug(
+			"deprovisioning is deferred",
+		)
+		// We'll still send an "in progress" response because the OSB spec doesn't
+		// currently define a "deferred" state
+		s.writeResponse(w, http.StatusOK, generateOperationInProgressResponse())
 	case service.InstanceStateDeprovisioning:
 		log.WithFields(logFields).Debug(
 			"deprovisioning is in progress",

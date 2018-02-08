@@ -7,6 +7,9 @@ const (
 	OperationUpdating = "updating"
 	// OperationDeprovisioning represents the "deprovisioning" operation
 	OperationDeprovisioning = "deprovisioning"
+	// OperationStateDeferred represents the state of an operation that has been
+	// requested, but has been deferred pending completion of some other action
+	OperationStateDeferred = "deferred"
 	// OperationStateInProgress represents the state of an operation that is still
 	// pending completion
 	OperationStateInProgress = "in progress"

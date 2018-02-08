@@ -1,6 +1,10 @@
 package service
 
 const (
+	// InstanceStateProvisioningDeferred represents the state where service
+	// instance provisioning has been requested and deferred pending the
+	// completion of some other action
+	InstanceStateProvisioningDeferred = "PROVISIONING_DEFERRED"
 	// InstanceStateProvisioning represents the state where service instance
 	// provisioning is in progress
 	InstanceStateProvisioning = "PROVISIONING"
@@ -21,6 +25,10 @@ const (
 	// InstanceStateUpdatingFailed represents the state where service instance
 	// updating has failed
 	InstanceStateUpdatingFailed = "UPDATING_FAILED"
+	// InstanceStateDeprovisioningDeferred represents the state where service
+	// instance deprovisioning has been requested and deferred pending the
+	// completion of some other action
+	InstanceStateDeprovisioningDeferred = "DEPROVISIONING_DEFERRED"
 	// InstanceStateDeprovisioning represents the state where service instance
 	// deprovisioning is in progress
 	InstanceStateDeprovisioning = "DEPROVISIONING"
