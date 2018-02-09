@@ -101,11 +101,22 @@ func (b *broker) doCheckChildrenStatuses(
 			instance,
 			"checkChildrenStatuses",
 			nil,
-			"error: no steps found for deprovisioning service ance plan",
+			"error: no steps found for deprovisioning service and plan",
 		)
 	}
 
-	//Put the real deprovision task into the queue
+	// Update the status
+	instance.Status = service.InstanceStateDeprovisioning
+	if err = b.store.WriteInstance(instance); err != nil {
+		return nil, b.handleDeprovisioningError(
+			instance,
+			"checkChildrenStatuses",
+			err,
+			"error: error updating instance status",
+		)
+	}
+
+	// Put the real deprovision task into the queue
 	log.WithFields(log.Fields{
 		"step":       "checkChildrenStatuses",
 		"instanceID": instanceID,

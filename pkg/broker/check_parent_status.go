@@ -102,6 +102,19 @@ func (b *broker) doCheckParentStatus(
 		"step":       "checkParentStatus",
 		"instanceID": instanceID,
 	}).Debug("parent done, sending start provision task")
+
+	// Update the status
+	instance.Status = service.InstanceStateProvisioning
+	if err = b.store.WriteInstance(instance); err != nil {
+		return nil, b.handleProvisioningError(
+			instance,
+			"checkParentStatus",
+			err,
+			"error: error updating instance status",
+		)
+	}
+
+	// Put the real provision task into the queue
 	return []async.Task{
 		async.NewTask(
 			"executeProvisioningStep",

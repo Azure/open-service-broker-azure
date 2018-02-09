@@ -395,27 +395,17 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		Created:                time.Now(),
 	}
 
-	waitForParent, err := s.isParentProvisioning(instance)
-	if err != nil {
+	var task async.Task
+	var waitForParent bool
+	if waitForParent, err = s.isParentProvisioning(instance); err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
 			"provisioning error: error related to parent instance",
 		)
 		s.writeResponse(w, http.StatusBadRequest, generateParentInvalidResponse())
 		return
-	}
-
-	if err = s.store.WriteInstance(instance); err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"provisioning error: error persisting new instance",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-
-	var task async.Task
-	if waitForParent {
+	} else if waitForParent {
+		instance.Status = service.InstanceStateProvisioningDeferred
 		task = async.NewDelayedTask(
 			"checkParentStatus",
 			map[string]string{
@@ -437,6 +427,15 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
+	if err = s.store.WriteInstance(instance); err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"provisioning error: error persisting new instance",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+
 	if err = s.asyncEngine.SubmitTask(task); err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err
@@ -446,6 +445,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
+
 	// If we get all the way to here, we've been successful!
 	s.writeResponse(w, http.StatusAccepted, generateProvisionAcceptedResponse())
 
