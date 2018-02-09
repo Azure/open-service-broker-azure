@@ -174,7 +174,7 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 	}
 
 	if _, err := d.databasesClient.Delete(
-		instance.ResourceGroup,
+		instance.Parent.ResourceGroup,
 		pdt.ServerName,
 		dt.DatabaseName,
 	); err != nil {
