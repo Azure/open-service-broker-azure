@@ -334,10 +334,24 @@ func TestGetLocation(t *testing.T) {
 	const location = "test-location"
 	testCases := []struct {
 		name            string
+		svc             service.Service
 		defaultLocation string
 		location        string
 		assertion       func(*testing.T, string)
 	}{
+		{
+			name: `service is not a "root" service type`,
+			svc: service.NewService(
+				&service.ServiceProperties{
+					ParentServiceID: "foo",
+				},
+				nil,
+			),
+			location: location,
+			assertion: func(t *testing.T, loc string) {
+				assert.Equal(t, "", loc)
+			},
+		},
 		{
 			name:     "location specified with no default location",
 			location: location,
@@ -361,13 +375,19 @@ func TestGetLocation(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
+		if testCase.svc == nil {
+			testCase.svc = service.NewService(
+				&service.ServiceProperties{},
+				nil,
+			)
+		}
 		t.Run(testCase.name, func(t *testing.T) {
 			s, _, err := getTestServer(
 				testCase.defaultLocation,
 				"default-rg",
 			)
 			assert.Nil(t, err)
-			spc := s.getLocation(testCase.location)
+			spc := s.getLocation(testCase.svc, testCase.location)
 			testCase.assertion(t, spc)
 		})
 	}
@@ -378,10 +398,24 @@ func TestGetResourceGroup(t *testing.T) {
 	const resourceGroup = "test-rg"
 	testCases := []struct {
 		name                 string
+		svc                  service.Service
 		defaultResourceGroup string
 		resourceGroup        string
 		assertion            func(*testing.T, string)
 	}{
+		{
+			name: `service is not a "root" service type`,
+			svc: service.NewService(
+				&service.ServiceProperties{
+					ParentServiceID: "foo",
+				},
+				nil,
+			),
+			resourceGroup: resourceGroup,
+			assertion: func(t *testing.T, rg string) {
+				assert.Equal(t, "", rg)
+			},
+		},
 		{
 			name:          "resource group specified with no default resource group",
 			resourceGroup: resourceGroup,
@@ -418,13 +452,19 @@ func TestGetResourceGroup(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
+		if testCase.svc == nil {
+			testCase.svc = service.NewService(
+				&service.ServiceProperties{},
+				nil,
+			)
+		}
 		t.Run(testCase.name, func(t *testing.T) {
 			s, _, err := getTestServer(
 				"default-location",
 				testCase.defaultResourceGroup,
 			)
 			assert.Nil(t, err)
-			spc := s.getResourceGroup(testCase.resourceGroup)
+			spc := s.getResourceGroup(testCase.svc, testCase.resourceGroup)
 			testCase.assertion(t, spc)
 		})
 	}

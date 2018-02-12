@@ -143,7 +143,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	location = s.getLocation(location)
+	location = s.getLocation(svc, location)
 
 	// Resource group...
 	requestedResourceGroup := ""
@@ -162,7 +162,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	resourceGroup := s.getResourceGroup(requestedResourceGroup)
+	resourceGroup := s.getResourceGroup(svc, requestedResourceGroup)
 
 	// Tags...
 	var tags map[string]string
@@ -565,14 +565,27 @@ func (s *server) handlePossibleValidationError(
 	s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 }
 
-func (s *server) getLocation(location string) string {
+func (s *server) getLocation(svc service.Service, location string) string {
+	// Return an empty location only if this is NOT a "root" service type
+	// (i.e. has a parent)
+	if svc.GetParentServiceID() != "" {
+		return ""
+	}
 	if location != "" {
 		return location
 	}
 	return s.defaultAzureLocation
 }
 
-func (s *server) getResourceGroup(resourceGroup string) string {
+func (s *server) getResourceGroup(
+	svc service.Service,
+	resourceGroup string,
+) string {
+	// Return an empty resource group only if this is NOT a "root" service type
+	// (i.e. has a parent)
+	if svc.GetParentServiceID() != "" {
+		return ""
+	}
 	if resourceGroup != "" {
 		return resourceGroup
 	}
