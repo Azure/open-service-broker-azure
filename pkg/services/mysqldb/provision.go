@@ -14,18 +14,24 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s *serviceManager) ValidateProvisioningParameters(
+const (
+	enabled  = "enabled"
+	disabled = "disabled"
+)
+
+func validateServerProvisionParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	pp, ok := provisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
 		return errors.New(
-			"error casting provisioningParameters as *mysql.ProvisioningParameters",
+			"error casting provisioningParameters " +
+				"as *mysql.ServerProvisioningParameters",
 		)
 	}
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	if sslEnforcement != "" && sslEnforcement != "enabled" &&
-		sslEnforcement != "disabled" {
+	if sslEnforcement != "" && sslEnforcement != enabled &&
+		sslEnforcement != disabled {
 		return service.NewValidationError(
 			"sslEnforcement",
 			fmt.Sprintf(`invalid option: "%s"`, pp.SSLEnforcement),
@@ -75,30 +81,66 @@ func (s *serviceManager) ValidateProvisioningParameters(
 	return nil
 }
 
-func (s *serviceManager) GetProvisioner(
+func (a *allInOneManager) ValidateProvisioningParameters(
+	provisioningParameters service.ProvisioningParameters,
+) error {
+	return validateServerProvisionParameters(provisioningParameters)
+}
+
+func (v *vmOnlyManager) ValidateProvisioningParameters(
+	provisioningParameters service.ProvisioningParameters,
+) error {
+	return validateServerProvisionParameters(provisioningParameters)
+}
+
+func (d *dbOnlyManager) ValidateProvisioningParameters(
+	provisioningParameters service.ProvisioningParameters,
+) error {
+	return nil
+}
+
+func (a *allInOneManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", s.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", a.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", a.deployARMTemplate),
 	)
 }
 
-func (s *serviceManager) preProvision(
+func (v *vmOnlyManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
+	return service.NewProvisioner(
+		service.NewProvisioningStep("preProvision", v.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", v.deployARMTemplate),
+	)
+}
+
+func (d *dbOnlyManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
+	return service.NewProvisioner(
+		service.NewProvisioningStep("preProvision", d.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", d.deployARMTemplate),
+	)
+}
+
+func (a *allInOneManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mysqlInstanceDetails",
+			"error casting instance.Details as *allInOneMysqlInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
-				"*mysql.ProvisioningParameters",
+				"*mysql.ServerProvisioningParameters",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
@@ -108,19 +150,75 @@ func (s *serviceManager) preProvision(
 
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
 	switch sslEnforcement {
-	case "", "enabled":
+	case "", enabled:
 		dt.EnforceSSL = true
-	case "disabled":
+	case disabled:
 		dt.EnforceSSL = false
 	}
 
 	return dt, nil
 }
 
-func buildARMTemplateParameters(
+func (v *vmOnlyManager) preProvision(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*vmOnlyMysqlInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *vmOnlyMysqlInstanceDetails",
+		)
+	}
+	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.ProvisioningParameters as " +
+				"*mysql.ServerProvisioningParameters",
+		)
+	}
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.ServerName = uuid.NewV4().String()
+	dt.AdministratorLoginPassword = generate.NewPassword()
+
+	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
+	switch sslEnforcement {
+	case "", enabled:
+		dt.EnforceSSL = true
+	case disabled:
+		dt.EnforceSSL = false
+	}
+
+	return dt, nil
+}
+
+func (d *dbOnlyManager) preProvision(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
+		)
+	}
+	//We aren't using any of these, but validate it can be type cast
+	_, ok = instance.ProvisioningParameters.(*DatabaseProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.ProvisioningParameters as " +
+				"*mysqldb.DatabaseProvisioningParameters",
+		)
+	}
+	dt.ARMDeploymentName = uuid.NewV4().String()
+	dt.DatabaseName = generate.NewIdentifier()
+
+	return dt, nil
+}
+
+func (a *allInOneManager) buildARMTemplateParameters(
 	plan service.Plan,
-	details *mysqlInstanceDetails,
-	provisioningParameters *ProvisioningParameters,
+	details *allInOneMysqlInstanceDetails,
+	provisioningParameters *ServerProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -141,6 +239,39 @@ func buildARMTemplateParameters(
 	}
 	//Only include these if they are not empty.
 	//ARM Deployer will fail if the values included are not
+	//valid IPV4 addresses (i.e. empty string will fail)
+	if provisioningParameters.FirewallIPStart != "" {
+		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
+	}
+	if provisioningParameters.FirewallIPEnd != "" {
+		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
+	}
+	return p
+}
+
+func (v *vmOnlyManager) buildARMTemplateParameters(
+	plan service.Plan,
+	details *vmOnlyMysqlInstanceDetails,
+	provisioningParameters *ServerProvisioningParameters,
+) map[string]interface{} {
+	var sslEnforcement string
+	if details.EnforceSSL {
+		sslEnforcement = "Enabled"
+	} else {
+		sslEnforcement = "Disabled"
+	}
+	p := map[string]interface{}{ // ARM template params
+		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"serverName":                 details.ServerName,
+		"skuName":                    plan.GetProperties().Extended["skuName"],
+		"skuTier":                    plan.GetProperties().Extended["skuTier"],
+		"skuCapacityDTU": plan.GetProperties().
+			Extended["skuCapacityDTU"],
+		"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
+		"sslEnforcement": sslEnforcement,
+	}
+	//Only include these if they are not empty.
+	//ARM Deployer will fail if the values included are not
 	//valid IPV4 addresses (i.e. empty string wil fail)
 	if provisioningParameters.FirewallIPStart != "" {
 		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
@@ -151,28 +282,29 @@ func buildARMTemplateParameters(
 	return p
 }
 
-func (s *serviceManager) deployARMTemplate(
+func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*mysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
-			"error casting instance.Details as *mysqlInstanceDetails",
+			"error casting instance.Details as *allInOneMysqlInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
 		return nil, errors.New(
-			"error casting provisioningParameters as *mysql.ProvisioningParameters",
+			"error casting provisioningParameters " +
+				"as *mysql.ServerProvisioningParameters",
 		)
 	}
-	armTemplateParameters := buildARMTemplateParameters(instance.Plan, dt, pp)
-	outputs, err := s.armDeployer.Deploy(
+	armTemplateParameters := a.buildARMTemplateParameters(instance.Plan, dt, pp)
+	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
-		armTemplateBytes,
+		allInOneArmTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
 		instance.Tags,
@@ -189,6 +321,93 @@ func (s *serviceManager) deployARMTemplate(
 		)
 	}
 	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
+
+	return dt, nil
+}
+
+func (v *vmOnlyManager) deployARMTemplate(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt, ok := instance.Details.(*vmOnlyMysqlInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *vmOnlyMysqlInstanceDetails",
+		)
+	}
+	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mysql.ServerProvisioningParameters",
+		)
+	}
+	armTemplateParameters := v.buildARMTemplateParameters(instance.Plan, dt, pp)
+	outputs, err := v.armDeployer.Deploy(
+		dt.ARMDeploymentName,
+		instance.ResourceGroup,
+		instance.Location,
+		vmOnlyArmTemplateBytes,
+		nil, // Go template params
+		armTemplateParameters,
+		instance.Tags,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+	}
+
+	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error retrieving fully qualified domain name from deployment: %s",
+			err,
+		)
+	}
+	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
+
+	return dt, nil
+}
+
+func (d *dbOnlyManager) deployARMTemplate(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	pdt, ok := instance.Parent.Details.(*vmOnlyMysqlInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Parent.Details as *vmOnlyMysqlInstanceDetails",
+		)
+	}
+	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
+	if !ok {
+		return nil, errors.New(
+			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
+		)
+	}
+	_, ok = instance.ProvisioningParameters.(*DatabaseProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters " +
+				"as *mysql.DatabaseProvisioningParameters",
+		)
+	}
+
+	armTemplateParameters := map[string]interface{}{ // ARM template params
+		"serverName":   pdt.ServerName,
+		"databaseName": dt.DatabaseName,
+	}
+	_, err := d.armDeployer.Deploy(
+		dt.ARMDeploymentName,
+		instance.Parent.ResourceGroup,
+		instance.Parent.Location,
+		dbOnlyArmTemplateBytes,
+		nil, // Go template params
+		armTemplateParameters,
+		instance.Tags,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+	}
 
 	return dt, nil
 }

@@ -9,12 +9,17 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-func (s *serviceManager) getDBConnection(
-	dt *mysqlInstanceDetails,
+func createDBConnection(
+	enforceSSL bool,
+	sqlDatabaseDNSSuffix string,
+	server string,
+	password string,
+	fqdn string,
+	dbname string,
 ) (*sql.DB, error) {
 	var connectionStrTemplate string
-	if dt.EnforceSSL {
-		serverName := fmt.Sprintf("*.%s", s.sqlDatabaseDNSSuffix)
+	if enforceSSL {
+		serverName := fmt.Sprintf("*.%s", sqlDatabaseDNSSuffix)
 
 		log.WithField(
 			"serverName", serverName,
@@ -36,13 +41,39 @@ func (s *serviceManager) getDBConnection(
 
 	db, err := sql.Open("mysql", fmt.Sprintf(
 		connectionStrTemplate,
-		dt.ServerName,
-		dt.AdministratorLoginPassword,
-		dt.FullyQualifiedDomainName,
-		dt.DatabaseName,
+		server,
+		password,
+		fqdn,
+		dbname,
 	))
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to the database: %s", err)
 	}
 	return db, err
+}
+func (s *allInOneManager) getDBConnection(
+	dt *allInOneMysqlInstanceDetails,
+) (*sql.DB, error) {
+	return createDBConnection(
+		dt.EnforceSSL,
+		s.sqlDatabaseDNSSuffix,
+		dt.ServerName,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+	)
+}
+
+func (d *dbOnlyManager) getDBConnection(
+	pdt *vmOnlyMysqlInstanceDetails,
+	dt *dbOnlyMysqlInstanceDetails,
+) (*sql.DB, error) {
+	return createDBConnection(
+		pdt.EnforceSSL,
+		d.sqlDatabaseDNSSuffix,
+		pdt.ServerName,
+		pdt.AdministratorLoginPassword,
+		pdt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+	)
 }
