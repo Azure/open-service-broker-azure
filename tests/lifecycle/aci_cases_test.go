@@ -3,7 +3,7 @@
 package lifecycle
 
 import (
-	aciSDK "github.com/Azure/azure-sdk-for-go/arm/containerinstance"
+	aciSDK "github.com/Azure/azure-sdk-for-go/services/containerinstance/mgmt/2017-08-01-preview/containerinstance" // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"

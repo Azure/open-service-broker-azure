@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	cosmosSDK "github.com/Azure/azure-sdk-for-go/arm/cosmos-db"
+	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb" // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"

@@ -3,7 +3,9 @@
 package lifecycle
 
 import (
-	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
+	"context"
+
+	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/config"
 )
@@ -15,8 +17,9 @@ func ensureResourceGroup(resourceGroup string) error {
 	}
 	location := "eastus"
 	_, err = groupsClient.CreateOrUpdate(
+		context.Background(),
 		resourceGroup,
-		resources.Group{
+		resourcesSDK.Group{
 			Name:     &resourceGroup,
 			Location: &location,
 		},
@@ -31,18 +34,16 @@ func deleteResourceGroup(
 	if err != nil {
 		return err
 	}
-	cancelCh := make(chan struct{})
-	defer close(cancelCh)
-	_, errCh := groupsClient.Delete(resourceGroupName, cancelCh)
-	return <-errCh
+	_, err = groupsClient.Delete(context.Background(), resourceGroupName)
+	return err
 }
 
-func getGroupsClient() (*resources.GroupsClient, error) {
+func getGroupsClient() (*resourcesSDK.GroupsClient, error) {
 	azureConfig, err := config.GetAzureConfig()
 	if err != nil {
 		return nil, err
 	}
-	groupsClient := resources.NewGroupsClientWithBaseURI(
+	groupsClient := resourcesSDK.NewGroupsClientWithBaseURI(
 		azureConfig.GetEnvironment().ResourceManagerEndpoint,
 		azureConfig.GetSubscriptionID(),
 	)

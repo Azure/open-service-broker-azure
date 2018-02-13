@@ -12,7 +12,7 @@ func (s *serviceManager) GetDeprovisioner(
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", s.deleteARMDeployment),
-		service.NewDeprovisioningStep("deleteACIServer", s.deleteACIServer),
+		service.NewDeprovisioningStep("deleteContainer", s.deleteContainer),
 	)
 }
 
@@ -35,10 +35,12 @@ func (s *serviceManager) deleteARMDeployment(
 	return dt, nil
 }
 
-func (s *serviceManager) deleteACIServer(
-	_ context.Context,
+func (s *serviceManager) deleteContainer(
+	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	dt, ok := instance.Details.(*aciInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
@@ -46,6 +48,7 @@ func (s *serviceManager) deleteACIServer(
 		)
 	}
 	if _, err := s.aciClient.Delete(
+		ctx,
 		instance.ResourceGroup,
 		dt.ContainerName,
 	); err != nil {

@@ -1,7 +1,7 @@
 package search
 
 import (
-	searchSDK "github.com/Azure/azure-sdk-for-go/arm/search"
+	searchSDK "github.com/Azure/azure-sdk-for-go/services/search/mgmt/2015-08-19/search" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )

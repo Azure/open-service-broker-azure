@@ -36,22 +36,26 @@ func (a *allInOneManager) deleteARMDeployment(
 }
 
 func (a *allInOneManager) deleteMySQLServer(
-	_ context.Context,
+	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *allInOneMysqlInstanceDetails",
 		)
 	}
-	cancelCh := make(chan struct{})
-	_, errChan := a.serversClient.Delete(
+	result, err := a.serversClient.Delete(
+		ctx,
 		instance.ResourceGroup,
 		dt.ServerName,
-		cancelCh,
 	)
-	if err := <-errChan; err != nil {
+	if err != nil {
+		return nil, fmt.Errorf("error deleting mysql server: %s", err)
+	}
+	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
 		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
 	return dt, nil
