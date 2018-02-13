@@ -12,7 +12,7 @@ func (d *dbOnlyManager) GetDeprovisioner(
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", d.deleteARMDeployment),
-		service.NewDeprovisioningStep("deleteMySQLServer", d.deleteMySQLServer),
+		service.NewDeprovisioningStep("deleteMySQLDatabase", d.deleteMySQLDatabase),
 	)
 }
 
@@ -35,7 +35,7 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	return dt, nil
 }
 
-func (d *dbOnlyManager) deleteMySQLServer(
+func (d *dbOnlyManager) deleteMySQLDatabase(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
@@ -60,10 +60,10 @@ func (d *dbOnlyManager) deleteMySQLServer(
 		dt.DatabaseName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting mysql server: %s", err)
+		return nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
 	if err := result.WaitForCompletion(ctx, d.databasesClient.Client); err != nil {
-		return nil, fmt.Errorf("error deleting mysql server: %s", err)
+		return nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
 	return dt, nil
 }
