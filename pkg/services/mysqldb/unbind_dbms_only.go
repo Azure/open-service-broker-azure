@@ -2,6 +2,7 @@ package mysqldb
 
 import (
 	"fmt"
+
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
