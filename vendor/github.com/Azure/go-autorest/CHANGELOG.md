@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v10.1.0
+
+### New Features
+
+- Expose the polling URL for futures.
+
+### Bug Fixes
+
+- Add validation.NewErrorWithValidationError back to prevent breaking changes (it is deprecated).
+
+## v10.0.0
+
+### New Features
+
+- Added target and innererror fields to ServiceError to comply with OData v4 spec.
+- The Done() method on futures will now return a ServiceError object when available (it used to return a partial value of such errors).
+- Added helper methods for obtaining authorizers.
+- Expose the polling URL for futures.
+
+### Bug Fixes
+
+- Switched from glide to dep for dependency management.
+- Fixed unmarshaling of ServiceError for JSON bodies that don't conform to the OData spec.
+- Fixed a race condition in token refresh.
+
+### Breaking Changes
+
+- The ServiceError.Details field type has been changed to match the OData v4 spec.
+- Go v1.7 has been dropped from CI.
+- API parameter validation failures will now return a unique error type validation.Error.
+- The adal.Token type has been decomposed from adal.ServicePrincipalToken (this was necessary in order to fix the token refresh race).
+
 ## v9.10.0
 - Fix the Service Bus suffix in Azure public env
 - Add Service Bus Endpoint (AAD ResourceURI) for use in [Azure Service Bus RBAC Preview](https://docs.microsoft.com/en-us/azure/service-bus-messaging/service-bus-role-based-access-control)

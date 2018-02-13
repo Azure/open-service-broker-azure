@@ -1,7 +1,7 @@
 package keyvault
 
 import (
-	keyVaultSDK "github.com/Azure/azure-sdk-for-go/arm/keyvault"
+	keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )

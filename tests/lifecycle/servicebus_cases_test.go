@@ -3,7 +3,7 @@
 package lifecycle
 
 import (
-	servicebusSDK "github.com/Azure/azure-sdk-for-go/arm/servicebus"
+	servicebusSDK "github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus" // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"

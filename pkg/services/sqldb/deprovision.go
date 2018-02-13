@@ -108,53 +108,63 @@ func (d *dbOnlyManager) deleteARMDeployment(
 }
 
 func (a *allInOneManager) deleteMsSQLServer(
-	_ context.Context,
+	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
-	cancelCh := make(chan struct{})
-	_, errChan := a.serversClient.Delete(
+	result, err := a.serversClient.Delete(
+		ctx,
 		instance.ResourceGroup,
 		dt.ServerName,
-		cancelCh,
 	)
-	if err := <-errChan; err != nil {
+	if err != nil {
+		return nil, fmt.Errorf("error deleting sql server: %s", err)
+	}
+	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
 		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return dt, nil
 }
 
 func (v *vmOnlyManager) deleteMsSQLServer(
-	_ context.Context,
+	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
-	cancelCh := make(chan struct{})
-	_, errChan := v.serversClient.Delete(
+	result, err := v.serversClient.Delete(
+		ctx,
 		instance.ResourceGroup,
 		dt.ServerName,
-		cancelCh,
 	)
-	if err := <-errChan; err != nil {
+	if err != nil {
+		return nil, fmt.Errorf("error deleting sql server: %s", err)
+	}
+	if err := result.WaitForCompletion(ctx, v.serversClient.Client); err != nil {
 		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return dt, nil
 }
 
 func (d *dbOnlyManager) deleteMsSQLDatabase(
-	_ context.Context,
+	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
@@ -174,6 +184,7 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 	}
 
 	if _, err := d.databasesClient.Delete(
+		ctx,
 		instance.Parent.ResourceGroup,
 		pdt.ServerName,
 		dt.DatabaseName,

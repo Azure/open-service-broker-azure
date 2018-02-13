@@ -36,22 +36,26 @@ func (d *dbmsOnlyManager) deleteARMDeployment(
 }
 
 func (d *dbmsOnlyManager) deleteMySQLServer(
-	_ context.Context,
+	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	dt, ok := instance.Details.(*dbmsOnlyMysqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *dbmsOnlyMysqlInstanceDetails",
 		)
 	}
-	cancelCh := make(chan struct{})
-	_, errChan := d.serversClient.Delete(
+	result, err := d.serversClient.Delete(
+		ctx,
 		instance.ResourceGroup,
 		dt.ServerName,
-		cancelCh,
 	)
-	if err := <-errChan; err != nil {
+	if err != nil {
+		return nil, fmt.Errorf("error deleting mysql server: %s", err)
+	}
+	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
 		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
 	return dt, nil
