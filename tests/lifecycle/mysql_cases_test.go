@@ -35,7 +35,7 @@ func getMysqlCases(
 	return []serviceLifecycleTestCase{
 		{
 			module:      module,
-			description: "all_in_one_mysql",
+			description: "server and database (all-in-one)",
 			serviceID:   "997b8372-8dac-40ac-ae65-758b4a5075a5",
 			planID:      "427559f1-bf2a-45d3-8844-32374a3e58aa",
 			location:    "southcentralus",
@@ -49,7 +49,7 @@ func getMysqlCases(
 		},
 		{
 			module:      module,
-			description: "vm_only_mysql",
+			description: "dbms server only",
 			serviceID:   "30e7b836-199d-4335-b83d-adc7d23a95c2",
 			planID:      "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
 			location:    "eastus",

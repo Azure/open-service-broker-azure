@@ -65,7 +65,7 @@ func (s *allInOneManager) getDBConnection(
 }
 
 func (d *dbOnlyManager) getDBConnection(
-	pdt *vmOnlyMysqlInstanceDetails,
+	pdt *dbmsOnlyMysqlInstanceDetails,
 	dt *dbOnlyMysqlInstanceDetails,
 ) (*sql.DB, error) {
 	return createDBConnection(

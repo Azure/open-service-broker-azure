@@ -9,7 +9,7 @@ import (
 
 type module struct {
 	allInOneServiceManager *allInOneManager
-	vmOnlyServiceManager   *vmOnlyManager
+	dbmsOnlyManager        *dbmsOnlyManager
 	dbOnlyServiceManager   *dbOnlyManager
 }
 
@@ -19,7 +19,7 @@ type allInOneManager struct {
 	serversClient        mysqlSDK.ServersClient
 }
 
-type vmOnlyManager struct {
+type dbmsOnlyManager struct {
 	sqlDatabaseDNSSuffix string
 	armDeployer          arm.Deployer
 	serversClient        mysqlSDK.ServersClient
@@ -45,7 +45,7 @@ func New(
 			armDeployer:          armDeployer,
 			serversClient:        serversClient,
 		},
-		vmOnlyServiceManager: &vmOnlyManager{
+		dbmsOnlyManager: &dbmsOnlyManager{
 			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
 			armDeployer:          armDeployer,
 			serversClient:        serversClient,

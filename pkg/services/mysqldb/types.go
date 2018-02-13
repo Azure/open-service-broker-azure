@@ -23,7 +23,7 @@ type allInOneMysqlInstanceDetails struct {
 	EnforceSSL                 bool   `json:"enforceSSL"`
 }
 
-type vmOnlyMysqlInstanceDetails struct {
+type dbmsOnlyMysqlInstanceDetails struct {
 	ARMDeploymentName          string `json:"armDeployment"`
 	ServerName                 string `json:"server"`
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
@@ -65,7 +65,7 @@ func (
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ServerProvisioningParameters{}
 }
@@ -89,7 +89,7 @@ func (
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }
@@ -101,9 +101,9 @@ func (
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &vmOnlyMysqlInstanceDetails{}
+	return &dbmsOnlyMysqlInstanceDetails{}
 }
 
 func (
@@ -118,7 +118,9 @@ func (
 	return &BindingParameters{}
 }
 
-func (v *vmOnlyManager) GetEmptyBindingParameters() service.BindingParameters {
+func (
+	d *dbmsOnlyManager,
+) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
@@ -130,7 +132,9 @@ func (a *allInOneManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &mysqlBindingDetails{}
 }
 
-func (v *vmOnlyManager) GetEmptyBindingDetails() service.BindingDetails {
+func (
+	d *dbmsOnlyManager,
+) GetEmptyBindingDetails() service.BindingDetails {
 	return &mysqlBindingDetails{}
 }
 

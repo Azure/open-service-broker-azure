@@ -131,14 +131,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 		),
-		// vm only service
+		// dbms only service
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "30e7b836-199d-4335-b83d-adc7d23a95c2",
-				Name:        "azure-mysqldb-vm-only",
-				Description: "Azure Database for MySQL - Server VM Only (Experimental)",
+				Name:        "azure-mysqldb-dbms-only",
+				Description: "Azure Database for MySQL - Server Only (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName: "Azure Database for MySQL (Server VM Only)",
+					DisplayName: "Azure Database for MySQL (Server Only)",
 					ImageUrl: "https://azure.microsoft.com/svghandler/mysql/" +
 						"?width=200",
 					LongDescription: "A fully managed MySQL database service for " +
@@ -147,10 +147,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable:       false,
-				Tags:           []string{"Azure", "MySQL", "Server", "VM"},
+				Tags:           []string{"Azure", "MySQL", "Server"},
 				ChildServiceID: "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 			},
-			m.vmOnlyServiceManager,
+			m.dbmsOnlyManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
 				Name:        "basic50",
