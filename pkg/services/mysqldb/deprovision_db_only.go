@@ -12,7 +12,7 @@ func (d *dbOnlyManager) GetDeprovisioner(
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", d.deleteARMDeployment),
-		service.NewDeprovisioningStep("deleteMySQLServer", d.deleteMySQLServer),
+		service.NewDeprovisioningStep("deleteMySQLDatabase", d.deleteMySQLDatabase),
 	)
 }
 
@@ -28,14 +28,14 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	}
 	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
+		instance.Parent.ResourceGroup,
 	); err != nil {
 		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
 	return dt, nil
 }
 
-func (d *dbOnlyManager) deleteMySQLServer(
+func (d *dbOnlyManager) deleteMySQLDatabase(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
@@ -53,16 +53,17 @@ func (d *dbOnlyManager) deleteMySQLServer(
 			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
 		)
 	}
-	result, err := d.serversClient.Delete(
+	result, err := d.databasesClient.Delete(
 		ctx,
-		instance.ResourceGroup,
+		instance.Parent.ResourceGroup,
 		pdt.ServerName,
+		dt.DatabaseName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting mysql server: %s", err)
+		return nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
-		return nil, fmt.Errorf("error deleting mysql server: %s", err)
+	if err := result.WaitForCompletion(ctx, d.databasesClient.Client); err != nil {
+		return nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
 	return dt, nil
 }

@@ -27,10 +27,17 @@ func getMysqlCases(
 		subscriptionID,
 	)
 	serversClient.Authorizer = authorizer
+
+	databasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
+		azureEnvironment.ResourceManagerEndpoint,
+		subscriptionID,
+	)
+	databasesClient.Authorizer = authorizer
 	module := mysqldb.New(
 		azureEnvironment,
 		armDeployer,
 		serversClient,
+		databasesClient,
 	)
 	return []serviceLifecycleTestCase{
 		{
