@@ -1,7 +1,8 @@
 package mysqldb
 
+// All-in-One template
 // nolint: lll
-var armTemplateBytes = []byte(`
+var allInOneArmTemplateBytes = []byte(`
 {
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",

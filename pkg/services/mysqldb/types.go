@@ -1,21 +1,11 @@
 package mysqldb
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
-
-// ProvisioningParameters encapsulates MySQL-specific provisioning options
-type ProvisioningParameters struct {
+// ServerProvisioningParameters encapsulates MySQL-specific
+// server provisioning options
+type ServerProvisioningParameters struct {
 	SSLEnforcement  string `json:"sslEnforcement"`
 	FirewallIPStart string `json:"firewallStartIPAddress"`
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
-}
-
-type mysqlInstanceDetails struct {
-	ARMDeploymentName          string `json:"armDeployment"`
-	ServerName                 string `json:"server"`
-	AdministratorLoginPassword string `json:"administratorLoginPassword"`
-	DatabaseName               string `json:"database"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
-	EnforceSSL                 bool   `json:"enforceSSL"`
 }
 
 // UpdatingParameters encapsulates MySQL-specific updating options
@@ -38,30 +28,4 @@ type Credentials struct {
 	Database string `json:"database"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-}
-
-func (
-	s *serviceManager,
-) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptyUpdatingParameters() service.UpdatingParameters {
-	return &UpdatingParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &mysqlInstanceDetails{}
-}
-
-func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
-}
-
-func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &mysqlBindingDetails{}
 }

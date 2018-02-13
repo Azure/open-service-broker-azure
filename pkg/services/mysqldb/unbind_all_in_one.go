@@ -6,14 +6,14 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) Unbind(
+func (a *allInOneManager) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
 ) error {
-	dt, ok := instance.Details.(*mysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *mysqlInstanceDetails",
+			"error casting instance.Details as *allInOneMysqlInstanceDetails",
 		)
 	}
 	bc, ok := bindingDetails.(*mysqlBindingDetails)
@@ -23,7 +23,7 @@ func (s *serviceManager) Unbind(
 		)
 	}
 
-	db, err := s.getDBConnection(dt)
+	db, err := a.getDBConnection(dt)
 	if err != nil {
 		return err
 	}

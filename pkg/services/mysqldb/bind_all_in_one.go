@@ -7,7 +7,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) ValidateBindingParameters(
+func (a *allInOneManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to MySQL, so there is nothing
@@ -15,21 +15,21 @@ func (s *serviceManager) ValidateBindingParameters(
 	return nil
 }
 
-func (s *serviceManager) Bind(
+func (a *allInOneManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingDetails, error) {
-	dt, ok := instance.Details.(*mysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mysqlInstanceDetails",
+			"error casting instance.Details as *allInOneMysqlInstanceDetails",
 		)
 	}
 
 	userName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
-	db, err := s.getDBConnection(dt)
+	db, err := a.getDBConnection(dt)
 	if err != nil {
 		return nil, err
 	}
@@ -70,14 +70,14 @@ func (s *serviceManager) Bind(
 	}, nil
 }
 
-func (s *serviceManager) GetCredentials(
+func (a *allInOneManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*mysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mysqlInstanceDetails",
+			"error casting instance.Details as *allInOneMysqlInstanceDetails",
 		)
 	}
 	bd, ok := binding.Details.(*mysqlBindingDetails)
