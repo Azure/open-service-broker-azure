@@ -94,10 +94,21 @@ func testCreds() func(credentials service.Credentials) error {
 		if err != nil {
 			return fmt.Errorf("error validating the database arguments: %s", err)
 		}
-		defer db.Close()
-		_, err = db.Query("SHOW TABLES")
+		defer db.Close() // nolint: errcheck
+		rows, err := db.Query("SELECT * from INFORMATION_SCHEMA.TABLES")
 		if err != nil {
 			return fmt.Errorf("error validating the database arguments: %s", err)
+		}
+		defer rows.Close() // nolint: errcheck
+		if !rows.Next() {
+			return fmt.Errorf(
+				`error could not select from INFORMATION_SCHEMA.TABLES'`,
+			)
+		}
+		if err := rows.Err(); err != nil {
+			return fmt.Errorf(
+				`error iterating rows`,
+			)
 		}
 		return nil
 	}
