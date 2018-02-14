@@ -22,12 +22,17 @@ func getMysqlCases(
 	authorizer autorest.Authorizer,
 	armDeployer arm.Deployer,
 ) ([]serviceLifecycleTestCase, error) {
+	checkNameAvailabilityClient :=
+		mysqlSDK.NewCheckNameAvailabilityClientWithBaseURI(
+			azureEnvironment.ResourceManagerEndpoint,
+			subscriptionID,
+		)
+	checkNameAvailabilityClient.Authorizer = authorizer
 	serversClient := mysqlSDK.NewServersClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		subscriptionID,
 	)
 	serversClient.Authorizer = authorizer
-
 	databasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		subscriptionID,
@@ -36,6 +41,7 @@ func getMysqlCases(
 	module := mysqldb.New(
 		azureEnvironment,
 		armDeployer,
+		checkNameAvailabilityClient,
 		serversClient,
 		databasesClient,
 	)

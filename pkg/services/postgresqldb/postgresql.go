@@ -11,8 +11,9 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer   arm.Deployer
-	serversClient postgresSDK.ServersClient
+	armDeployer                 arm.Deployer
+	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient
+	serversClient               postgresSDK.ServersClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -20,12 +21,14 @@ type serviceManager struct {
 // using "Azure Database for PostgreSQL"
 func New(
 	armDeployer arm.Deployer,
+	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient,
 	serversClient postgresSDK.ServersClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:   armDeployer,
-			serversClient: serversClient,
+			armDeployer:                 armDeployer,
+			checkNameAvailabilityClient: checkNameAvailabilityClient,
+			serversClient:               serversClient,
 		},
 	}
 }

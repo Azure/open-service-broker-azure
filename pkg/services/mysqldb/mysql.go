@@ -14,15 +14,17 @@ type module struct {
 }
 
 type allInOneManager struct {
-	sqlDatabaseDNSSuffix string
-	armDeployer          arm.Deployer
-	serversClient        mysqlSDK.ServersClient
+	sqlDatabaseDNSSuffix        string
+	armDeployer                 arm.Deployer
+	checkNameAvailabilityClient mysqlSDK.CheckNameAvailabilityClient
+	serversClient               mysqlSDK.ServersClient
 }
 
 type dbmsOnlyManager struct {
-	sqlDatabaseDNSSuffix string
-	armDeployer          arm.Deployer
-	serversClient        mysqlSDK.ServersClient
+	sqlDatabaseDNSSuffix        string
+	armDeployer                 arm.Deployer
+	checkNameAvailabilityClient mysqlSDK.CheckNameAvailabilityClient
+	serversClient               mysqlSDK.ServersClient
 }
 
 type dbOnlyManager struct {
@@ -37,19 +39,22 @@ type dbOnlyManager struct {
 func New(
 	azureEnvironment azure.Environment,
 	armDeployer arm.Deployer,
+	checkNameAvailabilityClient mysqlSDK.CheckNameAvailabilityClient,
 	serversClient mysqlSDK.ServersClient,
 	databaseClient mysqlSDK.DatabasesClient,
 ) service.Module {
 	return &module{
 		allInOneServiceManager: &allInOneManager{
-			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
-			armDeployer:          armDeployer,
-			serversClient:        serversClient,
+			sqlDatabaseDNSSuffix:        azureEnvironment.SQLDatabaseDNSSuffix,
+			armDeployer:                 armDeployer,
+			checkNameAvailabilityClient: checkNameAvailabilityClient,
+			serversClient:               serversClient,
 		},
 		dbmsOnlyManager: &dbmsOnlyManager{
-			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
-			armDeployer:          armDeployer,
-			serversClient:        serversClient,
+			sqlDatabaseDNSSuffix:        azureEnvironment.SQLDatabaseDNSSuffix,
+			armDeployer:                 armDeployer,
+			checkNameAvailabilityClient: checkNameAvailabilityClient,
+			serversClient:               serversClient,
 		},
 		dbOnlyServiceManager: &dbOnlyManager{
 			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
