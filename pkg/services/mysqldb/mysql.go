@@ -28,7 +28,7 @@ type dbmsOnlyManager struct {
 type dbOnlyManager struct {
 	sqlDatabaseDNSSuffix string
 	armDeployer          arm.Deployer
-	databasesClient      mysqlSDK.DatabasesClient
+	serversClient        mysqlSDK.ServersClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -38,7 +38,6 @@ func New(
 	azureEnvironment azure.Environment,
 	armDeployer arm.Deployer,
 	serversClient mysqlSDK.ServersClient,
-	databaseClient mysqlSDK.DatabasesClient,
 ) service.Module {
 	return &module{
 		allInOneServiceManager: &allInOneManager{
@@ -54,7 +53,7 @@ func New(
 		dbOnlyServiceManager: &dbOnlyManager{
 			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
 			armDeployer:          armDeployer,
-			databasesClient:      databaseClient,
+			serversClient:        serversClient,
 		},
 	}
 }

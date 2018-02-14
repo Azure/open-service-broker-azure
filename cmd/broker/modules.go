@@ -106,13 +106,6 @@ func initModules(azureConfig config.AzureConfig) error {
 	mysqlServersClient.Authorizer = authorizer
 	mysqlServersClient.UserAgent = getUserAgent(mysqlServersClient.Client)
 
-	mysqlDatabasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
-		azureSubscriptionID,
-	)
-	mysqlDatabasesClient.Authorizer = authorizer
-	mysqlDatabasesClient.UserAgent = getUserAgent(mysqlDatabasesClient.Client)
-
 	postgresServersClient := postgresSDK.NewServersClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
@@ -165,12 +158,7 @@ func initModules(azureConfig config.AzureConfig) error {
 	modules = []service.Module{
 		postgresqldb.New(armDeployer, postgresServersClient),
 		rediscache.New(armDeployer, redisClient),
-		mysqldb.New(
-			azureEnvironment,
-			armDeployer,
-			mysqlServersClient,
-			mysqlDatabasesClient,
-		),
+		mysqldb.New(azureEnvironment, armDeployer, mysqlServersClient),
 		servicebus.New(armDeployer, serviceBusNamespacesClient),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
 		keyvault.New(azureConfig.GetTenantID(), armDeployer, keyVaultsClient),
