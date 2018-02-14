@@ -28,11 +28,9 @@ func (d *dbmsOnlyManager) GetProvisioner(
 }
 
 func (d *dbmsOnlyManager) preProvision(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*dbmsOnlyMysqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
@@ -47,13 +45,7 @@ func (d *dbmsOnlyManager) preProvision(
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
-	var err error
-	if dt.ServerName, err = getAvailableServerName(
-		ctx,
-		d.checkNameAvailabilityClient,
-	); err != nil {
-		return nil, err
-	}
+	dt.ServerName = uuid.NewV4().String()
 	dt.AdministratorLoginPassword = generate.NewPassword()
 
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)

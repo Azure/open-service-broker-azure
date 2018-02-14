@@ -89,11 +89,9 @@ func (s *serviceManager) GetProvisioner(
 }
 
 func (s *serviceManager) preProvision(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
@@ -109,15 +107,7 @@ func (s *serviceManager) preProvision(
 	}
 
 	dt.ARMDeploymentName = uuid.NewV4().String()
-
-	var err error
-	if dt.ServerName, err = getAvailableServerName(
-		ctx,
-		s.checkNameAvailabilityClient,
-	); err != nil {
-		return nil, err
-	}
-
+	dt.ServerName = uuid.NewV4().String()
 	dt.AdministratorLoginPassword = generate.NewPassword()
 	dt.DatabaseName = generate.NewIdentifier()
 

@@ -99,20 +99,13 @@ func initModules(azureConfig config.AzureConfig) error {
 	keyVaultsClient.Authorizer = authorizer
 	keyVaultsClient.UserAgent = getUserAgent(keyVaultsClient.Client)
 
-	mysqlCheckNameAvailabilityClient :=
-		mysqlSDK.NewCheckNameAvailabilityClientWithBaseURI(
-			azureEnvironment.ResourceManagerEndpoint,
-			azureSubscriptionID,
-		)
-	mysqlCheckNameAvailabilityClient.Authorizer = authorizer
-	mysqlCheckNameAvailabilityClient.UserAgent =
-		getUserAgent(mysqlCheckNameAvailabilityClient.Client)
 	mysqlServersClient := mysqlSDK.NewServersClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	mysqlServersClient.Authorizer = authorizer
 	mysqlServersClient.UserAgent = getUserAgent(mysqlServersClient.Client)
+
 	mysqlDatabasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
@@ -120,14 +113,6 @@ func initModules(azureConfig config.AzureConfig) error {
 	mysqlDatabasesClient.Authorizer = authorizer
 	mysqlDatabasesClient.UserAgent = getUserAgent(mysqlDatabasesClient.Client)
 
-	postgresCheckNameAvailabilityClient :=
-		postgresSDK.NewCheckNameAvailabilityClientWithBaseURI(
-			azureEnvironment.ResourceManagerEndpoint,
-			azureSubscriptionID,
-		)
-	postgresCheckNameAvailabilityClient.Authorizer = authorizer
-	postgresCheckNameAvailabilityClient.UserAgent =
-		getUserAgent(postgresCheckNameAvailabilityClient.Client)
 	postgresServersClient := postgresSDK.NewServersClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
@@ -178,16 +163,11 @@ func initModules(azureConfig config.AzureConfig) error {
 	storageAccountsClient.UserAgent = getUserAgent(storageAccountsClient.Client)
 
 	modules = []service.Module{
-		postgresqldb.New(
-			armDeployer,
-			postgresCheckNameAvailabilityClient,
-			postgresServersClient,
-		),
+		postgresqldb.New(armDeployer, postgresServersClient),
 		rediscache.New(armDeployer, redisClient),
 		mysqldb.New(
 			azureEnvironment,
 			armDeployer,
-			mysqlCheckNameAvailabilityClient,
 			mysqlServersClient,
 			mysqlDatabasesClient,
 		),
