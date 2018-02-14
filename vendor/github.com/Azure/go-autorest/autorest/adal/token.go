@@ -243,15 +243,16 @@ func (secret *ServicePrincipalCertificateSecret) SetAuthenticationValues(spt *Se
 
 // ServicePrincipalToken encapsulates a Token created for a Service Principal.
 type ServicePrincipalToken struct {
-	token         Token
-	secret        ServicePrincipalSecret
-	oauthConfig   OAuthConfig
-	clientID      string
-	resource      string
-	autoRefresh   bool
-	refreshLock   *sync.RWMutex
-	refreshWithin time.Duration
-	sender        Sender
+	Token
+
+	secret          ServicePrincipalSecret
+	oauthConfig     OAuthConfig
+	clientID        string
+	resource        string
+	autoRefresh     bool
+	autoRefreshLock *sync.Mutex
+	refreshWithin   time.Duration
+	sender          Sender
 
 	refreshCallbacks []TokenRefreshCallback
 }
@@ -283,7 +284,7 @@ func NewServicePrincipalTokenWithSecret(oauthConfig OAuthConfig, id string, reso
 		clientID:         id,
 		resource:         resource,
 		autoRefresh:      true,
-		refreshLock:      &sync.RWMutex{},
+		autoRefreshLock:  &sync.Mutex{},
 		refreshWithin:    defaultRefresh,
 		sender:           &http.Client{},
 		refreshCallbacks: callbacks,
@@ -315,7 +316,7 @@ func NewServicePrincipalTokenFromManualToken(oauthConfig OAuthConfig, clientID s
 		return nil, err
 	}
 
-	spt.token = token
+	spt.Token = token
 
 	return spt, nil
 }
@@ -501,7 +502,7 @@ func newServicePrincipalTokenFromMSI(msiEndpoint, resource string, userAssignedI
 		secret:           &ServicePrincipalMSISecret{},
 		resource:         resource,
 		autoRefresh:      true,
-		refreshLock:      &sync.RWMutex{},
+		autoRefreshLock:  &sync.Mutex{},
 		refreshWithin:    defaultRefresh,
 		sender:           &http.Client{},
 		refreshCallbacks: callbacks,
@@ -537,12 +538,12 @@ func newTokenRefreshError(message string, resp *http.Response) TokenRefreshError
 // EnsureFresh will refresh the token if it will expire within the refresh window (as set by
 // RefreshWithin) and autoRefresh flag is on.  This method is safe for concurrent use.
 func (spt *ServicePrincipalToken) EnsureFresh() error {
-	if spt.autoRefresh && spt.token.WillExpireIn(spt.refreshWithin) {
-		// take the write lock then check to see if the token was already refreshed
-		spt.refreshLock.Lock()
-		defer spt.refreshLock.Unlock()
-		if spt.token.WillExpireIn(spt.refreshWithin) {
-			return spt.refreshInternal(spt.resource)
+	if spt.autoRefresh && spt.WillExpireIn(spt.refreshWithin) {
+		// take the lock then check to see if the token was already refreshed
+		spt.autoRefreshLock.Lock()
+		defer spt.autoRefreshLock.Unlock()
+		if spt.WillExpireIn(spt.refreshWithin) {
+			return spt.Refresh()
 		}
 	}
 	return nil
@@ -552,7 +553,7 @@ func (spt *ServicePrincipalToken) EnsureFresh() error {
 func (spt *ServicePrincipalToken) InvokeRefreshCallbacks(token Token) error {
 	if spt.refreshCallbacks != nil {
 		for _, callback := range spt.refreshCallbacks {
-			err := callback(spt.token)
+			err := callback(spt.Token)
 			if err != nil {
 				return fmt.Errorf("adal: TokenRefreshCallback handler failed. Error = '%v'", err)
 			}
@@ -564,16 +565,12 @@ func (spt *ServicePrincipalToken) InvokeRefreshCallbacks(token Token) error {
 // Refresh obtains a fresh token for the Service Principal.
 // This method is not safe for concurrent use and should be syncrhonized.
 func (spt *ServicePrincipalToken) Refresh() error {
-	spt.refreshLock.Lock()
-	defer spt.refreshLock.Unlock()
 	return spt.refreshInternal(spt.resource)
 }
 
 // RefreshExchange refreshes the token, but for a different resource.
 // This method is not safe for concurrent use and should be syncrhonized.
 func (spt *ServicePrincipalToken) RefreshExchange(resource string) error {
-	spt.refreshLock.Lock()
-	defer spt.refreshLock.Unlock()
 	return spt.refreshInternal(resource)
 }
 
@@ -593,9 +590,9 @@ func (spt *ServicePrincipalToken) refreshInternal(resource string) error {
 	v.Set("client_id", spt.clientID)
 	v.Set("resource", resource)
 
-	if spt.token.RefreshToken != "" {
+	if spt.RefreshToken != "" {
 		v.Set("grant_type", OAuthGrantTypeRefreshToken)
-		v.Set("refresh_token", spt.token.RefreshToken)
+		v.Set("refresh_token", spt.RefreshToken)
 	} else {
 		v.Set("grant_type", spt.getGrantType())
 		err := spt.secret.SetAuthenticationValues(spt, &v)
@@ -643,7 +640,7 @@ func (spt *ServicePrincipalToken) refreshInternal(resource string) error {
 		return fmt.Errorf("adal: Failed to unmarshal the service principal token during refresh. Error = '%v' JSON = '%s'", err, string(rb))
 	}
 
-	spt.token = token
+	spt.Token = token
 
 	return spt.InvokeRefreshCallbacks(token)
 }
@@ -663,17 +660,3 @@ func (spt *ServicePrincipalToken) SetRefreshWithin(d time.Duration) {
 // SetSender sets the http.Client used when obtaining the Service Principal token. An
 // undecorated http.Client is used by default.
 func (spt *ServicePrincipalToken) SetSender(s Sender) { spt.sender = s }
-
-// OAuthToken implements the OAuthTokenProvider interface.  It returns the current access token.
-func (spt *ServicePrincipalToken) OAuthToken() string {
-	spt.refreshLock.RLock()
-	defer spt.refreshLock.RUnlock()
-	return spt.token.OAuthToken()
-}
-
-// Token returns a copy of the current token.
-func (spt *ServicePrincipalToken) Token() Token {
-	spt.refreshLock.RLock()
-	defer spt.refreshLock.RUnlock()
-	return spt.token
-}

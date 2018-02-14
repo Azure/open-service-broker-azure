@@ -57,7 +57,7 @@ func (client DscConfigurationClient) CreateOrUpdate(ctx context.Context, automat
 						}},
 					}},
 				}}}}}); err != nil {
-		return result, validation.NewError("automation.DscConfigurationClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.DscConfigurationClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, automationAccountName, configurationName, parameters)
@@ -132,7 +132,7 @@ func (client DscConfigurationClient) Delete(ctx context.Context, automationAccou
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.DscConfigurationClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.DscConfigurationClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, automationAccountName, configurationName)
@@ -204,7 +204,7 @@ func (client DscConfigurationClient) Get(ctx context.Context, automationAccountN
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.DscConfigurationClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.DscConfigurationClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, automationAccountName, configurationName)
@@ -277,7 +277,7 @@ func (client DscConfigurationClient) GetContent(ctx context.Context, automationA
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.DscConfigurationClient", "GetContent", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.DscConfigurationClient", "GetContent")
 	}
 
 	req, err := client.GetContentPreparer(ctx, automationAccountName, configurationName)
@@ -349,7 +349,7 @@ func (client DscConfigurationClient) ListByAutomationAccount(ctx context.Context
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.DscConfigurationClient", "ListByAutomationAccount", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.DscConfigurationClient", "ListByAutomationAccount")
 	}
 
 	result.fn = client.listByAutomationAccountNextResults

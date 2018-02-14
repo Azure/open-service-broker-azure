@@ -266,7 +266,7 @@ type ProviderOperation struct {
 	// Origin - The operation origin.
 	Origin *string `json:"origin,omitempty"`
 	// Properties - The operation properties.
-	Properties interface{} `json:"properties,omitempty"`
+	Properties *map[string]interface{} `json:"properties,omitempty"`
 }
 
 // ProviderOperationsMetadata provider Operations metadata

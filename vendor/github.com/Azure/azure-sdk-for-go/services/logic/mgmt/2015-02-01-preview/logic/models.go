@@ -191,7 +191,7 @@ type ContentLink struct {
 	// ContentHash - Gets or sets the content hash.
 	ContentHash *ContentHash `json:"contentHash,omitempty"`
 	// Metadata - Gets or sets the metadata.
-	Metadata interface{} `json:"metadata,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // RegenerateSecretKeyParameters ...
@@ -211,28 +211,7 @@ type Resource struct {
 	// Location - Gets or sets the resource location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Gets or sets the resource tags.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Resource.
-func (r Resource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if r.ID != nil {
-		objectMap["id"] = r.ID
-	}
-	if r.Name != nil {
-		objectMap["name"] = r.Name
-	}
-	if r.Type != nil {
-		objectMap["type"] = r.Type
-	}
-	if r.Location != nil {
-		objectMap["location"] = r.Location
-	}
-	if r.Tags != nil {
-		objectMap["tags"] = r.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
 }
 
 // ResourceReference ...
@@ -250,7 +229,7 @@ type RunWorkflowParameters struct {
 	// Name - Gets or sets the name of workflow run trigger.
 	Name *string `json:"name,omitempty"`
 	// Outputs - Gets or sets the outputs of workflow run trigger.
-	Outputs interface{} `json:"outputs,omitempty"`
+	Outputs *map[string]interface{} `json:"outputs,omitempty"`
 }
 
 // Sku ...
@@ -270,8 +249,6 @@ type SubResource struct {
 // Workflow ...
 type Workflow struct {
 	autorest.Response `json:"-"`
-	// WorkflowProperties - Gets or sets the workflow properties.
-	*WorkflowProperties `json:"properties,omitempty"`
 	// ID - Gets or sets the resource id.
 	ID *string `json:"id,omitempty"`
 	// Name - Gets the resource name.
@@ -281,31 +258,9 @@ type Workflow struct {
 	// Location - Gets or sets the resource location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Gets or sets the resource tags.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Workflow.
-func (w Workflow) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if w.WorkflowProperties != nil {
-		objectMap["properties"] = w.WorkflowProperties
-	}
-	if w.ID != nil {
-		objectMap["id"] = w.ID
-	}
-	if w.Name != nil {
-		objectMap["name"] = w.Name
-	}
-	if w.Type != nil {
-		objectMap["type"] = w.Type
-	}
-	if w.Location != nil {
-		objectMap["location"] = w.Location
-	}
-	if w.Tags != nil {
-		objectMap["tags"] = w.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// WorkflowProperties - Gets or sets the workflow properties.
+	*WorkflowProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Workflow struct.
@@ -315,63 +270,66 @@ func (w *Workflow) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var workflowProperties WorkflowProperties
-				err = json.Unmarshal(*v, &workflowProperties)
-				if err != nil {
-					return err
-				}
-				w.WorkflowProperties = &workflowProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				w.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				w.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				w.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				w.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				w.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties WorkflowProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		w.WorkflowProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		w.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		w.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		w.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		w.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		w.Tags = &tags
 	}
 
 	return nil
@@ -380,14 +338,14 @@ func (w *Workflow) UnmarshalJSON(body []byte) error {
 // WorkflowAccessKey ...
 type WorkflowAccessKey struct {
 	autorest.Response `json:"-"`
+	// ID - Gets or sets the resource id.
+	ID *string `json:"id,omitempty"`
 	// WorkflowAccessKeyProperties - Gets or sets the workflow access key properties.
 	*WorkflowAccessKeyProperties `json:"properties,omitempty"`
 	// Name - Gets the workflow access key name.
 	Name *string `json:"name,omitempty"`
 	// Type - Gets the workflow access key type.
 	Type *string `json:"type,omitempty"`
-	// ID - Gets or sets the resource id.
-	ID *string `json:"id,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for WorkflowAccessKey struct.
@@ -397,45 +355,46 @@ func (wak *WorkflowAccessKey) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var workflowAccessKeyProperties WorkflowAccessKeyProperties
-				err = json.Unmarshal(*v, &workflowAccessKeyProperties)
-				if err != nil {
-					return err
-				}
-				wak.WorkflowAccessKeyProperties = &workflowAccessKeyProperties
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				wak.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				wak.Type = &typeVar
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				wak.ID = &ID
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties WorkflowAccessKeyProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		wak.WorkflowAccessKeyProperties = &properties
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		wak.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		wak.Type = &typeVar
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		wak.ID = &ID
 	}
 
 	return nil
@@ -661,14 +620,14 @@ func (page WorkflowListResultPage) Values() []Workflow {
 
 // WorkflowOutputParameter ...
 type WorkflowOutputParameter struct {
-	// Error - Gets the error.
-	Error interface{} `json:"error,omitempty"`
 	// Type - Gets or sets the type. Possible values include: 'ParameterTypeNotSpecified', 'ParameterTypeString', 'ParameterTypeSecureString', 'ParameterTypeInt', 'ParameterTypeFloat', 'ParameterTypeBool', 'ParameterTypeArray', 'ParameterTypeObject', 'ParameterTypeSecureObject'
 	Type ParameterType `json:"type,omitempty"`
 	// Value - Gets or sets the value.
-	Value interface{} `json:"value,omitempty"`
+	Value *map[string]interface{} `json:"value,omitempty"`
 	// Metadata - Gets or sets the metadata.
-	Metadata interface{} `json:"metadata,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
+	// Error - Gets the error.
+	Error *map[string]interface{} `json:"error,omitempty"`
 }
 
 // WorkflowParameter ...
@@ -676,9 +635,9 @@ type WorkflowParameter struct {
 	// Type - Gets or sets the type. Possible values include: 'ParameterTypeNotSpecified', 'ParameterTypeString', 'ParameterTypeSecureString', 'ParameterTypeInt', 'ParameterTypeFloat', 'ParameterTypeBool', 'ParameterTypeArray', 'ParameterTypeObject', 'ParameterTypeSecureObject'
 	Type ParameterType `json:"type,omitempty"`
 	// Value - Gets or sets the value.
-	Value interface{} `json:"value,omitempty"`
+	Value *map[string]interface{} `json:"value,omitempty"`
 	// Metadata - Gets or sets the metadata.
-	Metadata interface{} `json:"metadata,omitempty"`
+	Metadata *map[string]interface{} `json:"metadata,omitempty"`
 }
 
 // WorkflowProperties ...
@@ -700,57 +659,24 @@ type WorkflowProperties struct {
 	// DefinitionLink - Gets or sets the link to definition.
 	DefinitionLink *ContentLink `json:"definitionLink,omitempty"`
 	// Definition - Gets or sets the definition.
-	Definition interface{} `json:"definition,omitempty"`
+	Definition *map[string]interface{} `json:"definition,omitempty"`
 	// ParametersLink - Gets or sets the link to parameters.
 	ParametersLink *ContentLink `json:"parametersLink,omitempty"`
 	// Parameters - Gets or sets the parameters.
-	Parameters map[string]*WorkflowParameter `json:"parameters"`
-}
-
-// MarshalJSON is the custom marshaler for WorkflowProperties.
-func (wp WorkflowProperties) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	objectMap["provisioningState"] = wp.ProvisioningState
-	if wp.CreatedTime != nil {
-		objectMap["createdTime"] = wp.CreatedTime
-	}
-	if wp.ChangedTime != nil {
-		objectMap["changedTime"] = wp.ChangedTime
-	}
-	objectMap["state"] = wp.State
-	if wp.Version != nil {
-		objectMap["version"] = wp.Version
-	}
-	if wp.AccessEndpoint != nil {
-		objectMap["accessEndpoint"] = wp.AccessEndpoint
-	}
-	if wp.Sku != nil {
-		objectMap["sku"] = wp.Sku
-	}
-	if wp.DefinitionLink != nil {
-		objectMap["definitionLink"] = wp.DefinitionLink
-	}
-	objectMap["definition"] = wp.Definition
-	if wp.ParametersLink != nil {
-		objectMap["parametersLink"] = wp.ParametersLink
-	}
-	if wp.Parameters != nil {
-		objectMap["parameters"] = wp.Parameters
-	}
-	return json.Marshal(objectMap)
+	Parameters *map[string]*WorkflowParameter `json:"parameters,omitempty"`
 }
 
 // WorkflowRun ...
 type WorkflowRun struct {
 	autorest.Response `json:"-"`
+	// ID - Gets or sets the resource id.
+	ID *string `json:"id,omitempty"`
 	// WorkflowRunProperties - Gets or sets the workflow run properties.
 	*WorkflowRunProperties `json:"properties,omitempty"`
 	// Name - Gets the workflow run name.
 	Name *string `json:"name,omitempty"`
 	// Type - Gets the workflow run type.
 	Type *string `json:"type,omitempty"`
-	// ID - Gets or sets the resource id.
-	ID *string `json:"id,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for WorkflowRun struct.
@@ -760,45 +686,46 @@ func (wr *WorkflowRun) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var workflowRunProperties WorkflowRunProperties
-				err = json.Unmarshal(*v, &workflowRunProperties)
-				if err != nil {
-					return err
-				}
-				wr.WorkflowRunProperties = &workflowRunProperties
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				wr.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				wr.Type = &typeVar
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				wr.ID = &ID
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties WorkflowRunProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		wr.WorkflowRunProperties = &properties
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		wr.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		wr.Type = &typeVar
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		wr.ID = &ID
 	}
 
 	return nil
@@ -807,14 +734,14 @@ func (wr *WorkflowRun) UnmarshalJSON(body []byte) error {
 // WorkflowRunAction ...
 type WorkflowRunAction struct {
 	autorest.Response `json:"-"`
+	// ID - Gets or sets the resource id.
+	ID *string `json:"id,omitempty"`
 	// WorkflowRunActionProperties - Gets or sets the workflow run action properties.
 	*WorkflowRunActionProperties `json:"properties,omitempty"`
 	// Name - Gets the workflow run action name.
 	Name *string `json:"name,omitempty"`
 	// Type - Gets the workflow run action type.
 	Type *string `json:"type,omitempty"`
-	// ID - Gets or sets the resource id.
-	ID *string `json:"id,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for WorkflowRunAction struct.
@@ -824,45 +751,46 @@ func (wra *WorkflowRunAction) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var workflowRunActionProperties WorkflowRunActionProperties
-				err = json.Unmarshal(*v, &workflowRunActionProperties)
-				if err != nil {
-					return err
-				}
-				wra.WorkflowRunActionProperties = &workflowRunActionProperties
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				wra.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				wra.Type = &typeVar
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				wra.ID = &ID
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties WorkflowRunActionProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		wra.WorkflowRunActionProperties = &properties
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		wra.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		wra.Type = &typeVar
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		wra.ID = &ID
 	}
 
 	return nil
@@ -987,7 +915,7 @@ type WorkflowRunActionProperties struct {
 	// Code - Gets the code.
 	Code *string `json:"code,omitempty"`
 	// Error - Gets the error.
-	Error interface{} `json:"error,omitempty"`
+	Error *map[string]interface{} `json:"error,omitempty"`
 	// TrackingID - Gets the trackingId.
 	TrackingID *string `json:"trackingId,omitempty"`
 	// InputsLink - Gets the link to inputs.
@@ -1115,7 +1043,7 @@ type WorkflowRunProperties struct {
 	// Code - Gets the code.
 	Code *string `json:"code,omitempty"`
 	// Error - Gets the error.
-	Error interface{} `json:"error,omitempty"`
+	Error *map[string]interface{} `json:"error,omitempty"`
 	// CorrelationID - Gets the correlation id.
 	CorrelationID *string `json:"correlationId,omitempty"`
 	// Workflow - Gets the reference to workflow version.
@@ -1123,36 +1051,7 @@ type WorkflowRunProperties struct {
 	// Trigger - Gets the fired trigger.
 	Trigger *WorkflowRunTrigger `json:"trigger,omitempty"`
 	// Outputs - Gets the outputs.
-	Outputs map[string]*WorkflowOutputParameter `json:"outputs"`
-}
-
-// MarshalJSON is the custom marshaler for WorkflowRunProperties.
-func (wrp WorkflowRunProperties) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if wrp.StartTime != nil {
-		objectMap["startTime"] = wrp.StartTime
-	}
-	if wrp.EndTime != nil {
-		objectMap["endTime"] = wrp.EndTime
-	}
-	objectMap["status"] = wrp.Status
-	if wrp.Code != nil {
-		objectMap["code"] = wrp.Code
-	}
-	objectMap["error"] = wrp.Error
-	if wrp.CorrelationID != nil {
-		objectMap["correlationId"] = wrp.CorrelationID
-	}
-	if wrp.Workflow != nil {
-		objectMap["workflow"] = wrp.Workflow
-	}
-	if wrp.Trigger != nil {
-		objectMap["trigger"] = wrp.Trigger
-	}
-	if wrp.Outputs != nil {
-		objectMap["outputs"] = wrp.Outputs
-	}
-	return json.Marshal(objectMap)
+	Outputs *map[string]*WorkflowOutputParameter `json:"outputs,omitempty"`
 }
 
 // WorkflowRunTrigger ...
@@ -1160,11 +1059,11 @@ type WorkflowRunTrigger struct {
 	// Name - Gets the name.
 	Name *string `json:"name,omitempty"`
 	// Inputs - Gets the inputs.
-	Inputs interface{} `json:"inputs,omitempty"`
+	Inputs *map[string]interface{} `json:"inputs,omitempty"`
 	// InputsLink - Gets the link to inputs.
 	InputsLink *ContentLink `json:"inputsLink,omitempty"`
 	// Outputs - Gets the outputs.
-	Outputs interface{} `json:"outputs,omitempty"`
+	Outputs *map[string]interface{} `json:"outputs,omitempty"`
 	// OutputsLink - Gets the link to outputs.
 	OutputsLink *ContentLink `json:"outputsLink,omitempty"`
 	// StartTime - Gets the start time.
@@ -1178,7 +1077,7 @@ type WorkflowRunTrigger struct {
 	// Status - Gets the status. Possible values include: 'WorkflowStatusNotSpecified', 'WorkflowStatusPaused', 'WorkflowStatusRunning', 'WorkflowStatusWaiting', 'WorkflowStatusSucceeded', 'WorkflowStatusSkipped', 'WorkflowStatusSuspended', 'WorkflowStatusCancelled', 'WorkflowStatusFailed', 'WorkflowStatusFaulted', 'WorkflowStatusTimedOut', 'WorkflowStatusAborted'
 	Status WorkflowStatus `json:"status,omitempty"`
 	// Error - Gets the error.
-	Error interface{} `json:"error,omitempty"`
+	Error *map[string]interface{} `json:"error,omitempty"`
 }
 
 // WorkflowSecretKeys ...
@@ -1202,53 +1101,36 @@ func (future WorkflowsRunFuture) Result(client WorkflowsClient) (wr WorkflowRun,
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "logic.WorkflowsRunFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return wr, azure.NewAsyncOpIncompleteError("logic.WorkflowsRunFuture")
+		return wr, autorest.NewError("logic.WorkflowsRunFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		wr, err = client.RunResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "logic.WorkflowsRunFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "logic.WorkflowsRunFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	wr, err = client.RunResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "logic.WorkflowsRunFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
 // WorkflowTrigger ...
 type WorkflowTrigger struct {
 	autorest.Response `json:"-"`
+	// ID - Gets or sets the resource id.
+	ID *string `json:"id,omitempty"`
 	// WorkflowTriggerProperties - Gets or sets the workflow trigger properties.
 	*WorkflowTriggerProperties `json:"properties,omitempty"`
 	// Name - Gets the workflow trigger name.
 	Name *string `json:"name,omitempty"`
 	// Type - Gets the workflow trigger type.
 	Type *string `json:"type,omitempty"`
-	// ID - Gets or sets the resource id.
-	ID *string `json:"id,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for WorkflowTrigger struct.
@@ -1258,45 +1140,46 @@ func (wt *WorkflowTrigger) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var workflowTriggerProperties WorkflowTriggerProperties
-				err = json.Unmarshal(*v, &workflowTriggerProperties)
-				if err != nil {
-					return err
-				}
-				wt.WorkflowTriggerProperties = &workflowTriggerProperties
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				wt.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				wt.Type = &typeVar
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				wt.ID = &ID
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties WorkflowTriggerProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		wt.WorkflowTriggerProperties = &properties
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		wt.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		wt.Type = &typeVar
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		wt.ID = &ID
 	}
 
 	return nil
@@ -1311,14 +1194,14 @@ type WorkflowTriggerFilter struct {
 // WorkflowTriggerHistory ...
 type WorkflowTriggerHistory struct {
 	autorest.Response `json:"-"`
+	// ID - Gets or sets the resource id.
+	ID *string `json:"id,omitempty"`
 	// WorkflowTriggerHistoryProperties - Gets the workflow trigger history properties.
 	*WorkflowTriggerHistoryProperties `json:"properties,omitempty"`
 	// Name - Gets the workflow trigger history name.
 	Name *string `json:"name,omitempty"`
 	// Type - Gets the workflow trigger history type.
 	Type *string `json:"type,omitempty"`
-	// ID - Gets or sets the resource id.
-	ID *string `json:"id,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for WorkflowTriggerHistory struct.
@@ -1328,45 +1211,46 @@ func (wth *WorkflowTriggerHistory) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var workflowTriggerHistoryProperties WorkflowTriggerHistoryProperties
-				err = json.Unmarshal(*v, &workflowTriggerHistoryProperties)
-				if err != nil {
-					return err
-				}
-				wth.WorkflowTriggerHistoryProperties = &workflowTriggerHistoryProperties
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				wth.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				wth.Type = &typeVar
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				wth.ID = &ID
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties WorkflowTriggerHistoryProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		wth.WorkflowTriggerHistoryProperties = &properties
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		wth.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		wth.Type = &typeVar
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		wth.ID = &ID
 	}
 
 	return nil
@@ -1491,7 +1375,7 @@ type WorkflowTriggerHistoryProperties struct {
 	// Code - Gets the code.
 	Code *string `json:"code,omitempty"`
 	// Error - Gets the error.
-	Error interface{} `json:"error,omitempty"`
+	Error *map[string]interface{} `json:"error,omitempty"`
 	// TrackingID - Gets the tracking id.
 	TrackingID *string `json:"trackingId,omitempty"`
 	// InputsLink - Gets the link to input parameters.
@@ -1643,8 +1527,6 @@ type WorkflowTriggerRecurrence struct {
 // WorkflowVersion ...
 type WorkflowVersion struct {
 	autorest.Response `json:"-"`
-	// WorkflowVersionProperties - Gets or sets the workflow version properties.
-	*WorkflowVersionProperties `json:"properties,omitempty"`
 	// ID - Gets or sets the resource id.
 	ID *string `json:"id,omitempty"`
 	// Name - Gets the resource name.
@@ -1654,31 +1536,9 @@ type WorkflowVersion struct {
 	// Location - Gets or sets the resource location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Gets or sets the resource tags.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for WorkflowVersion.
-func (wv WorkflowVersion) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if wv.WorkflowVersionProperties != nil {
-		objectMap["properties"] = wv.WorkflowVersionProperties
-	}
-	if wv.ID != nil {
-		objectMap["id"] = wv.ID
-	}
-	if wv.Name != nil {
-		objectMap["name"] = wv.Name
-	}
-	if wv.Type != nil {
-		objectMap["type"] = wv.Type
-	}
-	if wv.Location != nil {
-		objectMap["location"] = wv.Location
-	}
-	if wv.Tags != nil {
-		objectMap["tags"] = wv.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// WorkflowVersionProperties - Gets or sets the workflow version properties.
+	*WorkflowVersionProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for WorkflowVersion struct.
@@ -1688,63 +1548,66 @@ func (wv *WorkflowVersion) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var workflowVersionProperties WorkflowVersionProperties
-				err = json.Unmarshal(*v, &workflowVersionProperties)
-				if err != nil {
-					return err
-				}
-				wv.WorkflowVersionProperties = &workflowVersionProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				wv.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				wv.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				wv.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				wv.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				wv.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties WorkflowVersionProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		wv.WorkflowVersionProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		wv.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		wv.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		wv.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		wv.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		wv.Tags = &tags
 	}
 
 	return nil
@@ -1767,41 +1630,9 @@ type WorkflowVersionProperties struct {
 	// DefinitionLink - Gets or sets the link to definition.
 	DefinitionLink *ContentLink `json:"definitionLink,omitempty"`
 	// Definition - Gets or sets the definition.
-	Definition interface{} `json:"definition,omitempty"`
+	Definition *map[string]interface{} `json:"definition,omitempty"`
 	// ParametersLink - Gets or sets the link to parameters.
 	ParametersLink *ContentLink `json:"parametersLink,omitempty"`
 	// Parameters - Gets or sets the parameters.
-	Parameters map[string]*WorkflowParameter `json:"parameters"`
-}
-
-// MarshalJSON is the custom marshaler for WorkflowVersionProperties.
-func (wvp WorkflowVersionProperties) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if wvp.CreatedTime != nil {
-		objectMap["createdTime"] = wvp.CreatedTime
-	}
-	if wvp.ChangedTime != nil {
-		objectMap["changedTime"] = wvp.ChangedTime
-	}
-	objectMap["state"] = wvp.State
-	if wvp.Version != nil {
-		objectMap["version"] = wvp.Version
-	}
-	if wvp.AccessEndpoint != nil {
-		objectMap["accessEndpoint"] = wvp.AccessEndpoint
-	}
-	if wvp.Sku != nil {
-		objectMap["sku"] = wvp.Sku
-	}
-	if wvp.DefinitionLink != nil {
-		objectMap["definitionLink"] = wvp.DefinitionLink
-	}
-	objectMap["definition"] = wvp.Definition
-	if wvp.ParametersLink != nil {
-		objectMap["parametersLink"] = wvp.ParametersLink
-	}
-	if wvp.Parameters != nil {
-		objectMap["parameters"] = wvp.Parameters
-	}
-	return json.Marshal(objectMap)
+	Parameters *map[string]*WorkflowParameter `json:"parameters,omitempty"`
 }

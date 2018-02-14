@@ -36,26 +36,22 @@ func (s *serviceManager) deleteARMDeployment(
 }
 
 func (s *serviceManager) deleteRedisServer(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
-	result, err := s.client.Delete(
-		ctx,
+	cancelCh := make(chan struct{})
+	_, errChan := s.groupClient.Delete(
 		instance.ResourceGroup,
 		dt.ServerName,
+		cancelCh,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error deleting redis server: %s", err)
-	}
-	if err := result.WaitForCompletion(ctx, s.client.Client); err != nil {
+	if err := <-errChan; err != nil {
 		return nil, fmt.Errorf("error deleting redis server: %s", err)
 	}
 	return dt, nil

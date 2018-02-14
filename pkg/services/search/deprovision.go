@@ -36,23 +36,17 @@ func (s *serviceManager) deleteARMDeployment(
 }
 
 func (s *serviceManager) deleteAzureSearch(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
-	if _, err := s.servicesClient.Delete(
-		ctx,
-		instance.ResourceGroup,
-		dt.ServiceName,
-		nil,
-	); err != nil {
+	_, err := s.servicesClient.Delete(instance.ResourceGroup, dt.ServiceName, nil)
+	if err != nil {
 		return nil, fmt.Errorf("error deleting Azure Search: %s", err)
 	}
 	return dt, nil

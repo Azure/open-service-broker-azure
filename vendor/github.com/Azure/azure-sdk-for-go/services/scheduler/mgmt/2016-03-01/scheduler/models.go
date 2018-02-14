@@ -210,26 +210,23 @@ const (
 
 // BasicAuthentication ...
 type BasicAuthentication struct {
+	// Type - Possible values include: 'TypeHTTPAuthentication', 'TypeClientCertificate', 'TypeBasic', 'TypeActiveDirectoryOAuth'
+	Type Type `json:"type,omitempty"`
 	// Username - Gets or sets the username.
 	Username *string `json:"username,omitempty"`
 	// Password - Gets or sets the password, return value will always be empty.
 	Password *string `json:"password,omitempty"`
-	// Type - Possible values include: 'TypeHTTPAuthentication', 'TypeClientCertificate', 'TypeBasic', 'TypeActiveDirectoryOAuth'
-	Type Type `json:"type,omitempty"`
 }
 
 // MarshalJSON is the custom marshaler for BasicAuthentication.
 func (ba BasicAuthentication) MarshalJSON() ([]byte, error) {
 	ba.Type = TypeBasic
-	objectMap := make(map[string]interface{})
-	if ba.Username != nil {
-		objectMap["username"] = ba.Username
-	}
-	if ba.Password != nil {
-		objectMap["password"] = ba.Password
-	}
-	objectMap["type"] = ba.Type
-	return json.Marshal(objectMap)
+	type Alias BasicAuthentication
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(ba),
+	})
 }
 
 // AsClientCertAuthentication is the BasicHTTPAuthentication implementation for BasicAuthentication.
@@ -259,6 +256,8 @@ func (ba BasicAuthentication) AsBasicHTTPAuthentication() (BasicHTTPAuthenticati
 
 // ClientCertAuthentication ...
 type ClientCertAuthentication struct {
+	// Type - Possible values include: 'TypeHTTPAuthentication', 'TypeClientCertificate', 'TypeBasic', 'TypeActiveDirectoryOAuth'
+	Type Type `json:"type,omitempty"`
 	// Password - Gets or sets the certificate password, return value will always be empty.
 	Password *string `json:"password,omitempty"`
 	// Pfx - Gets or sets the pfx certificate. Accepts certification in base64 encoding, return value will always be empty.
@@ -269,31 +268,17 @@ type ClientCertAuthentication struct {
 	CertificateExpirationDate *date.Time `json:"certificateExpirationDate,omitempty"`
 	// CertificateSubjectName - Gets or sets the certificate subject name.
 	CertificateSubjectName *string `json:"certificateSubjectName,omitempty"`
-	// Type - Possible values include: 'TypeHTTPAuthentication', 'TypeClientCertificate', 'TypeBasic', 'TypeActiveDirectoryOAuth'
-	Type Type `json:"type,omitempty"`
 }
 
 // MarshalJSON is the custom marshaler for ClientCertAuthentication.
 func (cca ClientCertAuthentication) MarshalJSON() ([]byte, error) {
 	cca.Type = TypeClientCertificate
-	objectMap := make(map[string]interface{})
-	if cca.Password != nil {
-		objectMap["password"] = cca.Password
-	}
-	if cca.Pfx != nil {
-		objectMap["pfx"] = cca.Pfx
-	}
-	if cca.CertificateThumbprint != nil {
-		objectMap["certificateThumbprint"] = cca.CertificateThumbprint
-	}
-	if cca.CertificateExpirationDate != nil {
-		objectMap["certificateExpirationDate"] = cca.CertificateExpirationDate
-	}
-	if cca.CertificateSubjectName != nil {
-		objectMap["certificateSubjectName"] = cca.CertificateSubjectName
-	}
-	objectMap["type"] = cca.Type
-	return json.Marshal(objectMap)
+	type Alias ClientCertAuthentication
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(cca),
+	})
 }
 
 // AsClientCertAuthentication is the BasicHTTPAuthentication implementation for ClientCertAuthentication.
@@ -321,7 +306,7 @@ func (cca ClientCertAuthentication) AsBasicHTTPAuthentication() (BasicHTTPAuthen
 	return &cca, true
 }
 
-// BasicHTTPAuthentication ...
+// BasicHTTPAuthentication
 type BasicHTTPAuthentication interface {
 	AsClientCertAuthentication() (*ClientCertAuthentication, bool)
 	AsBasicAuthentication() (*BasicAuthentication, bool)
@@ -329,7 +314,7 @@ type BasicHTTPAuthentication interface {
 	AsHTTPAuthentication() (*HTTPAuthentication, bool)
 }
 
-// HTTPAuthentication ...
+// HTTPAuthentication
 type HTTPAuthentication struct {
 	// Type - Possible values include: 'TypeHTTPAuthentication', 'TypeClientCertificate', 'TypeBasic', 'TypeActiveDirectoryOAuth'
 	Type Type `json:"type,omitempty"`
@@ -383,9 +368,12 @@ func unmarshalBasicHTTPAuthenticationArray(body []byte) ([]BasicHTTPAuthenticati
 // MarshalJSON is the custom marshaler for HTTPAuthentication.
 func (ha HTTPAuthentication) MarshalJSON() ([]byte, error) {
 	ha.Type = TypeHTTPAuthentication
-	objectMap := make(map[string]interface{})
-	objectMap["type"] = ha.Type
-	return json.Marshal(objectMap)
+	type Alias HTTPAuthentication
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(ha),
+	})
 }
 
 // AsClientCertAuthentication is the BasicHTTPAuthentication implementation for HTTPAuthentication.
@@ -424,26 +412,7 @@ type HTTPRequest struct {
 	// Body - Gets or sets the request body.
 	Body *string `json:"body,omitempty"`
 	// Headers - Gets or sets the headers.
-	Headers map[string]*string `json:"headers"`
-}
-
-// MarshalJSON is the custom marshaler for HTTPRequest.
-func (hr HTTPRequest) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	objectMap["authentication"] = hr.Authentication
-	if hr.URI != nil {
-		objectMap["uri"] = hr.URI
-	}
-	if hr.Method != nil {
-		objectMap["method"] = hr.Method
-	}
-	if hr.Body != nil {
-		objectMap["body"] = hr.Body
-	}
-	if hr.Headers != nil {
-		objectMap["headers"] = hr.Headers
-	}
-	return json.Marshal(objectMap)
+	Headers *map[string]*string `json:"headers,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for HTTPRequest struct.
@@ -453,53 +422,55 @@ func (hr *HTTPRequest) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "authentication":
-			if v != nil {
-				authentication, err := unmarshalBasicHTTPAuthentication(*v)
-				if err != nil {
-					return err
-				}
-				hr.Authentication = authentication
-			}
-		case "uri":
-			if v != nil {
-				var URI string
-				err = json.Unmarshal(*v, &URI)
-				if err != nil {
-					return err
-				}
-				hr.URI = &URI
-			}
-		case "method":
-			if v != nil {
-				var method string
-				err = json.Unmarshal(*v, &method)
-				if err != nil {
-					return err
-				}
-				hr.Method = &method
-			}
-		case "body":
-			if v != nil {
-				var body string
-				err = json.Unmarshal(*v, &body)
-				if err != nil {
-					return err
-				}
-				hr.Body = &body
-			}
-		case "headers":
-			if v != nil {
-				var headers map[string]*string
-				err = json.Unmarshal(*v, &headers)
-				if err != nil {
-					return err
-				}
-				hr.Headers = headers
-			}
+	var v *json.RawMessage
+
+	v = m["authentication"]
+	if v != nil {
+		authentication, err := unmarshalBasicHTTPAuthentication(*m["authentication"])
+		if err != nil {
+			return err
 		}
+		hr.Authentication = authentication
+	}
+
+	v = m["uri"]
+	if v != nil {
+		var URI string
+		err = json.Unmarshal(*m["uri"], &URI)
+		if err != nil {
+			return err
+		}
+		hr.URI = &URI
+	}
+
+	v = m["method"]
+	if v != nil {
+		var method string
+		err = json.Unmarshal(*m["method"], &method)
+		if err != nil {
+			return err
+		}
+		hr.Method = &method
+	}
+
+	v = m["body"]
+	if v != nil {
+		var body string
+		err = json.Unmarshal(*m["body"], &body)
+		if err != nil {
+			return err
+		}
+		hr.Body = &body
+	}
+
+	v = m["headers"]
+	if v != nil {
+		var headers map[string]*string
+		err = json.Unmarshal(*m["headers"], &headers)
+		if err != nil {
+			return err
+		}
+		hr.Headers = &headers
 	}
 
 	return nil
@@ -535,33 +506,9 @@ type JobCollectionDefinition struct {
 	// Location - Gets or sets the storage account location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Gets or sets the tags.
-	Tags map[string]*string `json:"tags"`
+	Tags *map[string]*string `json:"tags,omitempty"`
 	// Properties - Gets or sets the job collection properties.
 	Properties *JobCollectionProperties `json:"properties,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for JobCollectionDefinition.
-func (jcd JobCollectionDefinition) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if jcd.ID != nil {
-		objectMap["id"] = jcd.ID
-	}
-	if jcd.Type != nil {
-		objectMap["type"] = jcd.Type
-	}
-	if jcd.Name != nil {
-		objectMap["name"] = jcd.Name
-	}
-	if jcd.Location != nil {
-		objectMap["location"] = jcd.Location
-	}
-	if jcd.Tags != nil {
-		objectMap["tags"] = jcd.Tags
-	}
-	if jcd.Properties != nil {
-		objectMap["properties"] = jcd.Properties
-	}
-	return json.Marshal(objectMap)
 }
 
 // JobCollectionListResult ...
@@ -698,44 +645,26 @@ func (future JobCollectionsDeleteFuture) Result(client JobCollectionsClient) (ar
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("scheduler.JobCollectionsDeleteFuture")
+		return ar, autorest.NewError("scheduler.JobCollectionsDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
-// JobCollectionsDisableFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// JobCollectionsDisableFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type JobCollectionsDisableFuture struct {
 	azure.Future
 	req *http.Request
@@ -747,39 +676,22 @@ func (future JobCollectionsDisableFuture) Result(client JobCollectionsClient) (a
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsDisableFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("scheduler.JobCollectionsDisableFuture")
+		return ar, autorest.NewError("scheduler.JobCollectionsDisableFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DisableResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsDisableFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsDisableFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DisableResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsDisableFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -795,39 +707,22 @@ func (future JobCollectionsEnableFuture) Result(client JobCollectionsClient) (ar
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsEnableFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("scheduler.JobCollectionsEnableFuture")
+		return ar, autorest.NewError("scheduler.JobCollectionsEnableFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.EnableResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsEnableFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsEnableFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.EnableResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "scheduler.JobCollectionsEnableFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1181,6 +1076,8 @@ type JobStatus struct {
 
 // OAuthAuthentication ...
 type OAuthAuthentication struct {
+	// Type - Possible values include: 'TypeHTTPAuthentication', 'TypeClientCertificate', 'TypeBasic', 'TypeActiveDirectoryOAuth'
+	Type Type `json:"type,omitempty"`
 	// Secret - Gets or sets the secret, return value will always be empty.
 	Secret *string `json:"secret,omitempty"`
 	// Tenant - Gets or sets the tenant.
@@ -1189,28 +1086,17 @@ type OAuthAuthentication struct {
 	Audience *string `json:"audience,omitempty"`
 	// ClientID - Gets or sets the client identifier.
 	ClientID *string `json:"clientId,omitempty"`
-	// Type - Possible values include: 'TypeHTTPAuthentication', 'TypeClientCertificate', 'TypeBasic', 'TypeActiveDirectoryOAuth'
-	Type Type `json:"type,omitempty"`
 }
 
 // MarshalJSON is the custom marshaler for OAuthAuthentication.
 func (oaa OAuthAuthentication) MarshalJSON() ([]byte, error) {
 	oaa.Type = TypeActiveDirectoryOAuth
-	objectMap := make(map[string]interface{})
-	if oaa.Secret != nil {
-		objectMap["secret"] = oaa.Secret
-	}
-	if oaa.Tenant != nil {
-		objectMap["tenant"] = oaa.Tenant
-	}
-	if oaa.Audience != nil {
-		objectMap["audience"] = oaa.Audience
-	}
-	if oaa.ClientID != nil {
-		objectMap["clientId"] = oaa.ClientID
-	}
-	objectMap["type"] = oaa.Type
-	return json.Marshal(objectMap)
+	type Alias OAuthAuthentication
+	return json.Marshal(&struct {
+		Alias
+	}{
+		Alias: (Alias)(oaa),
+	})
 }
 
 // AsClientCertAuthentication is the BasicHTTPAuthentication implementation for OAuthAuthentication.
@@ -1295,121 +1181,49 @@ type ServiceBusMessage struct {
 	// BrokeredMessageProperties - Gets or sets the brokered message properties.
 	BrokeredMessageProperties *ServiceBusBrokeredMessageProperties `json:"brokeredMessageProperties,omitempty"`
 	// CustomMessageProperties - Gets or sets the custom message properties.
-	CustomMessageProperties map[string]*string `json:"customMessageProperties"`
+	CustomMessageProperties *map[string]*string `json:"customMessageProperties,omitempty"`
 	// Message - Gets or sets the message.
 	Message *string `json:"message,omitempty"`
 	// Namespace - Gets or sets the namespace.
 	Namespace *string `json:"namespace,omitempty"`
 	// TransportType - Gets or sets the transport type. Possible values include: 'ServiceBusTransportTypeNotSpecified', 'ServiceBusTransportTypeNetMessaging', 'ServiceBusTransportTypeAMQP'
 	TransportType ServiceBusTransportType `json:"transportType,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for ServiceBusMessage.
-func (sbm ServiceBusMessage) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if sbm.Authentication != nil {
-		objectMap["authentication"] = sbm.Authentication
-	}
-	if sbm.BrokeredMessageProperties != nil {
-		objectMap["brokeredMessageProperties"] = sbm.BrokeredMessageProperties
-	}
-	if sbm.CustomMessageProperties != nil {
-		objectMap["customMessageProperties"] = sbm.CustomMessageProperties
-	}
-	if sbm.Message != nil {
-		objectMap["message"] = sbm.Message
-	}
-	if sbm.Namespace != nil {
-		objectMap["namespace"] = sbm.Namespace
-	}
-	objectMap["transportType"] = sbm.TransportType
-	return json.Marshal(objectMap)
 }
 
 // ServiceBusQueueMessage ...
 type ServiceBusQueueMessage struct {
-	// QueueName - Gets or sets the queue name.
-	QueueName *string `json:"queueName,omitempty"`
 	// Authentication - Gets or sets the Service Bus authentication.
 	Authentication *ServiceBusAuthentication `json:"authentication,omitempty"`
 	// BrokeredMessageProperties - Gets or sets the brokered message properties.
 	BrokeredMessageProperties *ServiceBusBrokeredMessageProperties `json:"brokeredMessageProperties,omitempty"`
 	// CustomMessageProperties - Gets or sets the custom message properties.
-	CustomMessageProperties map[string]*string `json:"customMessageProperties"`
+	CustomMessageProperties *map[string]*string `json:"customMessageProperties,omitempty"`
 	// Message - Gets or sets the message.
 	Message *string `json:"message,omitempty"`
 	// Namespace - Gets or sets the namespace.
 	Namespace *string `json:"namespace,omitempty"`
 	// TransportType - Gets or sets the transport type. Possible values include: 'ServiceBusTransportTypeNotSpecified', 'ServiceBusTransportTypeNetMessaging', 'ServiceBusTransportTypeAMQP'
 	TransportType ServiceBusTransportType `json:"transportType,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for ServiceBusQueueMessage.
-func (sbqm ServiceBusQueueMessage) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if sbqm.QueueName != nil {
-		objectMap["queueName"] = sbqm.QueueName
-	}
-	if sbqm.Authentication != nil {
-		objectMap["authentication"] = sbqm.Authentication
-	}
-	if sbqm.BrokeredMessageProperties != nil {
-		objectMap["brokeredMessageProperties"] = sbqm.BrokeredMessageProperties
-	}
-	if sbqm.CustomMessageProperties != nil {
-		objectMap["customMessageProperties"] = sbqm.CustomMessageProperties
-	}
-	if sbqm.Message != nil {
-		objectMap["message"] = sbqm.Message
-	}
-	if sbqm.Namespace != nil {
-		objectMap["namespace"] = sbqm.Namespace
-	}
-	objectMap["transportType"] = sbqm.TransportType
-	return json.Marshal(objectMap)
+	// QueueName - Gets or sets the queue name.
+	QueueName *string `json:"queueName,omitempty"`
 }
 
 // ServiceBusTopicMessage ...
 type ServiceBusTopicMessage struct {
-	// TopicPath - Gets or sets the topic path.
-	TopicPath *string `json:"topicPath,omitempty"`
 	// Authentication - Gets or sets the Service Bus authentication.
 	Authentication *ServiceBusAuthentication `json:"authentication,omitempty"`
 	// BrokeredMessageProperties - Gets or sets the brokered message properties.
 	BrokeredMessageProperties *ServiceBusBrokeredMessageProperties `json:"brokeredMessageProperties,omitempty"`
 	// CustomMessageProperties - Gets or sets the custom message properties.
-	CustomMessageProperties map[string]*string `json:"customMessageProperties"`
+	CustomMessageProperties *map[string]*string `json:"customMessageProperties,omitempty"`
 	// Message - Gets or sets the message.
 	Message *string `json:"message,omitempty"`
 	// Namespace - Gets or sets the namespace.
 	Namespace *string `json:"namespace,omitempty"`
 	// TransportType - Gets or sets the transport type. Possible values include: 'ServiceBusTransportTypeNotSpecified', 'ServiceBusTransportTypeNetMessaging', 'ServiceBusTransportTypeAMQP'
 	TransportType ServiceBusTransportType `json:"transportType,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for ServiceBusTopicMessage.
-func (sbtm ServiceBusTopicMessage) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if sbtm.TopicPath != nil {
-		objectMap["topicPath"] = sbtm.TopicPath
-	}
-	if sbtm.Authentication != nil {
-		objectMap["authentication"] = sbtm.Authentication
-	}
-	if sbtm.BrokeredMessageProperties != nil {
-		objectMap["brokeredMessageProperties"] = sbtm.BrokeredMessageProperties
-	}
-	if sbtm.CustomMessageProperties != nil {
-		objectMap["customMessageProperties"] = sbtm.CustomMessageProperties
-	}
-	if sbtm.Message != nil {
-		objectMap["message"] = sbtm.Message
-	}
-	if sbtm.Namespace != nil {
-		objectMap["namespace"] = sbtm.Namespace
-	}
-	objectMap["transportType"] = sbtm.TransportType
-	return json.Marshal(objectMap)
+	// TopicPath - Gets or sets the topic path.
+	TopicPath *string `json:"topicPath,omitempty"`
 }
 
 // Sku ...

@@ -39,26 +39,22 @@ func (s *serviceManager) deleteARMDeployment(
 }
 
 func (s *serviceManager) deletePostgreSQLServer(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*postgresqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *postgresqlInstanceDetails",
 		)
 	}
-	result, err := s.serversClient.Delete(
-		ctx,
+	cancelCh := make(chan struct{})
+	_, errChan := s.serversClient.Delete(
 		instance.ResourceGroup,
 		dt.ServerName,
+		cancelCh,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
-	}
-	if err := result.WaitForCompletion(ctx, s.serversClient.Client); err != nil {
+	if err := <-errChan; err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
 	return dt, nil

@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql" // nolint: lll
+	mysqlSDK "github.com/Azure/azure-sdk-for-go/arm/mysql"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
@@ -22,28 +22,15 @@ func getMysqlCases(
 	authorizer autorest.Authorizer,
 	armDeployer arm.Deployer,
 ) ([]serviceLifecycleTestCase, error) {
-	checkNameAvailabilityClient :=
-		mysqlSDK.NewCheckNameAvailabilityClientWithBaseURI(
-			azureEnvironment.ResourceManagerEndpoint,
-			subscriptionID,
-		)
-	checkNameAvailabilityClient.Authorizer = authorizer
 	serversClient := mysqlSDK.NewServersClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		subscriptionID,
 	)
 	serversClient.Authorizer = authorizer
-	databasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
-		subscriptionID,
-	)
-	databasesClient.Authorizer = authorizer
 	module := mysqldb.New(
 		azureEnvironment,
 		armDeployer,
-		checkNameAvailabilityClient,
 		serversClient,
-		databasesClient,
 	)
 	return []serviceLifecycleTestCase{
 		{

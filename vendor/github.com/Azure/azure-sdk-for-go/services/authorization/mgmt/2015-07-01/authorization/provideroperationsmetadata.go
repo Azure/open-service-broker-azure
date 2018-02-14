@@ -80,8 +80,6 @@ func (client ProviderOperationsMetadataClient) GetPreparer(ctx context.Context, 
 	}
 	if len(expand) > 0 {
 		queryParameters["$expand"] = autorest.Encode("query", expand)
-	} else {
-		queryParameters["$expand"] = autorest.Encode("query", "resourceTypes")
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -146,8 +144,6 @@ func (client ProviderOperationsMetadataClient) ListPreparer(ctx context.Context,
 	}
 	if len(expand) > 0 {
 		queryParameters["$expand"] = autorest.Encode("query", expand)
-	} else {
-		queryParameters["$expand"] = autorest.Encode("query", "resourceTypes")
 	}
 
 	preparer := autorest.CreatePreparer(

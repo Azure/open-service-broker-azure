@@ -1,7 +1,7 @@
 package sqldb
 
 import (
-	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql" // nolint: lll
+	sqlSDK "github.com/Azure/azure-sdk-for-go/arm/sql"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"

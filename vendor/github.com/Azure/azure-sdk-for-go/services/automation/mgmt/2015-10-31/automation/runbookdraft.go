@@ -43,14 +43,14 @@ func NewRunbookDraftClientWithBaseURI(baseURI string, subscriptionID string, res
 
 // CreateOrUpdate updates the runbook draft with runbookStream as its content.
 //
-// automationAccountName is the automation account name. runbookName is the runbook name. runbookContent is the
-// runbook draft content. runbookContent will be closed upon successful return. Callers should ensure closure when
-// receiving an error.
+// automationAccountName is the automation account name. runbookName is the runbook name. runbookContent is the runbook
+// draft content. runbookContent will be closed upon successful return. Callers should ensure closure when receiving an
+// error.
 func (client RunbookDraftClient) CreateOrUpdate(ctx context.Context, automationAccountName string, runbookName string, runbookContent io.ReadCloser) (result RunbookDraftCreateOrUpdateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookDraftClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookDraftClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, automationAccountName, runbookName, runbookContent)
@@ -83,7 +83,6 @@ func (client RunbookDraftClient) CreateOrUpdatePreparer(ctx context.Context, aut
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsOctetStream(),
 		autorest.AsPut(),
 		autorest.WithBaseURL(client.BaseURI),
 		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Automation/automationAccounts/{automationAccountName}/runbooks/{runbookName}/draft/content", pathParameters),
@@ -126,7 +125,7 @@ func (client RunbookDraftClient) Get(ctx context.Context, automationAccountName 
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookDraftClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookDraftClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, automationAccountName, runbookName)
@@ -199,7 +198,7 @@ func (client RunbookDraftClient) GetContent(ctx context.Context, automationAccou
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookDraftClient", "GetContent", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookDraftClient", "GetContent")
 	}
 
 	req, err := client.GetContentPreparer(ctx, automationAccountName, runbookName)
@@ -266,13 +265,13 @@ func (client RunbookDraftClient) GetContentResponder(resp *http.Response) (resul
 
 // Publish publish runbook draft.
 //
-// automationAccountName is the automation account name. runbookName is the parameters supplied to the publish
-// runbook operation.
+// automationAccountName is the automation account name. runbookName is the parameters supplied to the publish runbook
+// operation.
 func (client RunbookDraftClient) Publish(ctx context.Context, automationAccountName string, runbookName string) (result RunbookDraftPublishFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookDraftClient", "Publish", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookDraftClient", "Publish")
 	}
 
 	req, err := client.PublishPreparer(ctx, automationAccountName, runbookName)
@@ -347,7 +346,7 @@ func (client RunbookDraftClient) UndoEdit(ctx context.Context, automationAccount
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookDraftClient", "UndoEdit", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookDraftClient", "UndoEdit")
 	}
 
 	req, err := client.UndoEditPreparer(ctx, automationAccountName, runbookName)

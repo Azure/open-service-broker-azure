@@ -3,7 +3,7 @@
 package lifecycle
 
 import (
-	keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault" // nolint: lll
+	keyVaultSDK "github.com/Azure/azure-sdk-for-go/arm/keyvault"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"

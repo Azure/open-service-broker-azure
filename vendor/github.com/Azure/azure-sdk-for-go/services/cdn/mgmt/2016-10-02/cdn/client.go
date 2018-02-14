@@ -64,7 +64,7 @@ func (client BaseClient) CheckNameAvailability(ctx context.Context, checkNameAva
 		{TargetValue: checkNameAvailabilityInput,
 			Constraints: []validation.Constraint{{Target: "checkNameAvailabilityInput.Name", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "checkNameAvailabilityInput.Type", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("cdn.BaseClient", "CheckNameAvailability", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "cdn.BaseClient", "CheckNameAvailability")
 	}
 
 	req, err := client.CheckNameAvailabilityPreparer(ctx, checkNameAvailabilityInput)

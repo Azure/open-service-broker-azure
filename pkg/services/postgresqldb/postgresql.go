@@ -1,7 +1,7 @@
 package postgresqldb
 
 import (
-	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql" // nolint: lll
+	postgresSDK "github.com/Azure/azure-sdk-for-go/arm/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -11,9 +11,8 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer                 arm.Deployer
-	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient
-	serversClient               postgresSDK.ServersClient
+	armDeployer   arm.Deployer
+	serversClient postgresSDK.ServersClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -21,14 +20,12 @@ type serviceManager struct {
 // using "Azure Database for PostgreSQL"
 func New(
 	armDeployer arm.Deployer,
-	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient,
 	serversClient postgresSDK.ServersClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:                 armDeployer,
-			checkNameAvailabilityClient: checkNameAvailabilityClient,
-			serversClient:               serversClient,
+			armDeployer:   armDeployer,
+			serversClient: serversClient,
 		},
 	}
 }

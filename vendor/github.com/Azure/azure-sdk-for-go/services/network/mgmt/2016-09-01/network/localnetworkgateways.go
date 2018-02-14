@@ -49,7 +49,7 @@ func (client LocalNetworkGatewaysClient) CreateOrUpdate(ctx context.Context, res
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.LocalNetworkGatewayPropertiesFormat", Name: validation.Null, Rule: true,
 				Chain: []validation.Constraint{{Target: "parameters.LocalNetworkGatewayPropertiesFormat.LocalNetworkAddressSpace", Name: validation.Null, Rule: true, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("network.LocalNetworkGatewaysClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "network.LocalNetworkGatewaysClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, localNetworkGatewayName, parameters)

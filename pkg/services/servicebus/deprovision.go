@@ -37,29 +37,22 @@ func (s *serviceManager) deleteARMDeployment(
 }
 
 func (s *serviceManager) deleteNamespace(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*serviceBusInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *serviceBusInstanceDetails",
 		)
 	}
-	result, err := s.namespacesClient.Delete(
-		ctx,
+	cancelCh := make(chan struct{})
+	_, errChan := s.namespacesClient.Delete(
 		instance.ResourceGroup,
 		dt.ServiceBusNamespaceName,
+		cancelCh,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error deleting service bus namespace: %s", err)
-	}
-	if err := result.WaitForCompletion(
-		ctx,
-		s.namespacesClient.Client,
-	); err != nil {
+	if err := <-errChan; err != nil {
 		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
 		if strings.Contains(err.Error(), "StatusCode=404") {
 			return dt, nil

@@ -350,12 +350,10 @@ const (
 	SysprepRequested WindowsOsState = "SysprepRequested"
 )
 
-// ApplicableSchedule schedules applicable to a virtual machine. The schedules may have been defined on a VM or on
-// lab level.
+// ApplicableSchedule schedules applicable to a virtual machine. The schedules may have been defined on a VM or on lab
+// level.
 type ApplicableSchedule struct {
 	autorest.Response `json:"-"`
-	// ApplicableScheduleProperties - The properties of the resource.
-	*ApplicableScheduleProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -365,31 +363,9 @@ type ApplicableSchedule struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for ApplicableSchedule.
-func (as ApplicableSchedule) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if as.ApplicableScheduleProperties != nil {
-		objectMap["properties"] = as.ApplicableScheduleProperties
-	}
-	if as.ID != nil {
-		objectMap["id"] = as.ID
-	}
-	if as.Name != nil {
-		objectMap["name"] = as.Name
-	}
-	if as.Type != nil {
-		objectMap["type"] = as.Type
-	}
-	if as.Location != nil {
-		objectMap["location"] = as.Location
-	}
-	if as.Tags != nil {
-		objectMap["tags"] = as.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// ApplicableScheduleProperties - The properties of the resource.
+	*ApplicableScheduleProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for ApplicableSchedule struct.
@@ -399,73 +375,74 @@ func (as *ApplicableSchedule) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var applicableScheduleProperties ApplicableScheduleProperties
-				err = json.Unmarshal(*v, &applicableScheduleProperties)
-				if err != nil {
-					return err
-				}
-				as.ApplicableScheduleProperties = &applicableScheduleProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				as.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				as.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				as.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				as.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				as.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties ApplicableScheduleProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		as.ApplicableScheduleProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		as.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		as.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		as.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		as.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		as.Tags = &tags
 	}
 
 	return nil
 }
 
-// ApplicableScheduleFragment schedules applicable to a virtual machine. The schedules may have been defined on a
-// VM or on lab level.
+// ApplicableScheduleFragment schedules applicable to a virtual machine. The schedules may have been defined on a VM or
+// on lab level.
 type ApplicableScheduleFragment struct {
-	// ApplicableSchedulePropertiesFragment - The properties of the resource.
-	*ApplicableSchedulePropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -475,31 +452,9 @@ type ApplicableScheduleFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for ApplicableScheduleFragment.
-func (asf ApplicableScheduleFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if asf.ApplicableSchedulePropertiesFragment != nil {
-		objectMap["properties"] = asf.ApplicableSchedulePropertiesFragment
-	}
-	if asf.ID != nil {
-		objectMap["id"] = asf.ID
-	}
-	if asf.Name != nil {
-		objectMap["name"] = asf.Name
-	}
-	if asf.Type != nil {
-		objectMap["type"] = asf.Type
-	}
-	if asf.Location != nil {
-		objectMap["location"] = asf.Location
-	}
-	if asf.Tags != nil {
-		objectMap["tags"] = asf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// ApplicableSchedulePropertiesFragment - The properties of the resource.
+	*ApplicableSchedulePropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for ApplicableScheduleFragment struct.
@@ -509,63 +464,66 @@ func (asf *ApplicableScheduleFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var applicableSchedulePropertiesFragment ApplicableSchedulePropertiesFragment
-				err = json.Unmarshal(*v, &applicableSchedulePropertiesFragment)
-				if err != nil {
-					return err
-				}
-				asf.ApplicableSchedulePropertiesFragment = &applicableSchedulePropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				asf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				asf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				asf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				asf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				asf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties ApplicableSchedulePropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		asf.ApplicableSchedulePropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		asf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		asf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		asf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		asf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		asf.Tags = &tags
 	}
 
 	return nil
@@ -596,8 +554,6 @@ type ApplyArtifactsRequest struct {
 // ArmTemplate an Azure Resource Manager template.
 type ArmTemplate struct {
 	autorest.Response `json:"-"`
-	// ArmTemplateProperties - The properties of the resource.
-	*ArmTemplateProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -607,31 +563,9 @@ type ArmTemplate struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for ArmTemplate.
-func (at ArmTemplate) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if at.ArmTemplateProperties != nil {
-		objectMap["properties"] = at.ArmTemplateProperties
-	}
-	if at.ID != nil {
-		objectMap["id"] = at.ID
-	}
-	if at.Name != nil {
-		objectMap["name"] = at.Name
-	}
-	if at.Type != nil {
-		objectMap["type"] = at.Type
-	}
-	if at.Location != nil {
-		objectMap["location"] = at.Location
-	}
-	if at.Tags != nil {
-		objectMap["tags"] = at.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// ArmTemplateProperties - The properties of the resource.
+	*ArmTemplateProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for ArmTemplate struct.
@@ -641,63 +575,66 @@ func (at *ArmTemplate) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var armTemplateProperties ArmTemplateProperties
-				err = json.Unmarshal(*v, &armTemplateProperties)
-				if err != nil {
-					return err
-				}
-				at.ArmTemplateProperties = &armTemplateProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				at.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				at.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				at.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				at.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				at.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties ArmTemplateProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		at.ArmTemplateProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		at.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		at.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		at.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		at.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		at.Tags = &tags
 	}
 
 	return nil
@@ -707,9 +644,9 @@ func (at *ArmTemplate) UnmarshalJSON(body []byte) error {
 type ArmTemplateInfo struct {
 	autorest.Response `json:"-"`
 	// Template - The template's contents.
-	Template interface{} `json:"template,omitempty"`
+	Template *map[string]interface{} `json:"template,omitempty"`
 	// Parameters - The parameters of the ARM template.
-	Parameters interface{} `json:"parameters,omitempty"`
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 }
 
 // ArmTemplateParameterProperties properties of an Azure Resource Manager template parameter.
@@ -731,7 +668,7 @@ type ArmTemplateProperties struct {
 	// Icon - The URI to the icon of the ARM template.
 	Icon *string `json:"icon,omitempty"`
 	// Contents - The contents of the ARM template.
-	Contents interface{} `json:"contents,omitempty"`
+	Contents *map[string]interface{} `json:"contents,omitempty"`
 	// CreatedDate - The creation date of the armTemplate.
 	CreatedDate *date.Time `json:"createdDate,omitempty"`
 	// ParametersValueFilesInfo - File name and parameter values information from all azuredeploy.*.parameters.json for the ARM template.
@@ -741,8 +678,6 @@ type ArmTemplateProperties struct {
 // Artifact an artifact.
 type Artifact struct {
 	autorest.Response `json:"-"`
-	// ArtifactProperties - The properties of the resource.
-	*ArtifactProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -752,31 +687,9 @@ type Artifact struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Artifact.
-func (a Artifact) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if a.ArtifactProperties != nil {
-		objectMap["properties"] = a.ArtifactProperties
-	}
-	if a.ID != nil {
-		objectMap["id"] = a.ID
-	}
-	if a.Name != nil {
-		objectMap["name"] = a.Name
-	}
-	if a.Type != nil {
-		objectMap["type"] = a.Type
-	}
-	if a.Location != nil {
-		objectMap["location"] = a.Location
-	}
-	if a.Tags != nil {
-		objectMap["tags"] = a.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// ArtifactProperties - The properties of the resource.
+	*ArtifactProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Artifact struct.
@@ -786,63 +699,66 @@ func (a *Artifact) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var artifactProperties ArtifactProperties
-				err = json.Unmarshal(*v, &artifactProperties)
-				if err != nil {
-					return err
-				}
-				a.ArtifactProperties = &artifactProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				a.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				a.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				a.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				a.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				a.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties ArtifactProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		a.ArtifactProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		a.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		a.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		a.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		a.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		a.Tags = &tags
 	}
 
 	return nil
@@ -931,7 +847,7 @@ type ArtifactProperties struct {
 	// TargetOsType - The artifact's target OS.
 	TargetOsType *string `json:"targetOsType,omitempty"`
 	// Parameters - The artifact's parameters.
-	Parameters interface{} `json:"parameters,omitempty"`
+	Parameters *map[string]interface{} `json:"parameters,omitempty"`
 	// CreatedDate - The artifact's creation date.
 	CreatedDate *date.Time `json:"createdDate,omitempty"`
 }
@@ -939,8 +855,6 @@ type ArtifactProperties struct {
 // ArtifactSource properties of an artifact source.
 type ArtifactSource struct {
 	autorest.Response `json:"-"`
-	// ArtifactSourceProperties - The properties of the resource.
-	*ArtifactSourceProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -950,31 +864,9 @@ type ArtifactSource struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for ArtifactSource.
-func (as ArtifactSource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if as.ArtifactSourceProperties != nil {
-		objectMap["properties"] = as.ArtifactSourceProperties
-	}
-	if as.ID != nil {
-		objectMap["id"] = as.ID
-	}
-	if as.Name != nil {
-		objectMap["name"] = as.Name
-	}
-	if as.Type != nil {
-		objectMap["type"] = as.Type
-	}
-	if as.Location != nil {
-		objectMap["location"] = as.Location
-	}
-	if as.Tags != nil {
-		objectMap["tags"] = as.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// ArtifactSourceProperties - The properties of the resource.
+	*ArtifactSourceProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for ArtifactSource struct.
@@ -984,63 +876,66 @@ func (as *ArtifactSource) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var artifactSourceProperties ArtifactSourceProperties
-				err = json.Unmarshal(*v, &artifactSourceProperties)
-				if err != nil {
-					return err
-				}
-				as.ArtifactSourceProperties = &artifactSourceProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				as.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				as.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				as.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				as.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				as.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties ArtifactSourceProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		as.ArtifactSourceProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		as.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		as.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		as.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		as.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		as.Tags = &tags
 	}
 
 	return nil
@@ -1048,8 +943,6 @@ func (as *ArtifactSource) UnmarshalJSON(body []byte) error {
 
 // ArtifactSourceFragment properties of an artifact source.
 type ArtifactSourceFragment struct {
-	// ArtifactSourcePropertiesFragment - The properties of the resource.
-	*ArtifactSourcePropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -1059,31 +952,9 @@ type ArtifactSourceFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for ArtifactSourceFragment.
-func (asf ArtifactSourceFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if asf.ArtifactSourcePropertiesFragment != nil {
-		objectMap["properties"] = asf.ArtifactSourcePropertiesFragment
-	}
-	if asf.ID != nil {
-		objectMap["id"] = asf.ID
-	}
-	if asf.Name != nil {
-		objectMap["name"] = asf.Name
-	}
-	if asf.Type != nil {
-		objectMap["type"] = asf.Type
-	}
-	if asf.Location != nil {
-		objectMap["location"] = asf.Location
-	}
-	if asf.Tags != nil {
-		objectMap["tags"] = asf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// ArtifactSourcePropertiesFragment - The properties of the resource.
+	*ArtifactSourcePropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for ArtifactSourceFragment struct.
@@ -1093,63 +964,66 @@ func (asf *ArtifactSourceFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var artifactSourcePropertiesFragment ArtifactSourcePropertiesFragment
-				err = json.Unmarshal(*v, &artifactSourcePropertiesFragment)
-				if err != nil {
-					return err
-				}
-				asf.ArtifactSourcePropertiesFragment = &artifactSourcePropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				asf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				asf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				asf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				asf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				asf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties ArtifactSourcePropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		asf.ArtifactSourcePropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		asf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		asf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		asf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		asf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		asf.Tags = &tags
 	}
 
 	return nil
@@ -1332,14 +1206,12 @@ type CostThresholdProperties struct {
 	// SendNotificationWhenExceeded - Indicates whether notifications will be sent when this threshold is exceeded. Possible values include: 'Enabled', 'Disabled'
 	SendNotificationWhenExceeded CostThresholdStatus `json:"sendNotificationWhenExceeded,omitempty"`
 	// NotificationSent - Indicates the datetime when notifications were last sent for this threshold.
-	NotificationSent *string `json:"notificationSent,omitempty"`
+	NotificationSent *string `json:"NotificationSent,omitempty"`
 }
 
 // CustomImage a custom image.
 type CustomImage struct {
 	autorest.Response `json:"-"`
-	// CustomImageProperties - The properties of the resource.
-	*CustomImageProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -1349,31 +1221,9 @@ type CustomImage struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for CustomImage.
-func (ci CustomImage) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if ci.CustomImageProperties != nil {
-		objectMap["properties"] = ci.CustomImageProperties
-	}
-	if ci.ID != nil {
-		objectMap["id"] = ci.ID
-	}
-	if ci.Name != nil {
-		objectMap["name"] = ci.Name
-	}
-	if ci.Type != nil {
-		objectMap["type"] = ci.Type
-	}
-	if ci.Location != nil {
-		objectMap["location"] = ci.Location
-	}
-	if ci.Tags != nil {
-		objectMap["tags"] = ci.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// CustomImageProperties - The properties of the resource.
+	*CustomImageProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for CustomImage struct.
@@ -1383,63 +1233,66 @@ func (ci *CustomImage) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var customImageProperties CustomImageProperties
-				err = json.Unmarshal(*v, &customImageProperties)
-				if err != nil {
-					return err
-				}
-				ci.CustomImageProperties = &customImageProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				ci.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				ci.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				ci.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				ci.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				ci.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties CustomImageProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		ci.CustomImageProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		ci.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		ci.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		ci.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		ci.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		ci.Tags = &tags
 	}
 
 	return nil
@@ -1498,39 +1351,22 @@ func (future CustomImagesCreateOrUpdateFuture) Result(client CustomImagesClient)
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.CustomImagesCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ci, azure.NewAsyncOpIncompleteError("dtl.CustomImagesCreateOrUpdateFuture")
+		return ci, autorest.NewError("dtl.CustomImagesCreateOrUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ci, err = client.CreateOrUpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.CustomImagesCreateOrUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.CustomImagesCreateOrUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ci, err = client.CreateOrUpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.CustomImagesCreateOrUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1546,39 +1382,22 @@ func (future CustomImagesDeleteFuture) Result(client CustomImagesClient) (ar aut
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.CustomImagesDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.CustomImagesDeleteFuture")
+		return ar, autorest.NewError("dtl.CustomImagesDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.CustomImagesDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.CustomImagesDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.CustomImagesDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1619,8 +1438,6 @@ type DetachDiskProperties struct {
 // Disk a Disk.
 type Disk struct {
 	autorest.Response `json:"-"`
-	// DiskProperties - The properties of the resource.
-	*DiskProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -1630,31 +1447,9 @@ type Disk struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Disk.
-func (d Disk) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if d.DiskProperties != nil {
-		objectMap["properties"] = d.DiskProperties
-	}
-	if d.ID != nil {
-		objectMap["id"] = d.ID
-	}
-	if d.Name != nil {
-		objectMap["name"] = d.Name
-	}
-	if d.Type != nil {
-		objectMap["type"] = d.Type
-	}
-	if d.Location != nil {
-		objectMap["location"] = d.Location
-	}
-	if d.Tags != nil {
-		objectMap["tags"] = d.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// DiskProperties - The properties of the resource.
+	*DiskProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Disk struct.
@@ -1664,63 +1459,66 @@ func (d *Disk) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var diskProperties DiskProperties
-				err = json.Unmarshal(*v, &diskProperties)
-				if err != nil {
-					return err
-				}
-				d.DiskProperties = &diskProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				d.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				d.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				d.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				d.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				d.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties DiskProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		d.DiskProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		d.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		d.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		d.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		d.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		d.Tags = &tags
 	}
 
 	return nil
@@ -1762,39 +1560,22 @@ func (future DisksAttachFuture) Result(client DisksClient) (ar autorest.Response
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksAttachFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.DisksAttachFuture")
+		return ar, autorest.NewError("dtl.DisksAttachFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.AttachResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.DisksAttachFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksAttachFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.AttachResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksAttachFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1810,39 +1591,22 @@ func (future DisksCreateOrUpdateFuture) Result(client DisksClient) (d Disk, err 
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return d, azure.NewAsyncOpIncompleteError("dtl.DisksCreateOrUpdateFuture")
+		return d, autorest.NewError("dtl.DisksCreateOrUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		d, err = client.CreateOrUpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.DisksCreateOrUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksCreateOrUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	d, err = client.CreateOrUpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksCreateOrUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1858,39 +1622,22 @@ func (future DisksDeleteFuture) Result(client DisksClient) (ar autorest.Response
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.DisksDeleteFuture")
+		return ar, autorest.NewError("dtl.DisksDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.DisksDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1906,47 +1653,28 @@ func (future DisksDetachFuture) Result(client DisksClient) (ar autorest.Response
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksDetachFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.DisksDetachFuture")
+		return ar, autorest.NewError("dtl.DisksDetachFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DetachResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.DisksDetachFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksDetachFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DetachResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.DisksDetachFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
 // Environment an environment, which is essentially an ARM template deployment.
 type Environment struct {
 	autorest.Response `json:"-"`
-	// EnvironmentProperties - The properties of the resource.
-	*EnvironmentProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -1956,31 +1684,9 @@ type Environment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Environment.
-func (e Environment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if e.EnvironmentProperties != nil {
-		objectMap["properties"] = e.EnvironmentProperties
-	}
-	if e.ID != nil {
-		objectMap["id"] = e.ID
-	}
-	if e.Name != nil {
-		objectMap["name"] = e.Name
-	}
-	if e.Type != nil {
-		objectMap["type"] = e.Type
-	}
-	if e.Location != nil {
-		objectMap["location"] = e.Location
-	}
-	if e.Tags != nil {
-		objectMap["tags"] = e.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// EnvironmentProperties - The properties of the resource.
+	*EnvironmentProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Environment struct.
@@ -1990,63 +1696,66 @@ func (e *Environment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var environmentProperties EnvironmentProperties
-				err = json.Unmarshal(*v, &environmentProperties)
-				if err != nil {
-					return err
-				}
-				e.EnvironmentProperties = &environmentProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				e.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				e.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				e.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				e.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				e.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties EnvironmentProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		e.EnvironmentProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		e.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		e.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		e.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		e.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		e.Tags = &tags
 	}
 
 	return nil
@@ -2089,39 +1798,22 @@ func (future EnvironmentsCreateOrUpdateFuture) Result(client EnvironmentsClient)
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.EnvironmentsCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return e, azure.NewAsyncOpIncompleteError("dtl.EnvironmentsCreateOrUpdateFuture")
+		return e, autorest.NewError("dtl.EnvironmentsCreateOrUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		e, err = client.CreateOrUpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.EnvironmentsCreateOrUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.EnvironmentsCreateOrUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	e, err = client.CreateOrUpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.EnvironmentsCreateOrUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -2137,39 +1829,22 @@ func (future EnvironmentsDeleteFuture) Result(client EnvironmentsClient) (ar aut
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.EnvironmentsDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.EnvironmentsDeleteFuture")
+		return ar, autorest.NewError("dtl.EnvironmentsDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.EnvironmentsDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.EnvironmentsDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.EnvironmentsDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -2235,8 +1910,6 @@ type ExternalSubnetFragment struct {
 // Formula a formula for creating a VM, specifying an image base and other parameters
 type Formula struct {
 	autorest.Response `json:"-"`
-	// FormulaProperties - The properties of the resource.
-	*FormulaProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -2246,31 +1919,9 @@ type Formula struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Formula.
-func (f Formula) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if f.FormulaProperties != nil {
-		objectMap["properties"] = f.FormulaProperties
-	}
-	if f.ID != nil {
-		objectMap["id"] = f.ID
-	}
-	if f.Name != nil {
-		objectMap["name"] = f.Name
-	}
-	if f.Type != nil {
-		objectMap["type"] = f.Type
-	}
-	if f.Location != nil {
-		objectMap["location"] = f.Location
-	}
-	if f.Tags != nil {
-		objectMap["tags"] = f.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// FormulaProperties - The properties of the resource.
+	*FormulaProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Formula struct.
@@ -2280,63 +1931,66 @@ func (f *Formula) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var formulaProperties FormulaProperties
-				err = json.Unmarshal(*v, &formulaProperties)
-				if err != nil {
-					return err
-				}
-				f.FormulaProperties = &formulaProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				f.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				f.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				f.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				f.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				f.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties FormulaProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		f.FormulaProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		f.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		f.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		f.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		f.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		f.Tags = &tags
 	}
 
 	return nil
@@ -2368,8 +2022,7 @@ type FormulaPropertiesFromVM struct {
 	LabVMID *string `json:"labVmId,omitempty"`
 }
 
-// FormulasCreateOrUpdateFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// FormulasCreateOrUpdateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type FormulasCreateOrUpdateFuture struct {
 	azure.Future
 	req *http.Request
@@ -2381,46 +2034,27 @@ func (future FormulasCreateOrUpdateFuture) Result(client FormulasClient) (f Form
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.FormulasCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return f, azure.NewAsyncOpIncompleteError("dtl.FormulasCreateOrUpdateFuture")
+		return f, autorest.NewError("dtl.FormulasCreateOrUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		f, err = client.CreateOrUpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.FormulasCreateOrUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.FormulasCreateOrUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	f, err = client.CreateOrUpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.FormulasCreateOrUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
 // GalleryImage a gallery image.
 type GalleryImage struct {
-	// GalleryImageProperties - The properties of the resource.
-	*GalleryImageProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -2430,31 +2064,9 @@ type GalleryImage struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for GalleryImage.
-func (gi GalleryImage) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if gi.GalleryImageProperties != nil {
-		objectMap["properties"] = gi.GalleryImageProperties
-	}
-	if gi.ID != nil {
-		objectMap["id"] = gi.ID
-	}
-	if gi.Name != nil {
-		objectMap["name"] = gi.Name
-	}
-	if gi.Type != nil {
-		objectMap["type"] = gi.Type
-	}
-	if gi.Location != nil {
-		objectMap["location"] = gi.Location
-	}
-	if gi.Tags != nil {
-		objectMap["tags"] = gi.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// GalleryImageProperties - The properties of the resource.
+	*GalleryImageProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for GalleryImage struct.
@@ -2464,63 +2076,66 @@ func (gi *GalleryImage) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var galleryImageProperties GalleryImageProperties
-				err = json.Unmarshal(*v, &galleryImageProperties)
-				if err != nil {
-					return err
-				}
-				gi.GalleryImageProperties = &galleryImageProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				gi.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				gi.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				gi.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				gi.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				gi.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties GalleryImageProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		gi.GalleryImageProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		gi.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		gi.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		gi.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		gi.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		gi.Tags = &tags
 	}
 
 	return nil
@@ -2595,8 +2210,7 @@ type GenerateUploadURIResponse struct {
 	UploadURI *string `json:"uploadUri,omitempty"`
 }
 
-// GlobalSchedulesExecuteFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// GlobalSchedulesExecuteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type GlobalSchedulesExecuteFuture struct {
 	azure.Future
 	req *http.Request
@@ -2608,44 +2222,26 @@ func (future GlobalSchedulesExecuteFuture) Result(client GlobalSchedulesClient) 
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.GlobalSchedulesExecuteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.GlobalSchedulesExecuteFuture")
+		return ar, autorest.NewError("dtl.GlobalSchedulesExecuteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.ExecuteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.GlobalSchedulesExecuteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.GlobalSchedulesExecuteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.ExecuteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.GlobalSchedulesExecuteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
-// GlobalSchedulesRetargetFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// GlobalSchedulesRetargetFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type GlobalSchedulesRetargetFuture struct {
 	azure.Future
 	req *http.Request
@@ -2657,39 +2253,22 @@ func (future GlobalSchedulesRetargetFuture) Result(client GlobalSchedulesClient)
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.GlobalSchedulesRetargetFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.GlobalSchedulesRetargetFuture")
+		return ar, autorest.NewError("dtl.GlobalSchedulesRetargetFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.RetargetResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.GlobalSchedulesRetargetFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.GlobalSchedulesRetargetFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.RetargetResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.GlobalSchedulesRetargetFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -2705,7 +2284,7 @@ type HourDetailsFragment struct {
 	Minute *int32 `json:"minute,omitempty"`
 }
 
-// IdentityProperties properties of a managed identity
+// IdentityProperties identityProperties
 type IdentityProperties struct {
 	// Type - Managed identity.
 	Type *string `json:"type,omitempty"`
@@ -2717,8 +2296,7 @@ type IdentityProperties struct {
 	ClientSecretURL *string `json:"clientSecretUrl,omitempty"`
 }
 
-// InboundNatRule a rule for NAT - exposing a VM's port (backendPort) on the public IP address using a load
-// balancer.
+// InboundNatRule a rule for NAT - exposing a VM's port (backendPort) on the public IP address using a load balancer.
 type InboundNatRule struct {
 	// TransportProtocol - The transport protocol for the endpoint. Possible values include: 'TCP', 'UDP'
 	TransportProtocol TransportProtocol `json:"transportProtocol,omitempty"`
@@ -2742,8 +2320,6 @@ type InboundNatRuleFragment struct {
 // Lab a lab.
 type Lab struct {
 	autorest.Response `json:"-"`
-	// LabProperties - The properties of the resource.
-	*LabProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -2753,31 +2329,9 @@ type Lab struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Lab.
-func (l Lab) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if l.LabProperties != nil {
-		objectMap["properties"] = l.LabProperties
-	}
-	if l.ID != nil {
-		objectMap["id"] = l.ID
-	}
-	if l.Name != nil {
-		objectMap["name"] = l.Name
-	}
-	if l.Type != nil {
-		objectMap["type"] = l.Type
-	}
-	if l.Location != nil {
-		objectMap["location"] = l.Location
-	}
-	if l.Tags != nil {
-		objectMap["tags"] = l.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// LabProperties - The properties of the resource.
+	*LabProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Lab struct.
@@ -2787,63 +2341,66 @@ func (l *Lab) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var labProperties LabProperties
-				err = json.Unmarshal(*v, &labProperties)
-				if err != nil {
-					return err
-				}
-				l.LabProperties = &labProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				l.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				l.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				l.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				l.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				l.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties LabProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		l.LabProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		l.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		l.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		l.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		l.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		l.Tags = &tags
 	}
 
 	return nil
@@ -2852,8 +2409,6 @@ func (l *Lab) UnmarshalJSON(body []byte) error {
 // LabCost a cost item.
 type LabCost struct {
 	autorest.Response `json:"-"`
-	// LabCostProperties - The properties of the resource.
-	*LabCostProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -2863,31 +2418,9 @@ type LabCost struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for LabCost.
-func (lc LabCost) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if lc.LabCostProperties != nil {
-		objectMap["properties"] = lc.LabCostProperties
-	}
-	if lc.ID != nil {
-		objectMap["id"] = lc.ID
-	}
-	if lc.Name != nil {
-		objectMap["name"] = lc.Name
-	}
-	if lc.Type != nil {
-		objectMap["type"] = lc.Type
-	}
-	if lc.Location != nil {
-		objectMap["location"] = lc.Location
-	}
-	if lc.Tags != nil {
-		objectMap["tags"] = lc.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// LabCostProperties - The properties of the resource.
+	*LabCostProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for LabCost struct.
@@ -2897,63 +2430,66 @@ func (lc *LabCost) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var labCostProperties LabCostProperties
-				err = json.Unmarshal(*v, &labCostProperties)
-				if err != nil {
-					return err
-				}
-				lc.LabCostProperties = &labCostProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				lc.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				lc.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				lc.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				lc.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				lc.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties LabCostProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		lc.LabCostProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		lc.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		lc.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		lc.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		lc.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		lc.Tags = &tags
 	}
 
 	return nil
@@ -3001,8 +2537,6 @@ type LabCostSummaryProperties struct {
 
 // LabFragment a lab.
 type LabFragment struct {
-	// LabPropertiesFragment - The properties of the resource.
-	*LabPropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -3012,31 +2546,9 @@ type LabFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for LabFragment.
-func (lf LabFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if lf.LabPropertiesFragment != nil {
-		objectMap["properties"] = lf.LabPropertiesFragment
-	}
-	if lf.ID != nil {
-		objectMap["id"] = lf.ID
-	}
-	if lf.Name != nil {
-		objectMap["name"] = lf.Name
-	}
-	if lf.Type != nil {
-		objectMap["type"] = lf.Type
-	}
-	if lf.Location != nil {
-		objectMap["location"] = lf.Location
-	}
-	if lf.Tags != nil {
-		objectMap["tags"] = lf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// LabPropertiesFragment - The properties of the resource.
+	*LabPropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for LabFragment struct.
@@ -3046,63 +2558,66 @@ func (lf *LabFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var labPropertiesFragment LabPropertiesFragment
-				err = json.Unmarshal(*v, &labPropertiesFragment)
-				if err != nil {
-					return err
-				}
-				lf.LabPropertiesFragment = &labPropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				lf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				lf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				lf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				lf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				lf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties LabPropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		lf.LabPropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		lf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		lf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		lf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		lf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		lf.Tags = &tags
 	}
 
 	return nil
@@ -3182,44 +2697,26 @@ func (future LabsClaimAnyVMFuture) Result(client LabsClient) (ar autorest.Respon
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsClaimAnyVMFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.LabsClaimAnyVMFuture")
+		return ar, autorest.NewError("dtl.LabsClaimAnyVMFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.ClaimAnyVMResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.LabsClaimAnyVMFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsClaimAnyVMFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.ClaimAnyVMResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsClaimAnyVMFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
-// LabsCreateEnvironmentFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// LabsCreateEnvironmentFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type LabsCreateEnvironmentFuture struct {
 	azure.Future
 	req *http.Request
@@ -3231,39 +2728,22 @@ func (future LabsCreateEnvironmentFuture) Result(client LabsClient) (ar autorest
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsCreateEnvironmentFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.LabsCreateEnvironmentFuture")
+		return ar, autorest.NewError("dtl.LabsCreateEnvironmentFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.CreateEnvironmentResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.LabsCreateEnvironmentFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsCreateEnvironmentFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.CreateEnvironmentResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsCreateEnvironmentFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -3279,39 +2759,22 @@ func (future LabsCreateOrUpdateFuture) Result(client LabsClient) (l Lab, err err
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return l, azure.NewAsyncOpIncompleteError("dtl.LabsCreateOrUpdateFuture")
+		return l, autorest.NewError("dtl.LabsCreateOrUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		l, err = client.CreateOrUpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.LabsCreateOrUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsCreateOrUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	l, err = client.CreateOrUpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsCreateOrUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -3327,44 +2790,26 @@ func (future LabsDeleteFuture) Result(client LabsClient) (ar autorest.Response, 
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.LabsDeleteFuture")
+		return ar, autorest.NewError("dtl.LabsDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.LabsDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
-// LabsExportResourceUsageFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// LabsExportResourceUsageFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type LabsExportResourceUsageFuture struct {
 	azure.Future
 	req *http.Request
@@ -3376,39 +2821,22 @@ func (future LabsExportResourceUsageFuture) Result(client LabsClient) (ar autore
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsExportResourceUsageFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.LabsExportResourceUsageFuture")
+		return ar, autorest.NewError("dtl.LabsExportResourceUsageFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.ExportResourceUsageResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.LabsExportResourceUsageFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsExportResourceUsageFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.ExportResourceUsageResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.LabsExportResourceUsageFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -3421,8 +2849,6 @@ type LabVhd struct {
 // LabVirtualMachine a virtual machine.
 type LabVirtualMachine struct {
 	autorest.Response `json:"-"`
-	// LabVirtualMachineProperties - The properties of the resource.
-	*LabVirtualMachineProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -3432,31 +2858,9 @@ type LabVirtualMachine struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for LabVirtualMachine.
-func (lvm LabVirtualMachine) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if lvm.LabVirtualMachineProperties != nil {
-		objectMap["properties"] = lvm.LabVirtualMachineProperties
-	}
-	if lvm.ID != nil {
-		objectMap["id"] = lvm.ID
-	}
-	if lvm.Name != nil {
-		objectMap["name"] = lvm.Name
-	}
-	if lvm.Type != nil {
-		objectMap["type"] = lvm.Type
-	}
-	if lvm.Location != nil {
-		objectMap["location"] = lvm.Location
-	}
-	if lvm.Tags != nil {
-		objectMap["tags"] = lvm.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// LabVirtualMachineProperties - The properties of the resource.
+	*LabVirtualMachineProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for LabVirtualMachine struct.
@@ -3466,63 +2870,66 @@ func (lvm *LabVirtualMachine) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var labVirtualMachineProperties LabVirtualMachineProperties
-				err = json.Unmarshal(*v, &labVirtualMachineProperties)
-				if err != nil {
-					return err
-				}
-				lvm.LabVirtualMachineProperties = &labVirtualMachineProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				lvm.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				lvm.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				lvm.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				lvm.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				lvm.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties LabVirtualMachineProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		lvm.LabVirtualMachineProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		lvm.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		lvm.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		lvm.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		lvm.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		lvm.Tags = &tags
 	}
 
 	return nil
@@ -3537,25 +2944,7 @@ type LabVirtualMachineCreationParameter struct {
 	// Location - The location of the new virtual machine or environment
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for LabVirtualMachineCreationParameter.
-func (lvmcp LabVirtualMachineCreationParameter) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if lvmcp.LabVirtualMachineCreationParameterProperties != nil {
-		objectMap["properties"] = lvmcp.LabVirtualMachineCreationParameterProperties
-	}
-	if lvmcp.Name != nil {
-		objectMap["name"] = lvmcp.Name
-	}
-	if lvmcp.Location != nil {
-		objectMap["location"] = lvmcp.Location
-	}
-	if lvmcp.Tags != nil {
-		objectMap["tags"] = lvmcp.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for LabVirtualMachineCreationParameter struct.
@@ -3565,45 +2954,46 @@ func (lvmcp *LabVirtualMachineCreationParameter) UnmarshalJSON(body []byte) erro
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var labVirtualMachineCreationParameterProperties LabVirtualMachineCreationParameterProperties
-				err = json.Unmarshal(*v, &labVirtualMachineCreationParameterProperties)
-				if err != nil {
-					return err
-				}
-				lvmcp.LabVirtualMachineCreationParameterProperties = &labVirtualMachineCreationParameterProperties
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				lvmcp.Name = &name
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				lvmcp.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				lvmcp.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties LabVirtualMachineCreationParameterProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		lvmcp.LabVirtualMachineCreationParameterProperties = &properties
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		lvmcp.Name = &name
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		lvmcp.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		lvmcp.Tags = &tags
 	}
 
 	return nil
@@ -3677,8 +3067,6 @@ type LabVirtualMachineCreationParameterProperties struct {
 
 // LabVirtualMachineFragment a virtual machine.
 type LabVirtualMachineFragment struct {
-	// LabVirtualMachinePropertiesFragment - The properties of the resource.
-	*LabVirtualMachinePropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -3688,31 +3076,9 @@ type LabVirtualMachineFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for LabVirtualMachineFragment.
-func (lvmf LabVirtualMachineFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if lvmf.LabVirtualMachinePropertiesFragment != nil {
-		objectMap["properties"] = lvmf.LabVirtualMachinePropertiesFragment
-	}
-	if lvmf.ID != nil {
-		objectMap["id"] = lvmf.ID
-	}
-	if lvmf.Name != nil {
-		objectMap["name"] = lvmf.Name
-	}
-	if lvmf.Type != nil {
-		objectMap["type"] = lvmf.Type
-	}
-	if lvmf.Location != nil {
-		objectMap["location"] = lvmf.Location
-	}
-	if lvmf.Tags != nil {
-		objectMap["tags"] = lvmf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// LabVirtualMachinePropertiesFragment - The properties of the resource.
+	*LabVirtualMachinePropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for LabVirtualMachineFragment struct.
@@ -3722,63 +3088,66 @@ func (lvmf *LabVirtualMachineFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var labVirtualMachinePropertiesFragment LabVirtualMachinePropertiesFragment
-				err = json.Unmarshal(*v, &labVirtualMachinePropertiesFragment)
-				if err != nil {
-					return err
-				}
-				lvmf.LabVirtualMachinePropertiesFragment = &labVirtualMachinePropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				lvmf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				lvmf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				lvmf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				lvmf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				lvmf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties LabVirtualMachinePropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		lvmf.LabVirtualMachinePropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		lvmf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		lvmf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		lvmf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		lvmf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		lvmf.Tags = &tags
 	}
 
 	return nil
@@ -3967,8 +3336,6 @@ type NetworkInterfacePropertiesFragment struct {
 // NotificationChannel a notification.
 type NotificationChannel struct {
 	autorest.Response `json:"-"`
-	// NotificationChannelProperties - The properties of the resource.
-	*NotificationChannelProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -3978,31 +3345,9 @@ type NotificationChannel struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for NotificationChannel.
-func (nc NotificationChannel) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if nc.NotificationChannelProperties != nil {
-		objectMap["properties"] = nc.NotificationChannelProperties
-	}
-	if nc.ID != nil {
-		objectMap["id"] = nc.ID
-	}
-	if nc.Name != nil {
-		objectMap["name"] = nc.Name
-	}
-	if nc.Type != nil {
-		objectMap["type"] = nc.Type
-	}
-	if nc.Location != nil {
-		objectMap["location"] = nc.Location
-	}
-	if nc.Tags != nil {
-		objectMap["tags"] = nc.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// NotificationChannelProperties - The properties of the resource.
+	*NotificationChannelProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for NotificationChannel struct.
@@ -4012,63 +3357,66 @@ func (nc *NotificationChannel) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var notificationChannelProperties NotificationChannelProperties
-				err = json.Unmarshal(*v, &notificationChannelProperties)
-				if err != nil {
-					return err
-				}
-				nc.NotificationChannelProperties = &notificationChannelProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				nc.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				nc.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				nc.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				nc.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				nc.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties NotificationChannelProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		nc.NotificationChannelProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		nc.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		nc.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		nc.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		nc.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		nc.Tags = &tags
 	}
 
 	return nil
@@ -4076,8 +3424,6 @@ func (nc *NotificationChannel) UnmarshalJSON(body []byte) error {
 
 // NotificationChannelFragment a notification.
 type NotificationChannelFragment struct {
-	// NotificationChannelPropertiesFragment - The properties of the resource.
-	*NotificationChannelPropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -4087,31 +3433,9 @@ type NotificationChannelFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for NotificationChannelFragment.
-func (ncf NotificationChannelFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if ncf.NotificationChannelPropertiesFragment != nil {
-		objectMap["properties"] = ncf.NotificationChannelPropertiesFragment
-	}
-	if ncf.ID != nil {
-		objectMap["id"] = ncf.ID
-	}
-	if ncf.Name != nil {
-		objectMap["name"] = ncf.Name
-	}
-	if ncf.Type != nil {
-		objectMap["type"] = ncf.Type
-	}
-	if ncf.Location != nil {
-		objectMap["location"] = ncf.Location
-	}
-	if ncf.Tags != nil {
-		objectMap["tags"] = ncf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// NotificationChannelPropertiesFragment - The properties of the resource.
+	*NotificationChannelPropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for NotificationChannelFragment struct.
@@ -4121,63 +3445,66 @@ func (ncf *NotificationChannelFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var notificationChannelPropertiesFragment NotificationChannelPropertiesFragment
-				err = json.Unmarshal(*v, &notificationChannelPropertiesFragment)
-				if err != nil {
-					return err
-				}
-				ncf.NotificationChannelPropertiesFragment = &notificationChannelPropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				ncf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				ncf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				ncf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				ncf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				ncf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties NotificationChannelPropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		ncf.NotificationChannelPropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		ncf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		ncf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		ncf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		ncf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		ncf.Tags = &tags
 	}
 
 	return nil
@@ -4249,26 +3576,6 @@ type OperationError struct {
 	Message *string `json:"message,omitempty"`
 }
 
-// OperationMetadata the REST API operation supported by DevTestLab ResourceProvider.
-type OperationMetadata struct {
-	// Name - Operation name: {provider}/{resource}/{operation}
-	Name *string `json:"name,omitempty"`
-	// Display - The object that describes the operations
-	Display *OperationMetadataDisplay `json:"display,omitempty"`
-}
-
-// OperationMetadataDisplay the object that describes the operations
-type OperationMetadataDisplay struct {
-	// Provider - Friendly name of the resource provider
-	Provider *string `json:"provider,omitempty"`
-	// Resource - Resource type on which the operation is performed.
-	Resource *string `json:"resource,omitempty"`
-	// Operation - Operation type: read, write, delete, listKeys/action, etc.
-	Operation *string `json:"operation,omitempty"`
-	// Description - Friendly name of the operation
-	Description *string `json:"description,omitempty"`
-}
-
 // OperationResult an Operation Result
 type OperationResult struct {
 	autorest.Response `json:"-"`
@@ -4293,7 +3600,7 @@ type ParametersValueFileInfo struct {
 	// FileName - File name.
 	FileName *string `json:"fileName,omitempty"`
 	// ParametersValueInfo - Contents of the file.
-	ParametersValueInfo interface{} `json:"parametersValueInfo,omitempty"`
+	ParametersValueInfo *map[string]interface{} `json:"parametersValueInfo,omitempty"`
 }
 
 // PercentageCostThresholdProperties properties of a percentage cost threshold.
@@ -4305,8 +3612,6 @@ type PercentageCostThresholdProperties struct {
 // Policy a Policy.
 type Policy struct {
 	autorest.Response `json:"-"`
-	// PolicyProperties - The properties of the resource.
-	*PolicyProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -4316,31 +3621,9 @@ type Policy struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Policy.
-func (p Policy) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if p.PolicyProperties != nil {
-		objectMap["properties"] = p.PolicyProperties
-	}
-	if p.ID != nil {
-		objectMap["id"] = p.ID
-	}
-	if p.Name != nil {
-		objectMap["name"] = p.Name
-	}
-	if p.Type != nil {
-		objectMap["type"] = p.Type
-	}
-	if p.Location != nil {
-		objectMap["location"] = p.Location
-	}
-	if p.Tags != nil {
-		objectMap["tags"] = p.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// PolicyProperties - The properties of the resource.
+	*PolicyProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Policy struct.
@@ -4350,63 +3633,66 @@ func (p *Policy) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var policyProperties PolicyProperties
-				err = json.Unmarshal(*v, &policyProperties)
-				if err != nil {
-					return err
-				}
-				p.PolicyProperties = &policyProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				p.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				p.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				p.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				p.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				p.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties PolicyProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		p.PolicyProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		p.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		p.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		p.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		p.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		p.Tags = &tags
 	}
 
 	return nil
@@ -4414,8 +3700,6 @@ func (p *Policy) UnmarshalJSON(body []byte) error {
 
 // PolicyFragment a Policy.
 type PolicyFragment struct {
-	// PolicyPropertiesFragment - The properties of the resource.
-	*PolicyPropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -4425,31 +3709,9 @@ type PolicyFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for PolicyFragment.
-func (pf PolicyFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if pf.PolicyPropertiesFragment != nil {
-		objectMap["properties"] = pf.PolicyPropertiesFragment
-	}
-	if pf.ID != nil {
-		objectMap["id"] = pf.ID
-	}
-	if pf.Name != nil {
-		objectMap["name"] = pf.Name
-	}
-	if pf.Type != nil {
-		objectMap["type"] = pf.Type
-	}
-	if pf.Location != nil {
-		objectMap["location"] = pf.Location
-	}
-	if pf.Tags != nil {
-		objectMap["tags"] = pf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// PolicyPropertiesFragment - The properties of the resource.
+	*PolicyPropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for PolicyFragment struct.
@@ -4459,63 +3721,66 @@ func (pf *PolicyFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var policyPropertiesFragment PolicyPropertiesFragment
-				err = json.Unmarshal(*v, &policyPropertiesFragment)
-				if err != nil {
-					return err
-				}
-				pf.PolicyPropertiesFragment = &policyPropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				pf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				pf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				pf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				pf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				pf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties PolicyPropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		pf.PolicyPropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		pf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		pf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		pf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		pf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		pf.Tags = &tags
 	}
 
 	return nil
@@ -4595,108 +3860,6 @@ type PortFragment struct {
 	BackendPort *int32 `json:"backendPort,omitempty"`
 }
 
-// ProviderOperationResult result of the request to list REST API operations
-type ProviderOperationResult struct {
-	autorest.Response `json:"-"`
-	// Value - List of operations supported by the resource provider.
-	Value *[]OperationMetadata `json:"value,omitempty"`
-	// NextLink - URL to get the next set of operation list results if there are any.
-	NextLink *string `json:"nextLink,omitempty"`
-}
-
-// ProviderOperationResultIterator provides access to a complete listing of OperationMetadata values.
-type ProviderOperationResultIterator struct {
-	i    int
-	page ProviderOperationResultPage
-}
-
-// Next advances to the next value.  If there was an error making
-// the request the iterator does not advance and the error is returned.
-func (iter *ProviderOperationResultIterator) Next() error {
-	iter.i++
-	if iter.i < len(iter.page.Values()) {
-		return nil
-	}
-	err := iter.page.Next()
-	if err != nil {
-		iter.i--
-		return err
-	}
-	iter.i = 0
-	return nil
-}
-
-// NotDone returns true if the enumeration should be started or is not yet complete.
-func (iter ProviderOperationResultIterator) NotDone() bool {
-	return iter.page.NotDone() && iter.i < len(iter.page.Values())
-}
-
-// Response returns the raw server response from the last page request.
-func (iter ProviderOperationResultIterator) Response() ProviderOperationResult {
-	return iter.page.Response()
-}
-
-// Value returns the current value or a zero-initialized value if the
-// iterator has advanced beyond the end of the collection.
-func (iter ProviderOperationResultIterator) Value() OperationMetadata {
-	if !iter.page.NotDone() {
-		return OperationMetadata{}
-	}
-	return iter.page.Values()[iter.i]
-}
-
-// IsEmpty returns true if the ListResult contains no values.
-func (por ProviderOperationResult) IsEmpty() bool {
-	return por.Value == nil || len(*por.Value) == 0
-}
-
-// providerOperationResultPreparer prepares a request to retrieve the next set of results.
-// It returns nil if no more results exist.
-func (por ProviderOperationResult) providerOperationResultPreparer() (*http.Request, error) {
-	if por.NextLink == nil || len(to.String(por.NextLink)) < 1 {
-		return nil, nil
-	}
-	return autorest.Prepare(&http.Request{},
-		autorest.AsJSON(),
-		autorest.AsGet(),
-		autorest.WithBaseURL(to.String(por.NextLink)))
-}
-
-// ProviderOperationResultPage contains a page of OperationMetadata values.
-type ProviderOperationResultPage struct {
-	fn  func(ProviderOperationResult) (ProviderOperationResult, error)
-	por ProviderOperationResult
-}
-
-// Next advances to the next page of values.  If there was an error making
-// the request the page does not advance and the error is returned.
-func (page *ProviderOperationResultPage) Next() error {
-	next, err := page.fn(page.por)
-	if err != nil {
-		return err
-	}
-	page.por = next
-	return nil
-}
-
-// NotDone returns true if the page enumeration should be started or is not yet complete.
-func (page ProviderOperationResultPage) NotDone() bool {
-	return !page.por.IsEmpty()
-}
-
-// Response returns the raw server response from the last page request.
-func (page ProviderOperationResultPage) Response() ProviderOperationResult {
-	return page.por
-}
-
-// Values returns the slice of values for the current page or nil if there are no values.
-func (page ProviderOperationResultPage) Values() []OperationMetadata {
-	if page.por.IsEmpty() {
-		return nil
-	}
-	return *page.por.Value
-}
-
 // Resource an Azure resource.
 type Resource struct {
 	// ID - The identifier of the resource.
@@ -4708,28 +3871,7 @@ type Resource struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Resource.
-func (r Resource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if r.ID != nil {
-		objectMap["id"] = r.ID
-	}
-	if r.Name != nil {
-		objectMap["name"] = r.Name
-	}
-	if r.Type != nil {
-		objectMap["type"] = r.Type
-	}
-	if r.Location != nil {
-		objectMap["location"] = r.Location
-	}
-	if r.Tags != nil {
-		objectMap["tags"] = r.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
 }
 
 // ResponseWithContinuationArmTemplate the response of a list operation.
@@ -5761,8 +4903,7 @@ type ResponseWithContinuationLabVirtualMachine struct {
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
-// ResponseWithContinuationLabVirtualMachineIterator provides access to a complete listing of LabVirtualMachine
-// values.
+// ResponseWithContinuationLabVirtualMachineIterator provides access to a complete listing of LabVirtualMachine values.
 type ResponseWithContinuationLabVirtualMachineIterator struct {
 	i    int
 	page ResponseWithContinuationLabVirtualMachinePage
@@ -6581,8 +5722,6 @@ type RetargetScheduleProperties struct {
 // Schedule a schedule.
 type Schedule struct {
 	autorest.Response `json:"-"`
-	// ScheduleProperties - The properties of the resource.
-	*ScheduleProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -6592,31 +5731,9 @@ type Schedule struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Schedule.
-func (s Schedule) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if s.ScheduleProperties != nil {
-		objectMap["properties"] = s.ScheduleProperties
-	}
-	if s.ID != nil {
-		objectMap["id"] = s.ID
-	}
-	if s.Name != nil {
-		objectMap["name"] = s.Name
-	}
-	if s.Type != nil {
-		objectMap["type"] = s.Type
-	}
-	if s.Location != nil {
-		objectMap["location"] = s.Location
-	}
-	if s.Tags != nil {
-		objectMap["tags"] = s.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// ScheduleProperties - The properties of the resource.
+	*ScheduleProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Schedule struct.
@@ -6626,63 +5743,66 @@ func (s *Schedule) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var scheduleProperties ScheduleProperties
-				err = json.Unmarshal(*v, &scheduleProperties)
-				if err != nil {
-					return err
-				}
-				s.ScheduleProperties = &scheduleProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				s.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				s.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				s.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				s.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				s.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties ScheduleProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		s.ScheduleProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		s.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		s.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		s.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		s.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		s.Tags = &tags
 	}
 
 	return nil
@@ -6690,8 +5810,6 @@ func (s *Schedule) UnmarshalJSON(body []byte) error {
 
 // ScheduleFragment a schedule.
 type ScheduleFragment struct {
-	// SchedulePropertiesFragment - The properties of the resource.
-	*SchedulePropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -6701,31 +5819,9 @@ type ScheduleFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for ScheduleFragment.
-func (sf ScheduleFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if sf.SchedulePropertiesFragment != nil {
-		objectMap["properties"] = sf.SchedulePropertiesFragment
-	}
-	if sf.ID != nil {
-		objectMap["id"] = sf.ID
-	}
-	if sf.Name != nil {
-		objectMap["name"] = sf.Name
-	}
-	if sf.Type != nil {
-		objectMap["type"] = sf.Type
-	}
-	if sf.Location != nil {
-		objectMap["location"] = sf.Location
-	}
-	if sf.Tags != nil {
-		objectMap["tags"] = sf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// SchedulePropertiesFragment - The properties of the resource.
+	*SchedulePropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for ScheduleFragment struct.
@@ -6735,63 +5831,66 @@ func (sf *ScheduleFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var schedulePropertiesFragment SchedulePropertiesFragment
-				err = json.Unmarshal(*v, &schedulePropertiesFragment)
-				if err != nil {
-					return err
-				}
-				sf.SchedulePropertiesFragment = &schedulePropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				sf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				sf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				sf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				sf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				sf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties SchedulePropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		sf.SchedulePropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		sf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		sf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		sf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		sf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		sf.Tags = &tags
 	}
 
 	return nil
@@ -6859,47 +5958,28 @@ func (future SchedulesExecuteFuture) Result(client SchedulesClient) (ar autorest
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.SchedulesExecuteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.SchedulesExecuteFuture")
+		return ar, autorest.NewError("dtl.SchedulesExecuteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.ExecuteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.SchedulesExecuteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.SchedulesExecuteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.ExecuteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.SchedulesExecuteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
 // Secret a secret.
 type Secret struct {
 	autorest.Response `json:"-"`
-	// SecretProperties - The properties of the resource.
-	*SecretProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -6909,31 +5989,9 @@ type Secret struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for Secret.
-func (s Secret) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if s.SecretProperties != nil {
-		objectMap["properties"] = s.SecretProperties
-	}
-	if s.ID != nil {
-		objectMap["id"] = s.ID
-	}
-	if s.Name != nil {
-		objectMap["name"] = s.Name
-	}
-	if s.Type != nil {
-		objectMap["type"] = s.Type
-	}
-	if s.Location != nil {
-		objectMap["location"] = s.Location
-	}
-	if s.Tags != nil {
-		objectMap["tags"] = s.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// SecretProperties - The properties of the resource.
+	*SecretProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for Secret struct.
@@ -6943,63 +6001,66 @@ func (s *Secret) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var secretProperties SecretProperties
-				err = json.Unmarshal(*v, &secretProperties)
-				if err != nil {
-					return err
-				}
-				s.SecretProperties = &secretProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				s.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				s.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				s.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				s.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				s.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties SecretProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		s.SecretProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		s.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		s.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		s.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		s.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		s.Tags = &tags
 	}
 
 	return nil
@@ -7018,8 +6079,6 @@ type SecretProperties struct {
 // ServiceRunner a container for a managed identity to execute DevTest lab services.
 type ServiceRunner struct {
 	autorest.Response `json:"-"`
-	// Identity - The identity of the resource.
-	Identity *IdentityProperties `json:"identity,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -7029,31 +6088,9 @@ type ServiceRunner struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for ServiceRunner.
-func (sr ServiceRunner) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if sr.Identity != nil {
-		objectMap["identity"] = sr.Identity
-	}
-	if sr.ID != nil {
-		objectMap["id"] = sr.ID
-	}
-	if sr.Name != nil {
-		objectMap["name"] = sr.Name
-	}
-	if sr.Type != nil {
-		objectMap["type"] = sr.Type
-	}
-	if sr.Location != nil {
-		objectMap["location"] = sr.Location
-	}
-	if sr.Tags != nil {
-		objectMap["tags"] = sr.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// Identity - The identity of the resource.
+	Identity *IdentityProperties `json:"identity,omitempty"`
 }
 
 // SharedPublicIPAddressConfiguration properties of a virtual machine that determine how it is connected to a load
@@ -7063,15 +6100,15 @@ type SharedPublicIPAddressConfiguration struct {
 	InboundNatRules *[]InboundNatRule `json:"inboundNatRules,omitempty"`
 }
 
-// SharedPublicIPAddressConfigurationFragment properties of a virtual machine that determine how it is connected to
-// a load balancer.
+// SharedPublicIPAddressConfigurationFragment properties of a virtual machine that determine how it is connected to a
+// load balancer.
 type SharedPublicIPAddressConfigurationFragment struct {
 	// InboundNatRules - The incoming NAT rules
 	InboundNatRules *[]InboundNatRuleFragment `json:"inboundNatRules,omitempty"`
 }
 
-// ShutdownNotificationContent the contents of a shutdown notification. Webhooks can use this type to deserialize
-// the request body when they get notified of an imminent shutdown.
+// ShutdownNotificationContent the contents of a shutdown notification. Webhooks can use this type to deserialize the
+// request body when they get notified of an imminent shutdown.
 type ShutdownNotificationContent struct {
 	// SkipURL - The URL to skip auto-shutdown.
 	SkipURL *string `json:"skipUrl,omitempty"`
@@ -7180,8 +6217,6 @@ type TargetCostProperties struct {
 // User profile of a lab user.
 type User struct {
 	autorest.Response `json:"-"`
-	// UserProperties - The properties of the resource.
-	*UserProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -7191,31 +6226,9 @@ type User struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for User.
-func (u User) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if u.UserProperties != nil {
-		objectMap["properties"] = u.UserProperties
-	}
-	if u.ID != nil {
-		objectMap["id"] = u.ID
-	}
-	if u.Name != nil {
-		objectMap["name"] = u.Name
-	}
-	if u.Type != nil {
-		objectMap["type"] = u.Type
-	}
-	if u.Location != nil {
-		objectMap["location"] = u.Location
-	}
-	if u.Tags != nil {
-		objectMap["tags"] = u.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// UserProperties - The properties of the resource.
+	*UserProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for User struct.
@@ -7225,63 +6238,66 @@ func (u *User) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var userProperties UserProperties
-				err = json.Unmarshal(*v, &userProperties)
-				if err != nil {
-					return err
-				}
-				u.UserProperties = &userProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				u.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				u.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				u.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				u.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				u.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties UserProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		u.UserProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		u.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		u.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		u.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		u.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		u.Tags = &tags
 	}
 
 	return nil
@@ -7289,8 +6305,6 @@ func (u *User) UnmarshalJSON(body []byte) error {
 
 // UserFragment profile of a lab user.
 type UserFragment struct {
-	// UserPropertiesFragment - The properties of the resource.
-	*UserPropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -7300,31 +6314,9 @@ type UserFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for UserFragment.
-func (uf UserFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if uf.UserPropertiesFragment != nil {
-		objectMap["properties"] = uf.UserPropertiesFragment
-	}
-	if uf.ID != nil {
-		objectMap["id"] = uf.ID
-	}
-	if uf.Name != nil {
-		objectMap["name"] = uf.Name
-	}
-	if uf.Type != nil {
-		objectMap["type"] = uf.Type
-	}
-	if uf.Location != nil {
-		objectMap["location"] = uf.Location
-	}
-	if uf.Tags != nil {
-		objectMap["tags"] = uf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// UserPropertiesFragment - The properties of the resource.
+	*UserPropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for UserFragment struct.
@@ -7334,63 +6326,66 @@ func (uf *UserFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var userPropertiesFragment UserPropertiesFragment
-				err = json.Unmarshal(*v, &userPropertiesFragment)
-				if err != nil {
-					return err
-				}
-				uf.UserPropertiesFragment = &userPropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				uf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				uf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				uf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				uf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				uf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties UserPropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		uf.UserPropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		uf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		uf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		uf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		uf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		uf.Tags = &tags
 	}
 
 	return nil
@@ -7462,39 +6457,22 @@ func (future UsersDeleteFuture) Result(client UsersClient) (ar autorest.Response
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.UsersDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.UsersDeleteFuture")
+		return ar, autorest.NewError("dtl.UsersDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.UsersDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.UsersDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.UsersDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -7527,39 +6505,22 @@ func (future VirtualMachinesAddDataDiskFuture) Result(client VirtualMachinesClie
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesAddDataDiskFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualMachinesAddDataDiskFuture")
+		return ar, autorest.NewError("dtl.VirtualMachinesAddDataDiskFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.AddDataDiskResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesAddDataDiskFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesAddDataDiskFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.AddDataDiskResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesAddDataDiskFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -7576,39 +6537,22 @@ func (future VirtualMachinesApplyArtifactsFuture) Result(client VirtualMachinesC
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesApplyArtifactsFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualMachinesApplyArtifactsFuture")
+		return ar, autorest.NewError("dtl.VirtualMachinesApplyArtifactsFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.ApplyArtifactsResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesApplyArtifactsFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesApplyArtifactsFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.ApplyArtifactsResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesApplyArtifactsFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -7625,39 +6569,22 @@ func (future VirtualMachineSchedulesExecuteFuture) Result(client VirtualMachineS
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachineSchedulesExecuteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualMachineSchedulesExecuteFuture")
+		return ar, autorest.NewError("dtl.VirtualMachineSchedulesExecuteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.ExecuteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachineSchedulesExecuteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachineSchedulesExecuteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.ExecuteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachineSchedulesExecuteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -7673,39 +6600,22 @@ func (future VirtualMachinesClaimFuture) Result(client VirtualMachinesClient) (a
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesClaimFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualMachinesClaimFuture")
+		return ar, autorest.NewError("dtl.VirtualMachinesClaimFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.ClaimResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesClaimFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesClaimFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.ClaimResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesClaimFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -7722,44 +6632,26 @@ func (future VirtualMachinesCreateOrUpdateFuture) Result(client VirtualMachinesC
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return lvm, azure.NewAsyncOpIncompleteError("dtl.VirtualMachinesCreateOrUpdateFuture")
+		return lvm, autorest.NewError("dtl.VirtualMachinesCreateOrUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		lvm, err = client.CreateOrUpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesCreateOrUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesCreateOrUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	lvm, err = client.CreateOrUpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesCreateOrUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
-// VirtualMachinesDeleteFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// VirtualMachinesDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type VirtualMachinesDeleteFuture struct {
 	azure.Future
 	req *http.Request
@@ -7771,39 +6663,22 @@ func (future VirtualMachinesDeleteFuture) Result(client VirtualMachinesClient) (
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualMachinesDeleteFuture")
+		return ar, autorest.NewError("dtl.VirtualMachinesDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -7820,39 +6695,22 @@ func (future VirtualMachinesDetachDataDiskFuture) Result(client VirtualMachinesC
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesDetachDataDiskFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualMachinesDetachDataDiskFuture")
+		return ar, autorest.NewError("dtl.VirtualMachinesDetachDataDiskFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DetachDataDiskResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesDetachDataDiskFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesDetachDataDiskFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DetachDataDiskResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesDetachDataDiskFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -7868,39 +6726,22 @@ func (future VirtualMachinesStartFuture) Result(client VirtualMachinesClient) (a
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesStartFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualMachinesStartFuture")
+		return ar, autorest.NewError("dtl.VirtualMachinesStartFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.StartResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesStartFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesStartFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.StartResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesStartFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -7916,47 +6757,28 @@ func (future VirtualMachinesStopFuture) Result(client VirtualMachinesClient) (ar
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesStopFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualMachinesStopFuture")
+		return ar, autorest.NewError("dtl.VirtualMachinesStopFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.StopResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesStopFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesStopFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.StopResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualMachinesStopFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
 // VirtualNetwork a virtual network.
 type VirtualNetwork struct {
 	autorest.Response `json:"-"`
-	// VirtualNetworkProperties - The properties of the resource.
-	*VirtualNetworkProperties `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -7966,31 +6788,9 @@ type VirtualNetwork struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for VirtualNetwork.
-func (vn VirtualNetwork) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if vn.VirtualNetworkProperties != nil {
-		objectMap["properties"] = vn.VirtualNetworkProperties
-	}
-	if vn.ID != nil {
-		objectMap["id"] = vn.ID
-	}
-	if vn.Name != nil {
-		objectMap["name"] = vn.Name
-	}
-	if vn.Type != nil {
-		objectMap["type"] = vn.Type
-	}
-	if vn.Location != nil {
-		objectMap["location"] = vn.Location
-	}
-	if vn.Tags != nil {
-		objectMap["tags"] = vn.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// VirtualNetworkProperties - The properties of the resource.
+	*VirtualNetworkProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for VirtualNetwork struct.
@@ -8000,63 +6800,66 @@ func (vn *VirtualNetwork) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var virtualNetworkProperties VirtualNetworkProperties
-				err = json.Unmarshal(*v, &virtualNetworkProperties)
-				if err != nil {
-					return err
-				}
-				vn.VirtualNetworkProperties = &virtualNetworkProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				vn.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				vn.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				vn.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				vn.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				vn.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties VirtualNetworkProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		vn.VirtualNetworkProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		vn.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		vn.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		vn.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		vn.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		vn.Tags = &tags
 	}
 
 	return nil
@@ -8064,8 +6867,6 @@ func (vn *VirtualNetwork) UnmarshalJSON(body []byte) error {
 
 // VirtualNetworkFragment a virtual network.
 type VirtualNetworkFragment struct {
-	// VirtualNetworkPropertiesFragment - The properties of the resource.
-	*VirtualNetworkPropertiesFragment `json:"properties,omitempty"`
 	// ID - The identifier of the resource.
 	ID *string `json:"id,omitempty"`
 	// Name - The name of the resource.
@@ -8075,31 +6876,9 @@ type VirtualNetworkFragment struct {
 	// Location - The location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - The tags of the resource.
-	Tags map[string]*string `json:"tags"`
-}
-
-// MarshalJSON is the custom marshaler for VirtualNetworkFragment.
-func (vnf VirtualNetworkFragment) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if vnf.VirtualNetworkPropertiesFragment != nil {
-		objectMap["properties"] = vnf.VirtualNetworkPropertiesFragment
-	}
-	if vnf.ID != nil {
-		objectMap["id"] = vnf.ID
-	}
-	if vnf.Name != nil {
-		objectMap["name"] = vnf.Name
-	}
-	if vnf.Type != nil {
-		objectMap["type"] = vnf.Type
-	}
-	if vnf.Location != nil {
-		objectMap["location"] = vnf.Location
-	}
-	if vnf.Tags != nil {
-		objectMap["tags"] = vnf.Tags
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	// VirtualNetworkPropertiesFragment - The properties of the resource.
+	*VirtualNetworkPropertiesFragment `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for VirtualNetworkFragment struct.
@@ -8109,63 +6888,66 @@ func (vnf *VirtualNetworkFragment) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var virtualNetworkPropertiesFragment VirtualNetworkPropertiesFragment
-				err = json.Unmarshal(*v, &virtualNetworkPropertiesFragment)
-				if err != nil {
-					return err
-				}
-				vnf.VirtualNetworkPropertiesFragment = &virtualNetworkPropertiesFragment
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				vnf.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				vnf.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				vnf.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				vnf.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				vnf.Tags = tags
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties VirtualNetworkPropertiesFragment
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		vnf.VirtualNetworkPropertiesFragment = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		vnf.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		vnf.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		vnf.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		vnf.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		vnf.Tags = &tags
 	}
 
 	return nil
@@ -8222,44 +7004,26 @@ func (future VirtualNetworksCreateOrUpdateFuture) Result(client VirtualNetworksC
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualNetworksCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return vn, azure.NewAsyncOpIncompleteError("dtl.VirtualNetworksCreateOrUpdateFuture")
+		return vn, autorest.NewError("dtl.VirtualNetworksCreateOrUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		vn, err = client.CreateOrUpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualNetworksCreateOrUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualNetworksCreateOrUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	vn, err = client.CreateOrUpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualNetworksCreateOrUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
-// VirtualNetworksDeleteFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// VirtualNetworksDeleteFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type VirtualNetworksDeleteFuture struct {
 	azure.Future
 	req *http.Request
@@ -8271,39 +7035,22 @@ func (future VirtualNetworksDeleteFuture) Result(client VirtualNetworksClient) (
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualNetworksDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("dtl.VirtualNetworksDeleteFuture")
+		return ar, autorest.NewError("dtl.VirtualNetworksDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "dtl.VirtualNetworksDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualNetworksDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "dtl.VirtualNetworksDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 

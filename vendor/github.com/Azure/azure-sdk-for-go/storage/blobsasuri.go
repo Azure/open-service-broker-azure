@@ -121,10 +121,6 @@ func (c *Client) blobAndFileSASURI(options SASOptions, uri, permissions, canonic
 		"sig": {sig},
 	}
 
-	if start != "" {
-		sasParams.Add("st", start)
-	}
-
 	if c.apiVersion >= "2015-04-05" {
 		if protocols != "" {
 			sasParams.Add("spr", protocols)

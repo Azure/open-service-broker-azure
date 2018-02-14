@@ -16,6 +16,7 @@ package storage
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -257,8 +258,8 @@ func (c *Container) Create(options *CreateContainerOptions) error {
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.Body)
-	return checkRespCode(resp, []int{http.StatusCreated})
+	readAndCloseBody(resp.body)
+	return checkRespCode(resp.statusCode, []int{http.StatusCreated})
 }
 
 // CreateIfNotExists creates a blob container if it does not exist. Returns
@@ -266,15 +267,15 @@ func (c *Container) Create(options *CreateContainerOptions) error {
 func (c *Container) CreateIfNotExists(options *CreateContainerOptions) (bool, error) {
 	resp, err := c.create(options)
 	if resp != nil {
-		defer readAndCloseBody(resp.Body)
-		if resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusConflict {
-			return resp.StatusCode == http.StatusCreated, nil
+		defer readAndCloseBody(resp.body)
+		if resp.statusCode == http.StatusCreated || resp.statusCode == http.StatusConflict {
+			return resp.statusCode == http.StatusCreated, nil
 		}
 	}
 	return false, err
 }
 
-func (c *Container) create(options *CreateContainerOptions) (*http.Response, error) {
+func (c *Container) create(options *CreateContainerOptions) (*storageResponse, error) {
 	query := url.Values{"restype": {"container"}}
 	headers := c.bsc.client.getStandardHeaders()
 	headers = c.bsc.client.addMetadataToHeaders(headers, c.Metadata)
@@ -306,9 +307,9 @@ func (c *Container) Exists() (bool, error) {
 
 	resp, err := c.bsc.client.exec(http.MethodHead, uri, headers, nil, c.bsc.auth)
 	if resp != nil {
-		defer readAndCloseBody(resp.Body)
-		if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusNotFound {
-			return resp.StatusCode == http.StatusOK, nil
+		defer readAndCloseBody(resp.body)
+		if resp.statusCode == http.StatusOK || resp.statusCode == http.StatusNotFound {
+			return resp.statusCode == http.StatusOK, nil
 		}
 	}
 	return false, err
@@ -348,8 +349,13 @@ func (c *Container) SetPermissions(permissions ContainerPermissions, options *Se
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.Body)
-	return checkRespCode(resp, []int{http.StatusOK})
+	defer readAndCloseBody(resp.body)
+
+	if err := checkRespCode(resp.statusCode, []int{http.StatusOK}); err != nil {
+		return errors.New("Unable to set permissions")
+	}
+
+	return nil
 }
 
 // GetContainerPermissionOptions includes options for a get container permissions operation
@@ -379,14 +385,14 @@ func (c *Container) GetPermissions(options *GetContainerPermissionOptions) (*Con
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.body.Close()
 
 	var ap AccessPolicy
-	err = xmlUnmarshal(resp.Body, &ap.SignedIdentifiersList)
+	err = xmlUnmarshal(resp.body, &ap.SignedIdentifiersList)
 	if err != nil {
 		return nil, err
 	}
-	return buildAccessPolicy(ap, &resp.Header), nil
+	return buildAccessPolicy(ap, &resp.headers), nil
 }
 
 func buildAccessPolicy(ap AccessPolicy, headers *http.Header) *ContainerPermissions {
@@ -430,8 +436,8 @@ func (c *Container) Delete(options *DeleteContainerOptions) error {
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.Body)
-	return checkRespCode(resp, []int{http.StatusAccepted})
+	readAndCloseBody(resp.body)
+	return checkRespCode(resp.statusCode, []int{http.StatusAccepted})
 }
 
 // DeleteIfExists deletes the container with given name on the storage
@@ -443,15 +449,15 @@ func (c *Container) Delete(options *DeleteContainerOptions) error {
 func (c *Container) DeleteIfExists(options *DeleteContainerOptions) (bool, error) {
 	resp, err := c.delete(options)
 	if resp != nil {
-		defer readAndCloseBody(resp.Body)
-		if resp.StatusCode == http.StatusAccepted || resp.StatusCode == http.StatusNotFound {
-			return resp.StatusCode == http.StatusAccepted, nil
+		defer readAndCloseBody(resp.body)
+		if resp.statusCode == http.StatusAccepted || resp.statusCode == http.StatusNotFound {
+			return resp.statusCode == http.StatusAccepted, nil
 		}
 	}
 	return false, err
 }
 
-func (c *Container) delete(options *DeleteContainerOptions) (*http.Response, error) {
+func (c *Container) delete(options *DeleteContainerOptions) (*storageResponse, error) {
 	query := url.Values{"restype": {"container"}}
 	headers := c.bsc.client.getStandardHeaders()
 
@@ -491,9 +497,9 @@ func (c *Container) ListBlobs(params ListBlobsParameters) (BlobListResponse, err
 	if err != nil {
 		return out, err
 	}
-	defer resp.Body.Close()
+	defer resp.body.Close()
 
-	err = xmlUnmarshal(resp.Body, &out)
+	err = xmlUnmarshal(resp.body, &out)
 	for i := range out.Blobs {
 		out.Blobs[i].Container = c
 	}
@@ -534,8 +540,8 @@ func (c *Container) SetMetadata(options *ContainerMetadataOptions) error {
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.Body)
-	return checkRespCode(resp, []int{http.StatusOK})
+	readAndCloseBody(resp.body)
+	return checkRespCode(resp.statusCode, []int{http.StatusOK})
 }
 
 // GetMetadata returns all user-defined metadata for the specified container.
@@ -562,12 +568,12 @@ func (c *Container) GetMetadata(options *ContainerMetadataOptions) error {
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.Body)
-	if err := checkRespCode(resp, []int{http.StatusOK}); err != nil {
+	readAndCloseBody(resp.body)
+	if err := checkRespCode(resp.statusCode, []int{http.StatusOK}); err != nil {
 		return err
 	}
 
-	c.writeMetadata(resp.Header)
+	c.writeMetadata(resp.headers)
 	return nil
 }
 

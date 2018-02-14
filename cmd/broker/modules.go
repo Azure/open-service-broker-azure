@@ -2,20 +2,19 @@ package main
 
 import (
 	"fmt"
-	"time"
 
-	aciSDK "github.com/Azure/azure-sdk-for-go/services/containerinstance/mgmt/2017-08-01-preview/containerinstance" // nolint: lll
-	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"                     // nolint: lll
-	eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub"                      // nolint: lll
-	keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault"                      // nolint: lll
-	mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql"                       // nolint: lll
-	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql"          // nolint: lll
-	redisSDK "github.com/Azure/azure-sdk-for-go/services/redis/mgmt/2017-10-01/redis"                               // nolint: lll
-	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources"                   // nolint: lll
-	searchSDK "github.com/Azure/azure-sdk-for-go/services/search/mgmt/2015-08-19/search"                            // nolint: lll
-	servicebusSDK "github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus"                // nolint: lll
-	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql"                             // nolint: lll
-	storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"                         // nolint: lll
+	aciSDK "github.com/Azure/azure-sdk-for-go/arm/containerinstance"
+	cosmosSDK "github.com/Azure/azure-sdk-for-go/arm/cosmos-db"
+	eventHubSDK "github.com/Azure/azure-sdk-for-go/arm/eventhub"
+	keyVaultSDK "github.com/Azure/azure-sdk-for-go/arm/keyvault"
+	mysqlSDK "github.com/Azure/azure-sdk-for-go/arm/mysql"
+	postgresSDK "github.com/Azure/azure-sdk-for-go/arm/postgresql"
+	redisSDK "github.com/Azure/azure-sdk-for-go/arm/redis"
+	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
+	searchSDK "github.com/Azure/azure-sdk-for-go/arm/search"
+	servicebusSDK "github.com/Azure/azure-sdk-for-go/arm/servicebus"
+	sqlSDK "github.com/Azure/azure-sdk-for-go/arm/sql"
+	storageSDK "github.com/Azure/azure-sdk-for-go/arm/storage"
 	"github.com/Azure/go-autorest/autorest"
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
@@ -51,20 +50,19 @@ func initModules(azureConfig config.AzureConfig) error {
 		return fmt.Errorf("error getting bearer token authorizer: %s", err)
 	}
 
-	resourceGroupsClient := resourcesSDK.NewGroupsClientWithBaseURI(
+	resourceGroupsClient := resources.NewGroupsClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	resourceGroupsClient.Authorizer = authorizer
 	resourceGroupsClient.UserAgent = getUserAgent(resourceGroupsClient.Client)
-	resourceDeploymentsClient := resourcesSDK.NewDeploymentsClientWithBaseURI(
+	resourceDeploymentsClient := resources.NewDeploymentsClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	resourceDeploymentsClient.Authorizer = authorizer
 	resourceDeploymentsClient.UserAgent =
 		getUserAgent(resourceDeploymentsClient.Client)
-	resourceDeploymentsClient.PollingDuration = time.Minute * 30
 	armDeployer := arm.NewDeployer(
 		resourceGroupsClient,
 		resourceDeploymentsClient,
@@ -99,35 +97,13 @@ func initModules(azureConfig config.AzureConfig) error {
 	keyVaultsClient.Authorizer = authorizer
 	keyVaultsClient.UserAgent = getUserAgent(keyVaultsClient.Client)
 
-	mysqlCheckNameAvailabilityClient :=
-		mysqlSDK.NewCheckNameAvailabilityClientWithBaseURI(
-			azureEnvironment.ResourceManagerEndpoint,
-			azureSubscriptionID,
-		)
-	mysqlCheckNameAvailabilityClient.Authorizer = authorizer
-	mysqlCheckNameAvailabilityClient.UserAgent =
-		getUserAgent(mysqlCheckNameAvailabilityClient.Client)
 	mysqlServersClient := mysqlSDK.NewServersClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	mysqlServersClient.Authorizer = authorizer
 	mysqlServersClient.UserAgent = getUserAgent(mysqlServersClient.Client)
-	mysqlDatabasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
-		azureSubscriptionID,
-	)
-	mysqlDatabasesClient.Authorizer = authorizer
-	mysqlDatabasesClient.UserAgent = getUserAgent(mysqlDatabasesClient.Client)
 
-	postgresCheckNameAvailabilityClient :=
-		postgresSDK.NewCheckNameAvailabilityClientWithBaseURI(
-			azureEnvironment.ResourceManagerEndpoint,
-			azureSubscriptionID,
-		)
-	postgresCheckNameAvailabilityClient.Authorizer = authorizer
-	postgresCheckNameAvailabilityClient.UserAgent =
-		getUserAgent(postgresCheckNameAvailabilityClient.Client)
 	postgresServersClient := postgresSDK.NewServersClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
@@ -148,12 +124,12 @@ func initModules(azureConfig config.AzureConfig) error {
 	sqlDatabasesClient.Authorizer = authorizer
 	sqlDatabasesClient.UserAgent = getUserAgent(sqlDatabasesClient.Client)
 
-	redisClient := redisSDK.NewClientWithBaseURI(
+	redisGroupClient := redisSDK.NewGroupClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
-	redisClient.Authorizer = authorizer
-	redisClient.UserAgent = getUserAgent(redisClient.Client)
+	redisGroupClient.Authorizer = authorizer
+	redisGroupClient.UserAgent = getUserAgent(redisGroupClient.Client)
 
 	searchServicesClient := searchSDK.NewServicesClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
@@ -178,19 +154,9 @@ func initModules(azureConfig config.AzureConfig) error {
 	storageAccountsClient.UserAgent = getUserAgent(storageAccountsClient.Client)
 
 	modules = []service.Module{
-		postgresqldb.New(
-			armDeployer,
-			postgresCheckNameAvailabilityClient,
-			postgresServersClient,
-		),
-		rediscache.New(armDeployer, redisClient),
-		mysqldb.New(
-			azureEnvironment,
-			armDeployer,
-			mysqlCheckNameAvailabilityClient,
-			mysqlServersClient,
-			mysqlDatabasesClient,
-		),
+		postgresqldb.New(armDeployer, postgresServersClient),
+		rediscache.New(armDeployer, redisGroupClient),
+		mysqldb.New(azureEnvironment, armDeployer, mysqlServersClient),
 		servicebus.New(armDeployer, serviceBusNamespacesClient),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
 		keyvault.New(azureConfig.GetTenantID(), armDeployer, keyVaultsClient),

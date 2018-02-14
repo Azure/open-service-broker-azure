@@ -53,7 +53,7 @@ func (client RegistriesClient) CheckNameAvailability(ctx context.Context, regist
 					{Target: "registryNameCheckRequest.Name", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil},
 				}},
 				{Target: "registryNameCheckRequest.Type", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("containerregistry.RegistriesClient", "CheckNameAvailability", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "CheckNameAvailability")
 	}
 
 	req, err := client.CheckNameAvailabilityPreparer(ctx, registryNameCheckRequest)
@@ -134,7 +134,7 @@ func (client RegistriesClient) Create(ctx context.Context, resourceGroupName str
 					Chain: []validation.Constraint{{Target: "registry.RegistryProperties.StorageAccount", Name: validation.Null, Rule: false,
 						Chain: []validation.Constraint{{Target: "registry.RegistryProperties.StorageAccount.ID", Name: validation.Null, Rule: true, Chain: nil}}},
 					}}}}}); err != nil {
-		return result, validation.NewError("containerregistry.RegistriesClient", "Create", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "Create")
 	}
 
 	req, err := client.CreatePreparer(ctx, resourceGroupName, registryName, registry)
@@ -213,7 +213,7 @@ func (client RegistriesClient) Delete(ctx context.Context, resourceGroupName str
 			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
 				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("containerregistry.RegistriesClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, resourceGroupName, registryName)
@@ -289,7 +289,7 @@ func (client RegistriesClient) Get(ctx context.Context, resourceGroupName string
 			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
 				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("containerregistry.RegistriesClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, resourceGroupName, registryName)
@@ -547,7 +547,7 @@ func (client RegistriesClient) ListCredentials(ctx context.Context, resourceGrou
 			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
 				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("containerregistry.RegistriesClient", "ListCredentials", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "ListCredentials")
 	}
 
 	req, err := client.ListCredentialsPreparer(ctx, resourceGroupName, registryName)
@@ -622,7 +622,7 @@ func (client RegistriesClient) ListUsages(ctx context.Context, resourceGroupName
 			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
 				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("containerregistry.RegistriesClient", "ListUsages", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "ListUsages")
 	}
 
 	req, err := client.ListUsagesPreparer(ctx, resourceGroupName, registryName)
@@ -698,7 +698,7 @@ func (client RegistriesClient) RegenerateCredential(ctx context.Context, resourc
 			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
 				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("containerregistry.RegistriesClient", "RegenerateCredential", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "RegenerateCredential")
 	}
 
 	req, err := client.RegenerateCredentialPreparer(ctx, resourceGroupName, registryName, regenerateCredentialParameters)
@@ -775,7 +775,7 @@ func (client RegistriesClient) Update(ctx context.Context, resourceGroupName str
 			Constraints: []validation.Constraint{{Target: "registryName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "registryName", Name: validation.MinLength, Rule: 5, Chain: nil},
 				{Target: "registryName", Name: validation.Pattern, Rule: `^[a-zA-Z0-9]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("containerregistry.RegistriesClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "containerregistry.RegistriesClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, resourceGroupName, registryName, registryUpdateParameters)

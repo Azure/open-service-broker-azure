@@ -45,10 +45,11 @@ func NewServerAzureADAdministratorsClientWithBaseURI(baseURI string, subscriptio
 // CreateOrUpdate creates a new Server Active Directory Administrator or updates an existing server Active Directory
 // Administrator.
 //
-// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from
-// the Azure Resource Manager API or the portal. serverName is the name of the server. properties is the required
-// parameters for creating or updating an Active Directory Administrator.
-func (client ServerAzureADAdministratorsClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, serverName string, properties ServerAzureADAdministrator) (result ServerAzureADAdministratorsCreateOrUpdateFuture, err error) {
+// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from the
+// Azure Resource Manager API or the portal. serverName is the name of the server. administratorName is name of the
+// server administrator resource. properties is the required parameters for creating or updating an Active Directory
+// Administrator.
+func (client ServerAzureADAdministratorsClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, serverName string, administratorName string, properties ServerAzureADAdministrator) (result ServerAzureADAdministratorsCreateOrUpdateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: properties,
 			Constraints: []validation.Constraint{{Target: "properties.ServerAdministratorProperties", Name: validation.Null, Rule: false,
@@ -57,10 +58,10 @@ func (client ServerAzureADAdministratorsClient) CreateOrUpdate(ctx context.Conte
 					{Target: "properties.ServerAdministratorProperties.Sid", Name: validation.Null, Rule: true, Chain: nil},
 					{Target: "properties.ServerAdministratorProperties.TenantID", Name: validation.Null, Rule: true, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("sql.ServerAzureADAdministratorsClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "sql.ServerAzureADAdministratorsClient", "CreateOrUpdate")
 	}
 
-	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, serverName, properties)
+	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, serverName, administratorName, properties)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "sql.ServerAzureADAdministratorsClient", "CreateOrUpdate", nil, "Failure preparing request")
 		return
@@ -76,9 +77,9 @@ func (client ServerAzureADAdministratorsClient) CreateOrUpdate(ctx context.Conte
 }
 
 // CreateOrUpdatePreparer prepares the CreateOrUpdate request.
-func (client ServerAzureADAdministratorsClient) CreateOrUpdatePreparer(ctx context.Context, resourceGroupName string, serverName string, properties ServerAzureADAdministrator) (*http.Request, error) {
+func (client ServerAzureADAdministratorsClient) CreateOrUpdatePreparer(ctx context.Context, resourceGroupName string, serverName string, administratorName string, properties ServerAzureADAdministrator) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"administratorName": autorest.Encode("path", "activeDirectory"),
+		"administratorName": autorest.Encode("path", administratorName),
 		"resourceGroupName": autorest.Encode("path", resourceGroupName),
 		"serverName":        autorest.Encode("path", serverName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
@@ -129,10 +130,11 @@ func (client ServerAzureADAdministratorsClient) CreateOrUpdateResponder(resp *ht
 
 // Delete deletes an existing server Active Directory Administrator.
 //
-// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from
-// the Azure Resource Manager API or the portal. serverName is the name of the server.
-func (client ServerAzureADAdministratorsClient) Delete(ctx context.Context, resourceGroupName string, serverName string) (result ServerAzureADAdministratorsDeleteFuture, err error) {
-	req, err := client.DeletePreparer(ctx, resourceGroupName, serverName)
+// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from the
+// Azure Resource Manager API or the portal. serverName is the name of the server. administratorName is name of the
+// server administrator resource.
+func (client ServerAzureADAdministratorsClient) Delete(ctx context.Context, resourceGroupName string, serverName string, administratorName string) (result ServerAzureADAdministratorsDeleteFuture, err error) {
+	req, err := client.DeletePreparer(ctx, resourceGroupName, serverName, administratorName)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "sql.ServerAzureADAdministratorsClient", "Delete", nil, "Failure preparing request")
 		return
@@ -148,9 +150,9 @@ func (client ServerAzureADAdministratorsClient) Delete(ctx context.Context, reso
 }
 
 // DeletePreparer prepares the Delete request.
-func (client ServerAzureADAdministratorsClient) DeletePreparer(ctx context.Context, resourceGroupName string, serverName string) (*http.Request, error) {
+func (client ServerAzureADAdministratorsClient) DeletePreparer(ctx context.Context, resourceGroupName string, serverName string, administratorName string) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"administratorName": autorest.Encode("path", "activeDirectory"),
+		"administratorName": autorest.Encode("path", administratorName),
 		"resourceGroupName": autorest.Encode("path", resourceGroupName),
 		"serverName":        autorest.Encode("path", serverName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
@@ -199,10 +201,11 @@ func (client ServerAzureADAdministratorsClient) DeleteResponder(resp *http.Respo
 
 // Get returns an server Administrator.
 //
-// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from
-// the Azure Resource Manager API or the portal. serverName is the name of the server.
-func (client ServerAzureADAdministratorsClient) Get(ctx context.Context, resourceGroupName string, serverName string) (result ServerAzureADAdministrator, err error) {
-	req, err := client.GetPreparer(ctx, resourceGroupName, serverName)
+// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from the
+// Azure Resource Manager API or the portal. serverName is the name of the server. administratorName is name of the
+// server administrator resource.
+func (client ServerAzureADAdministratorsClient) Get(ctx context.Context, resourceGroupName string, serverName string, administratorName string) (result ServerAzureADAdministrator, err error) {
+	req, err := client.GetPreparer(ctx, resourceGroupName, serverName, administratorName)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "sql.ServerAzureADAdministratorsClient", "Get", nil, "Failure preparing request")
 		return
@@ -224,9 +227,9 @@ func (client ServerAzureADAdministratorsClient) Get(ctx context.Context, resourc
 }
 
 // GetPreparer prepares the Get request.
-func (client ServerAzureADAdministratorsClient) GetPreparer(ctx context.Context, resourceGroupName string, serverName string) (*http.Request, error) {
+func (client ServerAzureADAdministratorsClient) GetPreparer(ctx context.Context, resourceGroupName string, serverName string, administratorName string) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"administratorName": autorest.Encode("path", "activeDirectory"),
+		"administratorName": autorest.Encode("path", administratorName),
 		"resourceGroupName": autorest.Encode("path", resourceGroupName),
 		"serverName":        autorest.Encode("path", serverName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
@@ -267,8 +270,8 @@ func (client ServerAzureADAdministratorsClient) GetResponder(resp *http.Response
 
 // ListByServer returns a list of server Administrators.
 //
-// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from
-// the Azure Resource Manager API or the portal. serverName is the name of the server.
+// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from the
+// Azure Resource Manager API or the portal. serverName is the name of the server.
 func (client ServerAzureADAdministratorsClient) ListByServer(ctx context.Context, resourceGroupName string, serverName string) (result ServerAdministratorListResult, err error) {
 	req, err := client.ListByServerPreparer(ctx, resourceGroupName, serverName)
 	if err != nil {

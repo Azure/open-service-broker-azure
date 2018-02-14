@@ -54,7 +54,7 @@ func (client ManagersClient) CreateExtendedInfo(ctx context.Context, parameters 
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "CreateExtendedInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "CreateExtendedInfo")
 	}
 
 	req, err := client.CreateExtendedInfoPreparer(ctx, parameters, resourceGroupName, managerName)
@@ -134,7 +134,7 @@ func (client ManagersClient) CreateOrUpdate(ctx context.Context, parameters Mana
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, parameters, resourceGroupName, managerName)
@@ -209,7 +209,7 @@ func (client ManagersClient) Delete(ctx context.Context, resourceGroupName strin
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, resourceGroupName, managerName)
@@ -281,7 +281,7 @@ func (client ManagersClient) DeleteExtendedInfo(ctx context.Context, resourceGro
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "DeleteExtendedInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "DeleteExtendedInfo")
 	}
 
 	req, err := client.DeleteExtendedInfoPreparer(ctx, resourceGroupName, managerName)
@@ -353,7 +353,7 @@ func (client ManagersClient) Get(ctx context.Context, resourceGroupName string, 
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, resourceGroupName, managerName)
@@ -426,7 +426,7 @@ func (client ManagersClient) GetActivationKey(ctx context.Context, resourceGroup
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "GetActivationKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "GetActivationKey")
 	}
 
 	req, err := client.GetActivationKeyPreparer(ctx, resourceGroupName, managerName)
@@ -499,7 +499,7 @@ func (client ManagersClient) GetDevicePublicEncryptionKey(ctx context.Context, d
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "GetDevicePublicEncryptionKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "GetDevicePublicEncryptionKey")
 	}
 
 	req, err := client.GetDevicePublicEncryptionKeyPreparer(ctx, deviceName, resourceGroupName, managerName)
@@ -573,7 +573,7 @@ func (client ManagersClient) GetEncryptionSettings(ctx context.Context, resource
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "GetEncryptionSettings", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "GetEncryptionSettings")
 	}
 
 	req, err := client.GetEncryptionSettingsPreparer(ctx, resourceGroupName, managerName)
@@ -646,7 +646,7 @@ func (client ManagersClient) GetExtendedInfo(ctx context.Context, resourceGroupN
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "GetExtendedInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "GetExtendedInfo")
 	}
 
 	req, err := client.GetExtendedInfoPreparer(ctx, resourceGroupName, managerName)
@@ -719,7 +719,7 @@ func (client ManagersClient) GetPublicEncryptionKey(ctx context.Context, resourc
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "GetPublicEncryptionKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "GetPublicEncryptionKey")
 	}
 
 	req, err := client.GetPublicEncryptionKeyPreparer(ctx, resourceGroupName, managerName)
@@ -919,7 +919,7 @@ func (client ManagersClient) ListFeatureSupportStatus(ctx context.Context, resou
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "ListFeatureSupportStatus", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "ListFeatureSupportStatus")
 	}
 
 	req, err := client.ListFeatureSupportStatusPreparer(ctx, resourceGroupName, managerName, filter)
@@ -995,7 +995,7 @@ func (client ManagersClient) ListMetricDefinition(ctx context.Context, resourceG
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "ListMetricDefinition", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "ListMetricDefinition")
 	}
 
 	req, err := client.ListMetricDefinitionPreparer(ctx, resourceGroupName, managerName)
@@ -1068,7 +1068,7 @@ func (client ManagersClient) ListMetrics(ctx context.Context, resourceGroupName 
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "ListMetrics", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "ListMetrics")
 	}
 
 	req, err := client.ListMetricsPreparer(ctx, resourceGroupName, managerName, filter)
@@ -1142,7 +1142,7 @@ func (client ManagersClient) RegenerateActivationKey(ctx context.Context, resour
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "RegenerateActivationKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "RegenerateActivationKey")
 	}
 
 	req, err := client.RegenerateActivationKeyPreparer(ctx, resourceGroupName, managerName)
@@ -1209,14 +1209,14 @@ func (client ManagersClient) RegenerateActivationKeyResponder(resp *http.Respons
 
 // Update updates the StorSimple Manager.
 //
-// parameters is the manager update parameters. resourceGroupName is the resource group name managerName is the
-// manager name
+// parameters is the manager update parameters. resourceGroupName is the resource group name managerName is the manager
+// name
 func (client ManagersClient) Update(ctx context.Context, parameters ManagerPatch, resourceGroupName string, managerName string) (result Manager, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, parameters, resourceGroupName, managerName)
@@ -1292,7 +1292,7 @@ func (client ManagersClient) UpdateExtendedInfo(ctx context.Context, parameters 
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.ManagersClient", "UpdateExtendedInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.ManagersClient", "UpdateExtendedInfo")
 	}
 
 	req, err := client.UpdateExtendedInfoPreparer(ctx, parameters, resourceGroupName, managerName, ifMatch)

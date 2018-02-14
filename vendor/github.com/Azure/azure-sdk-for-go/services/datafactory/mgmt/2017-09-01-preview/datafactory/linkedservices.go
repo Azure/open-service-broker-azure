@@ -45,8 +45,7 @@ func NewLinkedServicesClientWithBaseURI(baseURI string, subscriptionID string) L
 //
 // resourceGroupName is the resource group name. factoryName is the factory name. linkedServiceName is the linked
 // service name. linkedService is linked service resource definition. ifMatch is eTag of the linkedService entity.
-// Should only be specified for update, for which it should match existing entity or can be * for unconditional
-// update.
+// Should only be specified for update, for which it should match existing entity or can be * for unconditional update.
 func (client LinkedServicesClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, factoryName string, linkedServiceName string, linkedService LinkedServiceResource, ifMatch string) (result LinkedServiceResource, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -68,7 +67,7 @@ func (client LinkedServicesClient) CreateOrUpdate(ctx context.Context, resourceG
 						{Target: "linkedService.Properties.ConnectVia.ReferenceName", Name: validation.Null, Rule: true, Chain: nil},
 					}},
 				}}}}}); err != nil {
-		return result, validation.NewError("datafactory.LinkedServicesClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.LinkedServicesClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, factoryName, linkedServiceName, linkedService, ifMatch)
@@ -158,7 +157,7 @@ func (client LinkedServicesClient) Delete(ctx context.Context, resourceGroupName
 			Constraints: []validation.Constraint{{Target: "linkedServiceName", Name: validation.MaxLength, Rule: 260, Chain: nil},
 				{Target: "linkedServiceName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "linkedServiceName", Name: validation.Pattern, Rule: `^[A-Za-z0-9_][^<>*#.%&:\\+?/]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.LinkedServicesClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.LinkedServicesClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, resourceGroupName, factoryName, linkedServiceName)
@@ -241,7 +240,7 @@ func (client LinkedServicesClient) Get(ctx context.Context, resourceGroupName st
 			Constraints: []validation.Constraint{{Target: "linkedServiceName", Name: validation.MaxLength, Rule: 260, Chain: nil},
 				{Target: "linkedServiceName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "linkedServiceName", Name: validation.Pattern, Rule: `^[A-Za-z0-9_][^<>*#.%&:\\+?/]*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.LinkedServicesClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.LinkedServicesClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, resourceGroupName, factoryName, linkedServiceName)
@@ -320,7 +319,7 @@ func (client LinkedServicesClient) ListByFactory(ctx context.Context, resourceGr
 			Constraints: []validation.Constraint{{Target: "factoryName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "factoryName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "factoryName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.LinkedServicesClient", "ListByFactory", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.LinkedServicesClient", "ListByFactory")
 	}
 
 	result.fn = client.listByFactoryNextResults

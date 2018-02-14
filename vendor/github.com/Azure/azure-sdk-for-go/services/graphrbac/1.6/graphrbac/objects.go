@@ -110,7 +110,7 @@ func (client ObjectsClient) GetObjectsByObjectIds(ctx context.Context, parameter
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.IncludeDirectoryObjectReferences", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("graphrbac.ObjectsClient", "GetObjectsByObjectIds", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "graphrbac.ObjectsClient", "GetObjectsByObjectIds")
 	}
 
 	result.fn = func(lastResult GetObjectsResult) (GetObjectsResult, error) {

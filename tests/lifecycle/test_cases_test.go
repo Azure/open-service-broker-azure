@@ -6,9 +6,8 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
 
-	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
+	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
@@ -35,17 +34,16 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 		return nil, err
 	}
 
-	resourceGroupsClient := resourcesSDK.NewGroupsClientWithBaseURI(
+	resourceGroupsClient := resources.NewGroupsClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	resourceGroupsClient.Authorizer = authorizer
-	resourceDeploymentsClient := resourcesSDK.NewDeploymentsClientWithBaseURI(
+	resourceDeploymentsClient := resources.NewDeploymentsClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	resourceDeploymentsClient.Authorizer = authorizer
-	resourceDeploymentsClient.PollingDuration = time.Minute * 30
 	armDeployer := arm.NewDeployer(
 		resourceGroupsClient,
 		resourceDeploymentsClient,

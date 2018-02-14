@@ -47,7 +47,7 @@ func (client UsagesClient) List(ctx context.Context, location string) (result Us
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: location,
 			Constraints: []validation.Constraint{{Target: "location", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("network.UsagesClient", "List", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "network.UsagesClient", "List")
 	}
 
 	result.fn = client.listNextResults

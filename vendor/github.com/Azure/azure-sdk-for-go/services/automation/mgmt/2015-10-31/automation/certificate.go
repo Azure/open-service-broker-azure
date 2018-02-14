@@ -42,9 +42,8 @@ func NewCertificateClientWithBaseURI(baseURI string, subscriptionID string, reso
 
 // CreateOrUpdate create a certificate.
 //
-// automationAccountName is the automation account name. certificateName is the parameters supplied to the create
-// or update certificate operation. parameters is the parameters supplied to the create or update certificate
-// operation.
+// automationAccountName is the automation account name. certificateName is the parameters supplied to the create or
+// update certificate operation. parameters is the parameters supplied to the create or update certificate operation.
 func (client CertificateClient) CreateOrUpdate(ctx context.Context, automationAccountName string, certificateName string, parameters CertificateCreateOrUpdateParameters) (result Certificate, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
@@ -53,7 +52,7 @@ func (client CertificateClient) CreateOrUpdate(ctx context.Context, automationAc
 			Constraints: []validation.Constraint{{Target: "parameters.Name", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "parameters.CertificateCreateOrUpdateProperties", Name: validation.Null, Rule: true,
 					Chain: []validation.Constraint{{Target: "parameters.CertificateCreateOrUpdateProperties.Base64Value", Name: validation.Null, Rule: true, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("automation.CertificateClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.CertificateClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, automationAccountName, certificateName, parameters)
@@ -128,7 +127,7 @@ func (client CertificateClient) Delete(ctx context.Context, automationAccountNam
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.CertificateClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.CertificateClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, automationAccountName, certificateName)
@@ -200,7 +199,7 @@ func (client CertificateClient) Get(ctx context.Context, automationAccountName s
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.CertificateClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.CertificateClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, automationAccountName, certificateName)
@@ -273,7 +272,7 @@ func (client CertificateClient) ListByAutomationAccount(ctx context.Context, aut
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.CertificateClient", "ListByAutomationAccount", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.CertificateClient", "ListByAutomationAccount")
 	}
 
 	result.fn = client.listByAutomationAccountNextResults
@@ -374,7 +373,7 @@ func (client CertificateClient) Update(ctx context.Context, automationAccountNam
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.CertificateClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.CertificateClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, automationAccountName, certificateName, parameters)

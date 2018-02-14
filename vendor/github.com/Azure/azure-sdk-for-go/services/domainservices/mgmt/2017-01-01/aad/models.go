@@ -48,8 +48,6 @@ const (
 // DomainService domain service.
 type DomainService struct {
 	autorest.Response `json:"-"`
-	// DomainServiceProperties - Domain service properties
-	*DomainServiceProperties `json:"properties,omitempty"`
 	// ID - Resource Id
 	ID *string `json:"id,omitempty"`
 	// Name - Resource name
@@ -59,36 +57,11 @@ type DomainService struct {
 	// Location - Resource location
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags
-	Tags map[string]*string `json:"tags"`
+	Tags *map[string]*string `json:"tags,omitempty"`
 	// Etag - Resource etag
 	Etag *string `json:"etag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for DomainService.
-func (ds DomainService) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if ds.DomainServiceProperties != nil {
-		objectMap["properties"] = ds.DomainServiceProperties
-	}
-	if ds.ID != nil {
-		objectMap["id"] = ds.ID
-	}
-	if ds.Name != nil {
-		objectMap["name"] = ds.Name
-	}
-	if ds.Type != nil {
-		objectMap["type"] = ds.Type
-	}
-	if ds.Location != nil {
-		objectMap["location"] = ds.Location
-	}
-	if ds.Tags != nil {
-		objectMap["tags"] = ds.Tags
-	}
-	if ds.Etag != nil {
-		objectMap["etag"] = ds.Etag
-	}
-	return json.Marshal(objectMap)
+	// DomainServiceProperties - Domain service properties
+	*DomainServiceProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for DomainService struct.
@@ -98,72 +71,76 @@ func (ds *DomainService) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var domainServiceProperties DomainServiceProperties
-				err = json.Unmarshal(*v, &domainServiceProperties)
-				if err != nil {
-					return err
-				}
-				ds.DomainServiceProperties = &domainServiceProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				ds.ID = &ID
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				ds.Name = &name
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				ds.Type = &typeVar
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				ds.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				ds.Tags = tags
-			}
-		case "etag":
-			if v != nil {
-				var etag string
-				err = json.Unmarshal(*v, &etag)
-				if err != nil {
-					return err
-				}
-				ds.Etag = &etag
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties DomainServiceProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		ds.DomainServiceProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		ds.ID = &ID
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		ds.Name = &name
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		ds.Type = &typeVar
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		ds.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		ds.Tags = &tags
+	}
+
+	v = m["etag"]
+	if v != nil {
+		var etag string
+		err = json.Unmarshal(*m["etag"], &etag)
+		if err != nil {
+			return err
+		}
+		ds.Etag = &etag
 	}
 
 	return nil
@@ -215,39 +192,22 @@ func (future DomainServicesCreateOrUpdateFuture) Result(client DomainServicesCli
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ds, azure.NewAsyncOpIncompleteError("aad.DomainServicesCreateOrUpdateFuture")
+		return ds, autorest.NewError("aad.DomainServicesCreateOrUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ds, err = client.CreateOrUpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "aad.DomainServicesCreateOrUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesCreateOrUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ds, err = client.CreateOrUpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesCreateOrUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -263,39 +223,22 @@ func (future DomainServicesDeleteFuture) Result(client DomainServicesClient) (ds
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ds, azure.NewAsyncOpIncompleteError("aad.DomainServicesDeleteFuture")
+		return ds, autorest.NewError("aad.DomainServicesDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ds, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "aad.DomainServicesDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ds, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -311,39 +254,22 @@ func (future DomainServicesUpdateFuture) Result(client DomainServicesClient) (ds
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ds, azure.NewAsyncOpIncompleteError("aad.DomainServicesUpdateFuture")
+		return ds, autorest.NewError("aad.DomainServicesUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ds, err = client.UpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "aad.DomainServicesUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ds, err = client.UpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "aad.DomainServicesUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -407,31 +333,7 @@ type Resource struct {
 	// Location - Resource location
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags
-	Tags map[string]*string `json:"tags"`
+	Tags *map[string]*string `json:"tags,omitempty"`
 	// Etag - Resource etag
 	Etag *string `json:"etag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for Resource.
-func (r Resource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if r.ID != nil {
-		objectMap["id"] = r.ID
-	}
-	if r.Name != nil {
-		objectMap["name"] = r.Name
-	}
-	if r.Type != nil {
-		objectMap["type"] = r.Type
-	}
-	if r.Location != nil {
-		objectMap["location"] = r.Location
-	}
-	if r.Tags != nil {
-		objectMap["tags"] = r.Tags
-	}
-	if r.Etag != nil {
-		objectMap["etag"] = r.Etag
-	}
-	return json.Marshal(objectMap)
 }

@@ -1,7 +1,7 @@
-// Package batch implements the Azure ARM Batch service API version 2017-05-01.5.0.
+// Package xpackagex implements the Azure ARM Xpackagex service API version 2017-05-01.5.0.
 //
 // A client for issuing REST requests to the Azure Batch service.
-package batch
+package xpackagex
 
 // Copyright (c) Microsoft and contributors.  All rights reserved.
 //
@@ -25,11 +25,11 @@ import (
 )
 
 const (
-	// DefaultBaseURI is the default URI used for the service Batch
+	// DefaultBaseURI is the default URI used for the service Xpackagex
 	DefaultBaseURI = "https://batch.core.windows.net"
 )
 
-// BaseClient is the base client for Batch.
+// BaseClient is the base client for Xpackagex.
 type BaseClient struct {
 	autorest.Client
 	BaseURI string

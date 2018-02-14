@@ -33,11 +33,9 @@ func (a *allInOneManager) GetProvisioner(
 }
 
 func (a *allInOneManager) preProvision(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
 		return nil, errors.New(
@@ -52,13 +50,7 @@ func (a *allInOneManager) preProvision(
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
-	var err error
-	if dt.ServerName, err = getAvailableServerName(
-		ctx,
-		a.checkNameAvailabilityClient,
-	); err != nil {
-		return nil, err
-	}
+	dt.ServerName = uuid.NewV4().String()
 	dt.AdministratorLoginPassword = generate.NewPassword()
 	dt.DatabaseName = generate.NewIdentifier()
 

@@ -45,18 +45,19 @@ func NewBackupLongTermRetentionPoliciesClientWithBaseURI(baseURI string, subscri
 
 // CreateOrUpdate creates or updates a database backup long term retention policy
 //
-// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from
-// the Azure Resource Manager API or the portal. serverName is the name of the server. databaseName is the name of
-// the database parameters is the required parameters to update a backup long term retention policy
-func (client BackupLongTermRetentionPoliciesClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, serverName string, databaseName string, parameters BackupLongTermRetentionPolicy) (result BackupLongTermRetentionPoliciesCreateOrUpdateFuture, err error) {
+// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from the
+// Azure Resource Manager API or the portal. serverName is the name of the server. databaseName is the name of the
+// database backupLongTermRetentionPolicyName is the name of the backup long term retention policy parameters is the
+// required parameters to update a backup long term retention policy
+func (client BackupLongTermRetentionPoliciesClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, serverName string, databaseName string, backupLongTermRetentionPolicyName string, parameters BackupLongTermRetentionPolicy) (result BackupLongTermRetentionPoliciesCreateOrUpdateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.BackupLongTermRetentionPolicyProperties", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "parameters.BackupLongTermRetentionPolicyProperties.RecoveryServicesBackupPolicyResourceID", Name: validation.Null, Rule: true, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("sql.BackupLongTermRetentionPoliciesClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "sql.BackupLongTermRetentionPoliciesClient", "CreateOrUpdate")
 	}
 
-	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, serverName, databaseName, parameters)
+	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, serverName, databaseName, backupLongTermRetentionPolicyName, parameters)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "sql.BackupLongTermRetentionPoliciesClient", "CreateOrUpdate", nil, "Failure preparing request")
 		return
@@ -72,9 +73,9 @@ func (client BackupLongTermRetentionPoliciesClient) CreateOrUpdate(ctx context.C
 }
 
 // CreateOrUpdatePreparer prepares the CreateOrUpdate request.
-func (client BackupLongTermRetentionPoliciesClient) CreateOrUpdatePreparer(ctx context.Context, resourceGroupName string, serverName string, databaseName string, parameters BackupLongTermRetentionPolicy) (*http.Request, error) {
+func (client BackupLongTermRetentionPoliciesClient) CreateOrUpdatePreparer(ctx context.Context, resourceGroupName string, serverName string, databaseName string, backupLongTermRetentionPolicyName string, parameters BackupLongTermRetentionPolicy) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"backupLongTermRetentionPolicyName": autorest.Encode("path", "Default"),
+		"backupLongTermRetentionPolicyName": autorest.Encode("path", backupLongTermRetentionPolicyName),
 		"databaseName":                      autorest.Encode("path", databaseName),
 		"resourceGroupName":                 autorest.Encode("path", resourceGroupName),
 		"serverName":                        autorest.Encode("path", serverName),
@@ -126,11 +127,11 @@ func (client BackupLongTermRetentionPoliciesClient) CreateOrUpdateResponder(resp
 
 // Get returns a database backup long term retention policy
 //
-// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from
-// the Azure Resource Manager API or the portal. serverName is the name of the server. databaseName is the name of
-// the database.
-func (client BackupLongTermRetentionPoliciesClient) Get(ctx context.Context, resourceGroupName string, serverName string, databaseName string) (result BackupLongTermRetentionPolicy, err error) {
-	req, err := client.GetPreparer(ctx, resourceGroupName, serverName, databaseName)
+// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from the
+// Azure Resource Manager API or the portal. serverName is the name of the server. databaseName is the name of the
+// database. backupLongTermRetentionPolicyName is the name of the backup long term retention policy
+func (client BackupLongTermRetentionPoliciesClient) Get(ctx context.Context, resourceGroupName string, serverName string, databaseName string, backupLongTermRetentionPolicyName string) (result BackupLongTermRetentionPolicy, err error) {
+	req, err := client.GetPreparer(ctx, resourceGroupName, serverName, databaseName, backupLongTermRetentionPolicyName)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "sql.BackupLongTermRetentionPoliciesClient", "Get", nil, "Failure preparing request")
 		return
@@ -152,9 +153,9 @@ func (client BackupLongTermRetentionPoliciesClient) Get(ctx context.Context, res
 }
 
 // GetPreparer prepares the Get request.
-func (client BackupLongTermRetentionPoliciesClient) GetPreparer(ctx context.Context, resourceGroupName string, serverName string, databaseName string) (*http.Request, error) {
+func (client BackupLongTermRetentionPoliciesClient) GetPreparer(ctx context.Context, resourceGroupName string, serverName string, databaseName string, backupLongTermRetentionPolicyName string) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
-		"backupLongTermRetentionPolicyName": autorest.Encode("path", "Default"),
+		"backupLongTermRetentionPolicyName": autorest.Encode("path", backupLongTermRetentionPolicyName),
 		"databaseName":                      autorest.Encode("path", databaseName),
 		"resourceGroupName":                 autorest.Encode("path", resourceGroupName),
 		"serverName":                        autorest.Encode("path", serverName),
@@ -196,9 +197,9 @@ func (client BackupLongTermRetentionPoliciesClient) GetResponder(resp *http.Resp
 
 // ListByDatabase returns a database backup long term retention policy
 //
-// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from
-// the Azure Resource Manager API or the portal. serverName is the name of the server. databaseName is the name of
-// the database.
+// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from the
+// Azure Resource Manager API or the portal. serverName is the name of the server. databaseName is the name of the
+// database.
 func (client BackupLongTermRetentionPoliciesClient) ListByDatabase(ctx context.Context, resourceGroupName string, serverName string, databaseName string) (result BackupLongTermRetentionPolicyListResult, err error) {
 	req, err := client.ListByDatabasePreparer(ctx, resourceGroupName, serverName, databaseName)
 	if err != nil {

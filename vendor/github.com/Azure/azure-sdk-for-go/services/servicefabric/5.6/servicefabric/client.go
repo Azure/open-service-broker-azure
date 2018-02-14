@@ -76,9 +76,9 @@ func NewWithBaseURI(baseURI string) BaseClient {
 //
 // operationID is a GUID that identifies a call of this API.  This is passed into the corresponding GetProgress API
 // force is indicates whether to gracefully rollback and clean up internal system state modified by executing the
-// user-induced operation. timeout is the server timeout for performing the operation in seconds. This specifies
-// the time duration that the client is willing to wait for the requested operation to complete. The default value
-// for this parameter is 60 seconds.
+// user-induced operation. timeout is the server timeout for performing the operation in seconds. This specifies the
+// time duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) CancelOperation(ctx context.Context, operationID uuid.UUID, force bool, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -86,7 +86,7 @@ func (client BaseClient) CancelOperation(ctx context.Context, operationID uuid.U
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "CancelOperation", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "CancelOperation")
 	}
 
 	req, err := client.CancelOperationPreparer(ctx, operationID, force, timeout)
@@ -120,8 +120,6 @@ func (client BaseClient) CancelOperationPreparer(ctx context.Context, operationI
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -154,9 +152,9 @@ func (client BaseClient) CancelOperationResponder(resp *http.Response) (result a
 // CopyImageStoreContent copies the image store content from the source image store relative path to the destination
 // image store relative path.
 //
-// imageStoreCopyDescription is describes the copy description for the image store. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// imageStoreCopyDescription is describes the copy description for the image store. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) CopyImageStoreContent(ctx context.Context, imageStoreCopyDescription ImageStoreCopyDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: imageStoreCopyDescription,
@@ -167,7 +165,7 @@ func (client BaseClient) CopyImageStoreContent(ctx context.Context, imageStoreCo
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "CopyImageStoreContent", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "CopyImageStoreContent")
 	}
 
 	req, err := client.CopyImageStoreContentPreparer(ctx, imageStoreCopyDescription, timeout)
@@ -199,8 +197,6 @@ func (client BaseClient) CopyImageStoreContentPreparer(ctx context.Context, imag
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -234,8 +230,8 @@ func (client BaseClient) CopyImageStoreContentResponder(resp *http.Response) (re
 
 // CreateApplication creates a Service Fabric application using the specified description.
 //
-// applicationDescription is describes the application to be created. timeout is the server timeout for performing
-// the operation in seconds. This specifies the time duration that the client is willing to wait for the requested
+// applicationDescription is describes the application to be created. timeout is the server timeout for performing the
+// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
 // operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) CreateApplication(ctx context.Context, applicationDescription ApplicationDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
@@ -254,7 +250,7 @@ func (client BaseClient) CreateApplication(ctx context.Context, applicationDescr
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "CreateApplication", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "CreateApplication")
 	}
 
 	req, err := client.CreateApplicationPreparer(ctx, applicationDescription, timeout)
@@ -286,8 +282,6 @@ func (client BaseClient) CreateApplicationPreparer(ctx context.Context, applicat
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -321,9 +315,9 @@ func (client BaseClient) CreateApplicationResponder(resp *http.Response) (result
 
 // CreateComposeApplication creates a Service Fabric compose application.
 //
-// createComposeApplicationDescription is describes the compose application that needs to be created. timeout is
-// the server timeout for performing the operation in seconds. This specifies the time duration that the client is
-// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+// createComposeApplicationDescription is describes the compose application that needs to be created. timeout is the
+// server timeout for performing the operation in seconds. This specifies the time duration that the client is willing
+// to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) CreateComposeApplication(ctx context.Context, createComposeApplicationDescription CreateComposeApplicationDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: createComposeApplicationDescription,
@@ -334,7 +328,7 @@ func (client BaseClient) CreateComposeApplication(ctx context.Context, createCom
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "CreateComposeApplication", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "CreateComposeApplication")
 	}
 
 	req, err := client.CreateComposeApplicationPreparer(ctx, createComposeApplicationDescription, timeout)
@@ -366,8 +360,6 @@ func (client BaseClient) CreateComposeApplicationPreparer(ctx context.Context, c
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -416,7 +408,7 @@ func (client BaseClient) CreateService(ctx context.Context, applicationID string
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "CreateService", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "CreateService")
 	}
 
 	req, err := client.CreateServicePreparer(ctx, applicationID, serviceDescription, timeout)
@@ -452,8 +444,6 @@ func (client BaseClient) CreateServicePreparer(ctx context.Context, applicationI
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -490,9 +480,9 @@ func (client BaseClient) CreateServiceResponder(resp *http.Response) (result aut
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
 // 'fabric:' URI scheme. serviceFromTemplateDescription is describes the service that needs to be created from the
-// template defined in the application manifest. timeout is the server timeout for performing the operation in
-// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
-// complete. The default value for this parameter is 60 seconds.
+// template defined in the application manifest. timeout is the server timeout for performing the operation in seconds.
+// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
+// default value for this parameter is 60 seconds.
 func (client BaseClient) CreateServiceFromTemplate(ctx context.Context, applicationID string, serviceFromTemplateDescription ServiceFromTemplateDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: serviceFromTemplateDescription,
@@ -504,7 +494,7 @@ func (client BaseClient) CreateServiceFromTemplate(ctx context.Context, applicat
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "CreateServiceFromTemplate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "CreateServiceFromTemplate")
 	}
 
 	req, err := client.CreateServiceFromTemplatePreparer(ctx, applicationID, serviceFromTemplateDescription, timeout)
@@ -540,8 +530,6 @@ func (client BaseClient) CreateServiceFromTemplatePreparer(ctx context.Context, 
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -581,12 +569,11 @@ func (client BaseClient) CreateServiceFromTemplateResponder(resp *http.Response)
 // its services.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. forceRemove is remove a Service Fabric application or service forcefully without going
-// through the graceful shutdown sequence. This parameter can be used to forcefully delete an application or
-// service for which delete is timing out due to issues in the service code that prevents graceful close of
-// replicas. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// 'fabric:' URI scheme. forceRemove is remove a Service Fabric application or service forcefully without going through
+// the graceful shutdown sequence. This parameter can be used to forcefully delete an application or service for which
+// delete is timing out due to issues in the service code that prevents graceful close of replicas. timeout is the
+// server timeout for performing the operation in seconds. This specifies the time duration that the client is willing
+// to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) DeleteApplication(ctx context.Context, applicationID string, forceRemove *bool, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -594,7 +581,7 @@ func (client BaseClient) DeleteApplication(ctx context.Context, applicationID st
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "DeleteApplication", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "DeleteApplication")
 	}
 
 	req, err := client.DeleteApplicationPreparer(ctx, applicationID, forceRemove, timeout)
@@ -633,8 +620,6 @@ func (client BaseClient) DeleteApplicationPreparer(ctx context.Context, applicat
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -667,9 +652,9 @@ func (client BaseClient) DeleteApplicationResponder(resp *http.Response) (result
 // DeleteImageStoreContent deletes existing image store content being found within the given image store relative path.
 // This can be used to delete uploaded application packages once they are provisioned.
 //
-// contentPath is relative path to file or folder in the image store from its root. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// contentPath is relative path to file or folder in the image store from its root. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) DeleteImageStoreContent(ctx context.Context, contentPath string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -677,7 +662,7 @@ func (client BaseClient) DeleteImageStoreContent(ctx context.Context, contentPat
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "DeleteImageStoreContent", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "DeleteImageStoreContent")
 	}
 
 	req, err := client.DeleteImageStoreContentPreparer(ctx, contentPath, timeout)
@@ -713,8 +698,6 @@ func (client BaseClient) DeleteImageStoreContentPreparer(ctx context.Context, co
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -749,12 +732,12 @@ func (client BaseClient) DeleteImageStoreContentResponder(resp *http.Response) (
 // if service is having issues closing the replica gracefully, the delete operation may take a long time or get stuck.
 // Use the optional ForceRemove flag to skip the graceful close sequence and forcefully delete the service.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. forceRemove is remove a Service Fabric application or service forcefully without going through the
-// graceful shutdown sequence. This parameter can be used to forcefully delete an application or service for which
-// delete is timing out due to issues in the service code that prevents graceful close of replicas. timeout is the
-// server timeout for performing the operation in seconds. This specifies the time duration that the client is
-// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. forceRemove is remove a Service Fabric application or service forcefully without going through the graceful
+// shutdown sequence. This parameter can be used to forcefully delete an application or service for which delete is
+// timing out due to issues in the service code that prevents graceful close of replicas. timeout is the server timeout
+// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) DeleteService(ctx context.Context, serviceID string, forceRemove *bool, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -762,7 +745,7 @@ func (client BaseClient) DeleteService(ctx context.Context, serviceID string, fo
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "DeleteService", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "DeleteService")
 	}
 
 	req, err := client.DeleteServicePreparer(ctx, serviceID, forceRemove, timeout)
@@ -801,8 +784,6 @@ func (client BaseClient) DeleteServicePreparer(ctx context.Context, serviceID st
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -851,7 +832,7 @@ func (client BaseClient) DeployedServicePackageToNode(ctx context.Context, nodeN
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "DeployedServicePackageToNode", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "DeployedServicePackageToNode")
 	}
 
 	req, err := client.DeployedServicePackageToNodePreparer(ctx, nodeName, deployServicePackageToNodeDescription, timeout)
@@ -887,8 +868,6 @@ func (client BaseClient) DeployedServicePackageToNodePreparer(ctx context.Contex
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -927,10 +906,10 @@ func (client BaseClient) DeployedServicePackageToNodeResponder(resp *http.Respon
 // complete this will cancel the deactivation. A node which goes down and comes back up while deactivated will still
 // need to be reactivated before services will be placed on that node.
 //
-// nodeName is the name of the node. deactivationIntentDescription is describes the intent or reason for
-// deactivating the node. timeout is the server timeout for performing the operation in seconds. This specifies the
-// time duration that the client is willing to wait for the requested operation to complete. The default value for
-// this parameter is 60 seconds.
+// nodeName is the name of the node. deactivationIntentDescription is describes the intent or reason for deactivating
+// the node. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) DisableNode(ctx context.Context, nodeName string, deactivationIntentDescription DeactivationIntentDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -938,7 +917,7 @@ func (client BaseClient) DisableNode(ctx context.Context, nodeName string, deact
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "DisableNode", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "DisableNode")
 	}
 
 	req, err := client.DisableNodePreparer(ctx, nodeName, deactivationIntentDescription, timeout)
@@ -974,8 +953,6 @@ func (client BaseClient) DisableNodePreparer(ctx context.Context, nodeName strin
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1012,8 +989,8 @@ func (client BaseClient) DisableNodeResponder(resp *http.Response) (result autor
 // reactivated.
 //
 // nodeName is the name of the node. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) EnableNode(ctx context.Context, nodeName string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -1021,7 +998,7 @@ func (client BaseClient) EnableNode(ctx context.Context, nodeName string, timeou
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "EnableNode", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "EnableNode")
 	}
 
 	req, err := client.EnableNodePreparer(ctx, nodeName, timeout)
@@ -1057,8 +1034,6 @@ func (client BaseClient) EnableNodePreparer(ctx context.Context, nodeName string
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1102,7 +1077,7 @@ func (client BaseClient) GetAadMetadata(ctx context.Context, timeout *int64) (re
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetAadMetadata", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetAadMetadata")
 	}
 
 	req, err := client.GetAadMetadataPreparer(ctx, timeout)
@@ -1134,8 +1109,6 @@ func (client BaseClient) GetAadMetadataPreparer(ctx context.Context, timeout *in
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1175,36 +1148,36 @@ func (client BaseClient) GetAadMetadataResponder(resp *http.Response) (result Aa
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535.
-// deployedApplicationsHealthStateFilter is allows filtering of the deployed applications health state objects
-// returned in the result of application health query based on their health state.
-// The possible values for this parameter include integer value of one of the following health states. Only
-// deployed applications that match the filter will be returned.\
+// deployedApplicationsHealthStateFilter is allows filtering of the deployed applications health state objects returned
+// in the result of application health query based on their health state.
+// The possible values for this parameter include integer value of one of the following health states. Only deployed
+// applications that match the filter will be returned.\
 // All deployed applications are used to evaluate the aggregated health state. If not specified, all entries are
 // returned.
 // The state values are flag based enumeration, so the value could be a combination of these value obtained using
 // bitwise 'OR' operator.
-// For example, if the provided value is 6 then health state of deployed applications with HealthState value of OK
-// (2) and Warning (4) are returned.
+// For example, if the provided value is 6 then health state of deployed applications with HealthState value of OK (2)
+// and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn't match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn't match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. servicesHealthStateFilter is
-// allows filtering of the services health state objects returned in the result of services health query based on
-// their health state.
+// allows filtering of the services health state objects returned in the result of services health query based on their
+// health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only services that match the filter are returned. All services are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
@@ -1213,14 +1186,14 @@ func (client BaseClient) GetAadMetadataResponder(resp *http.Response) (result Aa
 // HealthState value of OK (2) and Warning (4) will be returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn�t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn�t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetApplicationHealth(ctx context.Context, applicationID string, eventsHealthStateFilter *int32, deployedApplicationsHealthStateFilter *int32, servicesHealthStateFilter *int32, timeout *int64) (result ApplicationHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -1228,7 +1201,7 @@ func (client BaseClient) GetApplicationHealth(ctx context.Context, applicationID
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationHealth")
 	}
 
 	req, err := client.GetApplicationHealthPreparer(ctx, applicationID, eventsHealthStateFilter, deployedApplicationsHealthStateFilter, servicesHealthStateFilter, timeout)
@@ -1264,23 +1237,15 @@ func (client BaseClient) GetApplicationHealthPreparer(ctx context.Context, appli
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if deployedApplicationsHealthStateFilter != nil {
 		queryParameters["DeployedApplicationsHealthStateFilter"] = autorest.Encode("query", *deployedApplicationsHealthStateFilter)
-	} else {
-		queryParameters["DeployedApplicationsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if servicesHealthStateFilter != nil {
 		queryParameters["ServicesHealthStateFilter"] = autorest.Encode("query", *servicesHealthStateFilter)
-	} else {
-		queryParameters["ServicesHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1321,36 +1286,36 @@ func (client BaseClient) GetApplicationHealthResponder(resp *http.Response) (res
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535.
-// deployedApplicationsHealthStateFilter is allows filtering of the deployed applications health state objects
-// returned in the result of application health query based on their health state.
-// The possible values for this parameter include integer value of one of the following health states. Only
-// deployed applications that match the filter will be returned.\
+// deployedApplicationsHealthStateFilter is allows filtering of the deployed applications health state objects returned
+// in the result of application health query based on their health state.
+// The possible values for this parameter include integer value of one of the following health states. Only deployed
+// applications that match the filter will be returned.\
 // All deployed applications are used to evaluate the aggregated health state. If not specified, all entries are
 // returned.
 // The state values are flag based enumeration, so the value could be a combination of these value obtained using
 // bitwise 'OR' operator.
-// For example, if the provided value is 6 then health state of deployed applications with HealthState value of OK
-// (2) and Warning (4) are returned.
+// For example, if the provided value is 6 then health state of deployed applications with HealthState value of OK (2)
+// and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn't match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn't match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. servicesHealthStateFilter is
-// allows filtering of the services health state objects returned in the result of services health query based on
-// their health state.
+// allows filtering of the services health state objects returned in the result of services health query based on their
+// health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only services that match the filter are returned. All services are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
@@ -1359,17 +1324,17 @@ func (client BaseClient) GetApplicationHealthResponder(resp *http.Response) (res
 // HealthState value of OK (2) and Warning (4) will be returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn�t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn�t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. applicationHealthPolicy is
 // describes the health policies used to evaluate the health of an application or one of its children.
-// If not present, the health evaluation uses the health policy from application manifest or the default health
-// policy. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// If not present, the health evaluation uses the health policy from application manifest or the default health policy.
+// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
+// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetApplicationHealthUsingPolicy(ctx context.Context, applicationID string, eventsHealthStateFilter *int32, deployedApplicationsHealthStateFilter *int32, servicesHealthStateFilter *int32, applicationHealthPolicy *ApplicationHealthPolicy, timeout *int64) (result ApplicationHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -1377,7 +1342,7 @@ func (client BaseClient) GetApplicationHealthUsingPolicy(ctx context.Context, ap
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationHealthUsingPolicy", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationHealthUsingPolicy")
 	}
 
 	req, err := client.GetApplicationHealthUsingPolicyPreparer(ctx, applicationID, eventsHealthStateFilter, deployedApplicationsHealthStateFilter, servicesHealthStateFilter, applicationHealthPolicy, timeout)
@@ -1413,23 +1378,15 @@ func (client BaseClient) GetApplicationHealthUsingPolicyPreparer(ctx context.Con
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if deployedApplicationsHealthStateFilter != nil {
 		queryParameters["DeployedApplicationsHealthStateFilter"] = autorest.Encode("query", *deployedApplicationsHealthStateFilter)
-	} else {
-		queryParameters["DeployedApplicationsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if servicesHealthStateFilter != nil {
 		queryParameters["ServicesHealthStateFilter"] = autorest.Encode("query", *servicesHealthStateFilter)
-	} else {
-		queryParameters["ServicesHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1470,10 +1427,10 @@ func (client BaseClient) GetApplicationHealthUsingPolicyResponder(resp *http.Res
 // name, type, status, parameters and other details about the application.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. excludeApplicationParameters is the flag that specifies whether application parameters
-// will be excluded from the result. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// 'fabric:' URI scheme. excludeApplicationParameters is the flag that specifies whether application parameters will be
+// excluded from the result. timeout is the server timeout for performing the operation in seconds. This specifies the
+// time duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) GetApplicationInfo(ctx context.Context, applicationID string, excludeApplicationParameters *bool, timeout *int64) (result ApplicationInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -1481,7 +1438,7 @@ func (client BaseClient) GetApplicationInfo(ctx context.Context, applicationID s
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationInfo")
 	}
 
 	req, err := client.GetApplicationInfoPreparer(ctx, applicationID, excludeApplicationParameters, timeout)
@@ -1517,13 +1474,9 @@ func (client BaseClient) GetApplicationInfoPreparer(ctx context.Context, applica
 	}
 	if excludeApplicationParameters != nil {
 		queryParameters["ExcludeApplicationParameters"] = autorest.Encode("query", *excludeApplicationParameters)
-	} else {
-		queryParameters["ExcludeApplicationParameters"] = autorest.Encode("query", false)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1559,15 +1512,15 @@ func (client BaseClient) GetApplicationInfoResponder(resp *http.Response) (resul
 // type, status, parameters and other details about the application. If the applications do not fit in a page, one page
 // of results is returned as well as a continuation token which can be used to get the next page.
 //
-// applicationTypeName is the application type name used to filter the applications to query for. This value should
-// not contain the application type version. excludeApplicationParameters is the flag that specifies whether
-// application parameters will be excluded from the result. continuationToken is the continuation token parameter
-// is used to obtain next set of results. A continuation token with a non empty value is included in the response
-// of the API when the results from the system do not fit in a single response. When this value is passed to the
-// next API call, the API returns next set of results. If there are no further results then the continuation token
-// does not contain a value. The value of this parameter should not be URL encoded. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// applicationTypeName is the application type name used to filter the applications to query for. This value should not
+// contain the application type version. excludeApplicationParameters is the flag that specifies whether application
+// parameters will be excluded from the result. continuationToken is the continuation token parameter is used to obtain
+// next set of results. A continuation token with a non empty value is included in the response of the API when the
+// results from the system do not fit in a single response. When this value is passed to the next API call, the API
+// returns next set of results. If there are no further results then the continuation token does not contain a value.
+// The value of this parameter should not be URL encoded. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetApplicationInfoList(ctx context.Context, applicationTypeName string, excludeApplicationParameters *bool, continuationToken string, timeout *int64) (result PagedApplicationInfoList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -1575,7 +1528,7 @@ func (client BaseClient) GetApplicationInfoList(ctx context.Context, application
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationInfoList")
 	}
 
 	req, err := client.GetApplicationInfoListPreparer(ctx, applicationTypeName, excludeApplicationParameters, continuationToken, timeout)
@@ -1610,16 +1563,12 @@ func (client BaseClient) GetApplicationInfoListPreparer(ctx context.Context, app
 	}
 	if excludeApplicationParameters != nil {
 		queryParameters["ExcludeApplicationParameters"] = autorest.Encode("query", *excludeApplicationParameters)
-	} else {
-		queryParameters["ExcludeApplicationParameters"] = autorest.Encode("query", false)
 	}
 	if len(continuationToken) > 0 {
 		queryParameters["ContinuationToken"] = continuationToken
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1653,10 +1602,10 @@ func (client BaseClient) GetApplicationInfoListResponder(resp *http.Response) (r
 // GetApplicationManifest gets the manifest describing an application type. The response contains the application
 // manifest XML as a string.
 //
-// applicationTypeName is the name of the application type. applicationTypeVersion is the version of the
-// application type. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// applicationTypeName is the name of the application type. applicationTypeVersion is the version of the application
+// type. timeout is the server timeout for performing the operation in seconds. This specifies the time duration that
+// the client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetApplicationManifest(ctx context.Context, applicationTypeName string, applicationTypeVersion string, timeout *int64) (result ApplicationTypeManifest, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -1664,7 +1613,7 @@ func (client BaseClient) GetApplicationManifest(ctx context.Context, application
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationManifest", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationManifest")
 	}
 
 	req, err := client.GetApplicationManifestPreparer(ctx, applicationTypeName, applicationTypeVersion, timeout)
@@ -1701,8 +1650,6 @@ func (client BaseClient) GetApplicationManifestPreparer(ctx context.Context, app
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1736,10 +1683,10 @@ func (client BaseClient) GetApplicationManifestResponder(resp *http.Response) (r
 // GetApplicationNameInfo the GetApplicationName endpoint returns the name of the application for the specified
 // service.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time duration that
+// the client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetApplicationNameInfo(ctx context.Context, serviceID string, timeout *int64) (result ApplicationNameInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -1747,7 +1694,7 @@ func (client BaseClient) GetApplicationNameInfo(ctx context.Context, serviceID s
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationNameInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationNameInfo")
 	}
 
 	req, err := client.GetApplicationNameInfoPreparer(ctx, serviceID, timeout)
@@ -1783,8 +1730,6 @@ func (client BaseClient) GetApplicationNameInfoPreparer(ctx context.Context, ser
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1825,17 +1770,17 @@ func (client BaseClient) GetApplicationNameInfoResponder(resp *http.Response) (r
 // continuation token is returned if there are no subsequent pages.
 //
 // excludeApplicationParameters is the flag that specifies whether application parameters will be excluded from the
-// result. continuationToken is the continuation token parameter is used to obtain next set of results. A
-// continuation token with a non empty value is included in the response of the API when the results from the
-// system do not fit in a single response. When this value is passed to the next API call, the API returns next set
-// of results. If there are no further results then the continuation token does not contain a value. The value of
-// this parameter should not be URL encoded. maxResults is the maximum number of results to be returned as part of
-// the paged queries. This parameter defines the upper bound on the number of results returned. The results
-// returned can be less than the specified maximum results if they do not fit in the message as per the max message
-// size restrictions defined in the configuration. If this parameter is zero or not specified, the paged queries
-// includes as much results as possible that fit in the return message. timeout is the server timeout for
-// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
-// requested operation to complete. The default value for this parameter is 60 seconds.
+// result. continuationToken is the continuation token parameter is used to obtain next set of results. A continuation
+// token with a non empty value is included in the response of the API when the results from the system do not fit in a
+// single response. When this value is passed to the next API call, the API returns next set of results. If there are
+// no further results then the continuation token does not contain a value. The value of this parameter should not be
+// URL encoded. maxResults is the maximum number of results to be returned as part of the paged queries. This parameter
+// defines the upper bound on the number of results returned. The results returned can be less than the specified
+// maximum results if they do not fit in the message as per the max message size restrictions defined in the
+// configuration. If this parameter is zero or not specified, the paged queries includes as much results as possible
+// that fit in the return message. timeout is the server timeout for performing the operation in seconds. This
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) GetApplicationTypeInfoList(ctx context.Context, excludeApplicationParameters *bool, continuationToken string, maxResults *int64, timeout *int64) (result PagedApplicationTypeInfoList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxResults,
@@ -1846,7 +1791,7 @@ func (client BaseClient) GetApplicationTypeInfoList(ctx context.Context, exclude
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationTypeInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationTypeInfoList")
 	}
 
 	req, err := client.GetApplicationTypeInfoListPreparer(ctx, excludeApplicationParameters, continuationToken, maxResults, timeout)
@@ -1878,21 +1823,15 @@ func (client BaseClient) GetApplicationTypeInfoListPreparer(ctx context.Context,
 	}
 	if excludeApplicationParameters != nil {
 		queryParameters["ExcludeApplicationParameters"] = autorest.Encode("query", *excludeApplicationParameters)
-	} else {
-		queryParameters["ExcludeApplicationParameters"] = autorest.Encode("query", false)
 	}
 	if len(continuationToken) > 0 {
 		queryParameters["ContinuationToken"] = continuationToken
 	}
 	if maxResults != nil {
 		queryParameters["MaxResults"] = autorest.Encode("query", *maxResults)
-	} else {
-		queryParameters["MaxResults"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1937,16 +1876,15 @@ func (client BaseClient) GetApplicationTypeInfoListResponder(resp *http.Response
 // applicationTypeName is the name of the application type. excludeApplicationParameters is the flag that specifies
 // whether application parameters will be excluded from the result. continuationToken is the continuation token
 // parameter is used to obtain next set of results. A continuation token with a non empty value is included in the
-// response of the API when the results from the system do not fit in a single response. When this value is passed
-// to the next API call, the API returns next set of results. If there are no further results then the continuation
-// token does not contain a value. The value of this parameter should not be URL encoded. maxResults is the maximum
-// number of results to be returned as part of the paged queries. This parameter defines the upper bound on the
-// number of results returned. The results returned can be less than the specified maximum results if they do not
-// fit in the message as per the max message size restrictions defined in the configuration. If this parameter is
-// zero or not specified, the paged queries includes as much results as possible that fit in the return message.
-// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
-// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
-// seconds.
+// response of the API when the results from the system do not fit in a single response. When this value is passed to
+// the next API call, the API returns next set of results. If there are no further results then the continuation token
+// does not contain a value. The value of this parameter should not be URL encoded. maxResults is the maximum number of
+// results to be returned as part of the paged queries. This parameter defines the upper bound on the number of results
+// returned. The results returned can be less than the specified maximum results if they do not fit in the message as
+// per the max message size restrictions defined in the configuration. If this parameter is zero or not specified, the
+// paged queries includes as much results as possible that fit in the return message. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetApplicationTypeInfoListByName(ctx context.Context, applicationTypeName string, excludeApplicationParameters *bool, continuationToken string, maxResults *int64, timeout *int64) (result PagedApplicationTypeInfoList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxResults,
@@ -1957,7 +1895,7 @@ func (client BaseClient) GetApplicationTypeInfoListByName(ctx context.Context, a
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationTypeInfoListByName", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationTypeInfoListByName")
 	}
 
 	req, err := client.GetApplicationTypeInfoListByNamePreparer(ctx, applicationTypeName, excludeApplicationParameters, continuationToken, maxResults, timeout)
@@ -1993,21 +1931,15 @@ func (client BaseClient) GetApplicationTypeInfoListByNamePreparer(ctx context.Co
 	}
 	if excludeApplicationParameters != nil {
 		queryParameters["ExcludeApplicationParameters"] = autorest.Encode("query", *excludeApplicationParameters)
-	} else {
-		queryParameters["ExcludeApplicationParameters"] = autorest.Encode("query", false)
 	}
 	if len(continuationToken) > 0 {
 		queryParameters["ContinuationToken"] = continuationToken
 	}
 	if maxResults != nil {
 		queryParameters["MaxResults"] = autorest.Encode("query", *maxResults)
-	} else {
-		queryParameters["MaxResults"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2042,9 +1974,9 @@ func (client BaseClient) GetApplicationTypeInfoListByNameResponder(resp *http.Re
 // aid debugging application health issues.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the
-// time duration that the client is willing to wait for the requested operation to complete. The default value for
-// this parameter is 60 seconds.
+// 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time
+// duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) GetApplicationUpgrade(ctx context.Context, applicationID string, timeout *int64) (result ApplicationUpgradeProgressInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -2052,7 +1984,7 @@ func (client BaseClient) GetApplicationUpgrade(ctx context.Context, applicationI
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetApplicationUpgrade", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetApplicationUpgrade")
 	}
 
 	req, err := client.GetApplicationUpgradePreparer(ctx, applicationID, timeout)
@@ -2088,8 +2020,6 @@ func (client BaseClient) GetApplicationUpgradePreparer(ctx context.Context, appl
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2127,12 +2057,12 @@ func (client BaseClient) GetApplicationUpgradeResponder(resp *http.Response) (re
 // When there are more than 100 Chaos events, the Chaos report is returned in segments where a segment contains no more
 // than 100 Chaos events.
 //
-// continuationToken is the continuation token parameter is used to obtain next set of results. A continuation
-// token with a non empty value is included in the response of the API when the results from the system do not fit
-// in a single response. When this value is passed to the next API call, the API returns next set of results. If
-// there are no further results then the continuation token does not contain a value. The value of this parameter
-// should not be URL encoded. startTimeUtc is the count of ticks representing the start time of the time range for
-// which a Chaos report is to be generated. Please consult [DateTime.Ticks
+// continuationToken is the continuation token parameter is used to obtain next set of results. A continuation token
+// with a non empty value is included in the response of the API when the results from the system do not fit in a
+// single response. When this value is passed to the next API call, the API returns next set of results. If there are
+// no further results then the continuation token does not contain a value. The value of this parameter should not be
+// URL encoded. startTimeUtc is the count of ticks representing the start time of the time range for which a Chaos
+// report is to be generated. Please consult [DateTime.Ticks
 // Property](https://msdn.microsoft.com/en-us/library/system.datetime.ticks%28v=vs.110%29) for details about tick.
 // endTimeUtc is the count of ticks representing the end time of the time range for which a Chaos report is to be
 // generated. Please consult [DateTime.Ticks
@@ -2147,7 +2077,7 @@ func (client BaseClient) GetChaosReport(ctx context.Context, continuationToken s
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetChaosReport", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetChaosReport")
 	}
 
 	req, err := client.GetChaosReportPreparer(ctx, continuationToken, startTimeUtc, endTimeUtc, timeout)
@@ -2188,8 +2118,6 @@ func (client BaseClient) GetChaosReportPreparer(ctx context.Context, continuatio
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2226,25 +2154,25 @@ func (client BaseClient) GetChaosReportResponder(resp *http.Response) (result Ch
 // Similarly, use NodesHealthStateFilter and ApplicationsHealthStateFilter to filter the collection of nodes and
 // applications returned based on their aggregated health state.
 //
-// nodesHealthStateFilter is allows filtering of the node health state objects returned in the result of cluster
-// health query
+// nodesHealthStateFilter is allows filtering of the node health state objects returned in the result of cluster health
+// query
 // based on their health state. The possible values for this parameter include integer value of one of the
 // following health states. Only nodes that match the filter are returned. All nodes are used to evaluate the
 // aggregated health state.
 // If not specified, all entries are returned.
 // The state values are flag based enumeration, so the value could be a combination of these values obtained using
 // bitwise 'OR' operator.
-// For example, if the provided value is 6 then health state of nodes with HealthState value of OK (2) and Warning
-// (4) are returned.
+// For example, if the provided value is 6 then health state of nodes with HealthState value of OK (2) and Warning (4)
+// are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. applicationsHealthStateFilter
-// is allows filtering of the application health state objects returned in the result of cluster health
+// - All - Filter that matches input with any HealthState value. The value is 65535. applicationsHealthStateFilter is
+// allows filtering of the application health state objects returned in the result of cluster health
 // query based on their health state.
 // The possible values for this parameter include integer value obtained from members or bitwise operations
 // on members of HealthStateFilter enumeration. Only applications that match the filter are returned.
@@ -2255,28 +2183,28 @@ func (client BaseClient) GetChaosReportResponder(resp *http.Response) (result Ch
 // Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. eventsHealthStateFilter is
-// allows filtering the collection of HealthEvent objects returned based on health state.
+// - All - Filter that matches input with any HealthState value. The value is 65535. eventsHealthStateFilter is allows
+// filtering the collection of HealthEvent objects returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetClusterHealth(ctx context.Context, nodesHealthStateFilter *int32, applicationsHealthStateFilter *int32, eventsHealthStateFilter *int32, timeout *int64) (result ClusterHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -2284,7 +2212,7 @@ func (client BaseClient) GetClusterHealth(ctx context.Context, nodesHealthStateF
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetClusterHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetClusterHealth")
 	}
 
 	req, err := client.GetClusterHealthPreparer(ctx, nodesHealthStateFilter, applicationsHealthStateFilter, eventsHealthStateFilter, timeout)
@@ -2316,23 +2244,15 @@ func (client BaseClient) GetClusterHealthPreparer(ctx context.Context, nodesHeal
 	}
 	if nodesHealthStateFilter != nil {
 		queryParameters["NodesHealthStateFilter"] = autorest.Encode("query", *nodesHealthStateFilter)
-	} else {
-		queryParameters["NodesHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if applicationsHealthStateFilter != nil {
 		queryParameters["ApplicationsHealthStateFilter"] = autorest.Encode("query", *applicationsHealthStateFilter)
-	} else {
-		queryParameters["ApplicationsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2378,7 +2298,7 @@ func (client BaseClient) GetClusterHealthChunk(ctx context.Context, timeout *int
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetClusterHealthChunk", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetClusterHealthChunk")
 	}
 
 	req, err := client.GetClusterHealthChunkPreparer(ctx, timeout)
@@ -2410,8 +2330,6 @@ func (client BaseClient) GetClusterHealthChunkPreparer(ctx context.Context, time
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2454,20 +2372,20 @@ func (client BaseClient) GetClusterHealthChunkResponder(resp *http.Response) (re
 // clusterHealthChunkQueryDescription is describes the cluster and application health policies used to evaluate the
 // cluster health and the filters to select which cluster entities to be returned.
 // If the cluster health policy is present, it is used to evaluate the cluster events and the cluster nodes. If not
-// present, the health evaluation uses the cluster health policy defined in the cluster manifest or the default
-// cluster health policy.
-// By default, each application is evaluated using its specific application health policy, defined in the
-// application manifest, or the default health policy, if no policy is defined in manifest.
-// If the application health policy map is specified, and it has an entry for an application, the specified
-// application health policy
+// present, the health evaluation uses the cluster health policy defined in the cluster manifest or the default cluster
+// health policy.
+// By default, each application is evaluated using its specific application health policy, defined in the application
+// manifest, or the default health policy, if no policy is defined in manifest.
+// If the application health policy map is specified, and it has an entry for an application, the specified application
+// health policy
 // is used to evaluate the application health.
-// Users can specify very flexible filters to select which cluster entities to include in response. The selection
-// can be done based on the entities health state and based on the hierarchy.
-// The query can return multi-level children of the entities based on the specified filters. For example, it can
-// return one application with a specified name, and for this application, return
-// only services that are in Error or Warning, and all partitions and replicas for one of these services. timeout
-// is the server timeout for performing the operation in seconds. This specifies the time duration that the client
-// is willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+// Users can specify very flexible filters to select which cluster entities to include in response. The selection can
+// be done based on the entities health state and based on the hierarchy.
+// The query can return multi-level children of the entities based on the specified filters. For example, it can return
+// one application with a specified name, and for this application, return
+// only services that are in Error or Warning, and all partitions and replicas for one of these services. timeout is
+// the server timeout for performing the operation in seconds. This specifies the time duration that the client is
+// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetClusterHealthChunkUsingPolicyAndAdvancedFilters(ctx context.Context, clusterHealthChunkQueryDescription *ClusterHealthChunkQueryDescription, timeout *int64) (result ClusterHealthChunk, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -2475,7 +2393,7 @@ func (client BaseClient) GetClusterHealthChunkUsingPolicyAndAdvancedFilters(ctx 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetClusterHealthChunkUsingPolicyAndAdvancedFilters", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetClusterHealthChunkUsingPolicyAndAdvancedFilters")
 	}
 
 	req, err := client.GetClusterHealthChunkUsingPolicyAndAdvancedFiltersPreparer(ctx, clusterHealthChunkQueryDescription, timeout)
@@ -2507,8 +2425,6 @@ func (client BaseClient) GetClusterHealthChunkUsingPolicyAndAdvancedFiltersPrepa
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2551,25 +2467,25 @@ func (client BaseClient) GetClusterHealthChunkUsingPolicyAndAdvancedFiltersRespo
 // applications returned based on their aggregated health state.
 // Use ClusterHealthPolicies to override the health policies used to evaluate the health.
 //
-// nodesHealthStateFilter is allows filtering of the node health state objects returned in the result of cluster
-// health query
+// nodesHealthStateFilter is allows filtering of the node health state objects returned in the result of cluster health
+// query
 // based on their health state. The possible values for this parameter include integer value of one of the
 // following health states. Only nodes that match the filter are returned. All nodes are used to evaluate the
 // aggregated health state.
 // If not specified, all entries are returned.
 // The state values are flag based enumeration, so the value could be a combination of these values obtained using
 // bitwise 'OR' operator.
-// For example, if the provided value is 6 then health state of nodes with HealthState value of OK (2) and Warning
-// (4) are returned.
+// For example, if the provided value is 6 then health state of nodes with HealthState value of OK (2) and Warning (4)
+// are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. applicationsHealthStateFilter
-// is allows filtering of the application health state objects returned in the result of cluster health
+// - All - Filter that matches input with any HealthState value. The value is 65535. applicationsHealthStateFilter is
+// allows filtering of the application health state objects returned in the result of cluster health
 // query based on their health state.
 // The possible values for this parameter include integer value obtained from members or bitwise operations
 // on members of HealthStateFilter enumeration. Only applications that match the filter are returned.
@@ -2580,36 +2496,36 @@ func (client BaseClient) GetClusterHealthChunkUsingPolicyAndAdvancedFiltersRespo
 // Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. eventsHealthStateFilter is
-// allows filtering the collection of HealthEvent objects returned based on health state.
+// - All - Filter that matches input with any HealthState value. The value is 65535. eventsHealthStateFilter is allows
+// filtering the collection of HealthEvent objects returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. clusterHealthPolicies is
-// describes the health policies used to evaluate the cluster health.
-// If not present, the health evaluation uses the cluster health policy defined in the cluster manifest or the
-// default cluster health policy.
-// By default, each application is evaluated using its specific application health policy, defined in the
-// application manifest, or the default health policy, if no policy is defined in manifest.
-// If the application health policy map is specified, and it has an entry for an application, the specified
-// application health policy
-// is used to evaluate the application health. timeout is the server timeout for performing the operation in
-// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
-// complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. clusterHealthPolicies is describes
+// the health policies used to evaluate the cluster health.
+// If not present, the health evaluation uses the cluster health policy defined in the cluster manifest or the default
+// cluster health policy.
+// By default, each application is evaluated using its specific application health policy, defined in the application
+// manifest, or the default health policy, if no policy is defined in manifest.
+// If the application health policy map is specified, and it has an entry for an application, the specified application
+// health policy
+// is used to evaluate the application health. timeout is the server timeout for performing the operation in seconds.
+// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
+// default value for this parameter is 60 seconds.
 func (client BaseClient) GetClusterHealthUsingPolicy(ctx context.Context, nodesHealthStateFilter *int32, applicationsHealthStateFilter *int32, eventsHealthStateFilter *int32, clusterHealthPolicies *ClusterHealthPolicies, timeout *int64) (result ClusterHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -2617,7 +2533,7 @@ func (client BaseClient) GetClusterHealthUsingPolicy(ctx context.Context, nodesH
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetClusterHealthUsingPolicy", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetClusterHealthUsingPolicy")
 	}
 
 	req, err := client.GetClusterHealthUsingPolicyPreparer(ctx, nodesHealthStateFilter, applicationsHealthStateFilter, eventsHealthStateFilter, clusterHealthPolicies, timeout)
@@ -2649,23 +2565,15 @@ func (client BaseClient) GetClusterHealthUsingPolicyPreparer(ctx context.Context
 	}
 	if nodesHealthStateFilter != nil {
 		queryParameters["NodesHealthStateFilter"] = autorest.Encode("query", *nodesHealthStateFilter)
-	} else {
-		queryParameters["NodesHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if applicationsHealthStateFilter != nil {
 		queryParameters["ApplicationsHealthStateFilter"] = autorest.Encode("query", *applicationsHealthStateFilter)
-	} else {
-		queryParameters["ApplicationsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2723,7 +2631,7 @@ func (client BaseClient) GetClusterManifest(ctx context.Context, timeout *int64)
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetClusterManifest", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetClusterManifest")
 	}
 
 	req, err := client.GetClusterManifestPreparer(ctx, timeout)
@@ -2755,8 +2663,6 @@ func (client BaseClient) GetClusterManifestPreparer(ctx context.Context, timeout
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2800,7 +2706,7 @@ func (client BaseClient) GetClusterUpgradeProgress(ctx context.Context, timeout 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetClusterUpgradeProgress", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetClusterUpgradeProgress")
 	}
 
 	req, err := client.GetClusterUpgradeProgressPreparer(ctx, timeout)
@@ -2832,8 +2738,6 @@ func (client BaseClient) GetClusterUpgradeProgressPreparer(ctx context.Context, 
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2869,9 +2773,9 @@ func (client BaseClient) GetClusterUpgradeProgressResponder(resp *http.Response)
 // includes the name, status and other details about the application.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the
-// time duration that the client is willing to wait for the requested operation to complete. The default value for
-// this parameter is 60 seconds.
+// 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time
+// duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) GetComposeApplicationStatus(ctx context.Context, applicationID string, timeout *int64) (result ComposeApplicationStatusInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -2879,7 +2783,7 @@ func (client BaseClient) GetComposeApplicationStatus(ctx context.Context, applic
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetComposeApplicationStatus", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetComposeApplicationStatus")
 	}
 
 	req, err := client.GetComposeApplicationStatusPreparer(ctx, applicationID, timeout)
@@ -2915,8 +2819,6 @@ func (client BaseClient) GetComposeApplicationStatusPreparer(ctx context.Context
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -2952,17 +2854,17 @@ func (client BaseClient) GetComposeApplicationStatusResponder(resp *http.Respons
 // compose application. If the applications do not fit in a page, one page of results is returned as well as a
 // continuation token which can be used to get the next page.
 //
-// continuationToken is the continuation token parameter is used to obtain next set of results. A continuation
-// token with a non empty value is included in the response of the API when the results from the system do not fit
-// in a single response. When this value is passed to the next API call, the API returns next set of results. If
-// there are no further results then the continuation token does not contain a value. The value of this parameter
-// should not be URL encoded. maxResults is the maximum number of results to be returned as part of the paged
-// queries. This parameter defines the upper bound on the number of results returned. The results returned can be
-// less than the specified maximum results if they do not fit in the message as per the max message size
-// restrictions defined in the configuration. If this parameter is zero or not specified, the paged queries
-// includes as much results as possible that fit in the return message. timeout is the server timeout for
-// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
-// requested operation to complete. The default value for this parameter is 60 seconds.
+// continuationToken is the continuation token parameter is used to obtain next set of results. A continuation token
+// with a non empty value is included in the response of the API when the results from the system do not fit in a
+// single response. When this value is passed to the next API call, the API returns next set of results. If there are
+// no further results then the continuation token does not contain a value. The value of this parameter should not be
+// URL encoded. maxResults is the maximum number of results to be returned as part of the paged queries. This parameter
+// defines the upper bound on the number of results returned. The results returned can be less than the specified
+// maximum results if they do not fit in the message as per the max message size restrictions defined in the
+// configuration. If this parameter is zero or not specified, the paged queries includes as much results as possible
+// that fit in the return message. timeout is the server timeout for performing the operation in seconds. This
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) GetComposeApplicationStatusList(ctx context.Context, continuationToken string, maxResults *int64, timeout *int64) (result PagedComposeApplicationStatusInfoList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxResults,
@@ -2973,7 +2875,7 @@ func (client BaseClient) GetComposeApplicationStatusList(ctx context.Context, co
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetComposeApplicationStatusList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetComposeApplicationStatusList")
 	}
 
 	req, err := client.GetComposeApplicationStatusListPreparer(ctx, continuationToken, maxResults, timeout)
@@ -3008,13 +2910,9 @@ func (client BaseClient) GetComposeApplicationStatusListPreparer(ctx context.Con
 	}
 	if maxResults != nil {
 		queryParameters["MaxResults"] = autorest.Encode("query", *maxResults)
-	} else {
-		queryParameters["MaxResults"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3047,11 +2945,11 @@ func (client BaseClient) GetComposeApplicationStatusListResponder(resp *http.Res
 
 // GetDataLossProgress gets the progress of a data loss operation started with StartDataLoss, using the OperationId.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this
-// API.  This is passed into the corresponding GetProgress API timeout is the server timeout for performing the
-// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this API.
+// This is passed into the corresponding GetProgress API timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetDataLossProgress(ctx context.Context, serviceID string, partitionID uuid.UUID, operationID uuid.UUID, timeout *int64) (result PartitionDataLossProgress, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3059,7 +2957,7 @@ func (client BaseClient) GetDataLossProgress(ctx context.Context, serviceID stri
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDataLossProgress", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDataLossProgress")
 	}
 
 	req, err := client.GetDataLossProgressPreparer(ctx, serviceID, partitionID, operationID, timeout)
@@ -3097,8 +2995,6 @@ func (client BaseClient) GetDataLossProgressPreparer(ctx context.Context, servic
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3134,42 +3030,42 @@ func (client BaseClient) GetDataLossProgressResponder(resp *http.Response) (resu
 // application based on health state. Use DeployedServicePackagesHealthStateFilter to optionally filter for
 // DeployedServicePackageHealth children based on health state.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. eventsHealthStateFilter is allows filtering the
-// collection of HealthEvent objects returned based on health state.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. eventsHealthStateFilter is allows filtering the collection of
+// HealthEvent objects returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535.
-// deployedServicePackagesHealthStateFilter is allows filtering of the deployed service package health state
-// objects returned in the result of deployed application health query based on their health state.
+// deployedServicePackagesHealthStateFilter is allows filtering of the deployed service package health state objects
+// returned in the result of deployed application health query based on their health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only deployed service packages that match the filter are returned. All deployed service packages are used to
 // evaluate the aggregated health state of the deployed application.
 // If not specified, all entries are returned.
-// The state values are flag based enumeration, so the value can be a combination of these value obtained using
-// bitwise 'OR' operator.
-// For example, if the provided value is 6 then health state of service packages with HealthState value of OK (2)
-// and Warning (4) are returned.
+// The state values are flag based enumeration, so the value can be a combination of these value obtained using bitwise
+// 'OR' operator.
+// For example, if the provided value is 6 then health state of service packages with HealthState value of OK (2) and
+// Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetDeployedApplicationHealth(ctx context.Context, nodeName string, applicationID string, eventsHealthStateFilter *int32, deployedServicePackagesHealthStateFilter *int32, timeout *int64) (result DeployedApplicationHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3177,7 +3073,7 @@ func (client BaseClient) GetDeployedApplicationHealth(ctx context.Context, nodeN
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedApplicationHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedApplicationHealth")
 	}
 
 	req, err := client.GetDeployedApplicationHealthPreparer(ctx, nodeName, applicationID, eventsHealthStateFilter, deployedServicePackagesHealthStateFilter, timeout)
@@ -3214,18 +3110,12 @@ func (client BaseClient) GetDeployedApplicationHealthPreparer(ctx context.Contex
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if deployedServicePackagesHealthStateFilter != nil {
 		queryParameters["DeployedServicePackagesHealthStateFilter"] = autorest.Encode("query", *deployedServicePackagesHealthStateFilter)
-	} else {
-		queryParameters["DeployedServicePackagesHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3264,45 +3154,45 @@ func (client BaseClient) GetDeployedApplicationHealthResponder(resp *http.Respon
 // This API only uses 'ConsiderWarningAsError' field of the ApplicationHealthPolicy. The rest of the fields are ignored
 // while evaluating the health of the deployed application.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. eventsHealthStateFilter is allows filtering the
-// collection of HealthEvent objects returned based on health state.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. eventsHealthStateFilter is allows filtering the collection of
+// HealthEvent objects returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535.
-// deployedServicePackagesHealthStateFilter is allows filtering of the deployed service package health state
-// objects returned in the result of deployed application health query based on their health state.
+// deployedServicePackagesHealthStateFilter is allows filtering of the deployed service package health state objects
+// returned in the result of deployed application health query based on their health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only deployed service packages that match the filter are returned. All deployed service packages are used to
 // evaluate the aggregated health state of the deployed application.
 // If not specified, all entries are returned.
-// The state values are flag based enumeration, so the value can be a combination of these value obtained using
-// bitwise 'OR' operator.
-// For example, if the provided value is 6 then health state of service packages with HealthState value of OK (2)
-// and Warning (4) are returned.
+// The state values are flag based enumeration, so the value can be a combination of these value obtained using bitwise
+// 'OR' operator.
+// For example, if the provided value is 6 then health state of service packages with HealthState value of OK (2) and
+// Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. applicationHealthPolicy is
 // describes the health policies used to evaluate the health of an application or one of its children.
-// If not present, the health evaluation uses the health policy from application manifest or the default health
-// policy. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// If not present, the health evaluation uses the health policy from application manifest or the default health policy.
+// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
+// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetDeployedApplicationHealthUsingPolicy(ctx context.Context, nodeName string, applicationID string, eventsHealthStateFilter *int32, deployedServicePackagesHealthStateFilter *int32, applicationHealthPolicy *ApplicationHealthPolicy, timeout *int64) (result DeployedApplicationHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3310,7 +3200,7 @@ func (client BaseClient) GetDeployedApplicationHealthUsingPolicy(ctx context.Con
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedApplicationHealthUsingPolicy", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedApplicationHealthUsingPolicy")
 	}
 
 	req, err := client.GetDeployedApplicationHealthUsingPolicyPreparer(ctx, nodeName, applicationID, eventsHealthStateFilter, deployedServicePackagesHealthStateFilter, applicationHealthPolicy, timeout)
@@ -3347,18 +3237,12 @@ func (client BaseClient) GetDeployedApplicationHealthUsingPolicyPreparer(ctx con
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if deployedServicePackagesHealthStateFilter != nil {
 		queryParameters["DeployedServicePackagesHealthStateFilter"] = autorest.Encode("query", *deployedServicePackagesHealthStateFilter)
-	} else {
-		queryParameters["DeployedServicePackagesHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3396,10 +3280,10 @@ func (client BaseClient) GetDeployedApplicationHealthUsingPolicyResponder(resp *
 
 // GetDeployedApplicationInfo gets the information about an application deployed on a Service Fabric node.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. timeout is the server timeout for performing the
-// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetDeployedApplicationInfo(ctx context.Context, nodeName string, applicationID string, timeout *int64) (result DeployedApplicationInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3407,7 +3291,7 @@ func (client BaseClient) GetDeployedApplicationInfo(ctx context.Context, nodeNam
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedApplicationInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedApplicationInfo")
 	}
 
 	req, err := client.GetDeployedApplicationInfoPreparer(ctx, nodeName, applicationID, timeout)
@@ -3444,8 +3328,6 @@ func (client BaseClient) GetDeployedApplicationInfoPreparer(ctx context.Context,
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3479,8 +3361,8 @@ func (client BaseClient) GetDeployedApplicationInfoResponder(resp *http.Response
 // GetDeployedApplicationInfoList gets the list of applications deployed on a Service Fabric node.
 //
 // nodeName is the name of the node. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) GetDeployedApplicationInfoList(ctx context.Context, nodeName string, timeout *int64) (result ListDeployedApplicationInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3488,7 +3370,7 @@ func (client BaseClient) GetDeployedApplicationInfoList(ctx context.Context, nod
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedApplicationInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedApplicationInfoList")
 	}
 
 	req, err := client.GetDeployedApplicationInfoListPreparer(ctx, nodeName, timeout)
@@ -3524,8 +3406,6 @@ func (client BaseClient) GetDeployedApplicationInfoListPreparer(ctx context.Cont
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3559,13 +3439,12 @@ func (client BaseClient) GetDeployedApplicationInfoListResponder(resp *http.Resp
 // GetDeployedCodePackageInfoList gets the list of code packages deployed on a Service Fabric node for the given
 // application.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. serviceManifestName is the name of a service manifest
-// registered as part of an application type in a Service Fabric cluster. codePackageName is the name of code
-// package specified in service manifest registered as part of an application type in a Service Fabric cluster.
-// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
-// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
-// seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. serviceManifestName is the name of a service manifest
+// registered as part of an application type in a Service Fabric cluster. codePackageName is the name of code package
+// specified in service manifest registered as part of an application type in a Service Fabric cluster. timeout is the
+// server timeout for performing the operation in seconds. This specifies the time duration that the client is willing
+// to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetDeployedCodePackageInfoList(ctx context.Context, nodeName string, applicationID string, serviceManifestName string, codePackageName string, timeout *int64) (result ListDeployedCodePackageInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3573,7 +3452,7 @@ func (client BaseClient) GetDeployedCodePackageInfoList(ctx context.Context, nod
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedCodePackageInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedCodePackageInfoList")
 	}
 
 	req, err := client.GetDeployedCodePackageInfoListPreparer(ctx, nodeName, applicationID, serviceManifestName, codePackageName, timeout)
@@ -3616,8 +3495,6 @@ func (client BaseClient) GetDeployedCodePackageInfoListPreparer(ctx context.Cont
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3652,25 +3529,24 @@ func (client BaseClient) GetDeployedCodePackageInfoListResponder(resp *http.Resp
 // deployed on a Service Fabric node. Use EventsHealthStateFilter to optionally filter for the collection of
 // HealthEvent objects reported on the deployed service package based on health state.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. servicePackageName is the name of the service package.
-// eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on health
-// state.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. servicePackageName is the name of the service package.
+// eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetDeployedServicePackageHealth(ctx context.Context, nodeName string, applicationID string, servicePackageName string, eventsHealthStateFilter *int32, timeout *int64) (result DeployedServicePackageHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3678,7 +3554,7 @@ func (client BaseClient) GetDeployedServicePackageHealth(ctx context.Context, no
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedServicePackageHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedServicePackageHealth")
 	}
 
 	req, err := client.GetDeployedServicePackageHealthPreparer(ctx, nodeName, applicationID, servicePackageName, eventsHealthStateFilter, timeout)
@@ -3716,13 +3592,9 @@ func (client BaseClient) GetDeployedServicePackageHealthPreparer(ctx context.Con
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3760,28 +3632,27 @@ func (client BaseClient) GetDeployedServicePackageHealthResponder(resp *http.Res
 // 'ConsiderWarningAsError' field of the ApplicationHealthPolicy. The rest of the fields are ignored while evaluating
 // the health of the deployed service package.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. servicePackageName is the name of the service package.
-// eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on health
-// state.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. servicePackageName is the name of the service package.
+// eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. applicationHealthPolicy is
 // describes the health policies used to evaluate the health of an application or one of its children.
-// If not present, the health evaluation uses the health policy from application manifest or the default health
-// policy. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// If not present, the health evaluation uses the health policy from application manifest or the default health policy.
+// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
+// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetDeployedServicePackageHealthUsingPolicy(ctx context.Context, nodeName string, applicationID string, servicePackageName string, eventsHealthStateFilter *int32, applicationHealthPolicy *ApplicationHealthPolicy, timeout *int64) (result DeployedServicePackageHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3789,7 +3660,7 @@ func (client BaseClient) GetDeployedServicePackageHealthUsingPolicy(ctx context.
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedServicePackageHealthUsingPolicy", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedServicePackageHealthUsingPolicy")
 	}
 
 	req, err := client.GetDeployedServicePackageHealthUsingPolicyPreparer(ctx, nodeName, applicationID, servicePackageName, eventsHealthStateFilter, applicationHealthPolicy, timeout)
@@ -3827,13 +3698,9 @@ func (client BaseClient) GetDeployedServicePackageHealthUsingPolicyPreparer(ctx 
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3872,10 +3739,10 @@ func (client BaseClient) GetDeployedServicePackageHealthUsingPolicyResponder(res
 // GetDeployedServicePackageInfoList returns the information about the service packages deployed on a Service Fabric
 // node for the given application.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. timeout is the server timeout for performing the
-// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetDeployedServicePackageInfoList(ctx context.Context, nodeName string, applicationID string, timeout *int64) (result ListDeployedServicePackageInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3883,7 +3750,7 @@ func (client BaseClient) GetDeployedServicePackageInfoList(ctx context.Context, 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedServicePackageInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedServicePackageInfoList")
 	}
 
 	req, err := client.GetDeployedServicePackageInfoListPreparer(ctx, nodeName, applicationID, timeout)
@@ -3920,8 +3787,6 @@ func (client BaseClient) GetDeployedServicePackageInfoListPreparer(ctx context.C
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3956,11 +3821,10 @@ func (client BaseClient) GetDeployedServicePackageInfoListResponder(resp *http.R
 // Fabric node for the given application. These results are of service packages whose name match exactly the service
 // package name specified as the parameter.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. servicePackageName is the name of the service package.
-// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
-// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
-// seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. servicePackageName is the name of the service package. timeout
+// is the server timeout for performing the operation in seconds. This specifies the time duration that the client is
+// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetDeployedServicePackageInfoListByName(ctx context.Context, nodeName string, applicationID string, servicePackageName string, timeout *int64) (result ListDeployedServicePackageInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -3968,7 +3832,7 @@ func (client BaseClient) GetDeployedServicePackageInfoListByName(ctx context.Con
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedServicePackageInfoListByName", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedServicePackageInfoListByName")
 	}
 
 	req, err := client.GetDeployedServicePackageInfoListByNamePreparer(ctx, nodeName, applicationID, servicePackageName, timeout)
@@ -4006,8 +3870,6 @@ func (client BaseClient) GetDeployedServicePackageInfoListByNamePreparer(ctx con
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4042,10 +3904,10 @@ func (client BaseClient) GetDeployedServicePackageInfoListByNameResponder(resp *
 // information include service kind, service name, current service operation, current service operation start date
 // time, partition id, replica/instance id, reported load and other information.
 //
-// nodeName is the name of the node. partitionID is the identity of the partition. replicaID is the identifier of
-// the replica. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// nodeName is the name of the node. partitionID is the identity of the partition. replicaID is the identifier of the
+// replica. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) GetDeployedServiceReplicaDetailInfo(ctx context.Context, nodeName string, partitionID uuid.UUID, replicaID string, timeout *int64) (result DeployedServiceReplicaDetailInfoModel, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4053,7 +3915,7 @@ func (client BaseClient) GetDeployedServiceReplicaDetailInfo(ctx context.Context
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedServiceReplicaDetailInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedServiceReplicaDetailInfo")
 	}
 
 	req, err := client.GetDeployedServiceReplicaDetailInfoPreparer(ctx, nodeName, partitionID, replicaID, timeout)
@@ -4091,8 +3953,6 @@ func (client BaseClient) GetDeployedServiceReplicaDetailInfoPreparer(ctx context
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4128,12 +3988,12 @@ func (client BaseClient) GetDeployedServiceReplicaDetailInfoResponder(resp *http
 // the service type and other information. Use PartitionId or ServiceManifestName query parameters to return
 // information about the deployed replicas matching the specified values for those parameters.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. partitionID is the identity of the partition.
-// serviceManifestName is the name of a service manifest registered as part of an application type in a Service
-// Fabric cluster. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. partitionID is the identity of the partition.
+// serviceManifestName is the name of a service manifest registered as part of an application type in a Service Fabric
+// cluster. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) GetDeployedServiceReplicaInfoList(ctx context.Context, nodeName string, applicationID string, partitionID *uuid.UUID, serviceManifestName string, timeout *int64) (result ListDeployedServiceReplicaInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4141,7 +4001,7 @@ func (client BaseClient) GetDeployedServiceReplicaInfoList(ctx context.Context, 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedServiceReplicaInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedServiceReplicaInfoList")
 	}
 
 	req, err := client.GetDeployedServiceReplicaInfoListPreparer(ctx, nodeName, applicationID, partitionID, serviceManifestName, timeout)
@@ -4184,8 +4044,6 @@ func (client BaseClient) GetDeployedServiceReplicaInfoListPreparer(ctx context.C
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4220,13 +4078,13 @@ func (client BaseClient) GetDeployedServiceReplicaInfoListResponder(resp *http.R
 // a node in a Service Fabric cluster. The response includes the name of the service type, its registration status, the
 // code package that registered it and activation id of the service package.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. serviceTypeName is specifies the name of a Service
-// Fabric service type. serviceManifestName is the name of the service manifest to filter the list of deployed
-// service type information. If specified, the response will only contain the information about service types that
-// are defined in this service manifest. timeout is the server timeout for performing the operation in seconds.
-// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. serviceTypeName is specifies the name of a Service Fabric
+// service type. serviceManifestName is the name of the service manifest to filter the list of deployed service type
+// information. If specified, the response will only contain the information about service types that are defined in
+// this service manifest. timeout is the server timeout for performing the operation in seconds. This specifies the
+// time duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) GetDeployedServiceTypeInfoByName(ctx context.Context, nodeName string, applicationID string, serviceTypeName string, serviceManifestName string, timeout *int64) (result DeployedServiceTypeInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4234,7 +4092,7 @@ func (client BaseClient) GetDeployedServiceTypeInfoByName(ctx context.Context, n
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedServiceTypeInfoByName", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedServiceTypeInfoByName")
 	}
 
 	req, err := client.GetDeployedServiceTypeInfoByNamePreparer(ctx, nodeName, applicationID, serviceTypeName, serviceManifestName, timeout)
@@ -4275,8 +4133,6 @@ func (client BaseClient) GetDeployedServiceTypeInfoByNamePreparer(ctx context.Co
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4311,12 +4167,12 @@ func (client BaseClient) GetDeployedServiceTypeInfoByNameResponder(resp *http.Re
 // deployed on a node in a Service Fabric cluster. The response includes the name of the service type, its registration
 // status, the code package that registered it and activation id of the service package.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. serviceManifestName is the name of the service
-// manifest to filter the list of deployed service type information. If specified, the response will only contain
-// the information about service types that are defined in this service manifest. timeout is the server timeout for
-// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
-// requested operation to complete. The default value for this parameter is 60 seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. serviceManifestName is the name of the service manifest to
+// filter the list of deployed service type information. If specified, the response will only contain the information
+// about service types that are defined in this service manifest. timeout is the server timeout for performing the
+// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
+// operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetDeployedServiceTypeInfoList(ctx context.Context, nodeName string, applicationID string, serviceManifestName string, timeout *int64) (result ListDeployedServiceTypeInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4324,7 +4180,7 @@ func (client BaseClient) GetDeployedServiceTypeInfoList(ctx context.Context, nod
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetDeployedServiceTypeInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetDeployedServiceTypeInfoList")
 	}
 
 	req, err := client.GetDeployedServiceTypeInfoListPreparer(ctx, nodeName, applicationID, serviceManifestName, timeout)
@@ -4364,8 +4220,6 @@ func (client BaseClient) GetDeployedServiceTypeInfoListPreparer(ctx context.Cont
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4410,9 +4264,9 @@ func (client BaseClient) GetDeployedServiceTypeInfoListResponder(resp *http.Resp
 // 8     - select Completed
 // 16    - select Faulted
 // 32    - select Cancelled
-// 64    - select ForceCancelled timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// 64    - select ForceCancelled timeout is the server timeout for performing the operation in seconds. This specifies
+// the time duration that the client is willing to wait for the requested operation to complete. The default value for
+// this parameter is 60 seconds.
 func (client BaseClient) GetFaultOperationList(ctx context.Context, typeFilter int32, stateFilter int32, timeout *int64) (result ListOperationStatus, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4420,7 +4274,7 @@ func (client BaseClient) GetFaultOperationList(ctx context.Context, typeFilter i
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetFaultOperationList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetFaultOperationList")
 	}
 
 	req, err := client.GetFaultOperationListPreparer(ctx, typeFilter, stateFilter, timeout)
@@ -4454,8 +4308,6 @@ func (client BaseClient) GetFaultOperationListPreparer(ctx context.Context, type
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4489,9 +4341,9 @@ func (client BaseClient) GetFaultOperationListResponder(resp *http.Response) (re
 // GetImageStoreContent returns the information about the image store content at the specified contentPath relative to
 // the root of the image store.
 //
-// contentPath is relative path to file or folder in the image store from its root. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// contentPath is relative path to file or folder in the image store from its root. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetImageStoreContent(ctx context.Context, contentPath string, timeout *int64) (result ImageStoreContent, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4499,7 +4351,7 @@ func (client BaseClient) GetImageStoreContent(ctx context.Context, contentPath s
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetImageStoreContent", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetImageStoreContent")
 	}
 
 	req, err := client.GetImageStoreContentPreparer(ctx, contentPath, timeout)
@@ -4535,8 +4387,6 @@ func (client BaseClient) GetImageStoreContentPreparer(ctx context.Context, conte
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4579,7 +4429,7 @@ func (client BaseClient) GetImageStoreRootContent(ctx context.Context, timeout *
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetImageStoreRootContent", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetImageStoreRootContent")
 	}
 
 	req, err := client.GetImageStoreRootContentPreparer(ctx, timeout)
@@ -4611,8 +4461,6 @@ func (client BaseClient) GetImageStoreRootContentPreparer(ctx context.Context, t
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4647,23 +4495,23 @@ func (client BaseClient) GetImageStoreRootContentResponder(resp *http.Response) 
 // health events reported on the node based on the health state. If the node that you specify by name does not exist in
 // the health store, this returns an error.
 //
-// nodeName is the name of the node. eventsHealthStateFilter is allows filtering the collection of HealthEvent
-// objects returned based on health state.
+// nodeName is the name of the node. eventsHealthStateFilter is allows filtering the collection of HealthEvent objects
+// returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetNodeHealth(ctx context.Context, nodeName string, eventsHealthStateFilter *int32, timeout *int64) (result NodeHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4671,7 +4519,7 @@ func (client BaseClient) GetNodeHealth(ctx context.Context, nodeName string, eve
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetNodeHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetNodeHealth")
 	}
 
 	req, err := client.GetNodeHealthPreparer(ctx, nodeName, eventsHealthStateFilter, timeout)
@@ -4707,13 +4555,9 @@ func (client BaseClient) GetNodeHealthPreparer(ctx context.Context, nodeName str
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4749,25 +4593,25 @@ func (client BaseClient) GetNodeHealthResponder(resp *http.Response) (result Nod
 // to override the health policies used to evaluate the health. If the node that you specify by name does not exist in
 // the health store, this returns an error.
 //
-// nodeName is the name of the node. eventsHealthStateFilter is allows filtering the collection of HealthEvent
-// objects returned based on health state.
+// nodeName is the name of the node. eventsHealthStateFilter is allows filtering the collection of HealthEvent objects
+// returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. clusterHealthPolicy is
-// describes the health policies used to evaluate the health of a cluster or node. If not present, the health
-// evaluation uses the health policy from cluster manifest or the default health policy. timeout is the server
-// timeout for performing the operation in seconds. This specifies the time duration that the client is willing to
-// wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. clusterHealthPolicy is describes
+// the health policies used to evaluate the health of a cluster or node. If not present, the health evaluation uses the
+// health policy from cluster manifest or the default health policy. timeout is the server timeout for performing the
+// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
+// operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetNodeHealthUsingPolicy(ctx context.Context, nodeName string, eventsHealthStateFilter *int32, clusterHealthPolicy *ClusterHealthPolicy, timeout *int64) (result NodeHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4775,7 +4619,7 @@ func (client BaseClient) GetNodeHealthUsingPolicy(ctx context.Context, nodeName 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetNodeHealthUsingPolicy", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetNodeHealthUsingPolicy")
 	}
 
 	req, err := client.GetNodeHealthUsingPolicyPreparer(ctx, nodeName, eventsHealthStateFilter, clusterHealthPolicy, timeout)
@@ -4811,13 +4655,9 @@ func (client BaseClient) GetNodeHealthUsingPolicyPreparer(ctx context.Context, n
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4857,8 +4697,8 @@ func (client BaseClient) GetNodeHealthUsingPolicyResponder(resp *http.Response) 
 // status, id, health, uptime and other details about the node.
 //
 // nodeName is the name of the node. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) GetNodeInfo(ctx context.Context, nodeName string, timeout *int64) (result NodeInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4866,7 +4706,7 @@ func (client BaseClient) GetNodeInfo(ctx context.Context, nodeName string, timeo
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetNodeInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetNodeInfo")
 	}
 
 	req, err := client.GetNodeInfoPreparer(ctx, nodeName, timeout)
@@ -4902,8 +4742,6 @@ func (client BaseClient) GetNodeInfoPreparer(ctx context.Context, nodeName strin
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4937,31 +4775,27 @@ func (client BaseClient) GetNodeInfoResponder(resp *http.Response) (result NodeI
 // GetNodeInfoList the Nodes endpoint returns information about the nodes in the Service Fabric Cluster. The respons
 // include the name, status, id, health, uptime and other details about the node.
 //
-// continuationToken is the continuation token parameter is used to obtain next set of results. A continuation
-// token with a non empty value is included in the response of the API when the results from the system do not fit
-// in a single response. When this value is passed to the next API call, the API returns next set of results. If
-// there are no further results then the continuation token does not contain a value. The value of this parameter
-// should not be URL encoded. nodeStatusFilter is allows filtering the nodes based on the NodeStatus. Only the
-// nodes that are matching the specified filter value will be returned. The filter value can be one of the
-// following.
+// continuationToken is the continuation token parameter is used to obtain next set of results. A continuation token
+// with a non empty value is included in the response of the API when the results from the system do not fit in a
+// single response. When this value is passed to the next API call, the API returns next set of results. If there are
+// no further results then the continuation token does not contain a value. The value of this parameter should not be
+// URL encoded. nodeStatusFilter is allows filtering the nodes based on the NodeStatus. Only the nodes that are
+// matching the specified filter value will be returned. The filter value can be one of the following.
 //
-// - default - This filter value will match all of the nodes excepts the ones with with status as Unknown or
-// Removed.
+// - default - This filter value will match all of the nodes excepts the ones with with status as Unknown or Removed.
 // - all - This filter value will match all of the nodes.
 // - up - This filter value will match nodes that are Up.
 // - down - This filter value will match nodes that are Down.
-// - enabling - This filter value will match nodes that are in the process of being enabled with status as
-// Enabling.
-// - disabling - This filter value will match nodes that are in the process of being disabled with status as
-// Disabling.
+// - enabling - This filter value will match nodes that are in the process of being enabled with status as Enabling.
+// - disabling - This filter value will match nodes that are in the process of being disabled with status as Disabling.
 // - disabled - This filter value will match nodes that are Disabled.
-// - unknown - This filter value will match nodes whose status is Unknown. A node would be in Unknown state if
-// Service Fabric does not have authoritative information about that node. This can happen if the system learns
-// about a node at runtime.
-// - removed - This filter value will match nodes whose status is Removed. These are the nodes that are removed
-// from the cluster using the RemoveNodeState API. timeout is the server timeout for performing the operation in
-// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
-// complete. The default value for this parameter is 60 seconds.
+// - unknown - This filter value will match nodes whose status is Unknown. A node would be in Unknown state if Service
+// Fabric does not have authoritative information about that node. This can happen if the system learns about a node at
+// runtime.
+// - removed - This filter value will match nodes whose status is Removed. These are the nodes that are removed from
+// the cluster using the RemoveNodeState API. timeout is the server timeout for performing the operation in seconds.
+// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
+// default value for this parameter is 60 seconds.
 func (client BaseClient) GetNodeInfoList(ctx context.Context, continuationToken string, nodeStatusFilter string, timeout *int64) (result PagedNodeInfoList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -4969,7 +4803,7 @@ func (client BaseClient) GetNodeInfoList(ctx context.Context, continuationToken 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetNodeInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetNodeInfoList")
 	}
 
 	req, err := client.GetNodeInfoListPreparer(ctx, continuationToken, nodeStatusFilter, timeout)
@@ -5004,13 +4838,9 @@ func (client BaseClient) GetNodeInfoListPreparer(ctx context.Context, continuati
 	}
 	if len(string(nodeStatusFilter)) > 0 {
 		queryParameters["NodeStatusFilter"] = autorest.Encode("query", nodeStatusFilter)
-	} else {
-		queryParameters["NodeStatusFilter"] = autorest.Encode("query", "default")
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5044,8 +4874,8 @@ func (client BaseClient) GetNodeInfoListResponder(resp *http.Response) (result P
 // GetNodeLoadInfo gets the load information of a Service Fabric node.
 //
 // nodeName is the name of the node. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) GetNodeLoadInfo(ctx context.Context, nodeName string, timeout *int64) (result NodeLoadInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5053,7 +4883,7 @@ func (client BaseClient) GetNodeLoadInfo(ctx context.Context, nodeName string, t
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetNodeLoadInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetNodeLoadInfo")
 	}
 
 	req, err := client.GetNodeLoadInfoPreparer(ctx, nodeName, timeout)
@@ -5089,8 +4919,6 @@ func (client BaseClient) GetNodeLoadInfoPreparer(ctx context.Context, nodeName s
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5124,10 +4952,10 @@ func (client BaseClient) GetNodeLoadInfoResponder(resp *http.Response) (result N
 // GetNodeTransitionProgress gets the progress of an operation started with StartNodeTransition using the provided
 // OperationId.
 //
-// nodeName is the name of the node. operationID is a GUID that identifies a call of this API.  This is passed into
-// the corresponding GetProgress API timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// nodeName is the name of the node. operationID is a GUID that identifies a call of this API.  This is passed into the
+// corresponding GetProgress API timeout is the server timeout for performing the operation in seconds. This specifies
+// the time duration that the client is willing to wait for the requested operation to complete. The default value for
+// this parameter is 60 seconds.
 func (client BaseClient) GetNodeTransitionProgress(ctx context.Context, nodeName string, operationID uuid.UUID, timeout *int64) (result NodeTransitionProgress, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5135,7 +4963,7 @@ func (client BaseClient) GetNodeTransitionProgress(ctx context.Context, nodeName
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetNodeTransitionProgress", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetNodeTransitionProgress")
 	}
 
 	req, err := client.GetNodeTransitionProgressPreparer(ctx, nodeName, operationID, timeout)
@@ -5172,8 +5000,6 @@ func (client BaseClient) GetNodeTransitionProgressPreparer(ctx context.Context, 
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5215,33 +5041,33 @@ func (client BaseClient) GetNodeTransitionProgressResponder(resp *http.Response)
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. replicasHealthStateFilter is
 // allows filtering the collection of ReplicaHealthState objects on the partition. The value can be obtained from
-// members or bitwise operations on members of HealthStateFilter. Only replicas that match the filter will be
-// returned. All replicas will be used to evaluate the aggregated health state. If not specified, all entries will
-// be returned.The state values are flag based enumeration, so the value could be a combination of these value
-// obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of the events with
-// HealthState value of OK (2) and Warning (4) will be returned. The possible values for this parameter include
-// integer value of one of the following health states.
+// members or bitwise operations on members of HealthStateFilter. Only replicas that match the filter will be returned.
+// All replicas will be used to evaluate the aggregated health state. If not specified, all entries will be
+// returned.The state values are flag based enumeration, so the value could be a combination of these value obtained
+// using bitwise 'OR' operator. For example, If the provided value is 6 then all of the events with HealthState value
+// of OK (2) and Warning (4) will be returned. The possible values for this parameter include integer value of one of
+// the following health states.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetPartitionHealth(ctx context.Context, partitionID uuid.UUID, eventsHealthStateFilter *int32, replicasHealthStateFilter *int32, timeout *int64) (result PartitionHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5249,7 +5075,7 @@ func (client BaseClient) GetPartitionHealth(ctx context.Context, partitionID uui
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetPartitionHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetPartitionHealth")
 	}
 
 	req, err := client.GetPartitionHealthPreparer(ctx, partitionID, eventsHealthStateFilter, replicasHealthStateFilter, timeout)
@@ -5285,18 +5111,12 @@ func (client BaseClient) GetPartitionHealthPreparer(ctx context.Context, partiti
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if replicasHealthStateFilter != nil {
 		queryParameters["ReplicasHealthStateFilter"] = autorest.Encode("query", *replicasHealthStateFilter)
-	} else {
-		queryParameters["ReplicasHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5342,36 +5162,36 @@ func (client BaseClient) GetPartitionHealthResponder(resp *http.Response) (resul
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. replicasHealthStateFilter is
 // allows filtering the collection of ReplicaHealthState objects on the partition. The value can be obtained from
-// members or bitwise operations on members of HealthStateFilter. Only replicas that match the filter will be
-// returned. All replicas will be used to evaluate the aggregated health state. If not specified, all entries will
-// be returned.The state values are flag based enumeration, so the value could be a combination of these value
-// obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of the events with
-// HealthState value of OK (2) and Warning (4) will be returned. The possible values for this parameter include
-// integer value of one of the following health states.
+// members or bitwise operations on members of HealthStateFilter. Only replicas that match the filter will be returned.
+// All replicas will be used to evaluate the aggregated health state. If not specified, all entries will be
+// returned.The state values are flag based enumeration, so the value could be a combination of these value obtained
+// using bitwise 'OR' operator. For example, If the provided value is 6 then all of the events with HealthState value
+// of OK (2) and Warning (4) will be returned. The possible values for this parameter include integer value of one of
+// the following health states.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. applicationHealthPolicy is
 // describes the health policies used to evaluate the health of an application or one of its children.
-// If not present, the health evaluation uses the health policy from application manifest or the default health
-// policy. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// If not present, the health evaluation uses the health policy from application manifest or the default health policy.
+// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
+// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetPartitionHealthUsingPolicy(ctx context.Context, partitionID uuid.UUID, eventsHealthStateFilter *int32, replicasHealthStateFilter *int32, applicationHealthPolicy *ApplicationHealthPolicy, timeout *int64) (result PartitionHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5379,7 +5199,7 @@ func (client BaseClient) GetPartitionHealthUsingPolicy(ctx context.Context, part
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetPartitionHealthUsingPolicy", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetPartitionHealthUsingPolicy")
 	}
 
 	req, err := client.GetPartitionHealthUsingPolicyPreparer(ctx, partitionID, eventsHealthStateFilter, replicasHealthStateFilter, applicationHealthPolicy, timeout)
@@ -5415,18 +5235,12 @@ func (client BaseClient) GetPartitionHealthUsingPolicyPreparer(ctx context.Conte
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if replicasHealthStateFilter != nil {
 		queryParameters["ReplicasHealthStateFilter"] = autorest.Encode("query", *replicasHealthStateFilter)
-	} else {
-		queryParameters["ReplicasHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5466,9 +5280,9 @@ func (client BaseClient) GetPartitionHealthUsingPolicyResponder(resp *http.Respo
 // partition id, partitioning scheme information, keys supported by the partition, status, health and other details
 // about the partition.
 //
-// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in
-// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
-// complete. The default value for this parameter is 60 seconds.
+// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in seconds.
+// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
+// default value for this parameter is 60 seconds.
 func (client BaseClient) GetPartitionInfo(ctx context.Context, partitionID uuid.UUID, timeout *int64) (result ServicePartitionInfoModel, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5476,7 +5290,7 @@ func (client BaseClient) GetPartitionInfo(ctx context.Context, partitionID uuid.
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetPartitionInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetPartitionInfo")
 	}
 
 	req, err := client.GetPartitionInfoPreparer(ctx, partitionID, timeout)
@@ -5512,8 +5326,6 @@ func (client BaseClient) GetPartitionInfoPreparer(ctx context.Context, partition
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5548,14 +5360,14 @@ func (client BaseClient) GetPartitionInfoResponder(resp *http.Response) (result 
 // partitioning scheme information, keys supported by the partition, status, health and other details about the
 // partition.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. continuationToken is the continuation token parameter is used to obtain next set of results. A
-// continuation token with a non empty value is included in the response of the API when the results from the
-// system do not fit in a single response. When this value is passed to the next API call, the API returns next set
-// of results. If there are no further results then the continuation token does not contain a value. The value of
-// this parameter should not be URL encoded. timeout is the server timeout for performing the operation in seconds.
-// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. continuationToken is the continuation token parameter is used to obtain next set of results. A continuation
+// token with a non empty value is included in the response of the API when the results from the system do not fit in a
+// single response. When this value is passed to the next API call, the API returns next set of results. If there are
+// no further results then the continuation token does not contain a value. The value of this parameter should not be
+// URL encoded. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) GetPartitionInfoList(ctx context.Context, serviceID string, continuationToken string, timeout *int64) (result PagedServicePartitionInfoList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5563,7 +5375,7 @@ func (client BaseClient) GetPartitionInfoList(ctx context.Context, serviceID str
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetPartitionInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetPartitionInfoList")
 	}
 
 	req, err := client.GetPartitionInfoListPreparer(ctx, serviceID, continuationToken, timeout)
@@ -5602,8 +5414,6 @@ func (client BaseClient) GetPartitionInfoListPreparer(ctx context.Context, servi
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5638,9 +5448,9 @@ func (client BaseClient) GetPartitionInfoListResponder(resp *http.Response) (res
 // The response includes a list of load information.
 // Each information includes load metric name, value and last reported time in UTC.
 //
-// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in
-// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
-// complete. The default value for this parameter is 60 seconds.
+// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in seconds.
+// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
+// default value for this parameter is 60 seconds.
 func (client BaseClient) GetPartitionLoadInformation(ctx context.Context, partitionID uuid.UUID, timeout *int64) (result PartitionLoadInformation, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5648,7 +5458,7 @@ func (client BaseClient) GetPartitionLoadInformation(ctx context.Context, partit
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetPartitionLoadInformation", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetPartitionLoadInformation")
 	}
 
 	req, err := client.GetPartitionLoadInformationPreparer(ctx, partitionID, timeout)
@@ -5684,8 +5494,6 @@ func (client BaseClient) GetPartitionLoadInformationPreparer(ctx context.Context
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5719,11 +5527,11 @@ func (client BaseClient) GetPartitionLoadInformationResponder(resp *http.Respons
 // GetPartitionRestartProgress gets the progress of a PartitionRestart started with StartPartitionRestart using the
 // provided OperationId.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this
-// API.  This is passed into the corresponding GetProgress API timeout is the server timeout for performing the
-// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this API.
+// This is passed into the corresponding GetProgress API timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetPartitionRestartProgress(ctx context.Context, serviceID string, partitionID uuid.UUID, operationID uuid.UUID, timeout *int64) (result PartitionRestartProgress, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5731,7 +5539,7 @@ func (client BaseClient) GetPartitionRestartProgress(ctx context.Context, servic
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetPartitionRestartProgress", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetPartitionRestartProgress")
 	}
 
 	req, err := client.GetPartitionRestartProgressPreparer(ctx, serviceID, partitionID, operationID, timeout)
@@ -5769,8 +5577,6 @@ func (client BaseClient) GetPartitionRestartProgressPreparer(ctx context.Context
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5805,8 +5611,8 @@ func (client BaseClient) GetPartitionRestartProgressResponder(resp *http.Respons
 // in the cluster. The parameter CodeVersion can be used to optionally filter the output to only that particular
 // version.
 //
-// codeVersion is the product version of Service Fabric. timeout is the server timeout for performing the operation
-// in seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// codeVersion is the product version of Service Fabric. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
 // complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetProvisionedFabricCodeVersionInfoList(ctx context.Context, codeVersion string, timeout *int64) (result ListFabricCodeVersionInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
@@ -5815,7 +5621,7 @@ func (client BaseClient) GetProvisionedFabricCodeVersionInfoList(ctx context.Con
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetProvisionedFabricCodeVersionInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetProvisionedFabricCodeVersionInfoList")
 	}
 
 	req, err := client.GetProvisionedFabricCodeVersionInfoListPreparer(ctx, codeVersion, timeout)
@@ -5850,8 +5656,6 @@ func (client BaseClient) GetProvisionedFabricCodeVersionInfoListPreparer(ctx con
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5886,9 +5690,9 @@ func (client BaseClient) GetProvisionedFabricCodeVersionInfoListResponder(resp *
 // provisioned in the cluster. The parameter ConfigVersion can be used to optionally filter the output to only that
 // particular version.
 //
-// configVersion is the config version of Service Fabric. timeout is the server timeout for performing the
-// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// configVersion is the config version of Service Fabric. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetProvisionedFabricConfigVersionInfoList(ctx context.Context, configVersion string, timeout *int64) (result ListFabricConfigVersionInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5896,7 +5700,7 @@ func (client BaseClient) GetProvisionedFabricConfigVersionInfoList(ctx context.C
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetProvisionedFabricConfigVersionInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetProvisionedFabricConfigVersionInfoList")
 	}
 
 	req, err := client.GetProvisionedFabricConfigVersionInfoListPreparer(ctx, configVersion, timeout)
@@ -5931,8 +5735,6 @@ func (client BaseClient) GetProvisionedFabricConfigVersionInfoListPreparer(ctx c
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -5966,11 +5768,11 @@ func (client BaseClient) GetProvisionedFabricConfigVersionInfoListResponder(resp
 // GetQuorumLossProgress gets the progress of a quorum loss operation started with StartQuorumLoss, using the provided
 // OperationId.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this
-// API.  This is passed into the corresponding GetProgress API timeout is the server timeout for performing the
-// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this API.
+// This is passed into the corresponding GetProgress API timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetQuorumLossProgress(ctx context.Context, serviceID string, partitionID uuid.UUID, operationID uuid.UUID, timeout *int64) (result PartitionQuorumLossProgress, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -5978,7 +5780,7 @@ func (client BaseClient) GetQuorumLossProgress(ctx context.Context, serviceID st
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetQuorumLossProgress", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetQuorumLossProgress")
 	}
 
 	req, err := client.GetQuorumLossProgressPreparer(ctx, serviceID, partitionID, operationID, timeout)
@@ -6016,8 +5818,6 @@ func (client BaseClient) GetQuorumLossProgressPreparer(ctx context.Context, serv
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6052,24 +5852,23 @@ func (client BaseClient) GetQuorumLossProgressResponder(resp *http.Response) (re
 // Use EventsHealthStateFilter to filter the collection of health events reported on the replica based on the health
 // state.
 //
-// partitionID is the identity of the partition. replicaID is the identifier of the replica.
-// eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on health
-// state.
+// partitionID is the identity of the partition. replicaID is the identifier of the replica. eventsHealthStateFilter is
+// allows filtering the collection of HealthEvent objects returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetReplicaHealth(ctx context.Context, partitionID uuid.UUID, replicaID string, eventsHealthStateFilter *int32, timeout *int64) (result ReplicaHealthModel, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6077,7 +5876,7 @@ func (client BaseClient) GetReplicaHealth(ctx context.Context, partitionID uuid.
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetReplicaHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetReplicaHealth")
 	}
 
 	req, err := client.GetReplicaHealthPreparer(ctx, partitionID, replicaID, eventsHealthStateFilter, timeout)
@@ -6114,13 +5913,9 @@ func (client BaseClient) GetReplicaHealthPreparer(ctx context.Context, partition
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6159,27 +5954,26 @@ func (client BaseClient) GetReplicaHealthResponder(resp *http.Response) (result 
 // uses 'ConsiderWarningAsError' field of the ApplicationHealthPolicy. The rest of the fields are ignored while
 // evaluating the health of the replica.
 //
-// partitionID is the identity of the partition. replicaID is the identifier of the replica.
-// eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on health
-// state.
+// partitionID is the identity of the partition. replicaID is the identifier of the replica. eventsHealthStateFilter is
+// allows filtering the collection of HealthEvent objects returned based on health state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. applicationHealthPolicy is
 // describes the health policies used to evaluate the health of an application or one of its children.
-// If not present, the health evaluation uses the health policy from application manifest or the default health
-// policy. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// If not present, the health evaluation uses the health policy from application manifest or the default health policy.
+// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
+// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetReplicaHealthUsingPolicy(ctx context.Context, partitionID uuid.UUID, replicaID string, eventsHealthStateFilter *int32, applicationHealthPolicy *ApplicationHealthPolicy, timeout *int64) (result ReplicaHealthModel, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6187,7 +5981,7 @@ func (client BaseClient) GetReplicaHealthUsingPolicy(ctx context.Context, partit
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetReplicaHealthUsingPolicy", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetReplicaHealthUsingPolicy")
 	}
 
 	req, err := client.GetReplicaHealthUsingPolicyPreparer(ctx, partitionID, replicaID, eventsHealthStateFilter, applicationHealthPolicy, timeout)
@@ -6224,13 +6018,9 @@ func (client BaseClient) GetReplicaHealthUsingPolicyPreparer(ctx context.Context
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6269,14 +6059,13 @@ func (client BaseClient) GetReplicaHealthUsingPolicyResponder(resp *http.Respons
 // GetReplicaInfo the respons include the id, role, status, health, node name, uptime, and other details about the
 // replica.
 //
-// partitionID is the identity of the partition. replicaID is the identifier of the replica. continuationToken is
-// the continuation token parameter is used to obtain next set of results. A continuation token with a non empty
-// value is included in the response of the API when the results from the system do not fit in a single response.
-// When this value is passed to the next API call, the API returns next set of results. If there are no further
-// results then the continuation token does not contain a value. The value of this parameter should not be URL
-// encoded. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// partitionID is the identity of the partition. replicaID is the identifier of the replica. continuationToken is the
+// continuation token parameter is used to obtain next set of results. A continuation token with a non empty value is
+// included in the response of the API when the results from the system do not fit in a single response. When this
+// value is passed to the next API call, the API returns next set of results. If there are no further results then the
+// continuation token does not contain a value. The value of this parameter should not be URL encoded. timeout is the
+// server timeout for performing the operation in seconds. This specifies the time duration that the client is willing
+// to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetReplicaInfo(ctx context.Context, partitionID uuid.UUID, replicaID string, continuationToken string, timeout *int64) (result ReplicaInfoModel, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6284,7 +6073,7 @@ func (client BaseClient) GetReplicaInfo(ctx context.Context, partitionID uuid.UU
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetReplicaInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetReplicaInfo")
 	}
 
 	req, err := client.GetReplicaInfoPreparer(ctx, partitionID, replicaID, continuationToken, timeout)
@@ -6324,8 +6113,6 @@ func (client BaseClient) GetReplicaInfoPreparer(ctx context.Context, partitionID
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6360,12 +6147,12 @@ func (client BaseClient) GetReplicaInfoResponder(resp *http.Response) (result Re
 // respons include the id, role, status, health, node name, uptime, and other details about the replica.
 //
 // partitionID is the identity of the partition. continuationToken is the continuation token parameter is used to
-// obtain next set of results. A continuation token with a non empty value is included in the response of the API
-// when the results from the system do not fit in a single response. When this value is passed to the next API
-// call, the API returns next set of results. If there are no further results then the continuation token does not
-// contain a value. The value of this parameter should not be URL encoded. timeout is the server timeout for
-// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
-// requested operation to complete. The default value for this parameter is 60 seconds.
+// obtain next set of results. A continuation token with a non empty value is included in the response of the API when
+// the results from the system do not fit in a single response. When this value is passed to the next API call, the API
+// returns next set of results. If there are no further results then the continuation token does not contain a value.
+// The value of this parameter should not be URL encoded. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetReplicaInfoList(ctx context.Context, partitionID uuid.UUID, continuationToken string, timeout *int64) (result PagedReplicaInfoList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6373,7 +6160,7 @@ func (client BaseClient) GetReplicaInfoList(ctx context.Context, partitionID uui
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetReplicaInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetReplicaInfoList")
 	}
 
 	req, err := client.GetReplicaInfoListPreparer(ctx, partitionID, continuationToken, timeout)
@@ -6412,8 +6199,6 @@ func (client BaseClient) GetReplicaInfoListPreparer(ctx context.Context, partiti
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6447,10 +6232,10 @@ func (client BaseClient) GetReplicaInfoListResponder(resp *http.Response) (resul
 // GetServiceDescription gets the description of an existing Service Fabric service. A service must be created before
 // its description can be obtained.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time duration that
+// the client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetServiceDescription(ctx context.Context, serviceID string, timeout *int64) (result ServiceDescriptionModel, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6458,7 +6243,7 @@ func (client BaseClient) GetServiceDescription(ctx context.Context, serviceID st
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetServiceDescription", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetServiceDescription")
 	}
 
 	req, err := client.GetServiceDescriptionPreparer(ctx, serviceID, timeout)
@@ -6494,8 +6279,6 @@ func (client BaseClient) GetServiceDescriptionPreparer(ctx context.Context, serv
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6532,18 +6315,18 @@ func (client BaseClient) GetServiceDescriptionResponder(resp *http.Response) (re
 // Use PartitionsHealthStateFilter to filter the collection of partitions returned.
 // If you specify a service that does not exist in the health store, this cmdlet returns an error.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on
-// health state.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on health
+// state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
@@ -6551,22 +6334,21 @@ func (client BaseClient) GetServiceDescriptionResponder(resp *http.Response) (re
 // allows filtering of the partitions health state objects returned in the result of service health query based on
 // their health state.
 // The possible values for this parameter include integer value of one of the following health states.
-// Only partitions that match the filter are returned. All partitions are used to evaluate the aggregated health
-// state.
+// Only partitions that match the filter are returned. All partitions are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
 // combination of these value
-// obtained using bitwise 'OR' operator. For example, if the provided value is 6 then health state of partitions
-// with HealthState value of OK (2) and Warning (4) will be returned.
+// obtained using bitwise 'OR' operator. For example, if the provided value is 6 then health state of partitions with
+// HealthState value of OK (2) and Warning (4) will be returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn't match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn't match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
-// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// - All - Filter that matches input with any HealthState value. The value is 65535. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) GetServiceHealth(ctx context.Context, serviceID string, eventsHealthStateFilter *int32, partitionsHealthStateFilter *int32, timeout *int64) (result ServiceHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6574,7 +6356,7 @@ func (client BaseClient) GetServiceHealth(ctx context.Context, serviceID string,
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetServiceHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetServiceHealth")
 	}
 
 	req, err := client.GetServiceHealthPreparer(ctx, serviceID, eventsHealthStateFilter, partitionsHealthStateFilter, timeout)
@@ -6610,18 +6392,12 @@ func (client BaseClient) GetServiceHealthPreparer(ctx context.Context, serviceID
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if partitionsHealthStateFilter != nil {
 		queryParameters["PartitionsHealthStateFilter"] = autorest.Encode("query", *partitionsHealthStateFilter)
-	} else {
-		queryParameters["PartitionsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6661,18 +6437,18 @@ func (client BaseClient) GetServiceHealthResponder(resp *http.Response) (result 
 // Use PartitionsHealthStateFilter to filter the collection of partitions returned.
 // If you specify a service that does not exist in the health store, this cmdlet returns an error.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on
-// health state.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. eventsHealthStateFilter is allows filtering the collection of HealthEvent objects returned based on health
+// state.
 // The possible values for this parameter include integer value of one of the following health states.
 // Only events that match the filter are returned. All events are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
-// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then
-// all of the events with HealthState value of OK (2) and Warning (4) are returned.
+// combination of these value obtained using bitwise 'OR' operator. For example, If the provided value is 6 then all of
+// the events with HealthState value of OK (2) and Warning (4) are returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn’t match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
@@ -6680,25 +6456,24 @@ func (client BaseClient) GetServiceHealthResponder(resp *http.Response) (result 
 // allows filtering of the partitions health state objects returned in the result of service health query based on
 // their health state.
 // The possible values for this parameter include integer value of one of the following health states.
-// Only partitions that match the filter are returned. All partitions are used to evaluate the aggregated health
-// state.
+// Only partitions that match the filter are returned. All partitions are used to evaluate the aggregated health state.
 // If not specified, all entries are returned. The state values are flag based enumeration, so the value could be a
 // combination of these value
-// obtained using bitwise 'OR' operator. For example, if the provided value is 6 then health state of partitions
-// with HealthState value of OK (2) and Warning (4) will be returned.
+// obtained using bitwise 'OR' operator. For example, if the provided value is 6 then health state of partitions with
+// HealthState value of OK (2) and Warning (4) will be returned.
 //
 // - Default - Default value. Matches any HealthState. The value is zero.
-// - None - Filter that doesn't match any HealthState value. Used in order to return no results on a given
-// collection of states. The value is 1.
+// - None - Filter that doesn't match any HealthState value. Used in order to return no results on a given collection
+// of states. The value is 1.
 // - Ok - Filter that matches input with HealthState value Ok. The value is 2.
 // - Warning - Filter that matches input with HealthState value Warning. The value is 4.
 // - Error - Filter that matches input with HealthState value Error. The value is 8.
 // - All - Filter that matches input with any HealthState value. The value is 65535. applicationHealthPolicy is
 // describes the health policies used to evaluate the health of an application or one of its children.
-// If not present, the health evaluation uses the health policy from application manifest or the default health
-// policy. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// If not present, the health evaluation uses the health policy from application manifest or the default health policy.
+// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
+// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetServiceHealthUsingPolicy(ctx context.Context, serviceID string, eventsHealthStateFilter *int32, partitionsHealthStateFilter *int32, applicationHealthPolicy *ApplicationHealthPolicy, timeout *int64) (result ServiceHealth, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6706,7 +6481,7 @@ func (client BaseClient) GetServiceHealthUsingPolicy(ctx context.Context, servic
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetServiceHealthUsingPolicy", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetServiceHealthUsingPolicy")
 	}
 
 	req, err := client.GetServiceHealthUsingPolicyPreparer(ctx, serviceID, eventsHealthStateFilter, partitionsHealthStateFilter, applicationHealthPolicy, timeout)
@@ -6742,18 +6517,12 @@ func (client BaseClient) GetServiceHealthUsingPolicyPreparer(ctx context.Context
 	}
 	if eventsHealthStateFilter != nil {
 		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", *eventsHealthStateFilter)
-	} else {
-		queryParameters["EventsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if partitionsHealthStateFilter != nil {
 		queryParameters["PartitionsHealthStateFilter"] = autorest.Encode("query", *partitionsHealthStateFilter)
-	} else {
-		queryParameters["PartitionsHealthStateFilter"] = autorest.Encode("query", 0)
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6795,8 +6564,8 @@ func (client BaseClient) GetServiceHealthUsingPolicyResponder(resp *http.Respons
 // applicationID is the identity of the application. This is typically the full name of the application without the
 // 'fabric:' URI scheme. serviceID is the identity of the service. This is typically the full name of the service
 // without the 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) GetServiceInfo(ctx context.Context, applicationID string, serviceID string, timeout *int64) (result ServiceInfoModel, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6804,7 +6573,7 @@ func (client BaseClient) GetServiceInfo(ctx context.Context, applicationID strin
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetServiceInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetServiceInfo")
 	}
 
 	req, err := client.GetServiceInfoPreparer(ctx, applicationID, serviceID, timeout)
@@ -6841,8 +6610,6 @@ func (client BaseClient) GetServiceInfoPreparer(ctx context.Context, application
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6878,13 +6645,13 @@ func (client BaseClient) GetServiceInfoResponder(resp *http.Response) (result Se
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
 // 'fabric:' URI scheme. serviceTypeName is the service type name used to filter the services to query for.
-// continuationToken is the continuation token parameter is used to obtain next set of results. A continuation
-// token with a non empty value is included in the response of the API when the results from the system do not fit
-// in a single response. When this value is passed to the next API call, the API returns next set of results. If
-// there are no further results then the continuation token does not contain a value. The value of this parameter
-// should not be URL encoded. timeout is the server timeout for performing the operation in seconds. This specifies
-// the time duration that the client is willing to wait for the requested operation to complete. The default value
-// for this parameter is 60 seconds.
+// continuationToken is the continuation token parameter is used to obtain next set of results. A continuation token
+// with a non empty value is included in the response of the API when the results from the system do not fit in a
+// single response. When this value is passed to the next API call, the API returns next set of results. If there are
+// no further results then the continuation token does not contain a value. The value of this parameter should not be
+// URL encoded. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) GetServiceInfoList(ctx context.Context, applicationID string, serviceTypeName string, continuationToken string, timeout *int64) (result PagedServiceInfoList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6892,7 +6659,7 @@ func (client BaseClient) GetServiceInfoList(ctx context.Context, applicationID s
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetServiceInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetServiceInfoList")
 	}
 
 	req, err := client.GetServiceInfoListPreparer(ctx, applicationID, serviceTypeName, continuationToken, timeout)
@@ -6934,8 +6701,6 @@ func (client BaseClient) GetServiceInfoListPreparer(ctx context.Context, applica
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -6969,11 +6734,11 @@ func (client BaseClient) GetServiceInfoListResponder(resp *http.Response) (resul
 // GetServiceManifest gets the manifest describing a service type. The response contains the service manifest XML as a
 // string.
 //
-// applicationTypeName is the name of the application type. applicationTypeVersion is the version of the
-// application type. serviceManifestName is the name of a service manifest registered as part of an application
-// type in a Service Fabric cluster. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// applicationTypeName is the name of the application type. applicationTypeVersion is the version of the application
+// type. serviceManifestName is the name of a service manifest registered as part of an application type in a Service
+// Fabric cluster. timeout is the server timeout for performing the operation in seconds. This specifies the time
+// duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) GetServiceManifest(ctx context.Context, applicationTypeName string, applicationTypeVersion string, serviceManifestName string, timeout *int64) (result ServiceTypeManifest, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -6981,7 +6746,7 @@ func (client BaseClient) GetServiceManifest(ctx context.Context, applicationType
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetServiceManifest", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetServiceManifest")
 	}
 
 	req, err := client.GetServiceManifestPreparer(ctx, applicationTypeName, applicationTypeVersion, serviceManifestName, timeout)
@@ -7019,8 +6784,6 @@ func (client BaseClient) GetServiceManifestPreparer(ctx context.Context, applica
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7053,9 +6816,9 @@ func (client BaseClient) GetServiceManifestResponder(resp *http.Response) (resul
 
 // GetServiceNameInfo the GetServiceName endpoint returns the name of the service for the specified partition.
 //
-// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in
-// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
-// complete. The default value for this parameter is 60 seconds.
+// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in seconds.
+// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
+// default value for this parameter is 60 seconds.
 func (client BaseClient) GetServiceNameInfo(ctx context.Context, partitionID uuid.UUID, timeout *int64) (result ServiceNameInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7063,7 +6826,7 @@ func (client BaseClient) GetServiceNameInfo(ctx context.Context, partitionID uui
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetServiceNameInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetServiceNameInfo")
 	}
 
 	req, err := client.GetServiceNameInfoPreparer(ctx, partitionID, timeout)
@@ -7099,8 +6862,6 @@ func (client BaseClient) GetServiceNameInfoPreparer(ctx context.Context, partiti
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7136,10 +6897,10 @@ func (client BaseClient) GetServiceNameInfoResponder(resp *http.Response) (resul
 // name and version of the service manifest the type is defined in, kind (stateless or stateless) of the service type
 // and other information about it.
 //
-// applicationTypeName is the name of the application type. applicationTypeVersion is the version of the
-// application type. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// applicationTypeName is the name of the application type. applicationTypeVersion is the version of the application
+// type. timeout is the server timeout for performing the operation in seconds. This specifies the time duration that
+// the client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) GetServiceTypeInfoList(ctx context.Context, applicationTypeName string, applicationTypeVersion string, timeout *int64) (result ListServiceTypeInfo, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7147,7 +6908,7 @@ func (client BaseClient) GetServiceTypeInfoList(ctx context.Context, application
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "GetServiceTypeInfoList", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "GetServiceTypeInfoList")
 	}
 
 	req, err := client.GetServiceTypeInfoListPreparer(ctx, applicationTypeName, applicationTypeVersion, timeout)
@@ -7184,8 +6945,6 @@ func (client BaseClient) GetServiceTypeInfoListPreparer(ctx context.Context, app
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7225,12 +6984,12 @@ func (client BaseClient) GetServiceTypeInfoListResponder(resp *http.Response) (r
 //
 // This API supports the Service Fabric platform; it is not meant to be used directly from your code.
 //
-// command is the text of the command to be invoked. The content of the command is infrastructure-specific.
-// serviceID is the identity of the infrastructure service. This is  the full name of the infrastructure service
-// without the 'fabric:' URI scheme. This parameter required only for the cluster that have more than one instance
-// of infrastructure service running. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// command is the text of the command to be invoked. The content of the command is infrastructure-specific. serviceID
+// is the identity of the infrastructure service. This is  the full name of the infrastructure service without the
+// 'fabric:' URI scheme. This parameter required only for the cluster that have more than one instance of
+// infrastructure service running. timeout is the server timeout for performing the operation in seconds. This
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) InvokeInfrastructureCommand(ctx context.Context, command string, serviceID string, timeout *int64) (result ReadCloser, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7238,7 +6997,7 @@ func (client BaseClient) InvokeInfrastructureCommand(ctx context.Context, comman
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "InvokeInfrastructureCommand", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "InvokeInfrastructureCommand")
 	}
 
 	req, err := client.InvokeInfrastructureCommandPreparer(ctx, command, serviceID, timeout)
@@ -7274,8 +7033,6 @@ func (client BaseClient) InvokeInfrastructureCommandPreparer(ctx context.Context
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7314,12 +7071,12 @@ func (client BaseClient) InvokeInfrastructureCommandResponder(resp *http.Respons
 //
 // This API supports the Service Fabric platform; it is not meant to be used directly from your code.
 //
-// command is the text of the command to be invoked. The content of the command is infrastructure-specific.
-// serviceID is the identity of the infrastructure service. This is  the full name of the infrastructure service
-// without the 'fabric:' URI scheme. This parameter required only for the cluster that have more than one instance
-// of infrastructure service running. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// command is the text of the command to be invoked. The content of the command is infrastructure-specific. serviceID
+// is the identity of the infrastructure service. This is  the full name of the infrastructure service without the
+// 'fabric:' URI scheme. This parameter required only for the cluster that have more than one instance of
+// infrastructure service running. timeout is the server timeout for performing the operation in seconds. This
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) InvokeInfrastructureQuery(ctx context.Context, command string, serviceID string, timeout *int64) (result ReadCloser, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7327,7 +7084,7 @@ func (client BaseClient) InvokeInfrastructureQuery(ctx context.Context, command 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "InvokeInfrastructureQuery", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "InvokeInfrastructureQuery")
 	}
 
 	req, err := client.InvokeInfrastructureQueryPreparer(ctx, command, serviceID, timeout)
@@ -7363,8 +7120,6 @@ func (client BaseClient) InvokeInfrastructureQueryPreparer(ctx context.Context, 
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7397,10 +7152,10 @@ func (client BaseClient) InvokeInfrastructureQueryResponder(resp *http.Response)
 // ProvisionApplicationType provisions or registers a Service Fabric application type with the cluster. This is
 // required before any new applications can be instantiated.
 //
-// applicationTypeImageStorePath is the relative path for the application package in the image store specified
-// during the prior copy operation. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// applicationTypeImageStorePath is the relative path for the application package in the image store specified during
+// the prior copy operation. timeout is the server timeout for performing the operation in seconds. This specifies the
+// time duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) ProvisionApplicationType(ctx context.Context, applicationTypeImageStorePath ApplicationTypeImageStorePath, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: applicationTypeImageStorePath,
@@ -7410,7 +7165,7 @@ func (client BaseClient) ProvisionApplicationType(ctx context.Context, applicati
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ProvisionApplicationType", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ProvisionApplicationType")
 	}
 
 	req, err := client.ProvisionApplicationTypePreparer(ctx, applicationTypeImageStorePath, timeout)
@@ -7442,8 +7197,6 @@ func (client BaseClient) ProvisionApplicationTypePreparer(ctx context.Context, a
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7490,7 +7243,7 @@ func (client BaseClient) RecoverAllPartitions(ctx context.Context, timeout *int6
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RecoverAllPartitions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RecoverAllPartitions")
 	}
 
 	req, err := client.RecoverAllPartitionsPreparer(ctx, timeout)
@@ -7522,8 +7275,6 @@ func (client BaseClient) RecoverAllPartitionsPreparer(ctx context.Context, timeo
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7557,9 +7308,9 @@ func (client BaseClient) RecoverAllPartitionsResponder(resp *http.Response) (res
 // which is currently stuck in quorum loss. This operation should only be performed if it is known that the replicas
 // that are down cannot be recovered. Incorrect use of this API can cause potential data loss.
 //
-// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in
-// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
-// complete. The default value for this parameter is 60 seconds.
+// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in seconds.
+// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
+// default value for this parameter is 60 seconds.
 func (client BaseClient) RecoverPartition(ctx context.Context, partitionID uuid.UUID, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7567,7 +7318,7 @@ func (client BaseClient) RecoverPartition(ctx context.Context, partitionID uuid.
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RecoverPartition", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RecoverPartition")
 	}
 
 	req, err := client.RecoverPartitionPreparer(ctx, partitionID, timeout)
@@ -7603,8 +7354,6 @@ func (client BaseClient) RecoverPartitionPreparer(ctx context.Context, partition
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7638,10 +7387,10 @@ func (client BaseClient) RecoverPartitionResponder(resp *http.Response) (result 
 // service which is currently stuck in quorum loss. This operation should only be performed if it is known that the
 // replicas that are down cannot be recovered. Incorrect use of this API can cause potential data loss.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time duration that
+// the client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) RecoverServicePartitions(ctx context.Context, serviceID string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7649,7 +7398,7 @@ func (client BaseClient) RecoverServicePartitions(ctx context.Context, serviceID
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RecoverServicePartitions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RecoverServicePartitions")
 	}
 
 	req, err := client.RecoverServicePartitionsPreparer(ctx, serviceID, timeout)
@@ -7685,8 +7434,6 @@ func (client BaseClient) RecoverServicePartitionsPreparer(ctx context.Context, s
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7730,7 +7477,7 @@ func (client BaseClient) RecoverSystemPartitions(ctx context.Context, timeout *i
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RecoverSystemPartitions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RecoverSystemPartitions")
 	}
 
 	req, err := client.RecoverSystemPartitionsPreparer(ctx, timeout)
@@ -7762,8 +7509,6 @@ func (client BaseClient) RecoverSystemPartitionsPreparer(ctx context.Context, ti
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7797,9 +7542,9 @@ func (client BaseClient) RecoverSystemPartitionsResponder(resp *http.Response) (
 // before it can be deleted.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the
-// time duration that the client is willing to wait for the requested operation to complete. The default value for
-// this parameter is 60 seconds.
+// 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time
+// duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) RemoveComposeApplication(ctx context.Context, applicationID string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7807,7 +7552,7 @@ func (client BaseClient) RemoveComposeApplication(ctx context.Context, applicati
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RemoveComposeApplication", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RemoveComposeApplication")
 	}
 
 	req, err := client.RemoveComposeApplicationPreparer(ctx, applicationID, timeout)
@@ -7843,8 +7588,6 @@ func (client BaseClient) RemoveComposeApplicationPreparer(ctx context.Context, a
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7882,8 +7625,8 @@ func (client BaseClient) RemoveComposeApplicationResponder(resp *http.Response) 
 // removed and the node can comes back up with its state intact.
 //
 // nodeName is the name of the node. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) RemoveNodeState(ctx context.Context, nodeName string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7891,7 +7634,7 @@ func (client BaseClient) RemoveNodeState(ctx context.Context, nodeName string, t
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RemoveNodeState", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RemoveNodeState")
 	}
 
 	req, err := client.RemoveNodeStatePreparer(ctx, nodeName, timeout)
@@ -7927,8 +7670,6 @@ func (client BaseClient) RemoveNodeStatePreparer(ctx context.Context, nodeName s
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -7965,12 +7706,12 @@ func (client BaseClient) RemoveNodeStateResponder(resp *http.Response) (result a
 // Incorrect use of this API can lead to data loss for stateful services.In addition, the forceRemove flag impacts all
 // other replicas hosted in the same process.
 //
-// nodeName is the name of the node. partitionID is the identity of the partition. replicaID is the identifier of
-// the replica. forceRemove is remove a Service Fabric application or service forcefully without going through the
-// graceful shutdown sequence. This parameter can be used to forcefully delete an application or service for which
-// delete is timing out due to issues in the service code that prevents graceful close of replicas. timeout is the
-// server timeout for performing the operation in seconds. This specifies the time duration that the client is
-// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+// nodeName is the name of the node. partitionID is the identity of the partition. replicaID is the identifier of the
+// replica. forceRemove is remove a Service Fabric application or service forcefully without going through the graceful
+// shutdown sequence. This parameter can be used to forcefully delete an application or service for which delete is
+// timing out due to issues in the service code that prevents graceful close of replicas. timeout is the server timeout
+// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) RemoveReplica(ctx context.Context, nodeName string, partitionID uuid.UUID, replicaID string, forceRemove *bool, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -7978,7 +7719,7 @@ func (client BaseClient) RemoveReplica(ctx context.Context, nodeName string, par
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RemoveReplica", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RemoveReplica")
 	}
 
 	req, err := client.RemoveReplicaPreparer(ctx, nodeName, partitionID, replicaID, forceRemove, timeout)
@@ -8019,8 +7760,6 @@ func (client BaseClient) RemoveReplicaPreparer(ctx context.Context, nodeName str
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8059,10 +7798,10 @@ func (client BaseClient) RemoveReplicaResponder(resp *http.Response) (result aut
 // appears in the HealthEvents section.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. healthInformation is describes the health information for the health report. This
-// information needs to be present in all of the health reports sent to the health manager. timeout is the server
-// timeout for performing the operation in seconds. This specifies the time duration that the client is willing to
-// wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+// 'fabric:' URI scheme. healthInformation is describes the health information for the health report. This information
+// needs to be present in all of the health reports sent to the health manager. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) ReportApplicationHealth(ctx context.Context, applicationID string, healthInformation HealthInformation, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: healthInformation,
@@ -8073,7 +7812,7 @@ func (client BaseClient) ReportApplicationHealth(ctx context.Context, applicatio
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ReportApplicationHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ReportApplicationHealth")
 	}
 
 	req, err := client.ReportApplicationHealthPreparer(ctx, applicationID, healthInformation, timeout)
@@ -8109,8 +7848,6 @@ func (client BaseClient) ReportApplicationHealthPreparer(ctx context.Context, ap
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8150,10 +7887,10 @@ func (client BaseClient) ReportApplicationHealthResponder(resp *http.Response) (
 // To see whether the report was applied in the health store, run GetClusterHealth and check that the report appears in
 // the HealthEvents section.
 //
-// healthInformation is describes the health information for the health report. This information needs to be
-// present in all of the health reports sent to the health manager. timeout is the server timeout for performing
-// the operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// healthInformation is describes the health information for the health report. This information needs to be present in
+// all of the health reports sent to the health manager. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) ReportClusterHealth(ctx context.Context, healthInformation HealthInformation, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: healthInformation,
@@ -8164,7 +7901,7 @@ func (client BaseClient) ReportClusterHealth(ctx context.Context, healthInformat
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ReportClusterHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ReportClusterHealth")
 	}
 
 	req, err := client.ReportClusterHealthPreparer(ctx, healthInformation, timeout)
@@ -8196,8 +7933,6 @@ func (client BaseClient) ReportClusterHealthPreparer(ctx context.Context, health
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8237,12 +7972,11 @@ func (client BaseClient) ReportClusterHealthResponder(resp *http.Response) (resu
 // To see whether the report was applied in the health store, get deployed application health and check that the report
 // appears in the HealthEvents section.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. healthInformation is describes the health information
-// for the health report. This information needs to be present in all of the health reports sent to the health
-// manager. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. healthInformation is describes the health information for the
+// health report. This information needs to be present in all of the health reports sent to the health manager. timeout
+// is the server timeout for performing the operation in seconds. This specifies the time duration that the client is
+// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) ReportDeployedApplicationHealth(ctx context.Context, nodeName string, applicationID string, healthInformation HealthInformation, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: healthInformation,
@@ -8253,7 +7987,7 @@ func (client BaseClient) ReportDeployedApplicationHealth(ctx context.Context, no
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ReportDeployedApplicationHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ReportDeployedApplicationHealth")
 	}
 
 	req, err := client.ReportDeployedApplicationHealthPreparer(ctx, nodeName, applicationID, healthInformation, timeout)
@@ -8290,8 +8024,6 @@ func (client BaseClient) ReportDeployedApplicationHealthPreparer(ctx context.Con
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8332,12 +8064,12 @@ func (client BaseClient) ReportDeployedApplicationHealthResponder(resp *http.Res
 // To see whether the report was applied in the health store, get deployed service package health and check that the
 // report appears in the HealthEvents section.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. servicePackageName is the name of the service package.
-// healthInformation is describes the health information for the health report. This information needs to be
-// present in all of the health reports sent to the health manager. timeout is the server timeout for performing
-// the operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. servicePackageName is the name of the service package.
+// healthInformation is describes the health information for the health report. This information needs to be present in
+// all of the health reports sent to the health manager. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) ReportDeployedServicePackageHealth(ctx context.Context, nodeName string, applicationID string, servicePackageName string, healthInformation HealthInformation, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: healthInformation,
@@ -8348,7 +8080,7 @@ func (client BaseClient) ReportDeployedServicePackageHealth(ctx context.Context,
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ReportDeployedServicePackageHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ReportDeployedServicePackageHealth")
 	}
 
 	req, err := client.ReportDeployedServicePackageHealthPreparer(ctx, nodeName, applicationID, servicePackageName, healthInformation, timeout)
@@ -8386,8 +8118,6 @@ func (client BaseClient) ReportDeployedServicePackageHealthPreparer(ctx context.
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8427,10 +8157,10 @@ func (client BaseClient) ReportDeployedServicePackageHealthResponder(resp *http.
 // To see whether the report was applied in the health store, run GetNodeHealth and check that the report appears in
 // the HealthEvents section.
 //
-// nodeName is the name of the node. healthInformation is describes the health information for the health report.
-// This information needs to be present in all of the health reports sent to the health manager. timeout is the
-// server timeout for performing the operation in seconds. This specifies the time duration that the client is
-// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
+// nodeName is the name of the node. healthInformation is describes the health information for the health report. This
+// information needs to be present in all of the health reports sent to the health manager. timeout is the server
+// timeout for performing the operation in seconds. This specifies the time duration that the client is willing to wait
+// for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) ReportNodeHealth(ctx context.Context, nodeName string, healthInformation HealthInformation, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: healthInformation,
@@ -8441,7 +8171,7 @@ func (client BaseClient) ReportNodeHealth(ctx context.Context, nodeName string, 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ReportNodeHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ReportNodeHealth")
 	}
 
 	req, err := client.ReportNodeHealthPreparer(ctx, nodeName, healthInformation, timeout)
@@ -8477,8 +8207,6 @@ func (client BaseClient) ReportNodeHealthPreparer(ctx context.Context, nodeName 
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8518,11 +8246,10 @@ func (client BaseClient) ReportNodeHealthResponder(resp *http.Response) (result 
 // To see whether the report was applied in the health store, run GetPartitionHealth and check that the report appears
 // in the HealthEvents section.
 //
-// partitionID is the identity of the partition. healthInformation is describes the health information for the
-// health report. This information needs to be present in all of the health reports sent to the health manager.
-// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
-// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
-// seconds.
+// partitionID is the identity of the partition. healthInformation is describes the health information for the health
+// report. This information needs to be present in all of the health reports sent to the health manager. timeout is the
+// server timeout for performing the operation in seconds. This specifies the time duration that the client is willing
+// to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) ReportPartitionHealth(ctx context.Context, partitionID uuid.UUID, healthInformation HealthInformation, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: healthInformation,
@@ -8533,7 +8260,7 @@ func (client BaseClient) ReportPartitionHealth(ctx context.Context, partitionID 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ReportPartitionHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ReportPartitionHealth")
 	}
 
 	req, err := client.ReportPartitionHealthPreparer(ctx, partitionID, healthInformation, timeout)
@@ -8569,8 +8296,6 @@ func (client BaseClient) ReportPartitionHealthPreparer(ctx context.Context, part
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8610,15 +8335,14 @@ func (client BaseClient) ReportPartitionHealthResponder(resp *http.Response) (re
 // To see whether the report was applied in the health store, run GetReplicaHealth and check that the report appears in
 // the HealthEvents section.
 //
-// partitionID is the identity of the partition. replicaID is the identifier of the replica. serviceKind is the
-// kind of service replica (Stateless or Stateful) for which the health is being reported. Following are the
-// possible values.
+// partitionID is the identity of the partition. replicaID is the identifier of the replica. serviceKind is the kind of
+// service replica (Stateless or Stateful) for which the health is being reported. Following are the possible values.
 // - Stateless - Does not use Service Fabric to make its state highly available or reliable. The value is 1
-// - Stateful - Uses Service Fabric to make its state or part of its state highly available and reliable. The value
-// is 2. healthInformation is describes the health information for the health report. This information needs to be
-// present in all of the health reports sent to the health manager. timeout is the server timeout for performing
-// the operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// - Stateful - Uses Service Fabric to make its state or part of its state highly available and reliable. The value is
+// 2. healthInformation is describes the health information for the health report. This information needs to be present
+// in all of the health reports sent to the health manager. timeout is the server timeout for performing the operation
+// in seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) ReportReplicaHealth(ctx context.Context, partitionID uuid.UUID, replicaID string, serviceKind string, healthInformation HealthInformation, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: healthInformation,
@@ -8629,7 +8353,7 @@ func (client BaseClient) ReportReplicaHealth(ctx context.Context, partitionID uu
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ReportReplicaHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ReportReplicaHealth")
 	}
 
 	req, err := client.ReportReplicaHealthPreparer(ctx, partitionID, replicaID, serviceKind, healthInformation, timeout)
@@ -8667,8 +8391,6 @@ func (client BaseClient) ReportReplicaHealthPreparer(ctx context.Context, partit
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8708,11 +8430,11 @@ func (client BaseClient) ReportReplicaHealthResponder(resp *http.Response) (resu
 // To see whether the report was applied in the health store, run GetServiceHealth and check that the report appears in
 // the HealthEvents section.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. healthInformation is describes the health information for the health report. This information needs
-// to be present in all of the health reports sent to the health manager. timeout is the server timeout for
-// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
-// requested operation to complete. The default value for this parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. healthInformation is describes the health information for the health report. This information needs to be
+// present in all of the health reports sent to the health manager. timeout is the server timeout for performing the
+// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
+// operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) ReportServiceHealth(ctx context.Context, serviceID string, healthInformation HealthInformation, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: healthInformation,
@@ -8723,7 +8445,7 @@ func (client BaseClient) ReportServiceHealth(ctx context.Context, serviceID stri
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ReportServiceHealth", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ReportServiceHealth")
 	}
 
 	req, err := client.ReportServiceHealthPreparer(ctx, serviceID, healthInformation, timeout)
@@ -8759,8 +8481,6 @@ func (client BaseClient) ReportServiceHealthPreparer(ctx context.Context, servic
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8794,9 +8514,9 @@ func (client BaseClient) ReportServiceHealthResponder(resp *http.Response) (resu
 
 // ResetPartitionLoad resets the current load of a Service Fabric partition to the default load for the service.
 //
-// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in
-// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
-// complete. The default value for this parameter is 60 seconds.
+// partitionID is the identity of the partition. timeout is the server timeout for performing the operation in seconds.
+// This specifies the time duration that the client is willing to wait for the requested operation to complete. The
+// default value for this parameter is 60 seconds.
 func (client BaseClient) ResetPartitionLoad(ctx context.Context, partitionID uuid.UUID, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -8804,7 +8524,7 @@ func (client BaseClient) ResetPartitionLoad(ctx context.Context, partitionID uui
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ResetPartitionLoad", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ResetPartitionLoad")
 	}
 
 	req, err := client.ResetPartitionLoadPreparer(ctx, partitionID, timeout)
@@ -8840,8 +8560,6 @@ func (client BaseClient) ResetPartitionLoadPreparer(ctx context.Context, partiti
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8873,20 +8591,20 @@ func (client BaseClient) ResetPartitionLoadResponder(resp *http.Response) (resul
 
 // ResolveService resolve a Service Fabric service partition, to get the endpoints of the service replicas.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. partitionKeyType is key type for the partition. This parameter is required if the partition scheme
-// for the service is Int64Range or Named. The possible values are following.
-// - None (1) - Indicates that the the PartitionKeyValue parameter is not specified. This is valid for the
-// partitions with partitioning scheme as Singleton. This is the default value. The value is 1.
-// - Int64Range (2) - Indicates that the the PartitionKeyValue parameter is an int64 partition key. This is valid
-// for the partitions with partitioning scheme as Int64Range. The value is 2.
-// - Named (3) - Indicates that the the PartitionKeyValue parameter is a name of the partition. This is valid for
-// the partitions with partitioning scheme as Named. The value is 3. partitionKeyValue is partition key. This is
-// required if the partition scheme for the service is Int64Range or Named. previousRspVersion is the value in the
-// Version field of the response that was received previously. This is required if the user knows that the result
-// that was got previously is stale. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. partitionKeyType is key type for the partition. This parameter is required if the partition scheme for the
+// service is Int64Range or Named. The possible values are following.
+// - None (1) - Indicates that the the PartitionKeyValue parameter is not specified. This is valid for the partitions
+// with partitioning scheme as Singleton. This is the default value. The value is 1.
+// - Int64Range (2) - Indicates that the the PartitionKeyValue parameter is an int64 partition key. This is valid for
+// the partitions with partitioning scheme as Int64Range. The value is 2.
+// - Named (3) - Indicates that the the PartitionKeyValue parameter is a name of the partition. This is valid for the
+// partitions with partitioning scheme as Named. The value is 3. partitionKeyValue is partition key. This is required
+// if the partition scheme for the service is Int64Range or Named. previousRspVersion is the value in the Version field
+// of the response that was received previously. This is required if the user knows that the result that was got
+// previously is stale. timeout is the server timeout for performing the operation in seconds. This specifies the time
+// duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) ResolveService(ctx context.Context, serviceID string, partitionKeyType *int32, partitionKeyValue string, previousRspVersion string, timeout *int64) (result ResolvedServicePartition, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -8894,7 +8612,7 @@ func (client BaseClient) ResolveService(ctx context.Context, serviceID string, p
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ResolveService", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ResolveService")
 	}
 
 	req, err := client.ResolveServicePreparer(ctx, serviceID, partitionKeyType, partitionKeyValue, previousRspVersion, timeout)
@@ -8939,8 +8657,6 @@ func (client BaseClient) ResolveServicePreparer(ctx context.Context, serviceID s
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -8974,11 +8690,11 @@ func (client BaseClient) ResolveServiceResponder(resp *http.Response) (result Re
 // RestartDeployedCodePackage restarts a code package deployed on a Service Fabric node in a cluster. This aborts the
 // code package process, which will restart all the user service replicas hosted in that process.
 //
-// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full
-// name of the application without the 'fabric:' URI scheme. restartDeployedCodePackageDescription is describes the
-// deployed code package on Service Fabric node to restart. timeout is the server timeout for performing the
-// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// nodeName is the name of the node. applicationID is the identity of the application. This is typically the full name
+// of the application without the 'fabric:' URI scheme. restartDeployedCodePackageDescription is describes the deployed
+// code package on Service Fabric node to restart. timeout is the server timeout for performing the operation in
+// seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) RestartDeployedCodePackage(ctx context.Context, nodeName string, applicationID string, restartDeployedCodePackageDescription RestartDeployedCodePackageDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -8986,7 +8702,7 @@ func (client BaseClient) RestartDeployedCodePackage(ctx context.Context, nodeNam
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RestartDeployedCodePackage", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RestartDeployedCodePackage")
 	}
 
 	req, err := client.RestartDeployedCodePackagePreparer(ctx, nodeName, applicationID, restartDeployedCodePackageDescription, timeout)
@@ -9023,8 +8739,6 @@ func (client BaseClient) RestartDeployedCodePackagePreparer(ctx context.Context,
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9059,9 +8773,9 @@ func (client BaseClient) RestartDeployedCodePackageResponder(resp *http.Response
 // RestartNode restarts a Service Fabric cluster node that is already started.
 //
 // nodeName is the name of the node. restartNodeDescription is the instance of the node to be restarted and a flag
-// indicating the need to take dump of the fabric process. timeout is the server timeout for performing the
-// operation in seconds. This specifies the time duration that the client is willing to wait for the requested
-// operation to complete. The default value for this parameter is 60 seconds.
+// indicating the need to take dump of the fabric process. timeout is the server timeout for performing the operation
+// in seconds. This specifies the time duration that the client is willing to wait for the requested operation to
+// complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) RestartNode(ctx context.Context, nodeName string, restartNodeDescription RestartNodeDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: restartNodeDescription,
@@ -9071,7 +8785,7 @@ func (client BaseClient) RestartNode(ctx context.Context, nodeName string, resta
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RestartNode", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RestartNode")
 	}
 
 	req, err := client.RestartNodePreparer(ctx, nodeName, restartNodeDescription, timeout)
@@ -9107,8 +8821,6 @@ func (client BaseClient) RestartNodePreparer(ctx context.Context, nodeName strin
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9144,10 +8856,10 @@ func (client BaseClient) RestartNodeResponder(resp *http.Response) (result autor
 // checks performed when this API is used. Incorrect use of this API can lead to availability loss for stateful
 // services.
 //
-// nodeName is the name of the node. partitionID is the identity of the partition. replicaID is the identifier of
-// the replica. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// nodeName is the name of the node. partitionID is the identity of the partition. replicaID is the identifier of the
+// replica. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) RestartReplica(ctx context.Context, nodeName string, partitionID uuid.UUID, replicaID string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -9155,7 +8867,7 @@ func (client BaseClient) RestartReplica(ctx context.Context, nodeName string, pa
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RestartReplica", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RestartReplica")
 	}
 
 	req, err := client.RestartReplicaPreparer(ctx, nodeName, partitionID, replicaID, timeout)
@@ -9193,8 +8905,6 @@ func (client BaseClient) RestartReplicaPreparer(ctx context.Context, nodeName st
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9229,10 +8939,10 @@ func (client BaseClient) RestartReplicaResponder(resp *http.Response) (result au
 // waits for you to call this API before proceeding to the next upgrade domain.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. resumeApplicationUpgradeDescription is describes the parameters for resuming an
-// application upgrade. timeout is the server timeout for performing the operation in seconds. This specifies the
-// time duration that the client is willing to wait for the requested operation to complete. The default value for
-// this parameter is 60 seconds.
+// 'fabric:' URI scheme. resumeApplicationUpgradeDescription is describes the parameters for resuming an application
+// upgrade. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) ResumeApplicationUpgrade(ctx context.Context, applicationID string, resumeApplicationUpgradeDescription ResumeApplicationUpgradeDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resumeApplicationUpgradeDescription,
@@ -9242,7 +8952,7 @@ func (client BaseClient) ResumeApplicationUpgrade(ctx context.Context, applicati
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "ResumeApplicationUpgrade", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "ResumeApplicationUpgrade")
 	}
 
 	req, err := client.ResumeApplicationUpgradePreparer(ctx, applicationID, resumeApplicationUpgradeDescription, timeout)
@@ -9278,8 +8988,6 @@ func (client BaseClient) ResumeApplicationUpgradePreparer(ctx context.Context, a
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9317,9 +9025,9 @@ func (client BaseClient) ResumeApplicationUpgradeResponder(resp *http.Response) 
 // back to a previous version.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the
-// time duration that the client is willing to wait for the requested operation to complete. The default value for
-// this parameter is 60 seconds.
+// 'fabric:' URI scheme. timeout is the server timeout for performing the operation in seconds. This specifies the time
+// duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) RollbackApplicationUpgrade(ctx context.Context, applicationID string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -9327,7 +9035,7 @@ func (client BaseClient) RollbackApplicationUpgrade(ctx context.Context, applica
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "RollbackApplicationUpgrade", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "RollbackApplicationUpgrade")
 	}
 
 	req, err := client.RollbackApplicationUpgradePreparer(ctx, applicationID, timeout)
@@ -9363,8 +9071,6 @@ func (client BaseClient) RollbackApplicationUpgradePreparer(ctx context.Context,
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9398,10 +9104,9 @@ func (client BaseClient) RollbackApplicationUpgradeResponder(resp *http.Response
 // if the parameters are valid.
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
-// 'fabric:' URI scheme. applicationUpgradeDescription is describes the parameters for an application upgrade.
-// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
-// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
-// seconds.
+// 'fabric:' URI scheme. applicationUpgradeDescription is describes the parameters for an application upgrade. timeout
+// is the server timeout for performing the operation in seconds. This specifies the time duration that the client is
+// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) StartApplicationUpgrade(ctx context.Context, applicationID string, applicationUpgradeDescription ApplicationUpgradeDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: applicationUpgradeDescription,
@@ -9413,7 +9118,7 @@ func (client BaseClient) StartApplicationUpgrade(ctx context.Context, applicatio
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StartApplicationUpgrade", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StartApplicationUpgrade")
 	}
 
 	req, err := client.StartApplicationUpgradePreparer(ctx, applicationID, applicationUpgradeDescription, timeout)
@@ -9449,8 +9154,6 @@ func (client BaseClient) StartApplicationUpgradePreparer(ctx context.Context, ap
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9515,7 +9218,7 @@ func (client BaseClient) StartChaos(ctx context.Context, chaosParameters ChaosPa
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StartChaos", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StartChaos")
 	}
 
 	req, err := client.StartChaosPreparer(ctx, chaosParameters, timeout)
@@ -9547,8 +9250,6 @@ func (client BaseClient) StartChaosPreparer(ctx context.Context, chaosParameters
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9598,17 +9299,16 @@ func (client BaseClient) StartChaosResponder(resp *http.Response) (result autore
 // Call the GetDataLossProgress API with the same OperationId to return information on the operation started with this
 // API.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this
-// API.  This is passed into the corresponding GetProgress API dataLossMode is this enum is passed to the
-// StartDataLoss API to indicate what type of data loss to induce.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this API.
+// This is passed into the corresponding GetProgress API dataLossMode is this enum is passed to the StartDataLoss API
+// to indicate what type of data loss to induce.
 // - Invalid - Reserved.  Do not pass into API.
 // - PartialDataLoss - PartialDataLoss option will cause a quorum of replicas to go down, triggering an OnDataLoss
 // event in the system for the given partition.
-// - FullDataLoss - FullDataLoss option will drop all the replicas which means that all the data will be lost.
-// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
-// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
-// seconds.
+// - FullDataLoss - FullDataLoss option will drop all the replicas which means that all the data will be lost. timeout
+// is the server timeout for performing the operation in seconds. This specifies the time duration that the client is
+// willing to wait for the requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) StartDataLoss(ctx context.Context, serviceID string, partitionID uuid.UUID, operationID uuid.UUID, dataLossMode string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -9616,7 +9316,7 @@ func (client BaseClient) StartDataLoss(ctx context.Context, serviceID string, pa
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StartDataLoss", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StartDataLoss")
 	}
 
 	req, err := client.StartDataLossPreparer(ctx, serviceID, partitionID, operationID, dataLossMode, timeout)
@@ -9655,8 +9355,6 @@ func (client BaseClient) StartDataLossPreparer(ctx context.Context, serviceID st
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9690,8 +9388,8 @@ func (client BaseClient) StartDataLossResponder(resp *http.Response) (result aut
 //
 // nodeName is the name of the node. startNodeDescription is the instance id of the stopped node that needs to be
 // started. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) StartNode(ctx context.Context, nodeName string, startNodeDescription StartNodeDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: startNodeDescription,
@@ -9701,7 +9399,7 @@ func (client BaseClient) StartNode(ctx context.Context, nodeName string, startNo
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StartNode", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StartNode")
 	}
 
 	req, err := client.StartNodePreparer(ctx, nodeName, startNodeDescription, timeout)
@@ -9737,8 +9435,6 @@ func (client BaseClient) StartNodePreparer(ctx context.Context, nodeName string,
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9776,17 +9472,17 @@ func (client BaseClient) StartNodeResponder(resp *http.Response) (result autores
 // returns the node may not have finished transitioning yet.
 // Call GetNodeTransitionProgress with the same OperationId to get the progress of the operation.
 //
-// nodeName is the name of the node. operationID is a GUID that identifies a call of this API.  This is passed into
-// the corresponding GetProgress API nodeTransitionType is indicates the type of transition to perform.
+// nodeName is the name of the node. operationID is a GUID that identifies a call of this API.  This is passed into the
+// corresponding GetProgress API nodeTransitionType is indicates the type of transition to perform.
 // NodeTransitionType.Start will start a stopped node.  NodeTransitionType.Stop will stop a node that is up.
 // - Invalid - Reserved.  Do not pass into API.
 // - Start - Transition a stopped node to up.
-// - Stop - Transition an up node to stopped. nodeInstanceID is the node instance ID of the target node.  This can
-// be determined through GetNodeInfo API. stopDurationInSeconds is the duration, in seconds, to keep the node
-// stopped.  The minimum value is 600, the maximum is 14400.  After this time expires, the node will automatically
-// come back up. timeout is the server timeout for performing the operation in seconds. This specifies the time
-// duration that the client is willing to wait for the requested operation to complete. The default value for this
-// parameter is 60 seconds.
+// - Stop - Transition an up node to stopped. nodeInstanceID is the node instance ID of the target node.  This can be
+// determined through GetNodeInfo API. stopDurationInSeconds is the duration, in seconds, to keep the node stopped.
+// The minimum value is 600, the maximum is 14400.  After this time expires, the node will automatically come back up.
+// timeout is the server timeout for performing the operation in seconds. This specifies the time duration that the
+// client is willing to wait for the requested operation to complete. The default value for this parameter is 60
+// seconds.
 func (client BaseClient) StartNodeTransition(ctx context.Context, nodeName string, operationID uuid.UUID, nodeTransitionType string, nodeInstanceID string, stopDurationInSeconds int32, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: stopDurationInSeconds,
@@ -9796,7 +9492,7 @@ func (client BaseClient) StartNodeTransition(ctx context.Context, nodeName strin
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StartNodeTransition", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StartNodeTransition")
 	}
 
 	req, err := client.StartNodeTransitionPreparer(ctx, nodeName, operationID, nodeTransitionType, nodeInstanceID, stopDurationInSeconds, timeout)
@@ -9836,8 +9532,6 @@ func (client BaseClient) StartNodeTransitionPreparer(ctx context.Context, nodeNa
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9873,14 +9567,14 @@ func (client BaseClient) StartNodeTransitionResponder(resp *http.Response) (resu
 //
 // Call the GetPartitionRestartProgress API using the same OperationId to get the progress.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this
-// API.  This is passed into the corresponding GetProgress API restartPartitionMode is - Invalid - Reserved.  Do
-// not pass into API.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this API.
+// This is passed into the corresponding GetProgress API restartPartitionMode is - Invalid - Reserved.  Do not pass
+// into API.
 // - AllReplicasOrInstances - All replicas or instances in the partition are restarted at once.
-// - OnlyActiveSecondaries - Only the secondary replicas are restarted. timeout is the server timeout for
-// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
-// requested operation to complete. The default value for this parameter is 60 seconds.
+// - OnlyActiveSecondaries - Only the secondary replicas are restarted. timeout is the server timeout for performing
+// the operation in seconds. This specifies the time duration that the client is willing to wait for the requested
+// operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) StartPartitionRestart(ctx context.Context, serviceID string, partitionID uuid.UUID, operationID uuid.UUID, restartPartitionMode string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -9888,7 +9582,7 @@ func (client BaseClient) StartPartitionRestart(ctx context.Context, serviceID st
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StartPartitionRestart", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StartPartitionRestart")
 	}
 
 	req, err := client.StartPartitionRestartPreparer(ctx, serviceID, partitionID, operationID, restartPartitionMode, timeout)
@@ -9927,8 +9621,6 @@ func (client BaseClient) StartPartitionRestartPreparer(ctx context.Context, serv
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -9967,18 +9659,18 @@ func (client BaseClient) StartPartitionRestartResponder(resp *http.Response) (re
 // This can only be called on stateful persisted (HasPersistedState==true) services.  Do not use this API on stateless
 // services or stateful in-memory only services.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this
-// API.  This is passed into the corresponding GetProgress API quorumLossMode is this enum is passed to the
-// StartQuorumLoss API to indicate what type of quorum loss to induce.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. partitionID is the identity of the partition. operationID is a GUID that identifies a call of this API.
+// This is passed into the corresponding GetProgress API quorumLossMode is this enum is passed to the StartQuorumLoss
+// API to indicate what type of quorum loss to induce.
 // - Invalid - Reserved.  Do not pass into API.
 // - QuorumReplicas - Partial Quorum loss mode : Minimum number of replicas for a partition will be down that will
 // cause a quorum loss.
 // - AllReplicas- Full Quorum loss mode : All replicas for a partition will be down that will cause a quorum loss.
 // quorumLossDuration is the amount of time for which the partition will be kept in quorum loss.  This must be
-// specified in seconds. timeout is the server timeout for performing the operation in seconds. This specifies the
-// time duration that the client is willing to wait for the requested operation to complete. The default value for
-// this parameter is 60 seconds.
+// specified in seconds. timeout is the server timeout for performing the operation in seconds. This specifies the time
+// duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) StartQuorumLoss(ctx context.Context, serviceID string, partitionID uuid.UUID, operationID uuid.UUID, quorumLossMode string, quorumLossDuration int32, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -9986,7 +9678,7 @@ func (client BaseClient) StartQuorumLoss(ctx context.Context, serviceID string, 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StartQuorumLoss", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StartQuorumLoss")
 	}
 
 	req, err := client.StartQuorumLossPreparer(ctx, serviceID, partitionID, operationID, quorumLossMode, quorumLossDuration, timeout)
@@ -10026,8 +9718,6 @@ func (client BaseClient) StartQuorumLossPreparer(ctx context.Context, serviceID 
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -10069,7 +9759,7 @@ func (client BaseClient) StopChaos(ctx context.Context, timeout *int64) (result 
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StopChaos", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StopChaos")
 	}
 
 	req, err := client.StopChaosPreparer(ctx, timeout)
@@ -10101,8 +9791,6 @@ func (client BaseClient) StopChaosPreparer(ctx context.Context, timeout *int64) 
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -10137,8 +9825,8 @@ func (client BaseClient) StopChaosResponder(resp *http.Response) (result autores
 //
 // nodeName is the name of the node. stopNodeDescription is the instance id of the stopped node that needs to be
 // stopped. timeout is the server timeout for performing the operation in seconds. This specifies the time duration
-// that the client is willing to wait for the requested operation to complete. The default value for this parameter
-// is 60 seconds.
+// that the client is willing to wait for the requested operation to complete. The default value for this parameter is
+// 60 seconds.
 func (client BaseClient) StopNode(ctx context.Context, nodeName string, stopNodeDescription StopNodeDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: stopNodeDescription,
@@ -10148,7 +9836,7 @@ func (client BaseClient) StopNode(ctx context.Context, nodeName string, stopNode
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "StopNode", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "StopNode")
 	}
 
 	req, err := client.StopNodePreparer(ctx, nodeName, stopNodeDescription, timeout)
@@ -10184,8 +9872,6 @@ func (client BaseClient) StopNodePreparer(ctx context.Context, nodeName string, 
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -10223,8 +9909,8 @@ func (client BaseClient) StopNodeResponder(resp *http.Response) (result autorest
 //
 // applicationTypeName is the name of the application type. applicationTypeImageStoreVersion is the version of the
 // application type in the image store. timeout is the server timeout for performing the operation in seconds. This
-// specifies the time duration that the client is willing to wait for the requested operation to complete. The
-// default value for this parameter is 60 seconds.
+// specifies the time duration that the client is willing to wait for the requested operation to complete. The default
+// value for this parameter is 60 seconds.
 func (client BaseClient) UnprovisionApplicationType(ctx context.Context, applicationTypeName string, applicationTypeImageStoreVersion ApplicationTypeImageStoreVersion, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: applicationTypeImageStoreVersion,
@@ -10234,7 +9920,7 @@ func (client BaseClient) UnprovisionApplicationType(ctx context.Context, applica
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "UnprovisionApplicationType", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "UnprovisionApplicationType")
 	}
 
 	req, err := client.UnprovisionApplicationTypePreparer(ctx, applicationTypeName, applicationTypeImageStoreVersion, timeout)
@@ -10270,8 +9956,6 @@ func (client BaseClient) UnprovisionApplicationTypePreparer(ctx context.Context,
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -10309,9 +9993,9 @@ func (client BaseClient) UnprovisionApplicationTypeResponder(resp *http.Response
 //
 // applicationID is the identity of the application. This is typically the full name of the application without the
 // 'fabric:' URI scheme. applicationUpgradeUpdateDescription is describes the parameters for updating an existing
-// application upgrade. timeout is the server timeout for performing the operation in seconds. This specifies the
-// time duration that the client is willing to wait for the requested operation to complete. The default value for
-// this parameter is 60 seconds.
+// application upgrade. timeout is the server timeout for performing the operation in seconds. This specifies the time
+// duration that the client is willing to wait for the requested operation to complete. The default value for this
+// parameter is 60 seconds.
 func (client BaseClient) UpdateApplicationUpgrade(ctx context.Context, applicationID string, applicationUpgradeUpdateDescription ApplicationUpgradeUpdateDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: applicationUpgradeUpdateDescription,
@@ -10321,7 +10005,7 @@ func (client BaseClient) UpdateApplicationUpgrade(ctx context.Context, applicati
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "UpdateApplicationUpgrade", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "UpdateApplicationUpgrade")
 	}
 
 	req, err := client.UpdateApplicationUpgradePreparer(ctx, applicationID, applicationUpgradeUpdateDescription, timeout)
@@ -10357,8 +10041,6 @@ func (client BaseClient) UpdateApplicationUpgradePreparer(ctx context.Context, a
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -10392,10 +10074,10 @@ func (client BaseClient) UpdateApplicationUpgradeResponder(resp *http.Response) 
 
 // UpdateService updates the specified service using the given update description.
 //
-// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:'
-// URI scheme. serviceUpdateDescription is the updated configuration for the service. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// serviceID is the identity of the service. This is typically the full name of the service without the 'fabric:' URI
+// scheme. serviceUpdateDescription is the updated configuration for the service. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) UpdateService(ctx context.Context, serviceID string, serviceUpdateDescription BasicServiceUpdateDescription, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -10403,7 +10085,7 @@ func (client BaseClient) UpdateService(ctx context.Context, serviceID string, se
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "UpdateService", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "UpdateService")
 	}
 
 	req, err := client.UpdateServicePreparer(ctx, serviceID, serviceUpdateDescription, timeout)
@@ -10439,8 +10121,6 @@ func (client BaseClient) UpdateServicePreparer(ctx context.Context, serviceID st
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -10476,9 +10156,9 @@ func (client BaseClient) UpdateServiceResponder(resp *http.Response) (result aut
 // if the connection fails. The file's data needs to be added to the request body. The contents will be uploaded to the
 // specified path.
 //
-// contentPath is relative path to file or folder in the image store from its root. timeout is the server timeout
-// for performing the operation in seconds. This specifies the time duration that the client is willing to wait for
-// the requested operation to complete. The default value for this parameter is 60 seconds.
+// contentPath is relative path to file or folder in the image store from its root. timeout is the server timeout for
+// performing the operation in seconds. This specifies the time duration that the client is willing to wait for the
+// requested operation to complete. The default value for this parameter is 60 seconds.
 func (client BaseClient) UploadFile(ctx context.Context, contentPath string, timeout *int64) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: timeout,
@@ -10486,7 +10166,7 @@ func (client BaseClient) UploadFile(ctx context.Context, contentPath string, tim
 				Chain: []validation.Constraint{{Target: "timeout", Name: validation.InclusiveMaximum, Rule: 4294967295, Chain: nil},
 					{Target: "timeout", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("servicefabric.BaseClient", "UploadFile", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicefabric.BaseClient", "UploadFile")
 	}
 
 	req, err := client.UploadFilePreparer(ctx, contentPath, timeout)
@@ -10522,8 +10202,6 @@ func (client BaseClient) UploadFilePreparer(ctx context.Context, contentPath str
 	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
-	} else {
-		queryParameters["timeout"] = autorest.Encode("query", 60)
 	}
 
 	preparer := autorest.CreatePreparer(

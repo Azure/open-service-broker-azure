@@ -47,7 +47,7 @@ func (client NamespacesClient) CheckNameAvailabilityMethod(ctx context.Context, 
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Name", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "CheckNameAvailabilityMethod", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "CheckNameAvailabilityMethod")
 	}
 
 	req, err := client.CheckNameAvailabilityMethodPreparer(ctx, parameters)
@@ -115,14 +115,14 @@ func (client NamespacesClient) CheckNameAvailabilityMethodResponder(resp *http.R
 // CreateOrUpdate creates or updates a service namespace. Once created, this namespace's resource manifest is
 // immutable. This operation is idempotent.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name. parameters is parameters supplied to create a namespace resource.
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name.
+// parameters is parameters supplied to create a namespace resource.
 func (client NamespacesClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, namespaceName string, parameters SBNamespace) (result NamespacesCreateOrUpdateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.MinLength, Rule: 1, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, namespaceName, parameters)
@@ -193,8 +193,8 @@ func (client NamespacesClient) CreateOrUpdateResponder(resp *http.Response) (res
 
 // CreateOrUpdateAuthorizationRule creates or updates an authorization rule for a namespace.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name authorizationRuleName is the authorizationrule name. parameters is the shared access authorization rule.
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
+// authorizationRuleName is the authorizationrule name. parameters is the shared access authorization rule.
 func (client NamespacesClient) CreateOrUpdateAuthorizationRule(ctx context.Context, resourceGroupName string, namespaceName string, authorizationRuleName string, parameters SBAuthorizationRule) (result SBAuthorizationRule, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -209,7 +209,7 @@ func (client NamespacesClient) CreateOrUpdateAuthorizationRule(ctx context.Conte
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.SBAuthorizationRuleProperties", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "parameters.SBAuthorizationRuleProperties.Rights", Name: validation.Null, Rule: true, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "CreateOrUpdateAuthorizationRule", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "CreateOrUpdateAuthorizationRule")
 	}
 
 	req, err := client.CreateOrUpdateAuthorizationRulePreparer(ctx, resourceGroupName, namespaceName, authorizationRuleName, parameters)
@@ -279,8 +279,7 @@ func (client NamespacesClient) CreateOrUpdateAuthorizationRuleResponder(resp *ht
 
 // Delete deletes an existing namespace. This operation also removes all associated resources under the namespace.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
 func (client NamespacesClient) Delete(ctx context.Context, resourceGroupName string, namespaceName string) (result NamespacesDeleteFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -289,7 +288,7 @@ func (client NamespacesClient) Delete(ctx context.Context, resourceGroupName str
 		{TargetValue: namespaceName,
 			Constraints: []validation.Constraint{{Target: "namespaceName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "namespaceName", Name: validation.MinLength, Rule: 6, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, resourceGroupName, namespaceName)
@@ -357,8 +356,8 @@ func (client NamespacesClient) DeleteResponder(resp *http.Response) (result auto
 
 // DeleteAuthorizationRule deletes a namespace authorization rule.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name authorizationRuleName is the authorizationrule name.
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
+// authorizationRuleName is the authorizationrule name.
 func (client NamespacesClient) DeleteAuthorizationRule(ctx context.Context, resourceGroupName string, namespaceName string, authorizationRuleName string) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -370,7 +369,7 @@ func (client NamespacesClient) DeleteAuthorizationRule(ctx context.Context, reso
 		{TargetValue: authorizationRuleName,
 			Constraints: []validation.Constraint{{Target: "authorizationRuleName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "authorizationRuleName", Name: validation.MinLength, Rule: 1, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "DeleteAuthorizationRule", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "DeleteAuthorizationRule")
 	}
 
 	req, err := client.DeleteAuthorizationRulePreparer(ctx, resourceGroupName, namespaceName, authorizationRuleName)
@@ -437,8 +436,7 @@ func (client NamespacesClient) DeleteAuthorizationRuleResponder(resp *http.Respo
 
 // Get gets a description for the specified namespace.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
 func (client NamespacesClient) Get(ctx context.Context, resourceGroupName string, namespaceName string) (result SBNamespace, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -447,7 +445,7 @@ func (client NamespacesClient) Get(ctx context.Context, resourceGroupName string
 		{TargetValue: namespaceName,
 			Constraints: []validation.Constraint{{Target: "namespaceName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "namespaceName", Name: validation.MinLength, Rule: 6, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, resourceGroupName, namespaceName)
@@ -514,8 +512,8 @@ func (client NamespacesClient) GetResponder(resp *http.Response) (result SBNames
 
 // GetAuthorizationRule gets an authorization rule for a namespace by rule name.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name authorizationRuleName is the authorizationrule name.
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
+// authorizationRuleName is the authorizationrule name.
 func (client NamespacesClient) GetAuthorizationRule(ctx context.Context, resourceGroupName string, namespaceName string, authorizationRuleName string) (result SBAuthorizationRule, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -527,7 +525,7 @@ func (client NamespacesClient) GetAuthorizationRule(ctx context.Context, resourc
 		{TargetValue: authorizationRuleName,
 			Constraints: []validation.Constraint{{Target: "authorizationRuleName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "authorizationRuleName", Name: validation.MinLength, Rule: 1, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "GetAuthorizationRule", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "GetAuthorizationRule")
 	}
 
 	req, err := client.GetAuthorizationRulePreparer(ctx, resourceGroupName, namespaceName, authorizationRuleName)
@@ -685,8 +683,7 @@ func (client NamespacesClient) ListComplete(ctx context.Context) (result SBNames
 
 // ListAuthorizationRules gets the authorization rules for a namespace.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
 func (client NamespacesClient) ListAuthorizationRules(ctx context.Context, resourceGroupName string, namespaceName string) (result SBAuthorizationRuleListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -695,7 +692,7 @@ func (client NamespacesClient) ListAuthorizationRules(ctx context.Context, resou
 		{TargetValue: namespaceName,
 			Constraints: []validation.Constraint{{Target: "namespaceName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "namespaceName", Name: validation.MinLength, Rule: 6, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "ListAuthorizationRules", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "ListAuthorizationRules")
 	}
 
 	result.fn = client.listAuthorizationRulesNextResults
@@ -796,7 +793,7 @@ func (client NamespacesClient) ListByResourceGroup(ctx context.Context, resource
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.MinLength, Rule: 1, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "ListByResourceGroup", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "ListByResourceGroup")
 	}
 
 	result.fn = client.listByResourceGroupNextResults
@@ -890,8 +887,8 @@ func (client NamespacesClient) ListByResourceGroupComplete(ctx context.Context, 
 
 // ListKeys gets the primary and secondary connection strings for the namespace.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name authorizationRuleName is the authorizationrule name.
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
+// authorizationRuleName is the authorizationrule name.
 func (client NamespacesClient) ListKeys(ctx context.Context, resourceGroupName string, namespaceName string, authorizationRuleName string) (result AccessKeys, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -903,7 +900,7 @@ func (client NamespacesClient) ListKeys(ctx context.Context, resourceGroupName s
 		{TargetValue: authorizationRuleName,
 			Constraints: []validation.Constraint{{Target: "authorizationRuleName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "authorizationRuleName", Name: validation.MinLength, Rule: 1, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "ListKeys", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "ListKeys")
 	}
 
 	req, err := client.ListKeysPreparer(ctx, resourceGroupName, namespaceName, authorizationRuleName)
@@ -971,8 +968,8 @@ func (client NamespacesClient) ListKeysResponder(resp *http.Response) (result Ac
 
 // RegenerateKeys regenerates the primary or secondary connection strings for the namespace.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name authorizationRuleName is the authorizationrule name. parameters is parameters supplied to regenerate the
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
+// authorizationRuleName is the authorizationrule name. parameters is parameters supplied to regenerate the
 // authorization rule.
 func (client NamespacesClient) RegenerateKeys(ctx context.Context, resourceGroupName string, namespaceName string, authorizationRuleName string, parameters RegenerateAccessKeyParameters) (result AccessKeys, err error) {
 	if err := validation.Validate([]validation.Validation{
@@ -985,7 +982,7 @@ func (client NamespacesClient) RegenerateKeys(ctx context.Context, resourceGroup
 		{TargetValue: authorizationRuleName,
 			Constraints: []validation.Constraint{{Target: "authorizationRuleName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "authorizationRuleName", Name: validation.MinLength, Rule: 1, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "RegenerateKeys", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "RegenerateKeys")
 	}
 
 	req, err := client.RegenerateKeysPreparer(ctx, resourceGroupName, namespaceName, authorizationRuleName, parameters)
@@ -1056,8 +1053,8 @@ func (client NamespacesClient) RegenerateKeysResponder(resp *http.Response) (res
 // Update updates a service namespace. Once created, this namespace's resource manifest is immutable. This operation is
 // idempotent.
 //
-// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace
-// name parameters is parameters supplied to update a namespace resource.
+// resourceGroupName is name of the Resource group within the Azure subscription. namespaceName is the namespace name
+// parameters is parameters supplied to update a namespace resource.
 func (client NamespacesClient) Update(ctx context.Context, resourceGroupName string, namespaceName string, parameters SBNamespaceUpdateParameters) (result SBNamespace, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -1066,7 +1063,7 @@ func (client NamespacesClient) Update(ctx context.Context, resourceGroupName str
 		{TargetValue: namespaceName,
 			Constraints: []validation.Constraint{{Target: "namespaceName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "namespaceName", Name: validation.MinLength, Rule: 6, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("servicebus.NamespacesClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "servicebus.NamespacesClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, resourceGroupName, namespaceName, parameters)

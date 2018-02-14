@@ -1,14 +1,13 @@
 package arm
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
-	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
+	"github.com/Azure/azure-sdk-for-go/arm/resources/resources"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/open-service-broker-azure/pkg/template"
 	log "github.com/Sirupsen/logrus"
@@ -41,14 +40,14 @@ type Deployer interface {
 
 // deployer is an ARM-based implementation of the Deployer interface
 type deployer struct {
-	groupsClient      resourcesSDK.GroupsClient
-	deploymentsClient resourcesSDK.DeploymentsClient
+	groupsClient      resources.GroupsClient
+	deploymentsClient resources.DeploymentsClient
 }
 
 // NewDeployer returns a new ARM-based implementation of the Deployer interface
 func NewDeployer(
-	groupsClient resourcesSDK.GroupsClient,
-	deploymentsClient resourcesSDK.DeploymentsClient,
+	groupsClient resources.GroupsClient,
+	deploymentsClient resources.DeploymentsClient,
 ) Deployer {
 	return &deployer{
 		groupsClient:      groupsClient,
@@ -157,39 +156,40 @@ func (d *deployer) Deploy(
 		)
 	}
 
-	return getOutputs(deployment)
+	return getOutputs(deployment), nil
 }
 
 func (d *deployer) Delete(
 	deploymentName string,
 	resourceGroupName string,
 ) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	result, err := d.deploymentsClient.Delete(
-		ctx,
+	cancelCh := make(chan struct{})
+	defer close(cancelCh)
+	_, errChan := d.deploymentsClient.Delete(
 		resourceGroupName,
 		deploymentName,
+		cancelCh,
 	)
-	if err != nil {
+	timer := time.NewTimer(time.Minute * 20)
+	defer timer.Stop()
+	select {
+	case err := <-errChan:
+		if err != nil {
+			return fmt.Errorf(
+				`error deleting deployment "%s" from resource group "%s": %s`,
+				deploymentName,
+				resourceGroupName,
+				err,
+			)
+		}
+	case <-timer.C:
 		return fmt.Errorf(
-			`error deleting deployment "%s" from resource group "%s": %s`,
+			`timed out deleting deployment "%s" from resource group "%s"`,
 			deploymentName,
 			resourceGroupName,
-			err,
 		)
 	}
-	if err := result.WaitForCompletion(
-		ctx,
-		d.deploymentsClient.Client,
-	); err != nil {
-		return fmt.Errorf(
-			`error deleting deployment "%s" from resource group "%s": %s`,
-			deploymentName,
-			resourceGroupName,
-			err,
-		)
-	}
+
 	return nil
 }
 
@@ -201,14 +201,8 @@ func (d *deployer) Delete(
 func (d *deployer) getDeploymentAndStatus(
 	deploymentName string,
 	resourceGroupName string,
-) (*resourcesSDK.DeploymentExtended, deploymentStatus, error) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	deployment, err := d.deploymentsClient.Get(
-		ctx,
-		resourceGroupName,
-		deploymentName,
-	)
+) (*resources.DeploymentExtended, deploymentStatus, error) {
+	deployment, err := d.deploymentsClient.Get(resourceGroupName, deploymentName)
 	if err != nil {
 		detailedErr, ok := err.(autorest.DetailedError)
 		if !ok || detailedErr.StatusCode != http.StatusNotFound {
@@ -236,10 +230,8 @@ func (d *deployer) doNewDeployment(
 	goParams interface{},
 	armParams map[string]interface{},
 	tags map[string]string,
-) (*resourcesSDK.DeploymentExtended, error) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	res, err := d.groupsClient.CheckExistence(ctx, resourceGroupName)
+) (*resources.DeploymentExtended, error) {
+	res, err := d.groupsClient.CheckExistence(resourceGroupName)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"error checking existence of resource group: %s",
@@ -248,9 +240,8 @@ func (d *deployer) doNewDeployment(
 	}
 	if res.StatusCode == http.StatusNotFound {
 		if _, err = d.groupsClient.CreateOrUpdate(
-			ctx,
 			resourceGroupName,
-			resourcesSDK.Group{
+			resources.Group{
 				Name:     &resourceGroupName,
 				Location: &location,
 			},
@@ -309,39 +300,36 @@ func (d *deployer) doNewDeployment(
 	}
 
 	// Deploy the template
-	result, err := d.deploymentsClient.CreateOrUpdate(
-		ctx,
+	cancelCh := make(chan struct{})
+	defer close(cancelCh)
+	_, errChan := d.deploymentsClient.CreateOrUpdate(
 		resourceGroupName,
 		deploymentName,
-		resourcesSDK.Deployment{
-			Properties: &resourcesSDK.DeploymentProperties{
+		resources.Deployment{
+			Properties: &resources.DeploymentProperties{
 				Template:   &armTemplateMap,
 				Parameters: &armParamsMap,
-				Mode:       resourcesSDK.Incremental,
+				Mode:       resources.Incremental,
 			},
 		},
+		cancelCh,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error submitting ARM template: %s", err)
+	timer := time.NewTimer(time.Minute * 30)
+	defer timer.Stop()
+	select {
+	case err = <-errChan:
+		if err != nil {
+			return nil, fmt.Errorf("error submitting ARM template: %s", err)
+		}
+	case <-timer.C:
+		return nil, errors.New("timed out waiting for deployment to complete")
 	}
 
-	if err = result.WaitForCompletion(
-		ctx,
-		d.deploymentsClient.Client,
-	); err != nil {
-		return nil,
-			fmt.Errorf("error while waiting for deployment to complete: %s", err)
-	}
-
-	// Deployment object found via the result doesn't include properties, so we
-	// need to make a separate call to retrieve the deployment
-	deployment, err := d.deploymentsClient.Get(
-		ctx,
-		resourceGroupName,
-		deploymentName,
-	)
+	// Deployment object found on the result channel doesn't include properties,
+	// so we need to make a separate call to retrieve the deployment
+	deployment, err := d.deploymentsClient.Get(resourceGroupName, deploymentName)
 	if err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("error retrieving completed deployment: %s", err)
 	}
 
 	return &deployment, nil
@@ -352,12 +340,12 @@ func (d *deployer) doNewDeployment(
 func (d *deployer) pollUntilComplete(
 	deploymentName string,
 	resourceGroupName string,
-) (*resourcesSDK.DeploymentExtended, error) {
+) (*resources.DeploymentExtended, error) {
 	ticker := time.NewTicker(time.Second * 10)
 	defer ticker.Stop()
 	timer := time.NewTimer(time.Minute * 30)
 	defer timer.Stop()
-	var deployment *resourcesSDK.DeploymentExtended
+	var deployment *resources.DeploymentExtended
 	var ds deploymentStatus
 	var err error
 	for {
@@ -399,19 +387,11 @@ func (d *deployer) pollUntilComplete(
 }
 
 func getOutputs(
-	deployment *resourcesSDK.DeploymentExtended,
-) (map[string]interface{}, error) {
-	outputs, ok := deployment.Properties.Outputs.(map[string]interface{})
-	if !ok {
-		return nil, errors.New("error decoding deployment outputs")
+	deployment *resources.DeploymentExtended,
+) map[string]interface{} {
+	outputs := make(map[string]interface{})
+	for k, v := range *deployment.Properties.Outputs {
+		outputs[k] = v.(map[string]interface{})["value"]
 	}
-	retOutputs := map[string]interface{}{}
-	for k, v := range outputs {
-		output, ok := v.(map[string]interface{})
-		if !ok {
-			return nil, errors.New("error decoding deployment outputs")
-		}
-		retOutputs[k] = output["value"]
-	}
-	return retOutputs, nil
+	return outputs
 }

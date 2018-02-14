@@ -1,7 +1,7 @@
 package mysqldb
 
 import (
-	mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql" // nolint: lll
+	mysqlSDK "github.com/Azure/azure-sdk-for-go/arm/mysql"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -14,23 +14,21 @@ type module struct {
 }
 
 type allInOneManager struct {
-	sqlDatabaseDNSSuffix        string
-	armDeployer                 arm.Deployer
-	checkNameAvailabilityClient mysqlSDK.CheckNameAvailabilityClient
-	serversClient               mysqlSDK.ServersClient
+	sqlDatabaseDNSSuffix string
+	armDeployer          arm.Deployer
+	serversClient        mysqlSDK.ServersClient
 }
 
 type dbmsOnlyManager struct {
-	sqlDatabaseDNSSuffix        string
-	armDeployer                 arm.Deployer
-	checkNameAvailabilityClient mysqlSDK.CheckNameAvailabilityClient
-	serversClient               mysqlSDK.ServersClient
+	sqlDatabaseDNSSuffix string
+	armDeployer          arm.Deployer
+	serversClient        mysqlSDK.ServersClient
 }
 
 type dbOnlyManager struct {
 	sqlDatabaseDNSSuffix string
 	armDeployer          arm.Deployer
-	databasesClient      mysqlSDK.DatabasesClient
+	serversClient        mysqlSDK.ServersClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -39,27 +37,23 @@ type dbOnlyManager struct {
 func New(
 	azureEnvironment azure.Environment,
 	armDeployer arm.Deployer,
-	checkNameAvailabilityClient mysqlSDK.CheckNameAvailabilityClient,
 	serversClient mysqlSDK.ServersClient,
-	databaseClient mysqlSDK.DatabasesClient,
 ) service.Module {
 	return &module{
 		allInOneServiceManager: &allInOneManager{
-			sqlDatabaseDNSSuffix:        azureEnvironment.SQLDatabaseDNSSuffix,
-			armDeployer:                 armDeployer,
-			checkNameAvailabilityClient: checkNameAvailabilityClient,
-			serversClient:               serversClient,
+			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
+			armDeployer:          armDeployer,
+			serversClient:        serversClient,
 		},
 		dbmsOnlyManager: &dbmsOnlyManager{
-			sqlDatabaseDNSSuffix:        azureEnvironment.SQLDatabaseDNSSuffix,
-			armDeployer:                 armDeployer,
-			checkNameAvailabilityClient: checkNameAvailabilityClient,
-			serversClient:               serversClient,
+			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
+			armDeployer:          armDeployer,
+			serversClient:        serversClient,
 		},
 		dbOnlyServiceManager: &dbOnlyManager{
 			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
 			armDeployer:          armDeployer,
-			databasesClient:      databaseClient,
+			serversClient:        serversClient,
 		},
 	}
 }
