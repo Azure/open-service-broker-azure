@@ -83,39 +83,22 @@ func (future GatewayCreateFuture) Result(client GatewayClient) (gr GatewayResour
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayCreateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return gr, azure.NewAsyncOpIncompleteError("servermanagement.GatewayCreateFuture")
+		return gr, autorest.NewError("servermanagement.GatewayCreateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		gr, err = client.CreateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.GatewayCreateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayCreateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	gr, err = client.CreateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayCreateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -131,39 +114,22 @@ func (future GatewayGetProfileFuture) Result(client GatewayClient) (gp GatewayPr
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayGetProfileFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return gp, azure.NewAsyncOpIncompleteError("servermanagement.GatewayGetProfileFuture")
+		return gp, autorest.NewError("servermanagement.GatewayGetProfileFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		gp, err = client.GetProfileResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.GatewayGetProfileFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayGetProfileFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	gp, err = client.GetProfileResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayGetProfileFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -172,7 +138,7 @@ type GatewayParameters struct {
 	// Location - Location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
-	Tags                         interface{} `json:"tags,omitempty"`
+	Tags                         *map[string]interface{} `json:"tags,omitempty"`
 	*GatewayParametersProperties `json:"properties,omitempty"`
 }
 
@@ -183,36 +149,36 @@ func (gp *GatewayParameters) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				gp.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags interface{}
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				gp.Tags = tags
-			}
-		case "properties":
-			if v != nil {
-				var gatewayParametersProperties GatewayParametersProperties
-				err = json.Unmarshal(*v, &gatewayParametersProperties)
-				if err != nil {
-					return err
-				}
-				gp.GatewayParametersProperties = &gatewayParametersProperties
-			}
+	var v *json.RawMessage
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
 		}
+		gp.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]interface{}
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		gp.Tags = &tags
+	}
+
+	v = m["properties"]
+	if v != nil {
+		var properties GatewayParametersProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		gp.GatewayParametersProperties = &properties
 	}
 
 	return nil
@@ -249,8 +215,7 @@ type GatewayProfile struct {
 	StatusBlobSignature *string `json:"statusBlobSignature,omitempty"`
 }
 
-// GatewayRegenerateProfileFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// GatewayRegenerateProfileFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type GatewayRegenerateProfileFuture struct {
 	azure.Future
 	req *http.Request
@@ -262,46 +227,28 @@ func (future GatewayRegenerateProfileFuture) Result(client GatewayClient) (ar au
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayRegenerateProfileFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("servermanagement.GatewayRegenerateProfileFuture")
+		return ar, autorest.NewError("servermanagement.GatewayRegenerateProfileFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.RegenerateProfileResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.GatewayRegenerateProfileFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayRegenerateProfileFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.RegenerateProfileResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayRegenerateProfileFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
 // GatewayResource ...
 type GatewayResource struct {
-	autorest.Response          `json:"-"`
-	*GatewayResourceProperties `json:"properties,omitempty"`
+	autorest.Response `json:"-"`
 	// ID - Resource Manager Resource ID.
 	ID *string `json:"id,omitempty"`
 	// Type - Resource Manager Resource Type.
@@ -311,35 +258,9 @@ type GatewayResource struct {
 	// Location - Resource Manager Resource Location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource Manager Resource Tags.
-	Tags map[string]*string `json:"tags"`
-	Etag *string            `json:"etag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for GatewayResource.
-func (gr GatewayResource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if gr.GatewayResourceProperties != nil {
-		objectMap["properties"] = gr.GatewayResourceProperties
-	}
-	if gr.ID != nil {
-		objectMap["id"] = gr.ID
-	}
-	if gr.Type != nil {
-		objectMap["type"] = gr.Type
-	}
-	if gr.Name != nil {
-		objectMap["name"] = gr.Name
-	}
-	if gr.Location != nil {
-		objectMap["location"] = gr.Location
-	}
-	if gr.Tags != nil {
-		objectMap["tags"] = gr.Tags
-	}
-	if gr.Etag != nil {
-		objectMap["etag"] = gr.Etag
-	}
-	return json.Marshal(objectMap)
+	Tags                       *map[string]*string `json:"tags,omitempty"`
+	Etag                       *string             `json:"etag,omitempty"`
+	*GatewayResourceProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for GatewayResource struct.
@@ -349,72 +270,76 @@ func (gr *GatewayResource) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var gatewayResourceProperties GatewayResourceProperties
-				err = json.Unmarshal(*v, &gatewayResourceProperties)
-				if err != nil {
-					return err
-				}
-				gr.GatewayResourceProperties = &gatewayResourceProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				gr.ID = &ID
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				gr.Type = &typeVar
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				gr.Name = &name
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				gr.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				gr.Tags = tags
-			}
-		case "etag":
-			if v != nil {
-				var etag string
-				err = json.Unmarshal(*v, &etag)
-				if err != nil {
-					return err
-				}
-				gr.Etag = &etag
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties GatewayResourceProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		gr.GatewayResourceProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		gr.ID = &ID
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		gr.Type = &typeVar
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		gr.Name = &name
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		gr.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		gr.Tags = &tags
+	}
+
+	v = m["etag"]
+	if v != nil {
+		var etag string
+		err = json.Unmarshal(*m["etag"], &etag)
+		if err != nil {
+			return err
+		}
+		gr.Etag = &etag
 	}
 
 	return nil
@@ -580,39 +505,22 @@ func (future GatewayUpdateFuture) Result(client GatewayClient) (gr GatewayResour
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return gr, azure.NewAsyncOpIncompleteError("servermanagement.GatewayUpdateFuture")
+		return gr, autorest.NewError("servermanagement.GatewayUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		gr, err = client.UpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.GatewayUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	gr, err = client.UpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -628,39 +536,22 @@ func (future GatewayUpgradeFuture) Result(client GatewayClient) (ar autorest.Res
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayUpgradeFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("servermanagement.GatewayUpgradeFuture")
+		return ar, autorest.NewError("servermanagement.GatewayUpgradeFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.UpgradeResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.GatewayUpgradeFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayUpgradeFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.UpgradeResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.GatewayUpgradeFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -676,39 +567,22 @@ func (future NodeCreateFuture) Result(client NodeClient) (nr NodeResource, err e
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.NodeCreateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return nr, azure.NewAsyncOpIncompleteError("servermanagement.NodeCreateFuture")
+		return nr, autorest.NewError("servermanagement.NodeCreateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		nr, err = client.CreateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.NodeCreateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.NodeCreateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	nr, err = client.CreateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.NodeCreateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -717,7 +591,7 @@ type NodeParameters struct {
 	// Location - Location of the resource.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
-	Tags                      interface{} `json:"tags,omitempty"`
+	Tags                      *map[string]interface{} `json:"tags,omitempty"`
 	*NodeParametersProperties `json:"properties,omitempty"`
 }
 
@@ -728,36 +602,36 @@ func (np *NodeParameters) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				np.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags interface{}
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				np.Tags = tags
-			}
-		case "properties":
-			if v != nil {
-				var nodeParametersProperties NodeParametersProperties
-				err = json.Unmarshal(*v, &nodeParametersProperties)
-				if err != nil {
-					return err
-				}
-				np.NodeParametersProperties = &nodeParametersProperties
-			}
+	var v *json.RawMessage
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
 		}
+		np.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]interface{}
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		np.Tags = &tags
+	}
+
+	v = m["properties"]
+	if v != nil {
+		var properties NodeParametersProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
+		}
+		np.NodeParametersProperties = &properties
 	}
 
 	return nil
@@ -777,8 +651,7 @@ type NodeParametersProperties struct {
 
 // NodeResource a Node Resource.
 type NodeResource struct {
-	autorest.Response       `json:"-"`
-	*NodeResourceProperties `json:"properties,omitempty"`
+	autorest.Response `json:"-"`
 	// ID - Resource Manager Resource ID.
 	ID *string `json:"id,omitempty"`
 	// Type - Resource Manager Resource Type.
@@ -788,35 +661,9 @@ type NodeResource struct {
 	// Location - Resource Manager Resource Location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource Manager Resource Tags.
-	Tags map[string]*string `json:"tags"`
-	Etag *string            `json:"etag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for NodeResource.
-func (nr NodeResource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if nr.NodeResourceProperties != nil {
-		objectMap["properties"] = nr.NodeResourceProperties
-	}
-	if nr.ID != nil {
-		objectMap["id"] = nr.ID
-	}
-	if nr.Type != nil {
-		objectMap["type"] = nr.Type
-	}
-	if nr.Name != nil {
-		objectMap["name"] = nr.Name
-	}
-	if nr.Location != nil {
-		objectMap["location"] = nr.Location
-	}
-	if nr.Tags != nil {
-		objectMap["tags"] = nr.Tags
-	}
-	if nr.Etag != nil {
-		objectMap["etag"] = nr.Etag
-	}
-	return json.Marshal(objectMap)
+	Tags                    *map[string]*string `json:"tags,omitempty"`
+	Etag                    *string             `json:"etag,omitempty"`
+	*NodeResourceProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for NodeResource struct.
@@ -826,72 +673,76 @@ func (nr *NodeResource) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var nodeResourceProperties NodeResourceProperties
-				err = json.Unmarshal(*v, &nodeResourceProperties)
-				if err != nil {
-					return err
-				}
-				nr.NodeResourceProperties = &nodeResourceProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				nr.ID = &ID
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				nr.Type = &typeVar
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				nr.Name = &name
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				nr.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				nr.Tags = tags
-			}
-		case "etag":
-			if v != nil {
-				var etag string
-				err = json.Unmarshal(*v, &etag)
-				if err != nil {
-					return err
-				}
-				nr.Etag = &etag
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties NodeResourceProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		nr.NodeResourceProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		nr.ID = &ID
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		nr.Type = &typeVar
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		nr.Name = &name
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		nr.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		nr.Tags = &tags
+	}
+
+	v = m["etag"]
+	if v != nil {
+		var etag string
+		err = json.Unmarshal(*m["etag"], &etag)
+		if err != nil {
+			return err
+		}
+		nr.Etag = &etag
 	}
 
 	return nil
@@ -1023,44 +874,26 @@ func (future NodeUpdateFuture) Result(client NodeClient) (nr NodeResource, err e
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.NodeUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return nr, azure.NewAsyncOpIncompleteError("servermanagement.NodeUpdateFuture")
+		return nr, autorest.NewError("servermanagement.NodeUpdateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		nr, err = client.UpdateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.NodeUpdateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.NodeUpdateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	nr, err = client.UpdateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.NodeUpdateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
-// PowerShellCancelCommandFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// PowerShellCancelCommandFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type PowerShellCancelCommandFuture struct {
 	azure.Future
 	req *http.Request
@@ -1072,39 +905,22 @@ func (future PowerShellCancelCommandFuture) Result(client PowerShellClient) (psc
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellCancelCommandFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return pscr, azure.NewAsyncOpIncompleteError("servermanagement.PowerShellCancelCommandFuture")
+		return pscr, autorest.NewError("servermanagement.PowerShellCancelCommandFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		pscr, err = client.CancelCommandResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.PowerShellCancelCommandFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellCancelCommandFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	pscr, err = client.CancelCommandResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellCancelCommandFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1120,18 +936,16 @@ func (pscp *PowerShellCommandParameters) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var powerShellCommandParametersProperties PowerShellCommandParametersProperties
-				err = json.Unmarshal(*v, &powerShellCommandParametersProperties)
-				if err != nil {
-					return err
-				}
-				pscp.PowerShellCommandParametersProperties = &powerShellCommandParametersProperties
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties PowerShellCommandParametersProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		pscp.PowerShellCommandParametersProperties = &properties
 	}
 
 	return nil
@@ -1178,8 +992,7 @@ type PowerShellCommandResults struct {
 
 // PowerShellCommandStatus ...
 type PowerShellCommandStatus struct {
-	autorest.Response         `json:"-"`
-	*PowerShellCommandResults `json:"properties,omitempty"`
+	autorest.Response `json:"-"`
 	// ID - Resource Manager Resource ID.
 	ID *string `json:"id,omitempty"`
 	// Type - Resource Manager Resource Type.
@@ -1189,35 +1002,9 @@ type PowerShellCommandStatus struct {
 	// Location - Resource Manager Resource Location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource Manager Resource Tags.
-	Tags map[string]*string `json:"tags"`
-	Etag *string            `json:"etag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for PowerShellCommandStatus.
-func (pscs PowerShellCommandStatus) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if pscs.PowerShellCommandResults != nil {
-		objectMap["properties"] = pscs.PowerShellCommandResults
-	}
-	if pscs.ID != nil {
-		objectMap["id"] = pscs.ID
-	}
-	if pscs.Type != nil {
-		objectMap["type"] = pscs.Type
-	}
-	if pscs.Name != nil {
-		objectMap["name"] = pscs.Name
-	}
-	if pscs.Location != nil {
-		objectMap["location"] = pscs.Location
-	}
-	if pscs.Tags != nil {
-		objectMap["tags"] = pscs.Tags
-	}
-	if pscs.Etag != nil {
-		objectMap["etag"] = pscs.Etag
-	}
-	return json.Marshal(objectMap)
+	Tags                      *map[string]*string `json:"tags,omitempty"`
+	Etag                      *string             `json:"etag,omitempty"`
+	*PowerShellCommandResults `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for PowerShellCommandStatus struct.
@@ -1227,79 +1014,82 @@ func (pscs *PowerShellCommandStatus) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var powerShellCommandResults PowerShellCommandResults
-				err = json.Unmarshal(*v, &powerShellCommandResults)
-				if err != nil {
-					return err
-				}
-				pscs.PowerShellCommandResults = &powerShellCommandResults
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				pscs.ID = &ID
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				pscs.Type = &typeVar
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				pscs.Name = &name
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				pscs.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				pscs.Tags = tags
-			}
-		case "etag":
-			if v != nil {
-				var etag string
-				err = json.Unmarshal(*v, &etag)
-				if err != nil {
-					return err
-				}
-				pscs.Etag = &etag
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties PowerShellCommandResults
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		pscs.PowerShellCommandResults = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		pscs.ID = &ID
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		pscs.Type = &typeVar
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		pscs.Name = &name
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		pscs.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		pscs.Tags = &tags
+	}
+
+	v = m["etag"]
+	if v != nil {
+		var etag string
+		err = json.Unmarshal(*m["etag"], &etag)
+		if err != nil {
+			return err
+		}
+		pscs.Etag = &etag
 	}
 
 	return nil
 }
 
-// PowerShellCreateSessionFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// PowerShellCreateSessionFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type PowerShellCreateSessionFuture struct {
 	azure.Future
 	req *http.Request
@@ -1311,44 +1101,26 @@ func (future PowerShellCreateSessionFuture) Result(client PowerShellClient) (pss
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellCreateSessionFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return pssr, azure.NewAsyncOpIncompleteError("servermanagement.PowerShellCreateSessionFuture")
+		return pssr, autorest.NewError("servermanagement.PowerShellCreateSessionFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		pssr, err = client.CreateSessionResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.PowerShellCreateSessionFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellCreateSessionFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	pssr, err = client.CreateSessionResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellCreateSessionFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
-// PowerShellInvokeCommandFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// PowerShellInvokeCommandFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type PowerShellInvokeCommandFuture struct {
 	azure.Future
 	req *http.Request
@@ -1360,46 +1132,28 @@ func (future PowerShellInvokeCommandFuture) Result(client PowerShellClient) (psc
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellInvokeCommandFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return pscr, azure.NewAsyncOpIncompleteError("servermanagement.PowerShellInvokeCommandFuture")
+		return pscr, autorest.NewError("servermanagement.PowerShellInvokeCommandFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		pscr, err = client.InvokeCommandResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.PowerShellInvokeCommandFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellInvokeCommandFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	pscr, err = client.InvokeCommandResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellInvokeCommandFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
 // PowerShellSessionResource a PowerShell session resource (practically equivalent to a runspace instance).
 type PowerShellSessionResource struct {
-	autorest.Response                    `json:"-"`
-	*PowerShellSessionResourceProperties `json:"properties,omitempty"`
+	autorest.Response `json:"-"`
 	// ID - Resource Manager Resource ID.
 	ID *string `json:"id,omitempty"`
 	// Type - Resource Manager Resource Type.
@@ -1409,35 +1163,9 @@ type PowerShellSessionResource struct {
 	// Location - Resource Manager Resource Location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource Manager Resource Tags.
-	Tags map[string]*string `json:"tags"`
-	Etag *string            `json:"etag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for PowerShellSessionResource.
-func (pssr PowerShellSessionResource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if pssr.PowerShellSessionResourceProperties != nil {
-		objectMap["properties"] = pssr.PowerShellSessionResourceProperties
-	}
-	if pssr.ID != nil {
-		objectMap["id"] = pssr.ID
-	}
-	if pssr.Type != nil {
-		objectMap["type"] = pssr.Type
-	}
-	if pssr.Name != nil {
-		objectMap["name"] = pssr.Name
-	}
-	if pssr.Location != nil {
-		objectMap["location"] = pssr.Location
-	}
-	if pssr.Tags != nil {
-		objectMap["tags"] = pssr.Tags
-	}
-	if pssr.Etag != nil {
-		objectMap["etag"] = pssr.Etag
-	}
-	return json.Marshal(objectMap)
+	Tags                                 *map[string]*string `json:"tags,omitempty"`
+	Etag                                 *string             `json:"etag,omitempty"`
+	*PowerShellSessionResourceProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for PowerShellSessionResource struct.
@@ -1447,72 +1175,76 @@ func (pssr *PowerShellSessionResource) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var powerShellSessionResourceProperties PowerShellSessionResourceProperties
-				err = json.Unmarshal(*v, &powerShellSessionResourceProperties)
-				if err != nil {
-					return err
-				}
-				pssr.PowerShellSessionResourceProperties = &powerShellSessionResourceProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				pssr.ID = &ID
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				pssr.Type = &typeVar
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				pssr.Name = &name
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				pssr.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				pssr.Tags = tags
-			}
-		case "etag":
-			if v != nil {
-				var etag string
-				err = json.Unmarshal(*v, &etag)
-				if err != nil {
-					return err
-				}
-				pssr.Etag = &etag
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties PowerShellSessionResourceProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		pssr.PowerShellSessionResourceProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		pssr.ID = &ID
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		pssr.Type = &typeVar
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		pssr.Name = &name
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		pssr.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		pssr.Tags = &tags
+	}
+
+	v = m["etag"]
+	if v != nil {
+		var etag string
+		err = json.Unmarshal(*m["etag"], &etag)
+		if err != nil {
+			return err
+		}
+		pssr.Etag = &etag
 	}
 
 	return nil
@@ -1550,15 +1282,13 @@ type PowerShellTabCompletionParameters struct {
 	Command *string `json:"command,omitempty"`
 }
 
-// PowerShellTabCompletionResults an array of strings representing the different values that can be selected
-// through.
+// PowerShellTabCompletionResults an array of strings representing the different values that can be selected through.
 type PowerShellTabCompletionResults struct {
 	autorest.Response `json:"-"`
 	Results           *[]string `json:"results,omitempty"`
 }
 
-// PowerShellUpdateCommandFuture an abstraction for monitoring and retrieving the results of a long-running
-// operation.
+// PowerShellUpdateCommandFuture an abstraction for monitoring and retrieving the results of a long-running operation.
 type PowerShellUpdateCommandFuture struct {
 	azure.Future
 	req *http.Request
@@ -1570,39 +1300,22 @@ func (future PowerShellUpdateCommandFuture) Result(client PowerShellClient) (psc
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellUpdateCommandFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return pscr, azure.NewAsyncOpIncompleteError("servermanagement.PowerShellUpdateCommandFuture")
+		return pscr, autorest.NewError("servermanagement.PowerShellUpdateCommandFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		pscr, err = client.UpdateCommandResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.PowerShellUpdateCommandFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellUpdateCommandFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	pscr, err = client.UpdateCommandResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.PowerShellUpdateCommandFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1637,32 +1350,8 @@ type Resource struct {
 	// Location - Resource Manager Resource Location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource Manager Resource Tags.
-	Tags map[string]*string `json:"tags"`
-	Etag *string            `json:"etag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for Resource.
-func (r Resource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if r.ID != nil {
-		objectMap["id"] = r.ID
-	}
-	if r.Type != nil {
-		objectMap["type"] = r.Type
-	}
-	if r.Name != nil {
-		objectMap["name"] = r.Name
-	}
-	if r.Location != nil {
-		objectMap["location"] = r.Location
-	}
-	if r.Tags != nil {
-		objectMap["tags"] = r.Tags
-	}
-	if r.Etag != nil {
-		objectMap["etag"] = r.Etag
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	Etag *string             `json:"etag,omitempty"`
 }
 
 // SessionCreateFuture an abstraction for monitoring and retrieving the results of a long-running operation.
@@ -1677,39 +1366,22 @@ func (future SessionCreateFuture) Result(client SessionClient) (sr SessionResour
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.SessionCreateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return sr, azure.NewAsyncOpIncompleteError("servermanagement.SessionCreateFuture")
+		return sr, autorest.NewError("servermanagement.SessionCreateFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		sr, err = client.CreateResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "servermanagement.SessionCreateFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.SessionCreateFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	sr, err = client.CreateResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "servermanagement.SessionCreateFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
@@ -1725,18 +1397,16 @@ func (sp *SessionParameters) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var sessionParametersProperties SessionParametersProperties
-				err = json.Unmarshal(*v, &sessionParametersProperties)
-				if err != nil {
-					return err
-				}
-				sp.SessionParametersProperties = &sessionParametersProperties
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties SessionParametersProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		sp.SessionParametersProperties = &properties
 	}
 
 	return nil
@@ -1752,8 +1422,7 @@ type SessionParametersProperties struct {
 
 // SessionResource the session object.
 type SessionResource struct {
-	autorest.Response          `json:"-"`
-	*SessionResourceProperties `json:"properties,omitempty"`
+	autorest.Response `json:"-"`
 	// ID - Resource Manager Resource ID.
 	ID *string `json:"id,omitempty"`
 	// Type - Resource Manager Resource Type.
@@ -1763,35 +1432,9 @@ type SessionResource struct {
 	// Location - Resource Manager Resource Location.
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource Manager Resource Tags.
-	Tags map[string]*string `json:"tags"`
-	Etag *string            `json:"etag,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for SessionResource.
-func (sr SessionResource) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if sr.SessionResourceProperties != nil {
-		objectMap["properties"] = sr.SessionResourceProperties
-	}
-	if sr.ID != nil {
-		objectMap["id"] = sr.ID
-	}
-	if sr.Type != nil {
-		objectMap["type"] = sr.Type
-	}
-	if sr.Name != nil {
-		objectMap["name"] = sr.Name
-	}
-	if sr.Location != nil {
-		objectMap["location"] = sr.Location
-	}
-	if sr.Tags != nil {
-		objectMap["tags"] = sr.Tags
-	}
-	if sr.Etag != nil {
-		objectMap["etag"] = sr.Etag
-	}
-	return json.Marshal(objectMap)
+	Tags                       *map[string]*string `json:"tags,omitempty"`
+	Etag                       *string             `json:"etag,omitempty"`
+	*SessionResourceProperties `json:"properties,omitempty"`
 }
 
 // UnmarshalJSON is the custom unmarshaler for SessionResource struct.
@@ -1801,72 +1444,76 @@ func (sr *SessionResource) UnmarshalJSON(body []byte) error {
 	if err != nil {
 		return err
 	}
-	for k, v := range m {
-		switch k {
-		case "properties":
-			if v != nil {
-				var sessionResourceProperties SessionResourceProperties
-				err = json.Unmarshal(*v, &sessionResourceProperties)
-				if err != nil {
-					return err
-				}
-				sr.SessionResourceProperties = &sessionResourceProperties
-			}
-		case "id":
-			if v != nil {
-				var ID string
-				err = json.Unmarshal(*v, &ID)
-				if err != nil {
-					return err
-				}
-				sr.ID = &ID
-			}
-		case "type":
-			if v != nil {
-				var typeVar string
-				err = json.Unmarshal(*v, &typeVar)
-				if err != nil {
-					return err
-				}
-				sr.Type = &typeVar
-			}
-		case "name":
-			if v != nil {
-				var name string
-				err = json.Unmarshal(*v, &name)
-				if err != nil {
-					return err
-				}
-				sr.Name = &name
-			}
-		case "location":
-			if v != nil {
-				var location string
-				err = json.Unmarshal(*v, &location)
-				if err != nil {
-					return err
-				}
-				sr.Location = &location
-			}
-		case "tags":
-			if v != nil {
-				var tags map[string]*string
-				err = json.Unmarshal(*v, &tags)
-				if err != nil {
-					return err
-				}
-				sr.Tags = tags
-			}
-		case "etag":
-			if v != nil {
-				var etag string
-				err = json.Unmarshal(*v, &etag)
-				if err != nil {
-					return err
-				}
-				sr.Etag = &etag
-			}
+	var v *json.RawMessage
+
+	v = m["properties"]
+	if v != nil {
+		var properties SessionResourceProperties
+		err = json.Unmarshal(*m["properties"], &properties)
+		if err != nil {
+			return err
 		}
+		sr.SessionResourceProperties = &properties
+	}
+
+	v = m["id"]
+	if v != nil {
+		var ID string
+		err = json.Unmarshal(*m["id"], &ID)
+		if err != nil {
+			return err
+		}
+		sr.ID = &ID
+	}
+
+	v = m["type"]
+	if v != nil {
+		var typeVar string
+		err = json.Unmarshal(*m["type"], &typeVar)
+		if err != nil {
+			return err
+		}
+		sr.Type = &typeVar
+	}
+
+	v = m["name"]
+	if v != nil {
+		var name string
+		err = json.Unmarshal(*m["name"], &name)
+		if err != nil {
+			return err
+		}
+		sr.Name = &name
+	}
+
+	v = m["location"]
+	if v != nil {
+		var location string
+		err = json.Unmarshal(*m["location"], &location)
+		if err != nil {
+			return err
+		}
+		sr.Location = &location
+	}
+
+	v = m["tags"]
+	if v != nil {
+		var tags map[string]*string
+		err = json.Unmarshal(*m["tags"], &tags)
+		if err != nil {
+			return err
+		}
+		sr.Tags = &tags
+	}
+
+	v = m["etag"]
+	if v != nil {
+		var etag string
+		err = json.Unmarshal(*m["etag"], &etag)
+		if err != nil {
+			return err
+		}
+		sr.Etag = &etag
 	}
 
 	return nil

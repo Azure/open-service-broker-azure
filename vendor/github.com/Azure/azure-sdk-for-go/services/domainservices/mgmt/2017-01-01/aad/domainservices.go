@@ -44,16 +44,16 @@ func NewDomainServicesClientWithBaseURI(baseURI string, subscriptionID string) D
 // the specific service already exists, then any patchable properties will be updated and any immutable properties will
 // remain unchanged.
 //
-// resourceGroupName is the name of the resource group within the user's subscription. The name is case
-// insensitive. domainServiceName is the name of the domain service in the specified subscription and resource
-// group. properties is properties supplied to the Create or Update a Domain Service operation.
+// resourceGroupName is the name of the resource group within the user's subscription. The name is case insensitive.
+// domainServiceName is the name of the domain service in the specified subscription and resource group. properties is
+// properties supplied to the Create or Update a Domain Service operation.
 func (client DomainServicesClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, domainServiceName string, properties DomainServiceProperties) (result DomainServicesCreateOrUpdateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._\(\)]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("aad.DomainServicesClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "aad.DomainServicesClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, domainServiceName, properties)
@@ -124,16 +124,15 @@ func (client DomainServicesClient) CreateOrUpdateResponder(resp *http.Response) 
 
 // Delete the Delete Domain Service operation deletes an existing Domain Service.
 //
-// resourceGroupName is the name of the resource group within the user's subscription. The name is case
-// insensitive. domainServiceName is the name of the domain service in the specified subscription and resource
-// group.
+// resourceGroupName is the name of the resource group within the user's subscription. The name is case insensitive.
+// domainServiceName is the name of the domain service in the specified subscription and resource group.
 func (client DomainServicesClient) Delete(ctx context.Context, resourceGroupName string, domainServiceName string) (result DomainServicesDeleteFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._\(\)]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("aad.DomainServicesClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "aad.DomainServicesClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, resourceGroupName, domainServiceName)
@@ -202,16 +201,15 @@ func (client DomainServicesClient) DeleteResponder(resp *http.Response) (result 
 
 // Get the Get Domain Service operation retrieves a json representation of the Domain Service.
 //
-// resourceGroupName is the name of the resource group within the user's subscription. The name is case
-// insensitive. domainServiceName is the name of the domain service in the specified subscription and resource
-// group.
+// resourceGroupName is the name of the resource group within the user's subscription. The name is case insensitive.
+// domainServiceName is the name of the domain service in the specified subscription and resource group.
 func (client DomainServicesClient) Get(ctx context.Context, resourceGroupName string, domainServiceName string) (result DomainService, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._\(\)]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("aad.DomainServicesClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "aad.DomainServicesClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, resourceGroupName, domainServiceName)
@@ -342,15 +340,14 @@ func (client DomainServicesClient) ListResponder(resp *http.Response) (result Do
 // ListByResourceGroup the List Domain Services in Resource Group operation lists all the domain services available
 // under the given resource group.
 //
-// resourceGroupName is the name of the resource group within the user's subscription. The name is case
-// insensitive.
+// resourceGroupName is the name of the resource group within the user's subscription. The name is case insensitive.
 func (client DomainServicesClient) ListByResourceGroup(ctx context.Context, resourceGroupName string) (result DomainServiceListResult, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._\(\)]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("aad.DomainServicesClient", "ListByResourceGroup", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "aad.DomainServicesClient", "ListByResourceGroup")
 	}
 
 	req, err := client.ListByResourceGroupPreparer(ctx, resourceGroupName)
@@ -417,16 +414,16 @@ func (client DomainServicesClient) ListByResourceGroupResponder(resp *http.Respo
 // Update the Update Domain Service operation can be used to update the existing deployment. The update call only
 // supports the properties listed in the PATCH body.
 //
-// resourceGroupName is the name of the resource group within the user's subscription. The name is case
-// insensitive. domainServiceName is the name of the domain service in the specified subscription and resource
-// group. properties is properties supplied to the Update a Domain Service operation.
+// resourceGroupName is the name of the resource group within the user's subscription. The name is case insensitive.
+// domainServiceName is the name of the domain service in the specified subscription and resource group. properties is
+// properties supplied to the Update a Domain Service operation.
 func (client DomainServicesClient) Update(ctx context.Context, resourceGroupName string, domainServiceName string, properties DomainServicePatchProperties) (result DomainServicesUpdateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._\(\)]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("aad.DomainServicesClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "aad.DomainServicesClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, resourceGroupName, domainServiceName, properties)

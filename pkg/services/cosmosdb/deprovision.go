@@ -40,33 +40,26 @@ func (s *serviceManager) deleteARMDeployment(
 }
 
 func (s *serviceManager) deleteCosmosDBServer(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
-	result, err := s.databaseAccountsClient.Delete(
-		ctx,
+	cancelCh := make(chan struct{})
+	_, errChan := s.databaseAccountsClient.Delete(
 		instance.ResourceGroup,
 		dt.DatabaseAccountName,
+		cancelCh,
 	)
-	if err != nil {
+	if err := <-errChan; err != nil {
 		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
 		if strings.Contains(err.Error(), "StatusCode=404") {
 			return dt, nil
 		}
-		return dt, fmt.Errorf("error deleting cosmosdb server: %s", err)
-	}
-	if err := result.WaitForCompletion(
-		ctx,
-		s.databaseAccountsClient.Client,
-	); err != nil {
 		return dt, fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}
 	return dt, nil

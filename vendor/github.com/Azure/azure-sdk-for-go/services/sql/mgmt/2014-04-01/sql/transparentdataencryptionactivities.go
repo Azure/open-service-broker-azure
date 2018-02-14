@@ -45,11 +45,12 @@ func NewTransparentDataEncryptionActivitiesClientWithBaseURI(baseURI string, sub
 
 // ListByConfiguration returns a database's transparent data encryption operation result.
 //
-// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from
-// the Azure Resource Manager API or the portal. serverName is the name of the server. databaseName is the name of
-// the database for which the transparent data encryption applies.
-func (client TransparentDataEncryptionActivitiesClient) ListByConfiguration(ctx context.Context, resourceGroupName string, serverName string, databaseName string) (result TransparentDataEncryptionActivityListResult, err error) {
-	req, err := client.ListByConfigurationPreparer(ctx, resourceGroupName, serverName, databaseName)
+// resourceGroupName is the name of the resource group that contains the resource. You can obtain this value from the
+// Azure Resource Manager API or the portal. serverName is the name of the server. databaseName is the name of the
+// database for which the transparent data encryption applies. transparentDataEncryptionName is the name of the
+// transparent data encryption configuration.
+func (client TransparentDataEncryptionActivitiesClient) ListByConfiguration(ctx context.Context, resourceGroupName string, serverName string, databaseName string, transparentDataEncryptionName string) (result TransparentDataEncryptionActivityListResult, err error) {
+	req, err := client.ListByConfigurationPreparer(ctx, resourceGroupName, serverName, databaseName, transparentDataEncryptionName)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "sql.TransparentDataEncryptionActivitiesClient", "ListByConfiguration", nil, "Failure preparing request")
 		return
@@ -71,13 +72,13 @@ func (client TransparentDataEncryptionActivitiesClient) ListByConfiguration(ctx 
 }
 
 // ListByConfigurationPreparer prepares the ListByConfiguration request.
-func (client TransparentDataEncryptionActivitiesClient) ListByConfigurationPreparer(ctx context.Context, resourceGroupName string, serverName string, databaseName string) (*http.Request, error) {
+func (client TransparentDataEncryptionActivitiesClient) ListByConfigurationPreparer(ctx context.Context, resourceGroupName string, serverName string, databaseName string, transparentDataEncryptionName string) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
 		"databaseName":                  autorest.Encode("path", databaseName),
 		"resourceGroupName":             autorest.Encode("path", resourceGroupName),
 		"serverName":                    autorest.Encode("path", serverName),
 		"subscriptionId":                autorest.Encode("path", client.SubscriptionID),
-		"transparentDataEncryptionName": autorest.Encode("path", "current"),
+		"transparentDataEncryptionName": autorest.Encode("path", transparentDataEncryptionName),
 	}
 
 	const APIVersion = "2014-04-01"

@@ -53,7 +53,7 @@ func (client CertificatesClient) CreateOrUpdate(ctx context.Context, resourceGro
 						{Target: "certificate.IntegrationAccountCertificateProperties.Key.KeyName", Name: validation.Null, Rule: true, Chain: nil},
 					}},
 				}}}}}); err != nil {
-		return result, validation.NewError("logic.CertificatesClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "logic.CertificatesClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, integrationAccountName, certificateName, certificate)

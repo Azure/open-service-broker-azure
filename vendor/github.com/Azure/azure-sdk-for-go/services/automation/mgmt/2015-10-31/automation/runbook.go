@@ -42,8 +42,8 @@ func NewRunbookClientWithBaseURI(baseURI string, subscriptionID string, resource
 
 // CreateOrUpdate create the runbook identified by runbook name.
 //
-// automationAccountName is the automation account name. runbookName is the runbook name. parameters is the create
-// or update parameters for runbook. Provide either content link for a published runbook or draft, not both.
+// automationAccountName is the automation account name. runbookName is the runbook name. parameters is the create or
+// update parameters for runbook. Provide either content link for a published runbook or draft, not both.
 func (client RunbookClient) CreateOrUpdate(ctx context.Context, automationAccountName string, runbookName string, parameters RunbookCreateOrUpdateParameters) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
@@ -65,7 +65,7 @@ func (client RunbookClient) CreateOrUpdate(ctx context.Context, automationAccoun
 							}},
 						}},
 				}}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, automationAccountName, runbookName, parameters)
@@ -139,7 +139,7 @@ func (client RunbookClient) Delete(ctx context.Context, automationAccountName st
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, automationAccountName, runbookName)
@@ -211,7 +211,7 @@ func (client RunbookClient) Get(ctx context.Context, automationAccountName strin
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, automationAccountName, runbookName)
@@ -284,7 +284,7 @@ func (client RunbookClient) GetContent(ctx context.Context, automationAccountNam
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookClient", "GetContent", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookClient", "GetContent")
 	}
 
 	req, err := client.GetContentPreparer(ctx, automationAccountName, runbookName)
@@ -356,7 +356,7 @@ func (client RunbookClient) ListByAutomationAccount(ctx context.Context, automat
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookClient", "ListByAutomationAccount", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookClient", "ListByAutomationAccount")
 	}
 
 	result.fn = client.listByAutomationAccountNextResults
@@ -457,7 +457,7 @@ func (client RunbookClient) Update(ctx context.Context, automationAccountName st
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.RunbookClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.RunbookClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, automationAccountName, runbookName, parameters)

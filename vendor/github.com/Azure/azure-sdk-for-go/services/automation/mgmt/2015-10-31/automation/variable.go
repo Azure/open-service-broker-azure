@@ -51,7 +51,7 @@ func (client VariableClient) CreateOrUpdate(ctx context.Context, automationAccou
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Name", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "parameters.VariableCreateOrUpdateProperties", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.VariableClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.VariableClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, automationAccountName, variableName, parameters)
@@ -126,7 +126,7 @@ func (client VariableClient) Delete(ctx context.Context, automationAccountName s
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.VariableClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.VariableClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, automationAccountName, variableName)
@@ -198,7 +198,7 @@ func (client VariableClient) Get(ctx context.Context, automationAccountName stri
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.VariableClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.VariableClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, automationAccountName, variableName)
@@ -271,7 +271,7 @@ func (client VariableClient) ListByAutomationAccount(ctx context.Context, automa
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.VariableClient", "ListByAutomationAccount", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.VariableClient", "ListByAutomationAccount")
 	}
 
 	result.fn = client.listByAutomationAccountNextResults
@@ -372,7 +372,7 @@ func (client VariableClient) Update(ctx context.Context, automationAccountName s
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: client.ResourceGroupName,
 			Constraints: []validation.Constraint{{Target: "client.ResourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("automation.VariableClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "automation.VariableClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, automationAccountName, variableName, parameters)

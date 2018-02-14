@@ -3,15 +3,15 @@
 
 [[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
-  packages = ["services/containerinstance/mgmt/2017-08-01-preview/containerinstance","services/cosmos-db/mgmt/2015-04-08/documentdb","services/eventhub/mgmt/2017-04-01/eventhub","services/keyvault/mgmt/2016-10-01/keyvault","services/mysql/mgmt/2017-04-30-preview/mysql","services/postgresql/mgmt/2017-04-30-preview/postgresql","services/redis/mgmt/2017-10-01/redis","services/resources/mgmt/2017-05-10/resources","services/search/mgmt/2015-08-19/search","services/servicebus/mgmt/2017-04-01/servicebus","services/sql/mgmt/2017-03-01-preview/sql","services/storage/mgmt/2017-10-01/storage","storage","version"]
-  revision = "5bf28521f7a6f72f2dde3e5a5fb0d27d7a8aeee9"
-  version = "v14.0.0"
+  packages = ["arm/containerinstance","arm/cosmos-db","arm/eventhub","arm/keyvault","arm/mysql","arm/postgresql","arm/redis","arm/resources/resources","arm/search","arm/servicebus","arm/sql","arm/storage","storage"]
+  revision = "f111fc2fa3861c5fdced76cae4c9c71821969577"
+  version = "v12.4.0-beta"
 
 [[projects]]
   name = "github.com/Azure/go-autorest"
   packages = ["autorest","autorest/adal","autorest/azure","autorest/date","autorest/to","autorest/validation"]
-  revision = "5a06e9ddbe3c22262059b8e061777b9934f982bd"
-  version = "v10.1.0"
+  revision = "fc3b03a2d2d1f43fad3007038bd16f044f870722"
+  version = "v9.10.0"
 
 [[projects]]
   name = "github.com/Masterminds/semver"
@@ -49,10 +49,10 @@
   revision = "b49fae7d39756354262c5f385d4cf04f9ac6618b"
 
 [[projects]]
+  branch = "master"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
-  revision = "dbeaa9332f19a944acb5736b4456cfcc02140e29"
-  version = "v3.1.0"
+  revision = "a539ee1a749a2b895533f979515ac7e6e0f5b650"
 
 [[projects]]
   name = "github.com/go-redis/redis"
@@ -102,8 +102,7 @@
 [[projects]]
   name = "github.com/marstr/guid"
   packages = ["."]
-  revision = "8bd9a64bf37eb297b492a4101fb28e80ac0b290f"
-  version = "v1.1.0"
+  revision = "8bdf7d1a087ccc975cf37dd6507da50698fd19ca"
 
 [[projects]]
   branch = "master"
@@ -163,6 +162,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "73f6a689ac4988611f08cd41973109859bac7aed992145a48cdf5477efdfe2e1"
+  inputs-digest = "c13a83a0ef12ce9d1d5514f0de6f38f95135396b79321a5ccda1c57db7f73d33"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -39,11 +39,9 @@ func (s *serviceManager) deleteARMDeployment(
 }
 
 func (s *serviceManager) deleteStorageAccount(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
@@ -51,7 +49,6 @@ func (s *serviceManager) deleteStorageAccount(
 		)
 	}
 	_, err := s.accountsClient.Delete(
-		ctx,
 		instance.ResourceGroup,
 		dt.StorageAccountName,
 	)

@@ -43,8 +43,7 @@ func NewHardwareComponentGroupsClientWithBaseURI(baseURI string, subscriptionID 
 // ChangeControllerPowerState changes the power state of the controller.
 //
 // deviceName is the device name hardwareComponentGroupName is the hardware component group name. parameters is the
-// controller power state change request. resourceGroupName is the resource group name managerName is the manager
-// name
+// controller power state change request. resourceGroupName is the resource group name managerName is the manager name
 func (client HardwareComponentGroupsClient) ChangeControllerPowerState(ctx context.Context, deviceName string, hardwareComponentGroupName string, parameters ControllerPowerStateChangeRequest, resourceGroupName string, managerName string) (result HardwareComponentGroupsChangeControllerPowerStateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
@@ -52,7 +51,7 @@ func (client HardwareComponentGroupsClient) ChangeControllerPowerState(ctx conte
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.HardwareComponentGroupsClient", "ChangeControllerPowerState", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.HardwareComponentGroupsClient", "ChangeControllerPowerState")
 	}
 
 	req, err := client.ChangeControllerPowerStatePreparer(ctx, deviceName, hardwareComponentGroupName, parameters, resourceGroupName, managerName)
@@ -130,7 +129,7 @@ func (client HardwareComponentGroupsClient) ListByDevice(ctx context.Context, de
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.HardwareComponentGroupsClient", "ListByDevice", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.HardwareComponentGroupsClient", "ListByDevice")
 	}
 
 	req, err := client.ListByDevicePreparer(ctx, deviceName, resourceGroupName, managerName)

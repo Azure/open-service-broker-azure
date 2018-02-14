@@ -163,15 +163,15 @@ func (t *TableBatch) ExecuteBatch() error {
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.resp.Body)
+	defer resp.body.Close()
 
-	if err = checkRespCode(resp.resp, []int{http.StatusAccepted}); err != nil {
+	if err = checkRespCode(resp.statusCode, []int{http.StatusAccepted}); err != nil {
 
 		// check which batch failed.
 		operationFailedMessage := t.getFailedOperation(resp.odata.Err.Message.Value)
-		requestID, date, version := getDebugHeaders(resp.resp.Header)
+		requestID, date, version := getDebugHeaders(resp.headers)
 		return AzureStorageServiceError{
-			StatusCode: resp.resp.StatusCode,
+			StatusCode: resp.statusCode,
 			Code:       resp.odata.Err.Code,
 			RequestID:  requestID,
 			Date:       date,

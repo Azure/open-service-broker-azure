@@ -78,16 +78,13 @@ func (m *Message) Put(options *PutMessageOptions) error {
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.Body)
-	err = checkRespCode(resp, []int{http.StatusCreated})
+	defer readAndCloseBody(resp.body)
+
+	err = xmlUnmarshal(resp.body, m)
 	if err != nil {
 		return err
 	}
-	err = xmlUnmarshal(resp.Body, m)
-	if err != nil {
-		return err
-	}
-	return nil
+	return checkRespCode(resp.statusCode, []int{http.StatusCreated})
 }
 
 // UpdateMessageOptions is the set of options can be specified for Update Messsage
@@ -128,10 +125,10 @@ func (m *Message) Update(options *UpdateMessageOptions) error {
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.Body)
+	defer readAndCloseBody(resp.body)
 
-	m.PopReceipt = resp.Header.Get("x-ms-popreceipt")
-	nextTimeStr := resp.Header.Get("x-ms-time-next-visible")
+	m.PopReceipt = resp.headers.Get("x-ms-popreceipt")
+	nextTimeStr := resp.headers.Get("x-ms-time-next-visible")
 	if nextTimeStr != "" {
 		nextTime, err := time.Parse(time.RFC1123, nextTimeStr)
 		if err != nil {
@@ -140,7 +137,7 @@ func (m *Message) Update(options *UpdateMessageOptions) error {
 		m.NextVisible = TimeRFC1123(nextTime)
 	}
 
-	return checkRespCode(resp, []int{http.StatusNoContent})
+	return checkRespCode(resp.statusCode, []int{http.StatusNoContent})
 }
 
 // Delete operation deletes the specified message.
@@ -160,8 +157,8 @@ func (m *Message) Delete(options *QueueServiceOptions) error {
 	if err != nil {
 		return err
 	}
-	defer readAndCloseBody(resp.Body)
-	return checkRespCode(resp, []int{http.StatusNoContent})
+	readAndCloseBody(resp.body)
+	return checkRespCode(resp.statusCode, []int{http.StatusNoContent})
 }
 
 type putMessageRequest struct {

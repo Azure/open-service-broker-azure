@@ -1,7 +1,7 @@
 package eventhubs
 
 import (
-	eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub" // nolint: lll
+	eventHubSDK "github.com/Azure/azure-sdk-for-go/arm/eventhub"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )

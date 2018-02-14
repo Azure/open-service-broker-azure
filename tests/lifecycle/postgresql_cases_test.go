@@ -3,7 +3,7 @@
 package lifecycle
 
 import (
-	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql" // nolint: lll
+	postgresSDK "github.com/Azure/azure-sdk-for-go/arm/postgresql"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"

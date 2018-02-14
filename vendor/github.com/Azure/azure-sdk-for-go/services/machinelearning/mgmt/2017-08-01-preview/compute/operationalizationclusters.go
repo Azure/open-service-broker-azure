@@ -58,7 +58,7 @@ func (client OperationalizationClustersClient) CheckSystemServicesUpdatesAvailab
 			Constraints: []validation.Constraint{{Target: "clusterName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "clusterName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "clusterName", Name: validation.Pattern, Rule: `^[a-zA-Z][-\w\._\(\)]+[a-zA-Z0-9]$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("compute.OperationalizationClustersClient", "CheckSystemServicesUpdatesAvailable", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "compute.OperationalizationClustersClient", "CheckSystemServicesUpdatesAvailable")
 	}
 
 	req, err := client.CheckSystemServicesUpdatesAvailablePreparer(ctx, resourceGroupName, clusterName)
@@ -168,7 +168,7 @@ func (client OperationalizationClustersClient) CreateOrUpdate(ctx context.Contex
 								}},
 						}},
 				}}}}}); err != nil {
-		return result, validation.NewError("compute.OperationalizationClustersClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "compute.OperationalizationClustersClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, clusterName, parameters)
@@ -251,7 +251,7 @@ func (client OperationalizationClustersClient) Delete(ctx context.Context, resou
 			Constraints: []validation.Constraint{{Target: "clusterName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "clusterName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "clusterName", Name: validation.Pattern, Rule: `^[a-zA-Z][-\w\._\(\)]+[a-zA-Z0-9]$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("compute.OperationalizationClustersClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "compute.OperationalizationClustersClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, resourceGroupName, clusterName, deleteAll)
@@ -335,7 +335,7 @@ func (client OperationalizationClustersClient) Get(ctx context.Context, resource
 			Constraints: []validation.Constraint{{Target: "clusterName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "clusterName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "clusterName", Name: validation.Pattern, Rule: `^[a-zA-Z][-\w\._\(\)]+[a-zA-Z0-9]$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("compute.OperationalizationClustersClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "compute.OperationalizationClustersClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, resourceGroupName, clusterName)
@@ -402,15 +402,15 @@ func (client OperationalizationClustersClient) GetResponder(resp *http.Response)
 
 // ListByResourceGroup gets the clusters in the specified resource group.
 //
-// resourceGroupName is name of the resource group in which the cluster is located. skiptoken is continuation token
-// for pagination.
+// resourceGroupName is name of the resource group in which the cluster is located. skiptoken is continuation token for
+// pagination.
 func (client OperationalizationClustersClient) ListByResourceGroup(ctx context.Context, resourceGroupName string, skiptoken string) (result PaginatedOperationalizationClustersListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "resourceGroupName", Name: validation.Pattern, Rule: `^[-\w\._\(\)]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("compute.OperationalizationClustersClient", "ListByResourceGroup", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "compute.OperationalizationClustersClient", "ListByResourceGroup")
 	}
 
 	result.fn = client.listByResourceGroupNextResults
@@ -615,7 +615,7 @@ func (client OperationalizationClustersClient) ListKeys(ctx context.Context, res
 			Constraints: []validation.Constraint{{Target: "clusterName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "clusterName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "clusterName", Name: validation.Pattern, Rule: `^[a-zA-Z][-\w\._\(\)]+[a-zA-Z0-9]$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("compute.OperationalizationClustersClient", "ListKeys", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "compute.OperationalizationClustersClient", "ListKeys")
 	}
 
 	req, err := client.ListKeysPreparer(ctx, resourceGroupName, clusterName)
@@ -695,7 +695,7 @@ func (client OperationalizationClustersClient) Update(ctx context.Context, resou
 			Constraints: []validation.Constraint{{Target: "clusterName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "clusterName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "clusterName", Name: validation.Pattern, Rule: `^[a-zA-Z][-\w\._\(\)]+[a-zA-Z0-9]$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("compute.OperationalizationClustersClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "compute.OperationalizationClustersClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, resourceGroupName, clusterName, parameters)
@@ -776,7 +776,7 @@ func (client OperationalizationClustersClient) UpdateSystemServices(ctx context.
 			Constraints: []validation.Constraint{{Target: "clusterName", Name: validation.MaxLength, Rule: 90, Chain: nil},
 				{Target: "clusterName", Name: validation.MinLength, Rule: 1, Chain: nil},
 				{Target: "clusterName", Name: validation.Pattern, Rule: `^[a-zA-Z][-\w\._\(\)]+[a-zA-Z0-9]$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("compute.OperationalizationClustersClient", "UpdateSystemServices", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "compute.OperationalizationClustersClient", "UpdateSystemServices")
 	}
 
 	req, err := client.UpdateSystemServicesPreparer(ctx, resourceGroupName, clusterName)

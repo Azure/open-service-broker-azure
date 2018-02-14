@@ -31,20 +31,19 @@ type CollectionClient struct {
 }
 
 // NewCollectionClient creates an instance of the CollectionClient client.
-func NewCollectionClient(subscriptionID string) CollectionClient {
-	return NewCollectionClientWithBaseURI(DefaultBaseURI, subscriptionID)
+func NewCollectionClient(subscriptionID string, filter string, filter1 string, databaseRid string, collectionRid string, region string) CollectionClient {
+	return NewCollectionClientWithBaseURI(DefaultBaseURI, subscriptionID, filter, filter1, databaseRid, collectionRid, region)
 }
 
 // NewCollectionClientWithBaseURI creates an instance of the CollectionClient client.
-func NewCollectionClientWithBaseURI(baseURI string, subscriptionID string) CollectionClient {
-	return CollectionClient{NewWithBaseURI(baseURI, subscriptionID)}
+func NewCollectionClientWithBaseURI(baseURI string, subscriptionID string, filter string, filter1 string, databaseRid string, collectionRid string, region string) CollectionClient {
+	return CollectionClient{NewWithBaseURI(baseURI, subscriptionID, filter, filter1, databaseRid, collectionRid, region)}
 }
 
 // ListMetricDefinitions retrieves metric defintions for the given collection.
 //
 // resourceGroupName is name of an Azure resource group. accountName is cosmos DB database account name.
-// databaseRid is cosmos DB database rid. collectionRid is cosmos DB collection rid.
-func (client CollectionClient) ListMetricDefinitions(ctx context.Context, resourceGroupName string, accountName string, databaseRid string, collectionRid string) (result MetricDefinitionsListResult, err error) {
+func (client CollectionClient) ListMetricDefinitions(ctx context.Context, resourceGroupName string, accountName string) (result MetricDefinitionsListResult, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
@@ -53,10 +52,10 @@ func (client CollectionClient) ListMetricDefinitions(ctx context.Context, resour
 		{TargetValue: accountName,
 			Constraints: []validation.Constraint{{Target: "accountName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "accountName", Name: validation.MinLength, Rule: 3, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("documentdb.CollectionClient", "ListMetricDefinitions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "documentdb.CollectionClient", "ListMetricDefinitions")
 	}
 
-	req, err := client.ListMetricDefinitionsPreparer(ctx, resourceGroupName, accountName, databaseRid, collectionRid)
+	req, err := client.ListMetricDefinitionsPreparer(ctx, resourceGroupName, accountName)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "documentdb.CollectionClient", "ListMetricDefinitions", nil, "Failure preparing request")
 		return
@@ -78,11 +77,11 @@ func (client CollectionClient) ListMetricDefinitions(ctx context.Context, resour
 }
 
 // ListMetricDefinitionsPreparer prepares the ListMetricDefinitions request.
-func (client CollectionClient) ListMetricDefinitionsPreparer(ctx context.Context, resourceGroupName string, accountName string, databaseRid string, collectionRid string) (*http.Request, error) {
+func (client CollectionClient) ListMetricDefinitionsPreparer(ctx context.Context, resourceGroupName string, accountName string) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
 		"accountName":       autorest.Encode("path", accountName),
-		"collectionRid":     autorest.Encode("path", collectionRid),
-		"databaseRid":       autorest.Encode("path", databaseRid),
+		"collectionRid":     autorest.Encode("path", client.CollectionRid),
+		"databaseRid":       autorest.Encode("path", client.DatabaseRid),
 		"resourceGroupName": autorest.Encode("path", resourceGroupName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
@@ -123,11 +122,7 @@ func (client CollectionClient) ListMetricDefinitionsResponder(resp *http.Respons
 // ListMetrics retrieves the metrics determined by the given filter for the given database account and collection.
 //
 // resourceGroupName is name of an Azure resource group. accountName is cosmos DB database account name.
-// databaseRid is cosmos DB database rid. collectionRid is cosmos DB collection rid. filter is an OData filter
-// expression that describes a subset of metrics to return. The parameters that can be filtered are name.value
-// (name of the metric, can have an or of multiple names), startTime, endTime, and timeGrain. The supported
-// operator is eq.
-func (client CollectionClient) ListMetrics(ctx context.Context, resourceGroupName string, accountName string, databaseRid string, collectionRid string, filter string) (result MetricListResult, err error) {
+func (client CollectionClient) ListMetrics(ctx context.Context, resourceGroupName string, accountName string) (result MetricListResult, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
@@ -136,10 +131,10 @@ func (client CollectionClient) ListMetrics(ctx context.Context, resourceGroupNam
 		{TargetValue: accountName,
 			Constraints: []validation.Constraint{{Target: "accountName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "accountName", Name: validation.MinLength, Rule: 3, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("documentdb.CollectionClient", "ListMetrics", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "documentdb.CollectionClient", "ListMetrics")
 	}
 
-	req, err := client.ListMetricsPreparer(ctx, resourceGroupName, accountName, databaseRid, collectionRid, filter)
+	req, err := client.ListMetricsPreparer(ctx, resourceGroupName, accountName)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "documentdb.CollectionClient", "ListMetrics", nil, "Failure preparing request")
 		return
@@ -161,18 +156,18 @@ func (client CollectionClient) ListMetrics(ctx context.Context, resourceGroupNam
 }
 
 // ListMetricsPreparer prepares the ListMetrics request.
-func (client CollectionClient) ListMetricsPreparer(ctx context.Context, resourceGroupName string, accountName string, databaseRid string, collectionRid string, filter string) (*http.Request, error) {
+func (client CollectionClient) ListMetricsPreparer(ctx context.Context, resourceGroupName string, accountName string) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
 		"accountName":       autorest.Encode("path", accountName),
-		"collectionRid":     autorest.Encode("path", collectionRid),
-		"databaseRid":       autorest.Encode("path", databaseRid),
+		"collectionRid":     autorest.Encode("path", client.CollectionRid),
+		"databaseRid":       autorest.Encode("path", client.DatabaseRid),
 		"resourceGroupName": autorest.Encode("path", resourceGroupName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
 
 	const APIVersion = "2015-04-08"
 	queryParameters := map[string]interface{}{
-		"$filter":     autorest.Encode("query", filter),
+		"$filter":     autorest.Encode("query", client.Filter),
 		"api-version": APIVersion,
 	}
 
@@ -207,10 +202,7 @@ func (client CollectionClient) ListMetricsResponder(resp *http.Response) (result
 // ListUsages retrieves the usages (most recent storage data) for the given collection.
 //
 // resourceGroupName is name of an Azure resource group. accountName is cosmos DB database account name.
-// databaseRid is cosmos DB database rid. collectionRid is cosmos DB collection rid. filter is an OData filter
-// expression that describes a subset of usages to return. The supported parameter is name.value (name of the
-// metric, can have an or of multiple names).
-func (client CollectionClient) ListUsages(ctx context.Context, resourceGroupName string, accountName string, databaseRid string, collectionRid string, filter string) (result UsagesResult, err error) {
+func (client CollectionClient) ListUsages(ctx context.Context, resourceGroupName string, accountName string) (result UsagesResult, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
 			Constraints: []validation.Constraint{{Target: "resourceGroupName", Name: validation.MaxLength, Rule: 90, Chain: nil},
@@ -219,10 +211,10 @@ func (client CollectionClient) ListUsages(ctx context.Context, resourceGroupName
 		{TargetValue: accountName,
 			Constraints: []validation.Constraint{{Target: "accountName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "accountName", Name: validation.MinLength, Rule: 3, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("documentdb.CollectionClient", "ListUsages", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "documentdb.CollectionClient", "ListUsages")
 	}
 
-	req, err := client.ListUsagesPreparer(ctx, resourceGroupName, accountName, databaseRid, collectionRid, filter)
+	req, err := client.ListUsagesPreparer(ctx, resourceGroupName, accountName)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "documentdb.CollectionClient", "ListUsages", nil, "Failure preparing request")
 		return
@@ -244,11 +236,11 @@ func (client CollectionClient) ListUsages(ctx context.Context, resourceGroupName
 }
 
 // ListUsagesPreparer prepares the ListUsages request.
-func (client CollectionClient) ListUsagesPreparer(ctx context.Context, resourceGroupName string, accountName string, databaseRid string, collectionRid string, filter string) (*http.Request, error) {
+func (client CollectionClient) ListUsagesPreparer(ctx context.Context, resourceGroupName string, accountName string) (*http.Request, error) {
 	pathParameters := map[string]interface{}{
 		"accountName":       autorest.Encode("path", accountName),
-		"collectionRid":     autorest.Encode("path", collectionRid),
-		"databaseRid":       autorest.Encode("path", databaseRid),
+		"collectionRid":     autorest.Encode("path", client.CollectionRid),
+		"databaseRid":       autorest.Encode("path", client.DatabaseRid),
 		"resourceGroupName": autorest.Encode("path", resourceGroupName),
 		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
 	}
@@ -257,8 +249,8 @@ func (client CollectionClient) ListUsagesPreparer(ctx context.Context, resourceG
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
 	}
-	if len(filter) > 0 {
-		queryParameters["$filter"] = autorest.Encode("query", filter)
+	if len(client.Filter) > 0 {
+		queryParameters["$filter"] = autorest.Encode("query", client.Filter)
 	}
 
 	preparer := autorest.CreatePreparer(

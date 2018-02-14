@@ -45,8 +45,8 @@ func NewIntegrationRuntimesClientWithBaseURI(baseURI string, subscriptionID stri
 //
 // resourceGroupName is the resource group name. factoryName is the factory name. integrationRuntimeName is the
 // integration runtime name. integrationRuntime is integration runtime resource definition. ifMatch is eTag of the
-// integration runtime entity. Should only be specified for update, for which it should match existing entity or
-// can be * for unconditional update.
+// integration runtime entity. Should only be specified for update, for which it should match existing entity or can be
+// * for unconditional update.
 func (client IntegrationRuntimesClient) CreateOrUpdate(ctx context.Context, resourceGroupName string, factoryName string, integrationRuntimeName string, integrationRuntime IntegrationRuntimeResource, ifMatch string) (result IntegrationRuntimeResource, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -63,7 +63,7 @@ func (client IntegrationRuntimesClient) CreateOrUpdate(ctx context.Context, reso
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}},
 		{TargetValue: integrationRuntime,
 			Constraints: []validation.Constraint{{Target: "integrationRuntime.Properties", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName, integrationRuntime, ifMatch)
@@ -153,7 +153,7 @@ func (client IntegrationRuntimesClient) Delete(ctx context.Context, resourceGrou
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -236,7 +236,7 @@ func (client IntegrationRuntimesClient) Get(ctx context.Context, resourceGroupNa
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -321,7 +321,7 @@ func (client IntegrationRuntimesClient) GetConnectionInfo(ctx context.Context, r
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "GetConnectionInfo", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "GetConnectionInfo")
 	}
 
 	req, err := client.GetConnectionInfoPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -406,7 +406,7 @@ func (client IntegrationRuntimesClient) GetMonitoringData(ctx context.Context, r
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "GetMonitoringData", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "GetMonitoringData")
 	}
 
 	req, err := client.GetMonitoringDataPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -490,7 +490,7 @@ func (client IntegrationRuntimesClient) GetStatus(ctx context.Context, resourceG
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "GetStatus", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "GetStatus")
 	}
 
 	req, err := client.GetStatusPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -574,7 +574,7 @@ func (client IntegrationRuntimesClient) ListAuthKeys(ctx context.Context, resour
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "ListAuthKeys", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "ListAuthKeys")
 	}
 
 	req, err := client.ListAuthKeysPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -653,7 +653,7 @@ func (client IntegrationRuntimesClient) ListByFactory(ctx context.Context, resou
 			Constraints: []validation.Constraint{{Target: "factoryName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "factoryName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "factoryName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "ListByFactory", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "ListByFactory")
 	}
 
 	result.fn = client.listByFactoryNextResults
@@ -765,7 +765,7 @@ func (client IntegrationRuntimesClient) RegenerateAuthKey(ctx context.Context, r
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "RegenerateAuthKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "RegenerateAuthKey")
 	}
 
 	req, err := client.RegenerateAuthKeyPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName, regenerateKeyParameters)
@@ -836,8 +836,7 @@ func (client IntegrationRuntimesClient) RegenerateAuthKeyResponder(resp *http.Re
 // RemoveNode remove a node from integration runtime.
 //
 // resourceGroupName is the resource group name. factoryName is the factory name. integrationRuntimeName is the
-// integration runtime name. removeNodeParameters is the name of the node to be removed from an integration
-// runtime.
+// integration runtime name. removeNodeParameters is the name of the node to be removed from an integration runtime.
 func (client IntegrationRuntimesClient) RemoveNode(ctx context.Context, resourceGroupName string, factoryName string, integrationRuntimeName string, removeNodeParameters IntegrationRuntimeRemoveNodeRequest) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -852,7 +851,7 @@ func (client IntegrationRuntimesClient) RemoveNode(ctx context.Context, resource
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "RemoveNode", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "RemoveNode")
 	}
 
 	req, err := client.RemoveNodePreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName, removeNodeParameters)
@@ -937,7 +936,7 @@ func (client IntegrationRuntimesClient) Start(ctx context.Context, resourceGroup
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "Start", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "Start")
 	}
 
 	req, err := client.StartPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -1023,7 +1022,7 @@ func (client IntegrationRuntimesClient) Stop(ctx context.Context, resourceGroupN
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "Stop", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "Stop")
 	}
 
 	req, err := client.StopPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -1111,7 +1110,7 @@ func (client IntegrationRuntimesClient) SyncCredentials(ctx context.Context, res
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "SyncCredentials", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "SyncCredentials")
 	}
 
 	req, err := client.SyncCredentialsPreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)
@@ -1194,7 +1193,7 @@ func (client IntegrationRuntimesClient) Update(ctx context.Context, resourceGrou
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "Update", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "Update")
 	}
 
 	req, err := client.UpdatePreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName, updateIntegrationRuntimeRequest)
@@ -1280,7 +1279,7 @@ func (client IntegrationRuntimesClient) Upgrade(ctx context.Context, resourceGro
 			Constraints: []validation.Constraint{{Target: "integrationRuntimeName", Name: validation.MaxLength, Rule: 63, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.MinLength, Rule: 3, Chain: nil},
 				{Target: "integrationRuntimeName", Name: validation.Pattern, Rule: `^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("datafactory.IntegrationRuntimesClient", "Upgrade", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "datafactory.IntegrationRuntimesClient", "Upgrade")
 	}
 
 	req, err := client.UpgradePreparer(ctx, resourceGroupName, factoryName, integrationRuntimeName)

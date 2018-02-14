@@ -3,7 +3,7 @@
 package lifecycle
 
 import (
-	storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage" // nolint: lll
+	storageSDK "github.com/Azure/azure-sdk-for-go/arm/storage"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"

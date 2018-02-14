@@ -1,7 +1,7 @@
 package cosmosdb
 
 import (
-	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb" // nolint: lll
+	cosmosSDK "github.com/Azure/azure-sdk-for-go/arm/cosmos-db"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )

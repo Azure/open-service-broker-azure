@@ -1,4 +1,4 @@
-// Package operationalinsights implements the Azure ARM Operationalinsights service API version 2015-11-01-preview.
+// Package operationalinsights implements the Azure ARM Operationalinsights service API version .
 //
 // Operational Insights Client
 package operationalinsights

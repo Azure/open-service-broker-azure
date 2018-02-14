@@ -37,17 +37,17 @@ func NewClient() Client {
 
 // CreateCredential creates the specified credential for use with external data sources in the specified database.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database in which to create the credential. Note: This is NOT an external database name, but the
-// name of an existing U-SQL database that should contain the new credential object. credentialName is the name of
-// the credential. parameters is the parameters required to create the credential (name and password)
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database in which to create the credential. Note: This is NOT an external database name, but the name of
+// an existing U-SQL database that should contain the new credential object. credentialName is the name of the
+// credential. parameters is the parameters required to create the credential (name and password)
 func (client Client) CreateCredential(ctx context.Context, accountName string, databaseName string, credentialName string, parameters DataLakeAnalyticsCatalogCredentialCreateParameters) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Password", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "parameters.URI", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "parameters.UserID", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "CreateCredential", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "CreateCredential")
 	}
 
 	req, err := client.CreateCredentialPreparer(ctx, accountName, databaseName, credentialName, parameters)
@@ -120,14 +120,14 @@ func (client Client) CreateCredentialResponder(resp *http.Response) (result auto
 // CreateSecret creates the specified secret for use with external data sources in the specified database. This is
 // deprecated and will be removed in the next release. Please use CreateCredential instead.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database in which to create the secret. secretName is the name of the secret. parameters is the
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database in which to create the secret. secretName is the name of the secret. parameters is the
 // parameters required to create the secret (name and password)
 func (client Client) CreateSecret(ctx context.Context, accountName string, databaseName string, secretName string, parameters DataLakeAnalyticsCatalogSecretCreateOrUpdateParameters) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Password", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "CreateSecret", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "CreateSecret")
 	}
 
 	req, err := client.CreateSecretPreparer(ctx, accountName, databaseName, secretName, parameters)
@@ -200,8 +200,8 @@ func (client Client) CreateSecretResponder(resp *http.Response) (result autorest
 // DeleteAllSecrets deletes all secrets in the specified database. This is deprecated and will be removed in the next
 // release. In the future, please only drop individual credentials using DeleteCredential
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the secret.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the secret.
 func (client Client) DeleteAllSecrets(ctx context.Context, accountName string, databaseName string) (result autorest.Response, err error) {
 	req, err := client.DeleteAllSecretsPreparer(ctx, accountName, databaseName)
 	if err != nil {
@@ -269,11 +269,11 @@ func (client Client) DeleteAllSecretsResponder(resp *http.Response) (result auto
 
 // DeleteCredential deletes the specified credential in the specified database
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the credential. credentialName is the name of the credential to delete
-// parameters is the parameters to delete a credential if the current user is not the account owner. cascade is
-// indicates if the delete should be a cascading delete (which deletes all resources dependent on the credential as
-// well as the credential) or not. If false will fail if there are any resources relying on the credential.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the credential. credentialName is the name of the credential to delete parameters is
+// the parameters to delete a credential if the current user is not the account owner. cascade is indicates if the
+// delete should be a cascading delete (which deletes all resources dependent on the credential as well as the
+// credential) or not. If false will fail if there are any resources relying on the credential.
 func (client Client) DeleteCredential(ctx context.Context, accountName string, databaseName string, credentialName string, parameters *DataLakeAnalyticsCatalogCredentialDeleteParameters, cascade *bool) (result autorest.Response, err error) {
 	req, err := client.DeleteCredentialPreparer(ctx, accountName, databaseName, credentialName, parameters, cascade)
 	if err != nil {
@@ -314,8 +314,6 @@ func (client Client) DeleteCredentialPreparer(ctx context.Context, accountName s
 	}
 	if cascade != nil {
 		queryParameters["cascade"] = autorest.Encode("query", *cascade)
-	} else {
-		queryParameters["cascade"] = autorest.Encode("query", false)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -353,8 +351,8 @@ func (client Client) DeleteCredentialResponder(resp *http.Response) (result auto
 // DeleteSecret deletes the specified secret in the specified database. This is deprecated and will be removed in the
 // next release. Please use DeleteCredential instead.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the secret. secretName is the name of the secret to delete
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the secret. secretName is the name of the secret to delete
 func (client Client) DeleteSecret(ctx context.Context, accountName string, databaseName string, secretName string) (result autorest.Response, err error) {
 	req, err := client.DeleteSecretPreparer(ctx, accountName, databaseName, secretName)
 	if err != nil {
@@ -423,8 +421,8 @@ func (client Client) DeleteSecretResponder(resp *http.Response) (result autorest
 
 // GetAssembly retrieves the specified assembly from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the assembly. assemblyName is the name of the assembly.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the assembly. assemblyName is the name of the assembly.
 func (client Client) GetAssembly(ctx context.Context, accountName string, databaseName string, assemblyName string) (result USQLAssembly, err error) {
 	req, err := client.GetAssemblyPreparer(ctx, accountName, databaseName, assemblyName)
 	if err != nil {
@@ -494,8 +492,8 @@ func (client Client) GetAssemblyResponder(resp *http.Response) (result USQLAssem
 
 // GetCredential retrieves the specified credential from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the schema. credentialName is the name of the credential.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the schema. credentialName is the name of the credential.
 func (client Client) GetCredential(ctx context.Context, accountName string, databaseName string, credentialName string) (result USQLCredential, err error) {
 	req, err := client.GetCredentialPreparer(ctx, accountName, databaseName, credentialName)
 	if err != nil {
@@ -565,8 +563,8 @@ func (client Client) GetCredentialResponder(resp *http.Response) (result USQLCre
 
 // GetDatabase retrieves the specified database from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database.
 func (client Client) GetDatabase(ctx context.Context, accountName string, databaseName string) (result USQLDatabase, err error) {
 	req, err := client.GetDatabasePreparer(ctx, accountName, databaseName)
 	if err != nil {
@@ -635,9 +633,9 @@ func (client Client) GetDatabaseResponder(resp *http.Response) (result USQLDatab
 
 // GetExternalDataSource retrieves the specified external data source from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the external data source. externalDataSourceName is the name of the external
-// data source.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the external data source. externalDataSourceName is the name of the external data
+// source.
 func (client Client) GetExternalDataSource(ctx context.Context, accountName string, databaseName string, externalDataSourceName string) (result USQLExternalDataSource, err error) {
 	req, err := client.GetExternalDataSourcePreparer(ctx, accountName, databaseName, externalDataSourceName)
 	if err != nil {
@@ -707,8 +705,8 @@ func (client Client) GetExternalDataSourceResponder(resp *http.Response) (result
 
 // GetPackage retrieves the specified package from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the package. schemaName is the name of the schema containing the package.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the package. schemaName is the name of the schema containing the package.
 // packageName is the name of the package.
 func (client Client) GetPackage(ctx context.Context, accountName string, databaseName string, schemaName string, packageName string) (result USQLPackage, err error) {
 	req, err := client.GetPackagePreparer(ctx, accountName, databaseName, schemaName, packageName)
@@ -780,9 +778,9 @@ func (client Client) GetPackageResponder(resp *http.Response) (result USQLPackag
 
 // GetProcedure retrieves the specified procedure from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the procedure. schemaName is the name of the schema containing the
-// procedure. procedureName is the name of the procedure.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the procedure. schemaName is the name of the schema containing the procedure.
+// procedureName is the name of the procedure.
 func (client Client) GetProcedure(ctx context.Context, accountName string, databaseName string, schemaName string, procedureName string) (result USQLProcedure, err error) {
 	req, err := client.GetProcedurePreparer(ctx, accountName, databaseName, schemaName, procedureName)
 	if err != nil {
@@ -853,8 +851,8 @@ func (client Client) GetProcedureResponder(resp *http.Response) (result USQLProc
 
 // GetSchema retrieves the specified schema from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the schema. schemaName is the name of the schema.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the schema. schemaName is the name of the schema.
 func (client Client) GetSchema(ctx context.Context, accountName string, databaseName string, schemaName string) (result USQLSchema, err error) {
 	req, err := client.GetSchemaPreparer(ctx, accountName, databaseName, schemaName)
 	if err != nil {
@@ -925,8 +923,8 @@ func (client Client) GetSchemaResponder(resp *http.Response) (result USQLSchema,
 // GetSecret gets the specified secret in the specified database. This is deprecated and will be removed in the next
 // release. Please use GetCredential instead.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the secret. secretName is the name of the secret to get
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the secret. secretName is the name of the secret to get
 func (client Client) GetSecret(ctx context.Context, accountName string, databaseName string, secretName string) (result USQLSecret, err error) {
 	req, err := client.GetSecretPreparer(ctx, accountName, databaseName, secretName)
 	if err != nil {
@@ -996,9 +994,9 @@ func (client Client) GetSecretResponder(resp *http.Response) (result USQLSecret,
 
 // GetTable retrieves the specified table from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the table. schemaName is the name of the schema containing the table.
-// tableName is the name of the table.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the table. schemaName is the name of the schema containing the table. tableName is
+// the name of the table.
 func (client Client) GetTable(ctx context.Context, accountName string, databaseName string, schemaName string, tableName string) (result USQLTable, err error) {
 	req, err := client.GetTablePreparer(ctx, accountName, databaseName, schemaName, tableName)
 	if err != nil {
@@ -1069,10 +1067,9 @@ func (client Client) GetTableResponder(resp *http.Response) (result USQLTable, e
 
 // GetTablePartition retrieves the specified table partition from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the partition. schemaName is the name of the schema containing the
-// partition. tableName is the name of the table containing the partition. partitionName is the name of the table
-// partition.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the partition. schemaName is the name of the schema containing the partition.
+// tableName is the name of the table containing the partition. partitionName is the name of the table partition.
 func (client Client) GetTablePartition(ctx context.Context, accountName string, databaseName string, schemaName string, tableName string, partitionName string) (result USQLTablePartition, err error) {
 	req, err := client.GetTablePartitionPreparer(ctx, accountName, databaseName, schemaName, tableName, partitionName)
 	if err != nil {
@@ -1144,10 +1141,9 @@ func (client Client) GetTablePartitionResponder(resp *http.Response) (result USQ
 
 // GetTableStatistic retrieves the specified table statistics from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the statistics. schemaName is the name of the schema containing the
-// statistics. tableName is the name of the table containing the statistics. statisticsName is the name of the
-// table statistics.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the statistics. schemaName is the name of the schema containing the statistics.
+// tableName is the name of the table containing the statistics. statisticsName is the name of the table statistics.
 func (client Client) GetTableStatistic(ctx context.Context, accountName string, databaseName string, schemaName string, tableName string, statisticsName string) (result USQLTableStatistics, err error) {
 	req, err := client.GetTableStatisticPreparer(ctx, accountName, databaseName, schemaName, tableName, statisticsName)
 	if err != nil {
@@ -1219,9 +1215,9 @@ func (client Client) GetTableStatisticResponder(resp *http.Response) (result USQ
 
 // GetTableType retrieves the specified table type from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the table type. schemaName is the name of the schema containing the table
-// type. tableTypeName is the name of the table type to retrieve.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the table type. schemaName is the name of the schema containing the table type.
+// tableTypeName is the name of the table type to retrieve.
 func (client Client) GetTableType(ctx context.Context, accountName string, databaseName string, schemaName string, tableTypeName string) (result USQLTableType, err error) {
 	req, err := client.GetTableTypePreparer(ctx, accountName, databaseName, schemaName, tableTypeName)
 	if err != nil {
@@ -1292,9 +1288,9 @@ func (client Client) GetTableTypeResponder(resp *http.Response) (result USQLTabl
 
 // GetTableValuedFunction retrieves the specified table valued function from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the table valued function. schemaName is the name of the schema containing
-// the table valued function. tableValuedFunctionName is the name of the tableValuedFunction.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the table valued function. schemaName is the name of the schema containing the table
+// valued function. tableValuedFunctionName is the name of the tableValuedFunction.
 func (client Client) GetTableValuedFunction(ctx context.Context, accountName string, databaseName string, schemaName string, tableValuedFunctionName string) (result USQLTableValuedFunction, err error) {
 	req, err := client.GetTableValuedFunctionPreparer(ctx, accountName, databaseName, schemaName, tableValuedFunctionName)
 	if err != nil {
@@ -1365,9 +1361,9 @@ func (client Client) GetTableValuedFunctionResponder(resp *http.Response) (resul
 
 // GetView retrieves the specified view from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the view. schemaName is the name of the schema containing the view. viewName
-// is the name of the view.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the view. schemaName is the name of the schema containing the view. viewName is the
+// name of the view.
 func (client Client) GetView(ctx context.Context, accountName string, databaseName string, schemaName string, viewName string) (result USQLView, err error) {
 	req, err := client.GetViewPreparer(ctx, accountName, databaseName, schemaName, viewName)
 	if err != nil {
@@ -1439,15 +1435,16 @@ func (client Client) GetViewResponder(resp *http.Response) (result USQLView, err
 // GrantACL grants an access control list (ACL) entry to the Data Lake Analytics catalog.
 //
 // accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. parameters is
-// parameters supplied to create or update an access control list (ACL) entry for a Data Lake Analytics catalog.
-func (client Client) GrantACL(ctx context.Context, accountName string, parameters ACLCreateOrUpdateParameters) (result autorest.Response, err error) {
+// parameters supplied to create or update an access control list (ACL) entry for a Data Lake Analytics catalog. op is
+// the constant value for the operation.
+func (client Client) GrantACL(ctx context.Context, accountName string, parameters ACLCreateOrUpdateParameters, op string) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.PrincipalID", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "GrantACL", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "GrantACL")
 	}
 
-	req, err := client.GrantACLPreparer(ctx, accountName, parameters)
+	req, err := client.GrantACLPreparer(ctx, accountName, parameters, op)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "catalog.Client", "GrantACL", nil, "Failure preparing request")
 		return
@@ -1469,7 +1466,7 @@ func (client Client) GrantACL(ctx context.Context, accountName string, parameter
 }
 
 // GrantACLPreparer prepares the GrantACL request.
-func (client Client) GrantACLPreparer(ctx context.Context, accountName string, parameters ACLCreateOrUpdateParameters) (*http.Request, error) {
+func (client Client) GrantACLPreparer(ctx context.Context, accountName string, parameters ACLCreateOrUpdateParameters, op string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
 		"accountName":          accountName,
 		"adlaCatalogDnsSuffix": client.AdlaCatalogDNSSuffix,
@@ -1478,7 +1475,7 @@ func (client Client) GrantACLPreparer(ctx context.Context, accountName string, p
 	const APIVersion = "2016-11-01"
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
-		"op":          autorest.Encode("query", "GRANTACE"),
+		"op":          autorest.Encode("query", op),
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1512,17 +1509,17 @@ func (client Client) GrantACLResponder(resp *http.Response) (result autorest.Res
 
 // GrantACLToDatabase grants an access control list (ACL) entry to the database from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database. parameters is parameters supplied to create or update an access control list (ACL)
-// entry for a database.
-func (client Client) GrantACLToDatabase(ctx context.Context, accountName string, databaseName string, parameters ACLCreateOrUpdateParameters) (result autorest.Response, err error) {
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database. parameters is parameters supplied to create or update an access control list (ACL) entry for a
+// database. op is the constant value for the operation.
+func (client Client) GrantACLToDatabase(ctx context.Context, accountName string, databaseName string, parameters ACLCreateOrUpdateParameters, op string) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.PrincipalID", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "GrantACLToDatabase", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "GrantACLToDatabase")
 	}
 
-	req, err := client.GrantACLToDatabasePreparer(ctx, accountName, databaseName, parameters)
+	req, err := client.GrantACLToDatabasePreparer(ctx, accountName, databaseName, parameters, op)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "catalog.Client", "GrantACLToDatabase", nil, "Failure preparing request")
 		return
@@ -1544,7 +1541,7 @@ func (client Client) GrantACLToDatabase(ctx context.Context, accountName string,
 }
 
 // GrantACLToDatabasePreparer prepares the GrantACLToDatabase request.
-func (client Client) GrantACLToDatabasePreparer(ctx context.Context, accountName string, databaseName string, parameters ACLCreateOrUpdateParameters) (*http.Request, error) {
+func (client Client) GrantACLToDatabasePreparer(ctx context.Context, accountName string, databaseName string, parameters ACLCreateOrUpdateParameters, op string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
 		"accountName":          accountName,
 		"adlaCatalogDnsSuffix": client.AdlaCatalogDNSSuffix,
@@ -1557,7 +1554,7 @@ func (client Client) GrantACLToDatabasePreparer(ctx context.Context, accountName
 	const APIVersion = "2016-11-01"
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
-		"op":          autorest.Encode("query", "GRANTACE"),
+		"op":          autorest.Encode("query", op),
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -1592,14 +1589,14 @@ func (client Client) GrantACLToDatabaseResponder(resp *http.Response) (result au
 // ListAcls retrieves the list of access control list (ACL) entries for the Data Lake Analytics catalog.
 //
 // accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. filter is oData
-// filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over
-// before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each
-// entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy
-// clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the
-// order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean
-// value of true or false to request a count of the matching resources included with the resources in the response,
-// e.g. Categories?$count=true. Optional.
-func (client Client) ListAcls(ctx context.Context, accountName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result ACLListPage, err error) {
+// filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over before
+// returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each entry to just
+// those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more
+// comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the
+// values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to
+// request a count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
+// Optional.
+func (client Client) ListAcls(ctx context.Context, accountName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result ACLList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
 			Constraints: []validation.Constraint{{Target: "top", Name: validation.Null, Rule: false,
@@ -1607,10 +1604,9 @@ func (client Client) ListAcls(ctx context.Context, accountName string, filter st
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListAcls", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListAcls")
 	}
 
-	result.fn = client.listAclsNextResults
 	req, err := client.ListAclsPreparer(ctx, accountName, filter, top, skip, selectParameter, orderby, count)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "catalog.Client", "ListAcls", nil, "Failure preparing request")
@@ -1619,12 +1615,12 @@ func (client Client) ListAcls(ctx context.Context, accountName string, filter st
 
 	resp, err := client.ListAclsSender(req)
 	if err != nil {
-		result.al.Response = autorest.Response{Response: resp}
+		result.Response = autorest.Response{Response: resp}
 		err = autorest.NewErrorWithError(err, "catalog.Client", "ListAcls", resp, "Failure sending request")
 		return
 	}
 
-	result.al, err = client.ListAclsResponder(resp)
+	result, err = client.ListAclsResponder(resp)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "catalog.Client", "ListAcls", resp, "Failure responding to request")
 	}
@@ -1690,46 +1686,18 @@ func (client Client) ListAclsResponder(resp *http.Response) (result ACLList, err
 	return
 }
 
-// listAclsNextResults retrieves the next set of results, if any.
-func (client Client) listAclsNextResults(lastResults ACLList) (result ACLList, err error) {
-	req, err := lastResults.aCLListPreparer()
-	if err != nil {
-		return result, autorest.NewErrorWithError(err, "catalog.Client", "listAclsNextResults", nil, "Failure preparing next results request")
-	}
-	if req == nil {
-		return
-	}
-	resp, err := client.ListAclsSender(req)
-	if err != nil {
-		result.Response = autorest.Response{Response: resp}
-		return result, autorest.NewErrorWithError(err, "catalog.Client", "listAclsNextResults", resp, "Failure sending next results request")
-	}
-	result, err = client.ListAclsResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "catalog.Client", "listAclsNextResults", resp, "Failure responding to next results request")
-	}
-	return
-}
-
-// ListAclsComplete enumerates all values, automatically crossing page boundaries as required.
-func (client Client) ListAclsComplete(ctx context.Context, accountName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result ACLListIterator, err error) {
-	result.page, err = client.ListAcls(ctx, accountName, filter, top, skip, selectParameter, orderby, count)
-	return
-}
-
 // ListAclsByDatabase retrieves the list of access control list (ACL) entries for the database from the Data Lake
 // Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database. filter is oData filter. Optional. top is the number of items to return. Optional. skip
-// is the number of items to skip over before returning elements. Optional. selectParameter is oData Select
-// statement. Limits the properties on each entry to just those requested, e.g.
-// Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
-// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted,
-// e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a
-// count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
-// Optional.
-func (client Client) ListAclsByDatabase(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result ACLListPage, err error) {
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database. filter is oData filter. Optional. top is the number of items to return. Optional. skip is the
+// number of items to skip over before returning elements. Optional. selectParameter is oData Select statement. Limits
+// the properties on each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional.
+// orderby is orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc"
+// depending on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is
+// the Boolean value of true or false to request a count of the matching resources included with the resources in the
+// response, e.g. Categories?$count=true. Optional.
+func (client Client) ListAclsByDatabase(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result ACLList, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
 			Constraints: []validation.Constraint{{Target: "top", Name: validation.Null, Rule: false,
@@ -1737,10 +1705,9 @@ func (client Client) ListAclsByDatabase(ctx context.Context, accountName string,
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListAclsByDatabase", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListAclsByDatabase")
 	}
 
-	result.fn = client.listAclsByDatabaseNextResults
 	req, err := client.ListAclsByDatabasePreparer(ctx, accountName, databaseName, filter, top, skip, selectParameter, orderby, count)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "catalog.Client", "ListAclsByDatabase", nil, "Failure preparing request")
@@ -1749,12 +1716,12 @@ func (client Client) ListAclsByDatabase(ctx context.Context, accountName string,
 
 	resp, err := client.ListAclsByDatabaseSender(req)
 	if err != nil {
-		result.al.Response = autorest.Response{Response: resp}
+		result.Response = autorest.Response{Response: resp}
 		err = autorest.NewErrorWithError(err, "catalog.Client", "ListAclsByDatabase", resp, "Failure sending request")
 		return
 	}
 
-	result.al, err = client.ListAclsByDatabaseResponder(resp)
+	result, err = client.ListAclsByDatabaseResponder(resp)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "catalog.Client", "ListAclsByDatabase", resp, "Failure responding to request")
 	}
@@ -1824,44 +1791,16 @@ func (client Client) ListAclsByDatabaseResponder(resp *http.Response) (result AC
 	return
 }
 
-// listAclsByDatabaseNextResults retrieves the next set of results, if any.
-func (client Client) listAclsByDatabaseNextResults(lastResults ACLList) (result ACLList, err error) {
-	req, err := lastResults.aCLListPreparer()
-	if err != nil {
-		return result, autorest.NewErrorWithError(err, "catalog.Client", "listAclsByDatabaseNextResults", nil, "Failure preparing next results request")
-	}
-	if req == nil {
-		return
-	}
-	resp, err := client.ListAclsByDatabaseSender(req)
-	if err != nil {
-		result.Response = autorest.Response{Response: resp}
-		return result, autorest.NewErrorWithError(err, "catalog.Client", "listAclsByDatabaseNextResults", resp, "Failure sending next results request")
-	}
-	result, err = client.ListAclsByDatabaseResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "catalog.Client", "listAclsByDatabaseNextResults", resp, "Failure responding to next results request")
-	}
-	return
-}
-
-// ListAclsByDatabaseComplete enumerates all values, automatically crossing page boundaries as required.
-func (client Client) ListAclsByDatabaseComplete(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result ACLListIterator, err error) {
-	result.page, err = client.ListAclsByDatabase(ctx, accountName, databaseName, filter, top, skip, selectParameter, orderby, count)
-	return
-}
-
 // ListAssemblies retrieves the list of assemblies from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the assembly. filter is oData filter. Optional. top is the number of items
-// to return. Optional. skip is the number of items to skip over before returning elements. Optional.
-// selectParameter is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the assembly. filter is oData filter. Optional. top is the number of items to
+// return. Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter is
+// oData Select statement. Limits the properties on each entry to just those requested, e.g.
 // Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
-// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted,
-// e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a
-// count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
-// Optional.
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListAssemblies(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLAssemblyListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -1870,7 +1809,7 @@ func (client Client) ListAssemblies(ctx context.Context, accountName string, dat
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListAssemblies", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListAssemblies")
 	}
 
 	result.fn = client.listAssembliesNextResults
@@ -1986,15 +1925,14 @@ func (client Client) ListAssembliesComplete(ctx context.Context, accountName str
 
 // ListCredentials retrieves the list of credentials from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the schema. filter is oData filter. Optional. top is the number of items to
-// return. Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter
-// is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the schema. filter is oData filter. Optional. top is the number of items to return.
+// Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter is oData
+// Select statement. Limits the properties on each entry to just those requested, e.g.
 // Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
-// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted,
-// e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a
-// count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
-// Optional.
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListCredentials(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLCredentialListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -2003,7 +1941,7 @@ func (client Client) ListCredentials(ctx context.Context, accountName string, da
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListCredentials", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListCredentials")
 	}
 
 	result.fn = client.listCredentialsNextResults
@@ -2120,13 +2058,13 @@ func (client Client) ListCredentialsComplete(ctx context.Context, accountName st
 // ListDatabases retrieves the list of databases from the Data Lake Analytics catalog.
 //
 // accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. filter is oData
-// filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over
-// before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each
-// entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy
-// clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the
-// order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean
-// value of true or false to request a count of the matching resources included with the resources in the response,
-// e.g. Categories?$count=true. Optional.
+// filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over before
+// returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each entry to just
+// those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more
+// comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the
+// values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to
+// request a count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
+// Optional.
 func (client Client) ListDatabases(ctx context.Context, accountName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLDatabaseListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -2135,7 +2073,7 @@ func (client Client) ListDatabases(ctx context.Context, accountName string, filt
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListDatabases", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListDatabases")
 	}
 
 	result.fn = client.listDatabasesNextResults
@@ -2247,15 +2185,14 @@ func (client Client) ListDatabasesComplete(ctx context.Context, accountName stri
 
 // ListExternalDataSources retrieves the list of external data sources from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the external data sources. filter is oData filter. Optional. top is the
-// number of items to return. Optional. skip is the number of items to skip over before returning elements.
-// Optional. selectParameter is oData Select statement. Limits the properties on each entry to just those
-// requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more
-// comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the
-// values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
-// to request a count of the matching resources included with the resources in the response, e.g.
-// Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the external data sources. filter is oData filter. Optional. top is the number of
+// items to return. Optional. skip is the number of items to skip over before returning elements. Optional.
+// selectParameter is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListExternalDataSources(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLExternalDataSourceListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -2264,7 +2201,7 @@ func (client Client) ListExternalDataSources(ctx context.Context, accountName st
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListExternalDataSources", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListExternalDataSources")
 	}
 
 	result.fn = client.listExternalDataSourcesNextResults
@@ -2380,15 +2317,15 @@ func (client Client) ListExternalDataSourcesComplete(ctx context.Context, accoun
 
 // ListPackages retrieves the list of packages from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the packages. schemaName is the name of the schema containing the packages.
-// filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to
-// skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the properties
-// on each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is
-// orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending
-// on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the
-// Boolean value of true or false to request a count of the matching resources included with the resources in the
-// response, e.g. Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the packages. schemaName is the name of the schema containing the packages. filter
+// is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over
+// before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each entry
+// to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One
+// or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like
+// the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
+// to request a count of the matching resources included with the resources in the response, e.g.
+// Categories?$count=true. Optional.
 func (client Client) ListPackages(ctx context.Context, accountName string, databaseName string, schemaName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLPackageListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -2397,7 +2334,7 @@ func (client Client) ListPackages(ctx context.Context, accountName string, datab
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListPackages", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListPackages")
 	}
 
 	result.fn = client.listPackagesNextResults
@@ -2514,15 +2451,15 @@ func (client Client) ListPackagesComplete(ctx context.Context, accountName strin
 
 // ListProcedures retrieves the list of procedures from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the procedures. schemaName is the name of the schema containing the
-// procedures. filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number
-// of items to skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the
-// properties on each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional.
-// orderby is orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or
-// "desc" depending on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc.
-// Optional. count is the Boolean value of true or false to request a count of the matching resources included with
-// the resources in the response, e.g. Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the procedures. schemaName is the name of the schema containing the procedures.
+// filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to
+// skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on
+// each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy
+// clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the
+// order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value
+// of true or false to request a count of the matching resources included with the resources in the response, e.g.
+// Categories?$count=true. Optional.
 func (client Client) ListProcedures(ctx context.Context, accountName string, databaseName string, schemaName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLProcedureListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -2531,7 +2468,7 @@ func (client Client) ListProcedures(ctx context.Context, accountName string, dat
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListProcedures", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListProcedures")
 	}
 
 	result.fn = client.listProceduresNextResults
@@ -2648,15 +2585,14 @@ func (client Client) ListProceduresComplete(ctx context.Context, accountName str
 
 // ListSchemas retrieves the list of schemas from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the schema. filter is oData filter. Optional. top is the number of items to
-// return. Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter
-// is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the schema. filter is oData filter. Optional. top is the number of items to return.
+// Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter is oData
+// Select statement. Limits the properties on each entry to just those requested, e.g.
 // Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
-// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted,
-// e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a
-// count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
-// Optional.
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListSchemas(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLSchemaListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -2665,7 +2601,7 @@ func (client Client) ListSchemas(ctx context.Context, accountName string, databa
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListSchemas", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListSchemas")
 	}
 
 	result.fn = client.listSchemasNextResults
@@ -2781,16 +2717,15 @@ func (client Client) ListSchemasComplete(ctx context.Context, accountName string
 
 // ListTablePartitions retrieves the list of table partitions from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the partitions. schemaName is the name of the schema containing the
-// partitions. tableName is the name of the table containing the partitions. filter is oData filter. Optional. top
-// is the number of items to return. Optional. skip is the number of items to skip over before returning elements.
-// Optional. selectParameter is oData Select statement. Limits the properties on each entry to just those
-// requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more
-// comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the
-// values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
-// to request a count of the matching resources included with the resources in the response, e.g.
-// Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the partitions. schemaName is the name of the schema containing the partitions.
+// tableName is the name of the table containing the partitions. filter is oData filter. Optional. top is the number of
+// items to return. Optional. skip is the number of items to skip over before returning elements. Optional.
+// selectParameter is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListTablePartitions(ctx context.Context, accountName string, databaseName string, schemaName string, tableName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLTablePartitionListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -2799,7 +2734,7 @@ func (client Client) ListTablePartitions(ctx context.Context, accountName string
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTablePartitions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTablePartitions")
 	}
 
 	result.fn = client.listTablePartitionsNextResults
@@ -2917,17 +2852,17 @@ func (client Client) ListTablePartitionsComplete(ctx context.Context, accountNam
 
 // ListTables retrieves the list of tables from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the tables. schemaName is the name of the schema containing the tables.
-// filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to
-// skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the properties
-// on each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is
-// orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending
-// on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the
-// Boolean value of true or false to request a count of the matching resources included with the resources in the
-// response, e.g. Categories?$count=true. Optional. basic is the basic switch indicates what level of information
-// to return when listing tables. When basic is true, only database_name, schema_name, table_name and version are
-// returned for each table, otherwise all table metadata is returned. By default, it is false. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the tables. schemaName is the name of the schema containing the tables. filter is
+// oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over
+// before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each entry
+// to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One
+// or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like
+// the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
+// to request a count of the matching resources included with the resources in the response, e.g.
+// Categories?$count=true. Optional. basic is the basic switch indicates what level of information to return when
+// listing tables. When basic is true, only database_name, schema_name, table_name and version are returned for each
+// table, otherwise all table metadata is returned. By default, it is false. Optional.
 func (client Client) ListTables(ctx context.Context, accountName string, databaseName string, schemaName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool, basic *bool) (result USQLTableListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -2936,7 +2871,7 @@ func (client Client) ListTables(ctx context.Context, accountName string, databas
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTables", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTables")
 	}
 
 	result.fn = client.listTablesNextResults
@@ -2997,8 +2932,6 @@ func (client Client) ListTablesPreparer(ctx context.Context, accountName string,
 	}
 	if basic != nil {
 		queryParameters["basic"] = autorest.Encode("query", *basic)
-	} else {
-		queryParameters["basic"] = autorest.Encode("query", false)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3058,17 +2991,17 @@ func (client Client) ListTablesComplete(ctx context.Context, accountName string,
 
 // ListTablesByDatabase retrieves the list of all tables in a database from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the tables. filter is oData filter. Optional. top is the number of items to
-// return. Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter
-// is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the tables. filter is oData filter. Optional. top is the number of items to return.
+// Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter is oData
+// Select statement. Limits the properties on each entry to just those requested, e.g.
 // Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
-// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted,
-// e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a
-// count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
-// Optional. basic is the basic switch indicates what level of information to return when listing tables. When
-// basic is true, only database_name, schema_name, table_name and version are returned for each table, otherwise
-// all table metadata is returned. By default, it is false
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional. basic is
+// the basic switch indicates what level of information to return when listing tables. When basic is true, only
+// database_name, schema_name, table_name and version are returned for each table, otherwise all table metadata is
+// returned. By default, it is false
 func (client Client) ListTablesByDatabase(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool, basic *bool) (result USQLTableListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -3077,7 +3010,7 @@ func (client Client) ListTablesByDatabase(ctx context.Context, accountName strin
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTablesByDatabase", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTablesByDatabase")
 	}
 
 	result.fn = client.listTablesByDatabaseNextResults
@@ -3137,8 +3070,6 @@ func (client Client) ListTablesByDatabasePreparer(ctx context.Context, accountNa
 	}
 	if basic != nil {
 		queryParameters["basic"] = autorest.Encode("query", *basic)
-	} else {
-		queryParameters["basic"] = autorest.Encode("query", false)
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -3198,16 +3129,15 @@ func (client Client) ListTablesByDatabaseComplete(ctx context.Context, accountNa
 
 // ListTableStatistics retrieves the list of table statistics from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the statistics. schemaName is the name of the schema containing the
-// statistics. tableName is the name of the table containing the statistics. filter is oData filter. Optional. top
-// is the number of items to return. Optional. skip is the number of items to skip over before returning elements.
-// Optional. selectParameter is oData Select statement. Limits the properties on each entry to just those
-// requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more
-// comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the
-// values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
-// to request a count of the matching resources included with the resources in the response, e.g.
-// Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the statistics. schemaName is the name of the schema containing the statistics.
+// tableName is the name of the table containing the statistics. filter is oData filter. Optional. top is the number of
+// items to return. Optional. skip is the number of items to skip over before returning elements. Optional.
+// selectParameter is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListTableStatistics(ctx context.Context, accountName string, databaseName string, schemaName string, tableName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLTableStatisticsListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -3216,7 +3146,7 @@ func (client Client) ListTableStatistics(ctx context.Context, accountName string
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTableStatistics", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTableStatistics")
 	}
 
 	result.fn = client.listTableStatisticsNextResults
@@ -3335,15 +3265,14 @@ func (client Client) ListTableStatisticsComplete(ctx context.Context, accountNam
 // ListTableStatisticsByDatabase retrieves the list of all statistics in a database from the Data Lake Analytics
 // catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the table statistics. filter is oData filter. Optional. top is the number of
-// items to return. Optional. skip is the number of items to skip over before returning elements. Optional.
-// selectParameter is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the table statistics. filter is oData filter. Optional. top is the number of items
+// to return. Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter
+// is oData Select statement. Limits the properties on each entry to just those requested, e.g.
 // Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
-// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted,
-// e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a
-// count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
-// Optional.
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListTableStatisticsByDatabase(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLTableStatisticsListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -3352,7 +3281,7 @@ func (client Client) ListTableStatisticsByDatabase(ctx context.Context, accountN
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTableStatisticsByDatabase", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTableStatisticsByDatabase")
 	}
 
 	result.fn = client.listTableStatisticsByDatabaseNextResults
@@ -3469,15 +3398,15 @@ func (client Client) ListTableStatisticsByDatabaseComplete(ctx context.Context, 
 // ListTableStatisticsByDatabaseAndSchema retrieves the list of all table statistics within the specified schema from
 // the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the statistics. schemaName is the name of the schema containing the
-// statistics. filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number
-// of items to skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the
-// properties on each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional.
-// orderby is orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or
-// "desc" depending on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc.
-// Optional. count is the Boolean value of true or false to request a count of the matching resources included with
-// the resources in the response, e.g. Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the statistics. schemaName is the name of the schema containing the statistics.
+// filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to
+// skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on
+// each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy
+// clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the
+// order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value
+// of true or false to request a count of the matching resources included with the resources in the response, e.g.
+// Categories?$count=true. Optional.
 func (client Client) ListTableStatisticsByDatabaseAndSchema(ctx context.Context, accountName string, databaseName string, schemaName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLTableStatisticsListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -3486,7 +3415,7 @@ func (client Client) ListTableStatisticsByDatabaseAndSchema(ctx context.Context,
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTableStatisticsByDatabaseAndSchema", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTableStatisticsByDatabaseAndSchema")
 	}
 
 	result.fn = client.listTableStatisticsByDatabaseAndSchemaNextResults
@@ -3603,15 +3532,15 @@ func (client Client) ListTableStatisticsByDatabaseAndSchemaComplete(ctx context.
 
 // ListTableTypes retrieves the list of table types from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the table types. schemaName is the name of the schema containing the table
-// types. filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number of
-// items to skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the
-// properties on each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional.
-// orderby is orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or
-// "desc" depending on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc.
-// Optional. count is the Boolean value of true or false to request a count of the matching resources included with
-// the resources in the response, e.g. Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the table types. schemaName is the name of the schema containing the table types.
+// filter is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to
+// skip over before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on
+// each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy
+// clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the
+// order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value
+// of true or false to request a count of the matching resources included with the resources in the response, e.g.
+// Categories?$count=true. Optional.
 func (client Client) ListTableTypes(ctx context.Context, accountName string, databaseName string, schemaName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLTableTypeListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -3620,7 +3549,7 @@ func (client Client) ListTableTypes(ctx context.Context, accountName string, dat
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTableTypes", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTableTypes")
 	}
 
 	result.fn = client.listTableTypesNextResults
@@ -3737,16 +3666,15 @@ func (client Client) ListTableTypesComplete(ctx context.Context, accountName str
 
 // ListTableValuedFunctions retrieves the list of table valued functions from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the table valued functions. schemaName is the name of the schema containing
-// the table valued functions. filter is oData filter. Optional. top is the number of items to return. Optional.
-// skip is the number of items to skip over before returning elements. Optional. selectParameter is oData Select
-// statement. Limits the properties on each entry to just those requested, e.g.
-// Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
-// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted,
-// e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a
-// count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
-// Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the table valued functions. schemaName is the name of the schema containing the
+// table valued functions. filter is oData filter. Optional. top is the number of items to return. Optional. skip is
+// the number of items to skip over before returning elements. Optional. selectParameter is oData Select statement.
+// Limits the properties on each entry to just those requested, e.g. Categories?$select=CategoryName,Description.
+// Optional. orderby is orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or
+// "desc" depending on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional.
+// count is the Boolean value of true or false to request a count of the matching resources included with the resources
+// in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListTableValuedFunctions(ctx context.Context, accountName string, databaseName string, schemaName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLTableValuedFunctionListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -3755,7 +3683,7 @@ func (client Client) ListTableValuedFunctions(ctx context.Context, accountName s
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTableValuedFunctions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTableValuedFunctions")
 	}
 
 	result.fn = client.listTableValuedFunctionsNextResults
@@ -3873,15 +3801,14 @@ func (client Client) ListTableValuedFunctionsComplete(ctx context.Context, accou
 // ListTableValuedFunctionsByDatabase retrieves the list of all table valued functions in a database from the Data Lake
 // Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the table valued functions. filter is oData filter. Optional. top is the
-// number of items to return. Optional. skip is the number of items to skip over before returning elements.
-// Optional. selectParameter is oData Select statement. Limits the properties on each entry to just those
-// requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more
-// comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the
-// values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
-// to request a count of the matching resources included with the resources in the response, e.g.
-// Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the table valued functions. filter is oData filter. Optional. top is the number of
+// items to return. Optional. skip is the number of items to skip over before returning elements. Optional.
+// selectParameter is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListTableValuedFunctionsByDatabase(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLTableValuedFunctionListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -3890,7 +3817,7 @@ func (client Client) ListTableValuedFunctionsByDatabase(ctx context.Context, acc
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTableValuedFunctionsByDatabase", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTableValuedFunctionsByDatabase")
 	}
 
 	result.fn = client.listTableValuedFunctionsByDatabaseNextResults
@@ -4006,15 +3933,15 @@ func (client Client) ListTableValuedFunctionsByDatabaseComplete(ctx context.Cont
 
 // ListTypes retrieves the list of types within the specified database and schema from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the types. schemaName is the name of the schema containing the types. filter
-// is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip
-// over before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on
-// each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is
-// orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending
-// on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the
-// Boolean value of true or false to request a count of the matching resources included with the resources in the
-// response, e.g. Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the types. schemaName is the name of the schema containing the types. filter is
+// oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over
+// before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each entry
+// to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One
+// or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like
+// the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
+// to request a count of the matching resources included with the resources in the response, e.g.
+// Categories?$count=true. Optional.
 func (client Client) ListTypes(ctx context.Context, accountName string, databaseName string, schemaName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLTypeListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -4023,7 +3950,7 @@ func (client Client) ListTypes(ctx context.Context, accountName string, database
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListTypes", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListTypes")
 	}
 
 	result.fn = client.listTypesNextResults
@@ -4140,15 +4067,15 @@ func (client Client) ListTypesComplete(ctx context.Context, accountName string, 
 
 // ListViews retrieves the list of views from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the views. schemaName is the name of the schema containing the views. filter
-// is oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip
-// over before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on
-// each entry to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is
-// orderBy clause. One or more comma-separated expressions with an optional "asc" (the default) or "desc" depending
-// on the order you'd like the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the
-// Boolean value of true or false to request a count of the matching resources included with the resources in the
-// response, e.g. Categories?$count=true. Optional.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the views. schemaName is the name of the schema containing the views. filter is
+// oData filter. Optional. top is the number of items to return. Optional. skip is the number of items to skip over
+// before returning elements. Optional. selectParameter is oData Select statement. Limits the properties on each entry
+// to just those requested, e.g. Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One
+// or more comma-separated expressions with an optional "asc" (the default) or "desc" depending on the order you'd like
+// the values sorted, e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false
+// to request a count of the matching resources included with the resources in the response, e.g.
+// Categories?$count=true. Optional.
 func (client Client) ListViews(ctx context.Context, accountName string, databaseName string, schemaName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLViewListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -4157,7 +4084,7 @@ func (client Client) ListViews(ctx context.Context, accountName string, database
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListViews", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListViews")
 	}
 
 	result.fn = client.listViewsNextResults
@@ -4274,15 +4201,14 @@ func (client Client) ListViewsComplete(ctx context.Context, accountName string, 
 
 // ListViewsByDatabase retrieves the list of all views in a database from the Data Lake Analytics catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the views. filter is oData filter. Optional. top is the number of items to
-// return. Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter
-// is oData Select statement. Limits the properties on each entry to just those requested, e.g.
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the views. filter is oData filter. Optional. top is the number of items to return.
+// Optional. skip is the number of items to skip over before returning elements. Optional. selectParameter is oData
+// Select statement. Limits the properties on each entry to just those requested, e.g.
 // Categories?$select=CategoryName,Description. Optional. orderby is orderBy clause. One or more comma-separated
-// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted,
-// e.g. Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a
-// count of the matching resources included with the resources in the response, e.g. Categories?$count=true.
-// Optional.
+// expressions with an optional "asc" (the default) or "desc" depending on the order you'd like the values sorted, e.g.
+// Categories?$orderby=CategoryName desc. Optional. count is the Boolean value of true or false to request a count of
+// the matching resources included with the resources in the response, e.g. Categories?$count=true. Optional.
 func (client Client) ListViewsByDatabase(ctx context.Context, accountName string, databaseName string, filter string, top *int32, skip *int32, selectParameter string, orderby string, count *bool) (result USQLViewListPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: top,
@@ -4291,7 +4217,7 @@ func (client Client) ListViewsByDatabase(ctx context.Context, accountName string
 		{TargetValue: skip,
 			Constraints: []validation.Constraint{{Target: "skip", Name: validation.Null, Rule: false,
 				Chain: []validation.Constraint{{Target: "skip", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil}}}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "ListViewsByDatabase", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "ListViewsByDatabase")
 	}
 
 	result.fn = client.listViewsByDatabaseNextResults
@@ -4408,15 +4334,16 @@ func (client Client) ListViewsByDatabaseComplete(ctx context.Context, accountNam
 // RevokeACL revokes an access control list (ACL) entry from the Data Lake Analytics catalog.
 //
 // accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. parameters is
-// parameters supplied to delete an access control list (ACL) entry from a Data Lake Analytics catalog.
-func (client Client) RevokeACL(ctx context.Context, accountName string, parameters ACLDeleteParameters) (result autorest.Response, err error) {
+// parameters supplied to delete an access control list (ACL) entry from a Data Lake Analytics catalog. op is the
+// constant value for the operation.
+func (client Client) RevokeACL(ctx context.Context, accountName string, parameters ACLDeleteParameters, op string) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.PrincipalID", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "RevokeACL", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "RevokeACL")
 	}
 
-	req, err := client.RevokeACLPreparer(ctx, accountName, parameters)
+	req, err := client.RevokeACLPreparer(ctx, accountName, parameters, op)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "catalog.Client", "RevokeACL", nil, "Failure preparing request")
 		return
@@ -4438,7 +4365,7 @@ func (client Client) RevokeACL(ctx context.Context, accountName string, paramete
 }
 
 // RevokeACLPreparer prepares the RevokeACL request.
-func (client Client) RevokeACLPreparer(ctx context.Context, accountName string, parameters ACLDeleteParameters) (*http.Request, error) {
+func (client Client) RevokeACLPreparer(ctx context.Context, accountName string, parameters ACLDeleteParameters, op string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
 		"accountName":          accountName,
 		"adlaCatalogDnsSuffix": client.AdlaCatalogDNSSuffix,
@@ -4447,7 +4374,7 @@ func (client Client) RevokeACLPreparer(ctx context.Context, accountName string, 
 	const APIVersion = "2016-11-01"
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
-		"op":          autorest.Encode("query", "REVOKEACE"),
+		"op":          autorest.Encode("query", op),
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4482,17 +4409,17 @@ func (client Client) RevokeACLResponder(resp *http.Response) (result autorest.Re
 // RevokeACLFromDatabase revokes an access control list (ACL) entry for the database from the Data Lake Analytics
 // catalog.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database. parameters is parameters supplied to delete an access control list (ACL) entry for a
-// database.
-func (client Client) RevokeACLFromDatabase(ctx context.Context, accountName string, databaseName string, parameters ACLDeleteParameters) (result autorest.Response, err error) {
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database. parameters is parameters supplied to delete an access control list (ACL) entry for a database.
+// op is the constant value for the operation.
+func (client Client) RevokeACLFromDatabase(ctx context.Context, accountName string, databaseName string, parameters ACLDeleteParameters, op string) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.PrincipalID", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("catalog.Client", "RevokeACLFromDatabase", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "catalog.Client", "RevokeACLFromDatabase")
 	}
 
-	req, err := client.RevokeACLFromDatabasePreparer(ctx, accountName, databaseName, parameters)
+	req, err := client.RevokeACLFromDatabasePreparer(ctx, accountName, databaseName, parameters, op)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "catalog.Client", "RevokeACLFromDatabase", nil, "Failure preparing request")
 		return
@@ -4514,7 +4441,7 @@ func (client Client) RevokeACLFromDatabase(ctx context.Context, accountName stri
 }
 
 // RevokeACLFromDatabasePreparer prepares the RevokeACLFromDatabase request.
-func (client Client) RevokeACLFromDatabasePreparer(ctx context.Context, accountName string, databaseName string, parameters ACLDeleteParameters) (*http.Request, error) {
+func (client Client) RevokeACLFromDatabasePreparer(ctx context.Context, accountName string, databaseName string, parameters ACLDeleteParameters, op string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
 		"accountName":          accountName,
 		"adlaCatalogDnsSuffix": client.AdlaCatalogDNSSuffix,
@@ -4527,7 +4454,7 @@ func (client Client) RevokeACLFromDatabasePreparer(ctx context.Context, accountN
 	const APIVersion = "2016-11-01"
 	queryParameters := map[string]interface{}{
 		"api-version": APIVersion,
-		"op":          autorest.Encode("query", "REVOKEACE"),
+		"op":          autorest.Encode("query", op),
 	}
 
 	preparer := autorest.CreatePreparer(
@@ -4561,9 +4488,9 @@ func (client Client) RevokeACLFromDatabaseResponder(resp *http.Response) (result
 
 // UpdateCredential modifies the specified credential for use with external data sources in the specified database
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the credential. credentialName is the name of the credential. parameters is
-// the parameters required to modify the credential (name and password)
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the credential. credentialName is the name of the credential. parameters is the
+// parameters required to modify the credential (name and password)
 func (client Client) UpdateCredential(ctx context.Context, accountName string, databaseName string, credentialName string, parameters DataLakeAnalyticsCatalogCredentialUpdateParameters) (result autorest.Response, err error) {
 	req, err := client.UpdateCredentialPreparer(ctx, accountName, databaseName, credentialName, parameters)
 	if err != nil {
@@ -4635,9 +4562,9 @@ func (client Client) UpdateCredentialResponder(resp *http.Response) (result auto
 // UpdateSecret modifies the specified secret for use with external data sources in the specified database. This is
 // deprecated and will be removed in the next release. Please use UpdateCredential instead.
 //
-// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is
-// the name of the database containing the secret. secretName is the name of the secret. parameters is the
-// parameters required to modify the secret (name and password)
+// accountName is the Azure Data Lake Analytics account upon which to execute catalog operations. databaseName is the
+// name of the database containing the secret. secretName is the name of the secret. parameters is the parameters
+// required to modify the secret (name and password)
 func (client Client) UpdateSecret(ctx context.Context, accountName string, databaseName string, secretName string, parameters DataLakeAnalyticsCatalogSecretCreateOrUpdateParameters) (result autorest.Response, err error) {
 	req, err := client.UpdateSecretPreparer(ctx, accountName, databaseName, secretName, parameters)
 	if err != nil {

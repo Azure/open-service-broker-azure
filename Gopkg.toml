@@ -23,11 +23,11 @@
 
 [[constraint]]
   name = "github.com/Azure/azure-sdk-for-go"
-  version = "v14.0.0"
+  version = "v12.4.0-beta"
 
 [[constraint]]
   name = "github.com/Azure/go-autorest"
-  version = "v10.1.0"
+  version = "v9.10.0"
 
 [[constraint]]
   name = "github.com/Sirupsen/logrus"

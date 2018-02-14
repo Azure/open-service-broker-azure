@@ -53,7 +53,7 @@ func NewWithoutDefaults() BaseClient {
 // Azure Key Vault. Individual versions of a key cannot be backed up. BACKUP / RESTORE can be performed within
 // geographical boundaries only; meaning that a BACKUP from one geographical area cannot be restored to another
 // geographical area. For example, a backup from the US geographical area cannot be restored in an EU geographical
-// area. This operation requires the key/backup permission.
+// area.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 func (client BaseClient) BackupKey(ctx context.Context, vaultBaseURL string, keyName string) (result BackupKeyResult, err error) {
@@ -121,11 +121,10 @@ func (client BaseClient) BackupKeyResponder(resp *http.Response) (result BackupK
 	return
 }
 
-// BackupSecret requests that a backup of the specified secret be downloaded to the client. All versions of the secret
-// will be downloaded. This operation requires the secrets/backup permission.
+// BackupSecret requests that a backup of the specified secret be downloaded to the client. Authorization: requires the
+// secrets/backup permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// secret.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the secret.
 func (client BaseClient) BackupSecret(ctx context.Context, vaultBaseURL string, secretName string) (result BackupSecretResult, err error) {
 	req, err := client.BackupSecretPreparer(ctx, vaultBaseURL, secretName)
 	if err != nil {
@@ -191,8 +190,7 @@ func (client BaseClient) BackupSecretResponder(resp *http.Response) (result Back
 	return
 }
 
-// CreateCertificate if this is the first version, the certificate resource is created. This operation requires the
-// certificates/create permission.
+// CreateCertificate if this is the first version, the certificate resource is created.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate. parameters is the parameters to create a certificate.
@@ -207,7 +205,7 @@ func (client BaseClient) CreateCertificate(ctx context.Context, vaultBaseURL str
 						Chain: []validation.Constraint{{Target: "parameters.CertificatePolicy.X509CertificateProperties.ValidityInMonths", Name: validation.InclusiveMinimum, Rule: 0, Chain: nil}}},
 					}},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "CreateCertificate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "CreateCertificate")
 	}
 
 	req, err := client.CreateCertificatePreparer(ctx, vaultBaseURL, certificateName, parameters)
@@ -277,15 +275,15 @@ func (client BaseClient) CreateCertificateResponder(resp *http.Response) (result
 }
 
 // CreateKey the create key operation can be used to create any key type in Azure Key Vault. If the named key already
-// exists, Azure Key Vault creates a new version of the key. It requires the keys/create permission.
+// exists, Azure Key Vault creates a new version of the key.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name for the new
-// key. The system will generate the version name for the new key. parameters is the parameters to create a key.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name for the new key.
+// The system will generate the version name for the new key. parameters is the parameters to create a key.
 func (client BaseClient) CreateKey(ctx context.Context, vaultBaseURL string, keyName string, parameters KeyCreateParameters) (result KeyBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: keyName,
 			Constraints: []validation.Constraint{{Target: "keyName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z-]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "CreateKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "CreateKey")
 	}
 
 	req, err := client.CreateKeyPreparer(ctx, vaultBaseURL, keyName, parameters)
@@ -358,7 +356,6 @@ func (client BaseClient) CreateKeyResponder(resp *http.Response) (result KeyBund
 // specified algorithm. This operation is the reverse of the ENCRYPT operation; only a single block of data may be
 // decrypted, the size of this block is dependent on the target key and the algorithm to be used. The DECRYPT operation
 // applies to asymmetric and symmetric keys stored in Azure Key Vault since it uses the private portion of the key.
-// This operation requires the keys/decrypt permission.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 // keyVersion is the version of the key. parameters is the parameters for the decryption operation.
@@ -366,7 +363,7 @@ func (client BaseClient) Decrypt(ctx context.Context, vaultBaseURL string, keyNa
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Value", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "Decrypt", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "Decrypt")
 	}
 
 	req, err := client.DecryptPreparer(ctx, vaultBaseURL, keyName, keyVersion, parameters)
@@ -437,8 +434,7 @@ func (client BaseClient) DecryptResponder(resp *http.Response) (result KeyOperat
 }
 
 // DeleteCertificate deletes all versions of a certificate object along with its associated policy. Delete certificate
-// cannot be used to remove individual versions of a certificate object. This operation requires the
-// certificates/delete permission.
+// cannot be used to remove individual versions of a certificate object.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate.
@@ -507,7 +503,7 @@ func (client BaseClient) DeleteCertificateResponder(resp *http.Response) (result
 	return
 }
 
-// DeleteCertificateContacts deletes the certificate contacts for a specified key vault certificate. This operation
+// DeleteCertificateContacts deletes the certificate contacts for a specified key vault certificate. Authorization:
 // requires the certificates/managecontacts permission.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net.
@@ -573,10 +569,9 @@ func (client BaseClient) DeleteCertificateContactsResponder(resp *http.Response)
 }
 
 // DeleteCertificateIssuer the DeleteCertificateIssuer operation permanently removes the specified certificate issuer
-// from the vault. This operation requires the certificates/manageissuers/deleteissuers permission.
+// from the vault.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. issuerName is the name of the
-// issuer.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. issuerName is the name of the issuer.
 func (client BaseClient) DeleteCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string) (result IssuerBundle, err error) {
 	req, err := client.DeleteCertificateIssuerPreparer(ctx, vaultBaseURL, issuerName)
 	if err != nil {
@@ -642,8 +637,8 @@ func (client BaseClient) DeleteCertificateIssuerResponder(resp *http.Response) (
 	return
 }
 
-// DeleteCertificateOperation deletes the creation operation for a specified certificate that is in the process of
-// being created. The certificate is no longer created. This operation requires the certificates/update permission.
+// DeleteCertificateOperation deletes the operation for a specified certificate. Authorization: requires the
+// certificates/update permission.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate.
@@ -714,7 +709,7 @@ func (client BaseClient) DeleteCertificateOperationResponder(resp *http.Response
 
 // DeleteKey the delete key operation cannot be used to remove individual versions of a key. This operation removes the
 // cryptographic material associated with the key, which means the key is not usable for Sign/Verify, Wrap/Unwrap or
-// Encrypt/Decrypt operations. This operation requires the keys/delete permission.
+// Encrypt/Decrypt operations.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key to
 // delete.
@@ -783,18 +778,17 @@ func (client BaseClient) DeleteKeyResponder(resp *http.Response) (result Deleted
 	return
 }
 
-// DeleteSasDefinition deletes a SAS definition from a specified storage account. This operation requires the
-// storage/deletesas permission.
+// DeleteSasDefinition deletes a SAS definition from a specified storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account. sasDefinitionName is the name of the SAS definition.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account. sasDefinitionName is the name of the SAS definition.
 func (client BaseClient) DeleteSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string) (result SasDefinitionBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
 			Constraints: []validation.Constraint{{Target: "storageAccountName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}},
 		{TargetValue: sasDefinitionName,
 			Constraints: []validation.Constraint{{Target: "sasDefinitionName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "DeleteSasDefinition", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "DeleteSasDefinition")
 	}
 
 	req, err := client.DeleteSasDefinitionPreparer(ctx, vaultBaseURL, storageAccountName, sasDefinitionName)
@@ -863,10 +857,9 @@ func (client BaseClient) DeleteSasDefinitionResponder(resp *http.Response) (resu
 }
 
 // DeleteSecret the DELETE operation applies to any secret stored in Azure Key Vault. DELETE cannot be applied to an
-// individual version of a secret. This operation requires the secrets/delete permission.
+// individual version of a secret.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// secret.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the secret.
 func (client BaseClient) DeleteSecret(ctx context.Context, vaultBaseURL string, secretName string) (result DeletedSecretBundle, err error) {
 	req, err := client.DeleteSecretPreparer(ctx, vaultBaseURL, secretName)
 	if err != nil {
@@ -932,15 +925,15 @@ func (client BaseClient) DeleteSecretResponder(resp *http.Response) (result Dele
 	return
 }
 
-// DeleteStorageAccount deletes a storage account. This operation requires the storage/delete permission.
+// DeleteStorageAccount deletes a storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account.
 func (client BaseClient) DeleteStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string) (result StorageBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
 			Constraints: []validation.Constraint{{Target: "storageAccountName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "DeleteStorageAccount", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "DeleteStorageAccount")
 	}
 
 	req, err := client.DeleteStorageAccountPreparer(ctx, vaultBaseURL, storageAccountName)
@@ -1012,8 +1005,7 @@ func (client BaseClient) DeleteStorageAccountResponder(resp *http.Response) (res
 // dependent on the target key and the encryption algorithm to be used. The ENCRYPT operation is only strictly
 // necessary for symmetric keys stored in Azure Key Vault since protection with an asymmetric key can be performed
 // using public portion of the key. This operation is supported for asymmetric keys as a convenience for callers that
-// have a key-reference but do not have access to the public key material. This operation requires the keys/encypt
-// permission.
+// have a key-reference but do not have access to the public key material.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 // keyVersion is the version of the key. parameters is the parameters for the encryption operation.
@@ -1021,7 +1013,7 @@ func (client BaseClient) Encrypt(ctx context.Context, vaultBaseURL string, keyNa
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Value", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "Encrypt", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "Encrypt")
 	}
 
 	req, err := client.EncryptPreparer(ctx, vaultBaseURL, keyName, keyVersion, parameters)
@@ -1091,7 +1083,7 @@ func (client BaseClient) EncryptResponder(resp *http.Response) (result KeyOperat
 	return
 }
 
-// GetCertificate gets information about a specific certificate. This operation requires the certificates/get
+// GetCertificate gets information about a specified certificate. Authorization: requires the certificates/get
 // permission.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
@@ -1163,7 +1155,7 @@ func (client BaseClient) GetCertificateResponder(resp *http.Response) (result Ce
 }
 
 // GetCertificateContacts the GetCertificateContacts operation returns the set of certificate contact resources in the
-// specified key vault. This operation requires the certificates/managecontacts permission.
+// specified key vault.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net.
 func (client BaseClient) GetCertificateContacts(ctx context.Context, vaultBaseURL string) (result Contacts, err error) {
@@ -1228,10 +1220,9 @@ func (client BaseClient) GetCertificateContactsResponder(resp *http.Response) (r
 }
 
 // GetCertificateIssuer the GetCertificateIssuer operation returns the specified certificate issuer resources in the
-// specified key vault. This operation requires the certificates/manageissuers/getissuers permission.
+// specified key vault
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. issuerName is the name of the
-// issuer.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. issuerName is the name of the issuer.
 func (client BaseClient) GetCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string) (result IssuerBundle, err error) {
 	req, err := client.GetCertificateIssuerPreparer(ctx, vaultBaseURL, issuerName)
 	if err != nil {
@@ -1298,10 +1289,10 @@ func (client BaseClient) GetCertificateIssuerResponder(resp *http.Response) (res
 }
 
 // GetCertificateIssuers the GetCertificateIssuers operation returns the set of certificate issuer resources in the
-// specified key vault. This operation requires the certificates/manageissuers/getissuers permission.
+// specified key vault
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of
-// results to return in a page. If not specified the service will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of results
+// to return in a page. If not specified the service will return up to 25 results.
 func (client BaseClient) GetCertificateIssuers(ctx context.Context, vaultBaseURL string, maxresults *int32) (result CertificateIssuerListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -1309,7 +1300,7 @@ func (client BaseClient) GetCertificateIssuers(ctx context.Context, vaultBaseURL
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetCertificateIssuers", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetCertificateIssuers")
 	}
 
 	result.fn = client.getCertificateIssuersNextResults
@@ -1403,8 +1394,8 @@ func (client BaseClient) GetCertificateIssuersComplete(ctx context.Context, vaul
 	return
 }
 
-// GetCertificateOperation gets the creation operation associated with a specified certificate. This operation requires
-// the certificates/get permission.
+// GetCertificateOperation gets the operation associated with a specified certificate. Authorization: requires the
+// certificates/get permission.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate.
@@ -1474,7 +1465,7 @@ func (client BaseClient) GetCertificateOperationResponder(resp *http.Response) (
 }
 
 // GetCertificatePolicy the GetCertificatePolicy operation returns the specified certificate policy resources in the
-// specified key vault. This operation requires the certificates/get permission.
+// specified key vault
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate in a given key vault.
@@ -1544,10 +1535,9 @@ func (client BaseClient) GetCertificatePolicyResponder(resp *http.Response) (res
 }
 
 // GetCertificates the GetCertificates operation returns the set of certificates resources in the specified key vault.
-// This operation requires the certificates/list permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of
-// results to return in a page. If not specified the service will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of results
+// to return in a page. If not specified the service will return up to 25 results.
 func (client BaseClient) GetCertificates(ctx context.Context, vaultBaseURL string, maxresults *int32) (result CertificateListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -1555,7 +1545,7 @@ func (client BaseClient) GetCertificates(ctx context.Context, vaultBaseURL strin
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetCertificates", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetCertificates")
 	}
 
 	result.fn = client.getCertificatesNextResults
@@ -1650,11 +1640,11 @@ func (client BaseClient) GetCertificatesComplete(ctx context.Context, vaultBaseU
 }
 
 // GetCertificateVersions the GetCertificateVersions operation returns the versions of a certificate in the specified
-// key vault. This operation requires the certificates/list permission.
+// key vault
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
-// certificate. maxresults is maximum number of results to return in a page. If not specified the service will
-// return up to 25 results.
+// certificate. maxresults is maximum number of results to return in a page. If not specified the service will return
+// up to 25 results.
 func (client BaseClient) GetCertificateVersions(ctx context.Context, vaultBaseURL string, certificateName string, maxresults *int32) (result CertificateListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -1662,7 +1652,7 @@ func (client BaseClient) GetCertificateVersions(ctx context.Context, vaultBaseUR
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetCertificateVersions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetCertificateVersions")
 	}
 
 	result.fn = client.getCertificateVersionsNextResults
@@ -1761,8 +1751,7 @@ func (client BaseClient) GetCertificateVersionsComplete(ctx context.Context, vau
 }
 
 // GetDeletedCertificate the GetDeletedCertificate operation retrieves the deleted certificate information plus its
-// attributes, such as retention interval, scheduled permanent deletion and the current deletion recovery level. This
-// operation requires the certificates/get permission.
+// attributes, such as retention interval, scheduled permanent deletion and the current deletion recovery level.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate
@@ -1832,12 +1821,10 @@ func (client BaseClient) GetDeletedCertificateResponder(resp *http.Response) (re
 }
 
 // GetDeletedCertificates the GetDeletedCertificates operation retrieves the certificates in the current vault which
-// are in a deleted state and ready for recovery or purging. This operation includes deletion-specific information.
-// This operation requires the certificates/get/list permission. This operation can only be enabled on soft-delete
-// enabled vaults.
+// are in a deleted state and ready for recovery or purging.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of
-// results to return in a page. If not specified the service will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of results
+// to return in a page. If not specified the service will return up to 25 results.
 func (client BaseClient) GetDeletedCertificates(ctx context.Context, vaultBaseURL string, maxresults *int32) (result DeletedCertificateListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -1845,7 +1832,7 @@ func (client BaseClient) GetDeletedCertificates(ctx context.Context, vaultBaseUR
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetDeletedCertificates", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetDeletedCertificates")
 	}
 
 	result.fn = client.getDeletedCertificatesNextResults
@@ -1939,9 +1926,9 @@ func (client BaseClient) GetDeletedCertificatesComplete(ctx context.Context, vau
 	return
 }
 
-// GetDeletedKey the Get Deleted Key operation is applicable for soft-delete enabled vaults. While the operation can be
-// invoked on any vault, it will return an error if invoked on a non soft-delete enabled vault. This operation requires
-// the keys/get permission.
+// GetDeletedKey the Get Deleted Key operation is applicable for soft-delete enabled vaults. It requires the keys/list
+// permission to be enabled on this vault. While the operation can be invoked on any vault, it will return an error if
+// invoked on a non soft-delete enabled vault.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 func (client BaseClient) GetDeletedKey(ctx context.Context, vaultBaseURL string, keyName string) (result DeletedKeyBundle, err error) {
@@ -2010,12 +1997,12 @@ func (client BaseClient) GetDeletedKeyResponder(resp *http.Response) (result Del
 }
 
 // GetDeletedKeys retrieves a list of the keys in the Key Vault as JSON Web Key structures that contain the public part
-// of a deleted key. This operation includes deletion-specific information. The Get Deleted Keys operation is
-// applicable for vaults enabled for soft-delete. While the operation can be invoked on any vault, it will return an
-// error if invoked on a non soft-delete enabled vault. This operation requires the keys/list permission.
+// of a deleted key. The Get Deleted Keys operation is applicable for soft-delete enabled vaults. It requires the
+// keys/list permission to be enabled on this vault. While the operation can be invoked on any vault, it will return an
+// error if invoked on a non soft-delete enabled vault.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of
-// results to return in a page. If not specified the service will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of results
+// to return in a page. If not specified the service will return up to 25 results.
 func (client BaseClient) GetDeletedKeys(ctx context.Context, vaultBaseURL string, maxresults *int32) (result DeletedKeyListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -2023,7 +2010,7 @@ func (client BaseClient) GetDeletedKeys(ctx context.Context, vaultBaseURL string
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetDeletedKeys", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetDeletedKeys")
 	}
 
 	result.fn = client.getDeletedKeysNextResults
@@ -2117,11 +2104,10 @@ func (client BaseClient) GetDeletedKeysComplete(ctx context.Context, vaultBaseUR
 	return
 }
 
-// GetDeletedSecret the Get Deleted Secret operation returns the specified deleted secret along with its attributes.
-// This operation requires the secrets/get permission.
+// GetDeletedSecret retrieves the deleted secret information plus its attributes. Authorization: requires the
+// secrets/get permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// secret.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the secret
 func (client BaseClient) GetDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string) (result DeletedSecretBundle, err error) {
 	req, err := client.GetDeletedSecretPreparer(ctx, vaultBaseURL, secretName)
 	if err != nil {
@@ -2187,11 +2173,10 @@ func (client BaseClient) GetDeletedSecretResponder(resp *http.Response) (result 
 	return
 }
 
-// GetDeletedSecrets the Get Deleted Secrets operation returns the secrets that have been deleted for a vault enabled
-// for soft-delete. This operation requires the secrets/list permission.
+// GetDeletedSecrets list deleted secrets in the specified vault. Authorization: requires the secrets/list permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of
-// results to return in a page. If not specified the service will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of results
+// to return in a page. If not specified the service will return up to 25 results.
 func (client BaseClient) GetDeletedSecrets(ctx context.Context, vaultBaseURL string, maxresults *int32) (result DeletedSecretListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -2199,7 +2184,7 @@ func (client BaseClient) GetDeletedSecrets(ctx context.Context, vaultBaseURL str
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetDeletedSecrets", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetDeletedSecrets")
 	}
 
 	result.fn = client.getDeletedSecretsNextResults
@@ -2294,10 +2279,10 @@ func (client BaseClient) GetDeletedSecretsComplete(ctx context.Context, vaultBas
 }
 
 // GetKey the get key operation is applicable to all key types. If the requested key is symmetric, then no key material
-// is released in the response. This operation requires the keys/get permission.
+// is released in the response.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key to
-// get. keyVersion is adding the version parameter retrieves a specific version of a key.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key to get.
+// keyVersion is adding the version parameter retrieves a specific version of a key.
 func (client BaseClient) GetKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string) (result KeyBundle, err error) {
 	req, err := client.GetKeyPreparer(ctx, vaultBaseURL, keyName, keyVersion)
 	if err != nil {
@@ -2365,12 +2350,12 @@ func (client BaseClient) GetKeyResponder(resp *http.Response) (result KeyBundle,
 }
 
 // GetKeys retrieves a list of the keys in the Key Vault as JSON Web Key structures that contain the public part of a
-// stored key. The LIST operation is applicable to all key types, however only the base key identifier, attributes, and
-// tags are provided in the response. Individual versions of a key are not listed in the response. This operation
-// requires the keys/list permission.
+// stored key. The LIST operation is applicable to all key types, however only the base key identifier,attributes, and
+// tags are provided in the response. Individual versions of a key are not listed in the response. Authorization:
+// Requires the keys/list permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of
-// results to return in a page. If not specified the service will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of results
+// to return in a page. If not specified the service will return up to 25 results.
 func (client BaseClient) GetKeys(ctx context.Context, vaultBaseURL string, maxresults *int32) (result KeyListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -2378,7 +2363,7 @@ func (client BaseClient) GetKeys(ctx context.Context, vaultBaseURL string, maxre
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetKeys", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetKeys")
 	}
 
 	result.fn = client.getKeysNextResults
@@ -2472,8 +2457,7 @@ func (client BaseClient) GetKeysComplete(ctx context.Context, vaultBaseURL strin
 	return
 }
 
-// GetKeyVersions the full key identifier, attributes, and tags are provided in the response. This operation requires
-// the keys/list permission.
+// GetKeyVersions the full key identifier, attributes, and tags are provided in the response.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 // maxresults is maximum number of results to return in a page. If not specified the service will return up to 25
@@ -2485,7 +2469,7 @@ func (client BaseClient) GetKeyVersions(ctx context.Context, vaultBaseURL string
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetKeyVersions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetKeyVersions")
 	}
 
 	result.fn = client.getKeyVersionsNextResults
@@ -2583,18 +2567,17 @@ func (client BaseClient) GetKeyVersionsComplete(ctx context.Context, vaultBaseUR
 	return
 }
 
-// GetSasDefinition gets information about a SAS definition for the specified storage account. This operation requires
-// the storage/getsas permission.
+// GetSasDefinition gets information about a SAS definition for the specified storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account. sasDefinitionName is the name of the SAS definition.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account. sasDefinitionName is the name of the SAS definition.
 func (client BaseClient) GetSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string) (result SasDefinitionBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
 			Constraints: []validation.Constraint{{Target: "storageAccountName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}},
 		{TargetValue: sasDefinitionName,
 			Constraints: []validation.Constraint{{Target: "sasDefinitionName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetSasDefinition", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetSasDefinition")
 	}
 
 	req, err := client.GetSasDefinitionPreparer(ctx, vaultBaseURL, storageAccountName, sasDefinitionName)
@@ -2662,12 +2645,11 @@ func (client BaseClient) GetSasDefinitionResponder(resp *http.Response) (result 
 	return
 }
 
-// GetSasDefinitions list storage SAS definitions for the given storage account. This operation requires the
-// storage/listsas permission.
+// GetSasDefinitions list storage SAS definitions for the given storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account. maxresults is maximum number of results to return in a page. If not specified the service
-// will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account. maxresults is maximum number of results to return in a page. If not specified the service will
+// return up to 25 results.
 func (client BaseClient) GetSasDefinitions(ctx context.Context, vaultBaseURL string, storageAccountName string, maxresults *int32) (result SasDefinitionListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
@@ -2677,7 +2659,7 @@ func (client BaseClient) GetSasDefinitions(ctx context.Context, vaultBaseURL str
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetSasDefinitions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetSasDefinitions")
 	}
 
 	result.fn = client.getSasDefinitionsNextResults
@@ -2775,11 +2757,10 @@ func (client BaseClient) GetSasDefinitionsComplete(ctx context.Context, vaultBas
 	return
 }
 
-// GetSecret the GET operation is applicable to any secret stored in Azure Key Vault. This operation requires the
-// secrets/get permission.
+// GetSecret the GET operation is applicable to any secret stored in Azure Key Vault.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// secret. secretVersion is the version of the secret.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the secret.
+// secretVersion is the version of the secret.
 func (client BaseClient) GetSecret(ctx context.Context, vaultBaseURL string, secretName string, secretVersion string) (result SecretBundle, err error) {
 	req, err := client.GetSecretPreparer(ctx, vaultBaseURL, secretName, secretVersion)
 	if err != nil {
@@ -2846,12 +2827,11 @@ func (client BaseClient) GetSecretResponder(resp *http.Response) (result SecretB
 	return
 }
 
-// GetSecrets the Get Secrets operation is applicable to the entire vault. However, only the base secret identifier and
-// its attributes are provided in the response. Individual secret versions are not listed in the response. This
-// operation requires the secrets/list permission.
+// GetSecrets the LIST operation is applicable to the entire vault, however only the base secret identifier and
+// attributes are provided in the response. Individual secret versions are not listed in the response.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of
-// results to return in a page. If not specified, the service will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of results
+// to return in a page. If not specified the service will return up to 25 results.
 func (client BaseClient) GetSecrets(ctx context.Context, vaultBaseURL string, maxresults *int32) (result SecretListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -2859,7 +2839,7 @@ func (client BaseClient) GetSecrets(ctx context.Context, vaultBaseURL string, ma
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetSecrets", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetSecrets")
 	}
 
 	result.fn = client.getSecretsNextResults
@@ -2953,12 +2933,13 @@ func (client BaseClient) GetSecretsComplete(ctx context.Context, vaultBaseURL st
 	return
 }
 
-// GetSecretVersions the full secret identifier and attributes are provided in the response. No values are returned for
-// the secrets. This operations requires the secrets/list permission.
+// GetSecretVersions the LIST VERSIONS operation can be applied to all versions having the same secret name in the same
+// key vault. The full secret identifier and attributes are provided in the response. No values are returned for the
+// secrets and only current versions of a secret are listed.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// secret. maxresults is maximum number of results to return in a page. If not specified, the service will return
-// up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the secret.
+// maxresults is maximum number of results to return in a page. If not specified the service will return up to 25
+// results.
 func (client BaseClient) GetSecretVersions(ctx context.Context, vaultBaseURL string, secretName string, maxresults *int32) (result SecretListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -2966,7 +2947,7 @@ func (client BaseClient) GetSecretVersions(ctx context.Context, vaultBaseURL str
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetSecretVersions", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetSecretVersions")
 	}
 
 	result.fn = client.getSecretVersionsNextResults
@@ -3064,16 +3045,15 @@ func (client BaseClient) GetSecretVersionsComplete(ctx context.Context, vaultBas
 	return
 }
 
-// GetStorageAccount gets information about a specified storage account. This operation requires the storage/get
-// permission.
+// GetStorageAccount gets information about a specified storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account.
 func (client BaseClient) GetStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string) (result StorageBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
 			Constraints: []validation.Constraint{{Target: "storageAccountName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetStorageAccount", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetStorageAccount")
 	}
 
 	req, err := client.GetStorageAccountPreparer(ctx, vaultBaseURL, storageAccountName)
@@ -3140,11 +3120,10 @@ func (client BaseClient) GetStorageAccountResponder(resp *http.Response) (result
 	return
 }
 
-// GetStorageAccounts list storage accounts managed by the specified key vault. This operation requires the
-// storage/list permission.
+// GetStorageAccounts list storage accounts managed by specified key vault
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of
-// results to return in a page. If not specified the service will return up to 25 results.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. maxresults is maximum number of results
+// to return in a page. If not specified the service will return up to 25 results.
 func (client BaseClient) GetStorageAccounts(ctx context.Context, vaultBaseURL string, maxresults *int32) (result StorageListResultPage, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: maxresults,
@@ -3152,7 +3131,7 @@ func (client BaseClient) GetStorageAccounts(ctx context.Context, vaultBaseURL st
 				Chain: []validation.Constraint{{Target: "maxresults", Name: validation.InclusiveMaximum, Rule: 25, Chain: nil},
 					{Target: "maxresults", Name: validation.InclusiveMinimum, Rule: 1, Chain: nil},
 				}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "GetStorageAccounts", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "GetStorageAccounts")
 	}
 
 	result.fn = client.getStorageAccountsNextResults
@@ -3248,7 +3227,7 @@ func (client BaseClient) GetStorageAccountsComplete(ctx context.Context, vaultBa
 
 // ImportCertificate imports an existing valid certificate, containing a private key, into Azure Key Vault. The
 // certificate to be imported can be in either PFX or PEM format. If the certificate is in PEM format the PEM file must
-// contain the key as well as x509 certificates. This operation requires the certificates/import permission.
+// contain the key as well as x509 certificates.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate. parameters is the parameters to import the certificate.
@@ -3264,7 +3243,7 @@ func (client BaseClient) ImportCertificate(ctx context.Context, vaultBaseURL str
 							Chain: []validation.Constraint{{Target: "parameters.CertificatePolicy.X509CertificateProperties.ValidityInMonths", Name: validation.InclusiveMinimum, Rule: 0, Chain: nil}}},
 						}},
 					}}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "ImportCertificate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "ImportCertificate")
 	}
 
 	req, err := client.ImportCertificatePreparer(ctx, vaultBaseURL, certificateName, parameters)
@@ -3334,18 +3313,17 @@ func (client BaseClient) ImportCertificateResponder(resp *http.Response) (result
 }
 
 // ImportKey the import key operation may be used to import any key type into an Azure Key Vault. If the named key
-// already exists, Azure Key Vault creates a new version of the key. This operation requires the keys/import
-// permission.
+// already exists, Azure Key Vault creates a new version of the key.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is name for the imported
-// key. parameters is the parameters to import a key.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is name for the imported key.
+// parameters is the parameters to import a key.
 func (client BaseClient) ImportKey(ctx context.Context, vaultBaseURL string, keyName string, parameters KeyImportParameters) (result KeyBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: keyName,
 			Constraints: []validation.Constraint{{Target: "keyName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z-]+$`, Chain: nil}}},
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Key", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "ImportKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "ImportKey")
 	}
 
 	req, err := client.ImportKeyPreparer(ctx, vaultBaseURL, keyName, parameters)
@@ -3415,7 +3393,7 @@ func (client BaseClient) ImportKeyResponder(resp *http.Response) (result KeyBund
 }
 
 // MergeCertificate the MergeCertificate operation performs the merging of a certificate or certificate chain with a
-// key pair currently available in the service. This operation requires the certificates/create permission.
+// key pair currently available in the service. Authorization: requires the certificates/update permission.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate. parameters is the parameters to merge certificate.
@@ -3423,7 +3401,7 @@ func (client BaseClient) MergeCertificate(ctx context.Context, vaultBaseURL stri
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.X509Certificates", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "MergeCertificate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "MergeCertificate")
 	}
 
 	req, err := client.MergeCertificatePreparer(ctx, vaultBaseURL, certificateName, parameters)
@@ -3494,7 +3472,7 @@ func (client BaseClient) MergeCertificateResponder(resp *http.Response) (result 
 
 // PurgeDeletedCertificate the PurgeDeletedCertificate operation performs an irreversible deletion of the specified
 // certificate, without possibility for recovery. The operation is not available if the recovery level does not specify
-// 'Purgeable'. This operation requires the certificate/purge permission.
+// 'Purgeable'. Requires the explicit granting of the 'purge' permission.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate
@@ -3562,9 +3540,9 @@ func (client BaseClient) PurgeDeletedCertificateResponder(resp *http.Response) (
 	return
 }
 
-// PurgeDeletedKey the Purge Deleted Key operation is applicable for soft-delete enabled vaults. While the operation
-// can be invoked on any vault, it will return an error if invoked on a non soft-delete enabled vault. This operation
-// requires the keys/purge permission.
+// PurgeDeletedKey the Purge Deleted Key operation is applicable for soft-delete enabled vaults. It requires the
+// keys/purge permission to be enabled on this vault. While the operation can be invoked on any vault, it will return
+// an error if invoked on a non soft-delete enabled vault.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key
 func (client BaseClient) PurgeDeletedKey(ctx context.Context, vaultBaseURL string, keyName string) (result autorest.Response, err error) {
@@ -3631,12 +3609,10 @@ func (client BaseClient) PurgeDeletedKeyResponder(resp *http.Response) (result a
 	return
 }
 
-// PurgeDeletedSecret the purge deleted secret operation removes the secret permanently, without the possibility of
-// recovery. This operation can only be enabled on a soft-delete enabled vault. This operation requires the
+// PurgeDeletedSecret permanently deletes the specified secret. aka purges the secret. Authorization: requires the
 // secrets/purge permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// secret.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the secret
 func (client BaseClient) PurgeDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string) (result autorest.Response, err error) {
 	req, err := client.PurgeDeletedSecretPreparer(ctx, vaultBaseURL, secretName)
 	if err != nil {
@@ -3703,7 +3679,7 @@ func (client BaseClient) PurgeDeletedSecretResponder(resp *http.Response) (resul
 
 // RecoverDeletedCertificate the RecoverDeletedCertificate operation performs the reversal of the Delete operation. The
 // operation is applicable in vaults enabled for soft-delete, and must be issued during the retention interval
-// (available in the deleted certificate's attributes). This operation requires the certificates/recover permission.
+// (available in the deleted certificate's attributes).
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // deleted certificate
@@ -3773,12 +3749,11 @@ func (client BaseClient) RecoverDeletedCertificateResponder(resp *http.Response)
 }
 
 // RecoverDeletedKey the Recover Deleted Key operation is applicable for deleted keys in soft-delete enabled vaults. It
-// recovers the deleted key back to its latest version under /keys. An attempt to recover an non-deleted key will
-// return an error. Consider this the inverse of the delete operation on soft-delete enabled vaults. This operation
-// requires the keys/recover permission.
+// recovers the deleted key back to its latest version under /keys. It requires the keys/recover permissions to be
+// enabled on this vault. An attempt to recover an non-deleted key will return an error. Consider this the inverse of
+// the delete operation on soft-delete enabled vaults.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the deleted
-// key.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the deleted key.
 func (client BaseClient) RecoverDeletedKey(ctx context.Context, vaultBaseURL string, keyName string) (result KeyBundle, err error) {
 	req, err := client.RecoverDeletedKeyPreparer(ctx, vaultBaseURL, keyName)
 	if err != nil {
@@ -3844,11 +3819,11 @@ func (client BaseClient) RecoverDeletedKeyResponder(resp *http.Response) (result
 	return
 }
 
-// RecoverDeletedSecret recovers the deleted secret in the specified vault. This operation can only be performed on a
-// soft-delete enabled vault. This operation requires the secrets/recover permission.
+// RecoverDeletedSecret recovers the deleted secret back to its current version under /secrets. Authorization: requires
+// the secrets/recover permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// deleted secret.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the deleted
+// secret
 func (client BaseClient) RecoverDeletedSecret(ctx context.Context, vaultBaseURL string, secretName string) (result SecretBundle, err error) {
 	req, err := client.RecoverDeletedSecretPreparer(ctx, vaultBaseURL, secretName)
 	if err != nil {
@@ -3914,18 +3889,17 @@ func (client BaseClient) RecoverDeletedSecretResponder(resp *http.Response) (res
 	return
 }
 
-// RegenerateStorageAccountKey regenerates the specified key value for the given storage account. This operation
-// requires the storage/regeneratekey permission.
+// RegenerateStorageAccountKey regenerates the specified key value for the given storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account. parameters is the parameters to regenerate storage account key.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account. parameters is the parameters to regenerate storage account key.
 func (client BaseClient) RegenerateStorageAccountKey(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountRegenerteKeyParameters) (result StorageBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
 			Constraints: []validation.Constraint{{Target: "storageAccountName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}},
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.KeyName", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "RegenerateStorageAccountKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "RegenerateStorageAccountKey")
 	}
 
 	req, err := client.RegenerateStorageAccountKeyPreparer(ctx, vaultBaseURL, storageAccountName, parameters)
@@ -4001,16 +3975,15 @@ func (client BaseClient) RegenerateStorageAccountKeyResponder(resp *http.Respons
 // rejected. While the key name is retained during restore, the final key identifier will change if the key is restored
 // to a different vault. Restore will restore all versions and preserve version identifiers. The RESTORE operation is
 // subject to security constraints: The target Key Vault must be owned by the same Microsoft Azure Subscription as the
-// source Key Vault The user must have RESTORE permission in the target Key Vault. This operation requires the
-// keys/restore permission.
+// source Key Vault The user must have RESTORE permission in the target Key Vault.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. parameters is the parameters to
-// restore the key.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. parameters is the parameters to restore
+// the key.
 func (client BaseClient) RestoreKey(ctx context.Context, vaultBaseURL string, parameters KeyRestoreParameters) (result KeyBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.KeyBundleBackup", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "RestoreKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "RestoreKey")
 	}
 
 	req, err := client.RestoreKeyPreparer(ctx, vaultBaseURL, parameters)
@@ -4075,16 +4048,15 @@ func (client BaseClient) RestoreKeyResponder(resp *http.Response) (result KeyBun
 	return
 }
 
-// RestoreSecret restores a backed up secret, and all its versions, to a vault. This operation requires the
-// secrets/restore permission.
+// RestoreSecret restores a backed up secret to a vault. Authorization: requires the secrets/restore permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. parameters is the parameters to
-// restore the secret.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. parameters is the parameters to restore
+// the secret.
 func (client BaseClient) RestoreSecret(ctx context.Context, vaultBaseURL string, parameters SecretRestoreParameters) (result SecretBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.SecretBundleBackup", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "RestoreSecret", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "RestoreSecret")
 	}
 
 	req, err := client.RestoreSecretPreparer(ctx, vaultBaseURL, parameters)
@@ -4149,11 +4121,11 @@ func (client BaseClient) RestoreSecretResponder(resp *http.Response) (result Sec
 	return
 }
 
-// SetCertificateContacts sets the certificate contacts for the specified key vault. This operation requires the
+// SetCertificateContacts sets the certificate contacts for the specified key vault. Authorization: requires the
 // certificates/managecontacts permission.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. contacts is the contacts for the
-// key vault certificate.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. contacts is the contacts for the key
+// vault certificate.
 func (client BaseClient) SetCertificateContacts(ctx context.Context, vaultBaseURL string, contacts Contacts) (result Contacts, err error) {
 	req, err := client.SetCertificateContactsPreparer(ctx, vaultBaseURL, contacts)
 	if err != nil {
@@ -4217,16 +4189,15 @@ func (client BaseClient) SetCertificateContactsResponder(resp *http.Response) (r
 	return
 }
 
-// SetCertificateIssuer the SetCertificateIssuer operation adds or updates the specified certificate issuer. This
-// operation requires the certificates/setissuers permission.
+// SetCertificateIssuer the SetCertificateIssuer operation adds or updates the specified certificate issuer.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. issuerName is the name of the
-// issuer. parameter is certificate issuer set parameter.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. issuerName is the name of the issuer.
+// parameter is certificate issuer set parameter.
 func (client BaseClient) SetCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, parameter CertificateIssuerSetParameters) (result IssuerBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameter,
 			Constraints: []validation.Constraint{{Target: "parameter.Provider", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "SetCertificateIssuer", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "SetCertificateIssuer")
 	}
 
 	req, err := client.SetCertificateIssuerPreparer(ctx, vaultBaseURL, issuerName, parameter)
@@ -4295,12 +4266,11 @@ func (client BaseClient) SetCertificateIssuerResponder(resp *http.Response) (res
 	return
 }
 
-// SetSasDefinition creates or updates a new SAS definition for the specified storage account. This operation requires
-// the storage/setsas permission.
+// SetSasDefinition creates or updates a new SAS definition for the specified storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account. sasDefinitionName is the name of the SAS definition. parameters is the parameters to create
-// a SAS definition.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account. sasDefinitionName is the name of the SAS definition. parameters is the parameters to create a SAS
+// definition.
 func (client BaseClient) SetSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, parameters SasDefinitionCreateParameters) (result SasDefinitionBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
@@ -4309,7 +4279,7 @@ func (client BaseClient) SetSasDefinition(ctx context.Context, vaultBaseURL stri
 			Constraints: []validation.Constraint{{Target: "sasDefinitionName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}},
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Parameters", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "SetSasDefinition", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "SetSasDefinition")
 	}
 
 	req, err := client.SetSasDefinitionPreparer(ctx, vaultBaseURL, storageAccountName, sasDefinitionName, parameters)
@@ -4380,17 +4350,17 @@ func (client BaseClient) SetSasDefinitionResponder(resp *http.Response) (result 
 }
 
 // SetSecret the SET operation adds a secret to the Azure Key Vault. If the named secret already exists, Azure Key
-// Vault creates a new version of that secret. This operation requires the secrets/set permission.
+// Vault creates a new version of that secret.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// secret. parameters is the parameters for setting the secret.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the secret.
+// parameters is the parameters for setting the secret.
 func (client BaseClient) SetSecret(ctx context.Context, vaultBaseURL string, secretName string, parameters SecretSetParameters) (result SecretBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: secretName,
 			Constraints: []validation.Constraint{{Target: "secretName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z-]+$`, Chain: nil}}},
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Value", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "SetSecret", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "SetSecret")
 	}
 
 	req, err := client.SetSecretPreparer(ctx, vaultBaseURL, secretName, parameters)
@@ -4459,10 +4429,10 @@ func (client BaseClient) SetSecretResponder(resp *http.Response) (result SecretB
 	return
 }
 
-// SetStorageAccount creates or updates a new storage account. This operation requires the storage/set permission.
+// SetStorageAccount creates or updates a new storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account. parameters is the parameters to create a storage account.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account. parameters is the parameters to create a storage account.
 func (client BaseClient) SetStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountCreateParameters) (result StorageBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
@@ -4471,7 +4441,7 @@ func (client BaseClient) SetStorageAccount(ctx context.Context, vaultBaseURL str
 			Constraints: []validation.Constraint{{Target: "parameters.ResourceID", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "parameters.ActiveKeyName", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "parameters.AutoRegenerateKey", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "SetStorageAccount", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "SetStorageAccount")
 	}
 
 	req, err := client.SetStorageAccountPreparer(ctx, vaultBaseURL, storageAccountName, parameters)
@@ -4541,7 +4511,7 @@ func (client BaseClient) SetStorageAccountResponder(resp *http.Response) (result
 }
 
 // Sign the SIGN operation is applicable to asymmetric and symmetric keys stored in Azure Key Vault since this
-// operation uses the private portion of the key. This operation requires the keys/sign permission.
+// operation uses the private portion of the key.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 // keyVersion is the version of the key. parameters is the parameters for the signing operation.
@@ -4549,7 +4519,7 @@ func (client BaseClient) Sign(ctx context.Context, vaultBaseURL string, keyName 
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Value", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "Sign", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "Sign")
 	}
 
 	req, err := client.SignPreparer(ctx, vaultBaseURL, keyName, keyVersion, parameters)
@@ -4621,8 +4591,7 @@ func (client BaseClient) SignResponder(resp *http.Response) (result KeyOperation
 
 // UnwrapKey the UNWRAP operation supports decryption of a symmetric key using the target key encryption key. This
 // operation is the reverse of the WRAP operation. The UNWRAP operation applies to asymmetric and symmetric keys stored
-// in Azure Key Vault since it uses the private portion of the key. This operation requires the keys/unwrapKey
-// permission.
+// in Azure Key Vault since it uses the private portion of the key.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 // keyVersion is the version of the key. parameters is the parameters for the key operation.
@@ -4630,7 +4599,7 @@ func (client BaseClient) UnwrapKey(ctx context.Context, vaultBaseURL string, key
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Value", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "UnwrapKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "UnwrapKey")
 	}
 
 	req, err := client.UnwrapKeyPreparer(ctx, vaultBaseURL, keyName, keyVersion, parameters)
@@ -4700,8 +4669,8 @@ func (client BaseClient) UnwrapKeyResponder(resp *http.Response) (result KeyOper
 	return
 }
 
-// UpdateCertificate the UpdateCertificate operation applies the specified update on the given certificate; the only
-// elements updated are the certificate's attributes. This operation requires the certificates/update permission.
+// UpdateCertificate the UpdateCertificate operation applies the specified update on the given certificate; note the
+// only elements being updated are the certificate's attributes.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate in the given key vault. certificateVersion is the version of the certificate. parameters is the
@@ -4775,10 +4744,10 @@ func (client BaseClient) UpdateCertificateResponder(resp *http.Response) (result
 }
 
 // UpdateCertificateIssuer the UpdateCertificateIssuer operation performs an update on the specified certificate issuer
-// entity. This operation requires the certificates/setissuers permission.
+// entity.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. issuerName is the name of the
-// issuer. parameter is certificate issuer update parameter.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. issuerName is the name of the issuer.
+// parameter is certificate issuer update parameter.
 func (client BaseClient) UpdateCertificateIssuer(ctx context.Context, vaultBaseURL string, issuerName string, parameter CertificateIssuerUpdateParameters) (result IssuerBundle, err error) {
 	req, err := client.UpdateCertificateIssuerPreparer(ctx, vaultBaseURL, issuerName, parameter)
 	if err != nil {
@@ -4846,8 +4815,8 @@ func (client BaseClient) UpdateCertificateIssuerResponder(resp *http.Response) (
 	return
 }
 
-// UpdateCertificateOperation updates a certificate creation operation that is already in progress. This operation
-// requires the certificates/update permission.
+// UpdateCertificateOperation updates a certificate operation. Authorization: requires the certificates/update
+// permission.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate. certificateOperation is the certificate operation response.
@@ -4918,8 +4887,7 @@ func (client BaseClient) UpdateCertificateOperationResponder(resp *http.Response
 	return
 }
 
-// UpdateCertificatePolicy set specified members in the certificate policy. Leave others as null. This operation
-// requires the certificates/update permission.
+// UpdateCertificatePolicy set specified members in the certificate policy. Leave others as null.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. certificateName is the name of the
 // certificate in the given vault. certificatePolicy is the policy for the certificate.
@@ -4991,10 +4959,10 @@ func (client BaseClient) UpdateCertificatePolicyResponder(resp *http.Response) (
 }
 
 // UpdateKey in order to perform this operation, the key must already exist in the Key Vault. Note: The cryptographic
-// material of a key itself cannot be changed. This operation requires the keys/update permission.
+// material of a key itself cannot be changed.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of key to
-// update. keyVersion is the version of the key to update. parameters is the parameters of the key to update.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of key to update.
+// keyVersion is the version of the key to update. parameters is the parameters of the key to update.
 func (client BaseClient) UpdateKey(ctx context.Context, vaultBaseURL string, keyName string, keyVersion string, parameters KeyUpdateParameters) (result KeyBundle, err error) {
 	req, err := client.UpdateKeyPreparer(ctx, vaultBaseURL, keyName, keyVersion, parameters)
 	if err != nil {
@@ -5063,19 +5031,18 @@ func (client BaseClient) UpdateKeyResponder(resp *http.Response) (result KeyBund
 	return
 }
 
-// UpdateSasDefinition updates the specified attributes associated with the given SAS definition. This operation
-// requires the storage/setsas permission.
+// UpdateSasDefinition updates the specified attributes associated with the given SAS definition.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account. sasDefinitionName is the name of the SAS definition. parameters is the parameters to update
-// a SAS definition.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account. sasDefinitionName is the name of the SAS definition. parameters is the parameters to update a SAS
+// definition.
 func (client BaseClient) UpdateSasDefinition(ctx context.Context, vaultBaseURL string, storageAccountName string, sasDefinitionName string, parameters SasDefinitionUpdateParameters) (result SasDefinitionBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
 			Constraints: []validation.Constraint{{Target: "storageAccountName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}},
 		{TargetValue: sasDefinitionName,
 			Constraints: []validation.Constraint{{Target: "sasDefinitionName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "UpdateSasDefinition", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "UpdateSasDefinition")
 	}
 
 	req, err := client.UpdateSasDefinitionPreparer(ctx, vaultBaseURL, storageAccountName, sasDefinitionName, parameters)
@@ -5146,11 +5113,10 @@ func (client BaseClient) UpdateSasDefinitionResponder(resp *http.Response) (resu
 }
 
 // UpdateSecret the UPDATE operation changes specified attributes of an existing stored secret. Attributes that are not
-// specified in the request are left unchanged. The value of a secret itself cannot be changed. This operation requires
-// the secrets/set permission.
+// specified in the request are left unchanged. The value of a secret itself cannot be changed.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the
-// secret. secretVersion is the version of the secret. parameters is the parameters for update secret operation.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. secretName is the name of the secret.
+// secretVersion is the version of the secret. parameters is the parameters for update secret operation.
 func (client BaseClient) UpdateSecret(ctx context.Context, vaultBaseURL string, secretName string, secretVersion string, parameters SecretUpdateParameters) (result SecretBundle, err error) {
 	req, err := client.UpdateSecretPreparer(ctx, vaultBaseURL, secretName, secretVersion, parameters)
 	if err != nil {
@@ -5219,16 +5185,15 @@ func (client BaseClient) UpdateSecretResponder(resp *http.Response) (result Secr
 	return
 }
 
-// UpdateStorageAccount updates the specified attributes associated with the given storage account. This operation
-// requires the storage/set/update permission.
+// UpdateStorageAccount updates the specified attributes associated with the given storage account.
 //
-// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of
-// the storage account. parameters is the parameters to update a storage account.
+// vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. storageAccountName is the name of the
+// storage account. parameters is the parameters to update a storage account.
 func (client BaseClient) UpdateStorageAccount(ctx context.Context, vaultBaseURL string, storageAccountName string, parameters StorageAccountUpdateParameters) (result StorageBundle, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: storageAccountName,
 			Constraints: []validation.Constraint{{Target: "storageAccountName", Name: validation.Pattern, Rule: `^[0-9a-zA-Z]+$`, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "UpdateStorageAccount", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "UpdateStorageAccount")
 	}
 
 	req, err := client.UpdateStorageAccountPreparer(ctx, vaultBaseURL, storageAccountName, parameters)
@@ -5300,7 +5265,7 @@ func (client BaseClient) UpdateStorageAccountResponder(resp *http.Response) (res
 // Verify the VERIFY operation is applicable to symmetric keys stored in Azure Key Vault. VERIFY is not strictly
 // necessary for asymmetric keys stored in Azure Key Vault since signature verification can be performed using the
 // public portion of the key but this operation is supported as a convenience for callers that only have a
-// key-reference and not the public portion of the key. This operation requires the keys/verify permission.
+// key-reference and not the public portion of the key.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 // keyVersion is the version of the key. parameters is the parameters for verify operations.
@@ -5309,7 +5274,7 @@ func (client BaseClient) Verify(ctx context.Context, vaultBaseURL string, keyNam
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Digest", Name: validation.Null, Rule: true, Chain: nil},
 				{Target: "parameters.Signature", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "Verify", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "Verify")
 	}
 
 	req, err := client.VerifyPreparer(ctx, vaultBaseURL, keyName, keyVersion, parameters)
@@ -5383,7 +5348,7 @@ func (client BaseClient) VerifyResponder(resp *http.Response) (result KeyVerifyR
 // been stored in an Azure Key Vault. The WRAP operation is only strictly necessary for symmetric keys stored in Azure
 // Key Vault since protection with an asymmetric key can be performed using the public portion of the key. This
 // operation is supported for asymmetric keys as a convenience for callers that have a key-reference but do not have
-// access to the public key material. This operation requires the keys/wrapKey permission.
+// access to the public key material.
 //
 // vaultBaseURL is the vault name, for example https://myvault.vault.azure.net. keyName is the name of the key.
 // keyVersion is the version of the key. parameters is the parameters for wrap operation.
@@ -5391,7 +5356,7 @@ func (client BaseClient) WrapKey(ctx context.Context, vaultBaseURL string, keyNa
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
 			Constraints: []validation.Constraint{{Target: "parameters.Value", Name: validation.Null, Rule: true, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("keyvault.BaseClient", "WrapKey", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "keyvault.BaseClient", "WrapKey")
 	}
 
 	req, err := client.WrapKeyPreparer(ctx, vaultBaseURL, keyName, keyVersion, parameters)

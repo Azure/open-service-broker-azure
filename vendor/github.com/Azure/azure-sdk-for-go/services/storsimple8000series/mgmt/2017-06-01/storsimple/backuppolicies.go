@@ -42,15 +42,14 @@ func NewBackupPoliciesClientWithBaseURI(baseURI string, subscriptionID string) B
 
 // BackupNow backup the backup policy now.
 //
-// deviceName is the device name backupPolicyName is the backup policy name. backupType is the backup Type. This
-// can be cloudSnapshot or localSnapshot. resourceGroupName is the resource group name managerName is the manager
-// name
+// deviceName is the device name backupPolicyName is the backup policy name. backupType is the backup Type. This can be
+// cloudSnapshot or localSnapshot. resourceGroupName is the resource group name managerName is the manager name
 func (client BackupPoliciesClient) BackupNow(ctx context.Context, deviceName string, backupPolicyName string, backupType string, resourceGroupName string, managerName string) (result BackupPoliciesBackupNowFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.BackupPoliciesClient", "BackupNow", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.BackupPoliciesClient", "BackupNow")
 	}
 
 	req, err := client.BackupNowPreparer(ctx, deviceName, backupPolicyName, backupType, resourceGroupName, managerName)
@@ -121,8 +120,8 @@ func (client BackupPoliciesClient) BackupNowResponder(resp *http.Response) (resu
 
 // CreateOrUpdate creates or updates the backup policy.
 //
-// deviceName is the device name backupPolicyName is the name of the backup policy to be created/updated.
-// parameters is the backup policy. resourceGroupName is the resource group name managerName is the manager name
+// deviceName is the device name backupPolicyName is the name of the backup policy to be created/updated. parameters is
+// the backup policy. resourceGroupName is the resource group name managerName is the manager name
 func (client BackupPoliciesClient) CreateOrUpdate(ctx context.Context, deviceName string, backupPolicyName string, parameters BackupPolicy, resourceGroupName string, managerName string) (result BackupPoliciesCreateOrUpdateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
@@ -131,7 +130,7 @@ func (client BackupPoliciesClient) CreateOrUpdate(ctx context.Context, deviceNam
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.BackupPoliciesClient", "CreateOrUpdate", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.BackupPoliciesClient", "CreateOrUpdate")
 	}
 
 	req, err := client.CreateOrUpdatePreparer(ctx, deviceName, backupPolicyName, parameters, resourceGroupName, managerName)
@@ -204,14 +203,14 @@ func (client BackupPoliciesClient) CreateOrUpdateResponder(resp *http.Response) 
 
 // Delete deletes the backup policy.
 //
-// deviceName is the device name backupPolicyName is the name of the backup policy. resourceGroupName is the
-// resource group name managerName is the manager name
+// deviceName is the device name backupPolicyName is the name of the backup policy. resourceGroupName is the resource
+// group name managerName is the manager name
 func (client BackupPoliciesClient) Delete(ctx context.Context, deviceName string, backupPolicyName string, resourceGroupName string, managerName string) (result BackupPoliciesDeleteFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.BackupPoliciesClient", "Delete", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.BackupPoliciesClient", "Delete")
 	}
 
 	req, err := client.DeletePreparer(ctx, deviceName, backupPolicyName, resourceGroupName, managerName)
@@ -281,14 +280,14 @@ func (client BackupPoliciesClient) DeleteResponder(resp *http.Response) (result 
 
 // Get gets the properties of the specified backup policy name.
 //
-// deviceName is the device name backupPolicyName is the name of backup policy to be fetched. resourceGroupName is
-// the resource group name managerName is the manager name
+// deviceName is the device name backupPolicyName is the name of backup policy to be fetched. resourceGroupName is the
+// resource group name managerName is the manager name
 func (client BackupPoliciesClient) Get(ctx context.Context, deviceName string, backupPolicyName string, resourceGroupName string, managerName string) (result BackupPolicy, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.BackupPoliciesClient", "Get", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.BackupPoliciesClient", "Get")
 	}
 
 	req, err := client.GetPreparer(ctx, deviceName, backupPolicyName, resourceGroupName, managerName)
@@ -363,7 +362,7 @@ func (client BackupPoliciesClient) ListByDevice(ctx context.Context, deviceName 
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.BackupPoliciesClient", "ListByDevice", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.BackupPoliciesClient", "ListByDevice")
 	}
 
 	req, err := client.ListByDevicePreparer(ctx, deviceName, resourceGroupName, managerName)

@@ -39,22 +39,20 @@ func (s *serviceManager) deleteARMDeployment(
 }
 
 func (s *serviceManager) deleteKeyVaultServer(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	dt, ok := instance.Details.(*keyvaultInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
-	if _, err := s.vaultsClient.Delete(
-		ctx,
+	_, err := s.vaultsClient.Delete(
 		instance.ResourceGroup,
 		dt.KeyVaultName,
-	); err != nil {
+	)
+	if err != nil {
 		return nil, fmt.Errorf("error deleting keyvault: %s", err)
 	}
 	return dt, nil

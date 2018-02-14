@@ -42,8 +42,7 @@ func NewAlertsClientWithBaseURI(baseURI string, subscriptionID string) AlertsCli
 
 // Clear clear the alerts.
 //
-// parameters is the clear alert request. resourceGroupName is the resource group name managerName is the manager
-// name
+// parameters is the clear alert request. resourceGroupName is the resource group name managerName is the manager name
 func (client AlertsClient) Clear(ctx context.Context, parameters ClearAlertRequest, resourceGroupName string, managerName string) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: parameters,
@@ -51,7 +50,7 @@ func (client AlertsClient) Clear(ctx context.Context, parameters ClearAlertReque
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.AlertsClient", "Clear", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.AlertsClient", "Clear")
 	}
 
 	req, err := client.ClearPreparer(ctx, parameters, resourceGroupName, managerName)
@@ -125,7 +124,7 @@ func (client AlertsClient) ListByManager(ctx context.Context, resourceGroupName 
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.AlertsClient", "ListByManager", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.AlertsClient", "ListByManager")
 	}
 
 	result.fn = client.listByManagerNextResults
@@ -232,7 +231,7 @@ func (client AlertsClient) SendTestEmail(ctx context.Context, deviceName string,
 		{TargetValue: managerName,
 			Constraints: []validation.Constraint{{Target: "managerName", Name: validation.MaxLength, Rule: 50, Chain: nil},
 				{Target: "managerName", Name: validation.MinLength, Rule: 2, Chain: nil}}}}); err != nil {
-		return result, validation.NewError("storsimple.AlertsClient", "SendTestEmail", err.Error())
+		return result, validation.NewErrorWithValidationError(err, "storsimple.AlertsClient", "SendTestEmail")
 	}
 
 	req, err := client.SendTestEmailPreparer(ctx, deviceName, parameters, resourceGroupName, managerName)

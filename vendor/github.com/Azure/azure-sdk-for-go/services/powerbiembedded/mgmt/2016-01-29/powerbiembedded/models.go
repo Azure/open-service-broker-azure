@@ -18,7 +18,6 @@ package powerbiembedded
 // Changes may cause incorrect behavior and will be lost if the code is regenerated.
 
 import (
-	"encoding/json"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"net/http"
@@ -74,24 +73,9 @@ type CheckNameResponse struct {
 // CreateWorkspaceCollectionRequest ...
 type CreateWorkspaceCollectionRequest struct {
 	// Location - Azure location
-	Location *string            `json:"location,omitempty"`
-	Tags     map[string]*string `json:"tags"`
-	Sku      *AzureSku          `json:"sku,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for CreateWorkspaceCollectionRequest.
-func (cwcr CreateWorkspaceCollectionRequest) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if cwcr.Location != nil {
-		objectMap["location"] = cwcr.Location
-	}
-	if cwcr.Tags != nil {
-		objectMap["tags"] = cwcr.Tags
-	}
-	if cwcr.Sku != nil {
-		objectMap["sku"] = cwcr.Sku
-	}
-	return json.Marshal(objectMap)
+	Location *string             `json:"location,omitempty"`
+	Tags     *map[string]*string `json:"tags,omitempty"`
+	Sku      *AzureSku           `json:"sku,omitempty"`
 }
 
 // Display ...
@@ -145,20 +129,8 @@ type OperationList struct {
 
 // UpdateWorkspaceCollectionRequest ...
 type UpdateWorkspaceCollectionRequest struct {
-	Tags map[string]*string `json:"tags"`
-	Sku  *AzureSku          `json:"sku,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for UpdateWorkspaceCollectionRequest.
-func (uwcr UpdateWorkspaceCollectionRequest) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if uwcr.Tags != nil {
-		objectMap["tags"] = uwcr.Tags
-	}
-	if uwcr.Sku != nil {
-		objectMap["sku"] = uwcr.Sku
-	}
-	return json.Marshal(objectMap)
+	Tags *map[string]*string `json:"tags,omitempty"`
+	Sku  *AzureSku           `json:"sku,omitempty"`
 }
 
 // Workspace ...
@@ -170,7 +142,7 @@ type Workspace struct {
 	// Type - Resource type
 	Type *string `json:"type,omitempty"`
 	// Properties - Property bag
-	Properties interface{} `json:"properties,omitempty"`
+	Properties *map[string]interface{} `json:"properties,omitempty"`
 }
 
 // WorkspaceCollection ...
@@ -183,36 +155,11 @@ type WorkspaceCollection struct {
 	// Type - Resource type
 	Type *string `json:"type,omitempty"`
 	// Location - Azure location
-	Location *string            `json:"location,omitempty"`
-	Tags     map[string]*string `json:"tags"`
-	Sku      *AzureSku          `json:"sku,omitempty"`
+	Location *string             `json:"location,omitempty"`
+	Tags     *map[string]*string `json:"tags,omitempty"`
+	Sku      *AzureSku           `json:"sku,omitempty"`
 	// Properties - Properties
-	Properties interface{} `json:"properties,omitempty"`
-}
-
-// MarshalJSON is the custom marshaler for WorkspaceCollection.
-func (wc WorkspaceCollection) MarshalJSON() ([]byte, error) {
-	objectMap := make(map[string]interface{})
-	if wc.ID != nil {
-		objectMap["id"] = wc.ID
-	}
-	if wc.Name != nil {
-		objectMap["name"] = wc.Name
-	}
-	if wc.Type != nil {
-		objectMap["type"] = wc.Type
-	}
-	if wc.Location != nil {
-		objectMap["location"] = wc.Location
-	}
-	if wc.Tags != nil {
-		objectMap["tags"] = wc.Tags
-	}
-	if wc.Sku != nil {
-		objectMap["sku"] = wc.Sku
-	}
-	objectMap["properties"] = wc.Properties
-	return json.Marshal(objectMap)
+	Properties *map[string]interface{} `json:"properties,omitempty"`
 }
 
 // WorkspaceCollectionAccessKey ...
@@ -249,39 +196,22 @@ func (future WorkspaceCollectionsDeleteFuture) Result(client WorkspaceCollection
 	var done bool
 	done, err = future.Done(client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "powerbiembedded.WorkspaceCollectionsDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		return ar, azure.NewAsyncOpIncompleteError("powerbiembedded.WorkspaceCollectionsDeleteFuture")
+		return ar, autorest.NewError("powerbiembedded.WorkspaceCollectionsDeleteFuture", "Result", "asynchronous operation has not completed")
 	}
 	if future.PollingMethod() == azure.PollingLocation {
 		ar, err = client.DeleteResponder(future.Response())
-		if err != nil {
-			err = autorest.NewErrorWithError(err, "powerbiembedded.WorkspaceCollectionsDeleteFuture", "Result", future.Response(), "Failure responding to request")
-		}
 		return
 	}
-	var req *http.Request
 	var resp *http.Response
-	if future.PollingURL() != "" {
-		req, err = http.NewRequest(http.MethodGet, future.PollingURL(), nil)
-		if err != nil {
-			return
-		}
-	} else {
-		req = autorest.ChangeToGet(future.req)
-	}
-	resp, err = autorest.SendWithSender(client, req,
+	resp, err = autorest.SendWithSender(client, autorest.ChangeToGet(future.req),
 		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "powerbiembedded.WorkspaceCollectionsDeleteFuture", "Result", resp, "Failure sending request")
 		return
 	}
 	ar, err = client.DeleteResponder(resp)
-	if err != nil {
-		err = autorest.NewErrorWithError(err, "powerbiembedded.WorkspaceCollectionsDeleteFuture", "Result", resp, "Failure responding to request")
-	}
 	return
 }
 
