@@ -28,17 +28,17 @@ func (d *dbOnlyManager) GetProvisioner(
 func (d *dbOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
 		)
 	}
 	//We aren't using any of these, but validate it can be type cast
 	_, ok = instance.ProvisioningParameters.(*DatabaseProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
 				"*mysqldb.DatabaseProvisioningParameters",
 		)
@@ -46,29 +46,29 @@ func (d *dbOnlyManager) preProvision(
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.DatabaseName = generate.NewIdentifier()
 
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (d *dbOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyMysqlInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Parent.Details " +
 				"as *dbmsOnlyMysqlInstanceDetails",
 		)
 	}
 	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
 		)
 	}
 	_, ok = instance.ProvisioningParameters.(*DatabaseProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting provisioningParameters " +
 				"as *mysql.DatabaseProvisioningParameters",
 		)
@@ -88,8 +88,8 @@ func (d *dbOnlyManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }

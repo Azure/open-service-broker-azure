@@ -31,8 +31,14 @@ func (s *serviceManager) GetCredentials(
 			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*searchSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.SecureDetails as *searchSecureInstanceDetails",
+		)
+	}
 	return &searchCredentials{
 		ServiceName: dt.ServiceName,
-		APIKey:      dt.APIKey,
+		APIKey:      sdt.APIKey,
 	}, nil
 }

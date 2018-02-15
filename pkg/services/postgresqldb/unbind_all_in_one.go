@@ -17,6 +17,13 @@ func (a *allInOneManager) Unbind(
 				"as *allInOnePostgresqlInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.SecureDetails " +
+				"as *allInOnePostgresqlSecureInstanceDetails",
+		)
+	}
 	bc, ok := bindingDetails.(*postgresqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
@@ -27,7 +34,7 @@ func (a *allInOneManager) Unbind(
 	return unbind(
 		dt.EnforceSSL,
 		dt.ServerName,
-		dt.AdministratorLoginPassword,
+		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		bc,
 	)

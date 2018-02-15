@@ -9,8 +9,11 @@ type eventHubInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	EventHubName      string `json:"eventHubName"`
 	EventHubNamespace string `json:"eventHubNamespace"`
-	PrimaryKey        string `json:"primaryKey"`
-	ConnectionString  string `json:"connectionString"`
+}
+
+type eventHubSecureInstanceDetails struct {
+	ConnectionString string `json:"connectionString"`
+	PrimaryKey       string `json:"primaryKey"`
 }
 
 // UpdatingParameters encapsulates search-specific updating options
@@ -47,6 +50,12 @@ func (
 	s *serviceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &eventHubInstanceDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &eventHubSecureInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

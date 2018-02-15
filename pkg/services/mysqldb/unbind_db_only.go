@@ -13,7 +13,14 @@ func (d *dbOnlyManager) Unbind(
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyMysqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *dbmsOnlyMysqlInstanceDetails",
+			"error casting instance.Parent.Details as *dbmsOnlyMysqlInstanceDetails",
+		)
+	}
+	spdt, ok := instance.Parent.SecureDetails.(*dbmsOnlyMysqlSecureInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.Parent.SecureDetails as " +
+				"*dbmsOnlyMysqlSecureInstanceDetails",
 		)
 	}
 	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
@@ -29,7 +36,7 @@ func (d *dbOnlyManager) Unbind(
 		)
 	}
 
-	db, err := d.getDBConnection(pdt, dt)
+	db, err := d.getDBConnection(pdt, spdt, dt)
 	if err != nil {
 		return err
 	}

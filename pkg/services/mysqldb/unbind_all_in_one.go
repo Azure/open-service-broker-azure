@@ -16,6 +16,13 @@ func (a *allInOneManager) Unbind(
 			"error casting instance.Details as *allInOneMysqlInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*allInOneMysqlSecureInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.SecureDetails as " +
+				"*allInOneMysqlSecureInstanceDetails",
+		)
+	}
 	bc, ok := bindingDetails.(*mysqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
@@ -23,7 +30,7 @@ func (a *allInOneManager) Unbind(
 		)
 	}
 
-	db, err := a.getDBConnection(dt)
+	db, err := a.getDBConnection(dt, sdt)
 	if err != nil {
 		return err
 	}

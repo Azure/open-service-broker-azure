@@ -107,6 +107,7 @@ func (s serviceLifecycleTestCase) execute(
 		// to ensure good cleanup
 		ResourceGroup:          resourceGroup,
 		Details:                serviceManager.GetEmptyInstanceDetails(),
+		SecureDetails:          serviceManager.GetEmptySecureInstanceDetails(),
 		ProvisioningParameters: s.provisioningParameters,
 		Parent:                 s.parentServiceInstance,
 	}
@@ -135,7 +136,7 @@ func (s serviceLifecycleTestCase) execute(
 				stepName,
 			)
 		}
-		instance.Details, err = step.Execute(ctx, instance)
+		instance.Details, instance.SecureDetails, err = step.Execute(ctx, instance)
 		if err != nil {
 			return err
 		}
@@ -216,7 +217,7 @@ func (s serviceLifecycleTestCase) execute(
 				stepName,
 			)
 		}
-		instance.Details, err = step.Execute(ctx, instance)
+		instance.Details, instance.SecureDetails, err = step.Execute(ctx, instance)
 		if err != nil {
 			return err
 		}

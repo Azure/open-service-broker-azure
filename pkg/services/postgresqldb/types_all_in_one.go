@@ -14,6 +14,10 @@ type allInOnePostgresqlInstanceDetails struct {
 	DatabaseName string `json:"database"`
 }
 
+type allInOnePostgresqlSecureInstanceDetails struct {
+	dbmsOnlyPostgresqlSecureInstanceDetails
+}
+
 func (
 	a *allInOneManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
@@ -30,6 +34,12 @@ func (
 	a *allInOneManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &allInOnePostgresqlInstanceDetails{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &allInOnePostgresqlSecureInstanceDetails{}
 }
 
 func (

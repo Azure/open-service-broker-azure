@@ -3,12 +3,15 @@ package mysqldb
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type allInOneMysqlInstanceDetails struct {
-	ARMDeploymentName          string `json:"armDeployment"`
-	ServerName                 string `json:"server"`
+	ARMDeploymentName        string `json:"armDeployment"`
+	ServerName               string `json:"server"`
+	DatabaseName             string `json:"database"`
+	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
+	EnforceSSL               bool   `json:"enforceSSL"`
+}
+
+type allInOneMysqlSecureInstanceDetails struct {
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
-	DatabaseName               string `json:"database"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
-	EnforceSSL                 bool   `json:"enforceSSL"`
 }
 
 func (
@@ -27,6 +30,12 @@ func (
 	a *allInOneManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &allInOneMysqlInstanceDetails{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &allInOneMysqlSecureInstanceDetails{}
 }
 
 func (

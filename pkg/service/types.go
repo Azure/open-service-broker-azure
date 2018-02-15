@@ -24,8 +24,12 @@ const (
 type ProvisioningParameters interface{}
 
 // InstanceDetails is an interface to be implemented by service-specific
-// types that represent the details of a service instance.
+// types that represent the non-sensitive details of a service instance.
 type InstanceDetails interface{}
+
+// SecureInstanceDetails is an interface to be implemented by service-specific
+// types that represent the secure (sensitive) details of a service instance.
+type SecureInstanceDetails interface{}
 
 // UpdatingParameters is an interface to be implemented by module-specific
 // types that represent updating parameters. This interface doesn't require

@@ -9,7 +9,10 @@ type ProvisioningParameters struct{}
 type searchInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	ServiceName       string `json:"serviceName"`
-	APIKey            string `json:"apiKey"`
+}
+
+type searchSecureInstanceDetails struct {
+	APIKey string `json:"apiKey"`
 }
 
 // UpdatingParameters encapsulates search-specific updating options
@@ -44,6 +47,12 @@ func (
 	s *serviceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &searchInstanceDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &searchSecureInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

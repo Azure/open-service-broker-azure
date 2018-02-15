@@ -31,9 +31,15 @@ func (s *serviceManager) GetCredentials(
 			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*redisSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.SecureDetails as *redisSecureInstanceDetails",
+		)
+	}
 	return &Credentials{
 		Host:     dt.FullyQualifiedDomainName,
-		Password: dt.PrimaryKey,
+		Password: sdt.PrimaryKey,
 		Port:     6379,
 	}, nil
 }

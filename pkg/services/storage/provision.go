@@ -48,10 +48,10 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
@@ -61,7 +61,7 @@ func (s *serviceManager) preProvision(
 	storeKind, ok := instance.Plan.
 		GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error retrieving the storage kind from the plan",
 		)
 	}
@@ -72,22 +72,28 @@ func (s *serviceManager) preProvision(
 		dt.ContainerName = uuid.NewV4().String()
 	}
 
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *storageInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*storageSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as *storageSecureInstanceDetails",
 		)
 	}
 	storeKind, ok := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error retrieving the storage kind from the plan",
 		)
 	}
@@ -112,32 +118,38 @@ func (s *serviceManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	dt.AccessKey, ok = outputs["accessKey"].(string)
+	sdt.AccessKey, ok = outputs["accessKey"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving primary access key from deployment: %s",
 			err,
 		)
 	}
 
-	return dt, nil
+	return dt, sdt, nil
 }
 
 func (s *serviceManager) createBlobContainer(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*storageInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*storageSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as *storageSecureInstanceDetails",
+		)
+	}
 
-	client, _ := storage.NewBasicClient(dt.StorageAccountName, dt.AccessKey)
+	client, _ := storage.NewBasicClient(dt.StorageAccountName, sdt.AccessKey)
 	blobCli := client.GetBlobService()
 	container := blobCli.GetContainerReference(dt.ContainerName)
 	options := storage.CreateContainerOptions{
@@ -145,10 +157,10 @@ func (s *serviceManager) createBlobContainer(
 	}
 	_, err := container.CreateIfNotExists(&options)
 	if err != nil {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error creating container",
 		)
 	}
 
-	return dt, nil
+	return dt, sdt, nil
 }

@@ -51,14 +51,16 @@ func createDBConnection(
 	}
 	return db, err
 }
+
 func (s *allInOneManager) getDBConnection(
 	dt *allInOneMysqlInstanceDetails,
+	sdt *allInOneMysqlSecureInstanceDetails,
 ) (*sql.DB, error) {
 	return createDBConnection(
 		dt.EnforceSSL,
 		s.sqlDatabaseDNSSuffix,
 		dt.ServerName,
-		dt.AdministratorLoginPassword,
+		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)
@@ -66,13 +68,14 @@ func (s *allInOneManager) getDBConnection(
 
 func (d *dbOnlyManager) getDBConnection(
 	pdt *dbmsOnlyMysqlInstanceDetails,
+	spdt *dbmsOnlyMysqlSecureInstanceDetails,
 	dt *dbOnlyMysqlInstanceDetails,
 ) (*sql.DB, error) {
 	return createDBConnection(
 		pdt.EnforceSSL,
 		d.sqlDatabaseDNSSuffix,
 		pdt.ServerName,
-		pdt.AdministratorLoginPassword,
+		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)

@@ -58,7 +58,14 @@ func (s *store) GetInstance(instanceID string) (
 	if !ok {
 		return service.Instance{}, false, nil
 	}
-	instance, err := service.NewInstanceFromJSON(json, nil, nil, nil, s.codec)
+	instance, err := service.NewInstanceFromJSON(
+		json,
+		nil,
+		nil,
+		nil,
+		nil,
+		s.codec,
+	)
 	if err != nil {
 		return instance, false, err
 	}
@@ -87,6 +94,7 @@ func (s *store) GetInstance(instanceID string) (
 		serviceManager.GetEmptyProvisioningParameters(),
 		serviceManager.GetEmptyUpdatingParameters(),
 		serviceManager.GetEmptyInstanceDetails(),
+		serviceManager.GetEmptySecureInstanceDetails(),
 		s.codec,
 	)
 	instance.Service = svc

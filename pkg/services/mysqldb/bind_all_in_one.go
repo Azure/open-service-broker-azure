@@ -25,11 +25,18 @@ func (a *allInOneManager) Bind(
 			"error casting instance.Details as *allInOneMysqlInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*allInOneMysqlSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.SecureDetails as " +
+				"*allInOneMysqlSecureInstanceDetails",
+		)
+	}
 
 	userName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
-	db, err := a.getDBConnection(dt)
+	db, err := a.getDBConnection(dt, sdt)
 	if err != nil {
 		return nil, err
 	}

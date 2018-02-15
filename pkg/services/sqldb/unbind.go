@@ -68,6 +68,13 @@ func (a *allInOneManager) Unbind(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.SecureDetails as " +
+				"*mssqlAllInOneSecureInstanceDetails",
+		)
+	}
 	bc, ok := bindingDetails.(*mssqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
@@ -77,7 +84,7 @@ func (a *allInOneManager) Unbind(
 
 	return unbind(
 		dt.AdministratorLogin,
-		dt.AdministratorLoginPassword,
+		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 		bc,
@@ -120,10 +127,17 @@ func (d *dbOnlyManager) Unbind(
 				"*mssqlVMOnlyInstanceDetails",
 		)
 	}
+	spdt, ok := instance.Parent.SecureDetails.(*mssqlVMOnlySecureInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.Parent.SecureDetails as" +
+				"*mssqlVMOnlySecureInstanceDetails",
+		)
+	}
 
 	return unbind(
 		pdt.AdministratorLogin,
-		pdt.AdministratorLoginPassword,
+		spdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 		bc,

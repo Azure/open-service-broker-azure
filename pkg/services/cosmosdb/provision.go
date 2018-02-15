@@ -31,16 +31,16 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.DatabaseAccountName = generateDatabaseName(instance.Location)
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func generateDatabaseName(location string) string {
@@ -64,17 +64,23 @@ func generateDatabaseName(location string) string {
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *cosmosdbInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*cosmosdbSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as *cosmosdbSecureInstanceDetails",
 		)
 	}
 	plan := instance.Plan
 	dt.DatabaseKind, ok = plan.GetProperties().Extended[kindKey].(databaseKind)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error retrieving the kind from deployment",
 		)
 	}
@@ -92,12 +98,12 @@ func (s *serviceManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
@@ -106,12 +112,12 @@ func (s *serviceManager) deployARMTemplate(
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving primary key from deployment: %s",
 			err,
 		)
 	}
-	dt.PrimaryKey = primaryKey
+	sdt.PrimaryKey = primaryKey
 
 	switch dt.DatabaseKind {
 	case databaseKindMongoDB:
@@ -129,19 +135,19 @@ func (s *serviceManager) deployARMTemplate(
 			strings.Split(hostnameNoHTTPS, ":443/"),
 			"",
 		)
-		dt.ConnectionString = fmt.Sprintf(
+		sdt.ConnectionString = fmt.Sprintf(
 			"mongodb://%s:%s@%s:10255/?ssl=true&replicaSet=globaldb",
 			dt.DatabaseAccountName,
-			dt.PrimaryKey,
+			sdt.PrimaryKey,
 			dt.FullyQualifiedDomainName,
 		)
 	case databaseKindGlobalDocumentDB:
-		dt.ConnectionString = fmt.Sprintf(
+		sdt.ConnectionString = fmt.Sprintf(
 			"AccountEndpoint=%s;AccountKey=%s;",
 			dt.FullyQualifiedDomainName,
-			dt.PrimaryKey,
+			sdt.PrimaryKey,
 		)
 	}
 
-	return dt, nil
+	return dt, sdt, nil
 }

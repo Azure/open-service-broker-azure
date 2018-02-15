@@ -31,19 +31,25 @@ func (s *serviceManager) GetCredentials(
 			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*cosmosdbSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.SecureDetails as *cosmosdbSecureInstanceDetails",
+		)
+	}
 	if dt.DatabaseKind == databaseKindMongoDB {
 		return &Credentials{
 			Host: dt.FullyQualifiedDomainName,
 			Port: 10255,
 			// Username is the same as the database account name
 			Username:         dt.DatabaseAccountName,
-			Password:         dt.PrimaryKey,
-			ConnectionString: dt.ConnectionString,
+			Password:         sdt.PrimaryKey,
+			ConnectionString: sdt.ConnectionString,
 		}, nil
 	}
 	return &Credentials{
 		URI:                     dt.FullyQualifiedDomainName,
-		PrimaryKey:              dt.PrimaryKey,
-		PrimaryConnectionString: dt.ConnectionString,
+		PrimaryKey:              sdt.PrimaryKey,
+		PrimaryConnectionString: sdt.ConnectionString,
 	}, nil
 }

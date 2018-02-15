@@ -16,6 +16,8 @@ type aciInstanceDetails struct {
 	PublicIPv4Address string `json:"publicIPv4Address"`
 }
 
+type aciSecureInstanceDetails struct{}
+
 // UpdatingParameters encapsulates aci-specific updating options
 type UpdatingParameters struct {
 }
@@ -49,6 +51,12 @@ func (
 
 func (s *serviceManager) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &aciInstanceDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &aciSecureInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

@@ -28,26 +28,32 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *searchInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.ServiceName = uuid.NewV4().String()
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*searchInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *searchInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*searchSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as *searchSecureInstanceDetails",
 		)
 	}
 	outputs, err := s.armDeployer.Deploy(
@@ -64,12 +70,12 @@ func (s *serviceManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	serviceName, ok := outputs["searchServiceName"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving service name from deployment: %s",
 			err,
 		)
@@ -78,12 +84,12 @@ func (s *serviceManager) deployARMTemplate(
 
 	apiKey, ok := outputs["apiKey"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving api key from deployment: %s",
 			err,
 		)
 	}
-	dt.APIKey = apiKey
+	sdt.APIKey = apiKey
 
-	return dt, nil
+	return dt, sdt, nil
 }

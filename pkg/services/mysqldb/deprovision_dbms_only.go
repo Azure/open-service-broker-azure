@@ -19,10 +19,10 @@ func (d *dbmsOnlyManager) GetDeprovisioner(
 func (d *dbmsOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*dbmsOnlyMysqlInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *dbmsOnlyMysqlInstanceDetails",
 		)
 	}
@@ -30,20 +30,20 @@ func (d *dbmsOnlyManager) deleteARMDeployment(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
-		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (d *dbmsOnlyManager) deleteMySQLServer(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt, ok := instance.Details.(*dbmsOnlyMysqlInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *dbmsOnlyMysqlInstanceDetails",
 		)
 	}
@@ -53,10 +53,10 @@ func (d *dbmsOnlyManager) deleteMySQLServer(
 		dt.ServerName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting mysql server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
 	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
-		return nil, fmt.Errorf("error deleting mysql server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }

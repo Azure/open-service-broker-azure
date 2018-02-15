@@ -13,6 +13,8 @@ type dbOnlyPostgresqlInstanceDetails struct {
 	DatabaseName      string `json:"database"`
 }
 
+type dbOnlyPostgresqlSecureInstanceDetails struct{}
+
 func (
 	d *dbOnlyManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
@@ -29,6 +31,12 @@ func (
 	d *dbOnlyManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &dbOnlyPostgresqlInstanceDetails{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &dbOnlyPostgresqlSecureInstanceDetails{}
 }
 
 func (d *dbOnlyManager) GetEmptyBindingParameters() service.BindingParameters {

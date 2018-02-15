@@ -28,26 +28,32 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *redisInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.ServerName = uuid.NewV4().String()
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*redisInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *redisInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*redisSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as *redisSecureInstanceDetails",
 		)
 	}
 	plan := instance.Plan
@@ -66,12 +72,12 @@ func (s *serviceManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
@@ -80,12 +86,12 @@ func (s *serviceManager) deployARMTemplate(
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving primary key from deployment: %s",
 			err,
 		)
 	}
-	dt.PrimaryKey = primaryKey
+	sdt.PrimaryKey = primaryKey
 
-	return dt, nil
+	return dt, sdt, nil
 }

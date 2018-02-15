@@ -139,10 +139,17 @@ func (a *allInOneManager) Bind(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.SecureDetails as " +
+				"*mssqlAllInOneSecureInstanceDetails",
+		)
+	}
 
 	return bind(
 		dt.AdministratorLogin,
-		dt.AdministratorLoginPassword,
+		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)
@@ -179,9 +186,16 @@ func (d *dbOnlyManager) Bind(
 				"*mssqlVMOnlyInstanceDetails",
 		)
 	}
+	spdt, ok := instance.Parent.SecureDetails.(*mssqlVMOnlySecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Parent.SecureDetails as " +
+				"*mssqlVMOnlySecureInstanceDetails",
+		)
+	}
 	return bind(
 		pdt.AdministratorLogin,
-		pdt.AdministratorLoginPassword,
+		spdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)

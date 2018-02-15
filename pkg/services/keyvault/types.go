@@ -14,7 +14,10 @@ type keyvaultInstanceDetails struct {
 	KeyVaultName      string `json:"keyVaultName"`
 	VaultURI          string `json:"vaultUri"`
 	ClientID          string `json:"clientId"`
-	ClientSecret      string `json:"clientSecret"`
+}
+
+type keyvaultSecureInstanceDetails struct {
+	ClientSecret string `json:"clientSecret"`
 }
 
 // UpdatingParameters encapsulates keyvault-specific updating options
@@ -52,6 +55,12 @@ func (
 	s *serviceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &keyvaultInstanceDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &keyvaultSecureInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

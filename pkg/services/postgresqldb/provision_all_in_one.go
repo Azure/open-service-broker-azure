@@ -42,19 +42,26 @@ func (a *allInOneManager) GetProvisioner(
 func (a *allInOneManager) preProvision(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details" +
 				"as *allInOnePostgresqlInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails" +
+				"as *allInOnePostgresqlSecureInstanceDetails",
+		)
+	}
 	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
 				"*postgresql.AllInOneProvisioningParameters",
 		)
@@ -67,10 +74,10 @@ func (a *allInOneManager) preProvision(
 		ctx,
 		a.checkNameAvailabilityClient,
 	); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	dt.AdministratorLoginPassword = generate.NewPassword()
+	sdt.AdministratorLoginPassword = generate.NewPassword()
 	dt.DatabaseName = generate.NewIdentifier()
 
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
@@ -81,12 +88,13 @@ func (a *allInOneManager) preProvision(
 		dt.EnforceSSL = false
 	}
 
-	return dt, nil
+	return dt, sdt, nil
 }
 
 func (a *allInOneManager) buildARMTemplateParameters(
 	plan service.Plan,
 	details *allInOnePostgresqlInstanceDetails,
+	secureDetails *allInOnePostgresqlSecureInstanceDetails,
 	provisioningParameters *AllInOneProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
@@ -96,7 +104,7 @@ func (a *allInOneManager) buildARMTemplateParameters(
 		sslEnforcement = "Disabled"
 	}
 	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
 		"serverName":                 details.ServerName,
 		"databaseName":               details.DatabaseName,
 		"skuName":                    plan.GetProperties().Extended["skuName"],
@@ -120,17 +128,24 @@ func (a *allInOneManager) buildARMTemplateParameters(
 func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details " +
 				"as *allInOnePostgresqlInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails " +
+				"as *allInOnePostgresqlSecureInstanceDetails",
+		)
+	}
 	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting provisioningParameters as " +
 				"*postgresql.AllInOneProvisioningParameters",
 		)
@@ -138,6 +153,7 @@ func (a *allInOneManager) deployARMTemplate(
 	armTemplateParameters := a.buildARMTemplateParameters(
 		instance.Plan,
 		dt,
+		sdt,
 		pp,
 	)
 	outputs, err := a.armDeployer.Deploy(
@@ -150,28 +166,35 @@ func (a *allInOneManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
 	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return dt, nil
+	return dt, sdt, nil
 }
 
 func (a *allInOneManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
+			"error casting instance.Details " +
+				"as *allInOnePostgresqlInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
 			"error casting instance.Details " +
 				"as *allInOnePostgresqlInstanceDetails",
 		)
@@ -179,30 +202,37 @@ func (a *allInOneManager) setupDatabase(
 	err := setupDatabase(
 		dt.EnforceSSL,
 		dt.ServerName,
-		dt.AdministratorLoginPassword,
+		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return dt, nil
+	return dt, sdt, nil
 }
 
 func (a *allInOneManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as " +
 				"*allInOnePostgresqlInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as " +
+				"*allInOnePostgresqlSecureInstanceDetails",
+		)
+	}
 	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
 				"*postgresql.AllInOneProvisioningParameters",
 		)
@@ -212,14 +242,14 @@ func (a *allInOneManager) createExtensions(
 		err := createExtensions(
 			dt.EnforceSSL,
 			dt.ServerName,
-			dt.AdministratorLoginPassword,
+			sdt.AdministratorLoginPassword,
 			dt.FullyQualifiedDomainName,
 			dt.DatabaseName,
 			pp.Extensions,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }

@@ -392,6 +392,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		ParentAlias:            parentAlias,
 		Tags:                   tags,
 		Details:                serviceManager.GetEmptyInstanceDetails(),
+		SecureDetails:          serviceManager.GetEmptySecureInstanceDetails(),
 		Created:                time.Now(),
 	}
 
