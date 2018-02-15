@@ -27,7 +27,11 @@ func unbind(
 		fmt.Sprintf("drop role %s", bindingContext.LoginName),
 	)
 	if err != nil {
-		return fmt.Errorf(`error dropping role "%s": %s`, bindingContext.LoginName, err)
+		return fmt.Errorf(
+			`error dropping role "%s": %s`,
+			bindingContext.LoginName,
+			err,
+		)
 	}
 	return nil
 }
