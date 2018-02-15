@@ -35,6 +35,13 @@ func createBinding(
 	if err != nil {
 		return nil, fmt.Errorf("error starting transaction: %s", err)
 	}
+	defer func() {
+		if err != nil {
+			if err = tx.Rollback(); err != nil {
+				log.WithField("error", err).Error("error rolling back transaction")
+			}
+		}
+	}()
 	if _, err = tx.Exec(
 		fmt.Sprintf("create role %s with password '%s' login", roleName, password),
 	); err != nil {
@@ -67,13 +74,6 @@ func createBinding(
 	if err = tx.Commit(); err != nil {
 		return nil, fmt.Errorf("error committing transaction: %s", err)
 	}
-	defer func() {
-		if err != nil {
-			if err = tx.Rollback(); err != nil {
-				log.WithField("error", err).Error("error rolling back transaction")
-			}
-		}
-	}()
 
 	return &postgresqlBindingDetails{
 		LoginName: roleName,
