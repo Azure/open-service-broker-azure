@@ -132,15 +132,12 @@ func initModules(azureConfig config.AzureConfig) error {
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
-
 	postgresServersClient.Authorizer = authorizer
 	postgresServersClient.UserAgent = getUserAgent(postgresServersClient.Client)
-
 	postgresDatabasesClient := postgresSDK.NewDatabasesClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
-
 	postgresDatabasesClient.Authorizer = authorizer
 	postgresDatabasesClient.UserAgent = getUserAgent(postgresServersClient.Client)
 
