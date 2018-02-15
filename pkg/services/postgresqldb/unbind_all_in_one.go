@@ -6,14 +6,15 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) Unbind(
+func (a *allInOneManager) Unbind(
 	instance service.Instance,
 	bindingDetails service.BindingDetails,
 ) error {
-	dt, ok := instance.Details.(*postgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *postgresqlInstanceDetails",
+			"error casting instance.Details " +
+				"as *allInOnePostgresqlInstanceDetails",
 		)
 	}
 	bc, ok := bindingDetails.(*postgresqlBindingDetails)
@@ -23,7 +24,13 @@ func (s *serviceManager) Unbind(
 		)
 	}
 
-	db, err := getDBConnection(dt, primaryDB)
+	db, err := getDBConnection(
+		dt.EnforceSSL,
+		dt.ServerName,
+		dt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		primaryDB,
+	)
 	if err != nil {
 		return err
 	}

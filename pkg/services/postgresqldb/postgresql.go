@@ -7,10 +7,24 @@ import (
 )
 
 type module struct {
-	serviceManager *serviceManager
+	allInOneManager *allInOneManager
+	dbOnlyManager   *dbOnlyManager
+	dbmsOnlyManager *dbmsOnlyManager
 }
 
-type serviceManager struct {
+type allInOneManager struct {
+	armDeployer                 arm.Deployer
+	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient
+	serversClient               postgresSDK.ServersClient
+}
+
+type dbOnlyManager struct {
+	armDeployer                 arm.Deployer
+	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient
+	databasesClient             postgresSDK.DatabasesClient
+}
+
+type dbmsOnlyManager struct {
 	armDeployer                 arm.Deployer
 	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient
 	serversClient               postgresSDK.ServersClient
@@ -23,9 +37,20 @@ func New(
 	armDeployer arm.Deployer,
 	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient,
 	serversClient postgresSDK.ServersClient,
+	databasesClient postgresSDK.DatabasesClient,
 ) service.Module {
 	return &module{
-		serviceManager: &serviceManager{
+		allInOneManager: &allInOneManager{
+			armDeployer:                 armDeployer,
+			checkNameAvailabilityClient: checkNameAvailabilityClient,
+			serversClient:               serversClient,
+		},
+		dbOnlyManager: &dbOnlyManager{
+			armDeployer:                 armDeployer,
+			checkNameAvailabilityClient: checkNameAvailabilityClient,
+			databasesClient:             databasesClient,
+		},
+		dbmsOnlyManager: &dbmsOnlyManager{
 			armDeployer:                 armDeployer,
 			checkNameAvailabilityClient: checkNameAvailabilityClient,
 			serversClient:               serversClient,

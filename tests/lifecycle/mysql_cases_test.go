@@ -58,7 +58,7 @@ func getMysqlCases(
 				FirewallIPEnd:   "255.255.255.255",
 			},
 			bindingParameters: &mysqldb.BindingParameters{},
-			testCredentials:   testCreds(),
+			testCredentials:   testMySQLCreds(),
 		},
 		{
 			module:      module,
@@ -79,7 +79,7 @@ func getMysqlCases(
 					planID:                 "ec77bd04-2107-408e-8fde-8100c1ce1f46",
 					location:               "", // This is actually irrelevant for this test
 					bindingParameters:      &mysqldb.BindingParameters{},
-					testCredentials:        testCreds(),
+					testCredentials:        testMySQLCreds(),
 					provisioningParameters: &mysqldb.DatabaseProvisioningParameters{},
 				},
 			},
@@ -87,7 +87,7 @@ func getMysqlCases(
 	}, nil
 }
 
-func testCreds() func(credentials service.Credentials) error {
+func testMySQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
 
 		cdts, ok := credentials.(*mysqldb.Credentials)
