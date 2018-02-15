@@ -12,7 +12,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresqldb"
-	log "github.com/Sirupsen/logrus"
 	_ "github.com/lib/pq" // Postgres SQL driver
 )
 
@@ -56,12 +55,16 @@ func getPostgresqlCases(
 			location:        "southcentralus",
 			testCredentials: testPostgreSQLCreds(),
 			provisioningParameters: &postgresqldb.AllInOneProvisioningParameters{
-				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.255",
-				SSLEnforcement:  "disabled",
-				Extensions: []string{
-					"uuid-ossp",
-					"postgis",
+				ServerProvisioningParameters: postgresqldb.ServerProvisioningParameters{ //nolint:lll
+					FirewallIPStart: "0.0.0.0",
+					FirewallIPEnd:   "255.255.255.255",
+					SSLEnforcement:  "disabled",
+				},
+				DatabaseProvisioningParameters: postgresqldb.DatabaseProvisioningParameters{ //nolint:lll
+					Extensions: []string{
+						"uuid-ossp",
+						"postgis",
+					},
 				},
 			},
 			bindingParameters: &postgresqldb.BindingParameters{},
@@ -115,7 +118,6 @@ func testPostgreSQLCreds() func(credentials service.Credentials) error {
 			cdts.Port,
 			cdts.Database,
 		)
-		log.Printf("Connection string: %s", connectionString)
 		db, err := sql.Open("postgres", connectionString)
 
 		if err != nil {

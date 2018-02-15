@@ -24,24 +24,11 @@ func (d *dbOnlyManager) Unbind(
 		)
 	}
 
-	db, err := getDBConnection(
+	return unbind(
 		pdt.EnforceSSL,
 		pdt.ServerName,
 		pdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
-		primaryDB,
+		bc,
 	)
-	if err != nil {
-		return err
-	}
-	defer db.Close() // nolint: errcheck
-
-	_, err = db.Exec(
-		fmt.Sprintf("drop role %s", bc.LoginName),
-	)
-	if err != nil {
-		return fmt.Errorf(`error dropping role "%s": %s`, bc.LoginName, err)
-	}
-
-	return nil
 }

@@ -24,24 +24,11 @@ func (a *allInOneManager) Unbind(
 		)
 	}
 
-	db, err := getDBConnection(
+	return unbind(
 		dt.EnforceSSL,
 		dt.ServerName,
 		dt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
-		primaryDB,
+		bc,
 	)
-	if err != nil {
-		return err
-	}
-	defer db.Close() // nolint: errcheck
-
-	_, err = db.Exec(
-		fmt.Sprintf("drop role %s", bc.LoginName),
-	)
-	if err != nil {
-		return fmt.Errorf(`error dropping role "%s": %s`, bc.LoginName, err)
-	}
-
-	return nil
 }

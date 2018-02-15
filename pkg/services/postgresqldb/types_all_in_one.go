@@ -5,10 +5,8 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // AllInOneProvisioningParameters encapsulates both dbms and database
 // PostgreSQL-specific provisioning options
 type AllInOneProvisioningParameters struct {
-	SSLEnforcement  string   `json:"sslEnforcement"`
-	FirewallIPStart string   `json:"firewallStartIPAddress"`
-	FirewallIPEnd   string   `json:"firewallEndIPAddress"`
-	Extensions      []string `json:"extensions"`
+	ServerProvisioningParameters
+	DatabaseProvisioningParameters
 }
 
 type allInOnePostgresqlInstanceDetails struct {
