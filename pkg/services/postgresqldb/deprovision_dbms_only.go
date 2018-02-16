@@ -7,29 +7,30 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) GetDeprovisioner(
+func (d *dbmsOnlyManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep("deleteARMDeployment", s.deleteARMDeployment),
+		service.NewDeprovisioningStep("deleteARMDeployment", d.deleteARMDeployment),
 		service.NewDeprovisioningStep(
 			"deletePostgreSQLServer",
-			s.deletePostgreSQLServer,
+			d.deletePostgreSQLServer,
 		),
 	)
 }
 
-func (s *serviceManager) deleteARMDeployment(
+func (d *dbmsOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	dt, ok := instance.Details.(*postgresqlInstanceDetails)
+	dt, ok := instance.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *postgresqlInstanceDetails",
+			"error casting instance.Details " +
+				"as *dbmsOnlyPostgresqlInstanceDetails",
 		)
 	}
-	if err := s.armDeployer.Delete(
+	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
@@ -38,19 +39,20 @@ func (s *serviceManager) deleteARMDeployment(
 	return dt, nil
 }
 
-func (s *serviceManager) deletePostgreSQLServer(
+func (d *dbmsOnlyManager) deletePostgreSQLServer(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*postgresqlInstanceDetails)
+	dt, ok := instance.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *postgresqlInstanceDetails",
+			"error casting instance.Details " +
+				"as *dbmsOnlyPostgresqlInstanceDetails",
 		)
 	}
-	result, err := s.serversClient.Delete(
+	result, err := d.serversClient.Delete(
 		ctx,
 		instance.ResourceGroup,
 		dt.ServerName,
@@ -58,7 +60,7 @@ func (s *serviceManager) deletePostgreSQLServer(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, s.serversClient.Client); err != nil {
+	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
 	return dt, nil

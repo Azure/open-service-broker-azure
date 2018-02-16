@@ -134,6 +134,12 @@ func initModules(azureConfig config.AzureConfig) error {
 	)
 	postgresServersClient.Authorizer = authorizer
 	postgresServersClient.UserAgent = getUserAgent(postgresServersClient.Client)
+	postgresDatabasesClient := postgresSDK.NewDatabasesClientWithBaseURI(
+		azureEnvironment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	postgresDatabasesClient.Authorizer = authorizer
+	postgresDatabasesClient.UserAgent = getUserAgent(postgresServersClient.Client)
 
 	sqlServersClient := sqlSDK.NewServersClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
@@ -182,6 +188,7 @@ func initModules(azureConfig config.AzureConfig) error {
 			armDeployer,
 			postgresCheckNameAvailabilityClient,
 			postgresServersClient,
+			postgresDatabasesClient,
 		),
 		rediscache.New(armDeployer, redisClient),
 		mysqldb.New(

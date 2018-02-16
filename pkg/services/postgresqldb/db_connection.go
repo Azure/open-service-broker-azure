@@ -6,11 +6,14 @@ import (
 )
 
 func getDBConnection(
-	dt *postgresqlInstanceDetails,
+	enforceSSL bool,
+	serverName string,
+	administratorLoginPassword string,
+	fullyQualifiedDomainName string,
 	dbName string,
 ) (*sql.DB, error) {
 	var connectionStrTemplate string
-	if dt.EnforceSSL {
+	if enforceSSL {
 		connectionStrTemplate =
 			"postgres://postgres@%s:%s@%s/%s?sslmode=require"
 	} else {
@@ -18,9 +21,9 @@ func getDBConnection(
 	}
 	db, err := sql.Open("postgres", fmt.Sprintf(
 		connectionStrTemplate,
-		dt.ServerName,
-		dt.AdministratorLoginPassword,
-		dt.FullyQualifiedDomainName,
+		serverName,
+		administratorLoginPassword,
+		fullyQualifiedDomainName,
 		dbName,
 	))
 	if err != nil {
