@@ -32,6 +32,5 @@ type Credentials struct {
 	Username    string `json:"username"`
 	Password    string `json:"password"`
 	SSLRequired bool   `json:"sslRequired"`
-	DNSSuffix   string `json:"dnsSuffix"`
 	URI         string `json:"uri"`
 }

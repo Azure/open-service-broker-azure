@@ -75,7 +75,6 @@ func createCredential(
 	sslRequired bool,
 	serverName string,
 	databaseName string,
-	dnsSuffix string,
 	bindingDetails *mysqlBindingDetails,
 	secureBidningDetails *mysqlSecureBindingDetails,
 ) *Credentials {
@@ -96,6 +95,5 @@ func createCredential(
 		Password:    secureBidningDetails.Password,
 		SSLRequired: sslRequired,
 		URI:         connectionString,
-		DNSSuffix:   dnsSuffix,
 	}
 }

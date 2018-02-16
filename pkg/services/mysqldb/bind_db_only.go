@@ -84,7 +84,6 @@ func (d *dbOnlyManager) GetCredentials(
 		pdt.EnforceSSL,
 		pdt.ServerName,
 		dt.DatabaseName,
-		d.sqlDatabaseDNSSuffix,
 		bd,
 		sbd,
 	)

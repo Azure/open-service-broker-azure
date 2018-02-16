@@ -69,7 +69,6 @@ func (a *allInOneManager) GetCredentials(
 		dt.EnforceSSL,
 		dt.ServerName,
 		dt.DatabaseName,
-		a.sqlDatabaseDNSSuffix,
 		bd,
 		sbd,
 	)
