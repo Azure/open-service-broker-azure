@@ -58,7 +58,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
-				Name:        "azure-postgresqldb",
+				Name:        "azure-postgresqldb-dbms-only",
 				Description: "Azure Database for PostgreSQL DBMS Only (Experimental)",
 				Metadata: &service.ServiceMetadata{
 					DisplayName: "Azure Database for PostgreSQL (DBMS Only)",
