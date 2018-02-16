@@ -3,7 +3,6 @@ package mysqldb
 import (
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -33,51 +32,14 @@ func (a *allInOneManager) Bind(
 		)
 	}
 
-	userName := generate.NewIdentifier()
-	password := generate.NewPassword()
-
-	db, err := a.getDBConnection(dt, sdt)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer db.Close() // nolint: errcheck
-
-	// Open doesn't open a connection. Validate DSN data:
-	if err = db.Ping(); err != nil {
-		return nil, nil, err
-	}
-
-	if _, err = db.Exec(
-		fmt.Sprintf("CREATE USER '%s'@'%%' IDENTIFIED BY '%s'", userName, password),
-	); err != nil {
-		return nil, nil, fmt.Errorf(
-			`error creating user "%s": %s`,
-			userName,
-			err,
-		)
-	}
-
-	if _, err = db.Exec(
-		fmt.Sprintf("GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, "+
-			"INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, "+
-			"CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, "+
-			"EXECUTE, REFERENCES, EVENT, "+
-			"TRIGGER ON %s.* TO '%s'@'%%'",
-			dt.DatabaseName, userName)); err != nil {
-		return nil, nil, fmt.Errorf(
-			`error granting permission to "%s": %s`,
-			userName,
-			err,
-		)
-	}
-
-	return &mysqlBindingDetails{
-			LoginName: userName,
-		},
-		&mysqlSecureBindingDetails{
-			Password: password,
-		},
-		nil
+	return createBinding(
+		dt.EnforceSSL,
+		a.sqlDatabaseDNSSuffix,
+		dt.ServerName,
+		sdt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+	)
 }
 
 func (a *allInOneManager) GetCredentials(
@@ -102,11 +64,14 @@ func (a *allInOneManager) GetCredentials(
 			"error casting binding.SecureDetails as *mysqlSecureBindingDetails",
 		)
 	}
-	return &Credentials{
-		Host:     dt.FullyQualifiedDomainName,
-		Port:     3306,
-		Database: dt.DatabaseName,
-		Username: fmt.Sprintf("%s@%s", bd.LoginName, dt.ServerName),
-		Password: sbd.Password,
-	}, nil
+	creds := createCredential(
+		dt.FullyQualifiedDomainName,
+		dt.EnforceSSL,
+		dt.ServerName,
+		dt.DatabaseName,
+		a.sqlDatabaseDNSSuffix,
+		bd,
+		sbd,
+	)
+	return creds, nil
 }

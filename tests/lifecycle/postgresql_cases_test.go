@@ -78,7 +78,6 @@ func getPostgresqlCases(
 			provisioningParameters: &postgresqldb.ServerProvisioningParameters{
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
-				SSLEnforcement:  "disabled",
 			},
 			childTestCases: []*serviceLifecycleTestCase{
 				{ // db only scenario
@@ -109,16 +108,7 @@ func testPostgreSQLCreds() func(credentials service.Credentials) error {
 				"error casting credentials as *postgresqldb.Credentials",
 			)
 		}
-		connectionStrTemplate := "postgres://%s:%s@%s:%d/%s"
-		connectionString := fmt.Sprintf(
-			connectionStrTemplate,
-			cdts.Username,
-			cdts.Password,
-			cdts.Host,
-			cdts.Port,
-			cdts.Database,
-		)
-		db, err := sql.Open("postgres", connectionString)
+		db, err := sql.Open("postgres", cdts.URI)
 
 		if err != nil {
 			return fmt.Errorf("error validating the database arguments: %s", err)

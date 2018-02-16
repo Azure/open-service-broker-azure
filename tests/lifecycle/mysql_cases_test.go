@@ -67,7 +67,6 @@ func getMysqlCases(
 			planID:      "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
 			location:    "eastus",
 			provisioningParameters: &mysqldb.ServerProvisioningParameters{
-				SSLEnforcement:  "disabled",
 				FirewallIPStart: "0.0.0.0",
 				FirewallIPEnd:   "255.255.255.255",
 			},
@@ -94,16 +93,23 @@ func testMySQLCreds() func(credentials service.Credentials) error {
 		if !ok {
 			return fmt.Errorf("error casting credentials as *mssql.Credentials")
 		}
-		connectionTemplate := "%s:%s@tcp(%s:%d)/%s?allowNativePasswords=true"
-		connectionString := fmt.Sprintf(
-			connectionTemplate,
+
+		var connectionStrTemplate string
+		if cdts.SSLRequired {
+			connectionStrTemplate =
+				"%s:%s@tcp(%s:3306)/%s?allowNativePasswords=true&tls=true"
+		} else {
+			connectionStrTemplate =
+				"%s:%s@tcp(%s:3306)/%s?allowNativePasswords=true"
+		}
+
+		db, err := sql.Open("mysql", fmt.Sprintf(
+			connectionStrTemplate,
 			cdts.Username,
 			cdts.Password,
 			cdts.Host,
-			cdts.Port,
 			cdts.Database,
-		)
-		db, err := sql.Open("mysql", connectionString)
+		))
 		if err != nil {
 			return fmt.Errorf("error validating the database arguments: %s", err)
 		}

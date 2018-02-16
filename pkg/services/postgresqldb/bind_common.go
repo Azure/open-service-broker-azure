@@ -83,3 +83,42 @@ func createBinding(
 		},
 		nil
 }
+
+// Create a credential to be returned for binding purposes. This includes a CF
+// compatible uri string and a flag to indicate if this connection should
+// use ssl
+func createCredential(
+	fqdn string,
+	sslRequired bool,
+	serverName string,
+	databaseName string,
+	bindDetails *postgresqlBindingDetails,
+	secureBindingDetails *postgresqlSecureBindingDetails,
+) *Credentials {
+	username := fmt.Sprintf("%s@%s", bindDetails.LoginName, serverName)
+	port := 5432
+	var connectionTemplate string
+	if sslRequired {
+		connectionTemplate = "postgresql://%s:%s@%s:%d/%s?&sslmode=require"
+
+	} else {
+		connectionTemplate = "postgresql://%s:%s@%s:%d/%s"
+	}
+	connectionString := fmt.Sprintf(
+		connectionTemplate,
+		username,
+		secureBindingDetails.Password,
+		fqdn,
+		port,
+		databaseName,
+	)
+	return &Credentials{
+		Host:        fqdn,
+		Port:        port,
+		Database:    databaseName,
+		Username:    username,
+		Password:    secureBindingDetails.Password,
+		SSLRequired: sslRequired,
+		URI:         connectionString,
+	}
+}
