@@ -16,8 +16,11 @@ type ProvisioningParameters struct{}
 type storageInstanceDetails struct {
 	ARMDeploymentName  string `json:"armDeployment"`
 	StorageAccountName string `json:"storageAccountName"`
-	AccessKey          string `json:"accessKey"`
 	ContainerName      string `json:"containerName"`
+}
+
+type storageSecureInstanceDetails struct {
+	AccessKey string `json:"accessKey"`
 }
 
 // UpdatingParameters encapsulates Storage-specific updating options
@@ -54,6 +57,12 @@ func (
 	s *serviceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &storageInstanceDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &storageSecureInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

@@ -40,18 +40,25 @@ func (d *dbmsOnlyManager) GetProvisioner(
 func (d *dbmsOnlyManager) preProvision(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt, ok := instance.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *dbmsOnlyPostgresqlInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as " +
+				"*dbmsOnlyPostgresqlSecureInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
 				"*postgresql.ServerProvisioningParameters",
 		)
@@ -64,10 +71,10 @@ func (d *dbmsOnlyManager) preProvision(
 		ctx,
 		d.checkNameAvailabilityClient,
 	); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	dt.AdministratorLoginPassword = generate.NewPassword()
+	sdt.AdministratorLoginPassword = generate.NewPassword()
 
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
 	switch sslEnforcement {
@@ -77,12 +84,13 @@ func (d *dbmsOnlyManager) preProvision(
 		dt.EnforceSSL = false
 	}
 
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (d *dbmsOnlyManager) buildARMTemplateParameters(
 	plan service.Plan,
 	details *dbmsOnlyPostgresqlInstanceDetails,
+	secureDetails *dbmsOnlyPostgresqlSecureInstanceDetails,
 	provisioningParameters *ServerProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
@@ -92,7 +100,7 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 		sslEnforcement = "Disabled"
 	}
 	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
 		"serverName":                 details.ServerName,
 		"skuName":                    plan.GetProperties().Extended["skuName"],
 		"skuTier":                    plan.GetProperties().Extended["skuTier"],
@@ -115,16 +123,23 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 func (d *dbmsOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *dbmsOnlyPostgresqlInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as " +
+				"*dbmsOnlyPostgresqlSecureInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting provisioningParameters as " +
 				"*postgresql.ServerProvisioningParameters",
 		)
@@ -132,6 +147,7 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 	armTemplateParameters := d.buildARMTemplateParameters(
 		instance.Plan,
 		dt,
+		sdt,
 		pp,
 	)
 	outputs, err := d.armDeployer.Deploy(
@@ -144,17 +160,17 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
 	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return dt, nil
+	return dt, sdt, nil
 }

@@ -17,6 +17,14 @@ func (d *dbOnlyManager) Unbind(
 				"as *dbmsOnlyPostgresqlInstanceDetails",
 		)
 	}
+	spdt, ok :=
+		instance.Parent.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+	if !ok {
+		return fmt.Errorf(
+			"error casting instance.Parent.SecureDetails " +
+				"as *dbmsOnlyPostgresqlSecureInstanceDetails",
+		)
+	}
 	bc, ok := bindingDetails.(*postgresqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
@@ -27,7 +35,7 @@ func (d *dbOnlyManager) Unbind(
 	return unbind(
 		pdt.EnforceSSL,
 		pdt.ServerName,
-		pdt.AdministratorLoginPassword,
+		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
 		bc,
 	)

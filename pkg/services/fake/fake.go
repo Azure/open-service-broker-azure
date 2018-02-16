@@ -96,8 +96,8 @@ func (s *ServiceManager) GetProvisioner(
 func (s *ServiceManager) provision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
-	return instance.Details, nil
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+	return instance.Details, instance.SecureDetails, nil
 }
 
 // ValidateUpdatingParameters validates the provided updatingParameters
@@ -119,8 +119,8 @@ func (s *ServiceManager) GetUpdater(service.Plan) (service.Updater, error) {
 func (s *ServiceManager) update(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
-	return instance.Details, nil
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+	return instance.Details, instance.SecureDetails, nil
 }
 
 // ValidateBindingParameters validates the provided bindingParameters and
@@ -169,8 +169,8 @@ func (s *ServiceManager) GetDeprovisioner(
 func (s *ServiceManager) deprovision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
-	return instance.Details, nil
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func defaultProvisioningValidationBehavior(

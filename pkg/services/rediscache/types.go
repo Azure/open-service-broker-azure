@@ -8,8 +8,11 @@ type ProvisioningParameters struct{}
 type redisInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	ServerName               string `json:"server"`
-	PrimaryKey               string `json:"primaryKey"`
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
+}
+
+type redisSecureInstanceDetails struct {
+	PrimaryKey string `json:"primaryKey"`
 }
 
 // UpdatingParameters encapsulates Redis-specific updating options
@@ -46,6 +49,12 @@ func (
 	s *serviceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &redisInstanceDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &redisSecureInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

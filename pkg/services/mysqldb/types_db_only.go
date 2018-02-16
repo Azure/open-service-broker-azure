@@ -11,6 +11,8 @@ type dbOnlyMysqlInstanceDetails struct {
 	DatabaseName      string `json:"database"`
 }
 
+type dbOnlyMysqlSecureInstanceDetails struct{}
+
 func (
 	d *dbOnlyManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
@@ -28,6 +30,13 @@ func (
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &dbOnlyMysqlInstanceDetails{}
 }
+
+func (
+	d *dbOnlyManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &dbOnlyMysqlSecureInstanceDetails{}
+}
+
 func (d *dbOnlyManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }

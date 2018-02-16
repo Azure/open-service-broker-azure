@@ -25,16 +25,15 @@ func (s *serviceManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*eventHubInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*eventHubSecureInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.ProvisioningContext as " +
-				"eventHubProvisioningContext",
+			"error casting instance.SecureDetails as *eventHubSecureInstanceDetails",
 		)
 	}
 	return &Credentials{
-			ConnectionString: dt.ConnectionString,
-			PrimaryKey:       dt.PrimaryKey,
+			ConnectionString: sdt.ConnectionString,
+			PrimaryKey:       sdt.PrimaryKey,
 		},
 		nil
 }

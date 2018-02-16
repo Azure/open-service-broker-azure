@@ -26,6 +26,14 @@ func (d *dbOnlyManager) Bind(
 				"as *dbmsOnlyMysqlInstanceDetails",
 		)
 	}
+	spdt, ok :=
+		instance.Parent.SecureDetails.(*dbmsOnlyMysqlSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.Parent.SecureDetails " +
+				"as *dbmsOnlyMysqlSecureInstanceDetails",
+		)
+	}
 	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
@@ -36,7 +44,7 @@ func (d *dbOnlyManager) Bind(
 	userName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
-	db, err := d.getDBConnection(pdt, dt)
+	db, err := d.getDBConnection(pdt, spdt, dt)
 	if err != nil {
 		return nil, err
 	}

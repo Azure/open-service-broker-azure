@@ -30,33 +30,33 @@ func (d *dbOnlyManager) GetProvisioner(
 func (d *dbOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details " +
 				"as *dbOnlyPostgresqlInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.DatabaseName = generate.NewIdentifier()
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (d *dbOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Parent.Details " +
 				"as *dbmsOnlyPostgresqlInstanceDetails",
 		)
 	}
 	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details " +
 				"as *dbOnlyPostgresqlInstanceDetails",
 		)
@@ -75,25 +75,33 @@ func (d *dbOnlyManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (d *dbOnlyManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Parent.Details " +
 				"as *dbmsOnlyPostgresqlInstanceDetails",
 		)
 	}
+	spdt, ok :=
+		instance.Parent.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.Parent.SecureDetails " +
+				"as *dbmsOnlyPostgresqlSecureInstanceDetails",
+		)
+	}
 	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details " +
 				"as *dbOnlyPostgresqlInstanceDetails",
 		)
@@ -101,37 +109,45 @@ func (d *dbOnlyManager) setupDatabase(
 	err := setupDatabase(
 		pdt.EnforceSSL,
 		pdt.ServerName,
-		pdt.AdministratorLoginPassword,
+		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (d *dbOnlyManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Parent.Details " +
 				"as *dbmsOnlyPostgresqlInstanceDetails",
 		)
 	}
+	spdt, ok :=
+		instance.Parent.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.Parent.SecureDetails " +
+				"as *dbmsOnlyPostgresqlSecureInstanceDetails",
+		)
+	}
 	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details " +
 				"as *dbOnlyPostgresqlInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*DatabaseProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
 				"*postgresql.DatabaseProvisioningParameters",
 		)
@@ -141,14 +157,14 @@ func (d *dbOnlyManager) createExtensions(
 		err := createExtensions(
 			pdt.EnforceSSL,
 			pdt.ServerName,
-			pdt.AdministratorLoginPassword,
+			spdt.AdministratorLoginPassword,
 			pdt.FullyQualifiedDomainName,
 			dt.DatabaseName,
 			pp.Extensions,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }

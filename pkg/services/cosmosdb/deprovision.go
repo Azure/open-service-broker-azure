@@ -23,10 +23,10 @@ func (s *serviceManager) GetDeprovisioner(
 func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
@@ -34,20 +34,20 @@ func (s *serviceManager) deleteARMDeployment(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
-		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (s *serviceManager) deleteCosmosDBServer(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *cosmosdbInstanceDetails",
 		)
 	}
@@ -57,7 +57,7 @@ func (s *serviceManager) deleteCosmosDBServer(
 		dt.DatabaseAccountName,
 	)
 	if err != nil {
-		return dt, fmt.Errorf("error deleting cosmosdb server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}
 	if err := result.WaitForCompletion(
 		ctx,
@@ -65,9 +65,9 @@ func (s *serviceManager) deleteCosmosDBServer(
 	); err != nil {
 		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
 		if strings.Contains(err.Error(), "StatusCode=404") {
-			return dt, nil
+			return dt, instance.SecureDetails, nil
 		}
-		return dt, fmt.Errorf("error deleting cosmosdb server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }

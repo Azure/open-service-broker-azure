@@ -8,8 +8,11 @@ type ProvisioningParameters struct{}
 type serviceBusInstanceDetails struct {
 	ARMDeploymentName       string `json:"armDeployment"`
 	ServiceBusNamespaceName string `json:"serviceBusNamespaceName"`
-	ConnectionString        string `json:"connectionString"`
-	PrimaryKey              string `json:"primaryKey"`
+}
+
+type serviceBusSecureInstanceDetails struct {
+	ConnectionString string `json:"connectionString"`
+	PrimaryKey       string `json:"primaryKey"`
 }
 
 // UpdatingParameters encapsulates servicebus-specific updating options
@@ -46,6 +49,12 @@ func (
 	s *serviceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &serviceBusInstanceDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &serviceBusSecureInstanceDetails{}
 }
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {

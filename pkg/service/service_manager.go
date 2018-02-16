@@ -12,9 +12,12 @@ type ServiceManager interface { // nolint: golint
 	// GetProvisioner returns a provisioner that defines the steps a module must
 	// execute asynchronously to provision a service.
 	GetProvisioner(Plan) (Provisioner, error)
-	// GetEmptyInstanceDetails returns an empty instance of a service-specific
-	// instance details
+	// GetEmptyInstanceDetails returns an empty instance of non-sensitive
+	// service-specific instance details
 	GetEmptyInstanceDetails() InstanceDetails
+	// GetEmptySecureInstanceDetails returns an empty instance of sensitive
+	// service-specific instance details
+	GetEmptySecureInstanceDetails() SecureInstanceDetails
 	// GetEmptyUpdatingParameters returns an empty instance of module-specific
 	// updatingParameters
 	GetEmptyUpdatingParameters() UpdatingParameters

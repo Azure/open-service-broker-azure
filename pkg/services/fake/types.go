@@ -20,6 +20,13 @@ type InstanceDetails struct {
 	ResourceGroupName string `json:"resourceGroup"`
 }
 
+// SecureInstanceDetails represents sensitive details collected and modified
+// over the course of a fake service instance's provisioning and deprovisioning
+// processes. Note that, ordinarily, service-specific types such as this do not
+// need to be exported. An exception is made here because the fake service
+// module is used to facilitate testing of the broker framework itself.
+type SecureInstanceDetails struct{}
+
 // UpdatingParameters represents parameters specific to binding to a service
 // instance using the fake service module. Note that, ordinarily, service
 // module-specific types such as this do not need to be exported. An exception
@@ -67,12 +74,20 @@ func (
 	return &ProvisioningParameters{}
 }
 
-// GetEmptyInstanceDetails returns an empty instance of a service-specific
-// instance details
+// GetEmptyInstanceDetails returns an empty instance of non-sensitive
+// service-specific instance details
 func (
 	s *ServiceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &InstanceDetails{}
+}
+
+// GetEmptySecureInstanceDetails returns an empty instance of sensitive
+// service-specific instance details
+func (
+	s *ServiceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &SecureInstanceDetails{}
 }
 
 // GetEmptyUpdatingParameters returns an empty instance of module-specific

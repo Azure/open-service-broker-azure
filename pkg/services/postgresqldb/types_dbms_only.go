@@ -11,11 +11,14 @@ type ServerProvisioningParameters struct {
 }
 
 type dbmsOnlyPostgresqlInstanceDetails struct {
-	ARMDeploymentName          string `json:"armDeployment"`
-	ServerName                 string `json:"server"`
+	ARMDeploymentName        string `json:"armDeployment"`
+	ServerName               string `json:"server"`
+	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
+	EnforceSSL               bool   `json:"enforceSSL"`
+}
+
+type dbmsOnlyPostgresqlSecureInstanceDetails struct {
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
-	EnforceSSL                 bool   `json:"enforceSSL"`
 }
 
 func (
@@ -34,6 +37,12 @@ func (
 	d *dbmsOnlyManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &dbmsOnlyPostgresqlInstanceDetails{}
+}
+
+func (
+	d *dbmsOnlyManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &dbmsOnlyPostgresqlSecureInstanceDetails{}
 }
 
 func (

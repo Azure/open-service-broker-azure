@@ -138,7 +138,7 @@ func TestGetExistingInstance(t *testing.T) {
 	retrievedInstance.Plan = nil
 	retrievedInstance.EncryptedProvisioningParameters = nil
 	retrievedInstance.EncryptedUpdatingParameters = nil
-	retrievedInstance.EncryptedDetails = nil
+	retrievedInstance.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -180,8 +180,8 @@ func TestGetExistingInstanceWithParent(t *testing.T) {
 	retrievedInstance.Parent.EncryptedProvisioningParameters = nil
 	retrievedInstance.EncryptedUpdatingParameters = nil
 	retrievedInstance.Parent.EncryptedUpdatingParameters = nil
-	retrievedInstance.EncryptedDetails = nil
-	retrievedInstance.Parent.EncryptedDetails = nil
+	retrievedInstance.EncryptedSecureDetails = nil
+	retrievedInstance.Parent.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -220,7 +220,7 @@ func TestGetExistingInstanceByAlias(t *testing.T) {
 	retrievedInstance.Plan = nil
 	retrievedInstance.EncryptedProvisioningParameters = nil
 	retrievedInstance.EncryptedUpdatingParameters = nil
-	retrievedInstance.EncryptedDetails = nil
+	retrievedInstance.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -434,6 +434,7 @@ func getTestInstance() service.Instance {
 		ResourceGroup:          "test",
 		Tags:                   map[string]string{"foo": "bar"},
 		Details:                fakeServiceManager.GetEmptyInstanceDetails(),
+		SecureDetails:          fakeServiceManager.GetEmptySecureInstanceDetails(),
 	}
 }
 

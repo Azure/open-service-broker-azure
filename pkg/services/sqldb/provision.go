@@ -185,57 +185,70 @@ func (d *dbOnlyManager) GetProvisioner(
 func (a *allInOneManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as " +
+				"*mssqlAllInOneSecureInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.ServerName = uuid.NewV4().String()
 	dt.AdministratorLogin = generate.NewIdentifier()
-	dt.AdministratorLoginPassword = generate.NewPassword()
+	sdt.AdministratorLoginPassword = generate.NewPassword()
 	dt.DatabaseName = generate.NewIdentifier()
-	return dt, nil
+	return dt, sdt, nil
 }
 
 func (v *vmOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*mssqlVMOnlySecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as *mssqlVMOnlySecureInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.ServerName = uuid.NewV4().String()
 	dt.AdministratorLogin = generate.NewIdentifier()
-	dt.AdministratorLoginPassword = generate.NewPassword()
-	return dt, nil
+	sdt.AdministratorLoginPassword = generate.NewPassword()
+	return dt, sdt, nil
 }
 
 func (d *dbOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 
 	//Parent should be set by the framework, but return an error if it is not set.
 	if instance.Parent == nil {
-		return nil, errors.New("parent instance not set")
+		return nil, nil, errors.New("parent instance not set")
 	}
 	//Assume refererence instance is a vm only instance. Fail if not
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Parent.Details as " +
 				"*mssqlVMOnlyInstanceDetails",
 		)
@@ -249,22 +262,29 @@ func (d *dbOnlyManager) preProvision(
 		d.sqlDatabaseDNSSuffix,
 	)
 
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as " +
+				"*mssqlAllInOneSecureInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParams)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting provisioningParameters as " +
 				"*mssql.ServerProvisioningParams",
 		)
@@ -272,7 +292,7 @@ func (a *allInOneManager) deployARMTemplate(
 	p := map[string]interface{}{ // ARM template params
 		"serverName":                 dt.ServerName,
 		"administratorLogin":         dt.AdministratorLogin,
-		"administratorLoginPassword": dt.AdministratorLoginPassword,
+		"administratorLoginPassword": sdt.AdministratorLoginPassword,
 		"databaseName":               dt.DatabaseName,
 		"edition": instance.Plan.GetProperties().
 			Extended["edition"],
@@ -300,32 +320,39 @@ func (a *allInOneManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
 	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
-	return dt, nil
+	return dt, sdt, nil
 }
 
 func (v *vmOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*mssqlVMOnlySecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as " +
+				"*mssqlVMOnlySecureInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParams)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting provisioningParameters as " +
 				"*mssql.ServerProvisioningParams",
 		)
@@ -333,7 +360,7 @@ func (v *vmOnlyManager) deployARMTemplate(
 	p := map[string]interface{}{ // ARM template params
 		"serverName":                 dt.ServerName,
 		"administratorLogin":         dt.AdministratorLogin,
-		"administratorLoginPassword": dt.AdministratorLoginPassword,
+		"administratorLoginPassword": sdt.AdministratorLoginPassword,
 	}
 	//Only include these if they are not empty.
 	//ARM Deployer will fail if the values included are not
@@ -355,37 +382,37 @@ func (v *vmOnlyManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
 	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
-	return dt, nil
+	return dt, sdt, nil
 }
 
 func (d *dbOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 
 	//Parent should be set by the framework, but return an error if it is not set.
 	if instance.Parent == nil {
-		return nil, errors.New("parent instance not set")
+		return nil, nil, errors.New("parent instance not set")
 	}
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Parent.Details as " +
 				"*mssqlVMOnlyInstanceDetails",
 		)
@@ -409,7 +436,7 @@ func (d *dbOnlyManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }

@@ -37,7 +37,11 @@ func init() {
 	details := &ArbitraryType{
 		Foo: "baz",
 	}
-	encryptedDetails := []byte(`{"foo":"baz"}`)
+	detailsJSONStr := `{"foo":"baz"}`
+	secureDetails := &ArbitraryType{
+		Foo: "baz",
+	}
+	encryptedSecureDetails := []byte(`{"foo":"baz"}`)
 	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
 	if err != nil {
 		panic(err)
@@ -58,8 +62,9 @@ func init() {
 		ResourceGroup:                   resourceGroup,
 		ParentAlias:                     parentAlias,
 		Tags:                            map[string]string{tagKey: tagVal},
-		EncryptedDetails:                encryptedDetails,
 		Details:                         details,
+		EncryptedSecureDetails:          encryptedSecureDetails,
+		SecureDetails:                   secureDetails,
 		Created:                         created,
 	}
 
@@ -69,8 +74,8 @@ func init() {
 	b64EncryptedUpdatingParameters := base64.StdEncoding.EncodeToString(
 		encryptedUpdatingParameters,
 	)
-	b64EncryptedDetails := base64.StdEncoding.EncodeToString(
-		encryptedDetails,
+	b64EncryptedSecureDetails := base64.StdEncoding.EncodeToString(
+		encryptedSecureDetails,
 	)
 
 	testInstanceJSONStr := fmt.Sprintf(
@@ -87,7 +92,8 @@ func init() {
 			"resourceGroup":"%s",
 			"parentAlias":"%s",
 			"tags":{"%s":"%s"},
-			"details":"%s",
+			"details":%s,
+			"secureDetails":"%s",
 			"created":"%s"
 		}`,
 		instanceID,
@@ -103,7 +109,8 @@ func init() {
 		parentAlias,
 		tagKey,
 		tagVal,
-		b64EncryptedDetails,
+		detailsJSONStr,
+		b64EncryptedSecureDetails,
 		created.Format(time.RFC3339),
 	)
 	testInstanceJSONStr = strings.Replace(testInstanceJSONStr, " ", "", -1)
@@ -115,6 +122,7 @@ func init() {
 func TestNewInstanceFromJSON(t *testing.T) {
 	instance, err := NewInstanceFromJSON(
 		testInstanceJSON,
+		&ArbitraryType{},
 		&ArbitraryType{},
 		&ArbitraryType{},
 		&ArbitraryType{},
@@ -158,16 +166,16 @@ func TestEncryptUpdatingParameters(t *testing.T) {
 	)
 }
 
-func TestEncryptDetails(t *testing.T) {
+func TestEncryptSecureDetails(t *testing.T) {
 	instance := Instance{
-		Details: testArbitraryObject,
+		SecureDetails: testArbitraryObject,
 	}
 	var err error
-	instance, err = instance.encryptDetails(noopCodec)
+	instance, err = instance.encryptSecureDetails(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		instance.EncryptedDetails,
+		instance.EncryptedSecureDetails,
 		testArbitraryObjectJSON,
 	)
 }
@@ -194,13 +202,13 @@ func TestDecryptUpdatingParameters(t *testing.T) {
 	assert.Equal(t, testArbitraryObject, instance.UpdatingParameters)
 }
 
-func TestDecryptDetails(t *testing.T) {
+func TestDecryptSecureDetails(t *testing.T) {
 	instance := Instance{
-		EncryptedDetails: testArbitraryObjectJSON,
-		Details:          &ArbitraryType{},
+		EncryptedSecureDetails: testArbitraryObjectJSON,
+		SecureDetails:          &ArbitraryType{},
 	}
 	var err error
-	instance, err = instance.decryptDetails(noopCodec)
+	instance, err = instance.decryptSecureDetails(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, instance.Details)
+	assert.Equal(t, testArbitraryObject, instance.SecureDetails)
 }

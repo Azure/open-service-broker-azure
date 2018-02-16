@@ -14,19 +14,25 @@ type DBProvisioningParams struct {
 }
 
 type mssqlAllInOneInstanceDetails struct {
-	ARMDeploymentName          string `json:"armDeployment"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
-	ServerName                 string `json:"server"`
-	AdministratorLogin         string `json:"administratorLogin"`
+	ARMDeploymentName        string `json:"armDeployment"`
+	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
+	ServerName               string `json:"server"`
+	AdministratorLogin       string `json:"administratorLogin"`
+	DatabaseName             string `json:"database"`
+}
+
+type mssqlAllInOneSecureInstanceDetails struct {
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
-	DatabaseName               string `json:"database"`
 }
 
 type mssqlVMOnlyInstanceDetails struct {
-	ARMDeploymentName          string `json:"armDeployment"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
-	ServerName                 string `json:"server"`
-	AdministratorLogin         string `json:"administratorLogin"`
+	ARMDeploymentName        string `json:"armDeployment"`
+	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
+	ServerName               string `json:"server"`
+	AdministratorLogin       string `json:"administratorLogin"`
+}
+
+type mssqlVMOnlySecureInstanceDetails struct {
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 }
 
@@ -35,6 +41,8 @@ type mssqlDBOnlyInstanceDetails struct {
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
 	DatabaseName             string `json:"database"`
 }
+
+type mssqlDBOnlySecureInstanceDetails struct{}
 
 // UpdatingParameters encapsulates MSSQL-specific updating options
 type UpdatingParameters struct {
@@ -125,6 +133,24 @@ func (
 	d *dbOnlyManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &mssqlDBOnlyInstanceDetails{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &mssqlAllInOneSecureInstanceDetails{}
+}
+
+func (
+	v *vmOnlyManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &mssqlVMOnlySecureInstanceDetails{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &mssqlDBOnlySecureInstanceDetails{}
 }
 
 func (

@@ -28,27 +28,33 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *eventHubInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.EventHubName = uuid.NewV4().String()
 	dt.EventHubNamespace = "eh-" + uuid.NewV4().String()
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*eventHubInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *eventHubInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*eventHubSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as *eventHubSecureInstanceDetails",
 		)
 	}
 	outputs, err := s.armDeployer.Deploy(
@@ -66,26 +72,26 @@ func (s *serviceManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	connectionString, ok := outputs["connectionString"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving connection string from deployment: %s",
 			err,
 		)
 	}
-	dt.ConnectionString = connectionString
+	sdt.ConnectionString = connectionString
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving primary key from deployment: %s",
 			err,
 		)
 	}
-	dt.PrimaryKey = primaryKey
+	sdt.PrimaryKey = primaryKey
 
-	return dt, nil
+	return dt, sdt, nil
 }

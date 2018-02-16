@@ -25,11 +25,17 @@ func (a *allInOneManager) Bind(
 				"as *allInOnePostgresqlInstanceDetails",
 		)
 	}
-
+	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.SecureDetails " +
+				"as *allInOnePostgresqlSecureInstanceDetails",
+		)
+	}
 	binding, err := createBinding(
 		dt.EnforceSSL,
 		dt.ServerName,
-		dt.AdministratorLoginPassword,
+		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)

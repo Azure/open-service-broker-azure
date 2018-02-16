@@ -25,14 +25,15 @@ func (s *serviceManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	pc, ok := instance.Details.(*serviceBusInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*serviceBusSecureInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *serviceBusInstanceDetails",
+			"error casting instance.SecureDetails as " +
+				"*serviceBusSecureInstanceDetails",
 		)
 	}
 	return &Credentials{
-		ConnectionString: pc.ConnectionString,
-		PrimaryKey:       pc.PrimaryKey,
+		ConnectionString: sdt.ConnectionString,
+		PrimaryKey:       sdt.PrimaryKey,
 	}, nil
 }

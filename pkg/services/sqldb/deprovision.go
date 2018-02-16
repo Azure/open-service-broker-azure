@@ -46,10 +46,10 @@ func (d *dbOnlyManager) GetDeprovisioner(
 func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
@@ -58,18 +58,18 @@ func (a *allInOneManager) deleteARMDeployment(
 		instance.ResourceGroup,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (v *vmOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
 		)
 	}
@@ -78,44 +78,44 @@ func (v *vmOnlyManager) deleteARMDeployment(
 		instance.ResourceGroup,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (d *dbOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 	//Parent should be set by the framework, but return an error if it is not set.
 	if instance.Parent == nil {
-		return nil, fmt.Errorf("parent instance not set")
+		return nil, nil, fmt.Errorf("parent instance not set")
 	}
 	err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.Parent.ResourceGroup,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (a *allInOneManager) deleteMsSQLServer(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
@@ -125,23 +125,23 @@ func (a *allInOneManager) deleteMsSQLServer(
 		dt.ServerName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting sql server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
-		return nil, fmt.Errorf("error deleting sql server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (v *vmOnlyManager) deleteMsSQLServer(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
@@ -151,33 +151,33 @@ func (v *vmOnlyManager) deleteMsSQLServer(
 		dt.ServerName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting sql server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	if err := result.WaitForCompletion(ctx, v.serversClient.Client); err != nil {
-		return nil, fmt.Errorf("error deleting sql server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }
 
 func (d *dbOnlyManager) deleteMsSQLDatabase(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 	//Parent should be set by the framework, but return an error if it is not set.
 	if instance.Parent == nil {
-		return nil, fmt.Errorf("parent instance not set")
+		return nil, nil, fmt.Errorf("parent instance not set")
 	}
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Parent.Details as " +
 				"*mssqlVMOnlyInstanceDetails",
 		)
@@ -189,7 +189,7 @@ func (d *dbOnlyManager) deleteMsSQLDatabase(
 		pdt.ServerName,
 		dt.DatabaseName,
 	); err != nil {
-		return nil, fmt.Errorf("error deleting sql database: %s", err)
+		return nil, nil, fmt.Errorf("error deleting sql database: %s", err)
 	}
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }

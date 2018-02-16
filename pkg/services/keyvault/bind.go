@@ -31,9 +31,15 @@ func (s *serviceManager) GetCredentials(
 			"error casting instance.Details as *keyvaultInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*keyvaultSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.SecureDetails as *keyvaultSecureInstanceDetails",
+		)
+	}
 	return &Credentials{
 		VaultURI:     dt.VaultURI,
 		ClientID:     dt.ClientID,
-		ClientSecret: dt.ClientSecret,
+		ClientSecret: sdt.ClientSecret,
 	}, nil
 }

@@ -31,9 +31,15 @@ func (s *serviceManager) GetCredentials(
 			"error casting instance.Details as *storageInstanceDetails",
 		)
 	}
+	sdt, ok := instance.SecureDetails.(*storageSecureInstanceDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting instance.SecureDetails as *storageSecureInstanceDetails",
+		)
+	}
 	return &Credentials{
 		StorageAccountName: dt.StorageAccountName,
-		AccessKey:          dt.AccessKey,
+		AccessKey:          sdt.AccessKey,
 		ContainerName:      dt.ContainerName,
 	}, nil
 }

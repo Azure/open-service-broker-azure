@@ -35,18 +35,25 @@ func (a *allInOneManager) GetProvisioner(
 func (a *allInOneManager) preProvision(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *allInOneMysqlInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*allInOneMysqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as " +
+				"*allInOneMysqlSecureInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
 				"*mysql.ServerProvisioningParameters",
 		)
@@ -57,9 +64,9 @@ func (a *allInOneManager) preProvision(
 		ctx,
 		a.checkNameAvailabilityClient,
 	); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	dt.AdministratorLoginPassword = generate.NewPassword()
+	sdt.AdministratorLoginPassword = generate.NewPassword()
 	dt.DatabaseName = generate.NewIdentifier()
 
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
@@ -70,12 +77,13 @@ func (a *allInOneManager) preProvision(
 		dt.EnforceSSL = false
 	}
 
-	return dt, nil
+	return dt, sdt, nil
 }
 
 func (a *allInOneManager) buildARMTemplateParameters(
 	plan service.Plan,
 	details *allInOneMysqlInstanceDetails,
+	secureDetails *allInOneMysqlSecureInstanceDetails,
 	provisioningParameters *ServerProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
@@ -85,7 +93,7 @@ func (a *allInOneManager) buildARMTemplateParameters(
 		sslEnforcement = "Disabled"
 	}
 	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": details.AdministratorLoginPassword,
+		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
 		"serverName":                 details.ServerName,
 		"databaseName":               details.DatabaseName,
 		"skuName":                    plan.GetProperties().Extended["skuName"],
@@ -110,21 +118,33 @@ func (a *allInOneManager) buildARMTemplateParameters(
 func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, error) {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting instance.Details as *allInOneMysqlInstanceDetails",
+		)
+	}
+	sdt, ok := instance.SecureDetails.(*allInOneMysqlSecureInstanceDetails)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureDetails as " +
+				"*allInOneMysqlSecureInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
 	if !ok {
-		return nil, errors.New(
+		return nil, nil, errors.New(
 			"error casting provisioningParameters " +
 				"as *mysql.ServerProvisioningParameters",
 		)
 	}
-	armTemplateParameters := a.buildARMTemplateParameters(instance.Plan, dt, pp)
+	armTemplateParameters := a.buildARMTemplateParameters(
+		instance.Plan,
+		dt,
+		sdt,
+		pp,
+	)
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
@@ -135,17 +155,17 @@ func (a *allInOneManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
 	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return dt, nil
+	return dt, instance.SecureDetails, nil
 }

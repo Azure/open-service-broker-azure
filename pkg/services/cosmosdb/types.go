@@ -17,8 +17,11 @@ type cosmosdbInstanceDetails struct {
 	DatabaseAccountName      string       `json:"name"`
 	DatabaseKind             databaseKind `json:"kind"`
 	FullyQualifiedDomainName string       `json:"fullyQualifiedDomainName"`
-	ConnectionString         string       `json:"connectionString"`
-	PrimaryKey               string       `json:"primaryKey"`
+}
+
+type cosmosdbSecureInstanceDetails struct {
+	ConnectionString string `json:"connectionString"`
+	PrimaryKey       string `json:"primaryKey"`
 }
 
 // UpdatingParameters encapsulates CosmosDB-specific updating options
@@ -56,6 +59,12 @@ func (
 	s *serviceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &cosmosdbInstanceDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &cosmosdbSecureInstanceDetails{}
 }
 
 func (
