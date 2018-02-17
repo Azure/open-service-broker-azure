@@ -233,7 +233,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
-	bindingDetails, err := serviceManager.Bind(
+	bindingDetails, secureBindingDetails, err := serviceManager.Bind(
 		instance,
 		bindingParameters,
 	)
@@ -256,6 +256,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		BindingID:         bindingID,
 		BindingParameters: bindingParameters,
 		Details:           bindingDetails,
+		SecureDetails:     secureBindingDetails,
 		Created:           time.Now(),
 	}
 

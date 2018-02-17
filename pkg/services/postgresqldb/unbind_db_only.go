@@ -8,7 +8,7 @@ import (
 
 func (d *dbOnlyManager) Unbind(
 	instance service.Instance,
-	bindingDetails service.BindingDetails,
+	binding service.Binding,
 ) error {
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
@@ -25,10 +25,10 @@ func (d *dbOnlyManager) Unbind(
 				"as *dbmsOnlyPostgresqlSecureInstanceDetails",
 		)
 	}
-	bc, ok := bindingDetails.(*postgresqlBindingDetails)
+	bd, ok := binding.Details.(*postgresqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingDetails as *postgresqlBindingDetails",
+			"error casting binding.Details as *postgresqlBindingDetails",
 		)
 	}
 
@@ -37,6 +37,6 @@ func (d *dbOnlyManager) Unbind(
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
-		bc,
+		bd.LoginName,
 	)
 }

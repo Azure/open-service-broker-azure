@@ -53,6 +53,14 @@ type BindingParameters struct {
 type BindingDetails struct {
 }
 
+// SecureBindingDetails represents secure details collected and modified over
+// the course of a fake service instance's binding and unbinding processes. Note
+// that, ordinarily, service-specific types such as this do not need to be
+// exported. An exception is made here because the fake service module is used
+// to facilitate testing of the broker framework itself.
+type SecureBindingDetails struct {
+}
+
 // Credentials generally represent credentials AND/OR ANY OTHER DETAILS (e.g.
 // URLs, port numbers, etc.) that will be conveyed back to the client upon
 // successful completion of a bind. In the specific case of the fake service
@@ -104,8 +112,16 @@ func (s *ServiceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-// GetEmptyBindingDetails returns an empty instance of a service-specific
-// bindingDetails
+// GetEmptyBindingDetails returns an empty instance of non-sensitive
+// service-specific binding details
 func (s *ServiceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &BindingDetails{}
+}
+
+// GetEmptySecureBindingDetails returns an empty instance of secure (sensitive)
+// service-specific bindingDetails
+func (
+	s *ServiceManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &SecureBindingDetails{}
 }

@@ -31,6 +31,9 @@ type BindingParameters struct {
 type keyvaultBindingDetails struct {
 }
 
+type keyvaultSecureBindingDetails struct {
+}
+
 // Credentials encapsulates Key Vault-specific coonection details and
 // credentials.
 type Credentials struct {
@@ -69,4 +72,10 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &keyvaultBindingDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &keyvaultSecureBindingDetails{}
 }

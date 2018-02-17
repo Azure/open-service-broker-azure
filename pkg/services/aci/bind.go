@@ -17,8 +17,8 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	service.Instance,
 	service.BindingParameters,
-) (service.BindingDetails, error) {
-	return &aciBindingDetails{}, nil
+) (service.BindingDetails, service.SecureBindingDetails, error) {
+	return &aciBindingDetails{}, &aciSecureBindingDetails{}, nil
 }
 
 func (s *serviceManager) GetCredentials(

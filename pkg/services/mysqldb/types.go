@@ -18,7 +18,10 @@ type BindingParameters struct {
 
 type mysqlBindingDetails struct {
 	LoginName string `json:"loginName"`
-	Password  string `json:"password"`
+}
+
+type mysqlSecureBindingDetails struct {
+	Password string `json:"password"`
 }
 
 // Credentials encapsulates MySQL-specific coonection details and credentials.

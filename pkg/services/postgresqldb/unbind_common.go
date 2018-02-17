@@ -9,7 +9,7 @@ func unbind(
 	serverName string,
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
-	bindingContext *postgresqlBindingDetails,
+	loginName string,
 ) error {
 	db, err := getDBConnection(
 		enforceSSL,
@@ -24,14 +24,10 @@ func unbind(
 	defer db.Close() // nolint: errcheck
 
 	_, err = db.Exec(
-		fmt.Sprintf("drop role %s", bindingContext.LoginName),
+		fmt.Sprintf("drop role %s", loginName),
 	)
 	if err != nil {
-		return fmt.Errorf(
-			`error dropping role "%s": %s`,
-			bindingContext.LoginName,
-			err,
-		)
+		return fmt.Errorf(`error dropping role "%s": %s`, loginName, err)
 	}
 	return nil
 }
