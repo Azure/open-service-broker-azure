@@ -31,7 +31,7 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	}
 	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
+		instance.Parent.ResourceGroup,
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
