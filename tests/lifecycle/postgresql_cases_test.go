@@ -108,7 +108,20 @@ func testPostgreSQLCreds() func(credentials service.Credentials) error {
 				"error casting credentials as *postgresqldb.Credentials",
 			)
 		}
-		db, err := sql.Open("postgres", cdts.URI)
+		var connectionStrTemplate string
+		if cdts.SSLRequired {
+			connectionStrTemplate =
+				"postgres://%s:%s@%s/%s?sslmode=require"
+		} else {
+			connectionStrTemplate = "postgres://%s:%s@%s/%s"
+		}
+		db, err := sql.Open("postgres", fmt.Sprintf(
+			connectionStrTemplate,
+			cdts.Username,
+			cdts.Password,
+			cdts.Host,
+			cdts.Database,
+		))
 
 		if err != nil {
 			return fmt.Errorf("error validating the database arguments: %s", err)

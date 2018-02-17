@@ -2,6 +2,7 @@ package postgresqldb
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -86,7 +87,8 @@ func createBinding(
 
 // Create a credential to be returned for binding purposes. This includes a CF
 // compatible uri string and a flag to indicate if this connection should
-// use ssl
+// use ssl. URI is built with the username passed to url.QueryEscape to escape
+// the @ in the username
 func createCredential(
 	fqdn string,
 	sslRequired bool,
@@ -106,7 +108,7 @@ func createCredential(
 	}
 	connectionString := fmt.Sprintf(
 		connectionTemplate,
-		username,
+		url.QueryEscape(username),
 		secureBindingDetails.Password,
 		fqdn,
 		port,
@@ -120,5 +122,6 @@ func createCredential(
 		Password:    secureBindingDetails.Password,
 		SSLRequired: sslRequired,
 		URI:         connectionString,
+		Tags:        []string{"postgresql"},
 	}
 }

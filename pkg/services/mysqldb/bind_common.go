@@ -2,6 +2,7 @@ package mysqldb
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 )
@@ -70,6 +71,10 @@ func createBinding(
 
 }
 
+// Create a credential to be returned for binding purposes. This includes a CF
+// compatible uri string and a flag to indicate if this connection should
+// use ssl. URI is built with the username passed to url.QueryEscape to escape
+// the @ in the username
 func createCredential(
 	fqdn string,
 	sslRequired bool,
@@ -79,10 +84,10 @@ func createCredential(
 	secureBidningDetails *mysqlSecureBindingDetails,
 ) *Credentials {
 	username := fmt.Sprintf("%s@%s", bindingDetails.LoginName, serverName)
-	connectionTemplate := "mysql://%s:%s@%s:3306/%s?allowNativePasswords=true"
+	connectionTemplate := "mysql://%s:%s@%s:3306/%s?useSSL=true&requireSSL=true"
 	connectionString := fmt.Sprintf(
 		connectionTemplate,
-		username,
+		url.QueryEscape(username),
 		secureBidningDetails.Password,
 		fqdn,
 		databaseName,
@@ -95,5 +100,6 @@ func createCredential(
 		Password:    secureBidningDetails.Password,
 		SSLRequired: sslRequired,
 		URI:         connectionString,
+		Tags:        []string{"mysql"},
 	}
 }
