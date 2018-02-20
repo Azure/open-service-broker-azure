@@ -2,6 +2,7 @@ package postgresqldb
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -82,4 +83,45 @@ func createBinding(
 			Password: password,
 		},
 		nil
+}
+
+// Create a credential to be returned for binding purposes. This includes a CF
+// compatible uri string and a flag to indicate if this connection should
+// use ssl. URI is built with the username passed to url.QueryEscape to escape
+// the @ in the username
+func createCredential(
+	fqdn string,
+	sslRequired bool,
+	serverName string,
+	databaseName string,
+	bindDetails *postgresqlBindingDetails,
+	secureBindingDetails *postgresqlSecureBindingDetails,
+) *Credentials {
+	username := fmt.Sprintf("%s@%s", bindDetails.LoginName, serverName)
+	port := 5432
+	var connectionTemplate string
+	if sslRequired {
+		connectionTemplate = "postgresql://%s:%s@%s:%d/%s?&sslmode=require"
+
+	} else {
+		connectionTemplate = "postgresql://%s:%s@%s:%d/%s"
+	}
+	connectionString := fmt.Sprintf(
+		connectionTemplate,
+		url.QueryEscape(username),
+		secureBindingDetails.Password,
+		fqdn,
+		port,
+		databaseName,
+	)
+	return &Credentials{
+		Host:        fqdn,
+		Port:        port,
+		Database:    databaseName,
+		Username:    username,
+		Password:    secureBindingDetails.Password,
+		SSLRequired: sslRequired,
+		URI:         connectionString,
+		Tags:        []string{"postgresql"},
+	}
 }

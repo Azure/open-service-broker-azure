@@ -83,11 +83,13 @@ func (d *dbOnlyManager) GetCredentials(
 			"error casting binding.SecureDetails as *postgresqlSecureBindingDetails",
 		)
 	}
-	return &Credentials{
-		Host:     pdt.FullyQualifiedDomainName,
-		Port:     5432,
-		Database: dt.DatabaseName,
-		Username: fmt.Sprintf("%s@%s", bd.LoginName, pdt.ServerName),
-		Password: sbd.Password,
-	}, nil
+	cred := createCredential(
+		pdt.FullyQualifiedDomainName,
+		pdt.EnforceSSL,
+		pdt.ServerName,
+		dt.DatabaseName,
+		bd,
+		sbd,
+	)
+	return cred, nil
 }

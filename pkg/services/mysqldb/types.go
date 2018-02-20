@@ -26,9 +26,12 @@ type mysqlSecureBindingDetails struct {
 
 // Credentials encapsulates MySQL-specific coonection details and credentials.
 type Credentials struct {
-	Host     string `json:"host"`
-	Port     int    `json:"port"`
-	Database string `json:"database"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Host        string   `json:"host"`
+	Port        int      `json:"port"`
+	Database    string   `json:"database"`
+	Username    string   `json:"username"`
+	Password    string   `json:"password"`
+	SSLRequired bool     `json:"sslRequired"`
+	URI         string   `json:"uri"`
+	Tags        []string `json:"tags"`
 }
