@@ -147,9 +147,7 @@ func (i Instance) decryptUpdatingParameters(
 	return i, json.Unmarshal(plaintext, i.UpdatingParameters)
 }
 
-func (i Instance) decryptSecureDetails(
-	codec crypto.Codec,
-) (Instance, error) {
+func (i Instance) decryptSecureDetails(codec crypto.Codec) (Instance, error) {
 	if len(i.EncryptedSecureDetails) == 0 ||
 		i.SecureDetails == nil {
 		return i, nil

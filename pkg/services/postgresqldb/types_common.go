@@ -10,7 +10,10 @@ type BindingParameters struct {
 
 type postgresqlBindingDetails struct {
 	LoginName string `json:"loginName"`
-	Password  string `json:"password"`
+}
+
+type postgresqlSecureBindingDetails struct {
+	Password string `json:"password"`
 }
 
 // Credentials encapsulates PostgreSQL-specific coonection details and

@@ -46,3 +46,9 @@ func (d *dbOnlyManager) GetEmptyBindingParameters() service.BindingParameters {
 func (d *dbOnlyManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &postgresqlBindingDetails{}
 }
+
+func (
+	d *dbOnlyManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &postgresqlSecureBindingDetails{}
+}

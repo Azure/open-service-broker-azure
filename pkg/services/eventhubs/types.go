@@ -27,6 +27,9 @@ type BindingParameters struct {
 type eventHubBindingDetails struct {
 }
 
+type eventHubSecureBindingDetails struct {
+}
+
 // Credentials encapsulates Event Hub-specific coonection details and
 // credentials.
 type Credentials struct {
@@ -64,4 +67,10 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &eventHubBindingDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &eventHubSecureBindingDetails{}
 }

@@ -35,6 +35,9 @@ type BindingParameters struct {
 type cosmosdbBindingDetails struct {
 }
 
+type cosmosdbSecureBindingDetails struct {
+}
+
 // Credentials encapsulates CosmosDB-specific connection details and
 // credentials. The attributes of this type cover all the attributes possibly
 // used by either of CosmosDBs two connections types-- MongoDB or DocumentDB.
@@ -79,4 +82,10 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &cosmosdbBindingDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &cosmosdbSecureBindingDetails{}
 }

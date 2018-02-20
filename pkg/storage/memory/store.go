@@ -154,7 +154,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	if !ok {
 		return service.Binding{}, false, nil
 	}
-	binding, err := service.NewBindingFromJSON(json, nil, nil, s.codec)
+	binding, err := service.NewBindingFromJSON(json, nil, nil, nil, s.codec)
 	if err != nil {
 		return binding, false, err
 	}
@@ -172,6 +172,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 		json,
 		serviceManager.GetEmptyBindingParameters(),
 		serviceManager.GetEmptyBindingDetails(),
+		serviceManager.GetEmptySecureBindingDetails(),
 		s.codec,
 	)
 	return binding, err == nil, err

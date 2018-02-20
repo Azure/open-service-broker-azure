@@ -18,10 +18,10 @@ func (d *dbOnlyManager) ValidateBindingParameters(
 func (d *dbOnlyManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyMysqlInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Parent.Details " +
 				"as *dbmsOnlyMysqlInstanceDetails",
 		)
@@ -29,14 +29,14 @@ func (d *dbOnlyManager) Bind(
 	spdt, ok :=
 		instance.Parent.SecureDetails.(*dbmsOnlyMysqlSecureInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Parent.SecureDetails " +
 				"as *dbmsOnlyMysqlSecureInstanceDetails",
 		)
 	}
 	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
 		)
 	}
@@ -46,19 +46,19 @@ func (d *dbOnlyManager) Bind(
 
 	db, err := d.getDBConnection(pdt, spdt, dt)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	// Open doesn't open a connection. Validate DSN data:
 	if err = db.Ping(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if _, err = db.Exec(
 		fmt.Sprintf("CREATE USER '%s'@'%%' IDENTIFIED BY '%s'", userName, password),
 	); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			`error creating user "%s": %s`,
 			userName,
 			err,
@@ -72,7 +72,7 @@ func (d *dbOnlyManager) Bind(
 			"EXECUTE, REFERENCES, EVENT, "+
 			"TRIGGER ON %s.* TO '%s'@'%%'",
 			dt.DatabaseName, userName)); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			`error granting permission to "%s": %s`,
 			userName,
 			err,
@@ -80,9 +80,12 @@ func (d *dbOnlyManager) Bind(
 	}
 
 	return &mysqlBindingDetails{
-		LoginName: userName,
-		Password:  password,
-	}, nil
+			LoginName: userName,
+		},
+		&mysqlSecureBindingDetails{
+			Password: password,
+		},
+		nil
 }
 
 func (d *dbOnlyManager) GetCredentials(
@@ -108,12 +111,18 @@ func (d *dbOnlyManager) GetCredentials(
 			"error casting binding.Details as *mysqlBindingDetails",
 		)
 	}
+	sbd, ok := binding.SecureDetails.(*mysqlSecureBindingDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting binding.SecureDetails as *mysqlSecureBindingDetails",
+		)
+	}
 
 	return &Credentials{
 		Host:     pdt.FullyQualifiedDomainName,
 		Port:     3306,
 		Database: dt.DatabaseName,
 		Username: fmt.Sprintf("%s@%s", bd.LoginName, pdt.ServerName),
-		Password: bd.Password,
+		Password: sbd.Password,
 	}, nil
 }

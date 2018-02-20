@@ -37,7 +37,7 @@ func bind(
 	administratorPassword string,
 	fqdn string,
 	databaseName string,
-) (service.BindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 
 	loginName := generate.NewIdentifier()
 	password := generate.NewPassword()
@@ -50,14 +50,14 @@ func bind(
 		"master",
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer masterDb.Close() // nolint: errcheck
 
 	if _, err = masterDb.Exec(
 		fmt.Sprintf("CREATE LOGIN \"%s\" WITH PASSWORD='%s'", loginName, password),
 	); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			`error creating login "%s": %s`,
 			loginName,
 			err,
@@ -72,13 +72,13 @@ func bind(
 		databaseName,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	tx, err := db.Begin()
 	if err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error starting transaction on the new database: %s",
 			err,
 		)
@@ -101,7 +101,7 @@ func bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("CREATE USER \"%s\" FOR LOGIN \"%s\"", loginName, loginName),
 	); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			`error creating user "%s": %s`,
 			loginName,
 			err,
@@ -110,38 +110,41 @@ func bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("GRANT CONTROL to \"%s\"", loginName),
 	); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			`error granting CONTROL to user "%s": %s`,
 			loginName,
 			err,
 		)
 	}
 	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error committing transaction on the new database: %s",
 			err,
 		)
 	}
 
 	return &mssqlBindingDetails{
-		LoginName: loginName,
-		Password:  password,
-	}, nil
+			LoginName: loginName,
+		},
+		&mssqlSecureBindingDetails{
+			Password: password,
+		},
+		nil
 }
 
 func (a *allInOneManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
 		)
 	}
 	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.SecureDetails as " +
 				"*mssqlAllInOneSecureInstanceDetails",
 		)
@@ -160,35 +163,35 @@ func (a *allInOneManager) Bind(
 func (v *vmOnlyManager) Bind(
 	_ service.Instance,
 	_ service.BindingParameters,
-) (service.BindingDetails, error) {
-	return nil, nil
+) (service.BindingDetails, service.SecureBindingDetails, error) {
+	return nil, nil, nil
 }
 
 func (d *dbOnlyManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 
 	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
 		)
 	}
 	//Parent should be set by the framework, but return an error if it is not set.
 	if instance.Parent == nil {
-		return nil, fmt.Errorf("parent instance not set")
+		return nil, nil, fmt.Errorf("parent instance not set")
 	}
 	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Parent.Details as " +
 				"*mssqlVMOnlyInstanceDetails",
 		)
 	}
 	spdt, ok := instance.Parent.SecureDetails.(*mssqlVMOnlySecureInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Parent.SecureDetails as " +
 				"*mssqlVMOnlySecureInstanceDetails",
 		)
@@ -217,12 +220,18 @@ func (a *allInOneManager) GetCredentials(
 			"error casting binding.Details as *mssqlBindingDetails",
 		)
 	}
+	sbd, ok := binding.SecureDetails.(*mssqlSecureBindingDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting binding.SecureDetails as *mssqlSecureBindingDetails",
+		)
+	}
 	return &Credentials{
 		Host:     dt.FullyQualifiedDomainName,
 		Port:     1433,
 		Database: dt.DatabaseName,
 		Username: bd.LoginName,
-		Password: bd.Password,
+		Password: sbd.Password,
 	}, nil
 }
 
@@ -249,11 +258,17 @@ func (d *dbOnlyManager) GetCredentials(
 			"error casting binding.Details as *mssqlBindingDetails",
 		)
 	}
+	sbd, ok := binding.SecureDetails.(*mssqlSecureBindingDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting binding.SecureDetails as *mssqlSecureBindingDetails",
+		)
+	}
 	return &Credentials{
 		Host:     dt.FullyQualifiedDomainName,
 		Port:     1433,
 		Database: dt.DatabaseName,
 		Username: bd.LoginName,
-		Password: bd.Password,
+		Password: sbd.Password,
 	}, nil
 }

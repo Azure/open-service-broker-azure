@@ -237,7 +237,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	if err != nil {
 		return service.Binding{}, false, err
 	}
-	binding, err := service.NewBindingFromJSON(bytes, nil, nil, s.codec)
+	binding, err := service.NewBindingFromJSON(bytes, nil, nil, nil, s.codec)
 	if err != nil {
 		return binding, false, err
 	}
@@ -255,6 +255,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 		bytes,
 		serviceManager.GetEmptyBindingParameters(),
 		serviceManager.GetEmptyBindingDetails(),
+		serviceManager.GetEmptySecureBindingDetails(),
 		s.codec,
 	)
 	return binding, err == nil, err

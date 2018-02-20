@@ -17,29 +17,29 @@ func (a *allInOneManager) ValidateBindingParameters(
 func (a *allInOneManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details " +
 				"as *allInOnePostgresqlInstanceDetails",
 		)
 	}
 	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.SecureDetails " +
 				"as *allInOnePostgresqlSecureInstanceDetails",
 		)
 	}
-	binding, err := createBinding(
+	bd, spd, err := createBinding(
 		dt.EnforceSSL,
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)
-	return binding, err
+	return bd, spd, err
 }
 
 func (a *allInOneManager) GetCredentials(
@@ -59,11 +59,17 @@ func (a *allInOneManager) GetCredentials(
 			"error casting binding.Details as *postgresqlBindingDetails",
 		)
 	}
+	sbd, ok := binding.SecureDetails.(*postgresqlSecureBindingDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting binding.SecureDetails as *postgresqlSecureBindingDetails",
+		)
+	}
 	return &Credentials{
 		Host:     dt.FullyQualifiedDomainName,
 		Port:     5432,
 		Database: dt.DatabaseName,
 		Username: fmt.Sprintf("%s@%s", bd.LoginName, dt.ServerName),
-		Password: bd.Password,
+		Password: sbd.Password,
 	}, nil
 }

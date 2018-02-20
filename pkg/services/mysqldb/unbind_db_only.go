@@ -8,7 +8,7 @@ import (
 
 func (d *dbOnlyManager) Unbind(
 	instance service.Instance,
-	bindingDetails service.BindingDetails,
+	binding service.Binding,
 ) error {
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyMysqlInstanceDetails)
 	if !ok {
@@ -29,10 +29,10 @@ func (d *dbOnlyManager) Unbind(
 			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
 		)
 	}
-	bc, ok := bindingDetails.(*mysqlBindingDetails)
+	bc, ok := binding.Details.(*mysqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingDetails as *mysqlBindingDetails",
+			"error casting binding.Details as *mysqlBindingDetails",
 		)
 	}
 

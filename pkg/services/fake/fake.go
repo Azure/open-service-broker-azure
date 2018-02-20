@@ -26,13 +26,13 @@ type BindingValidationFunction func(service.BindingParameters) error
 type BindFunction func(
 	service.Instance,
 	service.BindingParameters,
-) (service.BindingDetails, error)
+) (service.BindingDetails, service.SecureBindingDetails, error)
 
 // UnbindFunction describes a function used to provide pluggable unbinding
 // behavior to the fake implementation of the service.Module interface
 type UnbindFunction func(
 	service.Instance,
-	service.BindingDetails,
+	service.Binding,
 ) error
 
 // Module is a fake implementation of the service.Module interface used to
@@ -135,7 +135,7 @@ func (s *ServiceManager) ValidateBindingParameters(
 func (s *ServiceManager) Bind(
 	instance service.Instance,
 	bindingParameters service.BindingParameters,
-) (service.BindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 	return s.BindBehavior(instance, bindingParameters)
 }
 
@@ -151,9 +151,9 @@ func (s *ServiceManager) GetCredentials(
 // Unbind synchronously unbinds from a service
 func (s *ServiceManager) Unbind(
 	instance service.Instance,
-	bindingDetails service.BindingDetails,
+	binding service.Binding,
 ) error {
-	return s.UnbindBehavior(instance, bindingDetails)
+	return s.UnbindBehavior(instance, binding)
 }
 
 // GetDeprovisioner returns a deprovisioner that defines the steps a module
@@ -192,10 +192,13 @@ func defaultBindingValidationBehavior(service.BindingParameters) error {
 func defaultBindBehavior(
 	service.Instance,
 	service.BindingParameters,
-) (service.BindingDetails, error) {
-	return &BindingDetails{}, nil
+) (service.BindingDetails, service.SecureBindingDetails, error) {
+	return &BindingDetails{}, &SecureBindingDetails{}, nil
 }
 
-func defaultUnbindBehavior(service.Instance, service.BindingDetails) error {
+func defaultUnbindBehavior(
+	service.Instance,
+	service.Binding,
+) error {
 	return nil
 }
