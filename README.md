@@ -75,7 +75,7 @@ $ kubectl create -f contrib/k8s/examples/postgresqldb-instance.yaml
 After the `ServiceInstance` resource is submitted, you can view its status:
 
 ```console
-$ svcat get instance my-postgresql-instance
+$ svcat get instance my-postgresqldb-instance
 ```
 
 You'll see output that includes a status indicating that asynchronous
