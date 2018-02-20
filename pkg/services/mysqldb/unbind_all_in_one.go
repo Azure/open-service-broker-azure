@@ -30,28 +30,13 @@ func (a *allInOneManager) Unbind(
 		)
 	}
 
-	db, err := a.getDBConnection(dt, sdt)
-	if err != nil {
-		return err
-	}
-	defer db.Close() // nolint: errcheck
-
-	// Open doesn't open a connection. Validate DSN data:
-	err = db.Ping()
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(
-		fmt.Sprintf("DROP USER '%s'@'%%'", bc.LoginName),
+	return unbind(
+		dt.EnforceSSL,
+		a.sqlDatabaseDNSSuffix,
+		dt.ServerName,
+		sdt.AdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+		bc,
 	)
-	if err != nil {
-		return fmt.Errorf(
-			`error dropping user "%s": %s`,
-			bc.LoginName,
-			err,
-		)
-	}
-
-	return nil
 }

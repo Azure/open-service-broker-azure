@@ -65,11 +65,13 @@ func (a *allInOneManager) GetCredentials(
 			"error casting binding.SecureDetails as *postgresqlSecureBindingDetails",
 		)
 	}
-	return &Credentials{
-		Host:     dt.FullyQualifiedDomainName,
-		Port:     5432,
-		Database: dt.DatabaseName,
-		Username: fmt.Sprintf("%s@%s", bd.LoginName, dt.ServerName),
-		Password: sbd.Password,
-	}, nil
+	cred := createCredential(
+		dt.FullyQualifiedDomainName,
+		dt.EnforceSSL,
+		dt.ServerName,
+		dt.DatabaseName,
+		bd,
+		sbd,
+	)
+	return cred, nil
 }
