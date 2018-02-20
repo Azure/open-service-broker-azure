@@ -7,4 +7,4 @@ spec:
   clusterServiceClassExternalName: azure-sqldb-db-only
   clusterServicePlanExternalName: basic
   parameters:
-    parentAlias: vm-only-sqldb
+    parentAlias: dbms-only-sqldb

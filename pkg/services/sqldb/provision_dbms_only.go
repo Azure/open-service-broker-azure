@@ -10,7 +10,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (v *vmOnlyManager) ValidateProvisioningParameters(
+func (d *dbmsOnlyManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*ServerProvisioningParams)
@@ -24,16 +24,16 @@ func (v *vmOnlyManager) ValidateProvisioningParameters(
 	return validateServerProvisionParameters(pp)
 }
 
-func (v *vmOnlyManager) GetProvisioner(
+func (d *dbmsOnlyManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", v.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", v.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", d.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", d.deployARMTemplate),
 	)
 }
 
-func (v *vmOnlyManager) preProvision(
+func (d *dbmsOnlyManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
@@ -55,7 +55,7 @@ func (v *vmOnlyManager) preProvision(
 	sdt.AdministratorLoginPassword = generate.NewPassword()
 	return dt, sdt, nil
 }
-func (v *vmOnlyManager) deployARMTemplate(
+func (d *dbmsOnlyManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
@@ -94,7 +94,7 @@ func (v *vmOnlyManager) deployARMTemplate(
 		p["firewallEndIpAddress"] = pp.FirewallIPEnd
 	}
 	// new server scenario
-	outputs, err := v.armDeployer.Deploy(
+	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,

@@ -7,19 +7,19 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (v *vmOnlyManager) GetDeprovisioner(
+func (d *dbmsOnlyManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep("deleteARMDeployment", v.deleteARMDeployment),
+		service.NewDeprovisioningStep("deleteARMDeployment", d.deleteARMDeployment),
 		service.NewDeprovisioningStep(
 			"deleteMsSQLServer",
-			v.deleteMsSQLServer,
+			d.deleteMsSQLServer,
 		),
 	)
 }
 
-func (v *vmOnlyManager) deleteARMDeployment(
+func (d *dbmsOnlyManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
@@ -29,7 +29,7 @@ func (v *vmOnlyManager) deleteARMDeployment(
 			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
 		)
 	}
-	err := v.armDeployer.Delete(
+	err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	)
@@ -39,7 +39,7 @@ func (v *vmOnlyManager) deleteARMDeployment(
 	return dt, instance.SecureDetails, nil
 }
 
-func (v *vmOnlyManager) deleteMsSQLServer(
+func (d *dbmsOnlyManager) deleteMsSQLServer(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
@@ -51,7 +51,7 @@ func (v *vmOnlyManager) deleteMsSQLServer(
 			"error casting instance.Details as *mssqlInstanceDetails",
 		)
 	}
-	result, err := v.serversClient.Delete(
+	result, err := d.serversClient.Delete(
 		ctx,
 		instance.ResourceGroup,
 		dt.ServerName,
@@ -59,7 +59,7 @@ func (v *vmOnlyManager) deleteMsSQLServer(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, v.serversClient.Client); err != nil {
+	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return dt, instance.SecureDetails, nil

@@ -9,7 +9,7 @@ import (
 
 type module struct {
 	allInOneServiceManager *allInOneManager
-	vmOnlyServiceManager   *vmOnlyManager
+	dbmsOnlyManager        *dbmsOnlyManager
 	dbOnlyServiceManager   *dbOnlyManager
 }
 
@@ -19,7 +19,7 @@ type allInOneManager struct {
 	databasesClient sqlSDK.DatabasesClient
 }
 
-type vmOnlyManager struct {
+type dbmsOnlyManager struct {
 	armDeployer   arm.Deployer
 	serversClient sqlSDK.ServersClient
 }
@@ -45,7 +45,7 @@ func New(
 			serversClient:   serversClient,
 			databasesClient: databasesClient,
 		},
-		vmOnlyServiceManager: &vmOnlyManager{
+		dbmsOnlyManager: &dbmsOnlyManager{
 			armDeployer:   armDeployer,
 			serversClient: serversClient,
 		},

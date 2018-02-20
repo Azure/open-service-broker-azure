@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (v *vmOnlyManager) ValidateBindingParameters(
+func (d *dbmsOnlyManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
 ) error {
 	// There are no parameters for binding to MSSQL, so there is nothing
@@ -16,14 +16,14 @@ func (v *vmOnlyManager) ValidateBindingParameters(
 
 //Bind is not valid for VM only,
 //TBD behavior
-func (v *vmOnlyManager) Bind(
+func (d *dbmsOnlyManager) Bind(
 	_ service.Instance,
 	_ service.BindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	return nil, nil, fmt.Errorf("service is not bindable")
 }
 
-func (v *vmOnlyManager) GetCredentials(
+func (d *dbmsOnlyManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {

@@ -106,7 +106,7 @@ func (a *allInOneManager) deployARMTemplate(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
-		armTemplateNewServerBytes,
+		armTemplateDBMSOnlyBytes,
 		nil, // Go template params
 		p,
 		instance.Tags,

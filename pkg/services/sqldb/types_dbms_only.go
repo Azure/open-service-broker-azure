@@ -12,41 +12,41 @@ type mssqlVMOnlySecureInstanceDetails struct {
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ServerProvisioningParams{}
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &mssqlVMOnlyInstanceDetails{}
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
 	return &mssqlVMOnlySecureInstanceDetails{}
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
 }
 
-func (v *vmOnlyManager) GetEmptyBindingDetails() service.BindingDetails {
+func (d *dbmsOnlyManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &mssqlBindingDetails{}
 }
 
 func (
-	v *vmOnlyManager,
+	d *dbmsOnlyManager,
 ) GetEmptySecureBindingDetails() service.SecureBindingDetails {
 	return &mssqlSecureBindingDetails{}
 }

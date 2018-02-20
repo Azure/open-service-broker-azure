@@ -2,6 +2,7 @@ package sqldb
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -106,4 +107,47 @@ func bind(
 			Password: password,
 		},
 		nil
+}
+
+func createCredential(
+	fqdn string,
+	database string,
+	username string,
+	password string,
+) *Credentials {
+
+	port := 1433
+
+	jdbcTemplate := "jdbc:sqlserver://%s:%d;database=%s;user=%s;" +
+		"password=%s;encrypt=true;trustServerCertificate=true;"
+
+	jdbc := fmt.Sprintf(
+		jdbcTemplate,
+		fqdn,
+		port,
+		database,
+		username,
+		password,
+	)
+
+	uriTemplate :=
+		"sqlserver://%s:%s@%s:%d/%s;encrypt=true;trustServerCertificate=true"
+
+	uri := fmt.Sprintf(
+		uriTemplate,
+		url.QueryEscape(username),
+		password,
+		fqdn,
+		port,
+		database,
+	)
+	return &Credentials{
+		Host:     fqdn,
+		Port:     port,
+		Database: database,
+		Username: username,
+		Password: password,
+		JDBC:     jdbc,
+		URI:      uri,
+	}
 }

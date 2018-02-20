@@ -61,11 +61,11 @@ func (a *allInOneManager) GetCredentials(
 			"error casting binding.SecureDetails as *mssqlSecureBindingDetails",
 		)
 	}
-	return &Credentials{
-		Host:     dt.FullyQualifiedDomainName,
-		Port:     1433,
-		Database: dt.DatabaseName,
-		Username: bd.LoginName,
-		Password: sbd.Password,
-	}, nil
+	creds := createCredential(
+		dt.FullyQualifiedDomainName,
+		dt.DatabaseName,
+		bd.LoginName,
+		sbd.Password,
+	)
+	return creds, nil
 }

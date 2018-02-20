@@ -254,10 +254,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "a7454e0e-be2c-46ac-b55f-8c4278117525",
-				Name:        "azure-sqldb-vm-only",
-				Description: "Azure SQL Server VM (Experimental)",
+				Name:        "azure-sqldb-dbms-only",
+				Description: "Azure SQL Server DBMS (Experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName: "Azure SQL Server (VM Only)",
+					DisplayName: "Azure SQL Server (DBMS Only)",
 					ImageUrl: "https://azure.microsoft.com/svghandler/sql-database/" +
 						"?width=200",
 					LongDescription: "The intelligent relational cloud database service" +
@@ -266,17 +266,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable:       false,
-				Tags:           []string{"Azure", "SQL", "Server", "VM"},
+				Tags:           []string{"Azure", "SQL", "Server", "DBMS"},
 				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 			},
-			m.vmOnlyServiceManager,
+			m.dbmsOnlyManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
-				Name:        "sqldb-vm-only",
-				Description: "Azure SQL Server VM Only",
+				Name:        "sqldb-dbms-only",
+				Description: "Azure SQL Server DBMS Only",
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Azure SQL Server (VM Only)",
+					DisplayName: "Azure SQL Server (DBMS Only)",
 				},
 			}),
 		),
