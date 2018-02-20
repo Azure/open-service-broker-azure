@@ -1,7 +1,7 @@
 version: "3.2"
 services:
   dev: # 
-    image: quay.io/deis/lightweight-docker-go:v0.1.0
+    image: quay.io/deis/lightweight-docker-go:v0.2.0
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     environment:
       CGO_ENABLED: 0
@@ -9,7 +9,7 @@ services:
     - .:/go/src/github.com/Azure/open-service-broker-azure
     network_mode: host
   test: # Like dev, but linked to redis
-    image: quay.io/deis/lightweight-docker-go:v0.1.0
+    image: quay.io/deis/lightweight-docker-go:v0.2.0
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
@@ -22,7 +22,7 @@ services:
     links:
     - test-api-compliance-broker:broker
   test-api-compliance-broker:
-    image: quay.io/deis/lightweight-docker-go:v0.1.0
+    image: quay.io/deis/lightweight-docker-go:v0.2.0
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
