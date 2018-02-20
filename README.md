@@ -75,7 +75,7 @@ $ kubectl create -f contrib/k8s/examples/postgresqldb-instance.yaml
 After the `ServiceInstance` resource is submitted, you can view its status:
 
 ```console
-$ svcat get instance my-postgresql-instance
+$ svcat get instance my-postgresqldb-instance
 ```
 
 You'll see output that includes a status indicating that asynchronous
@@ -133,7 +133,7 @@ $ kubectl delete serviceinstance my-postgresqldb-instance
 You can observe the status to see that asynchronous deprovisioning is ongoing:
 
 ```console
-$ svcat get instance my-postgresql-instance
+$ svcat get instance my-postgresqldb-instance
 ```
 
 ## Getting Started on Cloud Foundry
