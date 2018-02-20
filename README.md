@@ -133,7 +133,7 @@ $ kubectl delete serviceinstance my-postgresqldb-instance
 You can observe the status to see that asynchronous deprovisioning is ongoing:
 
 ```console
-$ svcat get instance my-postgresql-instance
+$ svcat get instance my-postgresqldb-instance
 ```
 
 ## Getting Started on Cloud Foundry
