@@ -44,6 +44,7 @@ type Credentials struct {
 	URI      string   `json:"uri"`
 	Tags     []string `json:"tags"`
 	JDBC     string   `json:"jdbcUrl"`
+	Encrypt  bool     `json:"encrypt"`
 }
 
 // ServerConfig represents all configuration details needed for connecting to

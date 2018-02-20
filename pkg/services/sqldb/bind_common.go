@@ -149,5 +149,6 @@ func createCredential(
 		Password: password,
 		JDBC:     jdbc,
 		URI:      uri,
+		Encrypt:  true,
 	}
 }
