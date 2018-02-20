@@ -26,6 +26,9 @@ type BindingParameters struct {
 type redisBindingDetails struct {
 }
 
+type redisSecureBindingDetails struct {
+}
+
 // Credentials encapsulates Redis-specific coonection details and credentials.
 type Credentials struct {
 	Host     string `json:"host"`
@@ -63,4 +66,10 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &redisBindingDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &redisSecureBindingDetails{}
 }

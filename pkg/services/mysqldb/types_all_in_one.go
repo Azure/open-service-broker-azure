@@ -47,3 +47,9 @@ func (
 func (a *allInOneManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &mysqlBindingDetails{}
 }
+
+func (
+	a *allInOneManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &mysqlSecureBindingDetails{}
+}

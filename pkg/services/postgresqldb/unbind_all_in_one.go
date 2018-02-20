@@ -8,7 +8,7 @@ import (
 
 func (a *allInOneManager) Unbind(
 	instance service.Instance,
-	bindingDetails service.BindingDetails,
+	binding service.Binding,
 ) error {
 	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
 	if !ok {
@@ -24,10 +24,10 @@ func (a *allInOneManager) Unbind(
 				"as *allInOnePostgresqlSecureInstanceDetails",
 		)
 	}
-	bc, ok := bindingDetails.(*postgresqlBindingDetails)
+	bd, ok := binding.Details.(*postgresqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingDetails as *postgresqlBindingDetails",
+			"error casting binding.Details as *postgresqlBindingDetails",
 		)
 	}
 
@@ -36,6 +36,6 @@ func (a *allInOneManager) Unbind(
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
-		bc,
+		bd.LoginName,
 	)
 }

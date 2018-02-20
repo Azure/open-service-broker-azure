@@ -43,8 +43,12 @@ func (
 	return &BindingParameters{}
 }
 
+func (d *dbmsOnlyManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mysqlBindingDetails{}
+}
+
 func (
 	d *dbmsOnlyManager,
-) GetEmptyBindingDetails() service.BindingDetails {
-	return &mysqlBindingDetails{}
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &mysqlSecureBindingDetails{}
 }

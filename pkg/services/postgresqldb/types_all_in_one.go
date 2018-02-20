@@ -53,3 +53,9 @@ func (
 ) GetEmptyBindingDetails() service.BindingDetails {
 	return &postgresqlBindingDetails{}
 }
+
+func (
+	a *allInOneManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &postgresqlSecureBindingDetails{}
+}

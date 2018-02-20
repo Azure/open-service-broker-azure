@@ -17,8 +17,8 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	service.Instance,
 	service.BindingParameters,
-) (service.BindingDetails, error) {
-	return &eventHubBindingDetails{}, nil
+) (service.BindingDetails, service.SecureBindingDetails, error) {
+	return &eventHubBindingDetails{}, &eventHubSecureBindingDetails{}, nil
 }
 
 func (s *serviceManager) GetCredentials(

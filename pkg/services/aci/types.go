@@ -29,6 +29,9 @@ type BindingParameters struct {
 type aciBindingDetails struct {
 }
 
+type aciSecureBindingDetails struct {
+}
+
 type aciCredentials struct {
 	PublicIPv4Address string `json:"publicIPv4Address"`
 }
@@ -65,4 +68,10 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &aciBindingDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &aciSecureBindingDetails{}
 }

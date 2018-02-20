@@ -54,7 +54,10 @@ type BindingParameters struct {
 
 type mssqlBindingDetails struct {
 	LoginName string `json:"loginName"`
-	Password  string `json:"password"`
+}
+
+type mssqlSecureBindingDetails struct {
+	Password string `json:"password"`
 }
 
 // Credentials encapsulates MSSQL-specific coonection details and credentials.
@@ -171,20 +174,34 @@ func (
 	return &BindingParameters{}
 }
 
+func (a *allInOneManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
+}
+
 func (
 	a *allInOneManager,
-) GetEmptyBindingDetails() service.BindingDetails {
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &mssqlSecureBindingDetails{}
+}
+
+func (v *vmOnlyManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &mssqlBindingDetails{}
 }
 
 func (
 	v *vmOnlyManager,
-) GetEmptyBindingDetails() service.BindingDetails {
-	return &mssqlBindingDetails{}
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &mssqlSecureBindingDetails{}
 }
 
 func (
 	d *dbOnlyManager,
 ) GetEmptyBindingDetails() service.BindingDetails {
 	return &mssqlBindingDetails{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &mssqlSecureBindingDetails{}
 }

@@ -44,10 +44,16 @@ type UpdatingParameters interface{}
 type BindingParameters interface{}
 
 // BindingDetails is an interface to be implemented by service-specific types
-// that represent binding details. This interface doesn't require any functions
-// to be implemented. It exists to improve the clarity of function signatures
-// and documentation.
+// that represent non-sensitive binding details. This interface doesn't require
+// any functions to be implemented. It exists to improve the clarity of function
+// signatures and documentation.
 type BindingDetails interface{}
+
+// SecureBindingDetails is an interface to be implemented by service-specific
+// types that represent secure (sensitive) binding details. This interface
+// doesn't require any functions to be implemented. It exists to improve the
+// clarity of function signatures and documentation.
+type SecureBindingDetails interface{}
 
 // Credentials is an interface to be implemented by module-specific types
 // that represent service credentials. This interface doesn't require any

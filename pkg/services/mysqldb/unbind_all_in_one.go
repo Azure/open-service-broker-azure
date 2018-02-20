@@ -8,7 +8,7 @@ import (
 
 func (a *allInOneManager) Unbind(
 	instance service.Instance,
-	bindingDetails service.BindingDetails,
+	binding service.Binding,
 ) error {
 	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
 	if !ok {
@@ -23,10 +23,10 @@ func (a *allInOneManager) Unbind(
 				"*allInOneMysqlSecureInstanceDetails",
 		)
 	}
-	bc, ok := bindingDetails.(*mysqlBindingDetails)
+	bc, ok := binding.Details.(*mysqlBindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting bindingDetails as *mysqlBindingDetails",
+			"error casting binding.Details as *mysqlBindingDetails",
 		)
 	}
 

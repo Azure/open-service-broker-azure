@@ -15,7 +15,7 @@ func createBinding(
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
 	databaseName string,
-) (service.BindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 	roleName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
@@ -27,13 +27,13 @@ func createBinding(
 		primaryDB,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	tx, err := db.Begin()
 	if err != nil {
-		return nil, fmt.Errorf("error starting transaction: %s", err)
+		return nil, nil, fmt.Errorf("error starting transaction: %s", err)
 	}
 	defer func() {
 		if err != nil {
@@ -45,7 +45,7 @@ func createBinding(
 	if _, err = tx.Exec(
 		fmt.Sprintf("create role %s with password '%s' login", roleName, password),
 	); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			`error creating role "%s": %s`,
 			roleName,
 			err,
@@ -54,7 +54,7 @@ func createBinding(
 	if _, err = tx.Exec(
 		fmt.Sprintf("grant %s to %s", databaseName, roleName),
 	); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			`error adding role "%s" to role "%s": %s`,
 			databaseName,
 			roleName,
@@ -64,7 +64,7 @@ func createBinding(
 	if _, err = tx.Exec(
 		fmt.Sprintf("alter role %s set role %s", roleName, databaseName),
 	); err != nil {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			`error making "%s" the default role for "%s" sessions: %s`,
 			databaseName,
 			roleName,
@@ -72,11 +72,14 @@ func createBinding(
 		)
 	}
 	if err = tx.Commit(); err != nil {
-		return nil, fmt.Errorf("error committing transaction: %s", err)
+		return nil, nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
 	return &postgresqlBindingDetails{
-		LoginName: roleName,
-		Password:  password,
-	}, nil
+			LoginName: roleName,
+		},
+		&postgresqlSecureBindingDetails{
+			Password: password,
+		},
+		nil
 }

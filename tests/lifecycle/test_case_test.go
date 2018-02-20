@@ -150,12 +150,15 @@ func (s serviceLifecycleTestCase) execute(
 	//Only test the binding operations if the service is bindable
 	if svc.IsBindable() {
 		// Bind
-		bd, bErr := serviceManager.Bind(instance, s.bindingParameters)
+		bd, sbd, bErr := serviceManager.Bind(instance, s.bindingParameters)
 		if bErr != nil {
 			return bErr
 		}
 
-		binding := service.Binding{Details: bd}
+		binding := service.Binding{
+			Details:       bd,
+			SecureDetails: sbd,
+		}
 
 		credentials, bErr := serviceManager.GetCredentials(instance, binding)
 		if bErr != nil {
@@ -171,7 +174,7 @@ func (s serviceLifecycleTestCase) execute(
 		}
 
 		// Unbind
-		bErr = serviceManager.Unbind(instance, bd)
+		bErr = serviceManager.Unbind(instance, binding)
 		if bErr != nil {
 			return bErr
 		}

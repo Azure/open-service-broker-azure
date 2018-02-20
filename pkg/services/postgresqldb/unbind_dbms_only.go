@@ -8,7 +8,7 @@ import (
 
 func (a *dbmsOnlyManager) Unbind(
 	instance service.Instance,
-	bindingDetails service.BindingDetails,
+	binding service.Binding,
 ) error {
 	return fmt.Errorf("service is not bindable")
 }

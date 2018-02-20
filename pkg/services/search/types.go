@@ -26,6 +26,9 @@ type BindingParameters struct {
 type searchBindingDetails struct {
 }
 
+type searchSecureBindingDetails struct {
+}
+
 type searchCredentials struct {
 	ServiceName string `json:"serviceName"`
 	APIKey      string `json:"apiKey"`
@@ -61,4 +64,10 @@ func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &searchBindingDetails{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &searchSecureBindingDetails{}
 }

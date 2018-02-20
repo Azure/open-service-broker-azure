@@ -17,8 +17,8 @@ func (s *serviceManager) ValidateBindingParameters(
 func (s *serviceManager) Bind(
 	service.Instance,
 	service.BindingParameters,
-) (service.BindingDetails, error) {
-	return &cosmosdbBindingDetails{}, nil
+) (service.BindingDetails, service.SecureBindingDetails, error) {
+	return &cosmosdbBindingDetails{}, &cosmosdbSecureBindingDetails{}, nil
 }
 
 func (s *serviceManager) GetCredentials(

@@ -17,10 +17,10 @@ func (d *dbOnlyManager) ValidateBindingParameters(
 func (d *dbOnlyManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-) (service.BindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Parent.Details " +
 				"as *dbmsOnlyPostgresqlInstanceDetails",
 		)
@@ -28,7 +28,7 @@ func (d *dbOnlyManager) Bind(
 	spdt, ok :=
 		instance.Parent.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Parent.SecureDetails " +
 				"as *dbmsOnlyPostgresqlSecureInstanceDetails",
 		)
@@ -36,20 +36,20 @@ func (d *dbOnlyManager) Bind(
 
 	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
 	if !ok {
-		return nil, fmt.Errorf(
+		return nil, nil, fmt.Errorf(
 			"error casting instance.Details " +
 				"as *dbOnlyPostgresqlInstanceDetails",
 		)
 	}
 
-	binding, err := createBinding(
+	bd, spd, err := createBinding(
 		pdt.EnforceSSL,
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)
-	return binding, err
+	return bd, spd, err
 }
 
 func (d *dbOnlyManager) GetCredentials(
@@ -77,11 +77,17 @@ func (d *dbOnlyManager) GetCredentials(
 			"error casting binding.Details as *postgresqlBindingDetails",
 		)
 	}
+	sbd, ok := binding.SecureDetails.(*postgresqlSecureBindingDetails)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error casting binding.SecureDetails as *postgresqlSecureBindingDetails",
+		)
+	}
 	return &Credentials{
 		Host:     pdt.FullyQualifiedDomainName,
 		Port:     5432,
 		Database: dt.DatabaseName,
 		Username: fmt.Sprintf("%s@%s", bd.LoginName, pdt.ServerName),
-		Password: bd.Password,
+		Password: sbd.Password,
 	}, nil
 }
