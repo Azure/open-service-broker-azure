@@ -176,7 +176,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
 
 1. Create a Minikube Cluster:
     ```console
-    minikube start --kubernetes-version=v1.9.2 --bootstrapper=kubeadm
+    minikube start --kubernetes-version=v1.9.3 --bootstrapper=kubeadm
     ```
 
 ### Configure the cluster with Open Service Broker for Azure
