@@ -1,0 +1,57 @@
+package sqldb
+
+import "github.com/Azure/open-service-broker-azure/pkg/service"
+
+// DBProvisioningParams encapsulates MSSQL-specific provisioning options
+type DBProvisioningParams struct {
+}
+
+type mssqlAllInOneInstanceDetails struct {
+	ARMDeploymentName string `json:"armDeployment"`
+	serverInstanceDetails
+	DatabaseName string `json:"database"`
+}
+
+type mssqlAllInOneSecureInstanceDetails struct {
+	AdministratorLoginPassword string `json:"administratorLoginPassword"`
+}
+
+func (
+	a *allInOneManager,
+) GetEmptyProvisioningParameters() service.ProvisioningParameters {
+	return &ServerProvisioningParams{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptyUpdatingParameters() service.UpdatingParameters {
+	return &UpdatingParameters{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &mssqlAllInOneInstanceDetails{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
+	return &mssqlAllInOneSecureInstanceDetails{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptyBindingParameters() service.BindingParameters {
+	return &BindingParameters{}
+}
+
+func (a *allInOneManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &mssqlBindingDetails{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptySecureBindingDetails() service.SecureBindingDetails {
+	return &mssqlSecureBindingDetails{}
+}

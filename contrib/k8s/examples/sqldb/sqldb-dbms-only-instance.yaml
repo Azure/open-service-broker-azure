@@ -1,14 +1,14 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: vm-only-sqldb-instance
+  name: dbms-only-sqldb-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sqldb-vm-only
-  clusterServicePlanExternalName: sqldb-vm-only
+  clusterServiceClassExternalName: azure-sqldb-dbms-only
+  clusterServicePlanExternalName: sqldb-dbms-only
   parameters:
     location: eastus
     resourceGroup: demo
-    alias: vm-only-sqldb
+    alias: dbms-only-sqldb
     firewallStartIPAddress: "0.0.0.0"
     firewallEndIPAddress: "255.255.255.255"
