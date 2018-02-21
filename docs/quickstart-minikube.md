@@ -30,7 +30,7 @@ save the connection information in Kubernetes secrets, and then bind them to our
 
 ### Install Minikube
 
-[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer.
+[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer. For this quickstart guide, you'll want to install Minikube v0.25.
 
 #### MacOS
 
@@ -174,9 +174,9 @@ resources on your account on behalf of Kubernetes.
 
 Next we will create a local cluster using Minikube. You can also [try OSBA on the Azure Container Service (AKS)](quickstart-aks.md).
 
-1. Create an RBAC enabled cluster:
+1. Create a Minikube Cluster:
     ```console
-    minikube start --extra-config=apiserver.Authorization.Mode=RBAC
+    minikube start --bootstrapper=kubeadm
     ```
 
 ### Configure the cluster with Open Service Broker for Azure
@@ -191,6 +191,16 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
     ```console
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
     helm install svc-cat/catalog --name catalog --namespace catalog
+    ```
+1. Check the status of Service Catalog:
+    Run the following command and checking that every pod is in the `Running` state.
+    You may need to wait a few minutes, rerunning the command until all of the
+    resources are ready. 
+    ```console
+    $ kubectl get pods --namespace catalog
+    NAME                                                     READY     STATUS    RESTARTS   AGE
+    po/catalog-catalog-apiserver-5999465555-9hgwm            2/2       Running   4          9d
+    po/catalog-catalog-controller-manager-554c758786-f8qvc   1/1       Running   11         9d
     ```
 1. Deploy Open Service Broker for Azure on the cluster:
 
@@ -214,16 +224,11 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
       --set azure.clientSecret=$env:AZURE_CLIENT_SECRET
     ```
 
-1. Check on the status of everything that we have installed by running the
+1. Check on the status of Open Service Broker for Azure by running the
     following command and checking that every pod is in the `Running` state.
     You may need to wait a few minutes, rerunning the command until all of the
     resources are ready.
     ```console
-    $ kubectl get pods --namespace catalog
-    NAME                                                     READY     STATUS    RESTARTS   AGE
-    po/catalog-catalog-apiserver-5999465555-9hgwm            2/2       Running   4          9d
-    po/catalog-catalog-controller-manager-554c758786-f8qvc   1/1       Running   11         9d
-
     $ kubectl get pods --namespace osba
     NAME                                           READY     STATUS    RESTARTS   AGE
     po/osba-azure-service-broker-8495bff484-7ggj6   1/1       Running   0          9d
@@ -240,16 +245,6 @@ and binding it to our WordPress installation.
 
 ```console
 helm install azure/wordpress --name osba-quickstart --namespace osba-quickstart
-```
-
-Note: when installing the wordpress chart on some versions of Minikube, you
-may encounter issues due to [kubernetes/minikube#2256](https://github.com/kubernetes/minikube/issues/2256).
-If you're using
-[v0.24.1](https://github.com/kubernetes/minikube/releases/tag/v0.24.1), we recommend setting
-the `persistence.enabled` parameter to `false` using the following command.
-
-```console
-helm install azure/wordpress --name osba-quickstart --namespace osba-quickstart --set persistence.enabled=false
 ```
 
 Use the following command to tell when WordPress is ready:
