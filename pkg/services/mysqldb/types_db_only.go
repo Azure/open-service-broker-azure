@@ -2,9 +2,13 @@ package mysqldb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// DatabaseProvisioningParameters encapsulates MySQL-specific
+// DatabaseProvisioningParameters encapsulates non-sensitive MySQL-specific
 // database provisioning options
 type DatabaseProvisioningParameters struct{}
+
+// DatabaseSecureProvisioningParameters encapsulates sensitive MySQL-specific
+// database provisioning options
+type DatabaseSecureProvisioningParameters struct{}
 
 type dbOnlyMysqlInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
@@ -17,6 +21,12 @@ func (
 	d *dbOnlyManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &DatabaseProvisioningParameters{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &DatabaseSecureProvisioningParameters{}
 }
 
 func (

@@ -19,6 +19,7 @@ const (
 
 func (a *allInOneManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
+	_ service.SecureProvisioningParameters,
 ) error {
 	return validateServerProvisionParameters(provisioningParameters)
 }

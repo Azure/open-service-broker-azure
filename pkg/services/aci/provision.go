@@ -11,6 +11,7 @@ import (
 
 func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
+	_ service.SecureProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {

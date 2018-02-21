@@ -2,9 +2,17 @@ package postgresqldb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ServerProvisioningParameters encapsulates PostgreSQL-specific dbms
-// provisioning options
+// ServerProvisioningParameters encapsulates non-senstivie PostgreSQL-specific
+// dbms provisioning options
 type ServerProvisioningParameters struct {
+	SSLEnforcement  string `json:"sslEnforcement"`
+	FirewallIPStart string `json:"firewallStartIPAddress"`
+	FirewallIPEnd   string `json:"firewallEndIPAddress"`
+}
+
+// SecureServerProvisioningParameters encapsulates senstivie PostgreSQL-specific
+// dbms provisioning options
+type SecureServerProvisioningParameters struct {
 	SSLEnforcement  string `json:"sslEnforcement"`
 	FirewallIPStart string `json:"firewallStartIPAddress"`
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
@@ -25,6 +33,12 @@ func (
 	d *dbmsOnlyManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ServerProvisioningParameters{}
+}
+
+func (
+	d *dbmsOnlyManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureServerProvisioningParameters{}
 }
 
 func (

@@ -12,7 +12,8 @@ import (
 )
 
 func (s *serviceManager) ValidateProvisioningParameters(
-	provisioningParameters service.ProvisioningParameters,
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
 ) error {
 	// No validation needed
 	return nil

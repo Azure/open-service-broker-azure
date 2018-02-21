@@ -21,6 +21,12 @@ func (
 
 func (
 	d *dbmsOnlyManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureServerProvisioningParameters{}
+}
+
+func (
+	d *dbmsOnlyManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }

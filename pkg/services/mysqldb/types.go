@@ -1,12 +1,16 @@
 package mysqldb
 
-// ServerProvisioningParameters encapsulates MySQL-specific
+// ServerProvisioningParameters encapsulates non-sensitive MySQL-specific
 // server provisioning options
 type ServerProvisioningParameters struct {
 	SSLEnforcement  string `json:"sslEnforcement"`
 	FirewallIPStart string `json:"firewallStartIPAddress"`
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
+
+// SecureServerProvisioningParameters encapsulates sensitive MySQL-specific
+// server provisioning options
+type SecureServerProvisioningParameters struct{}
 
 // UpdatingParameters encapsulates MySQL-specific updating options
 type UpdatingParameters struct {

@@ -13,6 +13,7 @@ import (
 
 func (d *dbmsOnlyManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
+	_ service.SecureProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*ServerProvisioningParameters)
 	if !ok {

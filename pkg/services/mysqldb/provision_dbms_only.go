@@ -14,6 +14,7 @@ import (
 
 func (d *dbmsOnlyManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
+	_ service.SecureProvisioningParameters,
 ) error {
 	return validateServerProvisionParameters(provisioningParameters)
 }

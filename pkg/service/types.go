@@ -18,10 +18,16 @@ const (
 )
 
 // ProvisioningParameters is an interface to be implemented by module-specific
-// types that represent provisioning parameters. This interface doesn't require
-// any functions to be implemented. It exists to improve the clarity of function
-// signatures and documentation.
+// types that represent non-sensitive provisioning parameters. This interface
+// doesn't require any functions to be implemented. It exists to improve the
+// clarity of function signatures and documentation.
 type ProvisioningParameters interface{}
+
+// SecureProvisioningParameters is an interface to be implemented by
+// module-specific types that represent secure (sensitive) provisioning
+// parameters. This interface doesn't require any functions to be implemented.
+// It exists to improve the clarity of function signatures and documentation.
+type SecureProvisioningParameters interface{}
 
 // InstanceDetails is an interface to be implemented by service-specific
 // types that represent the non-sensitive details of a service instance.

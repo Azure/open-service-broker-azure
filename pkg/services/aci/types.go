@@ -2,13 +2,18 @@ package aci
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters encapsulates aci-specific provisioning options
+// ProvisioningParameters encapsulates non-sensitive aci-specific provisioning
+// options
 type ProvisioningParameters struct {
 	ImageName   string  `json:"image"`
 	NumberCores int     `json:"cpuCores"`
 	Memory      float64 `json:"memoryInGb"`
 	Ports       []int   `json:"ports"`
 }
+
+// SecureProvisioningParameters encapsulates sensitive aci-specific provisioning
+// options
+type SecureProvisioningParameters struct{}
 
 type aciInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
@@ -44,6 +49,12 @@ func (
 		Memory:      1.5,
 		Ports:       make([]int, 0),
 	}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureProvisioningParameters{}
 }
 
 func (
