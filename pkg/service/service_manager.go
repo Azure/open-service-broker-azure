@@ -33,9 +33,12 @@ type ServiceManager interface { // nolint: golint
 	// GetUpdater returns a updater that defines the steps a module must
 	// execute asynchronously to update a service.
 	GetUpdater(Plan) (Updater, error)
-	// GetEmptyBindingParameters returns an empty instance of module-specific
-	// bindingParameters
+	// GetEmptyBindingParameters returns an empty instance of non-sensitive
+	// service-specific binding parameters
 	GetEmptyBindingParameters() BindingParameters
+	// GetEmptySecureBindingParameters returns an empty instance of sensitive
+	// service-specific binding parameters
+	GetEmptySecureBindingParameters() SecureBindingParameters
 	// ValidateBindingParameters validates the provided bindingParameters and
 	// returns an error if there is any problem
 	ValidateBindingParameters(BindingParameters) error
@@ -43,6 +46,7 @@ type ServiceManager interface { // nolint: golint
 	Bind(
 		Instance,
 		BindingParameters,
+		SecureBindingParameters,
 	) (BindingDetails, SecureBindingDetails, error)
 	// GetEmptyBindingDetails returns an empty instance of service-specific
 	// non-sensitive binding details

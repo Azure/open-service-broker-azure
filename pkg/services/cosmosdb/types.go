@@ -33,8 +33,14 @@ type cosmosdbSecureInstanceDetails struct {
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates CosmosDB-specific binding options
+// BindingParameters encapsulates non-sensitive CosmosDB-specific binding
+// options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive CosmosDB-specific binding
+// options
+type SecureBindingParameters struct {
 }
 
 type cosmosdbBindingDetails struct {
@@ -89,6 +95,12 @@ func (
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {

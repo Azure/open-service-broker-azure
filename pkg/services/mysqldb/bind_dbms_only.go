@@ -17,6 +17,7 @@ func (d *dbmsOnlyManager) ValidateBindingParameters(
 func (d *dbmsOnlyManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
+	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	return nil, nil, fmt.Errorf("service is not bindable")
 }

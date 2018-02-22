@@ -128,6 +128,32 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Then the secure params
+	secureBindingParameters := serviceManager.GetEmptySecureBindingParameters()
+	decoderConfig = &mapstructure.DecoderConfig{
+		TagName: "json",
+		Result:  secureBindingParameters,
+	}
+	decoder, err = mapstructure.NewDecoder(decoderConfig)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"error building parameter map decoder",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+	err = decoder.Decode(bindingRequest.Parameters)
+	if err != nil {
+		log.WithFields(logFields).Debug(
+			"bad binding request: error decoding parameter map",
+		)
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
+		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+		return
+	}
+
 	binding, ok, err := s.store.GetBinding(bindingID)
 	if err != nil {
 		logFields["error"] = err
@@ -158,6 +184,9 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		if reflect.DeepEqual(
 			bindingParameters,
 			binding.BindingParameters,
+		) && reflect.DeepEqual(
+			secureBindingParameters,
+			binding.SecureBindingParameters,
 		) {
 			// Per the spec, if bound, respond with a 200
 			// Filling in a gap in the spec-- if the status is anything else, we'll
@@ -236,6 +265,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	bindingDetails, secureBindingDetails, err := serviceManager.Bind(
 		instance,
 		bindingParameters,
+		secureBindingParameters,
 	)
 	if err != nil {
 		s.handleBindingError(

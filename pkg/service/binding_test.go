@@ -19,10 +19,14 @@ func init() {
 	bindingID := "test-binding-id"
 	instanceID := "test-instance-id"
 	serviceID := "test-service-id"
-	encryptedBindingParameters := []byte(`{"foo":"bar"}`)
 	bindingParameters := &ArbitraryType{
 		Foo: "bar",
 	}
+	bindingParametersJSONStr := []byte(`{"foo":"bar"}`)
+	secureBindingParameters := &ArbitraryType{
+		Foo: "bar",
+	}
+	encryptedSecureBindingParameters := []byte(`{"foo":"bar"}`)
 	statusReason := "in-progress"
 	bindingDetails := &ArbitraryType{
 		Foo: "bat",
@@ -38,21 +42,22 @@ func init() {
 	}
 
 	testBinding = Binding{
-		BindingID:                  bindingID,
-		InstanceID:                 instanceID,
-		ServiceID:                  serviceID,
-		EncryptedBindingParameters: encryptedBindingParameters,
-		BindingParameters:          bindingParameters,
-		Status:                     BindingStateBound,
-		StatusReason:               statusReason,
-		Details:                    bindingDetails,
-		EncryptedSecureDetails:     encryptedSecureBindingDetails,
-		SecureDetails:              secureBindingDetails,
-		Created:                    created,
+		BindingID:                        bindingID,
+		InstanceID:                       instanceID,
+		ServiceID:                        serviceID,
+		BindingParameters:                bindingParameters,
+		EncryptedSecureBindingParameters: encryptedSecureBindingParameters,
+		SecureBindingParameters:          secureBindingParameters,
+		Status:                           BindingStateBound,
+		StatusReason:                     statusReason,
+		Details:                          bindingDetails,
+		EncryptedSecureDetails:           encryptedSecureBindingDetails,
+		SecureDetails:                    secureBindingDetails,
+		Created:                          created,
 	}
 
-	b64EncryptedBindingParameters := base64.StdEncoding.EncodeToString(
-		encryptedBindingParameters,
+	b64EncryptedSecureBindingParameters := base64.StdEncoding.EncodeToString(
+		encryptedSecureBindingParameters,
 	)
 	b64EncryptedSecureBindingDetails := base64.StdEncoding.EncodeToString(
 		encryptedSecureBindingDetails,
@@ -63,7 +68,8 @@ func init() {
 			"bindingId":"%s",
 			"instanceId":"%s",
 			"serviceId":"%s",
-			"bindingParameters":"%s",
+			"bindingParameters":%s,
+			"secureBindingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
 			"details":%s,
@@ -73,7 +79,8 @@ func init() {
 		bindingID,
 		instanceID,
 		serviceID,
-		b64EncryptedBindingParameters,
+		bindingParametersJSONStr,
+		b64EncryptedSecureBindingParameters,
 		BindingStateBound,
 		statusReason,
 		bindingDetailsJSONStr,
@@ -92,6 +99,7 @@ func TestNewBindingFromJSON(t *testing.T) {
 		&ArbitraryType{},
 		&ArbitraryType{},
 		&ArbitraryType{},
+		&ArbitraryType{},
 		noopCodec,
 	)
 	assert.Nil(t, err)
@@ -104,17 +112,17 @@ func TestBindingToJSON(t *testing.T) {
 	assert.Equal(t, testBindingJSON, json)
 }
 
-func TestEncryptBindingParameters(t *testing.T) {
+func TestEncryptSecureBindingParameters(t *testing.T) {
 	binding := Binding{
-		BindingParameters: testArbitraryObject,
+		SecureBindingParameters: testArbitraryObject,
 	}
 	var err error
-	binding, err = binding.encryptBindingParameters(noopCodec)
+	binding, err = binding.encryptSecureBindingParameters(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		binding.EncryptedBindingParameters,
+		binding.EncryptedSecureBindingParameters,
 	)
 }
 
@@ -132,15 +140,15 @@ func TestEncryptSecureBindingDetails(t *testing.T) {
 	)
 }
 
-func TestDecryptBindingParameters(t *testing.T) {
+func TestDecryptSecureBindingParameters(t *testing.T) {
 	binding := Binding{
-		EncryptedBindingParameters: testArbitraryObjectJSON,
-		BindingParameters:          &ArbitraryType{},
+		EncryptedSecureBindingParameters: testArbitraryObjectJSON,
+		SecureBindingParameters:          &ArbitraryType{},
 	}
 	var err error
-	binding, err = binding.decryptBindingParameters(noopCodec)
+	binding, err = binding.decryptSecureBindingParameters(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, binding.BindingParameters)
+	assert.Equal(t, testArbitraryObject, binding.SecureBindingParameters)
 }
 
 func TestDecryptSecureBindingDetails(t *testing.T) {

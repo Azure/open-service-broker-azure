@@ -30,8 +30,14 @@ type keyvaultSecureInstanceDetails struct {
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates keyvault-specific binding options
+// BindingParameters encapsulates non-sensitive keyvault-specific binding
+// options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive keyvault-specific binding
+// options
+type SecureBindingParameters struct {
 }
 
 type keyvaultBindingDetails struct {
@@ -80,6 +86,12 @@ func (
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {

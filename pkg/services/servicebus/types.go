@@ -24,8 +24,14 @@ type serviceBusSecureInstanceDetails struct {
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates Service Bus specific binding options
+// BindingParameters encapsulates non-sensitive Service Bus specific binding
+// options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive Service Bus specific binding
+// options
+type SecureBindingParameters struct {
 }
 
 type serviceBusBindingDetails struct {
@@ -73,6 +79,12 @@ func (
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {

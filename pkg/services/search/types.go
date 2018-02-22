@@ -23,8 +23,14 @@ type searchSecureInstanceDetails struct {
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates Azure Search-specific binding options
+// BindingParameters encapsulates non-sensitive Azure Search-specific binding
+// options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive Azure Search-specific binding
+// options
+type SecureBindingParameters struct {
 }
 
 type searchBindingDetails struct {
@@ -70,6 +76,12 @@ func (
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {

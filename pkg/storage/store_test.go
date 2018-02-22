@@ -367,8 +367,6 @@ func TestGetExistingBinding(t *testing.T) {
 	json, err := binding.ToJSON(noopCodec)
 	assert.Nil(t, err)
 
-	fmt.Printf("----------> %#v\n", string(json))
-
 	statCmd := redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Retrieve the binding
@@ -377,7 +375,7 @@ func TestGetExistingBinding(t *testing.T) {
 	assert.True(t, ok)
 	assert.Nil(t, err)
 	// Blank out a few fields before we compare
-	retrievedBinding.EncryptedBindingParameters = nil
+	retrievedBinding.EncryptedSecureBindingParameters = nil
 	retrievedBinding.EncryptedSecureDetails = nil
 	assert.Equal(t, binding, retrievedBinding)
 }
@@ -444,13 +442,14 @@ func getTestInstance() service.Instance {
 
 func getTestBinding() service.Binding {
 	return service.Binding{
-		BindingID:         uuid.NewV4().String(),
-		InstanceID:        uuid.NewV4().String(),
-		ServiceID:         fake.ServiceID,
-		BindingParameters: fakeServiceManager.GetEmptyBindingParameters(),
-		Status:            service.BindingStateBound,
-		StatusReason:      "",
-		Details:           fakeServiceManager.GetEmptyBindingDetails(),
-		SecureDetails:     fakeServiceManager.GetEmptySecureBindingDetails(),
+		BindingID:               uuid.NewV4().String(),
+		InstanceID:              uuid.NewV4().String(),
+		ServiceID:               fake.ServiceID,
+		BindingParameters:       fakeServiceManager.GetEmptyBindingParameters(),
+		SecureBindingParameters: fakeServiceManager.GetEmptySecureBindingParameters(), // nolint: lll
+		Status:                  service.BindingStateBound,
+		StatusReason:            "",
+		Details:                 fakeServiceManager.GetEmptyBindingDetails(),
+		SecureDetails:           fakeServiceManager.GetEmptySecureBindingDetails(),
 	}
 }

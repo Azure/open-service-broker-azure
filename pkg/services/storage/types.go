@@ -32,8 +32,13 @@ type storageSecureInstanceDetails struct {
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates Storage-specific binding options
+// BindingParameters encapsulates non-sensitive Storage-specific binding options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive Storage-specific binding
+// options
+type SecureBindingParameters struct {
 }
 
 type storageBindingDetails struct {
@@ -81,6 +86,12 @@ func (
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {

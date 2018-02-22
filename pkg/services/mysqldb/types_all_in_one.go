@@ -50,6 +50,12 @@ func (
 	return &BindingParameters{}
 }
 
+func (
+	a *allInOneManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
+}
+
 func (a *allInOneManager) GetEmptyBindingDetails() service.BindingDetails {
 	return &mysqlBindingDetails{}
 }

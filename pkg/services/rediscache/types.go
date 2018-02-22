@@ -24,8 +24,12 @@ type redisSecureInstanceDetails struct {
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates Redis-specific binding options
+// BindingParameters encapsulates non-sensitive Redis-specific binding options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive Redis-specific binding options
+type SecureBindingParameters struct {
 }
 
 type redisBindingDetails struct {
@@ -73,6 +77,12 @@ func (
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {

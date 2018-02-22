@@ -25,8 +25,14 @@ type eventHubSecureInstanceDetails struct {
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates Azure Event Hub specific binding options
+// BindingParameters encapsulates non-sensitive Azure Event Hub specific binding
+// options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive Azure Event Hub specific
+// binding options
+type SecureBindingParameters struct {
 }
 
 type eventHubBindingDetails struct {
@@ -74,6 +80,12 @@ func (
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {

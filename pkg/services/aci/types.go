@@ -27,8 +27,12 @@ type aciSecureInstanceDetails struct{}
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates aci-specific binding options
+// BindingParameters encapsulates non-sensitive aci-specific binding options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive aci-specific binding options
+type SecureBindingParameters struct {
 }
 
 type aciBindingDetails struct {
@@ -75,6 +79,12 @@ func (
 
 func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
