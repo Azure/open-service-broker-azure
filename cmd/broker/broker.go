@@ -13,7 +13,9 @@ import (
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
 	"github.com/Azure/open-service-broker-azure/pkg/config"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
@@ -44,7 +46,7 @@ func main() {
 	log.WithField(
 		"logLevel",
 		strings.ToUpper(logLevel.String()),
-	).Info("setting log level")
+	).Info("Setting log level")
 	log.SetLevel(logLevel)
 
 	azureConfig, err := config.GetAzureConfig()
@@ -105,9 +107,23 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	codec, err := aes256.NewCodec([]byte(cryptoConfig.GetAES256Key()))
-	if err != nil {
-		log.Fatal(err)
+	var codec crypto.Codec
+	cryptoScheme := cryptoConfig.GetEncryptionScheme()
+	switch cryptoScheme {
+	case crypto.AES256:
+		codec, err = aes256.NewCodec([]byte(cryptoConfig.GetAES256Key()))
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.WithField(
+			"encryptionScheme",
+			cryptoScheme,
+		).Info("Sensitive instance and binding details will be encrypted")
+	case crypto.NOOP:
+		codec = noop.NewCodec()
+		log.Warn(
+			"ENCRYPTION IS DISABLED -- THIS IS NOT A SUITABLE OPTION FOR PRODUCTION",
+		)
 	}
 
 	// Assemble the filter chain
