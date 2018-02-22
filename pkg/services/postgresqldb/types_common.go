@@ -1,9 +1,5 @@
 package postgresqldb
 
-// UpdatingParameters encapsulates PostgreSQL-specific updating options
-type UpdatingParameters struct {
-}
-
 // BindingParameters encapsulates non-sensitive PostgreSQL-specific binding
 // options
 type BindingParameters struct {

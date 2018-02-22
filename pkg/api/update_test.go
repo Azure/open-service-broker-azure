@@ -166,7 +166,7 @@ func TestKickOffNewAsyncUpdating(t *testing.T) {
 	assert.Nil(t, err)
 	validationCalled := false
 	m.ServiceManager.UpdatingValidationBehavior =
-		func(service.UpdatingParameters) error {
+		func(service.Instance) error {
 			validationCalled = true
 			return nil
 		}

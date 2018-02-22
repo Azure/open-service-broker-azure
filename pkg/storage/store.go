@@ -102,6 +102,7 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 		nil,
 		nil,
 		nil,
+		nil,
 		s.codec,
 	)
 	if err != nil {
@@ -131,7 +132,8 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 		bytes,
 		serviceManager.GetEmptyProvisioningParameters(),
 		serviceManager.GetEmptySecureProvisioningParameters(),
-		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptySecureProvisioningParameters(),
 		serviceManager.GetEmptyInstanceDetails(),
 		serviceManager.GetEmptySecureInstanceDetails(),
 		s.codec,

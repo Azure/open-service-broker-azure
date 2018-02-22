@@ -20,10 +20,6 @@ type redisSecureInstanceDetails struct {
 	PrimaryKey string `json:"primaryKey"`
 }
 
-// UpdatingParameters encapsulates Redis-specific updating options
-type UpdatingParameters struct {
-}
-
 // BindingParameters encapsulates non-sensitive Redis-specific binding options
 type BindingParameters struct {
 }
@@ -55,12 +51,6 @@ func (
 	s *serviceManager,
 ) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
 	return &SecureProvisioningParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptyUpdatingParameters() service.UpdatingParameters {
-	return &UpdatingParameters{}
 }
 
 func (

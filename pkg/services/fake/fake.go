@@ -17,7 +17,7 @@ type ProvisioningValidationFunction func(
 // UpdatingValidationFunction describes a function used to provide pluggable
 // updating validation behavior to the fake implementation of the
 // service.Module interface
-type UpdatingValidationFunction func(service.UpdatingParameters) error
+type UpdatingValidationFunction func(service.Instance) error
 
 // BindingValidationFunction describes a function used to provide pluggable
 // binding validation behavior to the fake implementation of the service.Module
@@ -107,12 +107,12 @@ func (s *ServiceManager) provision(
 	return instance.Details, instance.SecureDetails, nil
 }
 
-// ValidateUpdatingParameters validates the provided updatingParameters
+// ValidateUpdatingParameters validates the provided updating parameters
 // and returns an error if there is any problem
 func (s *ServiceManager) ValidateUpdatingParameters(
-	updatingParameters service.UpdatingParameters,
+	instance service.Instance,
 ) error {
-	return s.UpdatingValidationBehavior(updatingParameters)
+	return s.UpdatingValidationBehavior(instance)
 }
 
 // GetUpdater returns a updater that defines the steps a module must
@@ -188,9 +188,7 @@ func defaultProvisioningValidationBehavior(
 	return nil
 }
 
-func defaultUpdatingValidationBehavior(
-	service.UpdatingParameters,
-) error {
+func defaultUpdatingValidationBehavior(service.Instance) error {
 	return nil
 }
 

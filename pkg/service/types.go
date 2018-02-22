@@ -37,12 +37,6 @@ type InstanceDetails interface{}
 // types that represent the secure (sensitive) details of a service instance.
 type SecureInstanceDetails interface{}
 
-// UpdatingParameters is an interface to be implemented by module-specific
-// types that represent updating parameters. This interface doesn't require
-// any functions to be implemented. It exists to improve the clarity of function
-// signatures and documentation.
-type UpdatingParameters interface{}
-
 // BindingParameters is an interface to be implemented by service-specific types
 // that represent non-sensitive binding parameters. This interface doesn't
 // require any functions to be implemented. It exists to improve the clarity of

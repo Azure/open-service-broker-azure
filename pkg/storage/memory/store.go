@@ -65,6 +65,7 @@ func (s *store) GetInstance(instanceID string) (
 		nil,
 		nil,
 		nil,
+		nil,
 		s.codec,
 	)
 	if err != nil {
@@ -94,7 +95,8 @@ func (s *store) GetInstance(instanceID string) (
 		json,
 		serviceManager.GetEmptyProvisioningParameters(),
 		serviceManager.GetEmptySecureProvisioningParameters(),
-		serviceManager.GetEmptyUpdatingParameters(),
+		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptySecureProvisioningParameters(),
 		serviceManager.GetEmptyInstanceDetails(),
 		serviceManager.GetEmptySecureInstanceDetails(),
 		s.codec,

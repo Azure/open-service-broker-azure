@@ -4,9 +4,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) ValidateUpdatingParameters(
-	updatingParameters service.UpdatingParameters,
-) error {
+func (s *serviceManager) ValidateUpdatingParameters(service.Instance) error {
 	return nil
 }
 
