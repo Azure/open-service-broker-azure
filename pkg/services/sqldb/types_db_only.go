@@ -57,6 +57,12 @@ func (
 
 func (
 	d *dbOnlyManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
+}
+
+func (
+	d *dbOnlyManager,
 ) GetEmptyBindingDetails() service.BindingDetails {
 	return &mssqlBindingDetails{}
 }

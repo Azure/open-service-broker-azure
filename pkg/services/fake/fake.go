@@ -142,6 +142,7 @@ func (s *ServiceManager) ValidateBindingParameters(
 func (s *ServiceManager) Bind(
 	instance service.Instance,
 	bindingParameters service.BindingParameters,
+	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	return s.BindBehavior(instance, bindingParameters)
 }

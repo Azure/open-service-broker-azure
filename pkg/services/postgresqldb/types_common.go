@@ -4,8 +4,14 @@ package postgresqldb
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates PostgreSQL-specific binding options
+// BindingParameters encapsulates non-sensitive PostgreSQL-specific binding
+// options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive PostgreSQL-specific binding
+// options
+type SecureBindingParameters struct {
 }
 
 type postgresqlBindingDetails struct {

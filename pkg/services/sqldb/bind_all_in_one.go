@@ -16,6 +16,7 @@ func (a *allInOneManager) ValidateBindingParameters(
 func (a *allInOneManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
+	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
 	if !ok {

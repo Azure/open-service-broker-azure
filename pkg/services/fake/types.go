@@ -43,13 +43,21 @@ type UpdatingParameters struct {
 	SomeParameter string `json:"someParameter"`
 }
 
-// BindingParameters represents parameters specific to binding to a service
-// instance using the fake service module. Note that, ordinarily,
+// BindingParameters represents non-sensitive parameters specific to binding to
+// a service instance using the fake service module. Note that, ordinarily,
 // service-specific types such as this do not need to be exported. An exception
 // is made here because the fake service module is used to facilitate testing of
 // the broker framework itself.
 type BindingParameters struct {
 	SomeParameter string `json:"someParameter"`
+}
+
+// SecureBindingParameters represents sensitive parameters specific to binding
+// to a service instance using the fake service module. Note that, ordinarily,
+// service-specific types such as this do not need to be exported. An exception
+// is made here because the fake service module is used to facilitate testing of
+// the broker framework itself.
+type SecureBindingParameters struct {
 }
 
 // BindingDetails represents details collected and modified over the course
@@ -121,10 +129,18 @@ func (
 	return &UpdatingParameters{}
 }
 
-// GetEmptyBindingParameters returns an empty instance of module-specific
-// bindingParameters
+// GetEmptyBindingParameters returns an empty instance of non-sensitive
+// service-specific binding parameters
 func (s *ServiceManager) GetEmptyBindingParameters() service.BindingParameters {
 	return &BindingParameters{}
+}
+
+// GetEmptySecureBindingParameters returns an empty instance of sensitive
+// service-specific binding parameters
+func (
+	s *ServiceManager,
+) GetEmptySecureBindingParameters() service.SecureBindingParameters {
+	return &SecureBindingParameters{}
 }
 
 // GetEmptyBindingDetails returns an empty instance of non-sensitive

@@ -29,6 +29,7 @@ type serviceLifecycleTestCase struct {
 	parentServiceInstance        *service.Instance
 	childTestCases               []*serviceLifecycleTestCase
 	bindingParameters            service.BindingParameters
+	secureBindingParameters      service.SecureBindingParameters
 	testCredentials              func(credentials service.Credentials) error
 }
 
@@ -155,7 +156,11 @@ func (s serviceLifecycleTestCase) execute(
 	//Only test the binding operations if the service is bindable
 	if svc.IsBindable() {
 		// Bind
-		bd, sbd, bErr := serviceManager.Bind(instance, s.bindingParameters)
+		bd, sbd, bErr := serviceManager.Bind(
+			instance,
+			s.bindingParameters,
+			s.secureBindingParameters,
+		)
 		if bErr != nil {
 			return bErr
 		}

@@ -43,11 +43,17 @@ type SecureInstanceDetails interface{}
 // signatures and documentation.
 type UpdatingParameters interface{}
 
-// BindingParameters is an interface to be implemented by module-specific types
-// that represent binding parameters. This interface doesn't require any
-// functions to be implemented. It exists to improve the clarity of function
-// signatures and documentation.
+// BindingParameters is an interface to be implemented by service-specific types
+// that represent non-sensitive binding parameters. This interface doesn't
+// require any functions to be implemented. It exists to improve the clarity of
+// function signatures and documentation.
 type BindingParameters interface{}
+
+// SecureBindingParameters is an interface to be implemented by service-specific
+// types that represent sensitive binding parameters. This interface doesn't
+// require any functions to be implemented. It exists to improve the clarity of
+// function signatures and documentation.
+type SecureBindingParameters interface{}
 
 // BindingDetails is an interface to be implemented by service-specific types
 // that represent non-sensitive binding details. This interface doesn't require

@@ -17,8 +17,9 @@ func (d *dbmsOnlyManager) ValidateBindingParameters(
 //Bind is not valid for VM only,
 //TBD behavior
 func (d *dbmsOnlyManager) Bind(
-	_ service.Instance,
-	_ service.BindingParameters,
+	service.Instance,
+	service.BindingParameters,
+	service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	return nil, nil, fmt.Errorf("service is not bindable")
 }

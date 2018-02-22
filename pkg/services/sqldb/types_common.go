@@ -21,8 +21,12 @@ type serverInstanceDetails struct {
 type UpdatingParameters struct {
 }
 
-// BindingParameters encapsulates MSSQL-specific binding options
+// BindingParameters encapsulates non-sensitive MSSQL-specific binding options
 type BindingParameters struct {
+}
+
+// SecureBindingParameters encapsulates sensitive MSSQL-specific binding options
+type SecureBindingParameters struct {
 }
 
 type mssqlBindingDetails struct {
