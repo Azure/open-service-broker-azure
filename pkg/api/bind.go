@@ -238,7 +238,10 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 
 	// If we get to here, we need to create a new binding.
 	// Start by carrying out service-specific request validation
-	err = serviceManager.ValidateBindingParameters(bindingRequest.Parameters)
+	err = serviceManager.ValidateBindingParameters(
+		bindingParameters,
+		secureBindingParameters,
+	)
 	if err != nil {
 		validationErr, ok := err.(*service.ValidationError)
 		if ok {
@@ -282,12 +285,13 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// Storing the serviceID on the binding gives us a shortcut to finding
 		// the service and therefore the serviceManager later on-- even if the
 		// binding somehow gets orphaned and we can no longer find the instance.
-		ServiceID:         instance.ServiceID,
-		BindingID:         bindingID,
-		BindingParameters: bindingParameters,
-		Details:           bindingDetails,
-		SecureDetails:     secureBindingDetails,
-		Created:           time.Now(),
+		ServiceID:               instance.ServiceID,
+		BindingID:               bindingID,
+		BindingParameters:       bindingParameters,
+		SecureBindingParameters: secureBindingParameters,
+		Details:                 bindingDetails,
+		SecureDetails:           secureBindingDetails,
+		Created:                 time.Now(),
 	}
 
 	binding.Status = service.BindingStateBound

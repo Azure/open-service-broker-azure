@@ -22,7 +22,10 @@ type UpdatingValidationFunction func(service.Instance) error
 // BindingValidationFunction describes a function used to provide pluggable
 // binding validation behavior to the fake implementation of the service.Module
 // interface
-type BindingValidationFunction func(service.BindingParameters) error
+type BindingValidationFunction func(
+	service.BindingParameters,
+	service.SecureBindingParameters,
+) error
 
 // BindFunction describes a function used to provide pluggable binding behavior
 // to the fake implementation of the service.Module interface
@@ -134,8 +137,9 @@ func (s *ServiceManager) update(
 // returns an error if there is any problem
 func (s *ServiceManager) ValidateBindingParameters(
 	bindingParameters service.BindingParameters,
+	secureBindingParameters service.SecureBindingParameters,
 ) error {
-	return s.BindingValidationBehavior(bindingParameters)
+	return s.BindingValidationBehavior(bindingParameters, secureBindingParameters)
 }
 
 // Bind synchronously binds to a service
@@ -192,7 +196,10 @@ func defaultUpdatingValidationBehavior(service.Instance) error {
 	return nil
 }
 
-func defaultBindingValidationBehavior(service.BindingParameters) error {
+func defaultBindingValidationBehavior(
+	service.BindingParameters,
+	service.SecureBindingParameters,
+) error {
 	return nil
 }
 

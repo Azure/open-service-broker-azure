@@ -7,7 +7,8 @@ import (
 )
 
 func (s *serviceManager) ValidateBindingParameters(
-	bindingParameters service.BindingParameters,
+	service.BindingParameters,
+	service.SecureBindingParameters,
 ) error {
 	// There are no parameters for binding to,
 	// so there is nothing to validate
