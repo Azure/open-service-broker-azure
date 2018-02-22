@@ -2,8 +2,13 @@ package eventhubs
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters encapsulates Azure Event Hub provisioning options
+// ProvisioningParameters encapsulates non-sensitive Azure Event Hub
+// provisioning options
 type ProvisioningParameters struct{}
+
+// SecureProvisioningParameters encapsulates sensitive Azure Event Hub
+// provisioning options
+type SecureProvisioningParameters struct{}
 
 type eventHubInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
@@ -41,6 +46,12 @@ func (
 	s *serviceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureProvisioningParameters{}
 }
 
 func (

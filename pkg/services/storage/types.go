@@ -10,8 +10,13 @@ const (
 	storageKindBlobContainer                 storageKind = "BlobContainer"
 )
 
-// ProvisioningParameters encapsulates Storage-specific provisioning options
+// ProvisioningParameters encapsulates non-sensitive Storage-specific
+// provisioning options
 type ProvisioningParameters struct{}
+
+// SecureProvisioningParameters encapsulates sensitive Storage-specific
+// provisioning options
+type SecureProvisioningParameters struct{}
 
 type storageInstanceDetails struct {
 	ARMDeploymentName  string `json:"armDeployment"`
@@ -48,6 +53,12 @@ func (
 	s *serviceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureProvisioningParameters{}
 }
 
 func (

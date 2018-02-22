@@ -12,6 +12,7 @@ import (
 
 func (d *dbOnlyManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
+	_ service.SecureProvisioningParameters,
 ) error {
 	return nil
 }

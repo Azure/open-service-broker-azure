@@ -2,14 +2,21 @@ package fake
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters represents parameters specific to provisioning a
-// service using the fake service module. Note that, ordinarily, service module-
-// specific types such as this do not need to be exported. An exception is made
-// here because the fake service module is used to facilitate testing of the
-// broker framework itself.
+// ProvisioningParameters represents non-sensitive parameters specific to
+// provisioning a service using the fake service module. Note that, ordinarily,
+// service module-specific types such as this do not need to be exported. An
+// exception is made here because the fake service module is used to facilitate
+// testing of the broker framework itself.
 type ProvisioningParameters struct {
 	SomeParameter string `json:"someParameter"`
 }
+
+// SecureProvisioningParameters represents sensitive parameters specific to
+// provisioning a service using the fake service module. Note that, ordinarily,
+// service module-specific types such as this do not need to be exported. An
+// exception is made here because the fake service module is used to facilitate
+// testing of the broker framework itself.
+type SecureProvisioningParameters struct{}
 
 // InstanceDetails represents details collected and modified over the course
 // of a fake service instance's provisioning and deprovisioning processes. Note
@@ -74,12 +81,20 @@ type SecureBindingDetails struct {
 type Credentials struct {
 }
 
-// GetEmptyProvisioningParameters returns an empty instance of module-specific
-// provisioningParameters
+// GetEmptyProvisioningParameters returns an empty instance of non-sensitive
+// service-specific provisioningParameters
 func (
 	s *ServiceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+// GetEmptySecureProvisioningParameters returns an empty instance of sensitive
+// service-specific provisioningParameters
+func (
+	s *ServiceManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureProvisioningParameters{}
 }
 
 // GetEmptyInstanceDetails returns an empty instance of non-sensitive

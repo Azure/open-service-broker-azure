@@ -12,7 +12,8 @@ import (
 
 //TODO: implement db only validation
 func (d *dbOnlyManager) ValidateProvisioningParameters(
-	_ service.ProvisioningParameters,
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
 ) error {
 	return nil
 }

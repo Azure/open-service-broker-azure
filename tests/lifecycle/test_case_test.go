@@ -19,16 +19,17 @@ import (
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
 type serviceLifecycleTestCase struct {
-	module                 service.Module
-	description            string
-	serviceID              string
-	planID                 string
-	location               string
-	provisioningParameters service.ProvisioningParameters
-	parentServiceInstance  *service.Instance
-	childTestCases         []*serviceLifecycleTestCase
-	bindingParameters      service.BindingParameters
-	testCredentials        func(credentials service.Credentials) error
+	module                       service.Module
+	description                  string
+	serviceID                    string
+	planID                       string
+	location                     string
+	provisioningParameters       service.ProvisioningParameters
+	secureProvisioningParameters service.SecureProvisioningParameters
+	parentServiceInstance        *service.Instance
+	childTestCases               []*serviceLifecycleTestCase
+	bindingParameters            service.BindingParameters
+	testCredentials              func(credentials service.Credentials) error
 }
 
 func (s serviceLifecycleTestCase) getName() string {
@@ -91,7 +92,10 @@ func (s serviceLifecycleTestCase) execute(
 
 	serviceManager := svc.GetServiceManager()
 
-	err = serviceManager.ValidateProvisioningParameters(s.provisioningParameters)
+	err = serviceManager.ValidateProvisioningParameters(
+		s.provisioningParameters,
+		s.secureProvisioningParameters,
+	)
 	if err != nil {
 		return err
 	}
@@ -105,11 +109,12 @@ func (s serviceLifecycleTestCase) execute(
 		Location:  s.location,
 		// Force the resource group to be something known to this test executor
 		// to ensure good cleanup
-		ResourceGroup:          resourceGroup,
-		Details:                serviceManager.GetEmptyInstanceDetails(),
-		SecureDetails:          serviceManager.GetEmptySecureInstanceDetails(),
-		ProvisioningParameters: s.provisioningParameters,
-		Parent:                 s.parentServiceInstance,
+		ResourceGroup:                resourceGroup,
+		Details:                      serviceManager.GetEmptyInstanceDetails(),
+		SecureDetails:                serviceManager.GetEmptySecureInstanceDetails(), // nolint: lll
+		ProvisioningParameters:       s.provisioningParameters,
+		SecureProvisioningParameters: s.secureProvisioningParameters,
+		Parent: s.parentServiceInstance,
 	}
 
 	// Provision...

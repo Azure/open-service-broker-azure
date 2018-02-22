@@ -2,12 +2,16 @@ package postgresqldb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// AllInOneProvisioningParameters encapsulates both dbms and database
+// AllInOneProvisioningParameters encapsulates non-sensitive dbms AND database
 // PostgreSQL-specific provisioning options
 type AllInOneProvisioningParameters struct {
 	ServerProvisioningParameters
 	DatabaseProvisioningParameters
 }
+
+// SecureAllInOneProvisioningParameters encapsulates sensitive dbms AND database
+// PostgreSQL-specific provisioning options
+type SecureAllInOneProvisioningParameters struct{}
 
 type allInOnePostgresqlInstanceDetails struct {
 	dbmsOnlyPostgresqlInstanceDetails
@@ -22,6 +26,12 @@ func (
 	a *allInOneManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &AllInOneProvisioningParameters{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureAllInOneProvisioningParameters{}
 }
 
 func (

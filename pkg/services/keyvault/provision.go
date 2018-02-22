@@ -11,12 +11,20 @@ import (
 
 func (s *serviceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
+	secureProvisioningParameters service.SecureProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*ProvisioningParameters)
 	if !ok {
 		return errors.New(
 			"error casting provisioningParameters as " +
 				"*keyvault.ProvisioningParameters",
+		)
+	}
+	spp, ok := secureProvisioningParameters.(*SecureProvisioningParameters)
+	if !ok {
+		return errors.New(
+			"error casting secureProvisioningParameters as " +
+				"*keyvault.SecureProvisioningParameters",
 		)
 	}
 	if pp.ObjectID == "" {
@@ -31,10 +39,13 @@ func (s *serviceManager) ValidateProvisioningParameters(
 			fmt.Sprintf(`invalid service principal clientId: "%s"`, pp.ClientID),
 		)
 	}
-	if pp.ClientSecret == "" {
+	if spp.ClientSecret == "" {
 		return service.NewValidationError(
 			"clientSecret",
-			fmt.Sprintf(`invalid service principal clientSecret: "%s"`, pp.ClientSecret),
+			fmt.Sprintf(
+				`invalid service principal clientSecret: "%s"`,
+				spp.ClientSecret,
+			),
 		)
 	}
 	return nil
@@ -87,6 +98,14 @@ func (s *serviceManager) deployARMTemplate(
 				"*keyvault.ProvisioningParameters",
 		)
 	}
+	spp, ok :=
+		instance.SecureProvisioningParameters.(*SecureProvisioningParameters)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting instance.SecureProvisioningParameters as " +
+				"*keyvault.SecureProvisioningParameters",
+		)
+	}
 
 	outputs, err := s.armDeployer.Deploy(
 		dt.ARMDeploymentName,
@@ -115,7 +134,7 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	dt.VaultURI = vaultURI
 	dt.ClientID = pp.ClientID
-	sdt.ClientSecret = pp.ClientSecret
+	sdt.ClientSecret = spp.ClientSecret
 
 	return dt, sdt, nil
 }

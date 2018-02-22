@@ -223,7 +223,10 @@ func TestValidatingLocationParameterFails(t *testing.T) {
 	assert.Nil(t, err)
 	moduleSpecificValidationCalled := false
 	m.ServiceManager.ProvisioningValidationBehavior =
-		func(service.ProvisioningParameters) error {
+		func(
+			service.ProvisioningParameters,
+			service.SecureProvisioningParameters,
+		) error {
 			moduleSpecificValidationCalled = true
 			return nil
 		}
@@ -263,7 +266,10 @@ func TestModuleSpecificValidationFails(t *testing.T) {
 	fooError := service.NewValidationError("foo", "bar")
 	moduleSpecificValidationCalled := false
 	m.ServiceManager.ProvisioningValidationBehavior =
-		func(service.ProvisioningParameters) error {
+		func(
+			service.ProvisioningParameters,
+			service.SecureProvisioningParameters,
+		) error {
 			moduleSpecificValidationCalled = true
 			return fooError
 		}
@@ -299,7 +305,10 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 	assert.Nil(t, err)
 	moduleSpecificValidationCalled := false
 	m.ServiceManager.ProvisioningValidationBehavior =
-		func(service.ProvisioningParameters) error {
+		func(
+			service.ProvisioningParameters,
+			service.SecureProvisioningParameters,
+		) error {
 			moduleSpecificValidationCalled = true
 			return nil
 		}

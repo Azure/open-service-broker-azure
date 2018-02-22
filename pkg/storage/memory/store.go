@@ -64,6 +64,7 @@ func (s *store) GetInstance(instanceID string) (
 		nil,
 		nil,
 		nil,
+		nil,
 		s.codec,
 	)
 	if err != nil {
@@ -92,6 +93,7 @@ func (s *store) GetInstance(instanceID string) (
 	instance, err = service.NewInstanceFromJSON(
 		json,
 		serviceManager.GetEmptyProvisioningParameters(),
+		serviceManager.GetEmptySecureProvisioningParameters(),
 		serviceManager.GetEmptyUpdatingParameters(),
 		serviceManager.GetEmptyInstanceDetails(),
 		serviceManager.GetEmptySecureInstanceDetails(),

@@ -22,6 +22,12 @@ func (
 
 func (
 	a *allInOneManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureServerProvisioningParameters{}
+}
+
+func (
+	a *allInOneManager,
 ) GetEmptyUpdatingParameters() service.UpdatingParameters {
 	return &UpdatingParameters{}
 }

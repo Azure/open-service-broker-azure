@@ -1,11 +1,15 @@
 package sqldb
 
-// ServerProvisioningParams encapsulates MSSQL-server specific provisioning
-//options
+// ServerProvisioningParams encapsulates non-sensitive MSSQL-server specific
+// provisioning options
 type ServerProvisioningParams struct {
 	FirewallIPStart string `json:"firewallStartIPAddress"`
 	FirewallIPEnd   string `json:"firewallEndIPAddress"`
 }
+
+// SecureServerProvisioningParams encapsulates sensitive MSSQL-server specific
+// provisioning options
+type SecureServerProvisioningParams struct{}
 
 type serverInstanceDetails struct {
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`

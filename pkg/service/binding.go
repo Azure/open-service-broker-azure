@@ -39,6 +39,9 @@ func NewBindingFromJSON(
 	if err := json.Unmarshal(jsonBytes, &binding); err != nil {
 		return binding, err
 	}
+	if binding.Details == nil {
+		binding.Details = bd
+	}
 	return binding.decrypt(codec)
 }
 

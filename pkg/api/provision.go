@@ -267,6 +267,34 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// And sensitive service-specific parameters...
+	secureProvisioningParameters :=
+		serviceManager.GetEmptySecureProvisioningParameters()
+	decoderConfig = &mapstructure.DecoderConfig{
+		TagName: "json",
+		Result:  secureProvisioningParameters,
+	}
+	decoder, err = mapstructure.NewDecoder(decoderConfig)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"error building parameter map decoder",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+	err = decoder.Decode(provisioningRequest.Parameters)
+	if err != nil {
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: error decoding parameter map into " +
+				"service-specific secured parameters",
+		)
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
+		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
+		return
+	}
+
 	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
 		logFields["error"] = err
@@ -300,6 +328,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			reflect.DeepEqual(
 				instance.ProvisioningParameters,
 				provisioningParameters,
+			) &&
+			reflect.DeepEqual(
+				instance.SecureProvisioningParameters,
+				secureProvisioningParameters,
 			) {
 			// Per the spec, if fully provisioned, respond with a 200, else a 202.
 			// Filling in a gap in the spec-- if the status is anything else, we'll
@@ -349,7 +381,10 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Then validate service-specific provisioning parameters
-	err = serviceManager.ValidateProvisioningParameters(provisioningParameters)
+	err = serviceManager.ValidateProvisioningParameters(
+		provisioningParameters,
+		secureProvisioningParameters,
+	)
 	if err != nil {
 		s.handlePossibleValidationError(err, w, logFields)
 		return
@@ -381,19 +416,20 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	instance = service.Instance{
-		InstanceID:             instanceID,
-		Alias:                  alias,
-		ServiceID:              provisioningRequest.ServiceID,
-		PlanID:                 provisioningRequest.PlanID,
-		ProvisioningParameters: provisioningParameters,
-		Status:                 service.InstanceStateProvisioning,
-		Location:               location,
-		ResourceGroup:          resourceGroup,
-		ParentAlias:            parentAlias,
-		Tags:                   tags,
-		Details:                serviceManager.GetEmptyInstanceDetails(),
-		SecureDetails:          serviceManager.GetEmptySecureInstanceDetails(),
-		Created:                time.Now(),
+		InstanceID:                   instanceID,
+		Alias:                        alias,
+		ServiceID:                    provisioningRequest.ServiceID,
+		PlanID:                       provisioningRequest.PlanID,
+		ProvisioningParameters:       provisioningParameters,
+		SecureProvisioningParameters: secureProvisioningParameters,
+		Status:        service.InstanceStateProvisioning,
+		Location:      location,
+		ResourceGroup: resourceGroup,
+		ParentAlias:   parentAlias,
+		Tags:          tags,
+		Details:       serviceManager.GetEmptyInstanceDetails(),
+		SecureDetails: serviceManager.GetEmptySecureInstanceDetails(),
+		Created:       time.Now(),
 	}
 
 	var task async.Task

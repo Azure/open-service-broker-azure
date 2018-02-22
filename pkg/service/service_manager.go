@@ -3,12 +3,18 @@ package service
 // ServiceManager is an interface to be implemented by module components
 // responsible for managing the lifecycle of services and plans thereof
 type ServiceManager interface { // nolint: golint
-	// GetEmptyProvisioningParameters returns an empty instance of module-specific
-	// provisioningParameters
+	// GetEmptyProvisioningParameters returns an empty instance of
+	// service-specific non-sensitive  provisioning parameters
 	GetEmptyProvisioningParameters() ProvisioningParameters
+	// GetEmptySecureProvisioningParameters returns an empty instance of
+	// service-specific secured (sensitive) provisioning parameters
+	GetEmptySecureProvisioningParameters() SecureProvisioningParameters
 	// ValidateProvisioningParameters validates the provided
 	// provisioningParameters and returns an error if there is any problem
-	ValidateProvisioningParameters(ProvisioningParameters) error
+	ValidateProvisioningParameters(
+		ProvisioningParameters,
+		SecureProvisioningParameters,
+	) error
 	// GetProvisioner returns a provisioner that defines the steps a module must
 	// execute asynchronously to provision a service.
 	GetProvisioner(Plan) (Provisioner, error)

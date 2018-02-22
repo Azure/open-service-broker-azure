@@ -13,6 +13,7 @@ import (
 
 func (a *allInOneManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
+	_ service.SecureProvisioningParameters,
 ) error {
 	pp, ok := provisioningParameters.(*AllInOneProvisioningParameters)
 	if !ok {

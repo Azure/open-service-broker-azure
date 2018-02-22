@@ -2,10 +2,6 @@ package sqldb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// DBProvisioningParams encapsulates MSSQL-specific provisioning options
-type DBProvisioningParams struct {
-}
-
 type mssqlAllInOneInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	serverInstanceDetails
@@ -20,6 +16,12 @@ func (
 	a *allInOneManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ServerProvisioningParams{}
+}
+
+func (
+	a *allInOneManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureServerProvisioningParams{}
 }
 
 func (

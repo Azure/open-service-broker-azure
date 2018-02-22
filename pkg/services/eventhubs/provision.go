@@ -10,7 +10,8 @@ import (
 )
 
 func (s *serviceManager) ValidateProvisioningParameters(
-	provisioningParameters service.ProvisioningParameters,
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
 ) error {
 	// Nothing to validate
 	return nil
