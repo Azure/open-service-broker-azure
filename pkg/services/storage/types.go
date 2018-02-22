@@ -68,12 +68,6 @@ func (
 
 func (
 	s *serviceManager,
-) GetEmptyUpdatingParameters() service.UpdatingParameters {
-	return &UpdatingParameters{}
-}
-
-func (
-	s *serviceManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &storageInstanceDetails{}
 }

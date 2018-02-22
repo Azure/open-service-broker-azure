@@ -24,12 +24,10 @@ type ServiceManager interface { // nolint: golint
 	// GetEmptySecureInstanceDetails returns an empty instance of sensitive
 	// service-specific instance details
 	GetEmptySecureInstanceDetails() SecureInstanceDetails
-	// GetEmptyUpdatingParameters returns an empty instance of module-specific
-	// updatingParameters
-	GetEmptyUpdatingParameters() UpdatingParameters
 	// ValidateUpdatingParameters validates the provided
-	// updatingParameters and returns an error if there is any problem
-	ValidateUpdatingParameters(UpdatingParameters) error
+	// updating parameters against allowed values and current instance state
+	// and returns an error if there is any problem
+	ValidateUpdatingParameters(Instance) error
 	// GetUpdater returns a updater that defines the steps a module must
 	// execute asynchronously to update a service.
 	GetUpdater(Plan) (Updater, error)

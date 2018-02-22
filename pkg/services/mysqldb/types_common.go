@@ -12,10 +12,6 @@ type ServerProvisioningParameters struct {
 // server provisioning options
 type SecureServerProvisioningParameters struct{}
 
-// UpdatingParameters encapsulates MySQL-specific updating options
-type UpdatingParameters struct {
-}
-
 // BindingParameters encapsulates non-sensitive MySQL-specific binding options
 type BindingParameters struct {
 }

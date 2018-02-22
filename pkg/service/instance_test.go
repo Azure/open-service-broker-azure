@@ -36,7 +36,11 @@ func init() {
 	updatingParameters := &ArbitraryType{
 		Foo: "bat",
 	}
-	encryptedUpdatingParameters := []byte(`{"foo":"bat"}`)
+	updatingParametersJSONStr := []byte(`{"foo":"bat"}`)
+	secureUpdatingParameters := &ArbitraryType{
+		Foo: "bat",
+	}
+	encryptedSecureUpdatingParameters := []byte(`{"foo":"bat"}`)
 	statusReason := "in-progress"
 	details := &ArbitraryType{
 		Foo: "baz",
@@ -59,25 +63,26 @@ func init() {
 		ProvisioningParameters:                provisioningParameters,
 		EncryptedSecureProvisioningParameters: encryptedSecureProvisiongingParameters, // nolint: lll
 		SecureProvisioningParameters:          secureProvisioningParameters,
-		EncryptedUpdatingParameters:           encryptedUpdatingParameters,
 		UpdatingParameters:                    updatingParameters,
-		Status:                                InstanceStateProvisioning,
-		StatusReason:                          statusReason,
-		Location:                              location,
-		ResourceGroup:                         resourceGroup,
-		ParentAlias:                           parentAlias,
-		Tags:                                  map[string]string{tagKey: tagVal},
-		Details:                               details,
-		EncryptedSecureDetails:                encryptedSecureDetails,
-		SecureDetails:                         secureDetails,
-		Created:                               created,
+		EncryptedSecureUpdatingParameters:     encryptedSecureUpdatingParameters,
+		SecureUpdatingParameters:              secureUpdatingParameters,
+		Status:                 InstanceStateProvisioning,
+		StatusReason:           statusReason,
+		Location:               location,
+		ResourceGroup:          resourceGroup,
+		ParentAlias:            parentAlias,
+		Tags:                   map[string]string{tagKey: tagVal},
+		Details:                details,
+		EncryptedSecureDetails: encryptedSecureDetails,
+		SecureDetails:          secureDetails,
+		Created:                created,
 	}
 
 	b64EncryptedSecureProvisioningParameters := base64.StdEncoding.EncodeToString(
 		encryptedSecureProvisiongingParameters,
 	)
-	b64EncryptedUpdatingParameters := base64.StdEncoding.EncodeToString(
-		encryptedUpdatingParameters,
+	b64EncryptedSecureUpdatingParameters := base64.StdEncoding.EncodeToString(
+		encryptedSecureUpdatingParameters,
 	)
 	b64EncryptedSecureDetails := base64.StdEncoding.EncodeToString(
 		encryptedSecureDetails,
@@ -91,7 +96,8 @@ func init() {
 			"planId":"%s",
 			"provisioningParameters":%s,
 			"secureProvisioningParameters":"%s",
-			"updatingParameters":"%s",
+			"updatingParameters":%s,
+			"secureUpdatingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
 			"location":"%s",
@@ -108,7 +114,8 @@ func init() {
 		planID,
 		provisioningParametersJSONStr,
 		b64EncryptedSecureProvisioningParameters,
-		b64EncryptedUpdatingParameters,
+		updatingParametersJSONStr,
+		b64EncryptedSecureUpdatingParameters,
 		InstanceStateProvisioning,
 		statusReason,
 		location,
@@ -129,6 +136,7 @@ func init() {
 func TestNewInstanceFromJSON(t *testing.T) {
 	instance, err := NewInstanceFromJSON(
 		testInstanceJSON,
+		&ArbitraryType{},
 		&ArbitraryType{},
 		&ArbitraryType{},
 		&ArbitraryType{},
@@ -160,17 +168,17 @@ func TestEncryptSecureProvisioningParameters(t *testing.T) {
 	)
 }
 
-func TestEncryptUpdatingParameters(t *testing.T) {
+func TestEncryptSecureUpdatingParameters(t *testing.T) {
 	instance := Instance{
-		UpdatingParameters: testArbitraryObject,
+		SecureUpdatingParameters: testArbitraryObject,
 	}
 	var err error
-	instance, err = instance.encryptUpdatingParameters(noopCodec)
+	instance, err = instance.encryptSecureUpdatingParameters(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		instance.EncryptedUpdatingParameters,
+		instance.EncryptedSecureUpdatingParameters,
 	)
 }
 
@@ -201,13 +209,13 @@ func TestDecryptSecureProvisioningParameters(t *testing.T) {
 
 func TestDecryptUpdatingParameters(t *testing.T) {
 	instance := Instance{
-		EncryptedUpdatingParameters: testArbitraryObjectJSON,
-		UpdatingParameters:          &ArbitraryType{},
+		EncryptedSecureUpdatingParameters: testArbitraryObjectJSON,
+		SecureUpdatingParameters:          &ArbitraryType{},
 	}
 	var err error
-	instance, err = instance.decryptUpdatingParameters(noopCodec)
+	instance, err = instance.decryptSecureUpdatingParameters(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, instance.UpdatingParameters)
+	assert.Equal(t, testArbitraryObject, instance.SecureUpdatingParameters)
 }
 
 func TestDecryptSecureDetails(t *testing.T) {

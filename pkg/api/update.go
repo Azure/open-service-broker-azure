@@ -113,12 +113,39 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	serviceManager := svc.GetServiceManager()
 
 	// Unpack the parameter map in the request to a struct
-	updatingParameters := serviceManager.GetEmptyUpdatingParameters()
+	updatingParameters := serviceManager.GetEmptyProvisioningParameters()
 	decoderConfig := &mapstructure.DecoderConfig{
 		TagName: "json",
 		Result:  updatingParameters,
 	}
 	decoder, err := mapstructure.NewDecoder(decoderConfig)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Error(
+			"error building parameter map decoder",
+		)
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+	err = decoder.Decode(updatingRequest.Parameters)
+	if err != nil {
+		log.WithFields(logFields).Debug(
+			"bad updating request: error decoding parameter map",
+		)
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
+		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+		return
+	}
+
+	// Then the secure parameters
+	secureUpdatingParameters :=
+		serviceManager.GetEmptySecureProvisioningParameters()
+	decoderConfig = &mapstructure.DecoderConfig{
+		TagName: "json",
+		Result:  secureUpdatingParameters,
+	}
+	decoder, err = mapstructure.NewDecoder(decoderConfig)
 	if err != nil {
 		logFields["error"] = err
 		log.WithFields(logFields).Error(
@@ -185,6 +212,10 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		reflect.DeepEqual(
 			instance.UpdatingParameters,
 			updatingParameters,
+		) &&
+		reflect.DeepEqual(
+			instance.SecureUpdatingParameters,
+			secureUpdatingParameters,
 		) {
 		// Per the spec, if fully provisioned, respond with a 200, else a 202.
 		// Filling in a gap in the spec-- if the status is anything else, we'll
@@ -215,7 +246,9 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 
 	// If we get to here, we need to update the instance.
 	// Start by carrying out serviceManager-specific request validation
-	err = serviceManager.ValidateUpdatingParameters(updatingRequest.Parameters)
+	instance.UpdatingParameters = updatingParameters
+	instance.SecureUpdatingParameters = secureUpdatingParameters
+	err = serviceManager.ValidateUpdatingParameters(instance)
 	if err != nil {
 		validationErr, ok := err.(*service.ValidationError)
 		if ok {
@@ -270,7 +303,6 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	instance.UpdatingParameters = updatingParameters
 	instance.Status = service.InstanceStateUpdating
 	instance.PlanID = updatingRequest.PlanID
 	if err := s.store.WriteInstance(instance); err != nil {

@@ -34,15 +34,6 @@ type InstanceDetails struct {
 // module is used to facilitate testing of the broker framework itself.
 type SecureInstanceDetails struct{}
 
-// UpdatingParameters represents parameters specific to binding to a service
-// instance using the fake service module. Note that, ordinarily, service
-// module-specific types such as this do not need to be exported. An exception
-// is made here because the fake service module is used to facilitate testing of
-// the broker framework itself.
-type UpdatingParameters struct {
-	SomeParameter string `json:"someParameter"`
-}
-
 // BindingParameters represents non-sensitive parameters specific to binding to
 // a service instance using the fake service module. Note that, ordinarily,
 // service-specific types such as this do not need to be exported. An exception
@@ -119,14 +110,6 @@ func (
 	s *ServiceManager,
 ) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
 	return &SecureInstanceDetails{}
-}
-
-// GetEmptyUpdatingParameters returns an empty instance of module-specific
-// updatingParameters
-func (
-	s *ServiceManager,
-) GetEmptyUpdatingParameters() service.UpdatingParameters {
-	return &UpdatingParameters{}
 }
 
 // GetEmptyBindingParameters returns an empty instance of non-sensitive

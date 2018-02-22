@@ -43,12 +43,6 @@ func (
 
 func (
 	d *dbmsOnlyManager,
-) GetEmptyUpdatingParameters() service.UpdatingParameters {
-	return &UpdatingParameters{}
-}
-
-func (
-	d *dbmsOnlyManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &dbmsOnlyPostgresqlInstanceDetails{}
 }

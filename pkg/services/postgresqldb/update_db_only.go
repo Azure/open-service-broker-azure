@@ -4,9 +4,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *dbOnlyManager) ValidateUpdatingParameters(
-	updatingParameters service.UpdatingParameters,
-) error {
+func (d *dbOnlyManager) ValidateUpdatingParameters(service.Instance) error {
 	return nil
 }
 

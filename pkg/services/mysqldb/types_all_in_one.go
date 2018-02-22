@@ -28,12 +28,6 @@ func (
 
 func (
 	a *allInOneManager,
-) GetEmptyUpdatingParameters() service.UpdatingParameters {
-	return &UpdatingParameters{}
-}
-
-func (
-	a *allInOneManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &allInOneMysqlInstanceDetails{}
 }

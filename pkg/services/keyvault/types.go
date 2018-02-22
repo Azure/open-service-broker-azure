@@ -26,10 +26,6 @@ type keyvaultSecureInstanceDetails struct {
 	ClientSecret string `json:"clientSecret"`
 }
 
-// UpdatingParameters encapsulates keyvault-specific updating options
-type UpdatingParameters struct {
-}
-
 // BindingParameters encapsulates non-sensitive keyvault-specific binding
 // options
 type BindingParameters struct {
@@ -64,12 +60,6 @@ func (
 	s *serviceManager,
 ) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
 	return &SecureProvisioningParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptyUpdatingParameters() service.UpdatingParameters {
-	return &UpdatingParameters{}
 }
 
 func (

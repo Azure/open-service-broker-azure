@@ -18,8 +18,9 @@ type Instance struct {
 	ProvisioningParameters                ProvisioningParameters       `json:"provisioningParameters"`       // nolint: lll
 	EncryptedSecureProvisioningParameters []byte                       `json:"secureProvisioningParameters"` // nolint: lll
 	SecureProvisioningParameters          SecureProvisioningParameters `json:"-"`
-	EncryptedUpdatingParameters           []byte                       `json:"updatingParameters"` // nolint: lll
-	UpdatingParameters                    UpdatingParameters           `json:"-"`
+	UpdatingParameters                    ProvisioningParameters       `json:"updatingParameters"`       // nolint: lll
+	EncryptedSecureUpdatingParameters     []byte                       `json:"secureUpdatingParameters"` // nolint: lll
+	SecureUpdatingParameters              SecureProvisioningParameters `json:"-"`
 	Status                                string                       `json:"status"`        // nolint: lll
 	StatusReason                          string                       `json:"statusReason"`  // nolint: lll
 	Location                              string                       `json:"location"`      // nolint: lll
@@ -39,7 +40,8 @@ func NewInstanceFromJSON(
 	jsonBytes []byte,
 	pp ProvisioningParameters,
 	spp SecureProvisioningParameters,
-	up UpdatingParameters,
+	up ProvisioningParameters,
+	sup SecureProvisioningParameters,
 	dt InstanceDetails,
 	sdt InstanceDetails,
 	codec crypto.Codec,
@@ -48,6 +50,7 @@ func NewInstanceFromJSON(
 		ProvisioningParameters:       pp,
 		SecureProvisioningParameters: spp,
 		UpdatingParameters:           up,
+		SecureUpdatingParameters:     sup,
 		Details:                      dt,
 		SecureDetails:                sdt,
 	}
@@ -56,6 +59,9 @@ func NewInstanceFromJSON(
 	}
 	if instance.ProvisioningParameters == nil {
 		instance.ProvisioningParameters = pp
+	}
+	if instance.UpdatingParameters == nil {
+		instance.UpdatingParameters = up
 	}
 	if instance.Details == nil {
 		instance.Details = dt
@@ -78,7 +84,7 @@ func (i Instance) encrypt(codec crypto.Codec) (Instance, error) {
 	if i, err = i.encryptSecureProvisioningParameters(codec); err != nil {
 		return i, err
 	}
-	if i, err = i.encryptUpdatingParameters(codec); err != nil {
+	if i, err = i.encryptSecureUpdatingParameters(codec); err != nil {
 		return i, err
 	}
 	return i.encryptSecureDetails(codec)
@@ -95,14 +101,14 @@ func (i Instance) encryptSecureProvisioningParameters(
 	return i, err
 }
 
-func (i Instance) encryptUpdatingParameters(
+func (i Instance) encryptSecureUpdatingParameters(
 	codec crypto.Codec,
 ) (Instance, error) {
-	jsonBytes, err := json.Marshal(i.UpdatingParameters)
+	jsonBytes, err := json.Marshal(i.SecureUpdatingParameters)
 	if err != nil {
 		return i, err
 	}
-	i.EncryptedUpdatingParameters, err = codec.Encrypt(jsonBytes)
+	i.EncryptedSecureUpdatingParameters, err = codec.Encrypt(jsonBytes)
 	return i, err
 }
 
@@ -122,7 +128,7 @@ func (i Instance) decrypt(codec crypto.Codec) (Instance, error) {
 	if i, err = i.decryptSecureProvisioningParameters(codec); err != nil {
 		return i, err
 	}
-	if i, err = i.decryptUpdatingParameters(codec); err != nil {
+	if i, err = i.decryptSecureUpdatingParameters(codec); err != nil {
 		return i, err
 	}
 	return i.decryptSecureDetails(codec)
@@ -142,18 +148,18 @@ func (i Instance) decryptSecureProvisioningParameters(
 	return i, json.Unmarshal(plaintext, i.SecureProvisioningParameters)
 }
 
-func (i Instance) decryptUpdatingParameters(
+func (i Instance) decryptSecureUpdatingParameters(
 	codec crypto.Codec,
 ) (Instance, error) {
-	if len(i.EncryptedUpdatingParameters) == 0 ||
-		i.UpdatingParameters == nil {
+	if len(i.EncryptedSecureUpdatingParameters) == 0 ||
+		i.SecureUpdatingParameters == nil {
 		return i, nil
 	}
-	plaintext, err := codec.Decrypt(i.EncryptedUpdatingParameters)
+	plaintext, err := codec.Decrypt(i.EncryptedSecureUpdatingParameters)
 	if err != nil {
 		return i, err
 	}
-	return i, json.Unmarshal(plaintext, i.UpdatingParameters)
+	return i, json.Unmarshal(plaintext, i.SecureUpdatingParameters)
 }
 
 func (i Instance) decryptSecureDetails(codec crypto.Codec) (Instance, error) {
