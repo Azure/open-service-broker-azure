@@ -2,11 +2,15 @@ package postgresqldb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// DatabaseProvisioningParameters encapsulates PostgreSQL-specific database
-//  provisioning options
+// DatabaseProvisioningParameters encapsulates non-sensitive PostgreSQL-specific
+// database provisioning options
 type DatabaseProvisioningParameters struct {
 	Extensions []string `json:"extensions"`
 }
+
+// SecureDatabaseProvisioningParameters encapsulates sensitive
+// PostgreSQL-specific database provisioning options
+type SecureDatabaseProvisioningParameters struct{}
 
 type dbOnlyPostgresqlInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
@@ -19,6 +23,12 @@ func (
 	d *dbOnlyManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &DatabaseProvisioningParameters{}
+}
+
+func (
+	d *dbOnlyManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureDatabaseProvisioningParameters{}
 }
 
 func (

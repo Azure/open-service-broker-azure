@@ -37,8 +37,10 @@ func getKeyvaultCases(
 			planID:    "3577ee4a-75fc-44b3-b354-9d33d52ef486",
 			location:  "southcentralus",
 			provisioningParameters: &keyvault.ProvisioningParameters{
-				ObjectID:     "6a74d229-e927-42c5-b6e8-8f5c095cfba8",
-				ClientID:     "test",
+				ObjectID: "6a74d229-e927-42c5-b6e8-8f5c095cfba8",
+				ClientID: "test",
+			},
+			secureProvisioningParameters: &keyvault.SecureProvisioningParameters{
 				ClientSecret: "test",
 			},
 			bindingParameters: &keyvault.BindingParameters{},

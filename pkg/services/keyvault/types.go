@@ -2,10 +2,16 @@ package keyvault
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters encapsulates keyvault-specific provisioning options
+// ProvisioningParameters encapsulates non-sensitive keyvault-specific
+// provisioning options
 type ProvisioningParameters struct {
-	ObjectID     string `json:"objectId"`
-	ClientID     string `json:"clientId"`
+	ObjectID string `json:"objectId"`
+	ClientID string `json:"clientId"`
+}
+
+// SecureProvisioningParameters encapsulates sensitive keyvault-specific
+// provisioning options
+type SecureProvisioningParameters struct {
 	ClientSecret string `json:"clientSecret"`
 }
 
@@ -46,6 +52,12 @@ func (
 	s *serviceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureProvisioningParameters{}
 }
 
 func (

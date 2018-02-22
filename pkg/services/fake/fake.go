@@ -9,7 +9,10 @@ import (
 // ProvisioningValidationFunction describes a function used to provide pluggable
 // provisioning validation behavior to the fake implementation of the
 // service.Module interface
-type ProvisioningValidationFunction func(service.ProvisioningParameters) error
+type ProvisioningValidationFunction func(
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
+) error
 
 // UpdatingValidationFunction describes a function used to provide pluggable
 // updating validation behavior to the fake implementation of the
@@ -79,8 +82,12 @@ func (m *Module) GetStability() service.Stability {
 // and returns an error if there is any problem
 func (s *ServiceManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
+	secureProvisioningParameters service.SecureProvisioningParameters,
 ) error {
-	return s.ProvisioningValidationBehavior(provisioningParameters)
+	return s.ProvisioningValidationBehavior(
+		provisioningParameters,
+		secureProvisioningParameters,
+	)
 }
 
 // GetProvisioner returns a provisioner that defines the steps a module must
@@ -175,6 +182,7 @@ func (s *ServiceManager) deprovision(
 
 func defaultProvisioningValidationBehavior(
 	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
 ) error {
 	return nil
 }

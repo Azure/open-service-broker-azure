@@ -9,8 +9,13 @@ const (
 	databaseKindGlobalDocumentDB databaseKind = "GlobalDocumentDB"
 )
 
-// ProvisioningParameters encapsulates CosmosDB-specific provisioning options
+// ProvisioningParameters encapsulates non-sensitive CosmosDB-specific
+// provisioning options
 type ProvisioningParameters struct{}
+
+// SecureProvisioningParameters encapsulates sensitive CosmosDB-specific
+// provisioning options
+type SecureProvisioningParameters struct{}
 
 type cosmosdbInstanceDetails struct {
 	ARMDeploymentName        string       `json:"armDeployment"`
@@ -56,6 +61,12 @@ func (
 	s *serviceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureProvisioningParameters{}
 }
 
 func (

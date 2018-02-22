@@ -2,8 +2,13 @@ package rediscache
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters encapsulates Redis-specific provisioning options
+// ProvisioningParameters encapsulates non-sensitive Redis-specific provisioning
+// options
 type ProvisioningParameters struct{}
+
+// SecureProvisioningParameters encapsulates sensitive Redis-specific
+// provisioning options
+type SecureProvisioningParameters struct{}
 
 type redisInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
@@ -40,6 +45,12 @@ func (
 	s *serviceManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &ProvisioningParameters{}
+}
+
+func (
+	s *serviceManager,
+) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
+	return &SecureProvisioningParameters{}
 }
 
 func (

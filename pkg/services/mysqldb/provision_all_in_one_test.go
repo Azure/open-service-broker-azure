@@ -10,7 +10,7 @@ import (
 func TestValidateNoFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &ServerProvisioningParameters{}
-	error := sm.ValidateProvisioningParameters(pp)
+	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.Nil(t, error)
 }
 
@@ -20,7 +20,7 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 		FirewallIPStart: "192.168.86.1",
 		FirewallIPEnd:   "192.168.86.100",
 	}
-	error := sm.ValidateProvisioningParameters(pp)
+	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.Nil(t, error)
 }
 
@@ -29,7 +29,7 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	pp := &ServerProvisioningParameters{
 		FirewallIPStart: "192.168.86.1",
 	}
-	error := sm.ValidateProvisioningParameters(pp)
+	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)
@@ -41,7 +41,7 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	pp := &ServerProvisioningParameters{
 		FirewallIPEnd: "192.168.86.200",
 	}
-	error := sm.ValidateProvisioningParameters(pp)
+	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)
@@ -54,7 +54,7 @@ func TestValidateInvalidIP(t *testing.T) {
 		FirewallIPStart: "decafbad",
 		FirewallIPEnd:   "192.168.86.200",
 	}
-	error := sm.ValidateProvisioningParameters(pp)
+	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)
@@ -67,7 +67,7 @@ func TestValidateIncompleteIP(t *testing.T) {
 		FirewallIPStart: "192.168.",
 		FirewallIPEnd:   "192.168.86.200",
 	}
-	error := sm.ValidateProvisioningParameters(pp)
+	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)

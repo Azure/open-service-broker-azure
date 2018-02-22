@@ -28,7 +28,11 @@ func init() {
 	provisioningParameters := &ArbitraryType{
 		Foo: "bar",
 	}
-	encryptedProvisiongingParameters := []byte(`{"foo":"bar"}`)
+	provisioningParametersJSONStr := []byte(`{"foo":"bar"}`)
+	secureProvisioningParameters := &ArbitraryType{
+		Foo: "bar",
+	}
+	encryptedSecureProvisiongingParameters := []byte(`{"foo":"bar"}`)
 	updatingParameters := &ArbitraryType{
 		Foo: "bat",
 	}
@@ -48,28 +52,29 @@ func init() {
 	}
 
 	testInstance = Instance{
-		InstanceID: instanceID,
-		Alias:      alias,
-		ServiceID:  serviceID,
-		PlanID:     planID,
-		EncryptedProvisioningParameters: encryptedProvisiongingParameters,
-		ProvisioningParameters:          provisioningParameters,
-		EncryptedUpdatingParameters:     encryptedUpdatingParameters,
-		UpdatingParameters:              updatingParameters,
-		Status:                          InstanceStateProvisioning,
-		StatusReason:                    statusReason,
-		Location:                        location,
-		ResourceGroup:                   resourceGroup,
-		ParentAlias:                     parentAlias,
-		Tags:                            map[string]string{tagKey: tagVal},
-		Details:                         details,
-		EncryptedSecureDetails:          encryptedSecureDetails,
-		SecureDetails:                   secureDetails,
-		Created:                         created,
+		InstanceID:                            instanceID,
+		Alias:                                 alias,
+		ServiceID:                             serviceID,
+		PlanID:                                planID,
+		ProvisioningParameters:                provisioningParameters,
+		EncryptedSecureProvisioningParameters: encryptedSecureProvisiongingParameters, // nolint: lll
+		SecureProvisioningParameters:          secureProvisioningParameters,
+		EncryptedUpdatingParameters:           encryptedUpdatingParameters,
+		UpdatingParameters:                    updatingParameters,
+		Status:                                InstanceStateProvisioning,
+		StatusReason:                          statusReason,
+		Location:                              location,
+		ResourceGroup:                         resourceGroup,
+		ParentAlias:                           parentAlias,
+		Tags:                                  map[string]string{tagKey: tagVal},
+		Details:                               details,
+		EncryptedSecureDetails:                encryptedSecureDetails,
+		SecureDetails:                         secureDetails,
+		Created:                               created,
 	}
 
-	b64EncryptedProvisioningParameters := base64.StdEncoding.EncodeToString(
-		encryptedProvisiongingParameters,
+	b64EncryptedSecureProvisioningParameters := base64.StdEncoding.EncodeToString(
+		encryptedSecureProvisiongingParameters,
 	)
 	b64EncryptedUpdatingParameters := base64.StdEncoding.EncodeToString(
 		encryptedUpdatingParameters,
@@ -84,7 +89,8 @@ func init() {
 			"alias":"%s",
 			"serviceId":"%s",
 			"planId":"%s",
-			"provisioningParameters":"%s",
+			"provisioningParameters":%s,
+			"secureProvisioningParameters":"%s",
 			"updatingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
@@ -100,7 +106,8 @@ func init() {
 		alias,
 		serviceID,
 		planID,
-		b64EncryptedProvisioningParameters,
+		provisioningParametersJSONStr,
+		b64EncryptedSecureProvisioningParameters,
 		b64EncryptedUpdatingParameters,
 		InstanceStateProvisioning,
 		statusReason,
@@ -126,6 +133,7 @@ func TestNewInstanceFromJSON(t *testing.T) {
 		&ArbitraryType{},
 		&ArbitraryType{},
 		&ArbitraryType{},
+		&ArbitraryType{},
 		noopCodec,
 	)
 	assert.Nil(t, err)
@@ -138,17 +146,17 @@ func TestInstanceToJSON(t *testing.T) {
 	assert.Equal(t, testInstanceJSON, json)
 }
 
-func TestEncryptProvisioningParameters(t *testing.T) {
+func TestEncryptSecureProvisioningParameters(t *testing.T) {
 	instance := Instance{
-		ProvisioningParameters: testArbitraryObject,
+		SecureProvisioningParameters: testArbitraryObject,
 	}
 	var err error
-	instance, err = instance.encryptProvisioningParameters(noopCodec)
+	instance, err = instance.encryptSecureProvisioningParameters(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
 		testArbitraryObjectJSON,
-		instance.EncryptedProvisioningParameters,
+		instance.EncryptedSecureProvisioningParameters,
 	)
 }
 
@@ -180,15 +188,15 @@ func TestEncryptSecureDetails(t *testing.T) {
 	)
 }
 
-func TestDecryptProvisioningParameters(t *testing.T) {
+func TestDecryptSecureProvisioningParameters(t *testing.T) {
 	instance := Instance{
-		EncryptedProvisioningParameters: testArbitraryObjectJSON,
-		ProvisioningParameters:          &ArbitraryType{},
+		EncryptedSecureProvisioningParameters: testArbitraryObjectJSON,
+		SecureProvisioningParameters:          &ArbitraryType{},
 	}
 	var err error
-	instance, err = instance.decryptProvisioningParameters(noopCodec)
+	instance, err = instance.decryptSecureProvisioningParameters(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, instance.ProvisioningParameters)
+	assert.Equal(t, testArbitraryObject, instance.SecureProvisioningParameters)
 }
 
 func TestDecryptUpdatingParameters(t *testing.T) {
