@@ -269,7 +269,7 @@ func TestBrandNewBinding(t *testing.T) {
 	assert.Nil(t, err)
 	validationCalled := false
 	m.ServiceManager.BindingValidationBehavior =
-		func(service.BindingParameters) error {
+		func(service.BindingParameters, service.SecureBindingParameters) error {
 			validationCalled = true
 			return nil
 		}

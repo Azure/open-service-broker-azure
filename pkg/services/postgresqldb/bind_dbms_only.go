@@ -7,7 +7,8 @@ import (
 )
 
 func (d *dbmsOnlyManager) ValidateBindingParameters(
-	bindingParameters service.BindingParameters,
+	service.BindingParameters,
+	service.SecureBindingParameters,
 ) error {
 	// There are no parameters for binding to PostgreSQL, so there is nothing
 	// to validate

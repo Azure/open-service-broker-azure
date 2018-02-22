@@ -7,7 +7,8 @@ import (
 )
 
 func (d *dbOnlyManager) ValidateBindingParameters(
-	bindingParameters service.BindingParameters,
+	service.BindingParameters,
+	service.SecureBindingParameters,
 ) error {
 	// There are no parameters for binding to MSSQL, so there is nothing
 	// to validate
