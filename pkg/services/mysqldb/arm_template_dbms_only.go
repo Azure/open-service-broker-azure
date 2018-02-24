@@ -40,24 +40,6 @@ var dbmsOnlyARMTemplate = []byte(`
 				"allowedValues": [ "5.7", "5.6" ],
 				"defaultValue": "5.7"
 			},
-			"firewallRuleName": {
-				"type": "string",
-				"minLength": 1,
-				"maxLength": 128,
-				"defaultValue": "AllowAll"
-			},
-			"firewallStartIpAddress": {
-				"type": "string",
-				"minLength": 1,
-				"maxLength": 15,
-				"defaultValue": "0.0.0.0"
-			},
-			"firewallEndIpAddress": {
-				"type": "string",
-				"minLength": 1,
-				"maxLength": 15,
-				"defaultValue": "0.0.0.0"
-			},
 			"sslEnforcement": {
 				"type": "string",
 				"allowedValues": [ "Enabled", "Disabled" ],
@@ -92,6 +74,8 @@ var dbmsOnlyARMTemplate = []byte(`
 				"type": "Microsoft.DBforMySQL/servers",
 				"tags": "[parameters('tags')]",
 				"resources": [
+					{{$count:= sub (len .firewallRules)  1}}
+					{{range $i, $rule := .firewallRules}}
 					{
 						"type": "firewallrules",
 						"apiVersion": "[variables('DBforMySQLapiVersion')]",
@@ -99,12 +83,13 @@ var dbmsOnlyARMTemplate = []byte(`
 							"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'))]"
 						],
 						"location": "[parameters('location')]",
-						"name": "[parameters('firewallRuleName')]",
+						"name": "{{$rule.FirewallRuleName}}",
 						"properties": {
-							"startIpAddress": "[parameters('firewallStartIpAddress')]",
-							"endIpAddress": "[parameters('firewallEndIpAddress')]"
+							"startIpAddress": "{{$rule.FirewallIPStart}}",
+							"endIpAddress": "{{$rule.FirewallIPEnd}}"
 						}
-					}
+					}{{if lt $i $count}},{{end}}
+					{{end}}
 				]
 			}
 		],

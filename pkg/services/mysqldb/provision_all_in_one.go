@@ -104,15 +104,6 @@ func (a *allInOneManager) buildARMTemplateParameters(
 		"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
 		"sslEnforcement": sslEnforcement,
 	}
-	//Only include these if they are not empty.
-	//ARM Deployer will fail if the values included are not
-	//valid IPV4 addresses (i.e. empty string will fail)
-	if provisioningParameters.FirewallIPStart != "" {
-		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
-	}
-	if provisioningParameters.FirewallIPEnd != "" {
-		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
-	}
 	return p
 }
 
@@ -146,12 +137,13 @@ func (a *allInOneManager) deployARMTemplate(
 		sdt,
 		pp,
 	)
+	goTemplateParameters := buildGoTemplateParameters(pp)
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		allInOneArmTemplateBytes,
-		nil, // Go template params
+		goTemplateParameters, // Go template params
 		armTemplateParameters,
 		instance.Tags,
 	)
