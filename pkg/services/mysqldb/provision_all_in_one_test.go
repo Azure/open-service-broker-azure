@@ -18,7 +18,7 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &ServerProvisioningParameters{
 		FirewallRules: []FirewallRule{
-			FirewallRule{
+			{
 				FirewallRuleName: "good rule",
 				FirewallIPStart:  "192.168.86.1",
 				FirewallIPEnd:    "192.168.86.100",
@@ -33,12 +33,12 @@ func TestValidateMultipleGoodFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &ServerProvisioningParameters{
 		FirewallRules: []FirewallRule{
-			FirewallRule{
+			{
 				FirewallRuleName: "good rule",
 				FirewallIPStart:  "192.168.86.1",
 				FirewallIPEnd:    "192.168.86.100",
 			},
-			FirewallRule{
+			{
 				FirewallRuleName: "good rule 2",
 				FirewallIPStart:  "192.168.86.101",
 				FirewallIPEnd:    "192.168.86.150",
@@ -53,7 +53,7 @@ func TestValidateMissingFirewallRuleName(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &ServerProvisioningParameters{
 		FirewallRules: []FirewallRule{
-			FirewallRule{
+			{
 				FirewallIPStart: "192.168.86.1",
 				FirewallIPEnd:   "192.168.86.100",
 			},
@@ -69,7 +69,7 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &ServerProvisioningParameters{
 		FirewallRules: []FirewallRule{
-			FirewallRule{
+			{
 				FirewallRuleName: "Test",
 				FirewallIPStart:  "192.168.86.1",
 			},
@@ -86,7 +86,7 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &ServerProvisioningParameters{
 		FirewallRules: []FirewallRule{
-			FirewallRule{
+			{
 				FirewallRuleName: "Test",
 				FirewallIPEnd:    "192.168.86.200",
 			},
@@ -103,7 +103,7 @@ func TestValidateInvalidIP(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &ServerProvisioningParameters{
 		FirewallRules: []FirewallRule{
-			FirewallRule{
+			{
 				FirewallRuleName: "Test",
 				FirewallIPStart:  "decafbad",
 				FirewallIPEnd:    "192.168.86.200",
@@ -121,7 +121,7 @@ func TestValidateIncompleteIP(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &ServerProvisioningParameters{
 		FirewallRules: []FirewallRule{
-			FirewallRule{
+			{
 				FirewallRuleName: "Test",
 				FirewallIPStart:  "192.168.",
 				FirewallIPEnd:    "192.168.86.200",

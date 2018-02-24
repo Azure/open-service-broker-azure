@@ -79,7 +79,6 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 	plan service.Plan,
 	details *dbmsOnlyMysqlInstanceDetails,
 	secureDetails *dbmsOnlyMysqlSecureInstanceDetails,
-	provisioningParameters *ServerProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -129,7 +128,6 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		instance.Plan,
 		dt,
 		sdt,
-		pp,
 	)
 	goTemplateParameters := buildGoTemplateParameters(pp)
 	outputs, err := d.armDeployer.Deploy(
@@ -137,7 +135,7 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		instance.ResourceGroup,
 		instance.Location,
 		dbmsOnlyARMTemplate,
-		goTemplateParameters, // Go template params
+		goTemplateParameters,
 		armTemplateParameters,
 		instance.Tags,
 	)

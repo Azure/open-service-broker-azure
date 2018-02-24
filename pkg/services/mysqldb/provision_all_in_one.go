@@ -85,7 +85,6 @@ func (a *allInOneManager) buildARMTemplateParameters(
 	plan service.Plan,
 	details *allInOneMysqlInstanceDetails,
 	secureDetails *allInOneMysqlSecureInstanceDetails,
-	provisioningParameters *ServerProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -135,7 +134,6 @@ func (a *allInOneManager) deployARMTemplate(
 		instance.Plan,
 		dt,
 		sdt,
-		pp,
 	)
 	goTemplateParameters := buildGoTemplateParameters(pp)
 	outputs, err := a.armDeployer.Deploy(
@@ -143,7 +141,7 @@ func (a *allInOneManager) deployARMTemplate(
 		instance.ResourceGroup,
 		instance.Location,
 		allInOneArmTemplateBytes,
-		goTemplateParameters, // Go template params
+		goTemplateParameters,
 		armTemplateParameters,
 		instance.Tags,
 	)

@@ -77,7 +77,8 @@ func validateServerProvisionParameters(
 			return service.NewValidationError(
 				"firewallEndIPAddress",
 				fmt.Sprintf(`invalid value: "%s". must be 
-				greater than or equal to firewallStartIPAddress`, firewallRule.FirewallIPEnd),
+				greater than or equal to firewallStartIPAddress`,
+					firewallRule.FirewallIPEnd),
 			)
 		}
 	}
@@ -96,7 +97,7 @@ func buildGoTemplateParameters(
 	} else {
 		//Build the azure default
 		p["firewallRules"] = []FirewallRule{
-			FirewallRule{
+			{
 				FirewallRuleName: "AllowAzure",
 				FirewallIPStart:  "0.0.0.0",
 				FirewallIPEnd:    "0.0.0.0",
