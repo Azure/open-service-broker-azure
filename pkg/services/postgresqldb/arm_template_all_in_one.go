@@ -45,24 +45,6 @@ var armTemplateBytes = []byte(`
 			"minLength": 2,
 			"maxLength": 63
 		},
-		"firewallRuleName": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 128,
-			"defaultValue": "AllowAll"
-		},
-		"firewallStartIpAddress": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 15,
-			"defaultValue": "0.0.0.0"
-		},
-		"firewallEndIpAddress": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 15,
-			"defaultValue": "0.0.0.0"
-		},
 		"sslEnforcement": {
 			"type": "string",
 			"allowedValues": [ "Enabled", "Disabled" ],
@@ -97,6 +79,7 @@ var armTemplateBytes = []byte(`
 			"type": "Microsoft.DBforPostgreSQL/servers",
 			"tags": "[parameters('tags')]",
 			"resources": [
+				{{range .firewallRules}}
 				{
 					"type": "firewallrules",
 					"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
@@ -104,20 +87,23 @@ var armTemplateBytes = []byte(`
 						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]"
 					],
 					"location": "[parameters('location')]",
-					"name": "[parameters('firewallRuleName')]",
+					"name": "{{.FirewallRuleName}}",
 					"properties": {
-						"startIpAddress": "[parameters('firewallStartIpAddress')]",
-						"endIpAddress": "[parameters('firewallEndIpAddress')]"
+						"startIpAddress": "{{.FirewallIPStart}}",
+						"endIpAddress": "{{.FirewallIPEnd}}"
 					}
 				},
+				{{end}}
 				{
 					"apiVersion": "2017-04-30-preview",
 					"name": "[parameters('databaseName')]",
 					"type": "databases",
 					"location": "[parameters('location')]",
 					"dependsOn": [
-						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]",
-						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'), '/firewallrules/', parameters('firewallRuleName'))]"
+						{{range .firewallRules}}
+						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'), '/firewallrules/', '{{.FirewallRuleName}}')]",
+						{{end}}
+						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]"
 					],
 					"properties": {}
 				}

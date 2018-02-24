@@ -24,8 +24,7 @@ func (d *dbmsOnlyManager) ValidateProvisioningParameters(
 	}
 	return validateServerParameters(
 		pp.SSLEnforcement,
-		pp.FirewallIPStart,
-		pp.FirewallIPEnd,
+		pp.FirewallRules,
 	)
 }
 
@@ -92,7 +91,6 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 	plan service.Plan,
 	details *dbmsOnlyPostgresqlInstanceDetails,
 	secureDetails *dbmsOnlyPostgresqlSecureInstanceDetails,
-	provisioningParameters *ServerProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -108,15 +106,6 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 		"skuCapacityDTU": plan.GetProperties().
 			Extended["skuCapacityDTU"],
 		"sslEnforcement": sslEnforcement,
-	}
-	//Only include these if they are not empty.
-	//ARM Deployer will fail if the values included are not
-	//valid IPV4 addresses (i.e. empty string wil fail)
-	if provisioningParameters.FirewallIPStart != "" {
-		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
-	}
-	if provisioningParameters.FirewallIPEnd != "" {
-		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
 	}
 	return p
 }
@@ -149,14 +138,14 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		instance.Plan,
 		dt,
 		sdt,
-		pp,
 	)
+	goTemplateParameters := buildGoTemplateParameters(pp)
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateDBMSOnlyBytes,
-		nil, // Go template params
+		goTemplateParameters, // Go template params
 		armTemplateParameters,
 		instance.Tags,
 	)

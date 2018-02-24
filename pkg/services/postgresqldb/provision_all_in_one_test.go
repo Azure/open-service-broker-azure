@@ -17,17 +17,45 @@ func TestValidateNoFirewallConfig(t *testing.T) {
 func TestValidateGoodFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &AllInOneProvisioningParameters{}
-	pp.FirewallIPStart = "192.168.86.1"
-	pp.FirewallIPEnd = "192.168.86.100"
+	pp.FirewallRules = []FirewallRule{
+		{
+			FirewallRuleName: "Good Rule",
+			FirewallIPStart:  "192.168.86.1",
+			FirewallIPEnd:    "192.168.86.100",
+		},
+	}
 
 	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.Nil(t, error)
 }
 
+func TestValidateMissingFirewallRuleNameConfig(t *testing.T) {
+	sm := &allInOneManager{}
+	pp := &AllInOneProvisioningParameters{}
+	pp.FirewallRules = []FirewallRule{
+		{
+			FirewallRuleName: "",
+			FirewallIPStart:  "192.168.86.1",
+			FirewallIPEnd:    "255.255.255.0",
+		},
+	}
+
+	error := sm.ValidateProvisioningParameters(pp, nil)
+	assert.NotNil(t, error)
+	v, ok := error.(*service.ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, v.Field, "firewallRuleName")
+}
 func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &AllInOneProvisioningParameters{}
-	pp.FirewallIPStart = "192.168.86.1"
+	pp.FirewallRules = []FirewallRule{
+		{
+			FirewallRuleName: "Bad Rule",
+			FirewallIPStart:  "192.168.86.1",
+		},
+	}
+
 	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
@@ -38,7 +66,12 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &AllInOneProvisioningParameters{}
-	pp.FirewallIPEnd = "192.168.86.200"
+	pp.FirewallRules = []FirewallRule{
+		{
+			FirewallRuleName: "BadRule",
+			FirewallIPEnd:    "192.168.86.200",
+		},
+	}
 
 	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.NotNil(t, error)
@@ -50,8 +83,13 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 func TestValidateInvalidIP(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &AllInOneProvisioningParameters{}
-	pp.FirewallIPStart = "decafbad"
-	pp.FirewallIPEnd = "192.168.86.200"
+	pp.FirewallRules = []FirewallRule{
+		{
+			FirewallRuleName: "Bad Rule",
+			FirewallIPStart:  "decafbad",
+			FirewallIPEnd:    "192.168.86.200",
+		},
+	}
 	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
@@ -62,8 +100,14 @@ func TestValidateInvalidIP(t *testing.T) {
 func TestValidateIncompleteIP(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := &AllInOneProvisioningParameters{}
-	pp.FirewallIPStart = "192.168."
-	pp.FirewallIPEnd = "192.168.86.200"
+	pp.FirewallRules = []FirewallRule{
+		{
+			FirewallRuleName: "Bad Rule",
+			FirewallIPStart:  "192.168.",
+			FirewallIPEnd:    "192.168.86.200",
+		},
+	}
+
 	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
