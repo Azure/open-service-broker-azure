@@ -1,10 +1,17 @@
 package sqldb
 
-// ServerProvisioningParams encapsulates non-sensitive MSSQL-server specific
-// provisioning options
+// ServerProvisioningParams encapsulates non-sensitive
+// MSSQL-server specific provisioning options
 type ServerProvisioningParams struct {
-	FirewallIPStart string `json:"firewallStartIPAddress"`
-	FirewallIPEnd   string `json:"firewallEndIPAddress"`
+	SSLEnforcement string         `json:"sslEnforcement"`
+	FirewallRules  []FirewallRule `json:"firewallRules"`
+}
+
+// FirewallRule represents a firewall rule to be applied to the DBMS
+type FirewallRule struct {
+	FirewallRuleName string `json:"firewallRuleName"`
+	FirewallIPStart  string `json:"firewallStartIPAddress"`
+	FirewallIPEnd    string `json:"firewallEndIPAddress"`
 }
 
 // SecureServerProvisioningParams encapsulates sensitive MSSQL-server specific

@@ -85,22 +85,13 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		"administratorLogin":         dt.AdministratorLogin,
 		"administratorLoginPassword": sdt.AdministratorLoginPassword,
 	}
-	//Only include these if they are not empty.
-	//ARM Deployer will fail if the values included are not
-	//valid IPV4 addresses (i.e. empty string wil fail)
-	if pp.FirewallIPStart != "" {
-		p["firewallStartIpAddress"] = pp.FirewallIPStart
-	}
-	if pp.FirewallIPEnd != "" {
-		p["firewallEndIpAddress"] = pp.FirewallIPEnd
-	}
-	// new server scenario
+	goTemplateParams := buildGoTemplateParameters(pp)
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateServerOnlyBytes,
-		nil, // Go template params
+		goTemplateParams,
 		p,
 		instance.Tags,
 	)

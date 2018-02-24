@@ -23,24 +23,6 @@ var armTemplateServerOnlyBytes = []byte(`
 		"administratorLoginPassword": {
 			"type": "securestring"
 		},
-		"firewallRuleName": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 128,
-			"defaultValue": "AllowAll"
-		},
-		"firewallStartIpAddress": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 15,
-			"defaultValue": "0.0.0.0"
-		},
-		"firewallEndIpAddress": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 15,
-			"defaultValue": "0.0.0.0"
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -61,19 +43,22 @@ var armTemplateServerOnlyBytes = []byte(`
 			},
 			"tags": "[parameters('tags')]",
 			"resources": [
+				{{$count:= sub (len .firewallRules)  1}}
+				{{range $i, $rule := .firewallRules}}
 				{
 					"type": "firewallrules",
-					"name": "[parameters('firewallRuleName')]",
+					"name": "{{$rule.FirewallRuleName}}",
 					"apiVersion": "[variables('SQLapiVersion')]",
 					"location": "[parameters('location')]",
 					"properties": {
-						"startIpAddress": "[parameters('firewallStartIpAddress')]",
-						"endIpAddress": "[parameters('firewallEndIpAddress')]"
+						"startIpAddress": "{{$rule.FirewallIPStart}}",
+						"endIpAddress": "{{$rule.FirewallIPEnd}}"
 					},
 					"dependsOn": [
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
 					]
-				}
+				}{{if lt $i $count}},{{end}}
+				{{end}}
 			]
 		}
 	],

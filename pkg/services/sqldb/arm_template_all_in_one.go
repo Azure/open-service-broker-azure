@@ -35,24 +35,6 @@ var armTemplateDBMSOnlyBytes = []byte(`
 		"maxSizeBytes": {
 			"type": "string"
 		},
-		"firewallRuleName": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 128,
-			"defaultValue": "AllowAll"
-		},
-		"firewallStartIpAddress": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 15,
-			"defaultValue": "0.0.0.0"
-		},
-		"firewallEndIpAddress": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 15,
-			"defaultValue": "0.0.0.0"
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -73,19 +55,21 @@ var armTemplateDBMSOnlyBytes = []byte(`
 			},
 			"tags": "[parameters('tags')]",
 			"resources": [
+				{{range .firewallRules}}
 				{
 					"type": "firewallrules",
-					"name": "[parameters('firewallRuleName')]",
+					"name": "{{.FirewallRuleName}}",
 					"apiVersion": "[variables('SQLapiVersion')]",
 					"location": "[parameters('location')]",
 					"properties": {
-						"startIpAddress": "[parameters('firewallStartIpAddress')]",
-						"endIpAddress": "[parameters('firewallEndIpAddress')]"
+						"startIpAddress": "{{.FirewallIPStart}}",
+						"endIpAddress": "{{.FirewallIPEnd}}"
 					},
 					"dependsOn": [
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
 					]
 				},
+				{{end}}
 				{
 					"type": "databases",
 					"name": "[parameters('databaseName')]",
@@ -98,8 +82,11 @@ var armTemplateDBMSOnlyBytes = []byte(`
 						"maxSizeBytes": "[parameters('maxSizeBytes')]"
 					},
 					"dependsOn": [
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]",
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'), '/firewallrules/', parameters('firewallRuleName'))]"
+						{{range .firewallRules}}
+						"[concat('Microsoft.Sql/servers/', parameters('serverName'), '/firewallrules/', '{{.FirewallRuleName}}')]",
+						{{end}}
+						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+						
 					],
 					"tags": "[parameters('tags')]"
 				}

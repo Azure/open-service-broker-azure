@@ -46,8 +46,13 @@ func getMssqlCases(
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			location:    "southcentralus",
 			provisioningParameters: &sqldb.ServerProvisioningParams{
-				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.255",
+				FirewallRules: []sqldb.FirewallRule{
+					{
+						FirewallRuleName: "AllowAll",
+						FirewallIPStart:  "0.0.0.0",
+						FirewallIPEnd:    "255.255.255.255",
+					},
+				},
 			},
 			bindingParameters: &sqldb.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),
@@ -59,8 +64,13 @@ func getMssqlCases(
 			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 			location:    "southcentralus",
 			provisioningParameters: &sqldb.ServerProvisioningParams{
-				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.255",
+				FirewallRules: []sqldb.FirewallRule{
+					{
+						FirewallRuleName: "AllowAll",
+						FirewallIPStart:  "0.0.0.0",
+						FirewallIPEnd:    "255.255.255.255",
+					},
+				},
 			},
 			childTestCases: []*serviceLifecycleTestCase{
 				{ // db only scenario

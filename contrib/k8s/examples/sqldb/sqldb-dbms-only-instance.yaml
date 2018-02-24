@@ -10,5 +10,7 @@ spec:
     location: eastus
     resourceGroup: demo
     alias: dbms-only-sqldb
-    firewallStartIPAddress: "0.0.0.0"
-    firewallEndIPAddress: "255.255.255.255"
+    firewallRules:
+      - firewallStartIPAddress: "0.0.0.0"
+        firewallEndIPAddress: "255.255.255.255"
+        firewallRuleName: "AllowAll"

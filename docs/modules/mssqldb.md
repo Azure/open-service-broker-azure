@@ -34,11 +34,14 @@ By default, provisions a new SQL Server and a new database upon that server. The
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and nonde is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
-| `server` | `string` | An optional reference to an existing server that has been pre-provsioned by a cluster admin, who has also pre-configured the broker with corresponding configuration for connecting to and administering that server. | N | |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
-  
+| `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
+| `firewallRules[0].firewallRuleName` | `string` | Specifies the name of the generated firewall rule |Y | |
+| `firewallRules[0].firewallStartIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
+| `firewallRules[0].firewallEndIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
+
 ##### Bind
-  
+
 Creates a new user on the SQL Server. The new user will be named randomly and granted permission to log into and administer the database.
 
 ###### Binding Parameters
