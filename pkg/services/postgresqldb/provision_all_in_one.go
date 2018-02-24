@@ -153,7 +153,7 @@ func (a *allInOneManager) deployARMTemplate(
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
-		goTemplateParameters, // Go template params
+		goTemplateParameters,
 		armTemplateParameters,
 		instance.Tags,
 	)

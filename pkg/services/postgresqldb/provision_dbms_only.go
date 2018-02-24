@@ -145,7 +145,7 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateDBMSOnlyBytes,
-		goTemplateParameters, // Go template params
+		goTemplateParameters,
 		armTemplateParameters,
 		instance.Tags,
 	)
