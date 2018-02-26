@@ -13,6 +13,6 @@ spec:
     - uuid-ossp
     - postgis
     firewallRules:
-      - firewallStartIPAddress: "0.0.0.0"
-        firewallEndIPAddress: "255.255.255.255"
-        firewallRuleName: "AllowAll"
+    - firewallStartIPAddress: "0.0.0.0"
+      firewallEndIPAddress: "255.255.255.255"
+      firewallRuleName: "AllowAll"
