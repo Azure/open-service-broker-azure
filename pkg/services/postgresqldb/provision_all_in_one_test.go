@@ -19,9 +19,9 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 	pp := &AllInOneProvisioningParameters{}
 	pp.FirewallRules = []FirewallRule{
 		{
-			RuleName: "Good Rule",
-			StartIP:  "192.168.86.1",
-			EndIP:    "192.168.86.100",
+			Name:    "Good Rule",
+			StartIP: "192.168.86.1",
+			EndIP:   "192.168.86.100",
 		},
 	}
 
@@ -34,9 +34,9 @@ func TestValidateMissingFirewallRuleNameConfig(t *testing.T) {
 	pp := &AllInOneProvisioningParameters{}
 	pp.FirewallRules = []FirewallRule{
 		{
-			RuleName: "",
-			StartIP:  "192.168.86.1",
-			EndIP:    "255.255.255.0",
+			Name:    "",
+			StartIP: "192.168.86.1",
+			EndIP:   "255.255.255.0",
 		},
 	}
 
@@ -51,8 +51,8 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	pp := &AllInOneProvisioningParameters{}
 	pp.FirewallRules = []FirewallRule{
 		{
-			RuleName: "Bad Rule",
-			StartIP:  "192.168.86.1",
+			Name:    "Bad Rule",
+			StartIP: "192.168.86.1",
 		},
 	}
 
@@ -68,8 +68,8 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	pp := &AllInOneProvisioningParameters{}
 	pp.FirewallRules = []FirewallRule{
 		{
-			RuleName: "BadRule",
-			EndIP:    "192.168.86.200",
+			Name:  "BadRule",
+			EndIP: "192.168.86.200",
 		},
 	}
 
@@ -85,9 +85,9 @@ func TestValidateInvalidIP(t *testing.T) {
 	pp := &AllInOneProvisioningParameters{}
 	pp.FirewallRules = []FirewallRule{
 		{
-			RuleName: "Bad Rule",
-			StartIP:  "decafbad",
-			EndIP:    "192.168.86.200",
+			Name:    "Bad Rule",
+			StartIP: "decafbad",
+			EndIP:   "192.168.86.200",
 		},
 	}
 	error := sm.ValidateProvisioningParameters(pp, nil)
@@ -102,9 +102,9 @@ func TestValidateIncompleteIP(t *testing.T) {
 	pp := &AllInOneProvisioningParameters{}
 	pp.FirewallRules = []FirewallRule{
 		{
-			RuleName: "Bad Rule",
-			StartIP:  "192.168.",
-			EndIP:    "192.168.86.200",
+			Name:    "Bad Rule",
+			StartIP: "192.168.",
+			EndIP:   "192.168.86.200",
 		},
 	}
 

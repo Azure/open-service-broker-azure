@@ -87,7 +87,7 @@ var armTemplateBytes = []byte(`
 						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]"
 					],
 					"location": "[parameters('location')]",
-					"name": "{{.RuleName}}",
+					"name": "{{.Name}}",
 					"properties": {
 						"startIpAddress": "{{.StartIP}}",
 						"endIpAddress": "{{.EndIP}}"
@@ -101,7 +101,7 @@ var armTemplateBytes = []byte(`
 					"location": "[parameters('location')]",
 					"dependsOn": [
 						{{range .firewallRules}}
-						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'), '/firewallrules/', '{{.RuleName}}')]",
+						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'), '/firewallrules/', '{{.Name}}')]",
 						{{end}}
 						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]"
 					],

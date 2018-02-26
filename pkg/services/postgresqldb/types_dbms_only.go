@@ -11,9 +11,9 @@ type ServerProvisioningParameters struct {
 
 // FirewallRule describes a firewall rule to be applied to an DBMS
 type FirewallRule struct {
-	RuleName string `json:"ruleName"`
-	StartIP  string `json:"startIPAddress"`
-	EndIP    string `json:"endIPAddress"`
+	Name    string `json:"name"`
+	StartIP string `json:"startIPAddress"`
+	EndIP   string `json:"endIPAddress"`
 }
 
 // SecureServerProvisioningParameters encapsulates senstivie PostgreSQL-specific

@@ -56,7 +56,7 @@ func validateServerParameters(
 		)
 	}
 	for _, firewallRule := range firewallRules {
-		if firewallRule.RuleName == "" {
+		if firewallRule.Name == "" {
 			return service.NewValidationError(
 				"ruleName",
 				"must be set",
@@ -236,9 +236,9 @@ func buildGoTemplateParameters(
 		//Build the azure default
 		p["firewallRules"] = []FirewallRule{
 			{
-				RuleName: "AllowAzure",
-				StartIP:  "0.0.0.0",
-				EndIP:    "0.0.0.0",
+				Name:    "AllowAzure",
+				StartIP: "0.0.0.0",
+				EndIP:   "0.0.0.0",
 			},
 		}
 	}
