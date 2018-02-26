@@ -58,12 +58,12 @@ var armTemplateDBMSOnlyBytes = []byte(`
 				{{range .firewallRules}}
 				{
 					"type": "firewallrules",
-					"name": "{{.FirewallRuleName}}",
+					"name": "{{.Name}}",
 					"apiVersion": "[variables('SQLapiVersion')]",
 					"location": "[parameters('location')]",
 					"properties": {
-						"startIpAddress": "{{.FirewallIPStart}}",
-						"endIpAddress": "{{.FirewallIPEnd}}"
+						"startIpAddress": "{{.StartIP}}",
+						"endIpAddress": "{{.EndIP}}"
 					},
 					"dependsOn": [
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
@@ -83,7 +83,7 @@ var armTemplateDBMSOnlyBytes = []byte(`
 					},
 					"dependsOn": [
 						{{range .firewallRules}}
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'), '/firewallrules/', '{{.FirewallRuleName}}')]",
+						"[concat('Microsoft.Sql/servers/', parameters('serverName'), '/firewallrules/', '{{.Name}}')]",
 						{{end}}
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
 						

@@ -47,12 +47,12 @@ var armTemplateServerOnlyBytes = []byte(`
 				{{range $i, $rule := .firewallRules}}
 				{
 					"type": "firewallrules",
-					"name": "{{$rule.FirewallRuleName}}",
+					"name": "{{$rule.Name}}",
 					"apiVersion": "[variables('SQLapiVersion')]",
 					"location": "[parameters('location')]",
 					"properties": {
-						"startIpAddress": "{{$rule.FirewallIPStart}}",
-						"endIpAddress": "{{$rule.FirewallIPEnd}}"
+						"startIpAddress": "{{$rule.StartIP}}",
+						"endIpAddress": "{{$rule.EndIP}}"
 					},
 					"dependsOn": [
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"

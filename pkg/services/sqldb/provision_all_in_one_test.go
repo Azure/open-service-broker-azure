@@ -24,9 +24,9 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 	pp := &ServerProvisioningParams{
 		FirewallRules: []FirewallRule{
 			{
-				FirewallRuleName: "Goodrule",
-				FirewallIPStart:  "192.168.86.1",
-				FirewallIPEnd:    "192.168.86.100",
+				Name:    "Goodrule",
+				StartIP: "192.168.86.1",
+				EndIP:   "192.168.86.100",
 			},
 		},
 	}
@@ -42,14 +42,14 @@ func TestValidateMultipleGoodFirewallConfig(t *testing.T) {
 	pp := &ServerProvisioningParams{
 		FirewallRules: []FirewallRule{
 			{
-				FirewallRuleName: "Goodrule",
-				FirewallIPStart:  "192.168.86.1",
-				FirewallIPEnd:    "192.168.86.100",
+				Name:    "Goodrule",
+				StartIP: "192.168.86.1",
+				EndIP:   "192.168.86.100",
 			},
 			{
-				FirewallRuleName: "Goodrule2",
-				FirewallIPStart:  "192.168.86.101",
-				FirewallIPEnd:    "192.168.86.255",
+				Name:    "Goodrule2",
+				StartIP: "192.168.86.101",
+				EndIP:   "192.168.86.255",
 			},
 		},
 	}
@@ -65,8 +65,8 @@ func TestValidateBadFirewallConfigMissingName(t *testing.T) {
 	pp := &ServerProvisioningParams{
 		FirewallRules: []FirewallRule{
 			{
-				FirewallIPStart: "192.168.86.1",
-				FirewallIPEnd:   "192.168.86.100",
+				StartIP: "192.168.86.1",
+				EndIP:   "192.168.86.100",
 			},
 		},
 	}
@@ -75,7 +75,7 @@ func TestValidateBadFirewallConfigMissingName(t *testing.T) {
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "firewallRuleName")
+	assert.Equal(t, v.Field, "name")
 }
 
 func TestValidateMissingEndFirewallConfig(t *testing.T) {
@@ -83,8 +83,8 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	pp := &ServerProvisioningParams{
 		FirewallRules: []FirewallRule{
 			{
-				FirewallRuleName: "BadRule",
-				FirewallIPStart:  "192.168.86.1",
+				Name:    "BadRule",
+				StartIP: "192.168.86.1",
 			},
 		},
 	}
@@ -92,7 +92,7 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "firewallEndIPAddress")
+	assert.Equal(t, v.Field, "endIPAddress")
 }
 
 func TestValidateMissingStartFirewallConfig(t *testing.T) {
@@ -100,8 +100,8 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	pp := &ServerProvisioningParams{
 		FirewallRules: []FirewallRule{
 			{
-				FirewallRuleName: "Badrule",
-				FirewallIPEnd:    "192.168.86.200",
+				Name:  "Badrule",
+				EndIP: "192.168.86.200",
 			},
 		},
 	}
@@ -109,7 +109,7 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "firewallStartIPAddress")
+	assert.Equal(t, v.Field, "startIPAddress")
 }
 
 func TestValidateInvalidIP(t *testing.T) {
@@ -117,9 +117,9 @@ func TestValidateInvalidIP(t *testing.T) {
 	pp := &ServerProvisioningParams{
 		FirewallRules: []FirewallRule{
 			{
-				FirewallRuleName: "BadRule",
-				FirewallIPStart:  "decafbad",
-				FirewallIPEnd:    "192.168.86.200",
+				Name:    "BadRule",
+				StartIP: "decafbad",
+				EndIP:   "192.168.86.200",
 			},
 		},
 	}
@@ -127,7 +127,7 @@ func TestValidateInvalidIP(t *testing.T) {
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "firewallStartIPAddress")
+	assert.Equal(t, v.Field, "startIPAddress")
 }
 
 func TestValidateIncompleteIP(t *testing.T) {
@@ -135,9 +135,9 @@ func TestValidateIncompleteIP(t *testing.T) {
 	pp := &ServerProvisioningParams{
 		FirewallRules: []FirewallRule{
 			{
-				FirewallRuleName: "Goodrule",
-				FirewallIPStart:  "192.168.",
-				FirewallIPEnd:    "192.168.86.200",
+				Name:    "Goodrule",
+				StartIP: "192.168.",
+				EndIP:   "192.168.86.200",
 			},
 		},
 	}
@@ -145,5 +145,5 @@ func TestValidateIncompleteIP(t *testing.T) {
 	assert.NotNil(t, error)
 	v, ok := error.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "firewallStartIPAddress")
+	assert.Equal(t, v.Field, "startIPAddress")
 }

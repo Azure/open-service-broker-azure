@@ -10,6 +10,7 @@ spec:
     location: eastus
     resourceGroup: demo
     firewallRules:
-    - firewallStartIPAddress: "0.0.0.0"
-      firewallEndIPAddress: "255.255.255.255"
-      firewallRuleName: "AllowAll"
+    - startIPAddress: "0.0.0.0"
+      endIPAddress: "255.255.255.255"
+      name: "AllowAll"
+
