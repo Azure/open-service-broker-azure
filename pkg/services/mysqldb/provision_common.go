@@ -33,38 +33,38 @@ func validateServerProvisionParameters(
 		)
 	}
 	for _, firewallRule := range pp.FirewallRules {
-		if firewallRule.FirewallRuleName == "" {
+		if firewallRule.Name == "" {
 			return service.NewValidationError(
-				"firewallRuleName",
+				"name",
 				"must be set",
 			)
 		}
-		if firewallRule.FirewallIPStart != "" || firewallRule.FirewallIPEnd != "" {
-			if firewallRule.FirewallIPStart == "" {
+		if firewallRule.StartIP != "" || firewallRule.EndIP != "" {
+			if firewallRule.StartIP == "" {
 				return service.NewValidationError(
-					"firewallStartIPAddress",
-					"must be set when firewallEndIPAddress is set",
+					"startIPAddress",
+					"must be set when endIPAddress is set",
 				)
 			}
-			if firewallRule.FirewallIPEnd == "" {
+			if firewallRule.EndIP == "" {
 				return service.NewValidationError(
-					"firewallEndIPAddress",
-					"must be set when firewallStartIPAddress is set",
+					"endIPAddress",
+					"must be set when startIPAddress is set",
 				)
 			}
 		}
-		startIP := net.ParseIP(firewallRule.FirewallIPStart)
-		if firewallRule.FirewallIPStart != "" && startIP == nil {
+		startIP := net.ParseIP(firewallRule.StartIP)
+		if firewallRule.StartIP != "" && startIP == nil {
 			return service.NewValidationError(
-				"firewallStartIPAddress",
-				fmt.Sprintf(`invalid value: "%s"`, firewallRule.FirewallIPStart),
+				"startIPAddress",
+				fmt.Sprintf(`invalid value: "%s"`, firewallRule.StartIP),
 			)
 		}
-		endIP := net.ParseIP(firewallRule.FirewallIPEnd)
-		if firewallRule.FirewallIPEnd != "" && endIP == nil {
+		endIP := net.ParseIP(firewallRule.EndIP)
+		if firewallRule.EndIP != "" && endIP == nil {
 			return service.NewValidationError(
-				"firewallEndIPAddress",
-				fmt.Sprintf(`invalid value: "%s"`, firewallRule.FirewallIPEnd),
+				"endIPAddress",
+				fmt.Sprintf(`invalid value: "%s"`, firewallRule.EndIP),
 			)
 		}
 		//The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
@@ -75,10 +75,10 @@ func validateServerProvisionParameters(
 		endBytes := endIP.To4()
 		if bytes.Compare(startBytes, endBytes) > 0 {
 			return service.NewValidationError(
-				"firewallEndIPAddress",
+				"endIPAddress",
 				fmt.Sprintf(`invalid value: "%s". must be 
-				greater than or equal to firewallStartIPAddress`,
-					firewallRule.FirewallIPEnd),
+				greater than or equal tostartIPAddress`,
+					firewallRule.EndIP),
 			)
 		}
 	}
@@ -98,9 +98,9 @@ func buildGoTemplateParameters(
 		//Build the azure default
 		p["firewallRules"] = []FirewallRule{
 			{
-				FirewallRuleName: "AllowAzure",
-				FirewallIPStart:  "0.0.0.0",
-				FirewallIPEnd:    "0.0.0.0",
+				Name:    "AllowAzure",
+				StartIP: "0.0.0.0",
+				EndIP:   "0.0.0.0",
 			},
 		}
 	}

@@ -87,10 +87,10 @@ var allInOneArmTemplateBytes = []byte(`
 						"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'))]"
 					],
 					"location": "[parameters('location')]",
-					"name": "{{.FirewallRuleName}}",
+					"name": "{{.Name}}",
 					"properties": {
-						"startIpAddress": "{{.FirewallIPStart}}",
-						"endIpAddress": "{{.FirewallIPEnd}}"
+						"startIpAddress": "{{.StartIP}}",
+						"endIpAddress": "{{.EndIP}}"
 					}
 				},
 				{{end}}
@@ -101,7 +101,7 @@ var allInOneArmTemplateBytes = []byte(`
 					"location": "[parameters('location')]",
 					"dependsOn": [
 						{{range .firewallRules}}
-						"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'), '/firewallrules/', '{{.FirewallRuleName}}')]",
+						"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'), '/firewallrules/', '{{.Name}}')]",
 						{{end}}
 							"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'))]"
 					],

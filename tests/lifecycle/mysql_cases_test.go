@@ -56,14 +56,14 @@ func getMysqlCases(
 				SSLEnforcement: "disabled",
 				FirewallRules: []mysqldb.FirewallRule{
 					{
-						FirewallRuleName: "AllowSome",
-						FirewallIPStart:  "0.0.0.0",
-						FirewallIPEnd:    "35.0.0.0",
+						Name:    "AllowSome",
+						StartIP: "0.0.0.0",
+						EndIP:   "35.0.0.0",
 					},
 					{
-						FirewallRuleName: "AllowMore",
-						FirewallIPStart:  "35.0.0.1",
-						FirewallIPEnd:    "255.255.255.255",
+						Name:    "AllowMore",
+						StartIP: "35.0.0.1",
+						EndIP:   "255.255.255.255",
 					},
 				},
 			},
@@ -79,9 +79,9 @@ func getMysqlCases(
 			provisioningParameters: &mysqldb.ServerProvisioningParameters{
 				FirewallRules: []mysqldb.FirewallRule{
 					{
-						FirewallRuleName: "AllowAll",
-						FirewallIPStart:  "0.0.0.0",
-						FirewallIPEnd:    "255.255.255.255",
+						Name:    "AllowAll",
+						StartIP: "0.0.0.0",
+						EndIP:   "255.255.255.255",
 					},
 				},
 			},

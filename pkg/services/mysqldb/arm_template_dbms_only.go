@@ -83,10 +83,10 @@ var dbmsOnlyARMTemplate = []byte(`
 							"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'))]"
 						],
 						"location": "[parameters('location')]",
-						"name": "{{$rule.FirewallRuleName}}",
+						"name": "{{$rule.Name}}",
 						"properties": {
-							"startIpAddress": "{{$rule.FirewallIPStart}}",
-							"endIpAddress": "{{$rule.FirewallIPEnd}}"
+							"startIpAddress": "{{$rule.StartIP}}",
+							"endIpAddress": "{{$rule.EndIP}}"
 						}
 					}{{if lt $i $count}},{{end}}
 					{{end}}
