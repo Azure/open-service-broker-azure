@@ -48,8 +48,13 @@ func getMssqlCases(
 			provisioningParameters: &sqldb.ServerProvisioningParams{
 				FirewallRules: []sqldb.FirewallRule{
 					{
-						FirewallRuleName: "AllowAll",
+						FirewallRuleName: "AllowSome",
 						FirewallIPStart:  "0.0.0.0",
+						FirewallIPEnd:    "35.0.0.0",
+					},
+					{
+						FirewallRuleName: "AllowMore",
+						FirewallIPStart:  "35.0.0.1",
 						FirewallIPEnd:    "255.255.255.255",
 					},
 				},
