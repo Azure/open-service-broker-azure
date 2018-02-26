@@ -5,9 +5,15 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // ServerProvisioningParameters encapsulates non-senstivie PostgreSQL-specific
 // dbms provisioning options
 type ServerProvisioningParameters struct {
-	SSLEnforcement  string `json:"sslEnforcement"`
-	FirewallIPStart string `json:"firewallStartIPAddress"`
-	FirewallIPEnd   string `json:"firewallEndIPAddress"`
+	SSLEnforcement string         `json:"sslEnforcement"`
+	FirewallRules  []FirewallRule `json:"firewallRules"`
+}
+
+// FirewallRule describes a firewall rule to be applied to an DBMS
+type FirewallRule struct {
+	Name    string `json:"name"`
+	StartIP string `json:"startIPAddress"`
+	EndIP   string `json:"endIPAddress"`
 }
 
 // SecureServerProvisioningParameters encapsulates senstivie PostgreSQL-specific

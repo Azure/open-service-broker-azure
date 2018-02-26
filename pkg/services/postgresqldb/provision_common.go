@@ -45,8 +45,7 @@ func getAvailableServerName(
 
 func validateServerParameters(
 	sslEnforcementParam string,
-	firewallIPStartParam string,
-	firewallIPEndParam string,
+	firewallRules []FirewallRule,
 ) error {
 	sslEnforcement := strings.ToLower(sslEnforcementParam)
 	if sslEnforcement != "" && sslEnforcement != enabled &&
@@ -56,46 +55,58 @@ func validateServerParameters(
 			fmt.Sprintf(`invalid option: "%s"`, sslEnforcementParam),
 		)
 	}
-	if firewallIPStartParam != "" || firewallIPEndParam != "" {
-		if firewallIPStartParam == "" {
+	for _, firewallRule := range firewallRules {
+		if firewallRule.Name == "" {
 			return service.NewValidationError(
-				"firewallStartIPAddress",
-				"must be set when firewallEndIPAddress is set",
+				"ruleName",
+				"must be set",
 			)
 		}
-		if firewallIPStartParam == "" {
+		if firewallRule.StartIP != "" || firewallRule.EndIP != "" {
+			if firewallRule.StartIP == "" {
+				return service.NewValidationError(
+					"startIPAddress",
+					"must be set when endIPAddress is set",
+				)
+			}
+			if firewallRule.EndIP == "" {
+				return service.NewValidationError(
+					"endIPAddress",
+					"must be set when startIPAddress is set",
+				)
+			}
+		}
+		startIP := net.ParseIP(firewallRule.StartIP)
+		if firewallRule.StartIP != "" && startIP == nil {
 			return service.NewValidationError(
-				"firewallEndIPAddress",
-				"must be set when firewallStartIPAddress is set",
+				"startIPAddress",
+				fmt.Sprintf(`invalid value: "%s"`, firewallRule.StartIP),
 			)
 		}
-	}
-	startIP := net.ParseIP(firewallIPStartParam)
-	if firewallIPStartParam != "" && startIP == nil {
-		return service.NewValidationError(
-			"firewallStartIPAddress",
-			fmt.Sprintf(`invalid value: "%s"`, firewallIPStartParam),
-		)
-	}
-	endIP := net.ParseIP(firewallIPEndParam)
-	if firewallIPEndParam != "" && endIP == nil {
-		return service.NewValidationError(
-			"firewallEndIPAddress",
-			fmt.Sprintf(`invalid value: "%s"`, firewallIPEndParam),
-		)
-	}
-	//The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
-	//Once converted,comparing two IP addresses can be done by using the
-	//bytes. Compare function. Per the ARM template documentation,
-	//startIP must be <= endIP.
-	startBytes := startIP.To4()
-	endBytes := endIP.To4()
-	if bytes.Compare(startBytes, endBytes) > 0 {
-		return service.NewValidationError(
-			"firewallEndIPAddress",
-			fmt.Sprintf(`invalid value: "%s". must be 
-				greater than or equal to firewallStartIPAddress`, firewallIPEndParam),
-		)
+		endIP := net.ParseIP(firewallRule.StartIP)
+		if firewallRule.EndIP != "" && endIP == nil {
+			return service.NewValidationError(
+				"endIPAddress",
+				fmt.Sprintf(
+					`invalid value: "%s"`,
+					firewallRule.EndIP,
+				),
+			)
+		}
+		//The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
+		//Once converted,comparing two IP addresses can be done by using the
+		//bytes. Compare function. Per the ARM template documentation,
+		//startIP must be <= endIP.
+		startBytes := startIP.To4()
+		endBytes := endIP.To4()
+		if bytes.Compare(startBytes, endBytes) > 0 {
+			return service.NewValidationError(
+				"endIPAddress",
+				fmt.Sprintf(`invalid value: "%s". must be 
+				greater than or equal to startIPAddress`,
+					firewallRule.EndIP),
+			)
+		}
 	}
 	return nil
 }
@@ -210,4 +221,26 @@ func createExtensions(
 		return fmt.Errorf("error committing transaction: %s", err)
 	}
 	return nil
+}
+
+func buildGoTemplateParameters(
+	provisioningParameters *ServerProvisioningParameters,
+) map[string]interface{} {
+	p := map[string]interface{}{}
+	//Only include these if they are not empty.
+	//ARM Deployer will fail if the values included are not
+	//valid IPV4 addresses (i.e. empty string wil fail)
+	if len(provisioningParameters.FirewallRules) > 0 {
+		p["firewallRules"] = provisioningParameters.FirewallRules
+	} else {
+		//Build the azure default
+		p["firewallRules"] = []FirewallRule{
+			{
+				Name:    "AllowAzure",
+				StartIP: "0.0.0.0",
+				EndIP:   "0.0.0.0",
+			},
+		}
+	}
+	return p
 }
