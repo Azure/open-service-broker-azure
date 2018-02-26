@@ -57,25 +57,9 @@ func main() {
 					Name:  flagTag,
 					Usage: "specify a tag as a k=v pair",
 				},
-				cli.StringSliceFlag{
-					Name: flagsParameter,
-					Usage: "specify a service-specific string provisioning parameter " +
-						"as a k=v pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsIntParameter,
-					Usage: "specify a service-specific int provisioning parameter as a " +
-						"k=v pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsFloatParameter,
-					Usage: "specify a service-specific floating point provisioning " +
-						"parameter as a k=v pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsBoolParameter,
-					Usage: "specify a service-specific bool provisioning parameter as " +
-						"a k=v pair",
+				cli.StringFlag{
+					Name:  flagsParameters,
+					Usage: "specify provisioning parameters as a JSON object",
 				},
 				cli.BoolFlag{
 					Name: flagPoll,
@@ -104,25 +88,9 @@ func main() {
 					Name:  flagsPlanID,
 					Usage: "specify the `<plan id>`; optional",
 				},
-				cli.StringSliceFlag{
-					Name: flagsParameter,
-					Usage: "specify a service-specific string update parameter as a " +
-						"k=v pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsIntParameter,
-					Usage: "specify a service-specific int update parameter as a k=v " +
-						"pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsFloatParameter,
-					Usage: "specify a service-specific floating point update parameter " +
-						" as a k=v pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsBoolParameter,
-					Usage: "specify a service-specific bool update parameter as a k=v " +
-						"pair",
+				cli.StringFlag{
+					Name:  flagsParameters,
+					Usage: "specify updating parameters as a JSON object",
 				},
 				cli.BoolFlag{
 					Name: flagPoll,
@@ -160,25 +128,9 @@ func main() {
 					Name:  flagsInstanceID,
 					Usage: "specify the `<instance id>`; required",
 				},
-				cli.StringSliceFlag{
-					Name: flagsParameter,
-					Usage: "specify a service-specific string binding parameter as a " +
-						"k=v pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsIntParameter,
-					Usage: "specify a service-specific int binding parameter as a k=v " +
-						"pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsFloatParameter,
-					Usage: "specify a service-specific floating point binding " +
-						"parameter as a k=v pair",
-				},
-				cli.StringSliceFlag{
-					Name: flagsBoolParameter,
-					Usage: "specify a service-specific bool binding parameter as a k=v " +
-						"pair",
+				cli.StringFlag{
+					Name:  flagsParameters,
+					Usage: "specify binding parameters as a JSON object",
 				},
 			},
 			Action: bind,
