@@ -3,9 +3,15 @@ package mysqldb
 // ServerProvisioningParameters encapsulates non-sensitive MySQL-specific
 // server provisioning options
 type ServerProvisioningParameters struct {
-	SSLEnforcement  string `json:"sslEnforcement"`
-	FirewallIPStart string `json:"firewallStartIPAddress"`
-	FirewallIPEnd   string `json:"firewallEndIPAddress"`
+	SSLEnforcement string         `json:"sslEnforcement"`
+	FirewallRules  []FirewallRule `json:"firewallRules"`
+}
+
+// FirewallRule represents a firewall rule to be applied to the DBMS
+type FirewallRule struct {
+	Name    string `json:"name"`
+	StartIP string `json:"startIPAddress"`
+	EndIP   string `json:"endIPAddress"`
 }
 
 // SecureServerProvisioningParameters encapsulates sensitive MySQL-specific

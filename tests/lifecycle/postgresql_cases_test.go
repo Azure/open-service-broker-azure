@@ -56,9 +56,19 @@ func getPostgresqlCases(
 			testCredentials: testPostgreSQLCreds(),
 			provisioningParameters: &postgresqldb.AllInOneProvisioningParameters{
 				ServerProvisioningParameters: postgresqldb.ServerProvisioningParameters{ //nolint:lll
-					FirewallIPStart: "0.0.0.0",
-					FirewallIPEnd:   "255.255.255.255",
-					SSLEnforcement:  "disabled",
+					FirewallRules: []postgresqldb.FirewallRule{
+						{
+							StartIP: "0.0.0.0",
+							EndIP:   "35.0.0.0",
+							Name:    "AllowSome",
+						},
+						{
+							StartIP: "35.0.0.1",
+							EndIP:   "255.255.255.255",
+							Name:    "AllowMore",
+						},
+					},
+					SSLEnforcement: "disabled",
 				},
 				DatabaseProvisioningParameters: postgresqldb.DatabaseProvisioningParameters{ //nolint:lll
 					Extensions: []string{
@@ -76,8 +86,13 @@ func getPostgresqlCases(
 			description: "dbms-only",
 			location:    "eastus",
 			provisioningParameters: &postgresqldb.ServerProvisioningParameters{
-				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.255",
+				FirewallRules: []postgresqldb.FirewallRule{
+					{
+						StartIP: "0.0.0.0",
+						EndIP:   "255.255.255.255",
+						Name:    "AllowAll",
+					},
+				},
 			},
 			childTestCases: []*serviceLifecycleTestCase{
 				{ // db only scenario
