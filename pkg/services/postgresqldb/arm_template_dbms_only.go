@@ -40,24 +40,6 @@ var armTemplateDBMSOnlyBytes = []byte(`
 			"allowedValues": [ "9.5", "9.6" ],
 			"defaultValue": "9.6"
 		},
-		"firewallRuleName": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 128,
-			"defaultValue": "AllowAll"
-		},
-		"firewallStartIpAddress": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 15,
-			"defaultValue": "0.0.0.0"
-		},
-		"firewallEndIpAddress": {
-			"type": "string",
-			"minLength": 1,
-			"maxLength": 15,
-			"defaultValue": "0.0.0.0"
-		},
 		"sslEnforcement": {
 			"type": "string",
 			"allowedValues": [ "Enabled", "Disabled" ],
@@ -92,6 +74,8 @@ var armTemplateDBMSOnlyBytes = []byte(`
 			"type": "Microsoft.DBforPostgreSQL/servers",
 			"tags": "[parameters('tags')]",
 			"resources": [
+				{{$count:= sub (len .firewallRules)  1}}
+				{{range $i, $rule := .firewallRules}}
 				{
 					"type": "firewallrules",
 					"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
@@ -99,12 +83,13 @@ var armTemplateDBMSOnlyBytes = []byte(`
 						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]"
 					],
 					"location": "[parameters('location')]",
-					"name": "[parameters('firewallRuleName')]",
+					"name": "{{$rule.Name}}",
 					"properties": {
-						"startIpAddress": "[parameters('firewallStartIpAddress')]",
-						"endIpAddress": "[parameters('firewallEndIpAddress')]"
+						"startIpAddress": "{{$rule.StartIP}}",
+						"endIpAddress": "{{$rule.EndIP}}"
 					}
-				}
+				}{{if lt $i $count}},{{end}}
+				{{end}}
 			]
 		}
 	],
