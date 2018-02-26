@@ -58,14 +58,14 @@ func getPostgresqlCases(
 				ServerProvisioningParameters: postgresqldb.ServerProvisioningParameters{ //nolint:lll
 					FirewallRules: []postgresqldb.FirewallRule{
 						{
-							FirewallIPStart:  "0.0.0.0",
-							FirewallIPEnd:    "35.0.0.0",
-							FirewallRuleName: "AllowSome",
+							StartIP:  "0.0.0.0",
+							EndIP:    "35.0.0.0",
+							RuleName: "AllowSome",
 						},
 						{
-							FirewallIPStart:  "35.0.0.1",
-							FirewallIPEnd:    "255.255.255.255",
-							FirewallRuleName: "AllowMore",
+							StartIP:  "35.0.0.1",
+							EndIP:    "255.255.255.255",
+							RuleName: "AllowMore",
 						},
 					},
 					SSLEnforcement: "disabled",
@@ -88,9 +88,9 @@ func getPostgresqlCases(
 			provisioningParameters: &postgresqldb.ServerProvisioningParameters{
 				FirewallRules: []postgresqldb.FirewallRule{
 					{
-						FirewallIPStart:  "0.0.0.0",
-						FirewallIPEnd:    "255.255.255.255",
-						FirewallRuleName: "AllowAll",
+						StartIP:  "0.0.0.0",
+						EndIP:    "255.255.255.255",
+						RuleName: "AllowAll",
 					},
 				},
 			},

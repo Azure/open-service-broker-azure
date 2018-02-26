@@ -83,10 +83,10 @@ var armTemplateDBMSOnlyBytes = []byte(`
 						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]"
 					],
 					"location": "[parameters('location')]",
-					"name": "{{$rule.FirewallRuleName}}",
+					"name": "{{$rule.RuleName}}",
 					"properties": {
-						"startIpAddress": "{{$rule.FirewallIPStart}}",
-						"endIpAddress": "{{$rule.FirewallIPEnd}}"
+						"startIpAddress": "{{$rule.StartIP}}",
+						"endIpAddress": "{{$rule.EndIP}}"
 					}
 				}{{if lt $i $count}},{{end}}
 				{{end}}
