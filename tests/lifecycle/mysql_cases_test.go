@@ -53,9 +53,19 @@ func getMysqlCases(
 			planID:      "427559f1-bf2a-45d3-8844-32374a3e58aa",
 			location:    "southcentralus",
 			provisioningParameters: &mysqldb.ServerProvisioningParameters{
-				SSLEnforcement:  "disabled",
-				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.255",
+				SSLEnforcement: "disabled",
+				FirewallRules: []mysqldb.FirewallRule{
+					{
+						Name:    "AllowSome",
+						StartIP: "0.0.0.0",
+						EndIP:   "35.0.0.0",
+					},
+					{
+						Name:    "AllowMore",
+						StartIP: "35.0.0.1",
+						EndIP:   "255.255.255.255",
+					},
+				},
 			},
 			bindingParameters: &mysqldb.BindingParameters{},
 			testCredentials:   testMySQLCreds(),
@@ -67,8 +77,13 @@ func getMysqlCases(
 			planID:      "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
 			location:    "eastus",
 			provisioningParameters: &mysqldb.ServerProvisioningParameters{
-				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.255",
+				FirewallRules: []mysqldb.FirewallRule{
+					{
+						Name:    "AllowAll",
+						StartIP: "0.0.0.0",
+						EndIP:   "255.255.255.255",
+					},
+				},
 			},
 			childTestCases: []*serviceLifecycleTestCase{
 				{ // db only scenario

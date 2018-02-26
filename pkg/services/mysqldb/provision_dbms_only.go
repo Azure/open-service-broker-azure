@@ -79,7 +79,6 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 	plan service.Plan,
 	details *dbmsOnlyMysqlInstanceDetails,
 	secureDetails *dbmsOnlyMysqlSecureInstanceDetails,
-	provisioningParameters *ServerProvisioningParameters,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -97,15 +96,7 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 		"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
 		"sslEnforcement": sslEnforcement,
 	}
-	//Only include these if they are not empty.
-	//ARM Deployer will fail if the values included are not
-	//valid IPV4 addresses (i.e. empty string wil fail)
-	if provisioningParameters.FirewallIPStart != "" {
-		p["firewallStartIpAddress"] = provisioningParameters.FirewallIPStart
-	}
-	if provisioningParameters.FirewallIPEnd != "" {
-		p["firewallEndIpAddress"] = provisioningParameters.FirewallIPEnd
-	}
+
 	return p
 }
 
@@ -137,14 +128,14 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		instance.Plan,
 		dt,
 		sdt,
-		pp,
 	)
+	goTemplateParameters := buildGoTemplateParameters(pp)
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		dbmsOnlyARMTemplate,
-		nil, // Go template params
+		goTemplateParameters,
 		armTemplateParameters,
 		instance.Tags,
 	)
