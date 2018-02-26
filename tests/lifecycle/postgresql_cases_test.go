@@ -59,8 +59,13 @@ func getPostgresqlCases(
 					FirewallRules: []postgresqldb.FirewallRule{
 						{
 							FirewallIPStart:  "0.0.0.0",
+							FirewallIPEnd:    "35.0.0.0",
+							FirewallRuleName: "AllowSome",
+						},
+						{
+							FirewallIPStart:  "35.0.0.1",
 							FirewallIPEnd:    "255.255.255.255",
-							FirewallRuleName: "AllowAll",
+							FirewallRuleName: "AllowMore",
 						},
 					},
 					SSLEnforcement: "disabled",
