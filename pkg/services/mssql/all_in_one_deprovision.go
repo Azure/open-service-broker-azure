@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"context"
@@ -7,29 +7,29 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *dbmsOnlyManager) GetDeprovisioner(
+func (a *allInOneManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep("deleteARMDeployment", d.deleteARMDeployment),
+		service.NewDeprovisioningStep("deleteARMDeployment", a.deleteARMDeployment),
 		service.NewDeprovisioningStep(
 			"deleteMsSQLServer",
-			d.deleteMsSQLServer,
+			a.deleteMsSQLServer,
 		),
 	)
 }
 
-func (d *dbmsOnlyManager) deleteARMDeployment(
+func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
+			"error casting instance.Details as *mssql.allInOneInstanceDetails",
 		)
 	}
-	err := d.armDeployer.Delete(
+	err := a.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	)
@@ -39,19 +39,19 @@ func (d *dbmsOnlyManager) deleteARMDeployment(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbmsOnlyManager) deleteMsSQLServer(
+func (a *allInOneManager) deleteMsSQLServer(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlInstanceDetails",
+			"error casting instance.Details as *mssql.allInOneInstanceDetails",
 		)
 	}
-	result, err := d.serversClient.Delete(
+	result, err := a.serversClient.Delete(
 		ctx,
 		instance.ResourceGroup,
 		dt.ServerName,
@@ -59,7 +59,7 @@ func (d *dbmsOnlyManager) deleteMsSQLServer(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
+	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return dt, instance.SecureDetails, nil
