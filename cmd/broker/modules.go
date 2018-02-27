@@ -25,7 +25,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mysqldb"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/search"
@@ -191,7 +191,7 @@ func initModules(azureConfig config.AzureConfig) error {
 			postgresDatabasesClient,
 		),
 		rediscache.New(armDeployer, redisClient),
-		mysqldb.New(
+		mysql.New(
 			azureEnvironment,
 			armDeployer,
 			mysqlCheckNameAvailabilityClient,

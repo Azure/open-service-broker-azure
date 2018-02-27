@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ func unbind(
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
 	databaseName string,
-	bindingDetails *mysqlBindingDetails,
+	bindingDetails *bindingDetails,
 
 ) error {
 	db, err := createDBConnection(

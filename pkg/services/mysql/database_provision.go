@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"context"
@@ -11,14 +11,14 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (d *dbOnlyManager) ValidateProvisioningParameters(
+func (d *databaseManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
 	return nil
 }
 
-func (d *dbOnlyManager) GetProvisioner(
+func (d *databaseManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -26,22 +26,14 @@ func (d *dbOnlyManager) GetProvisioner(
 		service.NewProvisioningStep("deployARMTemplate", d.deployARMTemplate),
 	)
 }
-func (d *dbOnlyManager) preProvision(
+func (d *databaseManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
-		)
-	}
-	//We aren't using any of these, but validate it can be type cast
-	_, ok = instance.ProvisioningParameters.(*DatabaseProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*mysqldb.DatabaseProvisioningParameters",
+			"error casting instance.Details as *mysql.databaseInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
@@ -50,28 +42,20 @@ func (d *dbOnlyManager) preProvision(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbOnlyManager) deployARMTemplate(
+func (d *databaseManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsOnlyMysqlInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.Details " +
-				"as *dbmsOnlyMysqlInstanceDetails",
+			"error casting instance.Parent.Details as *mysql.dbmsInstanceDetails",
 		)
 	}
-	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
-		)
-	}
-	_, ok = instance.ProvisioningParameters.(*DatabaseProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting provisioningParameters " +
-				"as *mysql.DatabaseProvisioningParameters",
+			"error casting instance.Details as *mysql.databaseInstanceDetailss",
 		)
 	}
 
@@ -83,7 +67,7 @@ func (d *dbOnlyManager) deployARMTemplate(
 		dt.ARMDeploymentName,
 		instance.Parent.ResourceGroup,
 		instance.Parent.Location,
-		dbOnlyArmTemplateBytes,
+		databaseARMTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
 		instance.Tags,
