@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"fmt"
@@ -19,17 +19,17 @@ func (a *allInOneManager) Bind(
 	_ service.BindingParameters,
 	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error casting instance.SecureDetails as " +
-				"*mssqlAllInOneSecureInstanceDetails",
+				"*mssql.secureAllInOneInstanceDetails",
 		)
 	}
 
@@ -45,22 +45,22 @@ func (a *allInOneManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssql.allInOneInstanceDetails",
 		)
 	}
-	bd, ok := binding.Details.(*mssqlBindingDetails)
+	bd, ok := binding.Details.(*bindingDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting binding.Details as *mssqlBindingDetails",
+			"error casting binding.Details as *mssql.bindingDetails",
 		)
 	}
-	sbd, ok := binding.SecureDetails.(*mssqlSecureBindingDetails)
+	sbd, ok := binding.SecureDetails.(*secureBindingDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting binding.SecureDetails as *mssqlSecureBindingDetails",
+			"error casting binding.SecureDetails as *mssql.secureBindingDetails",
 		)
 	}
 	creds := createCredential(
