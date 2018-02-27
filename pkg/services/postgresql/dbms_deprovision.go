@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *dbmsOnlyManager) GetDeprovisioner(
+func (d *dbmsManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
@@ -19,15 +19,14 @@ func (d *dbmsOnlyManager) GetDeprovisioner(
 	)
 }
 
-func (d *dbmsOnlyManager) deleteARMDeployment(
+func (d *dbmsManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbmsOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details " +
-				"as *dbmsOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.dbmsInstanceDetails",
 		)
 	}
 	if err := d.armDeployer.Delete(
@@ -39,17 +38,16 @@ func (d *dbmsOnlyManager) deleteARMDeployment(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbmsOnlyManager) deletePostgreSQLServer(
+func (d *dbmsManager) deletePostgreSQLServer(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*dbmsOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details " +
-				"as *dbmsOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.dbmsInstanceDetails",
 		)
 	}
 	result, err := d.serversClient.Delete(

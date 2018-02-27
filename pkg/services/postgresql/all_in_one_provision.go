@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"context"
@@ -22,10 +22,7 @@ func (a *allInOneManager) ValidateProvisioningParameters(
 				"*postgresql.AllInOneProvisioningParameters",
 		)
 	}
-	return validateServerParameters(
-		pp.SSLEnforcement,
-		pp.FirewallRules,
-	)
+	return validateDBMSProvisionParameters(&pp.DBMSProvisioningParameters)
 }
 
 func (a *allInOneManager) GetProvisioner(
@@ -45,18 +42,17 @@ func (a *allInOneManager) preProvision(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details" +
-				"as *allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.SecureDetails" +
-				"as *allInOnePostgresqlSecureInstanceDetails",
+			"error casting instance.SecureDetails as " +
+				"*postgresql.secureAllInOneInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
@@ -93,8 +89,8 @@ func (a *allInOneManager) preProvision(
 
 func (a *allInOneManager) buildARMTemplateParameters(
 	plan service.Plan,
-	details *allInOnePostgresqlInstanceDetails,
-	secureDetails *allInOnePostgresqlSecureInstanceDetails,
+	details *allInOneInstanceDetails,
+	secureDetails *secureAllInOneInstanceDetails,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -119,18 +115,17 @@ func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details " +
-				"as *allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.SecureDetails " +
-				"as *allInOnePostgresqlSecureInstanceDetails",
+			"error casting instance.SecureDetails as " +
+				"*postgresql.secureAllInOneInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
@@ -146,13 +141,13 @@ func (a *allInOneManager) deployARMTemplate(
 		sdt,
 	)
 	goTemplateParameters := buildGoTemplateParameters(
-		&pp.ServerProvisioningParameters,
+		&pp.DBMSProvisioningParameters,
 	)
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
-		armTemplateBytes,
+		allInOneARMTemplateBytes,
 		goTemplateParameters,
 		armTemplateParameters,
 		instance.Tags,
@@ -177,18 +172,17 @@ func (a *allInOneManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details " +
-				"as *allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details " +
-				"as *allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as " +
+				"*postgresql.secureAllInOneInstanceDetails",
 		)
 	}
 	err := setupDatabase(
@@ -208,18 +202,17 @@ func (a *allInOneManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as " +
-				"*allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.SecureDetails as " +
-				"*allInOnePostgresqlSecureInstanceDetails",
+				"*postgresql.secureAllInOneInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)

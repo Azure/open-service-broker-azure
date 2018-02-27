@@ -1,24 +1,14 @@
-package postgresqldb
+package postgresql
 
-// BindingParameters encapsulates non-sensitive PostgreSQL-specific binding
-// options
-type BindingParameters struct {
-}
-
-// SecureBindingParameters encapsulates sensitive PostgreSQL-specific binding
-// options
-type SecureBindingParameters struct {
-}
-
-type postgresqlBindingDetails struct {
+type bindingDetails struct {
 	LoginName string `json:"loginName"`
 }
 
-type postgresqlSecureBindingDetails struct {
+type secureBindingDetails struct {
 	Password string `json:"password"`
 }
 
-// Credentials encapsulates PostgreSQL-specific coonection details and
+// Credentials encapsulates PostgreSQL-specific connection details and
 // credentials.
 type Credentials struct {
 	Host        string   `json:"host"`

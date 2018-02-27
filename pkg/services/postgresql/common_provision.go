@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"bytes"
@@ -43,19 +43,16 @@ func getAvailableServerName(
 	}
 }
 
-func validateServerParameters(
-	sslEnforcementParam string,
-	firewallRules []FirewallRule,
-) error {
-	sslEnforcement := strings.ToLower(sslEnforcementParam)
+func validateDBMSProvisionParameters(pp *DBMSProvisioningParameters) error {
+	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
 	if sslEnforcement != "" && sslEnforcement != enabled &&
 		sslEnforcement != disabled {
 		return service.NewValidationError(
 			"sslEnforcement",
-			fmt.Sprintf(`invalid option: "%s"`, sslEnforcementParam),
+			fmt.Sprintf(`invalid option: "%s"`, pp.SSLEnforcement),
 		)
 	}
-	for _, firewallRule := range firewallRules {
+	for _, firewallRule := range pp.FirewallRules {
 		if firewallRule.Name == "" {
 			return service.NewValidationError(
 				"ruleName",
@@ -93,10 +90,10 @@ func validateServerParameters(
 				),
 			)
 		}
-		//The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
-		//Once converted,comparing two IP addresses can be done by using the
-		//bytes. Compare function. Per the ARM template documentation,
-		//startIP must be <= endIP.
+		// The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
+		// Once converted,comparing two IP addresses can be done by using the
+		// bytes. Compare function. Per the ARM template documentation,
+		// startIP must be <= endIP.
 		startBytes := startIP.To4()
 		endBytes := endIP.To4()
 		if bytes.Compare(startBytes, endBytes) > 0 {
@@ -224,16 +221,16 @@ func createExtensions(
 }
 
 func buildGoTemplateParameters(
-	provisioningParameters *ServerProvisioningParameters,
+	provisioningParameters *DBMSProvisioningParameters,
 ) map[string]interface{} {
 	p := map[string]interface{}{}
-	//Only include these if they are not empty.
-	//ARM Deployer will fail if the values included are not
-	//valid IPV4 addresses (i.e. empty string wil fail)
+	// Only include these if they are not empty.
+	// ARM Deployer will fail if the values included are not
+	// valid IPV4 addresses (i.e. empty string wil fail)
 	if len(provisioningParameters.FirewallRules) > 0 {
 		p["firewallRules"] = provisioningParameters.FirewallRules
 	} else {
-		//Build the azure default
+		// Build the azure default
 		p["firewallRules"] = []FirewallRule{
 			{
 				Name:    "AllowAzure",

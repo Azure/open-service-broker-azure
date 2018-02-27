@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"context"
@@ -11,24 +11,21 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (d *dbmsOnlyManager) ValidateProvisioningParameters(
+func (d *dbmsManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ServerProvisioningParameters)
+	pp, ok := provisioningParameters.(*DBMSProvisioningParameters)
 	if !ok {
 		return errors.New(
 			"error casting provisioningParameters as " +
-				"*postgresql.ServerProvisioningParameters",
+				"*postgresql.DBMSProvisioningParameters",
 		)
 	}
-	return validateServerParameters(
-		pp.SSLEnforcement,
-		pp.FirewallRules,
-	)
+	return validateDBMSProvisionParameters(pp)
 }
 
-func (d *dbmsOnlyManager) GetProvisioner(
+func (d *dbmsManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -37,30 +34,30 @@ func (d *dbmsOnlyManager) GetProvisioner(
 	)
 }
 
-func (d *dbmsOnlyManager) preProvision(
+func (d *dbmsManager) preProvision(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*dbmsOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *dbmsOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.dbmsInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureDBMSInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.SecureDetails as " +
-				"*dbmsOnlyPostgresqlSecureInstanceDetails",
+				"*postgresql.secureDBMSInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*DBMSProvisioningParameters)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
-				"*postgresql.ServerProvisioningParameters",
+				"*postgresql.DBMSProvisioningParameters",
 		)
 	}
 
@@ -87,10 +84,10 @@ func (d *dbmsOnlyManager) preProvision(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbmsOnlyManager) buildARMTemplateParameters(
+func (d *dbmsManager) buildARMTemplateParameters(
 	plan service.Plan,
-	details *dbmsOnlyPostgresqlInstanceDetails,
-	secureDetails *dbmsOnlyPostgresqlSecureInstanceDetails,
+	details *dbmsInstanceDetails,
+	secureDetails *secureDBMSInstanceDetails,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -110,28 +107,28 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 	return p
 }
 
-func (d *dbmsOnlyManager) deployARMTemplate(
+func (d *dbmsManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbmsOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *dbmsOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.dbmsInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureDBMSInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.SecureDetails as " +
-				"*dbmsOnlyPostgresqlSecureInstanceDetails",
+				"*postgresql.secureDBMSInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*DBMSProvisioningParameters)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting provisioningParameters as " +
-				"*postgresql.ServerProvisioningParameters",
+				"*postgresql.DBMSProvisioningParameters",
 		)
 	}
 	armTemplateParameters := d.buildARMTemplateParameters(
@@ -144,7 +141,7 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
-		armTemplateDBMSOnlyBytes,
+		dbmsARMTemplateBytes,
 		goTemplateParameters,
 		armTemplateParameters,
 		instance.Tags,

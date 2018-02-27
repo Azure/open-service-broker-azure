@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
@@ -8,57 +8,53 @@ type DatabaseProvisioningParameters struct {
 	Extensions []string `json:"extensions"`
 }
 
-// SecureDatabaseProvisioningParameters encapsulates sensitive
-// PostgreSQL-specific database provisioning options
-type SecureDatabaseProvisioningParameters struct{}
-
-type dbOnlyPostgresqlInstanceDetails struct {
+type databaseInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	DatabaseName      string `json:"database"`
 }
 
-type dbOnlyPostgresqlSecureInstanceDetails struct{}
-
 func (
-	d *dbOnlyManager,
+	d *databaseManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
 	return &DatabaseProvisioningParameters{}
 }
 
 func (
-	d *dbOnlyManager,
+	d *databaseManager,
 ) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureDatabaseProvisioningParameters{}
+	return nil
 }
 
 func (
-	d *dbOnlyManager,
+	d *databaseManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &dbOnlyPostgresqlInstanceDetails{}
+	return &databaseInstanceDetails{}
 }
 
 func (
-	d *dbOnlyManager,
+	d *databaseManager,
 ) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &dbOnlyPostgresqlSecureInstanceDetails{}
-}
-
-func (d *dbOnlyManager) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
+	return nil
 }
 
 func (
-	d *dbOnlyManager,
+	d *databaseManager,
+) GetEmptyBindingParameters() service.BindingParameters {
+	return nil
+}
+
+func (
+	d *databaseManager,
 ) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
+	return nil
 }
 
-func (d *dbOnlyManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &postgresqlBindingDetails{}
+func (d *databaseManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &bindingDetails{}
 }
 
 func (
-	d *dbOnlyManager,
+	d *databaseManager,
 ) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &postgresqlSecureBindingDetails{}
+	return &secureBindingDetails{}
 }

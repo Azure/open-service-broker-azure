@@ -1,10 +1,10 @@
-package postgresqldb
+package postgresql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ServerProvisioningParameters encapsulates non-senstivie PostgreSQL-specific
+// DBMSProvisioningParameters encapsulates non-senstivie PostgreSQL-specific
 // dbms provisioning options
-type ServerProvisioningParameters struct {
+type DBMSProvisioningParameters struct {
 	SSLEnforcement string         `json:"sslEnforcement"`
 	FirewallRules  []FirewallRule `json:"firewallRules"`
 }
@@ -16,63 +16,59 @@ type FirewallRule struct {
 	EndIP   string `json:"endIPAddress"`
 }
 
-// SecureServerProvisioningParameters encapsulates senstivie PostgreSQL-specific
-// dbms provisioning options
-type SecureServerProvisioningParameters struct{}
-
-type dbmsOnlyPostgresqlInstanceDetails struct {
+type dbmsInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	ServerName               string `json:"server"`
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
 	EnforceSSL               bool   `json:"enforceSSL"`
 }
 
-type dbmsOnlyPostgresqlSecureInstanceDetails struct {
+type secureDBMSInstanceDetails struct {
 	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 }
 
 func (
-	d *dbmsOnlyManager,
+	d *dbmsManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ServerProvisioningParameters{}
+	return &DBMSProvisioningParameters{}
 }
 
 func (
-	d *dbmsOnlyManager,
+	d *dbmsManager,
 ) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureServerProvisioningParameters{}
+	return nil
 }
 
 func (
-	d *dbmsOnlyManager,
+	d *dbmsManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &dbmsOnlyPostgresqlInstanceDetails{}
+	return &dbmsInstanceDetails{}
 }
 
 func (
-	d *dbmsOnlyManager,
+	d *dbmsManager,
 ) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &dbmsOnlyPostgresqlSecureInstanceDetails{}
+	return &secureDBMSInstanceDetails{}
 }
 
 func (
-	d *dbmsOnlyManager,
+	d *dbmsManager,
 ) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
+	return nil
 }
 
 func (
-	d *dbmsOnlyManager,
+	d *dbmsManager,
 ) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
+	return nil
 }
 
-func (d *dbmsOnlyManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &postgresqlBindingDetails{}
+func (d *dbmsManager) GetEmptyBindingDetails() service.BindingDetails {
+	return nil
 }
 
 func (
-	d *dbmsOnlyManager,
+	d *dbmsManager,
 ) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &postgresqlSecureBindingDetails{}
+	return &secureBindingDetails{}
 }

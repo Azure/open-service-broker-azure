@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (a *dbmsOnlyManager) Unbind(
+func (a *dbmsManager) Unbind(
 	instance service.Instance,
 	binding service.Binding,
 ) error {

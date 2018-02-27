@@ -1,26 +1,25 @@
-package postgresqldb
+package postgresql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
+// nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
-		//all-in-one
+		// all-in-one
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "b43b4bba-5741-4d98-a10b-17dc5cee0175",
-				Name:        "azure-postgresqldb",
-				Description: "Azure Database for PostgreSQL (Experimental)",
+				Name:        "azure-postgresql",
+				Description: "Azure Database for PostgreSQL-- DBMS and single database (experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName: "Azure Database for PostgreSQL",
-					ImageUrl: "https://azure.microsoft.com/svghandler/postgresql/" +
-						"?width=200",
-					LongDescription: "Enterprise-ready fully managed community PostgreSQL" +
-						" (Experimental)",
+					DisplayName:      "Azure Database for PostgreSQL",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					LongDescription:  "Azure Database for PostgreSQL-- DBMS and single database (experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
-				Tags:     []string{"Azure", "PostgreSQL", "Database"},
+				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
 			},
 			m.allInOneManager,
 			service.NewPlan(&service.PlanProperties{
@@ -54,26 +53,24 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 		),
-		//dbms only
+		// dbms only
 		service.NewService(
 			&service.ServiceProperties{
-				ID:          "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
-				Name:        "azure-postgresqldb-dbms-only",
-				Description: "Azure Database for PostgreSQL DBMS Only (Experimental)",
+				ID:             "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
+				Name:           "azure-postgresql-dbms-only",
+				Description:    "Azure Database for PostgreSQL-- DBMS only (experimental)",
+				ChildServiceID: "25434f16-d762-41c7-bbdd-8045d7f74ca",
 				Metadata: &service.ServiceMetadata{
-					DisplayName: "Azure Database for PostgreSQL (DBMS Only)",
-					ImageUrl: "https://azure.microsoft.com/svghandler/postgresql/" +
-						"?width=200",
-					LongDescription: "Enterprise-ready fully managed community PostgreSQL" +
-						" (Experimental)",
+					DisplayName:      "Azure Database for PostgreSQL-- DBMS Only",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					LongDescription:  "Azure Database for PostgreSQL-- DBMS only (experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
-				Bindable:       false,
-				Tags:           []string{"Azure", "PostgreSQL", "Database"},
-				ChildServiceID: "25434f16-d762-41c7-bbdd-8045d7f74ca",
+				Bindable: false,
+				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
 			},
-			m.dbmsOnlyManager,
+			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "bf389028-8dcc-433a-ab6f-0ee9b8db142f",
 				Name:        "basic50",
@@ -105,33 +102,31 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 		),
-		//db only
+		// database only
 		service.NewService(
 			&service.ServiceProperties{
-				ID:          "25434f16-d762-41c7-bbdd-8045d7f74ca6",
-				Name:        "azure-postgresql-db-only",
-				Description: "Azure Database for PostgreSQL Database Only (Experimental)",
+				ID:              "25434f16-d762-41c7-bbdd-8045d7f74ca6",
+				Name:            "azure-postgresql-database-only",
+				Description:     "Azure Database for PostgreSQL-- database only (experimental)",
+				ParentServiceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
 				Metadata: &service.ServiceMetadata{
-					DisplayName: "Azure Database for PostgreSQL (Database Only)",
-					ImageUrl: "https://azure.microsoft.com/svghandler/postgresql/" +
-						"?width=200",
-					LongDescription: "Enterprise-ready fully managed community PostgreSQL" +
-						" (Experimental)",
+					DisplayName:      "Azure Database for PostgreSQL-- Database Only",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					LongDescription:  "Azure Database for PostgreSQL-- database only (experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
-				Bindable:        true,
-				Tags:            []string{"Azure", "PostgreSQL", "Database"},
-				ParentServiceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
+				Bindable: true,
+				Tags:     []string{"Azure", "PostgreSQL", "Database"},
 			},
-			m.dbOnlyManager,
+			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "df6f5ef1-e602-406b-ba73-09c107d1e31b",
-				Name:        "postgressql-db-only",
-				Description: "Azure Databse for PostgreSQL (db Only)",
+				Name:        "database-only",
+				Description: "A new database added to an existing DBMS (experimental)",
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Azure Databse for PostgreSQL (DB Only)",
+					DisplayName: "Azure Database for PostgreSQL-- Database Only",
 				},
 			}),
 		),

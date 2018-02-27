@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"fmt"
@@ -20,18 +20,17 @@ func (a *allInOneManager) Bind(
 	_ service.BindingParameters,
 	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details " +
-				"as *allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*allInOnePostgresqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.SecureDetails " +
-				"as *allInOnePostgresqlSecureInstanceDetails",
+			"error casting instance.SecureDetails as " +
+				"*postgresql.secureAllInOneInstanceDetails",
 		)
 	}
 	bd, spd, err := createBinding(
@@ -48,23 +47,22 @@ func (a *allInOneManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details " +
-				"as *allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
 		)
 	}
-	bd, ok := binding.Details.(*postgresqlBindingDetails)
+	bd, ok := binding.Details.(*bindingDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting binding.Details as *postgresqlBindingDetails",
+			"error casting binding.Details as *postgresql.bindingDetails",
 		)
 	}
-	sbd, ok := binding.SecureDetails.(*postgresqlSecureBindingDetails)
+	sbd, ok := binding.SecureDetails.(*secureBindingDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting binding.SecureDetails as *postgresqlSecureBindingDetails",
+			"error casting binding.SecureDetails as *postgresql.secureBindingDetails",
 		)
 	}
 	cred := createCredential(

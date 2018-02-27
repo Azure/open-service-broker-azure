@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"

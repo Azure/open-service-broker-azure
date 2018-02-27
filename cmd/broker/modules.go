@@ -26,7 +26,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysqldb"
-	"github.com/Azure/open-service-broker-azure/pkg/services/postgresqldb"
+	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/search"
 	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
@@ -184,7 +184,7 @@ func initModules(azureConfig config.AzureConfig) error {
 	storageAccountsClient.UserAgent = getUserAgent(storageAccountsClient.Client)
 
 	modules = []service.Module{
-		postgresqldb.New(
+		postgresql.New(
 			armDeployer,
 			postgresCheckNameAvailabilityClient,
 			postgresServersClient,
