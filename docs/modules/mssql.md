@@ -5,9 +5,11 @@
 
 Open Service Broker for Azure contains three Azure SQL Database services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
 
-* azure-sql - Provision both a SQL Server DBMS and a database
-* azure-sql-dbms-only - Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time.
-* azure-sql-db-only - Provision a new database only upon a previously provisioned DBMS.
+| Service Name | Description |
+|--------------|-------------|
+| `azure-sql` | Provision both a SQL Server DBMS and a database. |
+| `azure-sql-dbms-only` | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
+| `azure-sql-db-only` | Provision a new database only upon a previously provisioned DBMS. |
 
 The `azure-sql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioing. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-dbms-only` and `azure-sql-db-only` services, on the other hand, can be combined to provison multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 

@@ -5,9 +5,10 @@
 
 Open Service Broker for Azure contains three Azure Database for PostgreSQL services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
 
-* azure-postgresql- Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database.
-* azure-postgresql-dbms-only - Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time.
-* azure-postgresql-database-only - Provision a new database only upon a previously provisioned DBMS.
+| Service Name | Description ||--------------|-------------|
+| `azure-postgresql` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
+| `azure-postgresql-dbms-only` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
+| `azure-postgresql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
 
 The `azure-postgresql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioing. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-dbms-only` and `azure-postgresql-db-only` services, on the other hand, can be combined to provison multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
