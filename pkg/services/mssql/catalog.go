@@ -1,27 +1,25 @@
-package sqldb
+package mssql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
-		// all-in-one (server and db) service
+		// all-in-one (dbms and database) service
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
-				Name:        "azure-sqldb",
-				Description: "Azure SQL Database (Experimental)",
+				Name:        "azure-sql",
+				Description: "Azure SQL-- DBMS and single database (experimental)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName: "Azure SQL Database",
-					ImageUrl: "https://azure.microsoft.com/svghandler/sql-database/" +
-						"?width=200",
-					LongDescription: "The intelligent relational cloud database service" +
-						" (Experimental)",
+					DisplayName:      "Azure SQL Database",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					LongDescription:  "Azure SQL Database-- DBMS and single database (experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
-				Tags:     []string{"Azure", "SQL", "Database"},
+				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
 			},
 			m.allInOneServiceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -250,56 +248,52 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 		),
-		// vm only service
+		// dbms only service
 		service.NewService(
 			&service.ServiceProperties{
-				ID:          "a7454e0e-be2c-46ac-b55f-8c4278117525",
-				Name:        "azure-sqldb-dbms-only",
-				Description: "Azure SQL Server DBMS (Experimental)",
+				ID:             "a7454e0e-be2c-46ac-b55f-8c4278117525",
+				Name:           "azure-sql-dbms-only",
+				Description:    "Azure SQL-- DBMS only (experimental)",
+				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				Metadata: &service.ServiceMetadata{
-					DisplayName: "Azure SQL Server (DBMS Only)",
-					ImageUrl: "https://azure.microsoft.com/svghandler/sql-database/" +
-						"?width=200",
-					LongDescription: "The intelligent relational cloud database service" +
-						" (Experimental)",
+					DisplayName:      "Azure SQL Server (DBMS Only)",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					LongDescription:  "Azure SQL-- DBMS only (experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
-				Bindable:       false,
-				Tags:           []string{"Azure", "SQL", "Server", "DBMS"},
-				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
+				Bindable: false,
+				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
 			},
-			m.dbmsOnlyManager,
+			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
-				Name:        "sqldb-dbms-only",
-				Description: "Azure SQL Server DBMS Only",
+				Name:        "dbms-only",
+				Description: "Azure SQL Server-- DBMS only",
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Azure SQL Server (DBMS Only)",
+					DisplayName: "Azure SQL Server-- DBMS Only",
 				},
 			}),
 		),
-		// db only service
+		// database only service
 		service.NewService(
 			&service.ServiceProperties{
 				ID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-				Name:            "azure-sqldb-db-only",
-				Description:     "Azure SQL Database Only (Experimental)",
+				Name:            "azure-sqldb-database-only",
+				Description:     "Azure SQL-- database only (experimental)",
 				Bindable:        true,
-				Tags:            []string{"Azure", "SQL", "Database"},
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",
 				Metadata: &service.ServiceMetadata{
-					DisplayName: "Azure SQL Server (Database Only)",
-					ImageUrl: "https://azure.microsoft.com/svghandler/sql-database/" +
-						"?width=200",
-					LongDescription: "The intelligent relational cloud database service" +
-						" (Experimental)",
+					DisplayName:      "Azure SQL Server (Database Only)",
+					ImageUrl:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					LongDescription:  "Azure SQL-- database only (experimental)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
+				Tags: []string{"Azure", "SQL", "Database"},
 			},
-			m.dbOnlyServiceManager,
+			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "8fa8d759-c142-45dd-ae38-b93482ddc04a",
 				Name:        "basic",

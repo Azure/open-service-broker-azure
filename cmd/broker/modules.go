@@ -25,12 +25,12 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysqldb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/search"
 	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
-	"github.com/Azure/open-service-broker-azure/pkg/services/sqldb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/storage"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
@@ -201,7 +201,7 @@ func initModules(azureConfig config.AzureConfig) error {
 		servicebus.New(armDeployer, serviceBusNamespacesClient),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
 		keyvault.New(azureConfig.GetTenantID(), armDeployer, keyVaultsClient),
-		sqldb.New(
+		mssql.New(
 			azureEnvironment,
 			armDeployer,
 			sqlServersClient,

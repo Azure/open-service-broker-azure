@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ func unbind(
 	administratorPassword string,
 	fqdn string,
 	databaseName string,
-	bc *mssqlBindingDetails,
+	bd *bindingDetails,
 ) error {
 	// connect to new database to drop user for the login
 	db, err := getDBConnection(
@@ -23,11 +23,11 @@ func unbind(
 	defer db.Close() // nolint: errcheck
 
 	if _, err = db.Exec(
-		fmt.Sprintf("DROP USER \"%s\"", bc.LoginName),
+		fmt.Sprintf("DROP USER \"%s\"", bd.LoginName),
 	); err != nil {
 		return fmt.Errorf(
 			`error dropping user "%s": %s`,
-			bc.LoginName,
+			bd.LoginName,
 			err,
 		)
 	}
@@ -44,11 +44,11 @@ func unbind(
 	defer masterDb.Close() // nolint: errcheck
 
 	if _, err = masterDb.Exec(
-		fmt.Sprintf("DROP LOGIN \"%s\"", bc.LoginName),
+		fmt.Sprintf("DROP LOGIN \"%s\"", bd.LoginName),
 	); err != nil {
 		return fmt.Errorf(
 			`error dropping login "%s": %s`,
-			bc.LoginName,
+			bd.LoginName,
 			err,
 		)
 	}

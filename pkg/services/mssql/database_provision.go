@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"context"
@@ -10,15 +10,15 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-//TODO: implement db only validation
-func (d *dbOnlyManager) ValidateProvisioningParameters(
+// TODO: implement db only validation
+func (d *databaseManager) ValidateProvisioningParameters(
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
 ) error {
 	return nil
 }
 
-func (d *dbOnlyManager) GetProvisioner(
+func (d *databaseManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -27,61 +27,37 @@ func (d *dbOnlyManager) GetProvisioner(
 	)
 }
 
-func (d *dbOnlyManager) preProvision(
+func (d *databaseManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
-		)
-	}
-
-	//Parent should be set by the framework, but return an error if it is not set.
-	if instance.Parent == nil {
-		return nil, nil, errors.New("parent instance not set")
-	}
-	//Assume refererence instance is a vm only instance. Fail if not
-	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Parent.Details as " +
-				"*mssqlVMOnlyInstanceDetails",
+			"error casting instance.Details as *mssql.databaseInstanceDetails",
 		)
 	}
 
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.DatabaseName = generate.NewIdentifier()
-	dt.FullyQualifiedDomainName = fmt.Sprintf(
-		"%s.%s",
-		pdt.ServerName,
-		d.sqlDatabaseDNSSuffix,
-	)
 
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbOnlyManager) deployARMTemplate(
+func (d *databaseManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlDBOnlyInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *mssqlDBOnlyInstanceDetails",
+			"error casting instance.Details as *mssql.databaseInstanceDetails",
 		)
 	}
-
-	//Parent should be set by the framework, but return an error if it is not set.
-	if instance.Parent == nil {
-		return nil, nil, errors.New("parent instance not set")
-	}
-	pdt, ok := instance.Parent.Details.(*mssqlVMOnlyInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Parent.Details as " +
-				"*mssqlVMOnlyInstanceDetails",
+			"error casting instance.Parent.Details as *mssql.dbmsInstanceDetails",
 		)
 	}
 	p := map[string]interface{}{ // ARM template params
@@ -92,12 +68,12 @@ func (d *dbOnlyManager) deployARMTemplate(
 			Extended["requestedServiceObjectiveName"],
 		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
-	//No output, so ignore the output
+	// No output, so ignore the output
 	_, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.Parent.ResourceGroup,
 		instance.Parent.Location,
-		armTemplateDBOnlyBytes,
+		databaseARMTemplateBytes,
 		nil, // Go template params
 		p,
 		instance.Tags,
