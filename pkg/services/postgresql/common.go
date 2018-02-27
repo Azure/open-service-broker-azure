@@ -1,9 +1,11 @@
-package postgresqldb
+package postgresql
 
 import (
 	"database/sql"
 	"fmt"
 )
+
+const primaryDB = "postgres"
 
 func getDBConnection(
 	enforceSSL bool,

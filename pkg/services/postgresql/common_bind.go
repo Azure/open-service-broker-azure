@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"fmt"
@@ -76,10 +76,10 @@ func createBinding(
 		return nil, nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
-	return &postgresqlBindingDetails{
+	return &bindingDetails{
 			LoginName: roleName,
 		},
-		&postgresqlSecureBindingDetails{
+		&secureBindingDetails{
 			Password: password,
 		},
 		nil
@@ -94,8 +94,8 @@ func createCredential(
 	sslRequired bool,
 	serverName string,
 	databaseName string,
-	bindDetails *postgresqlBindingDetails,
-	secureBindingDetails *postgresqlSecureBindingDetails,
+	bindDetails *bindingDetails,
+	secureBindingDetails *secureBindingDetails,
 ) *Credentials {
 	username := fmt.Sprintf("%s@%s", bindDetails.LoginName, serverName)
 	port := 5432

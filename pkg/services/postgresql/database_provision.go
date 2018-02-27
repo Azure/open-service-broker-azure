@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"context"
@@ -10,14 +10,14 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (d *dbOnlyManager) ValidateProvisioningParameters(
+func (d *databaseManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
 	return nil
 }
 
-func (d *dbOnlyManager) GetProvisioner(
+func (d *databaseManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -28,15 +28,14 @@ func (d *dbOnlyManager) GetProvisioner(
 	)
 }
 
-func (d *dbOnlyManager) preProvision(
+func (d *databaseManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details " +
-				"as *dbOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.databaseInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
@@ -44,22 +43,21 @@ func (d *dbOnlyManager) preProvision(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbOnlyManager) deployARMTemplate(
+func (d *databaseManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Parent.Details " +
-				"as *dbmsOnlyPostgresqlInstanceDetails",
+			"error casting instance.Parent.Details as " +
+				"*postgresql.dbmsInstanceDetails",
 		)
 	}
-	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details " +
-				"as *dbOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.databaseInstanceDetails",
 		)
 	}
 	armTemplateParameters := map[string]interface{}{
@@ -70,7 +68,7 @@ func (d *dbOnlyManager) deployARMTemplate(
 		dt.ARMDeploymentName,
 		instance.Parent.ResourceGroup,
 		instance.Parent.Location,
-		armTemplateDBOnlyBytes,
+		databaseARMTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
 		instance.Tags,
@@ -81,30 +79,29 @@ func (d *dbOnlyManager) deployARMTemplate(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbOnlyManager) setupDatabase(
+func (d *databaseManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Parent.Details " +
-				"as *dbmsOnlyPostgresqlInstanceDetails",
+			"error casting instance.Parent.Details as " +
+				"*postgresql.dbmsInstanceDetails",
 		)
 	}
 	spdt, ok :=
-		instance.Parent.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+		instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Parent.SecureDetails " +
-				"as *dbmsOnlyPostgresqlSecureInstanceDetails",
+			"error casting instance.Parent.SecureDetails as " +
+				"*postgresql.secureDBMSInstanceDetails",
 		)
 	}
-	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details " +
-				"as *dbOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.databaseInstanceDetails",
 		)
 	}
 	err := setupDatabase(
@@ -120,30 +117,29 @@ func (d *dbOnlyManager) setupDatabase(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbOnlyManager) createExtensions(
+func (d *databaseManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Parent.Details " +
-				"as *dbmsOnlyPostgresqlInstanceDetails",
+			"error casting instance.Parent.Details as " +
+				"*postgresql.dbmsInstanceDetails",
 		)
 	}
 	spdt, ok :=
-		instance.Parent.SecureDetails.(*dbmsOnlyPostgresqlSecureInstanceDetails)
+		instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Parent.SecureDetails " +
-				"as *dbmsOnlyPostgresqlSecureInstanceDetails",
+			"error casting instance.Parent.SecureDetails as " +
+				"*postgresql.secureDBMSInstanceDetails",
 		)
 	}
-	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details " +
-				"as *dbOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.databaseInstanceDetails",
 		)
 	}
 	pp, ok := instance.ProvisioningParameters.(*DatabaseProvisioningParameters)

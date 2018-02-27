@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql" // nolint: lll
@@ -8,8 +8,8 @@ import (
 
 type module struct {
 	allInOneManager *allInOneManager
-	dbOnlyManager   *dbOnlyManager
-	dbmsOnlyManager *dbmsOnlyManager
+	databaseManager *databaseManager
+	dbmsManager     *dbmsManager
 }
 
 type allInOneManager struct {
@@ -18,20 +18,20 @@ type allInOneManager struct {
 	serversClient               postgresSDK.ServersClient
 }
 
-type dbOnlyManager struct {
+type databaseManager struct {
 	armDeployer                 arm.Deployer
 	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient
 	databasesClient             postgresSDK.DatabasesClient
 }
 
-type dbmsOnlyManager struct {
+type dbmsManager struct {
 	armDeployer                 arm.Deployer
 	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient
 	serversClient               postgresSDK.ServersClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
-// interface and is capable of provisioning PostgreSQL servers and databases
+// interface and is capable of provisioning PostgreSQL DBMS and databases
 // using "Azure Database for PostgreSQL"
 func New(
 	armDeployer arm.Deployer,
@@ -45,12 +45,12 @@ func New(
 			checkNameAvailabilityClient: checkNameAvailabilityClient,
 			serversClient:               serversClient,
 		},
-		dbOnlyManager: &dbOnlyManager{
+		databaseManager: &databaseManager{
 			armDeployer:                 armDeployer,
 			checkNameAvailabilityClient: checkNameAvailabilityClient,
 			databasesClient:             databasesClient,
 		},
-		dbmsOnlyManager: &dbmsOnlyManager{
+		dbmsManager: &dbmsManager{
 			armDeployer:                 armDeployer,
 			checkNameAvailabilityClient: checkNameAvailabilityClient,
 			serversClient:               serversClient,

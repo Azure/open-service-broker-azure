@@ -1,7 +1,7 @@
-package postgresqldb
+package postgresql
 
 // nolint: lll
-var armTemplateDBOnlyBytes = []byte(`
+var databaseARMTemplateBytes = []byte(`
 {
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",

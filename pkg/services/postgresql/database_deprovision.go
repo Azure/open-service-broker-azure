@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *dbOnlyManager) GetDeprovisioner(
+func (d *databaseManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
@@ -19,14 +19,14 @@ func (d *dbOnlyManager) GetDeprovisioner(
 	)
 }
 
-func (d *dbOnlyManager) deleteARMDeployment(
+func (d *databaseManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *dbOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.databaseInstanceDetails",
 		)
 	}
 	if err := d.armDeployer.Delete(
@@ -38,24 +38,23 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbOnlyManager) deletePostgreSQLDatabase(
+func (d *databaseManager) deletePostgreSQLDatabase(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	pdt, ok := instance.Parent.Details.(*dbmsOnlyPostgresqlInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.Details " +
-				"as *dbmsOnlyPostgresqlInstanceDetails",
+			"error casting instance.Parent.Details as " +
+				"*postgresql.dbmsInstanceDetails",
 		)
 	}
-	dt, ok := instance.Details.(*dbOnlyPostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details " +
-				"as *dbOnlyPostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.databaseInstanceDetails",
 		)
 	}
 	result, err := d.databasesClient.Delete(

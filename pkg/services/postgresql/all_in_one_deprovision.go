@@ -1,4 +1,4 @@
-package postgresqldb
+package postgresql
 
 import (
 	"context"
@@ -23,11 +23,10 @@ func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details " +
-				"as *allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
 		)
 	}
 	if err := a.armDeployer.Delete(
@@ -45,11 +44,10 @@ func (a *allInOneManager) deletePostgreSQLServer(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*allInOnePostgresqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details " +
-				"as *allInOnePostgresqlInstanceDetails",
+			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
 		)
 	}
 	result, err := a.serversClient.Delete(
