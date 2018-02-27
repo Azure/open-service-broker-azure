@@ -18,11 +18,7 @@ type FirewallRule struct {
 
 // SecureServerProvisioningParameters encapsulates senstivie PostgreSQL-specific
 // dbms provisioning options
-type SecureServerProvisioningParameters struct {
-	SSLEnforcement  string `json:"sslEnforcement"`
-	FirewallIPStart string `json:"firewallStartIPAddress"`
-	FirewallIPEnd   string `json:"firewallEndIPAddress"`
-}
+type SecureServerProvisioningParameters struct{}
 
 type dbmsOnlyPostgresqlInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
