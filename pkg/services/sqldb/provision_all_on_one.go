@@ -93,22 +93,14 @@ func (a *allInOneManager) deployARMTemplate(
 			Extended["requestedServiceObjectiveName"],
 		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
-	//Only include these if they are not empty.
-	//ARM Deployer will fail if the values included are not
-	//valid IPV4 addresses (i.e. empty string wil fail)
-	if pp.FirewallIPStart != "" {
-		p["firewallStartIpAddress"] = pp.FirewallIPStart
-	}
-	if pp.FirewallIPEnd != "" {
-		p["firewallEndIpAddress"] = pp.FirewallIPEnd
-	}
+	goTemplateParams := buildGoTemplateParameters(pp)
 	// new server scenario
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateDBMSOnlyBytes,
-		nil, // Go template params
+		goTemplateParams,
 		p,
 		instance.Tags,
 	)
