@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *dbOnlyManager) GetDeprovisioner(
+func (d *databaseManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
@@ -16,14 +16,14 @@ func (d *dbOnlyManager) GetDeprovisioner(
 	)
 }
 
-func (d *dbOnlyManager) deleteARMDeployment(
+func (d *databaseManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.databaseInstanceDetails",
 		)
 	}
 	if err := d.armDeployer.Delete(
@@ -35,22 +35,22 @@ func (d *dbOnlyManager) deleteARMDeployment(
 	return dt, instance.SecureDetails, nil
 }
 
-func (d *dbOnlyManager) deleteMySQLDatabase(
+func (d *databaseManager) deleteMySQLDatabase(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	pdt, ok := instance.Parent.Details.(*dbmsOnlyMysqlInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.dbmsInstanceDetails",
 		)
 	}
-	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.databaseInstanceDetails",
 		)
 	}
 	result, err := d.databasesClient.Delete(

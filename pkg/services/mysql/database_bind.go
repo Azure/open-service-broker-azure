@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *dbOnlyManager) ValidateBindingParameters(
+func (d *databaseManager) ValidateBindingParameters(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) error {
@@ -15,30 +15,29 @@ func (d *dbOnlyManager) ValidateBindingParameters(
 	return nil
 }
 
-func (d *dbOnlyManager) Bind(
+func (d *databaseManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsOnlyMysqlInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.Details " +
-				"as *dbmsOnlyMysqlInstanceDetails",
+			"error casting instance.Parent.Details as *mysql.dbmsInstanceDetails",
 		)
 	}
 	spdt, ok :=
-		instance.Parent.SecureDetails.(*dbmsOnlyMysqlSecureInstanceDetails)
+		instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.SecureDetails " +
-				"as *dbmsOnlyMysqlSecureInstanceDetails",
+			"error casting instance.Parent.SecureDetails as " +
+				"*mysql.secureDBMSInstanceDetails",
 		)
 	}
-	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.databaseInstanceDetails",
 		)
 	}
 
@@ -52,33 +51,32 @@ func (d *dbOnlyManager) Bind(
 	)
 }
 
-func (d *dbOnlyManager) GetCredentials(
+func (d *databaseManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsOnlyMysqlInstanceDetails)
+	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Parent.Details " +
-				"as *dbmsOnlyMysqlInstanceDetails",
+			"error casting instance.Parent.Details as *mysql.dbmsInstanceDetails",
 		)
 	}
-	dt, ok := instance.Details.(*dbOnlyMysqlInstanceDetails)
+	dt, ok := instance.Details.(*databaseInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *dbOnlyMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.databaseInstanceDetails",
 		)
 	}
-	bd, ok := binding.Details.(*mysqlBindingDetails)
+	bd, ok := binding.Details.(*bindingDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting binding.Details as *mysqlBindingDetails",
+			"error casting binding.Details as *mysql.bindingDetails",
 		)
 	}
-	sbd, ok := binding.SecureDetails.(*mysqlSecureBindingDetails)
+	sbd, ok := binding.SecureDetails.(*secureBindingDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting binding.SecureDetails as *mysqlSecureBindingDetails",
+			"error casting binding.SecureDetails as *mysql.secureBindingDetails",
 		)
 	}
 	creds := createCredential(

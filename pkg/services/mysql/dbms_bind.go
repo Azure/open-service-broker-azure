@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *dbmsOnlyManager) ValidateBindingParameters(
+func (d *dbmsManager) ValidateBindingParameters(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) error {
@@ -15,7 +15,7 @@ func (d *dbmsOnlyManager) ValidateBindingParameters(
 	return nil
 }
 
-func (d *dbmsOnlyManager) Bind(
+func (d *dbmsManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
 	_ service.SecureBindingParameters,
@@ -23,9 +23,9 @@ func (d *dbmsOnlyManager) Bind(
 	return nil, nil, fmt.Errorf("service is not bindable")
 }
 
-func (d *dbmsOnlyManager) GetCredentials(
-	_ service.Instance,
-	_ service.Binding,
+func (d *dbmsManager) GetCredentials(
+	service.Instance,
+	service.Binding,
 ) (service.Credentials, error) {
 	return nil, fmt.Errorf("service not bindable")
 }

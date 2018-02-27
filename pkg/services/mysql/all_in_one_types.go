@@ -1,61 +1,64 @@
-package mysqldb
+package mysql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-type allInOneMysqlInstanceDetails struct {
-	ARMDeploymentName        string `json:"armDeployment"`
-	ServerName               string `json:"server"`
-	DatabaseName             string `json:"database"`
-	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
-	EnforceSSL               bool   `json:"enforceSSL"`
+// AllInOneProvisioningParameters encapsulates non-sensitive dbms AND database
+// MySQL-specific provisioning options
+type AllInOneProvisioningParameters struct {
+	DBMSProvisioningParameters `json:",squash"`
 }
 
-type allInOneMysqlSecureInstanceDetails struct {
-	AdministratorLoginPassword string `json:"administratorLoginPassword"`
+type allInOneInstanceDetails struct {
+	dbmsInstanceDetails
+	DatabaseName string `json:"database"`
+}
+
+type secureAllInOneInstanceDetails struct {
+	secureDBMSInstanceDetails
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ServerProvisioningParameters{}
+	return &AllInOneProvisioningParameters{}
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureServerProvisioningParameters{}
+	return nil
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &allInOneMysqlInstanceDetails{}
+	return &allInOneInstanceDetails{}
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &allInOneMysqlSecureInstanceDetails{}
+	return &secureAllInOneInstanceDetails{}
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
+	return nil
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
+	return nil
 }
 
 func (a *allInOneManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &mysqlBindingDetails{}
+	return &bindingDetails{}
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &mysqlSecureBindingDetails{}
+	return &secureBindingDetails{}
 }

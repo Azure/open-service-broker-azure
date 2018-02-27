@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql" // nolint: lll
@@ -9,8 +9,8 @@ import (
 
 type module struct {
 	allInOneServiceManager *allInOneManager
-	dbmsOnlyManager        *dbmsOnlyManager
-	dbOnlyServiceManager   *dbOnlyManager
+	dbmsManager            *dbmsManager
+	databaseManager        *databaseManager
 }
 
 type allInOneManager struct {
@@ -20,21 +20,21 @@ type allInOneManager struct {
 	serversClient               mysqlSDK.ServersClient
 }
 
-type dbmsOnlyManager struct {
+type dbmsManager struct {
 	sqlDatabaseDNSSuffix        string
 	armDeployer                 arm.Deployer
 	checkNameAvailabilityClient mysqlSDK.CheckNameAvailabilityClient
 	serversClient               mysqlSDK.ServersClient
 }
 
-type dbOnlyManager struct {
+type databaseManager struct {
 	sqlDatabaseDNSSuffix string
 	armDeployer          arm.Deployer
 	databasesClient      mysqlSDK.DatabasesClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
-// interface and is capable of provisioning MySQL servers and databases
+// interface and is capable of provisioning MySQL DBMS and databases
 // using "Azure Database for MySQL"
 func New(
 	azureEnvironment azure.Environment,
@@ -50,13 +50,13 @@ func New(
 			checkNameAvailabilityClient: checkNameAvailabilityClient,
 			serversClient:               serversClient,
 		},
-		dbmsOnlyManager: &dbmsOnlyManager{
+		dbmsManager: &dbmsManager{
 			sqlDatabaseDNSSuffix:        azureEnvironment.SQLDatabaseDNSSuffix,
 			armDeployer:                 armDeployer,
 			checkNameAvailabilityClient: checkNameAvailabilityClient,
 			serversClient:               serversClient,
 		},
-		dbOnlyServiceManager: &dbOnlyManager{
+		databaseManager: &databaseManager{
 			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
 			armDeployer:          armDeployer,
 			databasesClient:      databaseClient,
