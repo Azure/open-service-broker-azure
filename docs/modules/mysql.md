@@ -7,11 +7,11 @@ Open Service Broker for Azure contains three Azure Database for MySQL services. 
 
 | Service Name | Description |
 |--------------|-------------|
-| `azure-mysql` | Provision both an Azure Database for MyQSL Database Management System (DBMS) and a database. |
-| `azure-mysql-dbms-only` | Provision only an Azure Database for MyQSL DBMS. This can be used to provision multiple databases at a later time. |
+| `azure-mysql` | Provision both an Azure Database for MySQL Database Management System (DBMS) and a database. |
+| `azure-mysql-dbms-only` | Provision only an Azure Database for MySQL DBMS. This can be used to provision multiple databases at a later time. |
 | `azure-mysql-db-only` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-mysql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioing. You can not provision additional databases onto an instance provisioned through this service. The `azure-mysql-dbms-only` and `azure-mysql-db-only` services, on the other hand, can be combined to provison multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-mysql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioning. You can not provision additional databases onto an instance provisioned through this service. The `azure-mysql-dbms-only` and `azure-mysql-db-only` services, on the other hand, can be combined to prprovisionovison multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -33,7 +33,7 @@ Provisions a new MySQL DBMS and a new database upon it. The new database will be
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and nonde is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
@@ -63,7 +63,7 @@ Binding returns the following connection details and credentials:
 | `password` | `string` | The password for the database user. |
 | `sslRequired` | `boolean` | Flag indicating if SSL is required to connect the MySQL DBMS. |
 | `uri` | `string` | A URI string containing all necessary connection information. |
-| `tags` | `string[]` | A list of tags consumners can use to identify the credential. |
+| `tags` | `string[]` | A list of tags consumers can use to identify the credential. |
 
 ##### Unbind
 
@@ -84,14 +84,14 @@ Deletes the MySQL DBMS and database.
 
 ##### Provision
 
-Provisions a new MySQL DBMS only. Databases can be created through subsequent provision reqquests using the `azure-mysql-database-only` service.
+Provisions a new MySQL DBMS only. Databases can be created through subsequent provision requests using the `azure-mysql-database-only` service.
 
 ###### Provisioning Parameters
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and nonde is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
 | `alias` | `string` | Specifies an alias that can be used by later provision actions to create databases on this DBMS. | Y | |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
@@ -152,7 +152,7 @@ Binding returns the following connection details and credentials:
 | `password` | `string` | The password for the database user. |
 | `sslRequired` | `boolean` | Flag indicating if SSL is required to connect the MySQL DBMS. |
 | `uri` | `string` | A URI string containing all necessary connection information. |
-| `tags` | `string[]` | A list of tags consumners can use to identify the credential. |
+| `tags` | `string[]` | A list of tags consumers can use to identify the credential. |
 
 ##### Unbind
 
