@@ -4,7 +4,7 @@
 #
 name: open-service-broker-azure
 icon_file: resources/icon.png
-label: Microsoft Open Service Broker of Azure
+label: Microsoft Open Service Broker for Azure
 description: A service broker for Microsoft Azure services
 
 # Global defaults (all optional)
