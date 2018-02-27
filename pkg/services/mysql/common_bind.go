@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ func createBinding(
 	adminPassword string,
 	fqdn string,
 	databaseName string,
-) (*mysqlBindingDetails, *mysqlSecureBindingDetails, error) {
+) (*bindingDetails, *secureBindingDetails, error) {
 
 	userName := generate.NewIdentifier()
 	password := generate.NewPassword()
@@ -61,10 +61,10 @@ func createBinding(
 		)
 	}
 
-	return &mysqlBindingDetails{
+	return &bindingDetails{
 			LoginName: userName,
 		},
-		&mysqlSecureBindingDetails{
+		&secureBindingDetails{
 			Password: password,
 		},
 		nil
@@ -80,8 +80,8 @@ func createCredential(
 	sslRequired bool,
 	serverName string,
 	databaseName string,
-	bindingDetails *mysqlBindingDetails,
-	secureBidningDetails *mysqlSecureBindingDetails,
+	bindingDetails *bindingDetails,
+	secureBidningDetails *secureBindingDetails,
 ) *Credentials {
 	username := fmt.Sprintf("%s@%s", bindingDetails.LoginName, serverName)
 	connectionTemplate := "mysql://%s:%s@%s:3306/%s?useSSL=true&requireSSL=true"

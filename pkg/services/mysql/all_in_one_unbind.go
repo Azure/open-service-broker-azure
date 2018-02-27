@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"fmt"
@@ -10,23 +10,23 @@ func (a *allInOneManager) Unbind(
 	instance service.Instance,
 	binding service.Binding,
 ) error {
-	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *allInOneMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*allInOneMysqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
 			"error casting instance.SecureDetails as " +
-				"*allInOneMysqlSecureInstanceDetails",
+				"*mysql.secureAllInOneInstanceDetails",
 		)
 	}
-	bc, ok := binding.Details.(*mysqlBindingDetails)
+	bc, ok := binding.Details.(*bindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting binding.Details as *mysqlBindingDetails",
+			"error casting binding.Details as *mysql.bindingDetails",
 		)
 	}
 

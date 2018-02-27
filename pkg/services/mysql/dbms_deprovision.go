@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"context"
@@ -7,26 +7,26 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (a *allInOneManager) GetDeprovisioner(
+func (d *dbmsManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
-		service.NewDeprovisioningStep("deleteARMDeployment", a.deleteARMDeployment),
-		service.NewDeprovisioningStep("deleteMySQLServer", a.deleteMySQLServer),
+		service.NewDeprovisioningStep("deleteARMDeployment", d.deleteARMDeployment),
+		service.NewDeprovisioningStep("deleteMySQLServer", d.deleteMySQLServer),
 	)
 }
 
-func (a *allInOneManager) deleteARMDeployment(
+func (d *dbmsManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
+	dt, ok := instance.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *allInOneMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.dbmsInstanceDetails",
 		)
 	}
-	if err := a.armDeployer.Delete(
+	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
@@ -35,19 +35,19 @@ func (a *allInOneManager) deleteARMDeployment(
 	return dt, instance.SecureDetails, nil
 }
 
-func (a *allInOneManager) deleteMySQLServer(
+func (d *dbmsManager) deleteMySQLServer(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
+	dt, ok := instance.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *allInOneMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.dbmsInstanceDetails",
 		)
 	}
-	result, err := a.serversClient.Delete(
+	result, err := d.serversClient.Delete(
 		ctx,
 		instance.ResourceGroup,
 		dt.ServerName,
@@ -55,7 +55,7 @@ func (a *allInOneManager) deleteMySQLServer(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
+	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
 	return dt, instance.SecureDetails, nil

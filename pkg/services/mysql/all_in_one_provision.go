@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"context"
@@ -12,57 +12,70 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (d *dbmsOnlyManager) ValidateProvisioningParameters(
+const (
+	enabled  = "enabled"
+	disabled = "disabled"
+)
+
+func (a *allInOneManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	return validateServerProvisionParameters(provisioningParameters)
+	pp, ok := provisioningParameters.(*AllInOneProvisioningParameters)
+	if !ok {
+		return fmt.Errorf(
+			"error casting provisioningParameters as " +
+				"*mysql.AllInOneProvisioningParameters",
+		)
+	}
+	return validateDBMSProvisionParameters(&pp.DBMSProvisioningParameters)
 }
 
-func (d *dbmsOnlyManager) GetProvisioner(
+func (a *allInOneManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", d.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", d.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", a.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", a.deployARMTemplate),
 	)
 }
 
-func (d *dbmsOnlyManager) preProvision(
+func (a *allInOneManager) preProvision(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*dbmsOnlyMysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *dbmsOnlyMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*dbmsOnlyMysqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.SecureDetails as " +
-				"*dbmsOnlyMysqlSecureInstanceDetails",
+				"*mysql.secureAllInOneInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.ProvisioningParameters as " +
-				"*mysql.ServerProvisioningParameters",
+				"*mysql.AllInOneProvisioningParameters",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	var err error
 	if dt.ServerName, err = getAvailableServerName(
 		ctx,
-		d.checkNameAvailabilityClient,
+		a.checkNameAvailabilityClient,
 	); err != nil {
 		return nil, nil, err
 	}
 	sdt.AdministratorLoginPassword = generate.NewPassword()
+	dt.DatabaseName = generate.NewIdentifier()
 
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
 	switch sslEnforcement {
@@ -75,10 +88,10 @@ func (d *dbmsOnlyManager) preProvision(
 	return dt, sdt, nil
 }
 
-func (d *dbmsOnlyManager) buildARMTemplateParameters(
+func (a *allInOneManager) buildARMTemplateParameters(
 	plan service.Plan,
-	details *dbmsOnlyMysqlInstanceDetails,
-	secureDetails *dbmsOnlyMysqlSecureInstanceDetails,
+	details *allInOneInstanceDetails,
+	secureDetails *secureAllInOneInstanceDetails,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -89,6 +102,7 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 	p := map[string]interface{}{ // ARM template params
 		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
 		"serverName":                 details.ServerName,
+		"databaseName":               details.DatabaseName,
 		"skuName":                    plan.GetProperties().Extended["skuName"],
 		"skuTier":                    plan.GetProperties().Extended["skuTier"],
 		"skuCapacityDTU": plan.GetProperties().
@@ -96,45 +110,45 @@ func (d *dbmsOnlyManager) buildARMTemplateParameters(
 		"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
 		"sslEnforcement": sslEnforcement,
 	}
-
 	return p
 }
 
-func (d *dbmsOnlyManager) deployARMTemplate(
+func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbmsOnlyMysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *dbmsOnlyMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*dbmsOnlyMysqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.SecureDetails as " +
-				"*dbmsOnlyMysqlSecureInstanceDetails",
+				"*mysql.secureAllInOneInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParameters)
+	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting provisioningParameters as " +
-				"*mysql.ServerProvisioningParameters",
+				"*mysql.AllInOneProvisioningParameters",
 		)
 	}
-	armTemplateParameters := d.buildARMTemplateParameters(
+	armTemplateParameters := a.buildARMTemplateParameters(
 		instance.Plan,
 		dt,
 		sdt,
 	)
-	goTemplateParameters := buildGoTemplateParameters(pp)
-	outputs, err := d.armDeployer.Deploy(
+	goTemplateParameters :=
+		buildGoTemplateParameters(&pp.DBMSProvisioningParameters)
+	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
-		dbmsOnlyARMTemplate,
+		allInOneARMTemplateBytes,
 		goTemplateParameters,
 		armTemplateParameters,
 		instance.Tags,

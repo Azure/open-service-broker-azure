@@ -1,4 +1,4 @@
-package mysqldb
+package mysql
 
 import (
 	"fmt"
@@ -20,17 +20,17 @@ func (a *allInOneManager) Bind(
 	_ service.BindingParameters,
 	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *allInOneMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*allInOneMysqlSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error casting instance.SecureDetails as " +
-				"*allInOneMysqlSecureInstanceDetails",
+				"*mysql.secureAllInOneInstanceDetails",
 		)
 	}
 
@@ -48,22 +48,22 @@ func (a *allInOneManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*allInOneMysqlInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting instance.Details as *allInOneMysqlInstanceDetails",
+			"error casting instance.Details as *mysql.allInOneInstanceDetails",
 		)
 	}
-	bd, ok := binding.Details.(*mysqlBindingDetails)
+	bd, ok := binding.Details.(*bindingDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting binding.Details as *mysqlBindingDetails",
+			"error casting binding.Details as *mysql.bindingDetails",
 		)
 	}
-	sbd, ok := binding.SecureDetails.(*mysqlSecureBindingDetails)
+	sbd, ok := binding.SecureDetails.(*secureBindingDetails)
 	if !ok {
 		return nil, fmt.Errorf(
-			"error casting binding.SecureDetails as *mysqlSecureBindingDetails",
+			"error casting binding.SecureDetails as *mysql.secureBindingDetails",
 		)
 	}
 	creds := createCredential(

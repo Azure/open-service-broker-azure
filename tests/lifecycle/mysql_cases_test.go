@@ -11,7 +11,7 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mysqldb"
+	mysql "github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -38,7 +38,7 @@ func getMysqlCases(
 		subscriptionID,
 	)
 	databasesClient.Authorizer = authorizer
-	module := mysqldb.New(
+	module := mysql.New(
 		azureEnvironment,
 		armDeployer,
 		checkNameAvailabilityClient,
@@ -52,22 +52,24 @@ func getMysqlCases(
 			serviceID:   "997b8372-8dac-40ac-ae65-758b4a5075a5",
 			planID:      "427559f1-bf2a-45d3-8844-32374a3e58aa",
 			location:    "southcentralus",
-			provisioningParameters: &mysqldb.ServerProvisioningParameters{
-				SSLEnforcement: "disabled",
-				FirewallRules: []mysqldb.FirewallRule{
-					{
-						Name:    "AllowSome",
-						StartIP: "0.0.0.0",
-						EndIP:   "35.0.0.0",
-					},
-					{
-						Name:    "AllowMore",
-						StartIP: "35.0.0.1",
-						EndIP:   "255.255.255.255",
+			provisioningParameters: &mysql.AllInOneProvisioningParameters{
+				DBMSProvisioningParameters: mysql.DBMSProvisioningParameters{
+					SSLEnforcement: "disabled",
+					FirewallRules: []mysql.FirewallRule{
+						{
+							Name:    "AllowSome",
+							StartIP: "0.0.0.0",
+							EndIP:   "35.0.0.0",
+						},
+						{
+							Name:    "AllowMore",
+							StartIP: "35.0.0.1",
+							EndIP:   "255.255.255.255",
+						},
 					},
 				},
 			},
-			bindingParameters: &mysqldb.BindingParameters{},
+			bindingParameters: nil,
 			testCredentials:   testMySQLCreds(),
 		},
 		{
@@ -76,8 +78,8 @@ func getMysqlCases(
 			serviceID:   "30e7b836-199d-4335-b83d-adc7d23a95c2",
 			planID:      "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
 			location:    "eastus",
-			provisioningParameters: &mysqldb.ServerProvisioningParameters{
-				FirewallRules: []mysqldb.FirewallRule{
+			provisioningParameters: &mysql.DBMSProvisioningParameters{
+				FirewallRules: []mysql.FirewallRule{
 					{
 						Name:    "AllowAll",
 						StartIP: "0.0.0.0",
@@ -86,15 +88,15 @@ func getMysqlCases(
 				},
 			},
 			childTestCases: []*serviceLifecycleTestCase{
-				{ // db only scenario
+				{ // database only scenario
 					module:                 module,
 					description:            "database on new server",
 					serviceID:              "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 					planID:                 "ec77bd04-2107-408e-8fde-8100c1ce1f46",
 					location:               "", // This is actually irrelevant for this test
-					bindingParameters:      &mysqldb.BindingParameters{},
+					bindingParameters:      nil,
 					testCredentials:        testMySQLCreds(),
-					provisioningParameters: &mysqldb.DatabaseProvisioningParameters{},
+					provisioningParameters: nil,
 				},
 			},
 		},
@@ -104,7 +106,7 @@ func getMysqlCases(
 func testMySQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
 
-		cdts, ok := credentials.(*mysqldb.Credentials)
+		cdts, ok := credentials.(*mysql.Credentials)
 		if !ok {
 			return fmt.Errorf("error casting credentials as *mssql.Credentials")
 		}
