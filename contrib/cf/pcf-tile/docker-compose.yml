@@ -1,0 +1,24 @@
+version: "3.2"
+services:
+  generate-major-tile:
+    image: cfplatformeng/tile-generator:v11.0.5
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    network_mode: host
+    command: bash -c "tile build major"
+  generate-minor-tile:
+    image: cfplatformeng/tile-generator:v11.0.5
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    network_mode: host
+    command: bash -c "tile build minor"
+  generate-tile:
+    image: cfplatformeng/tile-generator:v11.0.5
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    network_mode: host
+    command: bash -c "tile build"
+
