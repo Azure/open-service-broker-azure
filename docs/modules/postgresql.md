@@ -5,7 +5,8 @@
 
 Open Service Broker for Azure contains three Azure Database for PostgreSQL services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
 
-| Service Name | Description ||--------------|-------------|
+| Service Name | Description |
+|--------------|-------------|
 | `azure-postgresql` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
 | `azure-postgresql-dbms-only` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
 | `azure-postgresql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
@@ -63,6 +64,9 @@ Binding returns the following connection details and credentials:
 | `database` | `string` | The name of the database. |
 | `username` | `string` | The name of the database user (in the form username@host). |
 | `password` | `string` | The password for the database user. |
+| `sslRequired` | `boolean` | Flag indicating if SSL is required to connect the MySQL DBMS. |
+| `uri` | `string` | A URI string containing all necessary connection information. |
+| `tags` | `string[]` | A list of tags consumners can use to identify the credential. |
 
 ##### Unbind
 
@@ -91,7 +95,7 @@ Provisions a new PostgreSQL DBMS only. Databases can be created through subseque
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and nonde is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
-| `alias` | `string` | Y | Specifies an alias that can be used by later provision actions to create databases on this DBMS. |
+| `alias` | `string` | Specifies an alias that can be used by later provision actions to create databases on this DBMS. | Y | |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
@@ -100,14 +104,6 @@ Provisions a new PostgreSQL DBMS only. Databases can be created through subseque
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 
 ##### Bind
-
-This service is not bindable.
-
-###### Binding Parameters
-
-This service is not bindable.
-
-###### Credentials
 
 This service is not bindable.
 
@@ -160,6 +156,9 @@ Binding returns the following connection details and credentials:
 | `database` | `string` | The name of the database. |
 | `username` | `string` | The name of the database user (in the form username@host). |
 | `password` | `string` | The password for the database user. |
+| `sslRequired` | `boolean` | Flag indicating if SSL is required to connect the MySQL DBMS. |
+| `uri` | `string` | A URI string containing all necessary connection information. |
+| `tags` | `string[]` | A list of tags consumners can use to identify the credential. |
 
 ##### Unbind
 
