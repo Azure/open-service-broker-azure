@@ -4,7 +4,6 @@
 
   * make
   * Docker (version 17.04 or greater)
-  * Docker Compose (version 1.16.1 or greater)
 
 ## Generate a PCF Tile
 
