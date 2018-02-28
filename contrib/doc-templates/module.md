@@ -82,7 +82,7 @@ _Provide an example with manifests. Manifests should be added to contrib/k8s/exa
 
 ###### Cloud Foundry
 
-_Provide an example with using cf cli_
+_Provide an example using cf cli_
 
 ###### cURL
 
