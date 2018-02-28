@@ -7,15 +7,6 @@ check-docker:
 		exit 2; \
 	fi
 
-# Checks for the existence of docker-compose and prints a nice error message if
-# it isn't present
-.PHONY: check-docker-compose
-check-docker-compose: check-docker
-	@if [ -z $$(which docker-compose) ]; then \
-		echo "Missing \`docker-compose\` which is required for development"; \
-		exit 2; \
-	fi
-
 .PHONY: pull-tile-generator
 pull-tile-generator: check-docker
 	docker pull cfplatformeng/tile-generator:v11.0.5
@@ -29,17 +20,19 @@ zip-broker:
 	  zip -r contrib/cf/pcf-tile/resources/open-service-broker-azure.zip cmd pkg vendor; \
 	popd;
 
+GENERATE_TILE = docker run --rm -v ${CURDIR}:/workspace -w /workspace --name=tile-generator cfplatformeng/tile-generator tile build
+
 .PHONY: prepare-to-generate-tile
-prepare-to-generate-tile: pull-tile-generator check-docker-compose zip-broker
+prepare-to-generate-tile: pull-tile-generator zip-broker
 
 .PHONY: generate-major-tile
 generate-major-tile: prepare-to-generate-tile
-	docker-compose run --rm generate-major-tile
+	${GENERATE_TILE} major
 
 .PHONY: generate-minor-tile
 generate-minor-tile: prepare-to-generate-tile
-	docker-compose run --rm generate-minor-tile
+	${GENERATE_TILE} minor
 
 .PHONY: generate-tile
 generate-tile: prepare-to-generate-tile
-	docker-compose run --rm generate-tile
+	${GENERATE_TILE}
