@@ -1,7 +1,7 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: postgresql-all-in-one-instance
+  name: my-postgresql-all-in-one-instance
   namespace: default
 spec:
   clusterServiceClassExternalName: azure-postgresql
