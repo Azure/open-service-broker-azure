@@ -110,7 +110,6 @@ cf create-service azure-mysql basic50 mysql-all-in-one -c '{
 
 ###### cURL
 
-
 To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cUrl command similar to the following example:
 
 ```console
@@ -311,7 +310,7 @@ kubectl create -f contrib/k8s/examples/mysql/mysql-database-only-binding.yaml
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+Using the `cf` cli, you can provision the `database-only` plan of this service with the following command:
 
 ```console
 cf create-service azure-mysql-database-only database-only mysql-database-only -c '{

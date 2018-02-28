@@ -76,6 +76,73 @@ Drops the applicable role (user) from the PostgreSQL DBMS.
 
 Deletes the PostgreSQL DBMS and database.
 
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/postgresql/postgresql-all-in-one-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-all-in-one-instance.yaml
+```
+
+You can then create a binding with the following command:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-all-in-one-binding.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+
+```console
+cf create-service azure-postgresql basic50 postgresql-all-in-one -c '{
+    "resourceGroup" : "demo",
+    "location" : "eastus",
+    "firewallRules" : [
+        {
+            "name": "AllowAll",
+            "startIPAddress": "0.0.0.0",
+            "endIPAddress" : "255.255.255.255"
+        }
+    ]
+}
+'
+```
+
+###### cURL
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cUrl command similar to the following example:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/postgresql-all-in-one?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "b43b4bba-5741-4d98-a10b-17dc5cee0175",
+    "plan_id" : "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
+    "parameters" : {
+        "resourceGroup": "demo",
+        "location" : "eastus",
+        "firewallRules" : [
+            {
+                "name": "AllowSome",
+                "startIPAddress": "0.0.0.0",
+                "endIPAddress" : "35.0.0.0"
+            },
+            {
+                "name": "AllowMore",
+                "startIPAddress": "35.0.0.1",
+                "endIPAddress" : "255.255.255.255"
+            }
+        ]
+    }
+}'
+```
+
 ### Service: azure-postgresql-dbms-only
 
 | Plan Name | Description |
@@ -114,6 +181,64 @@ This service is not bindable.
 ##### Deprovision
 
 Deletes the PostgreSQL DBMS only. If databases have been provisioned on this DBMS, deprovisioning will be deferred until all databases have been deprovisioned.
+
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/postgresql/postgresql-dbms-only-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-dbms-only-instance.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+
+```console
+cf create-service azure-postgresql-dbms-only basic50 postgresql-dbms-only -c '{
+    "resourceGroup" : "demo",
+    "location" : "eastus",
+    "alias" : "3f368072-6fa8-42ad-ae9c-c02e59b7dc8d",
+    "firewallRules" : [
+        {
+            "name": "AllowAll",
+            "startIPAddress": "0.0.0.0",
+            "endIPAddress" : "255.255.255.255"
+        }
+    ]
+}
+'
+```
+
+###### cURL
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cUrl command similar to the following example:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/postgreqsl-dbms-only?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
+    "plan_id" : "bf389028-8dcc-433a-ab6f-0ee9b8db142f",
+    "parameters" : {
+        "resourceGroup": "demo",
+        "location" : "eastus",
+        "alias" : "d94f7740-74d8-446a-bbfd-c616935b4d58",
+        "firewallRules" : [
+            {
+                "name": "AllowAll",
+                "startIPAddress": "0.0.0.0",
+                "endIPAddress" : "255.255.255.255"
+            }
+        ]
+    }
+}'
+```
 
 ### Service: azure-postgresql-database-only
 
@@ -167,3 +292,48 @@ Drops the applicable role (user) from the PostgreSQL DBMS.
 ##### Deprovision
 
 Deletes the PostgreSQL database only, the DBMS remains provisioned.
+
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/postgresql/postgresql-database-only-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-database-only-instance.yaml
+```
+
+You can then create a binding with the following command:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-database-only-binding.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `database-only` plan of this service with the following command:
+
+```console
+cf create-service azure-postgresql-database-only database-only postgresql-db-only -c '{
+    "parentAlias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12"
+}'
+```
+
+###### cURL
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database-only` plan with a cUrl command similar to the following example:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/postgresql-db-only?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "25434f16-d762-41c7-bbdd-8045d7f74ca6",
+    "plan_id" : "df6f5ef1-e602-406b-ba73-09c107d1e31b",
+    "parameters" : {
+        "parentAlias" : "d94f7740-74d8-446a-bbfd-c616935b4d58"
+    }
+}'
+```
