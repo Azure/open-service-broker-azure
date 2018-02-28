@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"fmt"
@@ -10,23 +10,23 @@ func (a *allInOneManager) Unbind(
 	instance service.Instance,
 	binding service.Binding,
 ) error {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return fmt.Errorf(
 			"error casting instance.SecureDetails as " +
-				"*mssqlAllInOneSecureInstanceDetails",
+				"*mssql.secureAllInOneInstanceDetails",
 		)
 	}
-	bd, ok := binding.Details.(*mssqlBindingDetails)
+	bd, ok := binding.Details.(*bindingDetails)
 	if !ok {
 		return fmt.Errorf(
-			"error casting binding.Details as *mssqlBindingDetails",
+			"error casting binding.Details as *mssql.bindingDetails",
 		)
 	}
 

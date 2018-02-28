@@ -12,7 +12,7 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/services/sqldb"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
 )
 
@@ -32,7 +32,7 @@ func getMssqlCases(
 		subscriptionID,
 	)
 	sqlDatabasesClient.Authorizer = authorizer
-	module := sqldb.New(
+	module := mssql.New(
 		azureEnvironment,
 		armDeployer,
 		sqlServersClient,
@@ -45,31 +45,33 @@ func getMssqlCases(
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			location:    "southcentralus",
-			provisioningParameters: &sqldb.ServerProvisioningParams{
-				FirewallRules: []sqldb.FirewallRule{
-					{
-						Name:    "AllowSome",
-						StartIP: "0.0.0.0",
-						EndIP:   "35.0.0.0",
-					},
-					{
-						Name:    "AllowMore",
-						StartIP: "35.0.0.1",
-						EndIP:   "255.255.255.255",
+			provisioningParameters: &mssql.AllInOneProvisioningParameters{
+				DBMSProvisioningParams: mssql.DBMSProvisioningParams{
+					FirewallRules: []mssql.FirewallRule{
+						{
+							Name:    "AllowSome",
+							StartIP: "0.0.0.0",
+							EndIP:   "35.0.0.0",
+						},
+						{
+							Name:    "AllowMore",
+							StartIP: "35.0.0.1",
+							EndIP:   "255.255.255.255",
+						},
 					},
 				},
 			},
-			bindingParameters: &sqldb.BindingParameters{},
+			bindingParameters: nil,
 			testCredentials:   testMsSQLCreds(),
 		},
-		{ //server only scenario
+		{ // server only scenario
 			module:      module,
 			description: "new server with database child test",
 			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
 			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 			location:    "southcentralus",
-			provisioningParameters: &sqldb.ServerProvisioningParams{
-				FirewallRules: []sqldb.FirewallRule{
+			provisioningParameters: &mssql.DBMSProvisioningParams{
+				FirewallRules: []mssql.FirewallRule{
 					{
 						Name:    "AllowAll",
 						StartIP: "0.0.0.0",
@@ -84,7 +86,7 @@ func getMssqlCases(
 					serviceID:         "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 					planID:            "8fa8d759-c142-45dd-ae38-b93482ddc04a",
 					location:          "", // This is actually irrelevant for this test
-					bindingParameters: &sqldb.BindingParameters{},
+					bindingParameters: nil,
 					testCredentials:   testMsSQLCreds(),
 				},
 			},
@@ -94,7 +96,7 @@ func getMssqlCases(
 
 func testMsSQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
-		cdts, ok := credentials.(*sqldb.Credentials)
+		cdts, ok := credentials.(*mssql.Credentials)
 		if !ok {
 			return fmt.Errorf("error casting credentials as *mssql.Credentials")
 		}

@@ -1,59 +1,64 @@
-package sqldb
+package mssql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-type mssqlAllInOneInstanceDetails struct {
-	ARMDeploymentName string `json:"armDeployment"`
-	serverInstanceDetails
+// AllInOneProvisioningParameters encapsulates non-sensitive dbms AND database
+// MS SQL-specific provisioning options
+type AllInOneProvisioningParameters struct {
+	DBMSProvisioningParams `json:",squash"`
+}
+
+type allInOneInstanceDetails struct {
+	dbmsInstanceDetails
 	DatabaseName string `json:"database"`
 }
 
-type mssqlAllInOneSecureInstanceDetails struct {
-	AdministratorLoginPassword string `json:"administratorLoginPassword"`
+type secureAllInOneInstanceDetails struct {
+	secureDBMSInstanceDetails
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ServerProvisioningParams{}
+	return &AllInOneProvisioningParameters{}
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureServerProvisioningParams{}
+	return nil
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &mssqlAllInOneInstanceDetails{}
+	return &allInOneInstanceDetails{}
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &mssqlAllInOneSecureInstanceDetails{}
+	return &secureAllInOneInstanceDetails{}
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
+	return nil
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
+	return nil
 }
 
 func (a *allInOneManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &mssqlBindingDetails{}
+	return &bindingDetails{}
 }
 
 func (
 	a *allInOneManager,
 ) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &mssqlSecureBindingDetails{}
+	return &secureBindingDetails{}
 }
