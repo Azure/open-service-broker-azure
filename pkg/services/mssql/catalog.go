@@ -280,7 +280,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-				Name:            "azure-sqldb-database-only",
+				Name:            "azure-sql-database-only",
 				Description:     "Azure SQL-- database only (experimental)",
 				Bindable:        true,
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",
