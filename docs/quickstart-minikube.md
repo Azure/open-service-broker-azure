@@ -190,7 +190,8 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
 1. Deploy Service Catalog on the cluster:
     ```console
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
-    helm install svc-cat/catalog --name catalog --namespace catalog
+    helm install svc-cat/catalog --name catalog --namespace catalog \
+       --set storage.etcd.persistence.enabled=true
     ```
 1. Check the status of Service Catalog:
     Run the following command and checking that every pod is in the `Running` state.

@@ -190,7 +190,9 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
 1. Deploy Service Catalog on the cluster:
     ```console
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
-    helm install svc-cat/catalog --name catalog --namespace catalog --set rbacEnable=false
+    helm install svc-cat/catalog --name catalog --namespace catalog \
+       --set rbacEnable=false \
+       --set storage.etcd.persistence.enabled=true
     ```
 
     Note: the AKS preview does not _currently_ support RBAC, so you must disable RBAC as shown above.
