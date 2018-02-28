@@ -4,7 +4,7 @@ metadata:
   name: all-in-one-sqldb-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sqldb
+  clusterServiceClassExternalName: azure-sql
   clusterServicePlanExternalName: basic
   parameters:
     location: eastus

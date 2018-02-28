@@ -9,9 +9,9 @@ Open Service Broker for Azure contains three Azure Database for MySQL services. 
 |--------------|-------------|
 | `azure-mysql` | Provision both an Azure Database for MySQL Database Management System (DBMS) and a database. |
 | `azure-mysql-dbms-only` | Provision only an Azure Database for MySQL DBMS. This can be used to provision multiple databases at a later time. |
-| `azure-mysql-db-only` | Provision a new database only upon a previously provisioned DBMS. |
+| `azure-mysql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-mysql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioning. You can not provision additional databases onto an instance provisioned through this service. The `azure-mysql-dbms-only` and `azure-mysql-db-only` services, on the other hand, can be combined to prprovisionovison multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-mysql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioning. You can not provision additional databases onto an instance provisioned through this service. The `azure-mysql-dbms-only` and `azure-mysql-database-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -73,6 +73,74 @@ Drops the applicable user from the MySQL DBMS.
 
 Deletes the MySQL DBMS and database.
 
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/mysql/mysql-all-in-one-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/mysql/mysql-all-in-one-instance.yaml
+```
+
+You can then create a binding with the following command:
+
+```console
+kubectl create -f contrib/k8s/examples/mysql/mysql-all-in-one-binding.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+
+```console
+cf create-service azure-mysql basic50 mysql-all-in-one -c '{
+    "resourceGroup" : "demo",
+    "location" : "eastus",
+    "firewallRules" : [
+        {
+            "name": "AllowAll",
+            "startIPAddress": "0.0.0.0",
+            "endIPAddress" : "255.255.255.255"
+        }
+    ]
+}
+'
+```
+
+###### cURL
+
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cUrl command similar to the following example:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/mysql-all-in-one?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "997b8372-8dac-40ac-ae65-758b4a5075a5",
+    "plan_id" : "427559f1-bf2a-45d3-8844-32374a3e58aa",
+    "parameters" : {
+        "resourceGroup": "demo",
+        "location" : "eastus",
+        "firewallRules" : [
+            {
+                "name": "AllowSome",
+                "startIPAddress": "0.0.0.0",
+                "endIPAddress" : "35.0.0.0"
+            },
+            {
+                "name": "AllowMore",
+                "startIPAddress": "35.0.0.1",
+                "endIPAddress" : "255.255.255.255"
+            }
+        ]
+    }
+}'
+```
+
 ### Service: azure-mysql-dbms-only
 
 | Plan Name | Description |
@@ -112,11 +180,74 @@ This service is not bindable.
 
 Deprovision will delete the MySQL DBMS. If any databases have been provisioned on this DBMS, deprovisioning will be deferred until all databases have been deprovisioned.
 
-### Service: azure-mysqldb-db-only
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/mysql/mysql-dbms-only-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/mysql/mysql-dbms-only-instance.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+
+```console
+cf create-service azure-mysql-dbms-only basic50 mysql-dbms-only -c '{
+    "resourceGroup" : "demo",
+    "location" : "eastus",
+    "alias" : "679aab6d-39e7-4a41-8b45-49975569079c",
+    "firewallRules" : [
+        {
+            "name": "AllowAll",
+            "startIPAddress": "0.0.0.0",
+            "endIPAddress" : "255.255.255.255"
+        }
+    ]
+}
+'
+```
+
+###### cURL
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cUrl command similar to the following example:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/mysql-dbms-only?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "30e7b836-199d-4335-b83d-adc7d23a95c2",
+    "plan_id" : "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
+    "parameters" : {
+        "resourceGroup": "demo",
+        "location" : "eastus",
+        "alias" : "c33c3b3a-c491-4197-8ced-66d4f89baa67",
+        "firewallRules" : [
+            {
+                "name": "AllowSome",
+                "startIPAddress": "0.0.0.0",
+                "endIPAddress" : "35.0.0.0"
+            },
+            {
+                "name": "AllowMore",
+                "startIPAddress": "35.0.0.1",
+                "endIPAddress" : "255.255.255.255"
+            }
+        ]
+    }
+}'
+```
+
+### Service: azure-mysql-database-only
 
 | Plan Name | Description |
 |-----------|-------------|
-| `mysql-db-only` | New database on existing MySQL DBMS |
+| `database-only` | New database on existing MySQL DBMS |
 
 #### Behaviors
 
@@ -161,3 +292,51 @@ Drops the applicable user from the MySQL DBMS.
 ##### Deprovision
 
 Deletes the database from the MySQL DBMS. The DBMS itself is not deprovisioned.
+
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/mysql/mysql-database-only-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/mysql/mysql-database-only-instance.yaml
+```
+
+You can then create a binding with the following command:
+
+```console
+kubectl create -f contrib/k8s/examples/mysql/mysql-database-only-binding.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+
+```console
+cf create-service azure-mysql-database-only database-only mysql-database-only -c '{
+    "parentAlias" : "679aab6d-39e7-4a41-8b45-49975569079c"
+}
+'
+```
+
+Note: this uses the alias provided in the DBMS only example
+
+###### cURL
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database-only` plan with a cUrl command similar to the following example. Note, this uses the alias provided in the DBMS only example above:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/mysql-database-only?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
+    "plan_id" : "ec77bd04-2107-408e-8fde-8100c1ce1f46",
+    "parameters" : {
+        "parentAlias" : "c33c3b3a-c491-4197-8ced-66d4f89baa67"
+    }
+}'
+```

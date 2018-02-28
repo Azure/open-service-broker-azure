@@ -1,0 +1,9 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: mysql-database-only-binding
+  namespace: default
+spec:
+  instanceRef:
+    name: mysql-database-only-instance
+  secretName: mysql-database-only-secret

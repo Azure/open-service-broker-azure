@@ -1,0 +1,10 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: mysql-database-only-instance
+  namespace: default
+spec:
+  clusterServiceClassExternalName: azure-mysql-database-only
+  clusterServicePlanExternalName: database-only
+  parameters:
+    parentAlias: 71b6b6c4-5271-47d3-8188-51e69fba914e

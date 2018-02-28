@@ -1,15 +1,14 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: dbms-only-sqldb-instance
+  name: my-mysql-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sql-dbms-only
-  clusterServicePlanExternalName: sql-dbms-only
+  clusterServiceClassExternalName: azure-mysql
+  clusterServicePlanExternalName: basic50
   parameters:
     location: eastus
     resourceGroup: demo
-    alias: 3e8f59b2-0f73-4a59-9c0b-6277c3e8109e
     firewallRules:
     - startIPAddress: "0.0.0.0"
       endIPAddress: "255.255.255.255"

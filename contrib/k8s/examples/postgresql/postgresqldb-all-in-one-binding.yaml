@@ -1,0 +1,9 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: postgresql-all-in-one-binding
+  namespace: default
+spec:
+  instanceRef:
+    name: postgresql-all-in-one-instance
+  secretName: postgresql-all-in-one-secret

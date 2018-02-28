@@ -4,7 +4,7 @@ metadata:
   name: db-only-sqldb-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sqldb-db-only
+  clusterServiceClassExternalName: azure-sql-database-only
   clusterServicePlanExternalName: basic
   parameters:
-    parentAlias: dbms-only-sqldb
+    parentAlias: 3e8f59b2-0f73-4a59-9c0b-6277c3e8109e

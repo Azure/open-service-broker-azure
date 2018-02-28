@@ -1,15 +1,15 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: dbms-only-sqldb-instance
+  name: postgresql-dbms-only-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sql-dbms-only
-  clusterServicePlanExternalName: sql-dbms-only
+  clusterServiceClassExternalName: azure-postgresql-dbms-only
+  clusterServicePlanExternalName: basic50
   parameters:
     location: eastus
     resourceGroup: demo
-    alias: 3e8f59b2-0f73-4a59-9c0b-6277c3e8109e
+    alias: 95bde4b9-0785-44e2-94a7-e315df1b9779
     firewallRules:
     - startIPAddress: "0.0.0.0"
       endIPAddress: "255.255.255.255"
