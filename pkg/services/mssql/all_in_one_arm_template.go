@@ -1,7 +1,7 @@
-package sqldb
+package mssql
 
 // nolint: lll
-var armTemplateServerOnlyBytes = []byte(`
+var allInOneARMTemplateBytes = []byte(`
 {
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
@@ -23,6 +23,18 @@ var armTemplateServerOnlyBytes = []byte(`
 		"administratorLoginPassword": {
 			"type": "securestring"
 		},
+		"databaseName": {
+			"type": "string"
+		},
+		"edition": {
+			"type": "string"
+		},
+		"requestedServiceObjectiveName": {
+			"type": "string"
+		},
+		"maxSizeBytes": {
+			"type": "string"
+		},
 		"tags": {
 			"type": "object"
 		}
@@ -43,22 +55,41 @@ var armTemplateServerOnlyBytes = []byte(`
 			},
 			"tags": "[parameters('tags')]",
 			"resources": [
-				{{$count:= sub (len .firewallRules)  1}}
-				{{range $i, $rule := .firewallRules}}
+				{{range .firewallRules}}
 				{
 					"type": "firewallrules",
-					"name": "{{$rule.Name}}",
+					"name": "{{.Name}}",
 					"apiVersion": "[variables('SQLapiVersion')]",
 					"location": "[parameters('location')]",
 					"properties": {
-						"startIpAddress": "{{$rule.StartIP}}",
-						"endIpAddress": "{{$rule.EndIP}}"
+						"startIpAddress": "{{.StartIP}}",
+						"endIpAddress": "{{.EndIP}}"
 					},
 					"dependsOn": [
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
 					]
-				}{{if lt $i $count}},{{end}}
+				},
 				{{end}}
+				{
+					"type": "databases",
+					"name": "[parameters('databaseName')]",
+					"apiVersion": "[variables('SQLapiVersion')]",
+					"location": "[parameters('location')]",
+					"properties": {
+						"collation": "SQL_Latin1_General_CP1_CI_AS",
+						"edition": "[parameters('edition')]",
+						"requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]",
+						"maxSizeBytes": "[parameters('maxSizeBytes')]"
+					},
+					"dependsOn": [
+						{{range .firewallRules}}
+						"[concat('Microsoft.Sql/servers/', parameters('serverName'), '/firewallrules/', '{{.Name}}')]",
+						{{end}}
+						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+						
+					],
+					"tags": "[parameters('tags')]"
+				}
 			]
 		}
 	],

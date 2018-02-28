@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"context"
@@ -14,14 +14,14 @@ func (a *allInOneManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ServerProvisioningParams)
+	pp, ok := provisioningParameters.(*AllInOneProvisioningParameters)
 	if !ok {
 		return errors.New(
 			"error casting provisioningParameters as " +
-				"*mssql.ServerProvisioningParams",
+				"*mssql.AllInOneProvisioningParameters",
 		)
 	}
-	return validateServerProvisionParameters(pp)
+	return validateDBMSProvisionParameters(&pp.DBMSProvisioningParams)
 }
 
 func (a *allInOneManager) GetProvisioner(
@@ -37,17 +37,17 @@ func (a *allInOneManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.SecureDetails as " +
-				"*mssqlAllInOneSecureInstanceDetails",
+				"*mssql.secureAllInOneInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
@@ -62,24 +62,24 @@ func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlAllInOneInstanceDetails)
+	dt, ok := instance.Details.(*allInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *mssqlAllInOneInstanceDetails",
+			"error casting instance.Details as *mssql.allInOneInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*mssqlAllInOneSecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.SecureDetails as " +
-				"*mssqlAllInOneSecureInstanceDetails",
+				"*mssql.secureAllInOneInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParams)
+	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting provisioningParameters as " +
-				"*mssql.ServerProvisioningParams",
+				"*mssql.AllInOneProvisioningParameters",
 		)
 	}
 	p := map[string]interface{}{ // ARM template params
@@ -93,13 +93,13 @@ func (a *allInOneManager) deployARMTemplate(
 			Extended["requestedServiceObjectiveName"],
 		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
-	goTemplateParams := buildGoTemplateParameters(pp)
+	goTemplateParams := buildGoTemplateParameters(&pp.DBMSProvisioningParams)
 	// new server scenario
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
-		armTemplateDBMSOnlyBytes,
+		allInOneARMTemplateBytes,
 		goTemplateParams,
 		p,
 		instance.Tags,
@@ -107,13 +107,12 @@ func (a *allInOneManager) deployARMTemplate(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 	return dt, sdt, nil
 }

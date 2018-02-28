@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql" // nolint: lll
@@ -9,25 +9,26 @@ import (
 
 type module struct {
 	allInOneServiceManager *allInOneManager
-	dbmsOnlyManager        *dbmsOnlyManager
-	dbOnlyServiceManager   *dbOnlyManager
+	dbmsManager            *dbmsManager
+	databaseManager        *databaseManager
 }
 
 type allInOneManager struct {
-	armDeployer     arm.Deployer
-	serversClient   sqlSDK.ServersClient
-	databasesClient sqlSDK.DatabasesClient
-}
-
-type dbmsOnlyManager struct {
-	armDeployer   arm.Deployer
-	serversClient sqlSDK.ServersClient
-}
-
-type dbOnlyManager struct {
 	sqlDatabaseDNSSuffix string
 	armDeployer          arm.Deployer
+	serversClient        sqlSDK.ServersClient
 	databasesClient      sqlSDK.DatabasesClient
+}
+
+type dbmsManager struct {
+	sqlDatabaseDNSSuffix string
+	armDeployer          arm.Deployer
+	serversClient        sqlSDK.ServersClient
+}
+
+type databaseManager struct {
+	armDeployer     arm.Deployer
+	databasesClient sqlSDK.DatabasesClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -41,18 +42,19 @@ func New(
 ) service.Module {
 	return &module{
 		allInOneServiceManager: &allInOneManager{
-			armDeployer:     armDeployer,
-			serversClient:   serversClient,
-			databasesClient: databasesClient,
-		},
-		dbmsOnlyManager: &dbmsOnlyManager{
-			armDeployer:   armDeployer,
-			serversClient: serversClient,
-		},
-		dbOnlyServiceManager: &dbOnlyManager{
 			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
 			armDeployer:          armDeployer,
+			serversClient:        serversClient,
 			databasesClient:      databasesClient,
+		},
+		dbmsManager: &dbmsManager{
+			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
+			armDeployer:          armDeployer,
+			serversClient:        serversClient,
+		},
+		databaseManager: &databaseManager{
+			armDeployer:     armDeployer,
+			databasesClient: databasesClient,
 		},
 	}
 }

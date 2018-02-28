@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"fmt"
@@ -100,10 +100,10 @@ func bind(
 		)
 	}
 
-	return &mssqlBindingDetails{
+	return &bindingDetails{
 			LoginName: loginName,
 		},
-		&mssqlSecureBindingDetails{
+		&secureBindingDetails{
 			Password: password,
 		},
 		nil

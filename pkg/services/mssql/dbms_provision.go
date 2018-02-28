@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"context"
@@ -10,22 +10,21 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (d *dbmsOnlyManager) ValidateProvisioningParameters(
+func (d *dbmsManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ServerProvisioningParams)
+	pp, ok := provisioningParameters.(*DBMSProvisioningParams)
 
 	if !ok {
 		return errors.New(
-			"error casting provisioningParameters as " +
-				"*mssql.ServerProvisioningParams",
+			"error casting provisioningParameters as *mssql.DBMSProvisioningParams",
 		)
 	}
-	return validateServerProvisionParameters(pp)
+	return validateDBMSProvisionParameters(pp)
 }
 
-func (d *dbmsOnlyManager) GetProvisioner(
+func (d *dbmsManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -34,20 +33,21 @@ func (d *dbmsOnlyManager) GetProvisioner(
 	)
 }
 
-func (d *dbmsOnlyManager) preProvision(
+func (d *dbmsManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+	dt, ok := instance.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
+			"error casting instance.Details as *mssql.dbmsInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*mssqlVMOnlySecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureDBMSInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *mssqlVMOnlySecureInstanceDetails",
+			"error casting instance.SecureDetails as " +
+				"*mssql.secureDBMSInstanceDetails",
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
@@ -56,28 +56,28 @@ func (d *dbmsOnlyManager) preProvision(
 	sdt.AdministratorLoginPassword = generate.NewPassword()
 	return dt, sdt, nil
 }
-func (d *dbmsOnlyManager) deployARMTemplate(
+
+func (d *dbmsManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*mssqlVMOnlyInstanceDetails)
+	dt, ok := instance.Details.(*dbmsInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting instance.Details as *mssqlVMOnlyInstanceDetails",
+			"error casting instance.Details as *mssql.dbmsInstanceDetails",
 		)
 	}
-	sdt, ok := instance.SecureDetails.(*mssqlVMOnlySecureInstanceDetails)
+	sdt, ok := instance.SecureDetails.(*secureDBMSInstanceDetails)
 	if !ok {
 		return nil, nil, errors.New(
 			"error casting instance.SecureDetails as " +
-				"*mssqlVMOnlySecureInstanceDetails",
+				"*mssql.secureDBMSInstanceDetails",
 		)
 	}
-	pp, ok := instance.ProvisioningParameters.(*ServerProvisioningParams)
+	pp, ok := instance.ProvisioningParameters.(*DBMSProvisioningParams)
 	if !ok {
 		return nil, nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*mssql.ServerProvisioningParams",
+			"error casting provisioningParameters as *mssql.DBMSProvisioningParams",
 		)
 	}
 	p := map[string]interface{}{ // ARM template params
@@ -90,7 +90,7 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
-		armTemplateServerOnlyBytes,
+		dbmsARMTemplateBytes,
 		goTemplateParams,
 		p,
 		instance.Tags,
@@ -98,13 +98,12 @@ func (d *dbmsOnlyManager) deployARMTemplate(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 	return dt, sdt, nil
 }

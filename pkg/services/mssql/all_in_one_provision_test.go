@@ -1,4 +1,4 @@
-package sqldb
+package mssql
 
 import (
 	"testing"
@@ -11,7 +11,7 @@ func TestValidateNoFirewallConfig(t *testing.T) {
 
 	sm := &allInOneManager{}
 
-	pp := &ServerProvisioningParams{}
+	pp := &AllInOneProvisioningParameters{}
 
 	error := sm.ValidateProvisioningParameters(pp, nil)
 	assert.Nil(t, error)
@@ -21,13 +21,12 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 
 	sm := &allInOneManager{}
 
-	pp := &ServerProvisioningParams{
-		FirewallRules: []FirewallRule{
-			{
-				Name:    "Goodrule",
-				StartIP: "192.168.86.1",
-				EndIP:   "192.168.86.100",
-			},
+	pp := &AllInOneProvisioningParameters{}
+	pp.FirewallRules = []FirewallRule{
+		{
+			Name:    "Goodrule",
+			StartIP: "192.168.86.1",
+			EndIP:   "192.168.86.100",
 		},
 	}
 
@@ -39,18 +38,17 @@ func TestValidateMultipleGoodFirewallConfig(t *testing.T) {
 
 	sm := &allInOneManager{}
 
-	pp := &ServerProvisioningParams{
-		FirewallRules: []FirewallRule{
-			{
-				Name:    "Goodrule",
-				StartIP: "192.168.86.1",
-				EndIP:   "192.168.86.100",
-			},
-			{
-				Name:    "Goodrule2",
-				StartIP: "192.168.86.101",
-				EndIP:   "192.168.86.255",
-			},
+	pp := &AllInOneProvisioningParameters{}
+	pp.FirewallRules = []FirewallRule{
+		{
+			Name:    "Goodrule",
+			StartIP: "192.168.86.1",
+			EndIP:   "192.168.86.100",
+		},
+		{
+			Name:    "Goodrule2",
+			StartIP: "192.168.86.101",
+			EndIP:   "192.168.86.255",
 		},
 	}
 
@@ -62,12 +60,11 @@ func TestValidateBadFirewallConfigMissingName(t *testing.T) {
 
 	sm := &allInOneManager{}
 
-	pp := &ServerProvisioningParams{
-		FirewallRules: []FirewallRule{
-			{
-				StartIP: "192.168.86.1",
-				EndIP:   "192.168.86.100",
-			},
+	pp := &AllInOneProvisioningParameters{}
+	pp.FirewallRules = []FirewallRule{
+		{
+			StartIP: "192.168.86.1",
+			EndIP:   "192.168.86.100",
 		},
 	}
 
@@ -80,12 +77,11 @@ func TestValidateBadFirewallConfigMissingName(t *testing.T) {
 
 func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
-	pp := &ServerProvisioningParams{
-		FirewallRules: []FirewallRule{
-			{
-				Name:    "BadRule",
-				StartIP: "192.168.86.1",
-			},
+	pp := &AllInOneProvisioningParameters{}
+	pp.FirewallRules = []FirewallRule{
+		{
+			Name:    "BadRule",
+			StartIP: "192.168.86.1",
 		},
 	}
 	error := sm.ValidateProvisioningParameters(pp, nil)
@@ -97,12 +93,11 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 
 func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
-	pp := &ServerProvisioningParams{
-		FirewallRules: []FirewallRule{
-			{
-				Name:  "Badrule",
-				EndIP: "192.168.86.200",
-			},
+	pp := &AllInOneProvisioningParameters{}
+	pp.FirewallRules = []FirewallRule{
+		{
+			Name:  "Badrule",
+			EndIP: "192.168.86.200",
 		},
 	}
 	error := sm.ValidateProvisioningParameters(pp, nil)
@@ -114,13 +109,12 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 
 func TestValidateInvalidIP(t *testing.T) {
 	sm := &allInOneManager{}
-	pp := &ServerProvisioningParams{
-		FirewallRules: []FirewallRule{
-			{
-				Name:    "BadRule",
-				StartIP: "decafbad",
-				EndIP:   "192.168.86.200",
-			},
+	pp := &AllInOneProvisioningParameters{}
+	pp.FirewallRules = []FirewallRule{
+		{
+			Name:    "BadRule",
+			StartIP: "decafbad",
+			EndIP:   "192.168.86.200",
 		},
 	}
 	error := sm.ValidateProvisioningParameters(pp, nil)
@@ -132,13 +126,12 @@ func TestValidateInvalidIP(t *testing.T) {
 
 func TestValidateIncompleteIP(t *testing.T) {
 	sm := &allInOneManager{}
-	pp := &ServerProvisioningParams{
-		FirewallRules: []FirewallRule{
-			{
-				Name:    "Goodrule",
-				StartIP: "192.168.",
-				EndIP:   "192.168.86.200",
-			},
+	pp := &AllInOneProvisioningParameters{}
+	pp.FirewallRules = []FirewallRule{
+		{
+			Name:    "Goodrule",
+			StartIP: "192.168.",
+			EndIP:   "192.168.86.200",
 		},
 	}
 	error := sm.ValidateProvisioningParameters(pp, nil)
