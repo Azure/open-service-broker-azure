@@ -154,7 +154,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions a new PostgreSQL DBMS only. Databases can be created through subsequent provision requests using the `azure-postgresql-database-only` service.
+Provisions an Azure Database for PostgreSQL DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-postgresql-database-only` service.
 
 ###### Provisioning Parameters
 

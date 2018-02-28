@@ -151,7 +151,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions a new MySQL DBMS only. Databases can be created through subsequent provision requests using the `azure-mysql-database-only` service.
+Provisions an Azure Database for MySQL DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-mysql-database-only` service.
 
 ###### Provisioning Parameters
 

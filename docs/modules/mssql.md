@@ -154,7 +154,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions a new SQL Server DBMS only. Databases can be created through subsequent provision requests using the `azure-sql-database-only` service.
+Provisions a SQL Server DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-sql-database-only` service.
 
 ###### Provisioning Parameters
 
