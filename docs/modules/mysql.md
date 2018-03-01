@@ -77,16 +77,16 @@ Deletes the MySQL DBMS and database.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/mysql/mysql-all-in-one-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+The `contrib/k8s/examples/mysql/mysql-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
 
 ```console
-kubectl create -f contrib/k8s/examples/mysql/mysql-all-in-one-instance.yaml
+kubectl create -f contrib/k8s/examples/mysql/mysql-instance.yaml
 ```
 
 You can then create a binding with the following command:
 
 ```console
-kubectl create -f contrib/k8s/examples/mysql/mysql-all-in-one-binding.yaml
+kubectl create -f contrib/k8s/examples/mysql/mysql-binding.yaml
 ```
 
 ###### Cloud Foundry
@@ -183,10 +183,10 @@ Deprovision will delete the MySQL DBMS. If any databases have been provisioned o
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/mysql/mysql-dbms-only-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+The `contrib/k8s/examples/mysql/advanced/mysql-dbms-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
 
 ```console
-kubectl create -f contrib/k8s/examples/mysql/mysql-dbms-only-instance.yaml
+kubectl create -f contrib/k8s/examples/mysql/advanced/mysql-dbms-instance.yaml
 ```
 
 ###### Cloud Foundry
@@ -296,16 +296,16 @@ Deletes the database from the MySQL DBMS. The DBMS itself is not deprovisioned.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/mysql/mysql-database-only-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
+The `contrib/k8s/examples/mysql/advanced/mysql-database-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
 
 ```console
-kubectl create -f contrib/k8s/examples/mysql/mysql-database-only-instance.yaml
+kubectl create -f contrib/k8s/examples/mysql/advanced/mysql-database-instance.yaml
 ```
 
 You can then create a binding with the following command:
 
 ```console
-kubectl create -f contrib/k8s/examples/mysql/mysql-database-only-binding.yaml
+kubectl create -f contrib/k8s/examples/mysql/advanced/mysql-database-binding.yaml
 ```
 
 ###### Cloud Foundry

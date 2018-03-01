@@ -86,16 +86,16 @@ Deletes both the database and the SQL Server instance.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/sqldb/sqldb-all-in-one-instance.yaml` can be used to provision one of the plans from the all-in-one `azure-sql` service. This can be done with the following example:
+The `contrib/k8s/examples/sql/sql-instance.yaml` can be used to provision one of the plans from the all-in-one `azure-sql` service. This can be done with the following example:
 
 ```console
-kubectl create -f ../../contrib/k8s/examples/sqldb/sqldb-all-in-one-instance.yaml
+kubectl create -f ../../contrib/k8s/examples/sql/sql-instance.yaml
 ```
 
 You can then create a binding to the service with the following command:
 
 ```console
-kubectl create -f ../../contrib/k8s/examples/sqldb/sqldb-all-in-one-binding.yaml
+kubectl create -f ../../contrib/k8s/examples/sql/sql-binding.yaml
 ```
 
 ###### Cloud Foundry
@@ -185,10 +185,10 @@ Deprovision will delete the SQL Server DBMS. If any databases have been provisio
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/sqldb/sqldb-dbms-only-instance.yaml` can be used to provision one of the plans from the all-in-one `azure-sql-dbms-only` service. This can be done with the following example:
+The `contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml` can be used to provision one of the plans from the all-in-one `azure-sql-dbms-only` service. This can be done with the following example:
 
 ```console
-kubectl create -f ../../contrib/k8s/examples/sqldb/sqldb-dbms-only-instance.yaml
+kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml
 ```
 
 ###### Cloud Foundry
@@ -309,15 +309,15 @@ Deletes the database from the SQL Server instance, but does not delete the DBMS.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/sqldb/sqldb-db-only-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
+The `contrib/k8s/examples/sql/advanced/sql-database-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
 
 ```console
-kubectl create -f ../../contrib/k8s/examples/sqldb/sqldb-db-only-instance.yaml
+kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-database-instance.yaml
 ```
 You can then create a binding with the following command:
 
 ```console
-kubectl create -f ../../contrib/k8s/examples/sqldb/sqldb-db-only-binding.yaml
+kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-database-binding.yaml
 ```
 
 ###### Cloud Foundry

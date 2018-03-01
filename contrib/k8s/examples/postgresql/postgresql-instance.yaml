@@ -1,16 +1,18 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: all-in-one-sqldb-instance
+  name: example-postgresql-all-in-one-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sql
-  clusterServicePlanExternalName: basic
+  clusterServiceClassExternalName: azure-postgresql
+  clusterServicePlanExternalName: basic50
   parameters:
     location: eastus
     resourceGroup: demo
+    extensions:
+    - uuid-ossp
+    - postgis
     firewallRules:
     - startIPAddress: "0.0.0.0"
       endIPAddress: "255.255.255.255"
       name: "AllowAll"
-

@@ -80,16 +80,16 @@ Deletes the PostgreSQL DBMS and database.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/postgresql/postgresql-all-in-one-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+The `contrib/k8s/examples/postgresql/postgresql-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
 
 ```console
-kubectl create -f contrib/k8s/examples/postgresql/postgresql-all-in-one-instance.yaml
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-instance.yaml
 ```
 
 You can then create a binding with the following command:
 
 ```console
-kubectl create -f contrib/k8s/examples/postgresql/postgresql-all-in-one-binding.yaml
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-binding.yaml
 ```
 
 ###### Cloud Foundry
@@ -186,10 +186,10 @@ Deletes the PostgreSQL DBMS only. If databases have been provisioned on this DBM
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/postgresql/postgresql-dbms-only-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+The `contrib/k8s/examples/postgresql/advanced/postgresql-dbms-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
 
 ```console
-kubectl create -f contrib/k8s/examples/postgresql/postgresql-dbms-only-instance.yaml
+kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-dbms-instance.yaml
 ```
 
 ###### Cloud Foundry
@@ -300,13 +300,13 @@ Deletes the PostgreSQL database only, the DBMS remains provisioned.
 The `contrib/k8s/examples/postgresql/postgresql-database-only-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
 
 ```console
-kubectl create -f contrib/k8s/examples/postgresql/postgresql-database-only-instance.yaml
+kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-database-instance.yaml
 ```
 
 You can then create a binding with the following command:
 
 ```console
-kubectl create -f contrib/k8s/examples/postgresql/postgresql-database-only-binding.yaml
+kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-database-binding.yaml
 ```
 
 ###### Cloud Foundry
