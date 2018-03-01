@@ -191,7 +191,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
     ```console
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
     helm install svc-cat/catalog --name catalog --namespace catalog \
-       --set storage.etcd.persistence.enabled=true
+       --set apiserver.storage.etcd.persistence.enabled=true
     ```
 
     Note: the command above enables persistence for the embedded etcd used by Service Catalog. This is desirable for evaluation in the event that parts of Service Catalog are restarted. For production use, we recommend a dedicated etcd cluster with appropriate storage.

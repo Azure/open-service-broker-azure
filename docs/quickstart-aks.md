@@ -192,7 +192,7 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
     helm install svc-cat/catalog --name catalog --namespace catalog \
        --set rbacEnable=false \
-       --set storage.etcd.persistence.enabled=true
+       --set apiserver.storage.etcd.persistence.enabled=true
     ```
 
     Note: the AKS preview does not _currently_ support RBAC, so you must disable RBAC as shown above. The command above also enables persistence for the embedded etcd used by Service Catalog. This is desirable for evaluation in the event that parts of Service Catalog are restarted. For production use, we recommend a dedicated etcd cluster with appropriate storage.
