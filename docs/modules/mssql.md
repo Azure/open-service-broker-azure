@@ -3,7 +3,7 @@
 |![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/50px-Warning.svg.png) | This module is EXPERIMENTAL. It is under heavy development and remains subject to the possibility of breaking changes. |
 |---|---|
 
-Open Service Broker for Azure (OSBA) contains three Azure SQL Database services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
+Open Service Broker for Azure (OSBA) contains three Azure SQL Database services. These services enable you to select the most appropriate provisioning scenario for your needs. These services are:
 
 | Service Name | Description |
 |--------------|-------------|
@@ -11,7 +11,7 @@ Open Service Broker for Azure (OSBA) contains three Azure SQL Database services.
 | `azure-sql-dbms-only` | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
 | `azure-sql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-sql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioning. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-dbms-only` and `azure-sql-database-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-sql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-dbms-only` and `azure-sql-database-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -119,7 +119,7 @@ cf create-service azure-sql basic azure-sql-all-in-one -c '{
 
 ###### cURL
 
-Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the all-in-one Azure SQL Database service with a cUrl command similar to the following example:
+Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the all-in-one Azure SQL Database service with a cURL command similar to the following example:
 
 ```console
 curl -X PUT \
@@ -213,7 +213,7 @@ cf create-service azure-sql-dbms-only dbms-only azure-sql-dbms-only -c '{
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the DBMS only Azure SQL Database service with a cUrl command similar to the following example. This example illustrates multiple firewall rules and provides an alias for later database provisioning:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the DBMS-only Azure SQL Database service with a cURL command similar to the following example. This example illustrates multiple firewall rules and provides an alias for later database provisioning:
 
 ```console
 curl -X PUT \
@@ -303,7 +303,7 @@ Drops the applicable user from the SQL Server.
 
 ##### Deprovision
 
-Deletes both the database from the SQL Server instance, but does not delete the DBMS.
+Deletes the database from the SQL Server instance, but does not delete the DBMS.
 
 ##### Examples
 
@@ -330,11 +330,11 @@ cf create-service azure-sql-database-only basic azure-sql-db-only -c '{
 }'
 ```
 
-Note: this uses the alias used when provisioning the DBMS only service above.
+Note: this uses the alias used when provisioning the DBMS-only service above.
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the database only Azure SQL Database service onto a previously provisioned SQL DB DBMS with a cUrl command similar to the following example. Note, this uses the alias provided in the DBMS only example above:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the database-only Azure SQL Database service onto a previously provisioned SQL DB DBMS with a cURL command similar to the following example. Note, this uses the alias provided in the DBMS-only example above:
 
 ```console
 curl -X PUT \

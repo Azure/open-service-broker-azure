@@ -11,7 +11,7 @@ Open Service Broker for Azure contains three Azure Database for PostgreSQL servi
 | `azure-postgresql-dbms-only` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
 | `azure-postgresql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-postgresql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioning. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-dbms-only` and `azure-postgresql-database-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-postgresql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-dbms-only` and `azure-postgresql-database-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -113,7 +113,7 @@ cf create-service azure-postgresql basic50 postgresql-all-in-one -c '{
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cUrl command similar to the following example:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cURL command similar to the following example:
 
 ```console
 curl -X PUT \
@@ -214,7 +214,7 @@ cf create-service azure-postgresql-dbms-only basic50 postgresql-dbms-only -c '{
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cUrl command similar to the following example:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cURL command similar to the following example:
 
 ```console
 curl -X PUT \
@@ -321,7 +321,7 @@ cf create-service azure-postgresql-database-only database-only postgresql-db-onl
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database-only` plan with a cUrl command similar to the following example:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database-only` plan with a cURL command similar to the following example:
 
 ```console
 curl -X PUT \
