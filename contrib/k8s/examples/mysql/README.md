@@ -18,7 +18,7 @@ The `mysql-instance.yaml` manifest will create an instance using the `azure-mysq
 
 ## Advanced Usage
 
-The `advanced` directory contains manifests that you can use to provision the `azure-mysql-dbms` and `azure-mysql-databasey` services. These services allow you to independently provision the Azure SQL Database DBMS and the database itself for more advanced use cases, such as running multiple databases on a single DBMS.
+The `advanced` directory contains manifests that you can use to provision the `azure-mysql-dbms` and `azure-mysql-database` services. These services allow you to independently provision the Azure SQL Database DBMS and the database itself for more advanced use cases, such as running multiple databases on a single DBMS.
 
 The `mysql-dbms-instance.yaml` manifest will provision an instance of the `azure-mysql-dbms` service using the `basic50` plan. This service is not bindable, so there is no corresponding binding manifest. An important element of this manifest is the `alias` parameter. This is used when provisioning an instance of the `azure-mysql-database` service.
 
