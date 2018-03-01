@@ -1,7 +1,7 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: my-mysql-dbms-instance
+  name: example-mysql-dbms-instance
   namespace: default
 spec:
   clusterServiceClassExternalName: azure-mysql-dbms-only
