@@ -57,7 +57,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:             "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
-				Name:           "azure-postgresql-dbms-only",
+				Name:           "azure-postgresql-dbms",
 				Description:    "Azure Database for PostgreSQL-- DBMS only (experimental)",
 				ChildServiceID: "25434f16-d762-41c7-bbdd-8045d7f74ca",
 				Metadata: &service.ServiceMetadata{
@@ -106,7 +106,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:              "25434f16-d762-41c7-bbdd-8045d7f74ca6",
-				Name:            "azure-postgresql-database-only",
+				Name:            "azure-postgresql-database",
 				Description:     "Azure Database for PostgreSQL-- database only (experimental)",
 				ParentServiceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
 				Metadata: &service.ServiceMetadata{
@@ -122,7 +122,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "df6f5ef1-e602-406b-ba73-09c107d1e31b",
-				Name:        "database-only",
+				Name:        "database",
 				Description: "A new database added to an existing DBMS (experimental)",
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
