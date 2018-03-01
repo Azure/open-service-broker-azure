@@ -1,9 +1,0 @@
-apiVersion: servicecatalog.k8s.io/v1beta1
-kind: ServiceBinding
-metadata:
-  name: all-in-one-sqldb-binding
-  namespace: default
-spec:
-  instanceRef:
-    name: all-in-one-sqldb-instance
-  secretName: all-in-one-sqldb-secret

@@ -73,3 +73,17 @@ _Describe what occurs upon unbinding. (i.e. Is a user account deleted?)_
 
 _Describe what occurs upon deprovisioning. (i.e. What Azure resources are
 deleted?)_
+
+##### Examples
+
+###### Kubernetes
+
+_Provide an example with manifests. Manifests should be added to contrib/k8s/examples/{module}_
+
+###### Cloud Foundry
+
+_Provide an example using cf cli_
+
+###### cURL
+
+_Provide an example of using the broker directly_

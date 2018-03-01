@@ -252,7 +252,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:             "a7454e0e-be2c-46ac-b55f-8c4278117525",
-				Name:           "azure-sql-dbms-only",
+				Name:           "azure-sql-dbms",
 				Description:    "Azure SQL-- DBMS only (experimental)",
 				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				Metadata: &service.ServiceMetadata{
@@ -268,7 +268,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
-				Name:        "dbms-only",
+				Name:        "dbms",
 				Description: "Azure SQL Server-- DBMS only",
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
@@ -280,7 +280,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-				Name:            "azure-sql-database-only",
+				Name:            "azure-sql-database",
 				Description:     "Azure SQL-- database only (experimental)",
 				Bindable:        true,
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",

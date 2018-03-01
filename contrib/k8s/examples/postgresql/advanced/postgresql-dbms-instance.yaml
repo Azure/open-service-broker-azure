@@ -1,14 +1,15 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceInstance
 metadata:
-  name: my-mysqldb-instance
+  name: example-postgresql-dbms-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-mysqldb
+  clusterServiceClassExternalName: azure-postgresql-dbms
   clusterServicePlanExternalName: basic50
   parameters:
     location: eastus
     resourceGroup: demo
+    alias: 95bde4b9-0785-44e2-94a7-e315df1b9779
     firewallRules:
     - startIPAddress: "0.0.0.0"
       endIPAddress: "255.255.255.255"
