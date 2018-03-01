@@ -14,7 +14,7 @@ This directory contains example Kubernetes manifests to exercise these services.
 
 The easiest way to use the Azure SQL Database service is to use the `azure-sql` service to provision both a DBMS and a new database.
 
-The `sql-instance.yaml` manifest will create an instance using the `azure-sql` service using the `basic` plan. This will result in a new Azure SQL Database that includes both the DBMS and the database. The `sql-binding.yaml` will create a binding for the to this new database, ultimately resulting in a new Kubernetes secret named `example-sql-secret`. Once created, you can use this secret in an application to connect to the new Azure SQL Database instance.
+The `sql-instance.yaml` manifest will create an instance using the `azure-sql` service using the `basic` plan. This will result in a new Azure SQL Database that includes both the DBMS and the database. The `sql-binding.yaml` manifest will create a binding for the to this new database, ultimately resulting in a new Kubernetes secret named `example-sql-secret`. Once created, you can use this secret in an application to connect to the new Azure SQL Database instance.
 
 ## Advanced Usage
 

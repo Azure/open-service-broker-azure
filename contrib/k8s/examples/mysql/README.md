@@ -14,7 +14,7 @@ This directory contains example Kubernetes manifests to exercise these services.
 
 The easiest way to use the Azure Database for MySQL service is to use the `azure-mysql` service to provision both a DBMS and a new database.
 
-The `mysql-instance.yaml` manifest will create an instance using the `azure-mysql` service using the `basic50` plan. This will result in a new Azure Database for MySQL that includes both the DBMS and the database. The `mysql-binding.yaml` will create a binding for the to this new database, ultimately resulting in a new Kubernetes secret named `example-mysql-secret`. Once created, you can use this secret in an application to connect to the new Azure Database for MySQL instance.
+The `mysql-instance.yaml` manifest will create an instance using the `azure-mysql` service using the `basic50` plan. This will result in a new Azure Database for MySQL that includes both the DBMS and the database. The `mysql-binding.yaml` manifest will create a binding for the to this new database, ultimately resulting in a new Kubernetes secret named `example-mysql-secret`. Once created, you can use this secret in an application to connect to the new Azure Database for MySQL instance.
 
 ## Advanced Usage
 
