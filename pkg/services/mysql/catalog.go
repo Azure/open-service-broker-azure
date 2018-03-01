@@ -9,11 +9,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "997b8372-8dac-40ac-ae65-758b4a5075a5",
 				Name:        "azure-mysql",
-				Description: "Azure Database for MySQL-- DBMS and single database (experimental)",
+				Description: "Azure Database for MySQL-- DBMS and single database (preview)",
 				Metadata: &service.ServiceMetadata{
 					DisplayName:      "Azure Database for MySQL",
 					ImageUrl:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL-- DBMS and single database (experimental)",
+					LongDescription:  "Azure Database for MySQL-- DBMS and single database (preview)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -135,12 +135,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:             "30e7b836-199d-4335-b83d-adc7d23a95c2",
 				Name:           "azure-mysql-dbms",
-				Description:    "Azure Database for MySQL-- DBMS only (experimental)",
+				Description:    "Azure Database for MySQL-- DBMS only (preview)",
 				ChildServiceID: "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 				Metadata: &service.ServiceMetadata{
 					DisplayName:      "Azure Database for MySQL-- DBMS Only",
 					ImageUrl:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL-- DBMS only (experimental)",
+					LongDescription:  "Azure Database for MySQL-- DBMS only (preview)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -262,12 +262,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:              "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 				Name:            "azure-mysql-database",
-				Description:     "Azure Database for MySQL-- database Only (experimental)",
+				Description:     "Azure Database for MySQL-- database Only (preview)",
 				ParentServiceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
 				Metadata: &service.ServiceMetadata{
 					DisplayName:      "Azure Database for MySQL-- Database Only",
 					ImageUrl:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL-- database Only (experimental)",
+					LongDescription:  "Azure Database for MySQL-- database Only (preview)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -278,7 +278,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			service.NewPlan(&service.PlanProperties{
 				ID:          "ec77bd04-2107-408e-8fde-8100c1ce1f46",
 				Name:        "database",
-				Description: "A new database added to an existing DBMS (experimental)",
+				Description: "A new database added to an existing DBMS",
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for MySQL-- Database Only",
