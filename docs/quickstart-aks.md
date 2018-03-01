@@ -195,7 +195,7 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
        --set apiserver.storage.etcd.persistence.enabled=true
     ```
 
-    Note: the AKS preview does not _currently_ support RBAC, so you must disable RBAC as shown above. The command above also enables persistence for the embedded etcd used by Service Catalog. This is desirable for evaluation in the event that parts of Service Catalog are restarted. For production use, we recommend a dedicated etcd cluster with appropriate storage.
+    Note: the AKS preview does not _currently_ support RBAC, so you must disable RBAC as shown above. The command above also enables persistence for the embedded etcd used by Service Catalog. Using this flag will create a persistent volume for the etcd instance to use. Enabling the persistent volume is recommended for evaluation of Service Catalog because it allows you to restart Service Catalog without data loss. For production use, we recommend a dedicated etcd cluster with appropriate persistent storage and backup.
 
 1. Deploy Open Service Broker for Azure on the cluster:
 

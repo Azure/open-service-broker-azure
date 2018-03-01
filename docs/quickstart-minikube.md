@@ -194,7 +194,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
        --set apiserver.storage.etcd.persistence.enabled=true
     ```
 
-    Note: the command above enables persistence for the embedded etcd used by Service Catalog. This is desirable for evaluation in the event that parts of Service Catalog are restarted. For production use, we recommend a dedicated etcd cluster with appropriate storage.
+    Note: the command above enables persistence for the embedded etcd used by Service Catalog. Using this flag will create a persistent volume for the etcd instance to use. Enabling the persistent volume is recommended for evaluation of Service Catalog because it allows you to restart Service Catalog without data loss. For production use, we recommend a dedicated etcd cluster with appropriate persistent storage and backup.
 
 1. Check the status of Service Catalog:
     Run the following command and checking that every pod is in the `Running` state.
