@@ -1,6 +1,6 @@
 # [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/)
 
-|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/50px-Warning.svg.png) | This module is EXPERIMENTAL. It is under heavy development and remains subject to the possibility of breaking changes. |
+|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/50px-Warning.svg.png) | This module is PREVIEW. It is under moderate development, but remains subject to the possibility of breaking changes if they prove necessary. |
 |---|---|
 
 Open Service Broker for Azure contains three Azure SQL Database services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
