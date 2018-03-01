@@ -190,8 +190,12 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
 1. Deploy Service Catalog on the cluster:
     ```console
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
-    helm install svc-cat/catalog --name catalog --namespace catalog
+    helm install svc-cat/catalog --name catalog --namespace catalog \
+       --set apiserver.storage.etcd.persistence.enabled=true
     ```
+
+    Note: the command above enables persistence for the embedded etcd used by Service Catalog. Using this flag will create a persistent volume for the etcd instance to use. Enabling the persistent volume is recommended for evaluation of Service Catalog because it allows you to restart Service Catalog without data loss. For production use, we recommend a dedicated etcd cluster with appropriate persistent storage and backup.
+
 1. Check the status of Service Catalog:
     Run the following command and checking that every pod is in the `Running` state.
     You may need to wait a few minutes, rerunning the command until all of the
