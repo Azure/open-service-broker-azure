@@ -12,5 +12,7 @@ spec:
     extensions:
     - uuid-ossp
     - postgis
-    firewallStartIPAddress: "0.0.0.0"
-    firewallEndIPAddress: "255.255.255.255"
+    firewallRules:
+    - startIPAddress: "0.0.0.0"
+      endIPAddress: "255.255.255.255"
+      name: "AllowAll"

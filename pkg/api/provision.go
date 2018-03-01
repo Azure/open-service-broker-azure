@@ -194,6 +194,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		}
 		err = decoder.Decode(mapTagsIfaces)
 		if err != nil {
+			logFields["error"] = err
 			log.WithFields(logFields).Debug(
 				"bad provisioning request: error decoding tags into map[string]string",
 			)
@@ -242,57 +243,63 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	// Now service-specific parameters...
 	provisioningParameters := serviceManager.GetEmptyProvisioningParameters()
-	decoderConfig := &mapstructure.DecoderConfig{
-		TagName: "json",
-		Result:  provisioningParameters,
-	}
-	decoder, err := mapstructure.NewDecoder(decoderConfig)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"error building parameter map decoder",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-	err = decoder.Decode(provisioningRequest.Parameters)
-	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad provisioning request: error decoding parameter map into " +
-				"service-specific parameters",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
-		return
+	if provisioningParameters != nil {
+		decoderConfig := &mapstructure.DecoderConfig{
+			TagName: "json",
+			Result:  provisioningParameters,
+		}
+		decoder, err := mapstructure.NewDecoder(decoderConfig)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"error building parameter map decoder",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+		err = decoder.Decode(provisioningRequest.Parameters)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Debug(
+				"bad provisioning request: error decoding parameter map into " +
+					"service-specific parameters",
+			)
+			// krancour: Choosing to interpret this scenario as a bad request since the
+			// probable cause would be disagreement between provided and expected types
+			s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
+			return
+		}
 	}
 
 	// And sensitive service-specific parameters...
 	secureProvisioningParameters :=
 		serviceManager.GetEmptySecureProvisioningParameters()
-	decoderConfig = &mapstructure.DecoderConfig{
-		TagName: "json",
-		Result:  secureProvisioningParameters,
-	}
-	decoder, err = mapstructure.NewDecoder(decoderConfig)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"error building parameter map decoder",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-	err = decoder.Decode(provisioningRequest.Parameters)
-	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad provisioning request: error decoding parameter map into " +
-				"service-specific secured parameters",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
-		return
+	if secureProvisioningParameters != nil {
+		decoderConfig := &mapstructure.DecoderConfig{
+			TagName: "json",
+			Result:  secureProvisioningParameters,
+		}
+		decoder, err := mapstructure.NewDecoder(decoderConfig)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"error building parameter map decoder",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+		err = decoder.Decode(provisioningRequest.Parameters)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Debug(
+				"bad provisioning request: error decoding parameter map into " +
+					"service-specific secured parameters",
+			)
+			// krancour: Choosing to interpret this scenario as a bad request since the
+			// probable cause would be disagreement between provided and expected types
+			s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
+			return
+		}
 	}
 
 	instance, ok, err := s.store.GetInstance(instanceID)

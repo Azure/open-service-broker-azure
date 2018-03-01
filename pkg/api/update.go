@@ -114,55 +114,61 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 
 	// Unpack the parameter map in the request to a struct
 	updatingParameters := serviceManager.GetEmptyProvisioningParameters()
-	decoderConfig := &mapstructure.DecoderConfig{
-		TagName: "json",
-		Result:  updatingParameters,
-	}
-	decoder, err := mapstructure.NewDecoder(decoderConfig)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"error building parameter map decoder",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-	err = decoder.Decode(updatingRequest.Parameters)
-	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad updating request: error decoding parameter map",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-		return
+	if updatingParameters != nil {
+		decoderConfig := &mapstructure.DecoderConfig{
+			TagName: "json",
+			Result:  updatingParameters,
+		}
+		decoder, err := mapstructure.NewDecoder(decoderConfig)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"error building parameter map decoder",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+		err = decoder.Decode(updatingRequest.Parameters)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Debug(
+				"bad updating request: error decoding parameter map",
+			)
+			// krancour: Choosing to interpret this scenario as a bad request since the
+			// probable cause would be disagreement between provided and expected types
+			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+			return
+		}
 	}
 
 	// Then the secure parameters
 	secureUpdatingParameters :=
 		serviceManager.GetEmptySecureProvisioningParameters()
-	decoderConfig = &mapstructure.DecoderConfig{
-		TagName: "json",
-		Result:  secureUpdatingParameters,
-	}
-	decoder, err = mapstructure.NewDecoder(decoderConfig)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"error building parameter map decoder",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-	err = decoder.Decode(updatingRequest.Parameters)
-	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad updating request: error decoding parameter map",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-		return
+	if secureUpdatingParameters != nil {
+		decoderConfig := &mapstructure.DecoderConfig{
+			TagName: "json",
+			Result:  secureUpdatingParameters,
+		}
+		decoder, err := mapstructure.NewDecoder(decoderConfig)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"error building parameter map decoder",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+		err = decoder.Decode(updatingRequest.Parameters)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Debug(
+				"bad updating request: error decoding parameter map",
+			)
+			// krancour: Choosing to interpret this scenario as a bad request since the
+			// probable cause would be disagreement between provided and expected types
+			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+			return
+		}
 	}
 
 	instance, ok, err := s.store.GetInstance(instanceID)

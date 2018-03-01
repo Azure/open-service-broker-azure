@@ -104,54 +104,62 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 
 	// Unpack the parameter map in the request to a struct
 	bindingParameters := serviceManager.GetEmptyBindingParameters()
-	decoderConfig := &mapstructure.DecoderConfig{
-		TagName: "json",
-		Result:  bindingParameters,
-	}
-	decoder, err := mapstructure.NewDecoder(decoderConfig)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"error building parameter map decoder",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-	err = decoder.Decode(bindingRequest.Parameters)
-	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad binding request: error decoding parameter map",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-		return
+	if bindingParameters != nil {
+		decoderConfig := &mapstructure.DecoderConfig{
+			TagName: "json",
+			Result:  bindingParameters,
+		}
+		var decoder *mapstructure.Decoder
+		decoder, err = mapstructure.NewDecoder(decoderConfig)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"error building parameter map decoder",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+		err = decoder.Decode(bindingRequest.Parameters)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Debug(
+				"bad binding request: error decoding parameter map",
+			)
+			// krancour: Choosing to interpret this scenario as a bad request since the
+			// probable cause would be disagreement between provided and expected types
+			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+			return
+		}
 	}
 
 	// Then the secure params
 	secureBindingParameters := serviceManager.GetEmptySecureBindingParameters()
-	decoderConfig = &mapstructure.DecoderConfig{
-		TagName: "json",
-		Result:  secureBindingParameters,
-	}
-	decoder, err = mapstructure.NewDecoder(decoderConfig)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Error(
-			"error building parameter map decoder",
-		)
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-	err = decoder.Decode(bindingRequest.Parameters)
-	if err != nil {
-		log.WithFields(logFields).Debug(
-			"bad binding request: error decoding parameter map",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-		return
+	if secureBindingParameters != nil {
+		decoderConfig := &mapstructure.DecoderConfig{
+			TagName: "json",
+			Result:  secureBindingParameters,
+		}
+		var decoder *mapstructure.Decoder
+		decoder, err = mapstructure.NewDecoder(decoderConfig)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"error building parameter map decoder",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+		err = decoder.Decode(bindingRequest.Parameters)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Debug(
+				"bad binding request: error decoding parameter map",
+			)
+			// krancour: Choosing to interpret this scenario as a bad request since the
+			// probable cause would be disagreement between provided and expected types
+			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+			return
+		}
 	}
 
 	binding, ok, err := s.store.GetBinding(bindingID)

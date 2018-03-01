@@ -11,7 +11,7 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/services/postgresqldb"
+	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	_ "github.com/lib/pq" // Postgres SQL driver
 )
 
@@ -39,7 +39,7 @@ func getPostgresqlCases(
 	)
 	databasesClient.Authorizer = authorizer
 
-	module := postgresqldb.New(
+	module := postgresql.New(
 		armDeployer,
 		checkNameAvailabilityClient,
 		serversClient,
@@ -54,20 +54,30 @@ func getPostgresqlCases(
 			description:     "all-in-one",
 			location:        "southcentralus",
 			testCredentials: testPostgreSQLCreds(),
-			provisioningParameters: &postgresqldb.AllInOneProvisioningParameters{
-				ServerProvisioningParameters: postgresqldb.ServerProvisioningParameters{ //nolint:lll
-					FirewallIPStart: "0.0.0.0",
-					FirewallIPEnd:   "255.255.255.255",
-					SSLEnforcement:  "disabled",
+			provisioningParameters: &postgresql.AllInOneProvisioningParameters{
+				DBMSProvisioningParameters: postgresql.DBMSProvisioningParameters{ //nolint:lll
+					FirewallRules: []postgresql.FirewallRule{
+						{
+							StartIP: "0.0.0.0",
+							EndIP:   "35.0.0.0",
+							Name:    "AllowSome",
+						},
+						{
+							StartIP: "35.0.0.1",
+							EndIP:   "255.255.255.255",
+							Name:    "AllowMore",
+						},
+					},
+					SSLEnforcement: "disabled",
 				},
-				DatabaseProvisioningParameters: postgresqldb.DatabaseProvisioningParameters{ //nolint:lll
+				DatabaseProvisioningParameters: postgresql.DatabaseProvisioningParameters{ //nolint:lll
 					Extensions: []string{
 						"uuid-ossp",
 						"postgis",
 					},
 				},
 			},
-			bindingParameters: &postgresqldb.BindingParameters{},
+			bindingParameters: nil,
 		},
 		{
 			module:      module,
@@ -75,20 +85,25 @@ func getPostgresqlCases(
 			planID:      "bf389028-8dcc-433a-ab6f-0ee9b8db142f",
 			description: "dbms-only",
 			location:    "eastus",
-			provisioningParameters: &postgresqldb.ServerProvisioningParameters{
-				FirewallIPStart: "0.0.0.0",
-				FirewallIPEnd:   "255.255.255.255",
+			provisioningParameters: &postgresql.DBMSProvisioningParameters{
+				FirewallRules: []postgresql.FirewallRule{
+					{
+						StartIP: "0.0.0.0",
+						EndIP:   "255.255.255.255",
+						Name:    "AllowAll",
+					},
+				},
 			},
 			childTestCases: []*serviceLifecycleTestCase{
-				{ // db only scenario
+				{ // database only scenario
 					module:            module,
 					description:       "database-on-existing-server",
 					serviceID:         "25434f16-d762-41c7-bbdd-8045d7f74ca6",
 					planID:            "df6f5ef1-e602-406b-ba73-09c107d1e31b",
 					location:          "", // This is actually irrelevant for this test
-					bindingParameters: &postgresqldb.BindingParameters{},
+					bindingParameters: nil,
 					testCredentials:   testPostgreSQLCreds(),
-					provisioningParameters: &postgresqldb.DatabaseProvisioningParameters{
+					provisioningParameters: &postgresql.DatabaseProvisioningParameters{
 						Extensions: []string{
 							"uuid-ossp",
 							"postgis",
@@ -102,10 +117,10 @@ func getPostgresqlCases(
 
 func testPostgreSQLCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
-		cdts, ok := credentials.(*postgresqldb.Credentials)
+		cdts, ok := credentials.(*postgresql.Credentials)
 		if !ok {
 			return fmt.Errorf(
-				"error casting credentials as *postgresqldb.Credentials",
+				"error casting credentials as *postgresql.Credentials",
 			)
 		}
 		var connectionStrTemplate string
