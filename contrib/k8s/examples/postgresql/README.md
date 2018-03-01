@@ -5,8 +5,8 @@ The examples in this directory show different ways to use the Azure Database for
 | Service Name | Description |
 |--------------|-------------|
 | `azure-postgresql` | Database Management System (DBMS) and Database |
-| `azure-postgresql-dbms-only` | DBMS-only |
-| `azure-postgresql-database-only` | Database-only |
+| `azure-postgresql-dbms` | DBMS-only |
+| `azure-postgresql-database` | Database-only |
 
 This directory contains example Kubernetes manifests to exercise these services.
 
@@ -18,10 +18,10 @@ The `postgresql-instance.yaml` manifest will create an instance using the `azure
 
 ## Advanced Usage
 
-The `advanced` directory contains manifests that you can use to provision the `azure-postgresql-dbms-only` and `azure-postgresql-database-only` services. These services allow you to independently provision the Azure SQL Database DBMS and the database itself for more advanced use cases, such as running multiple databases on a single DBMS.
+The `advanced` directory contains manifests that you can use to provision the `azure-postgresql-dbms` and `azure-postgresql-database` services. These services allow you to independently provision the Azure SQL Database DBMS and the database itself for more advanced use cases, such as running multiple databases on a single DBMS.
 
-The `postgresql-dbms-instance.yaml` manifest will provision an instance of the `azure-postgresql-dbms-only` service using the `basic50` plan. This service is not bindable, so there is no corresponding binding manifest. An important element of this manifest is the `alias` parameter. This is used when provisioning an instance of the `azure-postgresql-database-only` service.
+The `postgresql-dbms-instance.yaml` manifest will provision an instance of the `azure-postgresql-dbms` service using the `basic50` plan. This service is not bindable, so there is no corresponding binding manifest. An important element of this manifest is the `alias` parameter. This is used when provisioning an instance of the `azure-postgresql-database` service.
 
-The `postgresql-database-instance.yaml` manifest will provision an instance of the `azure-mypostgresqlql-database-only` service using the `database-only` plan. This service *requires* a parameter called `parentAlias`. The value of this parameter matches the `alias` parameter,  which is defined in the `postgresql-dbms-instance.yaml` manifest.
+The `postgresql-database-instance.yaml` manifest will provision an instance of the `azure-mypostgresqlql-database` service using the `database` plan. This service *requires* a parameter called `parentAlias`. The value of this parameter matches the `alias` parameter,  which is defined in the `postgresql-dbms-instance.yaml` manifest.
 
 The `postgresql-database-binding.yaml` manifest can then be used to create a service binding to the database only service instance created above.

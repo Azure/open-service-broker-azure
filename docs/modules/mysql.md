@@ -8,10 +8,10 @@ Open Service Broker for Azure contains three Azure Database for MySQL services. 
 | Service Name | Description |
 |--------------|-------------|
 | `azure-mysql` | Provision both an Azure Database for MySQL Database Management System (DBMS) and a database. |
-| `azure-mysql-dbms-only` | Provision only an Azure Database for MySQL DBMS. This can be used to provision multiple databases at a later time. |
-| `azure-mysql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
+| `azure-mysql-dbms` | Provision only an Azure Database for MySQL DBMS. This can be used to provision multiple databases at a later time. |
+| `azure-mysql-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-mysql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can't provision additional databases onto an instance provisioned through this service. The `azure-mysql-dbms-only` and `azure-mysql-database-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-mysql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can't provision additional databases onto an instance provisioned through this service. The `azure-mysql-dbms` and `azure-mysql-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -140,7 +140,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-mysql-dbms-only
+### Service: azure-mysql-dbms
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -151,7 +151,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions an Azure Database for MySQL DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-mysql-database-only` service.
+Provisions an Azure Database for MySQL DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-mysql-database` service.
 
 ###### Provisioning Parameters
 
@@ -194,7 +194,7 @@ kubectl create -f contrib/k8s/examples/mysql/advanced/mysql-dbms-instance.yaml
 Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
 
 ```console
-cf create-service azure-mysql-dbms-only basic50 mysql-dbms-only -c '{
+cf create-service azure-mysql-dbms basic50 mysql-dbms -c '{
     "resourceGroup" : "demo",
     "location" : "eastus",
     "alias" : "679aab6d-39e7-4a41-8b45-49975569079c",
@@ -215,7 +215,7 @@ To provision an instance using the broker directly, you must use the ID for both
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/mysql-dbms-only?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/mysql-dbms?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \
@@ -242,11 +242,11 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-mysql-database-only
+### Service: azure-mysql-database
 
 | Plan Name | Description |
 |-----------|-------------|
-| `database-only` | New database on existing MySQL DBMS |
+| `database` | New database on existing MySQL DBMS |
 
 #### Behaviors
 
@@ -296,7 +296,7 @@ Deletes the database from the MySQL DBMS. The DBMS itself is not deprovisioned.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/mysql/advanced/mysql-database-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
+The `contrib/k8s/examples/mysql/advanced/mysql-database-instance.yaml` can be used to provision the `database` plan. This can be done with the following example:
 
 ```console
 kubectl create -f contrib/k8s/examples/mysql/advanced/mysql-database-instance.yaml
@@ -310,10 +310,10 @@ kubectl create -f contrib/k8s/examples/mysql/advanced/mysql-database-binding.yam
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can provision the `database-only` plan of this service with the following command:
+Using the `cf` cli, you can provision the `database` plan of this service with the following command:
 
 ```console
-cf create-service azure-mysql-database-only database-only mysql-database-only -c '{
+cf create-service azure-mysql-databasey database mysql-database -c '{
     "parentAlias" : "679aab6d-39e7-4a41-8b45-49975569079c"
 }
 '
@@ -323,11 +323,11 @@ Note: this uses the alias provided in the DBMS-only example.
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database-only` plan with a cURL command similar to the following example. Note, this uses the alias provided in the DBMS-only example above:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database` plan with a cURL command similar to the following example. Note, this uses the alias provided in the DBMS-only example above:
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/mysql-database-only?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/mysql-database?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \

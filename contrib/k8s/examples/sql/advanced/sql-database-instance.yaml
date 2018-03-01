@@ -4,7 +4,7 @@ metadata:
   name: example-sql-database-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sql-database-only
+  clusterServiceClassExternalName: azure-sql-database
   clusterServicePlanExternalName: basic
   parameters:
     parentAlias: 3e8f59b2-0f73-4a59-9c0b-6277c3e8109e

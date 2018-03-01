@@ -4,7 +4,7 @@ metadata:
   name: example-mysql-dbms-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-mysql-dbms-only
+  clusterServiceClassExternalName: azure-mysql-dbms
   clusterServicePlanExternalName: basic50
   parameters:
     location: eastus

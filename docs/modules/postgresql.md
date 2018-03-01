@@ -8,10 +8,10 @@ Open Service Broker for Azure contains three Azure Database for PostgreSQL servi
 | Service Name | Description |
 |--------------|-------------|
 | `azure-postgresql` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
-| `azure-postgresql-dbms-only` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
-| `azure-postgresql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
+| `azure-postgresql-dbms` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
+| `azure-postgresql-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-postgresql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-dbms-only` and `azure-postgresql-database-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-postgresql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-dbms` and `azure-postgresql-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -143,7 +143,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-postgresql-dbms-only
+### Service: azure-postgresql-dbms
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -154,7 +154,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions an Azure Database for PostgreSQL DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-postgresql-database-only` service.
+Provisions an Azure Database for PostgreSQL DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-postgresql-database` service.
 
 ###### Provisioning Parameters
 
@@ -197,7 +197,7 @@ kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-dbms-insta
 Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
 
 ```console
-cf create-service azure-postgresql-dbms-only basic50 postgresql-dbms-only -c '{
+cf create-service azure-postgresql-dbms basic50 postgresql-dbms -c '{
     "resourceGroup" : "demo",
     "location" : "eastus",
     "alias" : "3f368072-6fa8-42ad-ae9c-c02e59b7dc8d",
@@ -218,7 +218,7 @@ To provision an instance using the broker directly, you must use the ID for both
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/postgreqsl-dbms-only?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/postgreqsl-dbms?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \
@@ -240,11 +240,11 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-postgresql-database-only
+### Service: azure-postgresql-database
 
 | Plan Name | Description |
 |-----------|-------------|
-| `database-only` | New database on existing DBMS |
+| `database` | New database on existing DBMS |
 
 #### Behaviors
 
@@ -297,7 +297,7 @@ Deletes the PostgreSQL database only, the DBMS remains provisioned.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/postgresql/postgresql-database-only-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
+The `contrib/k8s/examples/postgresql/postgresql-database-instance.yaml` can be used to provision the `database` plan. This can be done with the following example:
 
 ```console
 kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-database-instance.yaml
@@ -311,21 +311,21 @@ kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-database-b
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can provision the `database-only` plan of this service with the following command:
+Using the `cf` cli, you can provision the `database` plan of this service with the following command:
 
 ```console
-cf create-service azure-postgresql-database-only database-only postgresql-db-only -c '{
+cf create-service azure-postgresql-database database postgresql-database -c '{
     "parentAlias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12"
 }'
 ```
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database-only` plan with a cURL command similar to the following example:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database` plan with a cURL command similar to the following example:
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/postgresql-db-only?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/postgresql-db?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \

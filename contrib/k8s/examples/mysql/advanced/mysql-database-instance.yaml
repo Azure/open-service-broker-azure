@@ -4,7 +4,7 @@ metadata:
   name: example-mysql-database-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-mysql-database-only
-  clusterServicePlanExternalName: database-only
+  clusterServiceClassExternalName: azure-mysql-database
+  clusterServicePlanExternalName: database
   parameters:
     parentAlias: 71b6b6c4-5271-47d3-8188-51e69fba914e

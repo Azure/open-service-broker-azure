@@ -4,8 +4,8 @@ metadata:
   name: example-sql-database-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sql-dbms-only
-  clusterServicePlanExternalName: sql-dbms-only
+  clusterServiceClassExternalName: azure-sql-dbms
+  clusterServicePlanExternalName: dbms
   parameters:
     location: eastus
     resourceGroup: demo

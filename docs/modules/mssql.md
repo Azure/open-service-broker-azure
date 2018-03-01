@@ -8,10 +8,10 @@ Open Service Broker for Azure (OSBA) contains three Azure SQL Database services.
 | Service Name | Description |
 |--------------|-------------|
 | `azure-sql` | Provision both a SQL Server DBMS and a database. |
-| `azure-sql-dbms-only` | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
-| `azure-sql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
+| `azure-sql-dbms` | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
+| `azure-sql-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-sql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-dbms-only` and `azure-sql-database-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-sql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-dbms` and `azure-sql-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -123,7 +123,7 @@ Assuming your OSBA is running locally on port 8080 with the default username and
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/sql-all-in-one?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/azure-sql-database?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \
@@ -144,17 +144,17 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-sql-dbms-only
+### Service: azure-sql-dbms
 
 | Plan Name | Description |
 |-----------|-------------|
-| `sql-dbms-only` | Azure SQL Server DBMS Only|
+| `dbms` | Azure SQL Server DBMS-Only |
 
 #### Behaviors
 
 ##### Provision
 
-Provisions a SQL Server DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-sql-database-only` service.
+Provisions a SQL Server DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-sql-database` service.
 
 ###### Provisioning Parameters
 
@@ -185,7 +185,7 @@ Deprovision will delete the SQL Server DBMS. If any databases have been provisio
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml` can be used to provision one of the plans from the all-in-one `azure-sql-dbms-only` service. This can be done with the following example:
+The `contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml` can be used to provision one of the plans from the all-in-one `azure-sql-dbms` service. This can be done with the following example:
 
 ```console
 kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml
@@ -193,10 +193,10 @@ kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can create the `dbms-only` plan of the `azure-sql-dbms-only` service with the following command:
+Using the `cf` cli, you can create the `dbms` plan of the `azure-sql-dbms` service with the following command:
 
 ```console
-cf create-service azure-sql-dbms-only dbms-only azure-sql-dbms-only -c '{
+cf create-service azure-sql-dbms dbms azure-sql-dbms -c '{
         "resourceGroup" : "demo",
         "location" : "eastus",
         "alias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12",
@@ -217,7 +217,7 @@ To provision an instance using the broker directly, you must use the ID for both
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/sql-dbms-only?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/sql-dbms?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \
@@ -244,7 +244,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-sql-database-only
+### Service: azure-sql-database
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -309,7 +309,7 @@ Deletes the database from the SQL Server instance, but does not delete the DBMS.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/sql/advanced/sql-database-instance.yaml` can be used to provision the `database-only` plan. This can be done with the following example:
+The `contrib/k8s/examples/sql/advanced/sql-database-instance.yaml` can be used to provision the `basic` plan. This can be done with the following example:
 
 ```console
 kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-database-instance.yaml
@@ -322,10 +322,10 @@ kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-database-binding.y
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can create the `basic` plan of the `azure-sql-database-only` service with the following command:
+Using the `cf` cli, you can create the `basic` plan of the `azure-sql-database` service with the following command:
 
 ```console
-cf create-service azure-sql-database-only basic azure-sql-db-only -c '{
+cf create-service azure-sql-database basic azure-sql-database -c '{
     "parentAlias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12"
 }'
 ```
@@ -334,11 +334,11 @@ Note: this uses the alias used when provisioning the DBMS-only service above.
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the database-only Azure SQL Database service onto a previously provisioned SQL DB DBMS with a cURL command similar to the following example. Note, this uses the alias provided in the DBMS-only example above:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database` plan onto a previously provisioned Azure SQL Database DBMS with a cURL command similar to the following example. Note, this uses the alias provided in the DBMS-only example above:
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/sql-database-only?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/sql-database?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \

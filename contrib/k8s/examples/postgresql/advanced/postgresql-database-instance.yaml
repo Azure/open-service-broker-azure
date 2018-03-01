@@ -4,8 +4,8 @@ metadata:
   name: example-postgresql-database-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-postgresql-database-only
-  clusterServicePlanExternalName: database-only
+  clusterServiceClassExternalName: azure-postgresql-database
+  clusterServicePlanExternalName: database
   parameters:
     parentAlias: 95bde4b9-0785-44e2-94a7-e315df1b9779
     extensions:
