@@ -3,3 +3,6 @@
 bin/
 _vendor-*/
 vendor.orig/
+contrib/cf/pcf-tile/product/
+contrib/cf/pcf-tile/release/
+contrib/cf/pcf-tile/resources/open-service-broker-azure.zip
