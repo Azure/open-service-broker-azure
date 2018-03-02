@@ -1,3 +1,7 @@
+SHELL = /bin/bash
+
+GENERATE_TILE = docker run --rm -v ${CURDIR}:/workspace -w /workspace --name=tile-generator cfplatformeng/tile-generator tile build
+
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
 .PHONY: check-docker
@@ -11,16 +15,12 @@ check-docker:
 pull-tile-generator: check-docker
 	docker pull cfplatformeng/tile-generator:v11.0.5
 
-SHELL = /bin/bash
-
 .PHONY: zip-broker
-zip-broker: 
+zip-broker:
 	pushd ../../..; \
 	  rm -f contrib/cf/pcf-tile/resources/open-service-broker-azure.zip; \
 	  zip -r contrib/cf/pcf-tile/resources/open-service-broker-azure.zip cmd pkg vendor; \
 	popd;
-
-GENERATE_TILE = docker run --rm -v ${CURDIR}:/workspace -w /workspace --name=tile-generator cfplatformeng/tile-generator tile build
 
 .PHONY: prepare-to-generate-tile
 prepare-to-generate-tile: pull-tile-generator zip-broker
