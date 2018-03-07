@@ -88,6 +88,9 @@ func getMssqlCases(
 					location:          "", // This is actually irrelevant for this test
 					bindingParameters: nil,
 					testCredentials:   testMsSQLCreds(),
+					provisioningParameters: &mssql.DatabaseProvisioningParams{
+						DisableTDE: true,
+					},
 				},
 			},
 		},
