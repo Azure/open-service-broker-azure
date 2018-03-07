@@ -49,7 +49,7 @@ Provisions a new SQL Server and a new database upon that server. The new dbms an
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
 | `firewallRules[n].startIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
 | `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
-| `disableTransparentDataEncryption` | `boolean` | Specifies if [Transparent Data Encryption](https://docs.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption-azure-sql) should be disabled | F | |
+| `disableTransparentDataEncryption` | `boolean` | Specifies if [Transparent Data Encryption](https://docs.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption-azure-sql) should be disabled | N | False. Left unspecified, Transparent Data Encryption remains enabled. |
 
 ##### Bind
 
@@ -273,7 +273,7 @@ Provisions a new database upon an existing server. The new database will be name
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
 | `parentAlias` | `string` | Specifies the alias of the DBMS upon which the database should be provisioned. | Y | |
-| `disableTransparentDataEncryption` | `boolean` | Specifies if [Transparent Data Encryption](https://docs.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption-azure-sql) should be disabled | F | |
+| `disableTransparentDataEncryption` | `boolean` | Specifies if [Transparent Data Encryption](https://docs.microsoft.com/en-us/sql/relational-databases/security/encryption/transparent-data-encryption-azure-sql) should be disabled | N | False. Left unspecified, Transparent Data Encryption remains enabled. |
 
 ##### Bind
 
