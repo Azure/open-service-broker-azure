@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Azure/open-service-broker-azure/pkg/api"
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
@@ -128,7 +129,7 @@ func main() {
 	}
 
 	// Assemble the filter chain
-	basicAuthConfig, err := config.GetBasicAuthConfig()
+	basicAuthConfig, err := api.GetBasicAuthConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
