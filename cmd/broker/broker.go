@@ -11,6 +11,7 @@ import (
 	"time"
 
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
 	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
@@ -49,7 +50,7 @@ func main() {
 	).Info("Setting log level")
 	log.SetLevel(logLevel)
 
-	azureConfig, err := config.GetAzureConfig()
+	azureConfig, err := azure.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
