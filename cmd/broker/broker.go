@@ -105,7 +105,7 @@ func main() {
 	asyncRedisClient := redis.NewClient(asyncRedisOpts)
 
 	// Crypto
-	cryptoConfig, err := config.GetCryptoConfig()
+	cryptoConfig, err := crypto.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
