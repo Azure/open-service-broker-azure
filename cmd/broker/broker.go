@@ -20,6 +20,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
+	brokerLog "github.com/Azure/open-service-broker-azure/pkg/log"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
@@ -40,7 +41,7 @@ func main() {
 		FullTimestamp: true,
 	}
 	log.SetFormatter(formatter)
-	logConfig, err := config.GetLogConfig()
+	logConfig, err := brokerLog.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
