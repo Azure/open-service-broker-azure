@@ -1,9 +1,9 @@
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ServiceBinding
 metadata:
-  name: my-postgresqldb-binding
+  name: example-sql-binding
   namespace: default
 spec:
   instanceRef:
-    name: my-postgresqldb-instance
-  secretName: my-postgresqldb-secret
+    name: example-sql-instance
+  secretName: example-sql-secret

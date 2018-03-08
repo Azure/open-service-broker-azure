@@ -10,11 +10,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 				Name:        "azure-sql",
-				Description: "Azure SQL-- DBMS and single database (experimental)",
+				Description: "Azure SQL-- DBMS and single database (preview)",
 				Metadata: &service.ServiceMetadata{
 					DisplayName:      "Azure SQL Database",
 					ImageUrl:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL Database-- DBMS and single database (experimental)",
+					LongDescription:  "Azure SQL Database-- DBMS and single database (preview)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -252,13 +252,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:             "a7454e0e-be2c-46ac-b55f-8c4278117525",
-				Name:           "azure-sql-dbms-only",
-				Description:    "Azure SQL-- DBMS only (experimental)",
+				Name:           "azure-sql-dbms",
+				Description:    "Azure SQL-- DBMS only (preview)",
 				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				Metadata: &service.ServiceMetadata{
 					DisplayName:      "Azure SQL Server (DBMS Only)",
 					ImageUrl:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL-- DBMS only (experimental)",
+					LongDescription:  "Azure SQL-- DBMS only (preview)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -268,7 +268,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
 				ID:          "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
-				Name:        "dbms-only",
+				Name:        "dbms",
 				Description: "Azure SQL Server-- DBMS only",
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
@@ -280,14 +280,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-				Name:            "azure-sql-database-only",
-				Description:     "Azure SQL-- database only (experimental)",
+				Name:            "azure-sql-database",
+				Description:     "Azure SQL-- database only (preview)",
 				Bindable:        true,
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",
 				Metadata: &service.ServiceMetadata{
 					DisplayName:      "Azure SQL Server (Database Only)",
 					ImageUrl:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL-- database only (experimental)",
+					LongDescription:  "Azure SQL-- database only (preview)",
 					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 				},

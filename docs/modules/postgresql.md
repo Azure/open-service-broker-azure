@@ -1,6 +1,6 @@
 # [Azure Database for PostgreSQL](https://azure.microsoft.com/en-us/services/postgresql/)
 
-|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/50px-Warning.svg.png) | This module is EXPERIMENTAL. It is under heavy development and remains subject to the possibility of breaking changes. |
+|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/50px-Warning.svg.png) | This module is PREVIEW. It is under moderate development, but remains subject to the possibility of breaking changes if they prove necessary. |
 |---|---|
 
 Open Service Broker for Azure contains three Azure Database for PostgreSQL services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
@@ -8,10 +8,10 @@ Open Service Broker for Azure contains three Azure Database for PostgreSQL servi
 | Service Name | Description |
 |--------------|-------------|
 | `azure-postgresql` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
-| `azure-postgresql-dbms-only` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
-| `azure-postgresql-database-only` | Provision a new database only upon a previously provisioned DBMS. |
+| `azure-postgresql-dbms` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
+| `azure-postgresql-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-postgresql` service allows you to provision both a DBMS and a database. This service is ready to use upon successful provisioning. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-dbms-only` and `azure-postgresql-db-only` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-postgresql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-dbms` and `azure-postgresql-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -76,7 +76,74 @@ Drops the applicable role (user) from the PostgreSQL DBMS.
 
 Deletes the PostgreSQL DBMS and database.
 
-### Service: azure-postgresql-dbms-only
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/postgresql/postgresql-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-instance.yaml
+```
+
+You can then create a binding with the following command:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/postgresql-binding.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+
+```console
+cf create-service azure-postgresql basic50 postgresql-all-in-one -c '{
+    "resourceGroup" : "demo",
+    "location" : "eastus",
+    "firewallRules" : [
+        {
+            "name": "AllowAll",
+            "startIPAddress": "0.0.0.0",
+            "endIPAddress" : "255.255.255.255"
+        }
+    ]
+}
+'
+```
+
+###### cURL
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cURL command similar to the following example:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/postgresql-all-in-one?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "b43b4bba-5741-4d98-a10b-17dc5cee0175",
+    "plan_id" : "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
+    "parameters" : {
+        "resourceGroup": "demo",
+        "location" : "eastus",
+        "firewallRules" : [
+            {
+                "name": "AllowSome",
+                "startIPAddress": "0.0.0.0",
+                "endIPAddress" : "35.0.0.0"
+            },
+            {
+                "name": "AllowMore",
+                "startIPAddress": "35.0.0.1",
+                "endIPAddress" : "255.255.255.255"
+            }
+        ]
+    }
+}'
+```
+
+### Service: azure-postgresql-dbms
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -87,7 +154,7 @@ Deletes the PostgreSQL DBMS and database.
 
 ##### Provision
 
-Provisions a new PostgreSQL DBMS only. Databases can be created through subsequent provision requests using the `azure-postgresql-database-only` service.
+Provisions an Azure Database for PostgreSQL DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-postgresql-database` service.
 
 ###### Provisioning Parameters
 
@@ -115,11 +182,69 @@ This service is not bindable.
 
 Deletes the PostgreSQL DBMS only. If databases have been provisioned on this DBMS, deprovisioning will be deferred until all databases have been deprovisioned.
 
-### Service: azure-postgresql-database-only
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/postgresql/advanced/postgresql-dbms-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-dbms-instance.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+
+```console
+cf create-service azure-postgresql-dbms basic50 postgresql-dbms -c '{
+    "resourceGroup" : "demo",
+    "location" : "eastus",
+    "alias" : "3f368072-6fa8-42ad-ae9c-c02e59b7dc8d",
+    "firewallRules" : [
+        {
+            "name": "AllowAll",
+            "startIPAddress": "0.0.0.0",
+            "endIPAddress" : "255.255.255.255"
+        }
+    ]
+}
+'
+```
+
+###### cURL
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cURL command similar to the following example:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/postgreqsl-dbms?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
+    "plan_id" : "bf389028-8dcc-433a-ab6f-0ee9b8db142f",
+    "parameters" : {
+        "resourceGroup": "demo",
+        "location" : "eastus",
+        "alias" : "d94f7740-74d8-446a-bbfd-c616935b4d58",
+        "firewallRules" : [
+            {
+                "name": "AllowAll",
+                "startIPAddress": "0.0.0.0",
+                "endIPAddress" : "255.255.255.255"
+            }
+        ]
+    }
+}'
+```
+
+### Service: azure-postgresql-database
 
 | Plan Name | Description |
 |-----------|-------------|
-| `database-only` | New database on existing DBMS |
+| `database` | New database on existing DBMS |
 
 #### Behaviors
 
@@ -167,3 +292,48 @@ Drops the applicable role (user) from the PostgreSQL DBMS.
 ##### Deprovision
 
 Deletes the PostgreSQL database only, the DBMS remains provisioned.
+
+##### Examples
+
+###### Kubernetes
+
+The `contrib/k8s/examples/postgresql/postgresql-database-instance.yaml` can be used to provision the `database` plan. This can be done with the following example:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-database-instance.yaml
+```
+
+You can then create a binding with the following command:
+
+```console
+kubectl create -f contrib/k8s/examples/postgresql/advanced/postgresql-database-binding.yaml
+```
+
+###### Cloud Foundry
+
+Using the `cf` cli, you can provision the `database` plan of this service with the following command:
+
+```console
+cf create-service azure-postgresql-database database postgresql-database -c '{
+    "parentAlias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12"
+}'
+```
+
+###### cURL
+
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `database` plan with a cURL command similar to the following example:
+
+```console
+curl -X PUT \
+  'http://localhost:8080/v2/service_instances/postgresql-db?accepts_incomplete=true' \
+  -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
+  -H 'content-type: application/json' \
+  -H 'x-broker-api-version: 2.13' \
+  -d '{
+    "service_id" : "25434f16-d762-41c7-bbdd-8045d7f74ca6",
+    "plan_id" : "df6f5ef1-e602-406b-ba73-09c107d1e31b",
+    "parameters" : {
+        "parentAlias" : "d94f7740-74d8-446a-bbfd-c616935b4d58"
+    }
+}'
+```
