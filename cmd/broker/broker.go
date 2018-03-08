@@ -12,9 +12,9 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	redisAsync "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
-	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
@@ -22,6 +22,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
 	brokerLog "github.com/Azure/open-service-broker-azure/pkg/log"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
@@ -71,36 +72,44 @@ func main() {
 	).Info("Open Service Broker for Azure starting")
 
 	// Redis clients
-	redisConfig, err := config.GetRedisConfig()
+
+	// Storage
+	storageRedisConfig, err := storage.GetRedisConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 	storageRedisOpts := &redis.Options{
 		Addr: fmt.Sprintf(
 			"%s:%d",
-			redisConfig.GetHost(),
-			redisConfig.GetPort(),
+			storageRedisConfig.GetHost(),
+			storageRedisConfig.GetPort(),
 		),
-		Password:   redisConfig.GetPassword(),
-		DB:         redisConfig.GetStorageDB(),
+		Password:   storageRedisConfig.GetPassword(),
+		DB:         storageRedisConfig.GetDB(),
 		MaxRetries: 5,
+	}
+
+	// Async
+	asyncRedisConfig, err := redisAsync.GetConfig()
+	if err != nil {
+		log.Fatal(err)
 	}
 	asyncRedisOpts := &redis.Options{
 		Addr: fmt.Sprintf(
 			"%s:%d",
-			redisConfig.GetHost(),
-			redisConfig.GetPort(),
+			asyncRedisConfig.GetHost(),
+			asyncRedisConfig.GetPort(),
 		),
-		Password:   redisConfig.GetPassword(),
-		DB:         redisConfig.GetAsyncDB(),
+		Password:   asyncRedisConfig.GetPassword(),
+		DB:         asyncRedisConfig.GetDB(),
 		MaxRetries: 5,
 	}
-	if redisConfig.IsTLSEnabled() {
+	if asyncRedisConfig.IsTLSEnabled() {
 		storageRedisOpts.TLSConfig = &tls.Config{
-			ServerName: redisConfig.GetHost(),
+			ServerName: asyncRedisConfig.GetHost(),
 		}
 		asyncRedisOpts.TLSConfig = &tls.Config{
-			ServerName: redisConfig.GetHost(),
+			ServerName: asyncRedisConfig.GetHost(),
 		}
 	}
 	storageRedisClient := redis.NewClient(storageRedisOpts)
