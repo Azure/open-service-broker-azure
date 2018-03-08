@@ -81,16 +81,14 @@ func getMssqlCases(
 			},
 			childTestCases: []*serviceLifecycleTestCase{
 				{ // db only scenario
-					module:            module,
-					description:       "database on new server",
-					serviceID:         "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-					planID:            "8fa8d759-c142-45dd-ae38-b93482ddc04a",
-					location:          "", // This is actually irrelevant for this test
-					bindingParameters: nil,
-					testCredentials:   testMsSQLCreds(),
-					provisioningParameters: &mssql.DatabaseProvisioningParams{
-						DisableTDE: true,
-					},
+					module:                 module,
+					description:            "database on new server",
+					serviceID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
+					planID:                 "8fa8d759-c142-45dd-ae38-b93482ddc04a",
+					location:               "", // This is actually irrelevant for this test
+					bindingParameters:      nil,
+					testCredentials:        testMsSQLCreds(),
+					provisioningParameters: &mssql.DatabaseProvisioningParams{},
 				},
 			},
 		},

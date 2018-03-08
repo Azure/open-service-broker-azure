@@ -43,6 +43,24 @@ var databaseARMTemplateBytes = []byte(`
 				"requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]",
 				"maxSizeBytes": "[parameters('maxSizeBytes')]"
 			},
+			"resources": [
+				{
+					"comments": "Transparent Data Encryption",
+					"name": "current",
+					"type": "transparentDataEncryption",
+					"apiVersion": "2014-04-01-preview",
+					"properties": {
+						{{if .transparentDataEncryption}}
+						"status": "Enabled"
+						{{else}}
+						"status": "Disabled"
+						{{end}}
+					},
+					"dependsOn": [
+						"[concat('Microsoft.Sql/servers/', parameters('serverName'), '/databases/', parameters('databaseName'))]"
+					]
+				}
+			],
 			"tags": "[parameters('tags')]"
 		}
 	],
