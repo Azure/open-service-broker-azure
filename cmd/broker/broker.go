@@ -20,6 +20,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
@@ -141,7 +142,7 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	modulesConfig, err := config.GetModulesConfig()
+	modulesConfig, err := service.GetModulesConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
