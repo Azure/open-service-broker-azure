@@ -7,10 +7,16 @@ import (
 )
 
 type module struct {
-	serviceManager *serviceManager
+	cosmosManager *cosmosManager
+	mongoManager  *mongoManager
 }
 
-type serviceManager struct {
+type cosmosManager struct {
+	armDeployer            arm.Deployer
+	databaseAccountsClient cosmosSDK.DatabaseAccountsClient
+}
+
+type mongoManager struct {
 	armDeployer            arm.Deployer
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient
 }
@@ -23,7 +29,11 @@ func New(
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient,
 ) service.Module {
 	return &module{
-		serviceManager: &serviceManager{
+		mongoManager: &mongoManager{
+			armDeployer:            armDeployer,
+			databaseAccountsClient: databaseAccountsClient,
+		},
+		cosmosManager: &cosmosManager{
 			armDeployer:            armDeployer,
 			databaseAccountsClient: databaseAccountsClient,
 		},

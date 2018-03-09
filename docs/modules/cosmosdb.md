@@ -5,19 +5,17 @@
 
 ## Services & Plans
 
-### Service: azure-cosmos-document-db
+### Service: azure-cosmos-db
 
 | Plan Name | Description |
 |-----------|-------------|
-| `document-db` | Azure DocumentDB provided by CosmosDB and accessible via SQL (DocumentDB), Gremlin (Graph), and Table (Key-Value) APIs |
+| `cosmos-db` | Globally distributed, multi-model database service accessible via SQL, Gremlin (Graph), and Table (Key-Value) APIs |
 
 #### Behaviors
 
 ##### Provision
-  
-Provisions a new CosmosDB database that can be accessed through any of the SQL
-(DocumentDB), Gremlin (Graph), and Table (Key-Value) APIs. The new database is
-named using a new UUID.
+
+Provisions a new CosmosDB database that can be accessed through any of the SQL, Gremlin (Graph), and Table (Key-Value) APIs. The new database is named using a new UUID.
 
 ###### Provisioning Parameters
 
@@ -26,9 +24,9 @@ named using a new UUID.
 | `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and nonde is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
-  
+
 ##### Bind
-  
+
 Returns a copy of one shared set of credentials.
 
 ###### Binding Parameters
@@ -62,7 +60,7 @@ Deletes the CosmosDB database.
 #### Behaviors
 
 ##### Provision
-  
+
 Provisions a new CosmosDB database that can be accessed through the MongoDB API.
 
 ###### Provisioning Parameters

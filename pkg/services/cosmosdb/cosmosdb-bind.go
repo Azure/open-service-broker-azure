@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) ValidateBindingParameters(
+func (c *cosmosManager) ValidateBindingParameters(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) error {
@@ -15,7 +15,7 @@ func (s *serviceManager) ValidateBindingParameters(
 	return nil
 }
 
-func (s *serviceManager) Bind(
+func (c *cosmosManager) Bind(
 	service.Instance,
 	service.BindingParameters,
 	service.SecureBindingParameters,
@@ -23,7 +23,7 @@ func (s *serviceManager) Bind(
 	return &cosmosdbBindingDetails{}, &cosmosdbSecureBindingDetails{}, nil
 }
 
-func (s *serviceManager) GetCredentials(
+func (c *cosmosManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
@@ -39,17 +39,7 @@ func (s *serviceManager) GetCredentials(
 			"error casting instance.SecureDetails as *cosmosdbSecureInstanceDetails",
 		)
 	}
-	if dt.DatabaseKind == databaseKindMongoDB {
-		return &Credentials{
-			Host: dt.FullyQualifiedDomainName,
-			Port: 10255,
-			// Username is the same as the database account name
-			Username:         dt.DatabaseAccountName,
-			Password:         sdt.PrimaryKey,
-			ConnectionString: sdt.ConnectionString,
-		}, nil
-	}
-	return &Credentials{
+	return &CosmosCredentials{
 		URI:                     dt.FullyQualifiedDomainName,
 		PrimaryKey:              sdt.PrimaryKey,
 		PrimaryConnectionString: sdt.ConnectionString,

@@ -1,7 +1,5 @@
 package cosmosdb
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
-
 type databaseKind string
 
 const (
@@ -57,48 +55,4 @@ type Credentials struct {
 	URI                     string `json:"uri,omitempty"`
 	PrimaryConnectionString string `json:"primaryConnectionString,omitempty"`
 	PrimaryKey              string `json:"primaryKey,omitempty"`
-}
-
-func (
-	s *serviceManager,
-) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureProvisioningParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &cosmosdbInstanceDetails{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &cosmosdbSecureInstanceDetails{}
-}
-
-func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
-}
-
-func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &cosmosdbBindingDetails{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &cosmosdbSecureBindingDetails{}
 }
