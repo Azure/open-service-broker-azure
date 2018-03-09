@@ -61,22 +61,23 @@ func TestDefaultExecuteTasks(t *testing.T) {
 
 	// Put all the tasks on the worker's active task queue
 	for _, task := range tasks {
-		err := redisClient.LPush(activeTaskQueueName, task).Err()
+		err := e.redisClient.LPush(activeTaskQueueName, task).Err()
 		assert.Nil(t, err)
 	}
 
 	// Assert that the pending task queue is empty
-	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err := e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
 	// Assert that the deferred task queue is empty
-	deferredTaskQueueDepth, err := redisClient.LLen(deferredTaskQueueName).Result()
+	deferredTaskQueueDepth, err :=
+		e.redisClient.LLen(deferredTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, deferredTaskQueueDepth)
 
 	// Assert that worker's active task queue has precisely len(tasks) tasks
-	activeTaskQueueDepth, err := redisClient.LLen(activeTaskQueueName).Result()
+	activeTaskQueueDepth, err := e.redisClient.LLen(activeTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(len(tasks)), activeTaskQueueDepth)
 
@@ -116,19 +117,20 @@ func TestDefaultExecuteTasks(t *testing.T) {
 	// Assert that the pending task queue has precisely two tasks-- the
 	// unprocessable task, which should have been returned to it, and a follow-up
 	// task
-	pendingTaskQueueDepth, err = redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err = e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(2), pendingTaskQueueDepth)
 
 	// Assert that the deferred task queue has precisely one task-- a follow-up
 	// task
-	deferredTaskQueueDepth, err = redisClient.LLen(deferredTaskQueueName).Result()
+	deferredTaskQueueDepth, err =
+		e.redisClient.LLen(deferredTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), deferredTaskQueueDepth)
 
 	// Assert that the worker's active task queue is empty-- in all cases, the
 	// tasks should have been removed from this queue
-	activeTaskQueueDepth, err = redisClient.LLen(activeTaskQueueName).Result()
+	activeTaskQueueDepth, err = e.redisClient.LLen(activeTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, activeTaskQueueDepth)
 

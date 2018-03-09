@@ -9,14 +9,14 @@ import (
 )
 
 func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
-	e := NewEngine(redisClient).(*engine)
+	e := getTestEngine()
 
 	// Add some workers to the worker set, but do not add any heartbeats for these
 	// workers. i.e. They should appear dead.
 	const workerCount = 5
 	workerSetName := getDisposableWorkerSetName()
 	for range [workerCount]struct{}{} {
-		err := redisClient.SAdd(workerSetName, getDisposableWorkerID()).Err()
+		err := e.redisClient.SAdd(workerSetName, getDisposableWorkerID()).Err()
 		assert.Nil(t, err)
 	}
 
@@ -80,15 +80,15 @@ func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
 }
 
 func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
-	e := NewEngine(redisClient).(*engine)
+	e := getTestEngine()
 
 	// Add a worker to the worker set. Also add a heartbeat so this worker appears
 	// to be alive.
 	workerSetName := getDisposableWorkerSetName()
 	workerID := getDisposableWorkerID()
-	err := redisClient.SAdd(workerSetName, workerID).Err()
+	err := e.redisClient.SAdd(workerSetName, workerID).Err()
 	assert.Nil(t, err)
-	err = redisClient.Set(getHeartbeatKey(workerID), aliveIndicator, 0).Err()
+	err = e.redisClient.Set(getHeartbeatKey(workerID), aliveIndicator, 0).Err()
 	assert.Nil(t, err)
 
 	// Override the default cleanActiveTaskQueue function to just count how many
@@ -151,7 +151,7 @@ func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
 }
 
 func TestDefaultCleanWorkerQueue(t *testing.T) {
-	e := NewEngine(redisClient).(*engine)
+	e := getTestEngine()
 
 	sourceQueueName := getDisposableQueueName()
 	destinationQueueName := getDisposableQueueName()
@@ -159,17 +159,17 @@ func TestDefaultCleanWorkerQueue(t *testing.T) {
 	const taskCount int64 = 5
 	for range [taskCount]struct{}{} {
 		// Put some dummy tasks onto the source queue
-		err := redisClient.LPush(sourceQueueName, "foo").Err()
+		err := e.redisClient.LPush(sourceQueueName, "foo").Err()
 		assert.Nil(t, err)
 	}
 
 	// Assert that the source queue is precisely taskCount deep
-	sourceQueueDepth, err := redisClient.LLen(sourceQueueName).Result()
+	sourceQueueDepth, err := e.redisClient.LLen(sourceQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, taskCount, sourceQueueDepth)
 
 	// Assert that the destination queue starts out empty
-	destinationQueueDepth, err := redisClient.LLen(destinationQueueName).Result()
+	destinationQueueDepth, err := e.redisClient.LLen(destinationQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, destinationQueueDepth)
 
@@ -185,18 +185,18 @@ func TestDefaultCleanWorkerQueue(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Assert that the source queue has been drained
-	sourceQueueDepth, err = redisClient.LLen(sourceQueueName).Result()
+	sourceQueueDepth, err = e.redisClient.LLen(sourceQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, sourceQueueDepth)
 
 	// Assert that the destination queue now has precisely taskCount tasks
-	destinationQueueDepth, err = redisClient.LLen(destinationQueueName).Result()
+	destinationQueueDepth, err = e.redisClient.LLen(destinationQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, taskCount, destinationQueueDepth)
 }
 
 func TestDefaultCleanWorkerQueueRespondsToCanceledContext(t *testing.T) {
-	e := NewEngine(redisClient).(*engine)
+	e := getTestEngine()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

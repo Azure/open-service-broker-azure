@@ -7,7 +7,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	redisAsync "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -50,7 +49,7 @@ type broker struct {
 // NewBroker returns a new Broker
 func NewBroker(
 	storageRedisClient *redis.Client,
-	asyncRedisClient *redis.Client,
+	asyncEngine async.Engine,
 	codec crypto.Codec,
 	filterChain filter.Filter,
 	modules []service.Module,
@@ -92,7 +91,7 @@ func NewBroker(
 	catalog := service.NewCatalog(services)
 	b := &broker{
 		store:       storage.NewStore(storageRedisClient, catalog, codec),
-		asyncEngine: redisAsync.NewEngine(asyncRedisClient),
+		asyncEngine: asyncEngine,
 		catalog:     catalog,
 	}
 
