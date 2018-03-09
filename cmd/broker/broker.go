@@ -88,6 +88,12 @@ func main() {
 		DB:         storageRedisConfig.GetDB(),
 		MaxRetries: 5,
 	}
+	if storageRedisConfig.IsTLSEnabled() {
+		storageRedisOpts.TLSConfig = &tls.Config{
+			ServerName: storageRedisConfig.GetHost(),
+		}
+	}
+	storageRedisClient := redis.NewClient(storageRedisOpts)
 
 	// Async
 	asyncRedisConfig, err := redisAsync.GetConfig()
@@ -105,14 +111,10 @@ func main() {
 		MaxRetries: 5,
 	}
 	if asyncRedisConfig.IsTLSEnabled() {
-		storageRedisOpts.TLSConfig = &tls.Config{
-			ServerName: asyncRedisConfig.GetHost(),
-		}
 		asyncRedisOpts.TLSConfig = &tls.Config{
 			ServerName: asyncRedisConfig.GetHost(),
 		}
 	}
-	storageRedisClient := redis.NewClient(storageRedisOpts)
 	asyncRedisClient := redis.NewClient(asyncRedisOpts)
 
 	// Crypto
