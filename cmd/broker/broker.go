@@ -59,8 +59,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Initialize modules
-	if err = initModules(azureConfig); err != nil {
+	// Initialize catalog
+	modulesConfig, err := service.GetModulesConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	modules, err := getModules(modulesConfig, azureConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	catalog, err := getCatalog(modules)
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -137,19 +146,13 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	modulesConfig, err := service.GetModulesConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Create broker
 	broker, err := broker.NewBroker(
 		storageRedisClient,
 		asyncEngine,
 		codec,
 		filterChain,
-		modules,
-		modulesConfig.GetMinStability(),
+		catalog,
 		azureConfig.GetDefaultLocation(),
 		azureConfig.GetDefaultResourceGroup(),
 	)

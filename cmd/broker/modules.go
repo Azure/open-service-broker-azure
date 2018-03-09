@@ -34,9 +34,10 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
 
-var modules []service.Module
-
-func initModules(azureConfig azure.Config) error {
+func getModules(
+	modulesConfig service.ModulesConfig,
+	azureConfig azure.Config,
+) ([]service.Module, error) {
 	azureEnvironment := azureConfig.GetEnvironment()
 	azureSubscriptionID := azureConfig.GetSubscriptionID()
 
@@ -47,7 +48,7 @@ func initModules(azureConfig azure.Config) error {
 		azureConfig.GetClientSecret(),
 	)
 	if err != nil {
-		return fmt.Errorf("error getting bearer token authorizer: %s", err)
+		return nil, fmt.Errorf("error getting bearer token authorizer: %s", err)
 	}
 
 	resourceGroupsClient := resourcesSDK.NewGroupsClientWithBaseURI(
@@ -182,7 +183,7 @@ func initModules(azureConfig azure.Config) error {
 	storageAccountsClient.Authorizer = authorizer
 	storageAccountsClient.UserAgent = getUserAgent(storageAccountsClient.Client)
 
-	modules = []service.Module{
+	modules := []service.Module{
 		postgresql.New(
 			armDeployer,
 			postgresCheckNameAvailabilityClient,
@@ -211,7 +212,16 @@ func initModules(azureConfig azure.Config) error {
 		search.New(armDeployer, searchServicesClient),
 		aci.New(armDeployer, aciClient),
 	}
-	return nil
+
+	// Filter modules based on stability
+	filteredModules := []service.Module{}
+	for _, module := range modules {
+		if module.GetStability() >= modulesConfig.GetMinStability() {
+			filteredModules = append(filteredModules, module)
+		}
+	}
+
+	return filteredModules, nil
 }
 
 func getUserAgent(client autorest.Client) string {
