@@ -1,13 +1,13 @@
-package config
+package azure
 
 import (
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/kelseyhightower/envconfig"
 )
 
-// AzureConfig represents details necessary for the broker to interact with
+// Config represents details necessary for the broker to interact with
 // an Azure subscription
-type AzureConfig interface {
+type Config interface {
 	GetEnvironment() azure.Environment
 	GetSubscriptionID() string
 	GetTenantID() string
@@ -17,7 +17,7 @@ type AzureConfig interface {
 	GetDefaultResourceGroup() string
 }
 
-type azureConfig struct {
+type config struct {
 	EnvironmentStr       string `envconfig:"AZURE_ENVIRONMENT" default:"AzurePublicCloud"` // nolint: lll
 	Environment          azure.Environment
 	SubscriptionID       string `envconfig:"AZURE_SUBSCRIPTION_ID" required:"true"` // nolint: lll
@@ -28,41 +28,41 @@ type azureConfig struct {
 	DefaultResourceGroup string `envconfig:"AZURE_DEFAULT_RESOURCE_GROUP"`
 }
 
-// GetAzureConfig returns Azure subscription configuration
-func GetAzureConfig() (AzureConfig, error) {
-	ac := azureConfig{}
-	err := envconfig.Process("", &ac)
+// GetConfig returns Azure-related configuration
+func GetConfig() (Config, error) {
+	c := config{}
+	err := envconfig.Process("", &c)
 	if err != nil {
-		return ac, err
+		return c, err
 	}
-	ac.Environment, err = azure.EnvironmentFromName(ac.EnvironmentStr)
-	return ac, err
+	c.Environment, err = azure.EnvironmentFromName(c.EnvironmentStr)
+	return c, err
 }
 
-func (a azureConfig) GetEnvironment() azure.Environment {
-	return a.Environment
+func (c config) GetEnvironment() azure.Environment {
+	return c.Environment
 }
 
-func (a azureConfig) GetSubscriptionID() string {
-	return a.SubscriptionID
+func (c config) GetSubscriptionID() string {
+	return c.SubscriptionID
 }
 
-func (a azureConfig) GetTenantID() string {
-	return a.TenantID
+func (c config) GetTenantID() string {
+	return c.TenantID
 }
 
-func (a azureConfig) GetClientID() string {
-	return a.ClientID
+func (c config) GetClientID() string {
+	return c.ClientID
 }
 
-func (a azureConfig) GetClientSecret() string {
-	return a.ClientSecret
+func (c config) GetClientSecret() string {
+	return c.ClientSecret
 }
 
-func (a azureConfig) GetDefaultLocation() string {
-	return a.DefaultLocation
+func (c config) GetDefaultLocation() string {
+	return c.DefaultLocation
 }
 
-func (a azureConfig) GetDefaultResourceGroup() string {
-	return a.DefaultResourceGroup
+func (c config) GetDefaultResourceGroup() string {
+	return c.DefaultResourceGroup
 }

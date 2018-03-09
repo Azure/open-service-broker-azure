@@ -1,23 +1,23 @@
-package config
+package log
 
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/kelseyhightower/envconfig"
 )
 
-// LogConfig represents configuration options for the broker's leveled logging
-type LogConfig interface {
+// Config represents configuration options for the broker's leveled logging
+type Config interface {
 	GetLevel() log.Level
 }
 
-type logConfig struct {
+type config struct {
 	LevelStr string `envconfig:"LOG_LEVEL" default:"INFO"`
 	Level    log.Level
 }
 
-// GetLogConfig returns log configuration
-func GetLogConfig() (LogConfig, error) {
-	lc := logConfig{}
+// GetConfig returns log configuration
+func GetConfig() (Config, error) {
+	lc := config{}
 	err := envconfig.Process("", &lc)
 	if err != nil {
 		return lc, err
@@ -26,6 +26,6 @@ func GetLogConfig() (LogConfig, error) {
 	return lc, err
 }
 
-func (l logConfig) GetLevel() log.Level {
-	return l.Level
+func (c config) GetLevel() log.Level {
+	return c.Level
 }
