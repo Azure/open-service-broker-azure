@@ -7,7 +7,6 @@ import (
 
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/config"
 )
 
 func ensureResourceGroup(resourceGroup string) error {
@@ -39,7 +38,7 @@ func deleteResourceGroup(
 }
 
 func getGroupsClient() (*resourcesSDK.GroupsClient, error) {
-	azureConfig, err := config.GetAzureConfig()
+	azureConfig, err := az.GetConfig()
 	if err != nil {
 		return nil, err
 	}

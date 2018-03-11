@@ -6,8 +6,8 @@ import (
 	keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault" // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
+	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
 )
 
@@ -17,7 +17,7 @@ func getKeyvaultCases(
 	authorizer autorest.Authorizer,
 	armDeployer arm.Deployer,
 ) ([]serviceLifecycleTestCase, error) {
-	azureConfig, err := config.GetAzureConfig()
+	azureConfig, err := az.GetConfig()
 	if err != nil {
 		return nil, err
 	}

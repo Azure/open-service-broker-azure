@@ -17,9 +17,8 @@ import (
 	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql"                             // nolint: lll
 	storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"                         // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
@@ -37,11 +36,11 @@ import (
 
 var modules []service.Module
 
-func initModules(azureConfig config.AzureConfig) error {
+func initModules(azureConfig azure.Config) error {
 	azureEnvironment := azureConfig.GetEnvironment()
 	azureSubscriptionID := azureConfig.GetSubscriptionID()
 
-	authorizer, err := az.GetBearerTokenAuthorizer(
+	authorizer, err := azure.GetBearerTokenAuthorizer(
 		azureEnvironment,
 		azureConfig.GetTenantID(),
 		azureConfig.GetClientID(),

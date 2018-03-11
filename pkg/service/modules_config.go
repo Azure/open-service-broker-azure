@@ -1,22 +1,21 @@
-package config
+package service
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/kelseyhightower/envconfig"
 )
 
-// ModulesConfig represents details re: which modules should be included or
-// excluded when the broker is started
+// ModulesConfig represents details re: which modules' services should be
+// included or excluded from the catalog
 type ModulesConfig interface {
-	GetMinStability() service.Stability
+	GetMinStability() Stability
 }
 
 type modulesConfig struct {
 	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"EXPERIMENTAL"`
-	MinStability    service.Stability
+	MinStability    Stability
 }
 
 // GetModulesConfig returns modules configuration
@@ -29,11 +28,11 @@ func GetModulesConfig() (ModulesConfig, error) {
 	minStabilityStr := strings.ToUpper(mc.MinStabilityStr)
 	switch minStabilityStr {
 	case "EXPERIMENTAL":
-		mc.MinStability = service.StabilityExperimental
+		mc.MinStability = StabilityExperimental
 	case "PREVIEW":
-		mc.MinStability = service.StabilityPreview
+		mc.MinStability = StabilityPreview
 	case "STABLE":
-		mc.MinStability = service.StabilityStable
+		mc.MinStability = StabilityStable
 	default:
 		return mc, fmt.Errorf(
 			`unrecognized stability level "%s"`,
@@ -43,6 +42,6 @@ func GetModulesConfig() (ModulesConfig, error) {
 	return mc, nil
 }
 
-func (m modulesConfig) GetMinStability() service.Stability {
+func (m modulesConfig) GetMinStability() Stability {
 	return m.MinStability
 }
