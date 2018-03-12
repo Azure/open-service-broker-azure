@@ -1,26 +1,23 @@
-package config
+package storage
 
 import "github.com/kelseyhightower/envconfig"
 
 // RedisConfig represents details for connecting to the Redis instance that
-// the broker itself relies on for storing state and orchestrating asynchronous
-// processes
+// the broker relies on for storage
 type RedisConfig interface {
 	GetHost() string
 	GetPort() int
 	GetPassword() string
-	GetStorageDB() int
-	GetAsyncDB() int
+	GetDB() int
 	IsTLSEnabled() bool
 }
 
 type redisConfig struct {
-	Host      string `envconfig:"REDIS_HOST" required:"true"`
-	Port      int    `envconfig:"REDIS_PORT" default:"6379"`
-	Password  string `envconfig:"REDIS_PASSWORD" default:""`
-	StorageDB int    `envconfig:"REDIS_STORAGE_DB" default:"0"`
-	AsyncDB   int    `envconfig:"REDIS_ASYNC_DB" default:"1"`
-	EnableTLS bool   `envconfig:"REDIS_ENABLE_TLS" default:"false"`
+	Host      string `envconfig:"STORAGE_REDIS_HOST" required:"true"`
+	Port      int    `envconfig:"STORAGE_REDIS_PORT" default:"6379"`
+	Password  string `envconfig:"STORAGE_REDIS_PASSWORD" default:""`
+	DB        int    `envconfig:"STORAGE_REDIS_DB" default:"0"`
+	EnableTLS bool   `envconfig:"STORAGE_REDIS_ENABLE_TLS" default:"false"`
 }
 
 // GetRedisConfig returns Redis configuration
@@ -42,12 +39,8 @@ func (r redisConfig) GetPassword() string {
 	return r.Password
 }
 
-func (r redisConfig) GetStorageDB() int {
-	return r.StorageDB
-}
-
-func (r redisConfig) GetAsyncDB() int {
-	return r.AsyncDB
+func (r redisConfig) GetDB() int {
+	return r.DB
 }
 
 func (r redisConfig) IsTLSEnabled() bool {

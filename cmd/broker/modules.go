@@ -17,9 +17,8 @@ import (
 	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql"                             // nolint: lll
 	storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"                         // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
@@ -35,20 +34,21 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
 
-var modules []service.Module
-
-func initModules(azureConfig config.AzureConfig) error {
+func getModules(
+	modulesConfig service.ModulesConfig,
+	azureConfig azure.Config,
+) ([]service.Module, error) {
 	azureEnvironment := azureConfig.GetEnvironment()
 	azureSubscriptionID := azureConfig.GetSubscriptionID()
 
-	authorizer, err := az.GetBearerTokenAuthorizer(
+	authorizer, err := azure.GetBearerTokenAuthorizer(
 		azureEnvironment,
 		azureConfig.GetTenantID(),
 		azureConfig.GetClientID(),
 		azureConfig.GetClientSecret(),
 	)
 	if err != nil {
-		return fmt.Errorf("error getting bearer token authorizer: %s", err)
+		return nil, fmt.Errorf("error getting bearer token authorizer: %s", err)
 	}
 
 	resourceGroupsClient := resourcesSDK.NewGroupsClientWithBaseURI(
@@ -183,7 +183,7 @@ func initModules(azureConfig config.AzureConfig) error {
 	storageAccountsClient.Authorizer = authorizer
 	storageAccountsClient.UserAgent = getUserAgent(storageAccountsClient.Client)
 
-	modules = []service.Module{
+	modules := []service.Module{
 		postgresql.New(
 			armDeployer,
 			postgresCheckNameAvailabilityClient,
@@ -212,7 +212,16 @@ func initModules(azureConfig config.AzureConfig) error {
 		search.New(armDeployer, searchServicesClient),
 		aci.New(armDeployer, aciClient),
 	}
-	return nil
+
+	// Filter modules based on stability
+	filteredModules := []service.Module{}
+	for _, module := range modules {
+		if module.GetStability() >= modulesConfig.GetMinStability() {
+			filteredModules = append(filteredModules, module)
+		}
+	}
+
+	return filteredModules, nil
 }
 
 func getUserAgent(client autorest.Client) string {

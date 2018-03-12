@@ -10,8 +10,8 @@ import (
 
 func TestNewEnginesHaveUniqueWorkerIDs(t *testing.T) {
 	// Create two engines
-	e1 := NewEngine(redisClient).(*engine)
-	e2 := NewEngine(redisClient).(*engine)
+	e1 := getTestEngine()
+	e2 := getTestEngine()
 
 	// Assert that their workerIDs are at least different from one another
 	assert.NotEqual(t, e1.workerID, e2.workerID)
@@ -440,7 +440,10 @@ func TestRunRespondsToCanceledContext(t *testing.T) {
 // are passed is canceled. Individual test cases can selectively revert or
 // amend these overrides to test specific scenarios.
 func getTestEngine() *engine {
-	e := NewEngine(redisClient).(*engine)
+	config := NewConfigWithDefaults()
+	config.RedisHost = "redis"
+	config.RedisDB = 1
+	e := NewEngine(config).(*engine)
 	// Cleaner loop
 	e.clean = func(
 		ctx context.Context,

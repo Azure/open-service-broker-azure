@@ -13,11 +13,10 @@ import (
 	"github.com/Azure/go-autorest/autorest/azure"
 	az "github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/config"
 )
 
 func getTestCases() ([]serviceLifecycleTestCase, error) {
-	azureConfig, err := config.GetAzureConfig()
+	azureConfig, err := az.GetConfig()
 	if err != nil {
 		return nil, err
 	}
