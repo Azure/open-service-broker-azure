@@ -8,80 +8,90 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-// watchDeferredTaskFn defines functions used to watch a deferred task
-type watchDeferredTaskFn func(
+// watchDeferredTasksFn defines functions used to watch a deferred task
+type watchDeferredTasksFn func(
 	ctx context.Context,
-	taskJSON []byte,
+	inputCh chan []byte,
 	pendingTaskQueueName string,
 	errCh chan error,
 )
 
-func (e *engine) defaultWatchDeferredTask(
+func (e *engine) defaultWatchDeferredTasks(
 	ctx context.Context,
-	taskJSON []byte,
+	inputCh chan []byte,
 	pendingTaskQueueName string,
 	errCh chan error,
 ) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	task, err := e.getTaskFromJSON(taskJSON, getWatchedTaskQueueName(e.workerID))
-	if err != nil {
+	for {
 		select {
-		case errCh <- err:
-		case <-ctx.Done():
-		}
-		return
-	}
-	if task == nil {
-		return
-	}
-	executeTime := task.GetExecuteTime()
-	if executeTime == nil {
-		err := e.redisClient.LRem(
-			getWatchedTaskQueueName(e.workerID),
-			-1,
-			taskJSON,
-		).Err()
-		if err != nil {
-			select {
-			case errCh <- fmt.Errorf(
-				`error removing task "%s" with no executeTime from queue "%s": %s`,
-				task.GetID(),
+		case taskJSON := <-inputCh:
+			task, err := e.getTaskFromJSON(
+				taskJSON,
 				getWatchedTaskQueueName(e.workerID),
-				err,
-			):
+			)
+			if err != nil {
+				select {
+				case errCh <- err:
+				case <-ctx.Done():
+				}
+				return
+			}
+			if task == nil {
+				continue
+			}
+			executeTime := task.GetExecuteTime()
+			if executeTime == nil {
+				err := e.redisClient.LRem(
+					getWatchedTaskQueueName(e.workerID),
+					-1,
+					taskJSON,
+				).Err()
+				if err != nil {
+					select {
+					case errCh <- fmt.Errorf(
+						`error removing task "%s" with no executeTime from queue "%s": %s`,
+						task.GetID(),
+						getWatchedTaskQueueName(e.workerID),
+						err,
+					):
+					case <-ctx.Done():
+					}
+					return
+				}
+				log.WithFields(log.Fields{
+					"task":  task.GetID(),
+					"queue": getWatchedTaskQueueName(e.workerID),
+				}).Error("deferred task had no executeTime and was removed from the queue")
+				continue
+			}
+			// Note if the duration passed to the timer is 0 or negative, it should go
+			// off immediately
+			timer := time.NewTimer(time.Until(*executeTime))
+			defer timer.Stop()
+			select {
+			case <-timer.C:
+				// Move the task to the pending queue
+				pipeline := e.redisClient.TxPipeline()
+				pipeline.LPush(pendingTaskQueueName, taskJSON)
+				pipeline.LRem(getWatchedTaskQueueName(e.workerID), -1, taskJSON)
+				_, err := pipeline.Exec()
+				if err != nil {
+					select {
+					case errCh <- fmt.Errorf(
+						`error moving deferred task "%s" to queue "%s": %s`,
+						task.GetID(),
+						pendingTaskQueueName,
+						err,
+					):
+					case <-ctx.Done():
+					}
+				}
 			case <-ctx.Done():
 			}
+		case <-ctx.Done():
 			return
 		}
-		log.WithFields(log.Fields{
-			"task":  task.GetID(),
-			"queue": getWatchedTaskQueueName(e.workerID),
-		}).Error("deferred task had no executeTime and was removed from the queue")
-		return
-	}
-	// Note if the duration passed to the timer is 0 or negative, it should go
-	// off immediately
-	timer := time.NewTimer(time.Until(*executeTime))
-	defer timer.Stop()
-	select {
-	case <-timer.C:
-		// Move the task to the pending queue
-		pipeline := e.redisClient.TxPipeline()
-		pipeline.LPush(pendingTaskQueueName, taskJSON)
-		pipeline.LRem(getWatchedTaskQueueName(e.workerID), -1, taskJSON)
-		_, err := pipeline.Exec()
-		if err != nil {
-			select {
-			case errCh <- fmt.Errorf(
-				`error moving deferred task "%s" to queue "%s": %s`,
-				task.GetID(),
-				pendingTaskQueueName,
-				err,
-			):
-			case <-ctx.Done():
-			}
-		}
-	case <-ctx.Done():
 	}
 }
