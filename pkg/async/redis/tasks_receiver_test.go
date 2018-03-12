@@ -18,17 +18,17 @@ func TestDefaultReceiveTasks(t *testing.T) {
 	const taskCount int64 = 5
 	for range [taskCount]struct{}{} {
 		// Dummy tasks are fine. This test won't ever parse them.
-		err := redisClient.LPush(sourceQueueName, "foo").Err()
+		err := e.redisClient.LPush(sourceQueueName, "foo").Err()
 		assert.Nil(t, err)
 	}
 
 	// Assert that the source queue has precisely taskCount tasks
-	sourceQueueDepth, err := redisClient.LLen(sourceQueueName).Result()
+	sourceQueueDepth, err := e.redisClient.LLen(sourceQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, taskCount, sourceQueueDepth)
 
 	// Assert that the destination queue is empty
-	destinationQueueDepth, err := redisClient.LLen(destinationQueueName).Result()
+	destinationQueueDepth, err := e.redisClient.LLen(destinationQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, destinationQueueDepth)
 
@@ -71,12 +71,12 @@ func TestDefaultReceiveTasks(t *testing.T) {
 	assert.Equal(t, taskCount, resCount)
 
 	// Assert that the source task queue has been drained
-	sourceQueueDepth, err = redisClient.LLen(sourceQueueName).Result()
+	sourceQueueDepth, err = e.redisClient.LLen(sourceQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, sourceQueueDepth)
 
 	// Assert that the destination queue now has precisely taskCount tasks
-	destinationQueueDepth, err = redisClient.LLen(destinationQueueName).Result()
+	destinationQueueDepth, err = e.redisClient.LLen(destinationQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, taskCount, destinationQueueDepth)
 }

@@ -16,17 +16,17 @@ func TestDefaultWatchDeferredTaskWithInvalidTask(t *testing.T) {
 	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
 
 	// Assert that the pending task queue is empty
-	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err := e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
 	// Put an invalid task (it isn't even JSON) on the worker's watched task queue
 	invalidTaskJSON := []byte("bogus")
-	err = redisClient.LPush(watchedTaskQueueName, invalidTaskJSON).Err()
+	err = e.redisClient.LPush(watchedTaskQueueName, invalidTaskJSON).Err()
 	assert.Nil(t, err)
 
 	// Assert that queue now has precisely 1 task
-	watchedTaskQueueDepth, err := redisClient.LLen(watchedTaskQueueName).Result()
+	watchedTaskQueueDepth, err := e.redisClient.LLen(watchedTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), watchedTaskQueueDepth)
 
@@ -55,12 +55,12 @@ func TestDefaultWatchDeferredTaskWithInvalidTask(t *testing.T) {
 	}
 
 	// Assert that the pending task queue is STILL empty
-	pendingTaskQueueDepth, err = redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err = e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
 	// And so is the worker's watched task queue
-	watchedTaskQueueDepth, err = redisClient.LLen(watchedTaskQueueName).Result()
+	watchedTaskQueueDepth, err = e.redisClient.LLen(watchedTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, watchedTaskQueueDepth)
 }
@@ -72,7 +72,7 @@ func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
 	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
 
 	// Assert that the pending task queue is empty
-	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err := e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
@@ -80,11 +80,11 @@ func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
 	task := async.NewTask("foo", nil)
 	taskJSON, err := task.ToJSON()
 	assert.Nil(t, err)
-	err = redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
+	err = e.redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
 	assert.Nil(t, err)
 
 	// Assert that queue now has precisely 1 task
-	watchedTaskQueueDepth, err := redisClient.LLen(watchedTaskQueueName).Result()
+	watchedTaskQueueDepth, err := e.redisClient.LLen(watchedTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), watchedTaskQueueDepth)
 
@@ -113,12 +113,12 @@ func TestDefaultWatchDeferredTaskWithTaskWithoutExecuteTime(t *testing.T) {
 	}
 
 	// Assert that the pending task queue is STILL empty
-	pendingTaskQueueDepth, err = redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err = e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
 	// And so is the worker's watched task queue
-	watchedTaskQueueDepth, err = redisClient.LLen(watchedTaskQueueName).Result()
+	watchedTaskQueueDepth, err = e.redisClient.LLen(watchedTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, watchedTaskQueueDepth)
 }
@@ -130,7 +130,7 @@ func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
 	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
 
 	// Assert that the pending task queue is empty
-	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err := e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
@@ -138,11 +138,11 @@ func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
 	task := async.NewDelayedTask("foo", nil, time.Second*-1)
 	taskJSON, err := task.ToJSON()
 	assert.Nil(t, err)
-	err = redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
+	err = e.redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
 	assert.Nil(t, err)
 
 	// Assert that queue now has precisely 1 task
-	watchedTaskQueueDepth, err := redisClient.LLen(watchedTaskQueueName).Result()
+	watchedTaskQueueDepth, err := e.redisClient.LLen(watchedTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), watchedTaskQueueDepth)
 
@@ -168,12 +168,12 @@ func TestDefaultWatchDeferredTaskWithLapsedTask(t *testing.T) {
 	}
 
 	// Assert that the pending task queue now has precisely 1 task
-	pendingTaskQueueDepth, err = redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err = e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), pendingTaskQueueDepth)
 
 	// And the worker's watched task queue is now empty
-	watchedTaskQueueDepth, err = redisClient.LLen(watchedTaskQueueName).Result()
+	watchedTaskQueueDepth, err = e.redisClient.LLen(watchedTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, watchedTaskQueueDepth)
 }
@@ -185,7 +185,7 @@ func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
 	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
 
 	// Assert that the pending task queue is empty
-	pendingTaskQueueDepth, err := redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err := e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
@@ -193,11 +193,11 @@ func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
 	task := async.NewDelayedTask("foo", nil, time.Second*5)
 	taskJSON, err := task.ToJSON()
 	assert.Nil(t, err)
-	err = redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
+	err = e.redisClient.LPush(watchedTaskQueueName, taskJSON).Err()
 	assert.Nil(t, err)
 
 	// Assert that queue now has precisely 1 task
-	watchedTaskQueueDepth, err := redisClient.LLen(watchedTaskQueueName).Result()
+	watchedTaskQueueDepth, err := e.redisClient.LLen(watchedTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), watchedTaskQueueDepth)
 
@@ -227,12 +227,12 @@ func TestDefaultWatchDeferredTaskRespondsToCanceledContext(t *testing.T) {
 	// should have changed in the queues....
 
 	// Assert that the pending task queue is STILL empty
-	pendingTaskQueueDepth, err = redisClient.LLen(pendingTaskQueueName).Result()
+	pendingTaskQueueDepth, err = e.redisClient.LLen(pendingTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Empty(t, pendingTaskQueueDepth)
 
 	// And the worker's watched task STILL has precisely 1 task
-	watchedTaskQueueDepth, err = redisClient.LLen(watchedTaskQueueName).Result()
+	watchedTaskQueueDepth, err = e.redisClient.LLen(watchedTaskQueueName).Result()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), watchedTaskQueueDepth)
 }
