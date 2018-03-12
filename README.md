@@ -49,9 +49,9 @@ Instructions on how to install each prerequisite are linked below:
 
 #### Service Catalog CLI
 
-Once you've installed the prerequisites, you'll need the [Service Catalog CLI](https://github.com/Azure/service-catalog-cli)
+Once you've installed the prerequisites, you'll need the Service Catalog CLI, svcat,
 installed to introspect the Kubernetes cluster. Please refer to the
-[CLI installation instructions](https://github.com/Azure/service-catalog-cli#install)
+[CLI installation instructions](https://github.com/kubernetes-incubator/service-catalog/blob/master/docs/install.md#installing-the-service-catalog-cli)
 for details on how to install it onto your machine.
 
 #### Helm Chart
