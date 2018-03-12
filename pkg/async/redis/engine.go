@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"sync"
 
@@ -39,12 +40,23 @@ type engine struct {
 
 // NewEngine returns a new Redis-based implementation of the aync.Engine
 // interface
-func NewEngine(redisClient *redis.Client) async.Engine {
+func NewEngine(config Config) async.Engine {
 	workerID := uuid.NewV4().String()
+	redisOpts := &redis.Options{
+		Addr:       fmt.Sprintf("%s:%d", config.RedisHost, config.RedisPort),
+		Password:   config.RedisPassword,
+		DB:         config.RedisDB,
+		MaxRetries: 5,
+	}
+	if config.RedisEnableTLS {
+		redisOpts.TLSConfig = &tls.Config{
+			ServerName: config.RedisHost,
+		}
+	}
 	e := &engine{
 		workerID:    workerID,
 		jobsFns:     make(map[string]async.JobFn),
-		redisClient: redisClient,
+		redisClient: redis.NewClient(redisOpts),
 	}
 	e.clean = e.defaultClean
 	e.cleanActiveTaskQueue = e.defaultCleanWorkerQueue

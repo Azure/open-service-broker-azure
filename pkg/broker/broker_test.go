@@ -143,7 +143,7 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 func getTestBroker() (*broker, error) {
 	b, err := NewBroker(
 		nil,
-		nil,
+		fakeAsync.NewEngine(),
 		nil,
 		filter.NewChain(),
 		nil,
