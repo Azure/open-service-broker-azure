@@ -69,13 +69,13 @@ to see service provisioning in action.
 The following will provision PostgreSQL on Azure:
 
 ```console
-$ kubectl create -f contrib/k8s/examples/postgresqldb-instance.yaml
+$ kubectl create -f contrib/k8s/examples/postgresql/postgresql-instance.yaml
 ```
 
 After the `ServiceInstance` resource is submitted, you can view its status:
 
 ```console
-$ svcat get instance my-postgresqldb-instance
+$ svcat get instance example-postgresql-all-in-one-instance
 ```
 
 You'll see output that includes a status indicating that asynchronous
@@ -87,13 +87,13 @@ that asynchronous provisioning is complete.
 Upon provision success, bind to the instance:
 
 ```console
-$ kubectl create -f contrib/k8s/examples/postgresqldb-binding.yaml
+$ kubectl create -f contrib/k8s/examples/postgresql/postgresql-binding.yaml
 ```
 
 To check the status of the binding:
 
 ```console
-$ svcat get binding my-postgresqldb-binding
+$ svcat get binding example-postgresql-all-in-one-binding
 ```
 
 You'll see some output indicating that the binding was successful. Once it is,
@@ -102,7 +102,7 @@ connection details in it. You can observe that this secret exists and has been
 populated:
 
 ```console
-$ kubectl get secret my-postgresqldb-secret -o yaml
+$ kubectl get secret example-postgresql-all-in-one-secret -o yaml
 ```
 
 This secret can be used just as any other.
