@@ -144,7 +144,6 @@ func getTestBroker() (*broker, error) {
 	b, err := NewBroker(
 		nil,
 		fakeAsync.NewEngine(),
-		nil,
 		filter.NewChain(),
 		service.NewCatalog(nil),
 		"",
