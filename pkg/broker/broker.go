@@ -7,12 +7,10 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
-	"github.com/go-redis/redis"
 )
 
 type errAsyncEngineStopped struct {
@@ -48,16 +46,15 @@ type broker struct {
 
 // NewBroker returns a new Broker
 func NewBroker(
-	storageRedisClient *redis.Client,
+	store storage.Store,
 	asyncEngine async.Engine,
-	codec crypto.Codec,
 	filterChain filter.Filter,
 	catalog service.Catalog,
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,
 ) (Broker, error) {
 	b := &broker{
-		store:       storage.NewStore(storageRedisClient, catalog, codec),
+		store:       store,
 		asyncEngine: asyncEngine,
 		catalog:     catalog,
 	}
