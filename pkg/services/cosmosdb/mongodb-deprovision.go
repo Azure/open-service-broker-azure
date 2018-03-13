@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (m *mongoManager) GetDeprovisioner(
+func (m *mongoAccountManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
@@ -18,7 +18,7 @@ func (m *mongoManager) GetDeprovisioner(
 	)
 }
 
-func (m *mongoManager) deleteARMDeployment(
+func (m *mongoAccountManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
@@ -29,7 +29,7 @@ func (m *mongoManager) deleteARMDeployment(
 	return instance.Details, instance.SecureDetails, nil
 }
 
-func (m *mongoManager) deleteCosmosDBServer(
+func (m *mongoAccountManager) deleteCosmosDBServer(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {

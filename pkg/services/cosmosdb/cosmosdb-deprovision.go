@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (c *cosmosManager) GetDeprovisioner(
+func (c *cosmosAccountManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
@@ -18,7 +18,7 @@ func (c *cosmosManager) GetDeprovisioner(
 	)
 }
 
-func (c *cosmosManager) deleteARMDeployment(
+func (c *cosmosAccountManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
@@ -29,7 +29,7 @@ func (c *cosmosManager) deleteARMDeployment(
 	return instance.Details, instance.SecureDetails, nil
 }
 
-func (c *cosmosManager) deleteCosmosDBServer(
+func (c *cosmosAccountManager) deleteCosmosDBServer(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {

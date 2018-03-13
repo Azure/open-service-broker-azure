@@ -8,7 +8,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (c *cosmosManager) ValidateProvisioningParameters(
+func (c *cosmosAccountManager) ValidateProvisioningParameters(
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
 ) error {
@@ -16,7 +16,7 @@ func (c *cosmosManager) ValidateProvisioningParameters(
 	return nil
 }
 
-func (c *cosmosManager) GetProvisioner(
+func (c *cosmosAccountManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -25,14 +25,14 @@ func (c *cosmosManager) GetProvisioner(
 	)
 }
 
-func (c *cosmosManager) preProvision(
+func (c *cosmosAccountManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	return preProvision(instance)
 }
 
-func (c *cosmosManager) deployARMTemplate(
+func (c *cosmosAccountManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {

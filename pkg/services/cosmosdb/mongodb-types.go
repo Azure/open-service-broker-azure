@@ -13,45 +13,45 @@ type MongoCredentials struct {
 }
 
 func (
-	m *mongoManager,
+	m *mongoAccountManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
+	return nil
 }
 
 func (
-	m *mongoManager,
+	m *mongoAccountManager,
 ) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureProvisioningParameters{}
+	return nil
 }
 
 func (
-	m *mongoManager,
+	m *mongoAccountManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &cosmosdbInstanceDetails{}
 }
 
 func (
-	m *mongoManager,
+	m *mongoAccountManager,
 ) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
 	return &cosmosdbSecureInstanceDetails{}
 }
 
-func (m *mongoManager) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
+func (m *mongoAccountManager) GetEmptyBindingParameters() service.BindingParameters {
+	return nil
 }
 
 func (
-	m *mongoManager,
+	m *mongoAccountManager,
 ) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
+	return nil
 }
 
-func (m *mongoManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &cosmosdbBindingDetails{}
+func (m *mongoAccountManager) GetEmptyBindingDetails() service.BindingDetails {
+	return nil
 }
 
 func (
-	m *mongoManager,
+	m *mongoAccountManager,
 ) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &cosmosdbSecureBindingDetails{}
+	return nil
 }

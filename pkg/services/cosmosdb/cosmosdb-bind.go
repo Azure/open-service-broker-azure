@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (c *cosmosManager) ValidateBindingParameters(
+func (c *cosmosAccountManager) ValidateBindingParameters(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) error {
@@ -15,15 +15,15 @@ func (c *cosmosManager) ValidateBindingParameters(
 	return nil
 }
 
-func (c *cosmosManager) Bind(
+func (c *cosmosAccountManager) Bind(
 	service.Instance,
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return &cosmosdbBindingDetails{}, &cosmosdbSecureBindingDetails{}, nil
+	return nil, nil, nil
 }
 
-func (c *cosmosManager) GetCredentials(
+func (c *cosmosAccountManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {

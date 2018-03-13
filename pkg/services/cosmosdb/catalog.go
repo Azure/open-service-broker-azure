@@ -33,7 +33,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Key-Value",
 					},
 				},
-				m.cosmosManager,
+				m.cosmosAccountManager,
 				service.NewPlan(&service.PlanProperties{
 					ID:   "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
 					Name: "cosmos-db",
@@ -70,7 +70,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"MongoDB",
 					},
 				},
-				m.mongoManager,
+				m.mongoAccountManager,
 				service.NewPlan(&service.PlanProperties{
 					ID:          "86fdda05-78d7-4026-a443-1325928e7b02",
 					Name:        "mongo-db",

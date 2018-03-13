@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (m *mongoManager) ValidateBindingParameters(
+func (m *mongoAccountManager) ValidateBindingParameters(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) error {
@@ -15,15 +15,15 @@ func (m *mongoManager) ValidateBindingParameters(
 	return nil
 }
 
-func (m *mongoManager) Bind(
+func (m *mongoAccountManager) Bind(
 	service.Instance,
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return &cosmosdbBindingDetails{}, &cosmosdbSecureBindingDetails{}, nil
+	return nil, nil, nil
 }
 
-func (m *mongoManager) GetCredentials(
+func (m *mongoAccountManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {

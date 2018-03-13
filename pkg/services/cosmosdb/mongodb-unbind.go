@@ -4,7 +4,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (m *mongoManager) Unbind(
+func (m *mongoAccountManager) Unbind(
 	_ service.Instance,
 	_ service.Binding,
 ) error {

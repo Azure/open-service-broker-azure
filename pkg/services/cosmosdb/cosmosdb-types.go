@@ -11,45 +11,45 @@ type CosmosCredentials struct {
 }
 
 func (
-	c *cosmosManager,
+	c *cosmosAccountManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
+	return nil
 }
 
 func (
-	c *cosmosManager,
+	c *cosmosAccountManager,
 ) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureProvisioningParameters{}
+	return nil
 }
 
 func (
-	c *cosmosManager,
+	c *cosmosAccountManager,
 ) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &cosmosdbInstanceDetails{}
 }
 
 func (
-	c *cosmosManager,
+	c *cosmosAccountManager,
 ) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
 	return &cosmosdbSecureInstanceDetails{}
 }
 
-func (c *cosmosManager) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
+func (c *cosmosAccountManager) GetEmptyBindingParameters() service.BindingParameters {
+	return nil
 }
 
 func (
-	c *cosmosManager,
+	c *cosmosAccountManager,
 ) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
+	return nil
 }
 
-func (c *cosmosManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &cosmosdbBindingDetails{}
+func (c *cosmosAccountManager) GetEmptyBindingDetails() service.BindingDetails {
+	return nil
 }
 
 func (
-	c *cosmosManager,
+	c *cosmosAccountManager,
 ) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &cosmosdbSecureBindingDetails{}
+	return nil
 }

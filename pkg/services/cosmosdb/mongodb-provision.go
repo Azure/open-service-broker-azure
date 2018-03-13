@@ -10,7 +10,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (m *mongoManager) ValidateProvisioningParameters(
+func (m *mongoAccountManager) ValidateProvisioningParameters(
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
 ) error {
@@ -18,7 +18,7 @@ func (m *mongoManager) ValidateProvisioningParameters(
 	return nil
 }
 
-func (m *mongoManager) GetProvisioner(
+func (m *mongoAccountManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -27,14 +27,14 @@ func (m *mongoManager) GetProvisioner(
 	)
 }
 
-func (m *mongoManager) preProvision(
+func (m *mongoAccountManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	return preProvision(instance)
 }
 
-func (m *mongoManager) deployARMTemplate(
+func (m *mongoAccountManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
