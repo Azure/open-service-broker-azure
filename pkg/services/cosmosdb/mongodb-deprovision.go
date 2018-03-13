@@ -13,7 +13,7 @@ func (m *mongoAccountManager) GetDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", m.deleteARMDeployment),
 		service.NewDeprovisioningStep(
 			"deleteCosmosDBServer",
-			m.deleteCosmosDBServer,
+			m.deleteCosmosDBAccount,
 		),
 	)
 }
@@ -29,11 +29,11 @@ func (m *mongoAccountManager) deleteARMDeployment(
 	return instance.Details, instance.SecureDetails, nil
 }
 
-func (m *mongoAccountManager) deleteCosmosDBServer(
+func (m *mongoAccountManager) deleteCosmosDBAccount(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	err := deleteCosmosDBServer(ctx, m.databaseAccountsClient, instance)
+	err := deleteCosmosDBAccount(ctx, m.databaseAccountsClient, instance)
 	if err != nil {
 		return nil, nil, err
 	}

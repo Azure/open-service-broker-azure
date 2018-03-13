@@ -35,12 +35,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				m.cosmosAccountManager,
 				service.NewPlan(&service.PlanProperties{
-					ID:   "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
-					Name: "cosmos-db",
-					Description: "Globally distributed, " +
-						"multi-model database service accessible via SQL, " +
-						"Gremlin (Graph), and Table (Key-Value) APIs",
-					Free: false,
+					ID:          "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
+					Name:        "cosmos-db",
+					Description: "Creates a Database Account with the SQL API",
+					Free:        false,
 					Extended: map[string]interface{}{
 						kindKey: databaseKindGlobalDocumentDB,
 					},
@@ -74,7 +72,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				service.NewPlan(&service.PlanProperties{
 					ID:          "86fdda05-78d7-4026-a443-1325928e7b02",
 					Name:        "mongo-db",
-					Description: "MongoDB",
+					Description: "Creates a Database Account with the MongoDB API",
 					Free:        false,
 					Extended: map[string]interface{}{
 						kindKey: databaseKindMongoDB,

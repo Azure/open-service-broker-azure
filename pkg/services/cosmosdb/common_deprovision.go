@@ -29,7 +29,7 @@ func deleteARMDeployment(
 	return nil
 }
 
-func deleteCosmosDBServer(
+func deleteCosmosDBAccount(
 	ctx context.Context,
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient,
 	instance service.Instance,
