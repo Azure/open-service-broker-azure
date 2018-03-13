@@ -9,13 +9,13 @@
 
 | Plan Name | Description |
 |-----------|-------------|
-| `cosmos-db` | Globally distributed, multi-model database service accessible via SQL, Gremlin (Graph), and Table (Key-Value) APIs |
+| `cosmos-db-sql-api` | Creates a CosmsDB Database Account configured to use SQL API |
 
 #### Behaviors
 
 ##### Provision
 
-Provisions a new CosmosDB database that can be accessed through any of the SQL, Gremlin (Graph), and Table (Key-Value) APIs. The new database is named using a new UUID.
+Provisions a new CosmosDB database that can be accessed through any of the SQL API. The new database account is named using a new UUID.
 
 ###### Provisioning Parameters
 

@@ -36,7 +36,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				m.cosmosAccountManager,
 				service.NewPlan(&service.PlanProperties{
 					ID:          "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
-					Name:        "cosmos-db",
+					Name:        "cosmos-db-sql-api",
 					Description: "Creates a Database Account with the SQL API",
 					Free:        false,
 					Extended: map[string]interface{}{
