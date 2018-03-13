@@ -2,10 +2,14 @@ package storage
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
 
@@ -47,9 +51,8 @@ type store struct {
 // NewStore returns a new Redis-based implementation of the Store interface
 func NewStore(
 	catalog service.Catalog,
-	codec crypto.Codec,
 	config Config,
-) Store {
+) (Store, error) {
 	redisOpts := &redis.Options{
 		Addr:       fmt.Sprintf("%s:%d", config.RedisHost, config.RedisPort),
 		Password:   config.RedisPassword,
@@ -62,11 +65,41 @@ func NewStore(
 		}
 	}
 
+	var codec crypto.Codec
+	switch config.EncryptionScheme {
+	case crypto.AES256:
+		if config.AES256Key == "" {
+			return nil, errors.New("AES256 key was not specified")
+		}
+		if len(config.AES256Key) != 32 {
+			return nil, errors.New("AES256 key is an invalid length")
+		}
+		var err error
+		codec, err = aes256.NewCodec([]byte(config.AES256Key))
+		if err != nil {
+			return nil, err
+		}
+		log.WithField(
+			"encryptionScheme",
+			config.EncryptionScheme,
+		).Info("Sensitive instance and binding details will be encrypted")
+	case crypto.NOOP:
+		codec = noop.NewCodec()
+		log.Warn(
+			"ENCRYPTION IS DISABLED -- THIS IS NOT A SUITABLE OPTION FOR PRODUCTION",
+		)
+	default:
+		return nil, fmt.Errorf(
+			`unrecognized encryption scheme "%s"`,
+			config.EncryptionScheme,
+		)
+	}
+
 	return &store{
 		redisClient: redis.NewClient(redisOpts),
 		catalog:     catalog,
 		codec:       codec,
-	}
+	}, nil
 }
 
 func (s *store) WriteInstance(instance service.Instance) error {
