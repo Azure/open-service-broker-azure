@@ -7,12 +7,10 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
-	"github.com/go-redis/redis"
 )
 
 type errAsyncEngineStopped struct {
@@ -48,49 +46,15 @@ type broker struct {
 
 // NewBroker returns a new Broker
 func NewBroker(
-	storageRedisClient *redis.Client,
+	store storage.Store,
 	asyncEngine async.Engine,
-	codec crypto.Codec,
 	filterChain filter.Filter,
-	modules []service.Module,
-	minStability service.Stability,
+	catalog service.Catalog,
 	defaultAzureLocation string,
 	defaultAzureResourceGroup string,
 ) (Broker, error) {
-	// Consolidate the catalogs from all the individual modules into a single
-	// catalog. Check as we go along to make sure that no two modules provide
-	// services having the same ID.
-	services := []service.Service{}
-	usedServiceIDs := map[string]string{}
-	for _, module := range modules {
-		if module.GetStability() >= minStability {
-			moduleName := module.GetName()
-			catalog, err := module.GetCatalog()
-			if err != nil {
-				return nil, fmt.Errorf(
-					`error retrieving catalog from module "%s": %s`,
-					moduleName,
-					err,
-				)
-			}
-			for _, svc := range catalog.GetServices() {
-				serviceID := svc.GetID()
-				if moduleNameForUsedServiceID, ok := usedServiceIDs[serviceID]; ok {
-					return nil, fmt.Errorf(
-						`modules "%s" and "%s" both provide a service with the id "%s"`,
-						moduleNameForUsedServiceID,
-						moduleName,
-						serviceID,
-					)
-				}
-				services = append(services, svc)
-				usedServiceIDs[serviceID] = moduleName
-			}
-		}
-	}
-	catalog := service.NewCatalog(services)
 	b := &broker{
-		store:       storage.NewStore(storageRedisClient, catalog, codec),
+		store:       store,
 		asyncEngine: asyncEngine,
 		catalog:     catalog,
 	}

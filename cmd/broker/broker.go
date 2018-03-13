@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
-	"fmt"
 	"os"
 	"os/signal"
 	"strings"
@@ -25,7 +23,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
-	"github.com/go-redis/redis"
 )
 
 func main() {
@@ -59,8 +56,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Initialize modules
-	if err = initModules(azureConfig); err != nil {
+	// Initialize catalog
+	modulesConfig, err := service.GetModulesConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	modules, err := getModules(modulesConfig, azureConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	catalog, err := getCatalog(modules)
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -70,35 +76,6 @@ func main() {
 			"commit":  version.GetCommit(),
 		},
 	).Info("Open Service Broker for Azure starting")
-
-	// Storage Redis client
-	storageRedisConfig, err := storage.GetRedisConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	storageRedisOpts := &redis.Options{
-		Addr: fmt.Sprintf(
-			"%s:%d",
-			storageRedisConfig.GetHost(),
-			storageRedisConfig.GetPort(),
-		),
-		Password:   storageRedisConfig.GetPassword(),
-		DB:         storageRedisConfig.GetDB(),
-		MaxRetries: 5,
-	}
-	if storageRedisConfig.IsTLSEnabled() {
-		storageRedisOpts.TLSConfig = &tls.Config{
-			ServerName: storageRedisConfig.GetHost(),
-		}
-	}
-	storageRedisClient := redis.NewClient(storageRedisOpts)
-
-	// Async
-	asyncConfig, err := async.GetConfigFromEnvironment()
-	if err != nil {
-		log.Fatal(err)
-	}
-	asyncEngine := async.NewEngine(asyncConfig)
 
 	// Crypto
 	cryptoConfig, err := crypto.GetConfig()
@@ -124,6 +101,20 @@ func main() {
 		)
 	}
 
+	// Storage
+	storageConfig, err := storage.GetConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	store := storage.NewStore(catalog, codec, storageConfig)
+
+	// Async
+	asyncConfig, err := async.GetConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	asyncEngine := async.NewEngine(asyncConfig)
+
 	// Assemble the filter chain
 	basicAuthConfig, err := api.GetBasicAuthConfig()
 	if err != nil {
@@ -137,19 +128,12 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	modulesConfig, err := service.GetModulesConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Create broker
 	broker, err := broker.NewBroker(
-		storageRedisClient,
+		store,
 		asyncEngine,
-		codec,
 		filterChain,
-		modules,
-		modulesConfig.GetMinStability(),
+		catalog,
 		azureConfig.GetDefaultLocation(),
 		azureConfig.GetDefaultResourceGroup(),
 	)

@@ -27,11 +27,16 @@ server that provisions managed services in the Microsoft Azure public cloud.
 * [Azure Service Bus](docs/modules/servicebus.md)
 * [Azure Storage](docs/modules/storage.md)
 
-## Quickstart
+## Quickstarts
 
-The [Minikube Quickstart](docs/quickstart-minikube.md) walks through using the
-Open Service Broker for Azure to deploy WordPress on a local Minikube cluster.
 Go from "_I have an Azure account that I have never used_" to "_I just deployed WordPress and know what OSBA means!_"
+
+* The [Minikube Quickstart](docs/quickstart-minikube.md) walks through using the
+  Open Service Broker for Azure to deploy WordPress on a local Minikube cluster.
+* The [AKS Quickstart](docs/quickstart-aks.md) walks through using the
+  Open Service Broker for Azure to deploy WordPress on an Azure Managed Kubernetes Cluster (AKS).
+
+Got questions? Ran into trouble? Check out our [Frequently Asked Questions](docs/faq.md).
 
 ## Getting Started on Kubernetes
 

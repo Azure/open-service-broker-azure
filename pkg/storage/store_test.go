@@ -14,12 +14,9 @@ import (
 )
 
 var (
-	noopCodec   = noop.NewCodec()
-	redisClient = redis.NewClient(&redis.Options{
-		Addr: "redis:6379",
-	})
+	noopCodec          = noop.NewCodec()
 	fakeServiceManager service.ServiceManager
-	testStore          Store
+	testStore          *store
 )
 
 func init() {
@@ -33,24 +30,27 @@ func init() {
 		log.Fatal(err)
 	}
 	fakeServiceManager = fakeModule.ServiceManager
+	config := NewConfigWithDefaults()
+	config.RedisHost = "redis"
+	config.RedisDB = 1
 	testStore = NewStore(
-		redisClient,
 		fakeCatalog,
 		noopCodec,
-	)
+		config,
+	).(*store)
 }
 
 func TestWriteInstance(t *testing.T) {
 	instance := getTestInstance()
 	key := getInstanceKey(instance.InstanceID)
 	// First assert that the instance doesn't exist in Redis
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Store the instance
 	err := testStore.WriteInstance(instance)
 	assert.Nil(t, err)
 	// Assert that the instance is now in Redis
-	strCmd = redisClient.Get(key)
+	strCmd = testStore.redisClient.Get(key)
 	assert.Nil(t, strCmd.Err())
 }
 
@@ -59,20 +59,20 @@ func TestWriteInstanceWithAlias(t *testing.T) {
 	instance.Alias = uuid.NewV4().String()
 	key := getInstanceKey(instance.InstanceID)
 	// First assert that the instance doesn't exist in Redis
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Nor does its alias
 	aliasKey := getInstanceAliasKey(instance.Alias)
-	strCmd = redisClient.Get(aliasKey)
+	strCmd = testStore.redisClient.Get(aliasKey)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Store the instance
 	err := testStore.WriteInstance(instance)
 	assert.Nil(t, err)
 	// Assert that the instance is now in Redis
-	strCmd = redisClient.Get(key)
+	strCmd = testStore.redisClient.Get(key)
 	assert.Nil(t, strCmd.Err())
 	// Assert that the alias is as well
-	strCmd = redisClient.Get(aliasKey)
+	strCmd = testStore.redisClient.Get(aliasKey)
 	assert.Nil(t, strCmd.Err())
 	instanceID, err := strCmd.Result()
 	assert.Nil(t, err)
@@ -84,11 +84,12 @@ func TestWriteInstanceWithParent(t *testing.T) {
 	instance.ParentAlias = uuid.NewV4().String()
 	key := getInstanceKey(instance.InstanceID)
 	// First assert that the instance doesn't exist in Redis
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Nor does any index of parent alias to children
 	parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
-	boolCmd := redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
+	boolCmd :=
+		testStore.redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
 	assert.Nil(t, boolCmd.Err())
 	childFoundInIndex, err := boolCmd.Result()
 	assert.Nil(t, err)
@@ -97,10 +98,11 @@ func TestWriteInstanceWithParent(t *testing.T) {
 	err = testStore.WriteInstance(instance)
 	assert.Nil(t, err)
 	// Assert that the instance is now in Redis
-	strCmd = redisClient.Get(key)
+	strCmd = testStore.redisClient.Get(key)
 	assert.Nil(t, strCmd.Err())
 	// And the index for parent alias to children contains this instance
-	boolCmd = redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
+	boolCmd =
+		testStore.redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
 	assert.Nil(t, boolCmd.Err())
 	childFoundInIndex, err = boolCmd.Result()
 	assert.Nil(t, err)
@@ -111,7 +113,7 @@ func TestGetNonExistingInstance(t *testing.T) {
 	instanceID := uuid.NewV4().String()
 	key := getInstanceKey(instanceID)
 	// First assert that the instance doesn't exist in Redis
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to retrieve the non-existing instance
 	_, ok, err := testStore.GetInstance(instanceID)
@@ -126,7 +128,7 @@ func TestGetExistingInstance(t *testing.T) {
 	// First ensure the instance exists in Redis
 	json, err := instance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(key, json, 0)
+	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Retrieve the instance
 	retrievedInstance, ok, err := testStore.GetInstance(instance.InstanceID)
@@ -150,11 +152,12 @@ func TestGetExistingInstanceWithParent(t *testing.T) {
 	// Ensure the parent instance exists in Redis
 	json, err := parentInstance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(parentKey, json, 0)
+	statCmd := testStore.redisClient.Set(parentKey, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Ensure the parent instance's alias also exists in Redis
 	parentAliasKey := getInstanceAliasKey(parentInstance.Alias)
-	statCmd = redisClient.Set(parentAliasKey, parentInstance.InstanceID, 0)
+	statCmd =
+		testStore.redisClient.Set(parentAliasKey, parentInstance.InstanceID, 0)
 	assert.Nil(t, statCmd.Err())
 	// Make a child instance
 	instance := getTestInstance()
@@ -164,7 +167,7 @@ func TestGetExistingInstanceWithParent(t *testing.T) {
 	// Ensure the child instance exists in Redis
 	json, err = instance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd = redisClient.Set(key, json, 0)
+	statCmd = testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Retrieve the child instance
 	retrievedInstance, ok, err := testStore.GetInstance(instance.InstanceID)
@@ -189,7 +192,7 @@ func TestGetNonExistingInstanceByAlias(t *testing.T) {
 	alias := uuid.NewV4().String()
 	aliasKey := getInstanceAliasKey(alias)
 	// First assert that the alias doesn't exist in Redis
-	strCmd := redisClient.Get(aliasKey)
+	strCmd := testStore.redisClient.Get(aliasKey)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to retrieve the non-existing instance by alias
 	_, ok, err := testStore.GetInstanceByAlias(aliasKey)
@@ -204,11 +207,11 @@ func TestGetExistingInstanceByAlias(t *testing.T) {
 	// First ensure the instance exists in Redis
 	json, err := instance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(key, json, 0)
+	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// And so does the alias
 	aliasKey := getInstanceAliasKey(instance.Alias)
-	statCmd = redisClient.Set(aliasKey, instance.InstanceID, 0)
+	statCmd = testStore.redisClient.Set(aliasKey, instance.InstanceID, 0)
 	assert.Nil(t, statCmd.Err())
 	// Retrieve the instance by alias
 	retrievedInstance, ok, err := testStore.GetInstanceByAlias(instance.Alias)
@@ -228,7 +231,7 @@ func TestDeleteNonExistingInstance(t *testing.T) {
 	instanceID := uuid.NewV4().String()
 	key := getInstanceKey(instanceID)
 	// First assert that the instance doesn't exist in Redis
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to delete the non-existing instance
 	ok, err := testStore.DeleteInstance(instanceID)
@@ -243,14 +246,14 @@ func TestDeleteExistingInstance(t *testing.T) {
 	// First ensure the instance exists in Redis
 	json, err := instance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(key, json, 0)
+	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Delete the instance
 	ok, err := testStore.DeleteInstance(instance.InstanceID)
 	// Assert that the delete was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 }
 
@@ -261,21 +264,21 @@ func TestDeleteExistingInstanceWithAlias(t *testing.T) {
 	// First ensure the instance exists in Redis
 	json, err := instance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(key, json, 0)
+	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// And so does the alias
 	aliasKey := getInstanceAliasKey(instance.Alias)
-	statCmd = redisClient.Set(aliasKey, instance.InstanceID, 0)
+	statCmd = testStore.redisClient.Set(aliasKey, instance.InstanceID, 0)
 	assert.Nil(t, statCmd.Err())
 	// Delete the instance
 	ok, err := testStore.DeleteInstance(instance.InstanceID)
 	// Assert that the delete was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Assert that the alias is also gone
-	strCmd = redisClient.Get(aliasKey)
+	strCmd = testStore.redisClient.Get(aliasKey)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 }
 
@@ -286,11 +289,12 @@ func TestDeleteExistingInstanceWithParent(t *testing.T) {
 	// Ensure the parent instance exists in Redis
 	json, err := parentInstance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(parentKey, json, 0)
+	statCmd := testStore.redisClient.Set(parentKey, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Ensure the parent instance's alias also exists in Redis
 	parentAliasKey := getInstanceAliasKey(parentInstance.Alias)
-	statCmd = redisClient.Set(parentAliasKey, parentInstance.InstanceID, 0)
+	statCmd =
+		testStore.redisClient.Set(parentAliasKey, parentInstance.InstanceID, 0)
 	assert.Nil(t, statCmd.Err())
 	// Make a child instance
 	instance := getTestInstance()
@@ -300,18 +304,19 @@ func TestDeleteExistingInstanceWithParent(t *testing.T) {
 	// Ensure the child instance exists in Redis
 	json, err = instance.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd = redisClient.Set(key, json, 0)
+	statCmd = testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Delete the instance
 	ok, err := testStore.DeleteInstance(instance.InstanceID)
 	// Assert that the delete was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// And the index of parent alias to children no longer contains this instance
 	parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
-	boolCmd := redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
+	boolCmd :=
+		testStore.redisClient.SIsMember(parentAliasChildrenKey, instance.InstanceID)
 	assert.Nil(t, boolCmd.Err())
 	childFoundInIndex, err := boolCmd.Result()
 	assert.Nil(t, err)
@@ -324,7 +329,7 @@ func TestGetInstanceChildCountByAlias(t *testing.T) {
 	instanceAliasChildrenKey := getInstanceAliasChildrenKey(instanceAlias)
 	for i := 0; i < count; i++ {
 		// Add a new, unique, child instance ID to the index
-		redisClient.SAdd(instanceAliasChildrenKey, uuid.NewV4().String())
+		testStore.redisClient.SAdd(instanceAliasChildrenKey, uuid.NewV4().String())
 		// Count the children
 		children, err := testStore.GetInstanceChildCountByAlias(instanceAlias)
 		assert.Nil(t, err)
@@ -337,13 +342,13 @@ func TestWriteBinding(t *testing.T) {
 	binding := getTestBinding()
 	key := getBindingKey(binding.BindingID)
 	// First assert that the binding doesn't exist in Redis
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Store the binding
 	err := testStore.WriteBinding(binding)
 	assert.Nil(t, err)
 	// Assert that the binding is now in Redis
-	strCmd = redisClient.Get(key)
+	strCmd = testStore.redisClient.Get(key)
 	assert.Nil(t, strCmd.Err())
 }
 
@@ -351,7 +356,7 @@ func TestGetNonExistingBinding(t *testing.T) {
 	bindingID := uuid.NewV4().String()
 	key := getBindingKey(bindingID)
 	// First assert that the binding doesn't exist in Redis
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to retrieve the non-existing binding
 	_, ok, err := testStore.GetBinding(bindingID)
@@ -367,7 +372,7 @@ func TestGetExistingBinding(t *testing.T) {
 	json, err := binding.ToJSON(noopCodec)
 	assert.Nil(t, err)
 
-	statCmd := redisClient.Set(key, json, 0)
+	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Retrieve the binding
 	retrievedBinding, ok, err := testStore.GetBinding(binding.BindingID)
@@ -384,7 +389,7 @@ func TestDeleteNonExistingBinding(t *testing.T) {
 	bindingID := uuid.NewV4().String()
 	key := getBindingKey(bindingID)
 	// First assert that the binding doesn't exist in Redis
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	// Try to delete the non-existing binding
 	ok, err := testStore.DeleteBinding(bindingID)
@@ -399,14 +404,14 @@ func TestDeleteExistingBinding(t *testing.T) {
 	// First ensure the binding exists in Redis
 	json, err := binding.ToJSON(noopCodec)
 	assert.Nil(t, err)
-	statCmd := redisClient.Set(key, json, 0)
+	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
 	// Delete the binding
 	ok, err := testStore.DeleteBinding(binding.BindingID)
 	// Assert that the delete was successful
 	assert.True(t, ok)
 	assert.Nil(t, err)
-	strCmd := redisClient.Get(key)
+	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
 }
 

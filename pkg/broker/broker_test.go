@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 
 	fakeAPI "github.com/Azure/open-service-broker-azure/pkg/api/fake"
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -144,10 +144,8 @@ func getTestBroker() (*broker, error) {
 	b, err := NewBroker(
 		nil,
 		fakeAsync.NewEngine(),
-		nil,
 		filter.NewChain(),
-		nil,
-		service.StabilityExperimental,
+		service.NewCatalog(nil),
 		"",
 		"",
 	)
