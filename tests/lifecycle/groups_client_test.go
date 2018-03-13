@@ -6,7 +6,7 @@ import (
 	"context"
 
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 )
 
 func ensureResourceGroup(resourceGroup string) error {
@@ -38,19 +38,19 @@ func deleteResourceGroup(
 }
 
 func getGroupsClient() (*resourcesSDK.GroupsClient, error) {
-	azureConfig, err := az.GetConfig()
+	azureConfig, err := azure.GetConfigFromEnvironment()
 	if err != nil {
 		return nil, err
 	}
 	groupsClient := resourcesSDK.NewGroupsClientWithBaseURI(
-		azureConfig.GetEnvironment().ResourceManagerEndpoint,
-		azureConfig.GetSubscriptionID(),
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureConfig.SubscriptionID,
 	)
-	authorizer, err := az.GetBearerTokenAuthorizer(
-		azureConfig.GetEnvironment(),
-		azureConfig.GetTenantID(),
-		azureConfig.GetClientID(),
-		azureConfig.GetClientSecret(),
+	authorizer, err := azure.GetBearerTokenAuthorizer(
+		azureConfig.Environment,
+		azureConfig.TenantID,
+		azureConfig.ClientID,
+		azureConfig.ClientSecret,
 	)
 	if err != nil {
 		return nil, err
