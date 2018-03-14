@@ -11,13 +11,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ID:   "6330de6f-a561-43ea-a15e-b99f44d183e6",
 					Name: "azure-cosmos-db-sql",
 					Description: "Azure Cosmos DB is a globally distributed, " +
-						"multi-model database service. This service provides access via the SQL API ",
+						"multi-model database service. This service provides access " +
+						"via the SQL API.",
 					Metadata: &service.ServiceMetadata{
 						DisplayName: "Azure Cosmos DB",
 						ImageUrl: "https://azure.microsoft.com/svghandler/cosmos-db/" +
 							"?width=200",
 						LongDescription: "Globally distributed, multi-model database service" +
-							" (Experimental)",
+							" (Experimental).",
 						DocumentationUrl: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
 						SupportUrl:       "https://azure.microsoft.com/en-us/support/",
 					},
@@ -26,10 +27,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"CosmosDB",
 						"Database",
 						"SQL",
-						"Gremlin",
-						"Graph",
-						"Table",
-						"Key-Value",
 					},
 				},
 				m.cosmosAccountManager,
