@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -21,14 +20,11 @@ func (a *allInOneManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*AllInOneProvisioningParameters)
-	if !ok {
-		return fmt.Errorf(
-			"error casting provisioningParameters as " +
-				"*mysql.AllInOneProvisioningParameters",
-		)
+	pp := allInOneProvisioningParameters{}
+	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
+		return err
 	}
-	return validateDBMSProvisionParameters(&pp.DBMSProvisioningParameters)
+	return validateDBMSProvisionParameters(pp.dbmsProvisioningParameters)
 }
 
 func (a *allInOneManager) GetProvisioner(
@@ -46,52 +42,51 @@ func (a *allInOneManager) preProvision(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *mysql.allInOneInstanceDetails",
-		)
-	}
-	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as " +
-				"*mysql.secureAllInOneInstanceDetails",
-		)
-	}
-	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*mysql.AllInOneProvisioningParameters",
-		)
-	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	var err error
-	if dt.ServerName, err = getAvailableServerName(
+
+	serverName, err := getAvailableServerName(
 		ctx,
 		a.checkNameAvailabilityClient,
-	); err != nil {
+	)
+	if err != nil {
 		return nil, nil, err
 	}
-	sdt.AdministratorLoginPassword = generate.NewPassword()
-	dt.DatabaseName = generate.NewIdentifier()
-
+	pp := allInOneProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
+	}
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	switch sslEnforcement {
-	case "", enabled:
-		dt.EnforceSSL = true
-	case disabled:
-		dt.EnforceSSL = false
+	var enforceSSL bool
+	if sslEnforcement == "" || sslEnforcement == enabled {
+		enforceSSL = true
+	}
+	dt := allInOneInstanceDetails{
+		dbmsInstanceDetails: dbmsInstanceDetails{
+			ARMDeploymentName: uuid.NewV4().String(),
+			ServerName:        serverName,
+			EnforceSSL:        enforceSSL,
+		},
+		DatabaseName: generate.NewIdentifier(),
 	}
 
-	return dt, sdt, nil
+	sdt := secureAllInOneInstanceDetails{
+		secureDBMSInstanceDetails: secureDBMSInstanceDetails{
+			AdministratorLoginPassword: generate.NewPassword(),
+		},
+	}
+
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
 }
 
 func (a *allInOneManager) buildARMTemplateParameters(
 	plan service.Plan,
-	details *allInOneInstanceDetails,
-	secureDetails *secureAllInOneInstanceDetails,
+	details allInOneInstanceDetails,
+	secureDetails secureAllInOneInstanceDetails,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -117,25 +112,18 @@ func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *mysql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as " +
-				"*mysql.secureAllInOneInstanceDetails",
-		)
+	sdt := secureAllInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
-	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*mysql.AllInOneProvisioningParameters",
-		)
+	pp := allInOneProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
 	}
 	armTemplateParameters := a.buildARMTemplateParameters(
 		instance.Plan,
@@ -143,7 +131,7 @@ func (a *allInOneManager) deployARMTemplate(
 		sdt,
 	)
 	goTemplateParameters :=
-		buildGoTemplateParameters(&pp.DBMSProvisioningParameters)
+		buildGoTemplateParameters(pp.dbmsProvisioningParameters)
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
@@ -157,14 +145,15 @@ func (a *allInOneManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	var ok bool
+	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, instance.SecureDetails, err
 }

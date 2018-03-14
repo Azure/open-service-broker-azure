@@ -1,8 +1,6 @@
 package mysql
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -10,24 +8,17 @@ func (a *allInOneManager) Unbind(
 	instance service.Instance,
 	binding service.Binding,
 ) error {
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Details as *mysql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return err
 	}
-	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.SecureDetails as " +
-				"*mysql.secureAllInOneInstanceDetails",
-		)
+	sdt := secureAllInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return err
 	}
-	bc, ok := binding.Details.(*bindingDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting binding.Details as *mysql.bindingDetails",
-		)
+	bd := bindingDetails{}
+	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
+		return err
 	}
 
 	return unbind(
@@ -37,6 +28,6 @@ func (a *allInOneManager) Unbind(
 		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
-		bc,
+		bd,
 	)
 }

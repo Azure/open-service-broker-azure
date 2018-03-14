@@ -1,8 +1,6 @@
 package mysql
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -10,30 +8,23 @@ func (d *databaseManager) Unbind(
 	instance service.Instance,
 	binding service.Binding,
 ) error {
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Parent.Details as *mysql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return err
 	}
-	spdt, ok := instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Parent.SecureDetails as " +
-				"*mysql.secureDBMSInstanceDetails",
-		)
+	spdt := secureDBMSInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
+		return err
 	}
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Details as *mysql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return err
 	}
-	bc, ok := binding.Details.(*bindingDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting binding.Details as *mysql.bindingDetails",
-		)
+	bd := bindingDetails{}
+	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
+		return err
 	}
 
 	return unbind(
@@ -43,6 +34,6 @@ func (d *databaseManager) Unbind(
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,
-		bc,
+		bd,
 	)
 }
