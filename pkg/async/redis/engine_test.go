@@ -253,7 +253,7 @@ func TestRunBlocksUntilExecuteTasksSendsError(t *testing.T) {
 	}
 }
 
-func TestRunBlocksUntilReceiveDeferredTasksSendError(t *testing.T) {
+func TestRunBlocksUntilReceiveDeferredTasksSendsError(t *testing.T) {
 	e := getTestEngine()
 
 	// Override the engine's clean function so it just communicates when the
@@ -323,33 +323,28 @@ func TestRunBlocksUntilReceiveDeferredTasksSendError(t *testing.T) {
 	}
 }
 
-func TestRunBlocksUntilWatchDeferredTaskSendsError(t *testing.T) {
+func TestRunBlocksUntilWatchDeferredTasksSendsError(t *testing.T) {
 	e := getTestEngine()
 
-	// Override the engine's receiveDeferredTasks function so it just sends a
-	// result (to trigger the logic that spawns a new deferred task watcher) and
-	// then blocks until the context it was passed is canceled, which it will
-	// communicate
+	// Override the engine's clean function so it just communicates when the
+	// context it was passed has been canceled
 	contextCanceledCh := make(chan struct{})
-	e.receiveDeferredTasks = func(
+	e.clean = func(
 		ctx context.Context,
 		_ string,
 		_ string,
-		retCh chan []byte,
-		_ chan error,
-	) {
-		select {
-		case retCh <- []byte{}: // A dummy value is fine
-		case <-ctx.Done():
-		}
-		close(contextCanceledCh)
+		_ string,
+		_ time.Duration,
+	) error {
 		<-ctx.Done()
+		close(contextCanceledCh)
+		return ctx.Err()
 	}
 
-	// Override the engine's watchDeferredTask function so it just sends an error
-	e.watchDeferredTask = func(
+	// Override the engine's watchDeferredTasks function so it just sends an error
+	e.watchDeferredTasks = func(
 		ctx context.Context,
-		_ []byte,
+		_ chan []byte,
 		_ string,
 		errCh chan error,
 	) {
@@ -443,6 +438,8 @@ func getTestEngine() *engine {
 	config := NewConfigWithDefaults()
 	config.RedisHost = "redis"
 	config.RedisDB = 1
+	config.PendingTaskWorkerCount = 1
+	config.DeferedTaskWatcherCount = 1
 	e := NewEngine(config).(*engine)
 	// Cleaner loop
 	e.clean = func(
@@ -491,9 +488,9 @@ func getTestEngine() *engine {
 		<-ctx.Done()
 	}
 	// Deferred task watcher
-	e.watchDeferredTask = func(
+	e.watchDeferredTasks = func(
 		ctx context.Context,
-		_ []byte,
+		_ chan []byte,
 		_ string,
 		errCh chan error,
 	) {
