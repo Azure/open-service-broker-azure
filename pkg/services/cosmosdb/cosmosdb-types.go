@@ -34,7 +34,9 @@ func (
 	return &cosmosdbSecureInstanceDetails{}
 }
 
-func (c *cosmosAccountManager) GetEmptyBindingParameters() service.BindingParameters {
+func (
+	c *cosmosAccountManager,
+) GetEmptyBindingParameters() service.BindingParameters {
 	return nil
 }
 
