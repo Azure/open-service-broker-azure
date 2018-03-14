@@ -157,7 +157,7 @@ func (s *ServiceManager) GetCredentials(
 	service.Instance,
 	service.Binding,
 ) (service.Credentials, error) {
-	return &Credentials{}, nil
+	return nil, nil
 }
 
 // Unbind synchronously unbinds from a service
@@ -207,7 +207,7 @@ func defaultBindBehavior(
 	service.Instance,
 	service.BindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return &BindingDetails{}, &SecureBindingDetails{}, nil
+	return nil, nil, nil
 }
 
 func defaultUnbindBehavior(

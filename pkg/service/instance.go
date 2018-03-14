@@ -38,33 +38,16 @@ type Instance struct {
 // JSON []byte
 func NewInstanceFromJSON(
 	jsonBytes []byte,
-	pp ProvisioningParameters,
-	spp SecureProvisioningParameters,
-	up ProvisioningParameters,
-	sup SecureProvisioningParameters,
-	dt InstanceDetails,
-	sdt InstanceDetails,
 	codec crypto.Codec,
 ) (Instance, error) {
 	instance := Instance{
-		ProvisioningParameters:       pp,
-		SecureProvisioningParameters: spp,
-		UpdatingParameters:           up,
-		SecureUpdatingParameters:     sup,
-		Details:                      dt,
-		SecureDetails:                sdt,
+		SecureProvisioningParameters: SecureProvisioningParameters{},
+		SecureUpdatingParameters:     SecureProvisioningParameters{},
+		Details:                      InstanceDetails{},
+		SecureDetails:                SecureInstanceDetails{},
 	}
 	if err := json.Unmarshal(jsonBytes, &instance); err != nil {
 		return instance, err
-	}
-	if instance.ProvisioningParameters == nil {
-		instance.ProvisioningParameters = pp
-	}
-	if instance.UpdatingParameters == nil {
-		instance.UpdatingParameters = up
-	}
-	if instance.Details == nil {
-		instance.Details = dt
 	}
 	return instance.decrypt(codec)
 }
@@ -145,7 +128,7 @@ func (i Instance) decryptSecureProvisioningParameters(
 	if err != nil {
 		return i, err
 	}
-	return i, json.Unmarshal(plaintext, i.SecureProvisioningParameters)
+	return i, json.Unmarshal(plaintext, &i.SecureProvisioningParameters)
 }
 
 func (i Instance) decryptSecureUpdatingParameters(
@@ -159,7 +142,7 @@ func (i Instance) decryptSecureUpdatingParameters(
 	if err != nil {
 		return i, err
 	}
-	return i, json.Unmarshal(plaintext, i.SecureUpdatingParameters)
+	return i, json.Unmarshal(plaintext, &i.SecureUpdatingParameters)
 }
 
 func (i Instance) decryptSecureDetails(codec crypto.Codec) (Instance, error) {
@@ -171,5 +154,5 @@ func (i Instance) decryptSecureDetails(codec crypto.Codec) (Instance, error) {
 	if err != nil {
 		return i, err
 	}
-	return i, json.Unmarshal(plaintext, i.SecureDetails)
+	return i, json.Unmarshal(plaintext, &i.SecureDetails)
 }

@@ -19,18 +19,16 @@ import (
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
 type serviceLifecycleTestCase struct {
-	module                       service.Module
-	description                  string
-	serviceID                    string
-	planID                       string
-	location                     string
-	provisioningParameters       service.ProvisioningParameters
-	secureProvisioningParameters service.SecureProvisioningParameters
-	parentServiceInstance        *service.Instance
-	childTestCases               []*serviceLifecycleTestCase
-	bindingParameters            service.BindingParameters
-	secureBindingParameters      service.SecureBindingParameters
-	testCredentials              func(credentials service.Credentials) error
+	module                 service.Module
+	description            string
+	serviceID              string
+	planID                 string
+	location               string
+	provisioningParameters service.CombinedProvisioningParameters
+	parentServiceInstance  *service.Instance
+	childTestCases         []*serviceLifecycleTestCase
+	bindingParameters      service.CombinedBindingParameters
+	testCredentials        func(credentials map[string]interface{}) error
 }
 
 func (s serviceLifecycleTestCase) getName() string {
@@ -93,11 +91,13 @@ func (s serviceLifecycleTestCase) execute(
 
 	serviceManager := svc.GetServiceManager()
 
-	err = serviceManager.ValidateProvisioningParameters(
-		s.provisioningParameters,
-		s.secureProvisioningParameters,
-	)
+	pp, spp, err :=
+		serviceManager.SplitProvisioningParameters(s.provisioningParameters)
 	if err != nil {
+		return err
+	}
+
+	if err = serviceManager.ValidateProvisioningParameters(pp, spp); err != nil {
 		return err
 	}
 
@@ -111,10 +111,8 @@ func (s serviceLifecycleTestCase) execute(
 		// Force the resource group to be something known to this test executor
 		// to ensure good cleanup
 		ResourceGroup:                resourceGroup,
-		Details:                      serviceManager.GetEmptyInstanceDetails(),
-		SecureDetails:                serviceManager.GetEmptySecureInstanceDetails(), // nolint: lll
-		ProvisioningParameters:       s.provisioningParameters,
-		SecureProvisioningParameters: s.secureProvisioningParameters,
+		ProvisioningParameters:       pp,
+		SecureProvisioningParameters: spp,
 		Parent: s.parentServiceInstance,
 	}
 
@@ -155,14 +153,19 @@ func (s serviceLifecycleTestCase) execute(
 
 	//Only test the binding operations if the service is bindable
 	if svc.IsBindable() {
+		var bp service.BindingParameters
+		var sbp service.SecureBindingParameters
+		bp, sbp, err = serviceManager.SplitBindingParameters(s.bindingParameters)
+		if err != nil {
+			return err
+		}
+
 		// Bind
-		bd, sbd, bErr := serviceManager.Bind(
-			instance,
-			s.bindingParameters,
-			s.secureBindingParameters,
-		)
-		if bErr != nil {
-			return bErr
+		var bd service.BindingDetails
+		var sbd service.SecureBindingDetails
+		bd, sbd, err = serviceManager.Bind(instance, bp, sbp)
+		if err != nil {
+			return err
 		}
 
 		binding := service.Binding{
@@ -170,23 +173,29 @@ func (s serviceLifecycleTestCase) execute(
 			SecureDetails: sbd,
 		}
 
-		credentials, bErr := serviceManager.GetCredentials(instance, binding)
-		if bErr != nil {
-			return bErr
+		var credentials service.Credentials
+		credentials, err = serviceManager.GetCredentials(instance, binding)
+		if err != nil {
+			return err
+		}
+
+		// Convert the credentials to a map
+		var credsMap map[string]interface{}
+		credsMap, err = service.GetMapFromStruct(credentials)
+		if err != nil {
+			return err
 		}
 
 		// Test the credentials
 		if s.testCredentials != nil {
-			bErr = s.testCredentials(credentials)
-			if bErr != nil {
-				return bErr
+			if err := s.testCredentials(credsMap); err != nil {
+				return err
 			}
 		}
 
 		// Unbind
-		bErr = serviceManager.Unbind(instance, binding)
-		if bErr != nil {
-			return bErr
+		if err = serviceManager.Unbind(instance, binding); err != nil {
+			return err
 		}
 	}
 
@@ -201,9 +210,9 @@ func (s serviceLifecycleTestCase) execute(
 			subTestName = strings.Replace(test.description, " ", "_", -1)
 		}
 		t.Run(subTestName, func(t *testing.T) {
-			tErr := test.execute(t, resourceGroup)
+			err = test.execute(t, resourceGroup)
 			//This will fail this subtest, but also the parent lifecycle test
-			assert.Nil(t, tErr)
+			assert.Nil(t, err)
 		})
 	}
 
