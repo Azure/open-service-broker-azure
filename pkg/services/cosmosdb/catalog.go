@@ -9,10 +9,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			service.NewService(
 				&service.ServiceProperties{
 					ID:   "6330de6f-a561-43ea-a15e-b99f44d183e6",
-					Name: "azure-cosmos-db",
+					Name: "azure-cosmos-db-sql",
 					Description: "Azure Cosmos DB is a globally distributed, " +
-						"multi-model database service accessible via SQL, " +
-						"Gremlin (Graph), and Table (Key-Value) APIs",
+						"multi-model database service. This service provides access via the SQL API ",
 					Metadata: &service.ServiceMetadata{
 						DisplayName: "Azure Cosmos DB",
 						ImageUrl: "https://azure.microsoft.com/svghandler/cosmos-db/" +
