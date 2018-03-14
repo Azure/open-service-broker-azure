@@ -1,8 +1,6 @@
 package mssql
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -20,30 +18,19 @@ func (d *databaseManager) Bind(
 	_ service.BindingParameters,
 	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mssql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	// Parent should be set by the framework, but return an error if it is not
-	// set.
-	if instance.Parent == nil {
-		return nil, nil, fmt.Errorf("parent instance not set")
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, nil, err
 	}
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.Details as *mssql.dbmsInstanceDetails",
-		)
-	}
-	spdt, ok := instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.SecureDetails as " +
-				"*mssql.secureDBMSInstanceDetails",
-		)
+	spdt := secureDBMSInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
+		return nil, nil, err
 	}
 	return bind(
 		pdt.AdministratorLogin,
@@ -57,29 +44,22 @@ func (d *databaseManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
 	}
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Parent.Details as *mssql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, err
 	}
-	bd, ok := binding.Details.(*bindingDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting binding.Details as *mssql.bindingDetails",
-		)
+	bd := bindingDetails{}
+	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
+		return nil, err
 	}
-	sbd, ok := binding.SecureDetails.(*secureBindingDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting binding.SecureDetails as *mssql.secureBindingDetails",
-		)
+	sbd := secureBindingDetails{}
+	if err := service.GetStructFromMap(binding.SecureDetails, &sbd); err != nil {
+		return nil, err
 	}
 
 	creds := createCredential(
