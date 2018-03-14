@@ -23,11 +23,9 @@ func (d *dbmsManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *postgresql.dbmsInstanceDetails",
-		)
+	dt := dbmsInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -35,7 +33,7 @@ func (d *dbmsManager) deleteARMDeployment(
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (d *dbmsManager) deletePostgreSQLServer(
@@ -44,11 +42,9 @@ func (d *dbmsManager) deletePostgreSQLServer(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *postgresql.dbmsInstanceDetails",
-		)
+	dt := dbmsInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	result, err := d.serversClient.Delete(
 		ctx,
@@ -61,5 +57,5 @@ func (d *dbmsManager) deletePostgreSQLServer(
 	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
