@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"crypto/tls"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
@@ -45,12 +46,24 @@ type store struct {
 
 // NewStore returns a new Redis-based implementation of the Store interface
 func NewStore(
-	redisClient *redis.Client,
 	catalog service.Catalog,
 	codec crypto.Codec,
+	config Config,
 ) Store {
+	redisOpts := &redis.Options{
+		Addr:       fmt.Sprintf("%s:%d", config.RedisHost, config.RedisPort),
+		Password:   config.RedisPassword,
+		DB:         config.RedisDB,
+		MaxRetries: 5,
+	}
+	if config.RedisEnableTLS {
+		redisOpts.TLSConfig = &tls.Config{
+			ServerName: config.RedisHost,
+		}
+	}
+
 	return &store{
-		redisClient: redisClient,
+		redisClient: redis.NewClient(redisOpts),
 		catalog:     catalog,
 		codec:       codec,
 	}

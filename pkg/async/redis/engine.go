@@ -18,6 +18,7 @@ type engine struct {
 	jobsFns      map[string]async.JobFn
 	jobsFnsMutex sync.RWMutex
 	redisClient  *redis.Client
+	config       Config
 	// This allows tests to inject an alternative implementation of this function
 	clean cleanFn
 	// This allows tests to inject an alternative implementation of this function
@@ -35,7 +36,7 @@ type engine struct {
 	// This allows tests to inject an alternative implementation of this function
 	executeTasks executeTasksFn
 	// This allows tests to inject an alternative implementation of this function
-	watchDeferredTask watchDeferredTaskFn
+	watchDeferredTasks watchDeferredTasksFn
 }
 
 // NewEngine returns a new Redis-based implementation of the aync.Engine
@@ -57,6 +58,7 @@ func NewEngine(config Config) async.Engine {
 		workerID:    workerID,
 		jobsFns:     make(map[string]async.JobFn),
 		redisClient: redis.NewClient(redisOpts),
+		config:      config,
 	}
 	e.clean = e.defaultClean
 	e.cleanActiveTaskQueue = e.defaultCleanWorkerQueue
@@ -66,7 +68,7 @@ func NewEngine(config Config) async.Engine {
 	e.receivePendingTasks = e.defaultReceiveTasks
 	e.receiveDeferredTasks = e.defaultReceiveTasks
 	e.executeTasks = e.defaultExecuteTasks
-	e.watchDeferredTask = e.defaultWatchDeferredTask
+	e.watchDeferredTasks = e.defaultWatchDeferredTasks
 	return e
 }
 
@@ -165,8 +167,8 @@ func (e *engine) Run(ctx context.Context) error {
 			pendingReceiverRetCh,
 			pendingReceiverErrCh,
 		)
-		// Fan out to 5 executors
-		for range [5]struct{}{} {
+		// Fan out to desired number of workers
+		for i := 0; i < e.config.PendingTaskWorkerCount; i++ {
 			go e.executeTasks(
 				ctx,
 				pendingReceiverRetCh,
@@ -199,22 +201,15 @@ func (e *engine) Run(ctx context.Context) error {
 			deferredReceiverRetCh,
 			deferredReceiverErrCh,
 		)
-		// Fan out to as many watchers as we need
-		go func() {
-			for {
-				select {
-				case taskJSON := <-deferredReceiverRetCh:
-					e.watchDeferredTask(
-						ctx,
-						taskJSON,
-						pendingTaskQueueName,
-						watcherErrCh,
-					)
-				case <-ctx.Done():
-					return
-				}
-			}
-		}()
+		// Fan out to desired number of watchers
+		for i := 0; i < e.config.DeferedTaskWatcherCount; i++ {
+			go e.watchDeferredTasks(
+				ctx,
+				deferredReceiverRetCh,
+				pendingTaskQueueName,
+				watcherErrCh,
+			)
+		}
 		select {
 		case err := <-deferredReceiverErrCh:
 			errCh <- &errReceiverStopped{
