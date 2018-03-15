@@ -109,23 +109,49 @@ forms:
 - name: broker-config-form
   label: Broker Config
   properties:
-  - name: redis_host
+  - name: storage_redis_host
     type: string
-    label: Redis Host
-  - name: redis_password
+    label: Storage Redis Host
+  - name: storage_redis_password
     type: string
-    label: Redis Password
-  - name: redis_port
+    label: Storage Redis Password
+  - name: storage_redis_port
     type: port
-    label: Redis Port
+    label: Storage Redis Port
     default: 6380
-  - name: redis_enable_tls
+  - name: storage_redis_db
+    type: integer
+    label: Storage Redis DB
+    default: 0
+  - name: storage_redis_enable_tls
     type: boolean
-    label: Redis Enable TLS
+    label: Storage Redis Enable TLS
     default: true
-  - name: aes256_key
+  - name: storage_encryption_scheme
+    type: string
+    label: Storage Encryption Scheme
+    default: AES256
+  - name: storage_aes256_key
     type: secret
-    label: AES256 KEY
+    label: Storage AES256 KEY (32 characters)
+  - name: async_redis_host
+    type: string
+    label: Async Redis Host
+  - name: async_redis_password
+    type: string
+    label: Async Redis Password
+  - name: async_redis_port
+    type: port
+    label: Async Redis Port
+    default: 6380
+  - name: async_redis_db
+    type: integer
+    label: Async Redis DB
+    default: 1
+  - name: async_redis_enable_tls
+    type: boolean
+    label: Async Redis Enable TLS
+    default: true
 - name: default-parameters-config-form
   label: Default Parameters Config
   properties:
