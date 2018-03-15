@@ -1,7 +1,6 @@
 # [Azure Search](https://azure.microsoft.com/en-us/services/search/)
 
-|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/50px-Warning.svg.png) | This module is EXPERIMENTAL. It is under heavy development and remains subject to the possibility of breaking changes. |
-|---|---|
+_Note: This module is EXPERIMENTAL and future releases may break the API._
 
 ## Services & Plans
 

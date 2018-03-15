@@ -1,7 +1,6 @@
 # [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/)
 
-|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/50px-Warning.svg.png) | This module is PREVIEW. It is under moderate development, but remains subject to the possibility of breaking changes if they prove necessary. |
-|---|---|
+_Note: this module is PREVIEW. It is under moderate development, but future releases may still break the API._
 
 Open Service Broker for Azure (OSBA) contains three Azure SQL Database services. These services enable you to select the most appropriate provisioning scenario for your needs. These services are:
 
