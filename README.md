@@ -6,12 +6,13 @@
 [Open Service Broker](https://www.openservicebrokerapi.org/)-compatible API
 server that provisions managed services in the Microsoft Azure public cloud.
 
-|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/150px-Warning.svg.png) | This software is under heavy development. Releases observe [semantic versioning](https://semver.org), but the project is in an ALPHA status and no assurances are made regarding backwards compatibility or stability. All releases prior to v1.0.0 will remain subject to the possibility of breaking changes when the MINOR version number has been incremented. Please see the offical [roadmap](docs/roadmap.md) for more information. |
-|---|---|
+_Note: this software is alpha quality. The project uses
+[semantic versioning](https://semver.org)
+release tags, but until `v1.0.0`, all MINOR releases maybe include breaking changes._
 
 ![Open Service Broker for Azure GIF](docs/images/demovideo.gif)
 
-*CLOUD FOUNDRY and OPEN SERVICE BROKER are trademarks of the CloudFoundry.org Foundation in the United States and other countries.*
+_CLOUD FOUNDRY and OPEN SERVICE BROKER are trademarks of the CloudFoundry.org Foundation in the United States and other countries._
 
 ## Supported Services
 
@@ -47,10 +48,10 @@ Got questions? Ran into trouble? Check out our [Frequently Asked Questions](docs
 You'll need a few prerequisites before you run these examples on Kubernetes.
 Instructions on how to install each prerequisite are linked below:
 
-- [A compatible Kubernetes cluster](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-1-create-a-compatible-kubernetes-cluster)
-- [A working Helm installation](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-2-initialize-helm-on-the-cluster)
-- [Service Catalog](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-3-install-service-catalog)
-- [Helm](https://github.com/kubernetes/helm)
+* [A compatible Kubernetes cluster](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-1-create-a-compatible-kubernetes-cluster)
+* [A working Helm installation](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-2-initialize-helm-on-the-cluster)
+* [Service Catalog](https://github.com/Azure/helm-charts/blob/master/docs/prerequisities/README.md#step-3-install-service-catalog)
+* [Helm](https://github.com/kubernetes/helm)
 
 #### Service Catalog CLI
 
