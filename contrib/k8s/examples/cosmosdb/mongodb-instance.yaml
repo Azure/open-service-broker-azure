@@ -4,8 +4,8 @@ metadata:
   name: my-mongodb-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-cosmos-mongo-db
-  clusterServicePlanExternalName: mongo-db
+  clusterServiceClassExternalName: azure-cosmosdb-mongo-account
+  clusterServicePlanExternalName: account
   parameters:
     location: eastus
     resourceGroup: demo

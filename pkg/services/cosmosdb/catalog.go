@@ -8,11 +8,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 			service.NewService(
 				&service.ServiceProperties{
-					ID:   "6330de6f-a561-43ea-a15e-b99f44d183e6",
-					Name: "azure-cosmos-db-sql",
-					Description: "Azure Cosmos DB is a globally distributed, " +
-						"multi-model database service. This service provides access " +
-						"via the SQL API.",
+					ID:          "6330de6f-a561-43ea-a15e-b99f44d183e6",
+					Name:        "azure-cosmosdb-sql-account",
+					Description: "Azure Cosmos DB Database Account (SQL API)",
 					Metadata: &service.ServiceMetadata{
 						DisplayName: "Azure Cosmos DB",
 						ImageUrl: "https://azure.microsoft.com/svghandler/cosmos-db/" +
@@ -32,22 +30,19 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				m.cosmosAccountManager,
 				service.NewPlan(&service.PlanProperties{
 					ID:          "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
-					Name:        "cosmos-db-sql-api",
-					Description: "Creates a Database Account with the SQL API",
+					Name:        "account",
+					Description: "Database Account with the SQL API",
 					Free:        false,
-					Extended: map[string]interface{}{
-						kindKey: databaseKindGlobalDocumentDB,
-					},
 					Metadata: &service.ServicePlanMetadata{
-						DisplayName: "Azure DocumentDB",
+						DisplayName: "Azure CosmosDB (SQL API)",
 					},
 				}),
 			),
 			service.NewService(
 				&service.ServiceProperties{
 					ID:          "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
-					Name:        "azure-cosmos-mongo-db",
-					Description: "MongoDB on Azure (Experimental) provided by CosmosDB",
+					Name:        "azure-cosmosdb-mongo-account",
+					Description: "Azure Cosmos DB Database Account (MongoDB API)",
 					Metadata: &service.ServiceMetadata{
 						DisplayName: "Azure Cosmos DB (MongoDB)",
 						ImageUrl: "https://azure.microsoft.com/svghandler/cosmos-db/" +
@@ -67,12 +62,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				m.mongoAccountManager,
 				service.NewPlan(&service.PlanProperties{
 					ID:          "86fdda05-78d7-4026-a443-1325928e7b02",
-					Name:        "mongo-db",
-					Description: "Creates a Database Account with the MongoDB API",
+					Name:        "account",
+					Description: "Database Account with the MongoDB API",
 					Free:        false,
-					Extended: map[string]interface{}{
-						kindKey: databaseKindMongoDB,
-					},
 					Metadata: &service.ServicePlanMetadata{
 						DisplayName: "Azure MongoDB",
 					},

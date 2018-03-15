@@ -50,8 +50,7 @@ func (m *mongoAccountManager) deployARMTemplate(
 			"error casting instance.SecureDetails as *cosmosdbSecureInstanceDetails",
 		)
 	}
-	plan := instance.Plan
-	dt.DatabaseKind, ok = plan.GetProperties().Extended[kindKey].(databaseKind)
+	dt.DatabaseKind = "MongoDB"
 	if !ok {
 		return nil, nil, errors.New(
 			"error retrieving the kind from deployment",
@@ -66,7 +65,7 @@ func (m *mongoAccountManager) deployARMTemplate(
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
 			"name": dt.DatabaseAccountName,
-			"kind": plan.GetProperties().Extended[kindKey],
+			"kind": dt.DatabaseKind,
 		},
 		instance.Tags,
 	)

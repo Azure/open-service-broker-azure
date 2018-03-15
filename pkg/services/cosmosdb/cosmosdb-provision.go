@@ -48,13 +48,7 @@ func (c *cosmosAccountManager) deployARMTemplate(
 			"error casting instance.SecureDetails as *cosmosdbSecureInstanceDetails",
 		)
 	}
-	plan := instance.Plan
-	dt.DatabaseKind, ok = plan.GetProperties().Extended[kindKey].(databaseKind)
-	if !ok {
-		return nil, nil, errors.New(
-			"error retrieving the kind from deployment",
-		)
-	}
+	dt.DatabaseKind = "GlobalDocumentDB"
 
 	outputs, err := c.armDeployer.Deploy(
 		dt.ARMDeploymentName,
@@ -64,7 +58,7 @@ func (c *cosmosAccountManager) deployARMTemplate(
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
 			"name": dt.DatabaseAccountName,
-			"kind": plan.GetProperties().Extended[kindKey],
+			"kind": dt.DatabaseKind,
 		},
 		instance.Tags,
 	)

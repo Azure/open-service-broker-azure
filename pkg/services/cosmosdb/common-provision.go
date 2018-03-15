@@ -9,22 +9,24 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func generateDatabaseName(location string) string {
-	databaseName := uuid.NewV4().String()
-	// CosmosDB currently limits database name to 50 characters,
+func generateAccountName(location string) string {
+	databaseAccountName := uuid.NewV4().String()
+	// CosmosDB currently limits database account names to 50 characters,
 	// which includes location and a - character. Check if we will
 	// exceed this and generate a shorter random identifier if needed.
-	effectiveNameLength := len(location) + len(databaseName)
+	effectiveNameLength := len(location) + len(databaseAccountName)
 	if effectiveNameLength > 49 {
 		nameLength := 49 - len(location)
-		databaseName = generate.NewIdentifierOfLength(nameLength)
+		databaseAccountName = generate.NewIdentifierOfLength(nameLength)
 		logFields := log.Fields{
-			"name":   databaseName,
-			"length": len(databaseName),
+			"name":   databaseAccountName,
+			"length": len(databaseAccountName),
 		}
-		log.WithFields(logFields).Debug("returning fallback database name")
+		log.WithFields(logFields).Debug(
+			"returning fallback database account name",
+		)
 	}
-	return databaseName
+	return databaseAccountName
 }
 
 func preProvision(
@@ -37,6 +39,6 @@ func preProvision(
 		)
 	}
 	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.DatabaseAccountName = generateDatabaseName(instance.Location)
+	dt.DatabaseAccountName = generateAccountName(instance.Location)
 	return dt, instance.SecureDetails, nil
 }
