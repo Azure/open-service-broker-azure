@@ -35,7 +35,7 @@ an individual service, or subset of service at one time.
 
 # Service Stability and OSBA Version
 
-We tie service stability changes to OSBA version changes according to the
+We correlate service stability changes to OSBA version changes according to the
 following rules:
 
 * If a service stability goes from `experimental` to `preview`, a semver MINOR
@@ -44,5 +44,7 @@ following rules:
   or MAJOR release must happen
 * If a service stability goes from `preview` to `experimental`, a semver
   MINOR or MAJOR release must happen
-* If a service stability goes from `stable` to `preview` or `experimental`,
-  a semver MAJOR release must happen (this is a breaking change)
+* If any service's stability goes "down" (from `stable` to `preview` or
+  `experimental`, or from `preview` to `experimental`), a MAJOR release must
+  happen (this would be a breaking change)
+  * Downgrading a service's stability will be rare
