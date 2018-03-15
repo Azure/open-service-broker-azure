@@ -6,7 +6,11 @@
 [Open Service Broker](https://www.openservicebrokerapi.org/)-compatible API
 server that provisions managed services in the Microsoft Azure public cloud.
 
+<<<<<<< HEAD
 _Note: this software is alpha quality. The project uses
+=======
+_Note: This software is alpha quality. The project uses
+>>>>>>> Adding missing line
 [semantic versioning](https://semver.org)
 release tags, but until `v1.0.0`, all MINOR releases maybe include breaking changes._
 
