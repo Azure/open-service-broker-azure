@@ -1,40 +1,39 @@
-package config
+package crypto
 
 import (
 	"errors"
 	"fmt"
 	"strings"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/kelseyhightower/envconfig"
 )
 
-// CryptoConfig represents details (e.g. key) for encrypting and decrypting any
+// Config represents details (e.g. key) for encrypting and decrypting any
 // (potentially) sensitive information
-type CryptoConfig interface {
+type Config interface {
 	GetEncryptionScheme() string
 	GetAES256Key() string
 }
 
-type cryptoConfig struct {
+type config struct {
 	EncryptionScheme string `envconfig:"ENCRYPTION_SCHEME" default:"AES256"`
 	AES256Key        string `envconfig:"AES256_KEY"`
 }
 
-// GetCryptoConfig returns crypto configuration
-func GetCryptoConfig() (CryptoConfig, error) {
-	cc := cryptoConfig{}
+// GetConfig returns crypto configuration
+func GetConfig() (Config, error) {
+	cc := config{}
 	err := envconfig.Process("", &cc)
 	cc.EncryptionScheme = strings.ToUpper(cc.EncryptionScheme)
 	switch cc.EncryptionScheme {
-	case crypto.AES256:
+	case AES256:
 		if cc.AES256Key == "" {
 			return cc, errors.New("AES256_KEY was not specified")
 		}
 		if len(cc.AES256Key) != 32 {
 			return cc, errors.New("AES256_KEY is an invalid length")
 		}
-	case crypto.NOOP:
+	case NOOP:
 	default:
 		return cc, fmt.Errorf(
 			`unrecognized ENCRYPTION_SCHEME "%s"`,
@@ -44,10 +43,10 @@ func GetCryptoConfig() (CryptoConfig, error) {
 	return cc, err
 }
 
-func (c cryptoConfig) GetEncryptionScheme() string {
+func (c config) GetEncryptionScheme() string {
 	return c.EncryptionScheme
 }
 
-func (c cryptoConfig) GetAES256Key() string {
+func (c config) GetAES256Key() string {
 	return c.AES256Key
 }

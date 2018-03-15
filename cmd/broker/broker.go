@@ -2,25 +2,27 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
-	"fmt"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/Azure/open-service-broker-azure/pkg/api"
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
+	async "github.com/Azure/open-service-broker-azure/pkg/async/redis"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
-	"github.com/Azure/open-service-broker-azure/pkg/config"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
+	brokerLog "github.com/Azure/open-service-broker-azure/pkg/log"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
-	"github.com/go-redis/redis"
 )
 
 func main() {
@@ -37,7 +39,7 @@ func main() {
 		FullTimestamp: true,
 	}
 	log.SetFormatter(formatter)
-	logConfig, err := config.GetLogConfig()
+	logConfig, err := brokerLog.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,13 +51,22 @@ func main() {
 	).Info("Setting log level")
 	log.SetLevel(logLevel)
 
-	azureConfig, err := config.GetAzureConfig()
+	azureConfig, err := azure.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Initialize modules
-	if err = initModules(azureConfig); err != nil {
+	// Initialize catalog
+	modulesConfig, err := service.GetModulesConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	modules, err := getModules(modulesConfig, azureConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	catalog, err := getCatalog(modules)
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -66,44 +77,8 @@ func main() {
 		},
 	).Info("Open Service Broker for Azure starting")
 
-	// Redis clients
-	redisConfig, err := config.GetRedisConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	storageRedisOpts := &redis.Options{
-		Addr: fmt.Sprintf(
-			"%s:%d",
-			redisConfig.GetHost(),
-			redisConfig.GetPort(),
-		),
-		Password:   redisConfig.GetPassword(),
-		DB:         redisConfig.GetStorageDB(),
-		MaxRetries: 5,
-	}
-	asyncRedisOpts := &redis.Options{
-		Addr: fmt.Sprintf(
-			"%s:%d",
-			redisConfig.GetHost(),
-			redisConfig.GetPort(),
-		),
-		Password:   redisConfig.GetPassword(),
-		DB:         redisConfig.GetAsyncDB(),
-		MaxRetries: 5,
-	}
-	if redisConfig.IsTLSEnabled() {
-		storageRedisOpts.TLSConfig = &tls.Config{
-			ServerName: redisConfig.GetHost(),
-		}
-		asyncRedisOpts.TLSConfig = &tls.Config{
-			ServerName: redisConfig.GetHost(),
-		}
-	}
-	storageRedisClient := redis.NewClient(storageRedisOpts)
-	asyncRedisClient := redis.NewClient(asyncRedisOpts)
-
 	// Crypto
-	cryptoConfig, err := config.GetCryptoConfig()
+	cryptoConfig, err := crypto.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -126,8 +101,22 @@ func main() {
 		)
 	}
 
+	// Storage
+	storageConfig, err := storage.GetConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	store := storage.NewStore(catalog, codec, storageConfig)
+
+	// Async
+	asyncConfig, err := async.GetConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	asyncEngine := async.NewEngine(asyncConfig)
+
 	// Assemble the filter chain
-	basicAuthConfig, err := config.GetBasicAuthConfig()
+	basicAuthConfig, err := api.GetBasicAuthConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -139,19 +128,12 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	modulesConfig, err := config.GetModulesConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Create broker
 	broker, err := broker.NewBroker(
-		storageRedisClient,
-		asyncRedisClient,
-		codec,
+		store,
+		asyncEngine,
 		filterChain,
-		modules,
-		modulesConfig.GetMinStability(),
+		catalog,
 		azureConfig.GetDefaultLocation(),
 		azureConfig.GetDefaultResourceGroup(),
 	)
