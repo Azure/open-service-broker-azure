@@ -15,9 +15,11 @@ See below for more information concerning stability plans for each.
 
 As services are developed, the plans available and features of the service may change and are not guaranteed to exist in the final stable release. When a service is promoted to stable, we will ensure backward compatibility. Services/Plans have three stability tiers:
 
-- `experimental` - We have an idea for a new service that we want to support, but don't have a good idea how it should look. We are essentially “throwing something against the wall” to see if it'll stick. Experimental services may be radically changed or removed at any time
-- `preview` - We have a better understanding how a service should look, but we don't yet guarantee backward compatibility. We do guarantee that this service won't go back to `experimental`, so we are committing to making it exist in some shape or form
-- `stable` - We now understand usage patterns of the service very well and we guarantee full backward compatibility
+- `experimental`
+- `preview`
+- `stable`
+
+Please see [stability documentation](./docs/stability.md) for information on each of these tiers.
 
 Here are our timelines for service stabilities:
 

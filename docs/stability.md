@@ -1,0 +1,48 @@
+# OSBA Versions and Module Stability
+
+OSBA has an overall stability, defined by its release version, which is
+based on [semver](https://semver.org/), but each of its
+[services](/README.md#supported-services) also has a stability label.
+
+# Overall Stability and OSBA Version
+
+We version OSBA generally via its release version to indicate its overall
+stability. Generally, this includes how well it's tested, its stability in the wild,
+how many people using it, bug reports, and more.
+
+But when we increase a semver MAJOR, MINOR or PATCH version, we also take into
+account if any modules change in stability. Read on for how this works.
+
+# Service Stability
+
+We indicate a stability for each service in the OSBA catalog and docs to
+indicate how mature it is. Each service may have a different stability:
+
+* `experimental` - We have an idea for a new service that we want to support,
+  but don't have a good idea how it should look. We are essentially
+  “throwing something against the wall” to see if it'll stick. Experimental
+  services may be radically changed or removed at any time
+* `preview` - We have a better understanding how a service should look, but we
+  don't yet guarantee backward compatibility. We do guarantee that this service
+  won't go back to `experimental`, so we are committing to making it exist in
+  some shape or form
+* `stable` - We now understand usage patterns of the service very well and we
+  guarantee full backward compatibility
+
+We've added these stability labels so that service can move freely and
+independently across semver releases, which is important so we can improve
+an individual service, or subset of service at one time.
+
+# Service Stability and OSBA Version
+
+We tie service stability changes to OSBA version changes according to the
+following rules:
+
+* If a service stability goes from `experimental` to `preview`, a semver MINOR
+  or MAJOR release must happen
+* If a service stability goes from `preview` to `stable`, a semver MINOR
+  or MAJOR release must happen
+* If a service stability goes from `preview` to `experimental`, a semver
+  MINOR or MAJOR release must happen
+* If a service stability goes from `stable` to `preview` or `experimental`,
+  a semver MAJOR release must happen (this is a breaking change)
