@@ -1,8 +1,6 @@
 package eventhubs
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -20,22 +18,14 @@ func (s *serviceManager) Bind(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return &eventHubBindingDetails{}, &eventHubSecureBindingDetails{}, nil
+	return nil, nil, nil
 }
 
 func (s *serviceManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	sdt, ok := instance.SecureDetails.(*eventHubSecureInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.SecureDetails as *eventHubSecureInstanceDetails",
-		)
-	}
-	return &Credentials{
-			ConnectionString: sdt.ConnectionString,
-			PrimaryKey:       sdt.PrimaryKey,
-		},
-		nil
+	// In this particular case, we can just return the secure details because
+	// its fields do not differ at all from the credentials we wish to return.
+	return instance.SecureDetails, nil
 }

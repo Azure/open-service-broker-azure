@@ -21,11 +21,9 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*eventHubInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *eventHubInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	if err := s.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -33,7 +31,7 @@ func (s *serviceManager) deleteARMDeployment(
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (s *serviceManager) deleteNamespace(
@@ -42,11 +40,9 @@ func (s *serviceManager) deleteNamespace(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*eventHubInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *eventHubInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	result, err := s.namespacesClient.Delete(
 		ctx,
@@ -61,10 +57,9 @@ func (s *serviceManager) deleteNamespace(
 		s.namespacesClient.Client,
 	); err != nil {
 		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
-		if strings.Contains(err.Error(), "StatusCode=404") {
-			return dt, instance.SecureDetails, nil
+		if !strings.Contains(err.Error(), "StatusCode=404") {
+			return nil, nil, fmt.Errorf("error deleting event hub namespace: %s", err)
 		}
-		return nil, nil, fmt.Errorf("error deleting event hub namespace: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }

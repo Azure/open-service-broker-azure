@@ -2,7 +2,6 @@ package eventhubs
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -27,36 +26,29 @@ func (s *serviceManager) GetProvisioner(
 }
 
 func (s *serviceManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*eventHubInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *eventHubInstanceDetails",
-		)
+	dt := instanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		EventHubName:      uuid.NewV4().String(),
+		EventHubNamespace: "eh-" + uuid.NewV4().String(),
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.EventHubName = uuid.NewV4().String()
-	dt.EventHubNamespace = "eh-" + uuid.NewV4().String()
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, nil, err
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*eventHubInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *eventHubInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*eventHubSecureInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *eventHubSecureInstanceDetails",
-		)
+	sdt := secureInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
 	outputs, err := s.armDeployer.Deploy(
 		dt.ARMDeploymentName,
@@ -76,23 +68,23 @@ func (s *serviceManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	connectionString, ok := outputs["connectionString"].(string)
+	var ok bool
+	sdt.ConnectionString, ok = outputs["connectionString"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving connection string from deployment: %s",
 			err,
 		)
 	}
-	sdt.ConnectionString = connectionString
 
-	primaryKey, ok := outputs["primaryKey"].(string)
+	sdt.PrimaryKey, ok = outputs["primaryKey"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving primary key from deployment: %s",
 			err,
 		)
 	}
-	sdt.PrimaryKey = primaryKey
 
-	return dt, sdt, nil
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return instance.Details, sdtMap, err
 }
