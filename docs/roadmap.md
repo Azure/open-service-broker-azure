@@ -19,7 +19,7 @@ As services are developed, the plans available and features of the service may c
 - `preview`
 - `stable`
 
-Please see [stability documentation](./docs/stability.md) for information on each of these tiers.
+Please see [stability documentation](stability.md) for information on each of these tiers.
 
 Here are our timelines for service stabilities:
 
