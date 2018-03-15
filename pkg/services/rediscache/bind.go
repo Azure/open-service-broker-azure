@@ -1,8 +1,6 @@
 package rediscache
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -20,26 +18,22 @@ func (s *serviceManager) Bind(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return &redisBindingDetails{}, &redisSecureBindingDetails{}, nil
+	return nil, nil, nil
 }
 
 func (s *serviceManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*redisInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Details as *redisInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*redisSecureInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.SecureDetails as *redisSecureInstanceDetails",
-		)
+	sdt := secureInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, err
 	}
-	return &Credentials{
+	return credentials{
 		Host:     dt.FullyQualifiedDomainName,
 		Password: sdt.PrimaryKey,
 		Port:     6379,
