@@ -22,20 +22,12 @@ func (c *cosmosAccountManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	err := deleteARMDeployment(c.armDeployer, instance)
-	if err != nil {
-		return nil, nil, err
-	}
-	return instance.Details, instance.SecureDetails, nil
+	return deleteARMDeployment(c.armDeployer, instance)
 }
 
 func (c *cosmosAccountManager) deleteCosmosDBAccount(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	err := deleteCosmosDBAccount(ctx, c.databaseAccountsClient, instance)
-	if err != nil {
-		return nil, nil, err
-	}
-	return instance.Details, instance.SecureDetails, nil
+	return deleteCosmosDBAccount(ctx, c.databaseAccountsClient, instance)
 }

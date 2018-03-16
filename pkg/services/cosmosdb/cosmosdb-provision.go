@@ -2,7 +2,6 @@ package cosmosdb
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -36,19 +35,10 @@ func (c *cosmosAccountManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *cosmosdbInstanceDetails",
-		)
+	dt := cosmosdbInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*cosmosdbSecureInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *cosmosdbSecureInstanceDetails",
-		)
-	}
-	dt.DatabaseKind = "GlobalDocumentDB"
 
 	outputs, err := c.armDeployer.Deploy(
 		dt.ARMDeploymentName,
@@ -58,7 +48,7 @@ func (c *cosmosAccountManager) deployARMTemplate(
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
 			"name": dt.DatabaseAccountName,
-			"kind": dt.DatabaseKind,
+			"kind": "GlobalDocumentDB",
 		},
 		instance.Tags,
 	)
@@ -66,14 +56,14 @@ func (c *cosmosAccountManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	var ok bool
+	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
@@ -82,12 +72,20 @@ func (c *cosmosAccountManager) deployARMTemplate(
 			err,
 		)
 	}
-	sdt.PrimaryKey = primaryKey
 
-	sdt.ConnectionString = fmt.Sprintf(
-		"AccountEndpoint=%s;AccountKey=%s;",
-		dt.FullyQualifiedDomainName,
-		sdt.PrimaryKey,
-	)
-	return dt, sdt, nil
+	sdt := cosmosdbSecureInstanceDetails{
+		PrimaryKey: primaryKey,
+		ConnectionString: fmt.Sprintf(
+			"AccountEndpoint=%s;AccountKey=%s;",
+			dt.FullyQualifiedDomainName,
+			primaryKey,
+		),
+	}
+
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
 }

@@ -3,7 +3,6 @@ package cosmosdb
 type cosmosdbInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	DatabaseAccountName      string `json:"name"`
-	DatabaseKind             string `json:"kind"`
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
 }
 

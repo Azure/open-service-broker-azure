@@ -6,14 +6,12 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net"
-	"strconv"
 	"time"
 
 	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb" // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -32,67 +30,41 @@ func getCosmosdbCases(
 	dbAccountsClient.Authorizer = authorizer
 	return []serviceLifecycleTestCase{
 		{ // DocumentDB
-			module:                 cosmosdb.New(armDeployer, dbAccountsClient),
-			description:            "CosmosDB",
-			serviceID:              "6330de6f-a561-43ea-a15e-b99f44d183e6",
-			planID:                 "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
-			location:               "eastus",
-			provisioningParameters: nil,
-			bindingParameters:      nil,
-			testCredentials:        testDocumentDBCreds(),
+			module:      cosmosdb.New(armDeployer, dbAccountsClient),
+			description: "CosmosDB",
+			serviceID:   "6330de6f-a561-43ea-a15e-b99f44d183e6",
+			planID:      "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
+			location:    "eastus",
 		},
 		{ // MongoDB
-			module:                 cosmosdb.New(armDeployer, dbAccountsClient),
-			description:            "MongoDB API on CosmosDB",
-			serviceID:              "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
-			planID:                 "86fdda05-78d7-4026-a443-1325928e7b02",
-			location:               "southcentralus",
-			provisioningParameters: nil,
-			bindingParameters:      nil,
-			testCredentials:        testMongoDBCreds(),
+			module:          cosmosdb.New(armDeployer, dbAccountsClient),
+			description:     "MongoDB API on CosmosDB",
+			serviceID:       "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
+			planID:          "86fdda05-78d7-4026-a443-1325928e7b02",
+			location:        "southcentralus",
+			testCredentials: testMongoDBCreds(),
 		},
 	}, nil
 }
 
-func testDocumentDBCreds() func(credentials service.Credentials) error {
-	return func(credentials service.Credentials) error {
-		//cdts, err := convertToCosmosdbCredentials(credentials)
-		//if err != nil {
-		//	return err
-		//}
-
-		// Found no usable go package.
-		// Tried github.com/nerdylikeme/go-documentdb.
-		// It is out-of-date. Got following error:
-		// {Code:"BadRequest", Message:"Invalid API version.
-		//   Ensure a valid x-ms-version header value is passed.\r\nActivityId:
-		//   7073673c-498a-4094-8749-5f5b3d5b838a"}
-		// TODO:
-		//   opt1. use REST API to request:
-		//     https://docs.microsoft.com/en-us/rest/api/documentdb
-		//   opt2. track this repo:
-		//     https://github.com/a8m/documentdb-go
-		return nil
-	}
-}
-
-func testMongoDBCreds() func(credentials service.Credentials) error {
-	return func(credentials service.Credentials) error {
-		cdts, ok := credentials.(*cosmosdb.MongoCredentials)
-		if !ok {
-			return fmt.Errorf("error casting credentials as *cosmosdb.Credentials")
-		}
-
-		// The following process bases on
+func testMongoDBCreds() func(credentials map[string]interface{}) error {
+	return func(credentials map[string]interface{}) error {
+		// The following process is based on
 		// https://docs.microsoft.com/en-us/azure/cosmos-db/create-mongodb-golang
 
 		// DialInfo holds options for establishing a session with a MongoDB cluster.
 		dialInfo := &mgo.DialInfo{
-			Addrs:    []string{cdts.Host + ":" + strconv.Itoa(cdts.Port)},
+			Addrs: []string{
+				fmt.Sprintf(
+					"%s:%d",
+					credentials["host"].(string),
+					int(credentials["port"].(float64)),
+				),
+			},
 			Timeout:  60 * time.Second,
 			Database: "database",
-			Username: cdts.Username,
-			Password: cdts.Password,
+			Username: credentials["username"].(string),
+			Password: credentials["password"].(string),
 			DialServer: func(addr *mgo.ServerAddr) (net.Conn, error) {
 				return tls.Dial("tcp", addr.String(), &tls.Config{})
 			},
