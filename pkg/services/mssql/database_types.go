@@ -2,15 +2,22 @@ package mssql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
+// DatabaseProvisioningParams encapsulates non-sensitive database
+// MS SQL-specific provisioning options
+type DatabaseProvisioningParams struct {
+	DisableTDE bool `json:"disableTransparentDataEncryption"`
+}
+
 type databaseInstanceDetails struct {
-	ARMDeploymentName string `json:"armDeployment"`
-	DatabaseName      string `json:"database"`
+	ARMDeploymentName         string `json:"armDeployment"`
+	DatabaseName              string `json:"database"`
+	TransparentDataEncryption bool   `json:"transparentDataEncryption"`
 }
 
 func (
 	d *databaseManager,
 ) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return nil
+	return &DatabaseProvisioningParams{}
 }
 
 func (

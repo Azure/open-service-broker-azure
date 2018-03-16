@@ -50,11 +50,23 @@ func (a *allInOneManager) preProvision(
 				"*mssql.secureAllInOneInstanceDetails",
 		)
 	}
+	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mssql.AllInOneProvisioningParameters",
+		)
+	}
+
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.ServerName = uuid.NewV4().String()
 	dt.AdministratorLogin = generate.NewIdentifier()
 	sdt.AdministratorLoginPassword = generate.NewPassword()
 	dt.DatabaseName = generate.NewIdentifier()
+
+	if !pp.DisableTDE {
+		dt.TransparentDataEncryption = true
+	}
 	return dt, sdt, nil
 }
 
@@ -94,6 +106,7 @@ func (a *allInOneManager) deployARMTemplate(
 		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
 	goTemplateParams := buildGoTemplateParameters(&pp.DBMSProvisioningParams)
+	goTemplateParams["transparentDataEncryption"] = dt.TransparentDataEncryption
 	// new server scenario
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,

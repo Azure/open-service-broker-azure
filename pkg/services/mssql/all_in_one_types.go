@@ -5,12 +5,14 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 // AllInOneProvisioningParameters encapsulates non-sensitive dbms AND database
 // MS SQL-specific provisioning options
 type AllInOneProvisioningParameters struct {
-	DBMSProvisioningParams `json:",squash"`
+	DBMSProvisioningParams     `json:",squash"`
+	DatabaseProvisioningParams `json:",squash"`
 }
 
 type allInOneInstanceDetails struct {
 	dbmsInstanceDetails
-	DatabaseName string `json:"database"`
+	DatabaseName              string `json:"database"`
+	TransparentDataEncryption bool   `json:"transparentDataEncryption"`
 }
 
 type secureAllInOneInstanceDetails struct {

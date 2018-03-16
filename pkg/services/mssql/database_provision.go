@@ -37,9 +37,20 @@ func (d *databaseManager) preProvision(
 			"error casting instance.Details as *mssql.databaseInstanceDetails",
 		)
 	}
+	pp, ok := instance.ProvisioningParameters.(*DatabaseProvisioningParams)
+	if !ok {
+		return nil, nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mssql.DatabaseProvisioningParams",
+		)
+	}
 
 	dt.ARMDeploymentName = uuid.NewV4().String()
 	dt.DatabaseName = generate.NewIdentifier()
+
+	if !pp.DisableTDE {
+		dt.TransparentDataEncryption = true
+	}
 
 	return dt, instance.SecureDetails, nil
 }
@@ -68,13 +79,16 @@ func (d *databaseManager) deployARMTemplate(
 			Extended["requestedServiceObjectiveName"],
 		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
+	goTemplateParams := map[string]interface{}{}
+	goTemplateParams["transparentDataEncryption"] = dt.TransparentDataEncryption
+
 	// No output, so ignore the output
 	_, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.Parent.ResourceGroup,
 		instance.Parent.Location,
 		databaseARMTemplateBytes,
-		nil, // Go template params
+		goTemplateParams,
 		p,
 		instance.Tags,
 	)

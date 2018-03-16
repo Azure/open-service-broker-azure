@@ -88,6 +88,24 @@ var allInOneARMTemplateBytes = []byte(`
 						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
 						
 					],
+					"resources": [
+						{
+							"comments": "Transparent Data Encryption",
+							"name": "current",
+							"type": "transparentDataEncryption",
+							"apiVersion": "2014-04-01-preview",
+							"properties": {
+								{{if .transparentDataEncryption}}
+								"status": "Enabled"
+								{{else}}
+								"status": "Disabled"
+								{{end}}
+							},
+							"dependsOn": [
+								"[parameters('databaseName')]"
+							]
+						}
+					],
 					"tags": "[parameters('tags')]"
 				}
 			]
