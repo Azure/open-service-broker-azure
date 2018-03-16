@@ -33,22 +33,22 @@ func getCosmosdbCases(
 	return []serviceLifecycleTestCase{
 		{ // DocumentDB
 			module:                 cosmosdb.New(armDeployer, dbAccountsClient),
-			description:            "DocumentDB",
+			description:            "CosmosDB",
 			serviceID:              "6330de6f-a561-43ea-a15e-b99f44d183e6",
 			planID:                 "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
 			location:               "eastus",
-			provisioningParameters: &cosmosdb.ProvisioningParameters{},
-			bindingParameters:      &cosmosdb.BindingParameters{},
+			provisioningParameters: nil,
+			bindingParameters:      nil,
 			testCredentials:        testDocumentDBCreds(),
 		},
 		{ // MongoDB
 			module:                 cosmosdb.New(armDeployer, dbAccountsClient),
-			description:            "MongoDB",
+			description:            "MongoDB API on CosmosDB",
 			serviceID:              "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
 			planID:                 "86fdda05-78d7-4026-a443-1325928e7b02",
 			location:               "southcentralus",
-			provisioningParameters: &cosmosdb.ProvisioningParameters{},
-			bindingParameters:      &cosmosdb.BindingParameters{},
+			provisioningParameters: nil,
+			bindingParameters:      nil,
 			testCredentials:        testMongoDBCreds(),
 		},
 	}, nil
@@ -78,7 +78,7 @@ func testDocumentDBCreds() func(credentials service.Credentials) error {
 
 func testMongoDBCreds() func(credentials service.Credentials) error {
 	return func(credentials service.Credentials) error {
-		cdts, ok := credentials.(*cosmosdb.Credentials)
+		cdts, ok := credentials.(*cosmosdb.MongoCredentials)
 		if !ok {
 			return fmt.Errorf("error casting credentials as *cosmosdb.Credentials")
 		}
