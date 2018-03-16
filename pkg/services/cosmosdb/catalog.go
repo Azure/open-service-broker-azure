@@ -2,8 +2,6 @@ package cosmosdb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-const kindKey = "kind"
-
 func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 			service.NewService(

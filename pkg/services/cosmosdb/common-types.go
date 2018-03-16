@@ -1,7 +1,5 @@
 package cosmosdb
 
-type databaseKind string
-
 type cosmosdbInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	DatabaseAccountName      string `json:"name"`
