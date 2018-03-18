@@ -60,6 +60,7 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 	) ([]serviceLifecycleTestCase, error){
 		getRediscacheCases,
 		getACICases,
+		getAcrCases,
 		getCosmosdbCases,
 		getEventhubCases,
 		getKeyvaultCases,

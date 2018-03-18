@@ -16,6 +16,7 @@ server that provisions managed services in the Microsoft Azure public cloud.
 ## Supported Services
 
 * [Azure Container Instances](docs/modules/aci.md)
+* [Azure Container Registry](docs/modules/acr.md)
 * [Azure CosmosDB](docs/modules/cosmosdb.md)
 * [Azure Database for MySQL](docs/modules/mysqldb.md)
 * [Azure Database for PostgreSQL](docs/modules/postgresqldb.md)
