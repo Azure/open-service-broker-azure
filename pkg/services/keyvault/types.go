@@ -2,94 +2,53 @@ package keyvault
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters encapsulates non-sensitive keyvault-specific
-// provisioning options
-type ProvisioningParameters struct {
+type provisioningParameters struct {
 	ObjectID string `json:"objectId"`
 	ClientID string `json:"clientId"`
 }
 
-// SecureProvisioningParameters encapsulates sensitive keyvault-specific
-// provisioning options
-type SecureProvisioningParameters struct {
+type secureProvisioningParameters struct {
 	ClientSecret string `json:"clientSecret"`
 }
 
-type keyvaultInstanceDetails struct {
+type instanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	KeyVaultName      string `json:"keyVaultName"`
 	VaultURI          string `json:"vaultUri"`
 	ClientID          string `json:"clientId"`
 }
 
-type keyvaultSecureInstanceDetails struct {
-	ClientSecret string `json:"clientSecret"`
-}
-
-// BindingParameters encapsulates non-sensitive keyvault-specific binding
-// options
-type BindingParameters struct {
-}
-
-// SecureBindingParameters encapsulates sensitive keyvault-specific binding
-// options
-type SecureBindingParameters struct {
-}
-
-type keyvaultBindingDetails struct {
-}
-
-type keyvaultSecureBindingDetails struct {
-}
-
-// Credentials encapsulates Key Vault-specific coonection details and
-// credentials.
-type Credentials struct {
+type credentials struct {
 	VaultURI     string `json:"vaultUri"`
 	ClientID     string `json:"clientId"`
 	ClientSecret string `json:"clientSecret"`
 }
 
-func (
-	s *serviceManager,
-) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
+func (s *serviceManager) SplitProvisioningParameters(
+	cpp service.CombinedProvisioningParameters,
+) (
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
+	error,
+) {
+	pp := provisioningParameters{}
+	if err := service.GetStructFromMap(cpp, &pp); err != nil {
+		return nil, nil, err
+	}
+	spp := secureProvisioningParameters{}
+	if err := service.GetStructFromMap(cpp, &spp); err != nil {
+		return nil, nil, err
+	}
+	ppMap, err := service.GetMapFromStruct(pp)
+	if err != nil {
+		return nil, nil, err
+	}
+	sppMap, err := service.GetMapFromStruct(spp)
+	return ppMap, sppMap, err
 }
 
-func (
-	s *serviceManager,
-) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureProvisioningParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &keyvaultInstanceDetails{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &keyvaultSecureInstanceDetails{}
-}
-
-func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
-}
-
-func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &keyvaultBindingDetails{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &keyvaultSecureBindingDetails{}
+func (s *serviceManager) SplitBindingParameters(
+	params service.CombinedBindingParameters,
+) (service.BindingParameters, service.SecureBindingParameters, error) {
+	return nil, nil, nil
 }

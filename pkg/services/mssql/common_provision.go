@@ -8,7 +8,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func validateDBMSProvisionParameters(pp *DBMSProvisioningParams) error {
+func validateDBMSProvisionParameters(pp dbmsProvisioningParams) error {
 	for _, firewallRule := range pp.FirewallRules {
 		if firewallRule.Name == "" {
 			return service.NewValidationError(
@@ -68,7 +68,7 @@ func validateDBMSProvisionParameters(pp *DBMSProvisioningParams) error {
 }
 
 func buildGoTemplateParameters(
-	provisioningParameters *DBMSProvisioningParams,
+	provisioningParameters dbmsProvisioningParams,
 ) map[string]interface{} {
 	p := map[string]interface{}{}
 	// Only include these if they are not empty.
@@ -78,7 +78,7 @@ func buildGoTemplateParameters(
 		p["firewallRules"] = provisioningParameters.FirewallRules
 	} else {
 		// Build the azure default
-		p["firewallRules"] = []FirewallRule{
+		p["firewallRules"] = []firewallRule{
 			{
 				Name:    "AllowAzure",
 				StartIP: "0.0.0.0",

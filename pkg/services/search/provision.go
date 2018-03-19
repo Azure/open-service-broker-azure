@@ -2,7 +2,6 @@ package search
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -27,35 +26,24 @@ func (s *serviceManager) GetProvisioner(
 }
 
 func (s *serviceManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*searchInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *searchInstanceDetails",
-		)
+	dt := instanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		ServiceName:       uuid.NewV4().String(),
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.ServiceName = uuid.NewV4().String()
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, nil, err
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*searchInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *searchInstanceDetails",
-		)
-	}
-	sdt, ok := instance.SecureDetails.(*searchSecureInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *searchSecureInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	outputs, err := s.armDeployer.Deploy(
 		dt.ARMDeploymentName,
@@ -74,14 +62,14 @@ func (s *serviceManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	serviceName, ok := outputs["searchServiceName"].(string)
+	var ok bool
+	dt.ServiceName, ok = outputs["searchServiceName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving service name from deployment: %s",
 			err,
 		)
 	}
-	dt.ServiceName = serviceName
 
 	apiKey, ok := outputs["apiKey"].(string)
 	if !ok {
@@ -90,7 +78,15 @@ func (s *serviceManager) deployARMTemplate(
 			err,
 		)
 	}
-	sdt.APIKey = apiKey
 
-	return dt, sdt, nil
+	sdt := secureInstanceDetails{
+		APIKey: apiKey,
+	}
+
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
 }

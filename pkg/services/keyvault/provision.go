@@ -2,7 +2,6 @@ package keyvault
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -10,41 +9,35 @@ import (
 )
 
 func (s *serviceManager) ValidateProvisioningParameters(
-	provisioningParameters service.ProvisioningParameters,
-	secureProvisioningParameters service.SecureProvisioningParameters,
+	pp service.ProvisioningParameters,
+	spp service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return errors.New(
-			"error casting provisioningParameters as " +
-				"*keyvault.ProvisioningParameters",
-		)
+	kvPP := provisioningParameters{}
+	if err := service.GetStructFromMap(pp, &kvPP); err != nil {
+		return err
 	}
-	spp, ok := secureProvisioningParameters.(*SecureProvisioningParameters)
-	if !ok {
-		return errors.New(
-			"error casting secureProvisioningParameters as " +
-				"*keyvault.SecureProvisioningParameters",
-		)
+	kvSPP := secureProvisioningParameters{}
+	if err := service.GetStructFromMap(spp, &kvSPP); err != nil {
+		return err
 	}
-	if pp.ObjectID == "" {
+	if kvPP.ObjectID == "" {
 		return service.NewValidationError(
 			"objectid",
-			fmt.Sprintf(`invalid service principal objectid: "%s"`, pp.ObjectID),
+			fmt.Sprintf(`invalid service principal objectid: "%s"`, kvPP.ObjectID),
 		)
 	}
-	if pp.ClientID == "" {
+	if kvPP.ClientID == "" {
 		return service.NewValidationError(
 			"clientId",
-			fmt.Sprintf(`invalid service principal clientId: "%s"`, pp.ClientID),
+			fmt.Sprintf(`invalid service principal clientId: "%s"`, kvPP.ClientID),
 		)
 	}
-	if spp.ClientSecret == "" {
+	if kvSPP.ClientSecret == "" {
 		return service.NewValidationError(
 			"clientSecret",
 			fmt.Sprintf(
 				`invalid service principal clientSecret: "%s"`,
-				spp.ClientSecret,
+				kvSPP.ClientSecret,
 			),
 		)
 	}
@@ -61,50 +54,36 @@ func (s *serviceManager) GetProvisioner(
 }
 
 func (s *serviceManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*keyvaultInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *keyvaultInstanceDetails",
-		)
+	dt := instanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		KeyVaultName:      "sb" + uuid.NewV4().String()[:20],
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.KeyVaultName = "sb" + uuid.NewV4().String()[:20]
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, nil, err
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*keyvaultInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *keyvaultInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*keyvaultSecureInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *keyvaultSecureInstanceDetails",
-		)
+	pp := provisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
 	}
-	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*keyvault.ProvisioningParameters",
-		)
-	}
-	spp, ok :=
-		instance.SecureProvisioningParameters.(*SecureProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureProvisioningParameters as " +
-				"*keyvault.SecureProvisioningParameters",
-		)
+	spp := secureProvisioningParameters{}
+	if err := service.GetStructFromMap(
+		instance.SecureProvisioningParameters,
+		&spp,
+	); err != nil {
+		return nil, nil, err
 	}
 
 	outputs, err := s.armDeployer.Deploy(
@@ -125,16 +104,16 @@ func (s *serviceManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	vaultURI, ok := outputs["vaultUri"].(string)
+	var ok bool
+	dt.VaultURI, ok = outputs["vaultUri"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving vaultUri from deployment: %s",
 			err,
 		)
 	}
-	dt.VaultURI = vaultURI
 	dt.ClientID = pp.ClientID
-	sdt.ClientSecret = spp.ClientSecret
 
-	return dt, sdt, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, instance.SecureDetails, err
 }

@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 func createBinding(
@@ -14,7 +15,7 @@ func createBinding(
 	adminPassword string,
 	fqdn string,
 	databaseName string,
-) (*bindingDetails, *secureBindingDetails, error) {
+) (service.BindingDetails, service.SecureBindingDetails, error) {
 
 	userName := generate.NewIdentifier()
 	password := generate.NewPassword()
@@ -61,14 +62,19 @@ func createBinding(
 		)
 	}
 
-	return &bindingDetails{
-			LoginName: userName,
-		},
-		&secureBindingDetails{
-			Password: password,
-		},
-		nil
+	bd := bindingDetails{
+		LoginName: userName,
+	}
+	sbd := secureBindingDetails{
+		Password: password,
+	}
 
+	bdMap, err := service.GetMapFromStruct(bd)
+	if err != nil {
+		return nil, nil, err
+	}
+	sbdMap, err := service.GetMapFromStruct(sbd)
+	return bdMap, sbdMap, err
 }
 
 // Create a credential to be returned for binding purposes. This includes a CF
@@ -80,9 +86,9 @@ func createCredential(
 	sslRequired bool,
 	serverName string,
 	databaseName string,
-	bindingDetails *bindingDetails,
-	secureBidningDetails *secureBindingDetails,
-) *Credentials {
+	bindingDetails bindingDetails,
+	secureBidningDetails secureBindingDetails,
+) credentials {
 	username := fmt.Sprintf("%s@%s", bindingDetails.LoginName, serverName)
 	connectionTemplate := "mysql://%s:%s@%s:3306/%s?useSSL=true&requireSSL=true"
 	connectionString := fmt.Sprintf(
@@ -92,7 +98,7 @@ func createCredential(
 		fqdn,
 		databaseName,
 	)
-	return &Credentials{
+	return credentials{
 		Host:        fqdn,
 		Port:        3306,
 		Database:    databaseName,

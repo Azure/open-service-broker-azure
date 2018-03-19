@@ -429,33 +429,23 @@ func TestGetBindingKey(t *testing.T) {
 
 func getTestInstance() service.Instance {
 	return service.Instance{
-		InstanceID:                   uuid.NewV4().String(),
-		ServiceID:                    fake.ServiceID,
-		PlanID:                       fake.StandardPlanID,
-		ProvisioningParameters:       fakeServiceManager.GetEmptyProvisioningParameters(),       // nolint: lll
-		SecureProvisioningParameters: fakeServiceManager.GetEmptySecureProvisioningParameters(), // nolint: lll
-		UpdatingParameters:           fakeServiceManager.GetEmptyProvisioningParameters(),       // nolint: lll
-		SecureUpdatingParameters:     fakeServiceManager.GetEmptySecureProvisioningParameters(), // nolint: lll
+		InstanceID:    uuid.NewV4().String(),
+		ServiceID:     fake.ServiceID,
+		PlanID:        fake.StandardPlanID,
 		Status:        service.InstanceStateProvisioned,
 		StatusReason:  "",
 		Location:      "eastus",
 		ResourceGroup: "test",
 		Tags:          map[string]string{"foo": "bar"},
-		Details:       fakeServiceManager.GetEmptyInstanceDetails(),
-		SecureDetails: fakeServiceManager.GetEmptySecureInstanceDetails(), // nolint: lll
 	}
 }
 
 func getTestBinding() service.Binding {
 	return service.Binding{
-		BindingID:               uuid.NewV4().String(),
-		InstanceID:              uuid.NewV4().String(),
-		ServiceID:               fake.ServiceID,
-		BindingParameters:       fakeServiceManager.GetEmptyBindingParameters(),
-		SecureBindingParameters: fakeServiceManager.GetEmptySecureBindingParameters(), // nolint: lll
-		Status:                  service.BindingStateBound,
-		StatusReason:            "",
-		Details:                 fakeServiceManager.GetEmptyBindingDetails(),
-		SecureDetails:           fakeServiceManager.GetEmptySecureBindingDetails(),
+		BindingID:    uuid.NewV4().String(),
+		InstanceID:   uuid.NewV4().String(),
+		ServiceID:    fake.ServiceID,
+		Status:       service.BindingStateBound,
+		StatusReason: "",
 	}
 }

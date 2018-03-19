@@ -2,84 +2,32 @@ package search
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// ProvisioningParameters encapsulates non-sensitive Azure Search-specific
-// provisioning options
-type ProvisioningParameters struct{}
-
-// SecureProvisioningParameters encapsulates sensitive Azure Search-specific
-// provisioning options
-type SecureProvisioningParameters struct{}
-
-type searchInstanceDetails struct {
+type instanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	ServiceName       string `json:"serviceName"`
 }
 
-type searchSecureInstanceDetails struct {
+type secureInstanceDetails struct {
 	APIKey string `json:"apiKey"`
 }
 
-// BindingParameters encapsulates non-sensitive Azure Search-specific binding
-// options
-type BindingParameters struct {
-}
-
-// SecureBindingParameters encapsulates sensitive Azure Search-specific binding
-// options
-type SecureBindingParameters struct {
-}
-
-type searchBindingDetails struct {
-}
-
-type searchSecureBindingDetails struct {
-}
-
-type searchCredentials struct {
+type credentials struct {
 	ServiceName string `json:"serviceName"`
 	APIKey      string `json:"apiKey"`
 }
 
-func (
-	s *serviceManager,
-) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &ProvisioningParameters{}
+func (s *serviceManager) SplitProvisioningParameters(
+	service.CombinedProvisioningParameters,
+) (
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
+	error,
+) {
+	return nil, nil, nil
 }
 
-func (
-	s *serviceManager,
-) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return &SecureProvisioningParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &searchInstanceDetails{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &searchSecureInstanceDetails{}
-}
-
-func (s *serviceManager) GetEmptyBindingParameters() service.BindingParameters {
-	return &BindingParameters{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return &SecureBindingParameters{}
-}
-
-func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &searchBindingDetails{}
-}
-
-func (
-	s *serviceManager,
-) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &searchSecureBindingDetails{}
+func (s *serviceManager) SplitBindingParameters(
+	service.CombinedBindingParameters,
+) (service.BindingParameters, service.SecureBindingParameters, error) {
+	return nil, nil, nil
 }

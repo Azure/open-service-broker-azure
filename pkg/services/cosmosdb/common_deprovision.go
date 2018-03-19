@@ -13,34 +13,30 @@ import (
 func deleteARMDeployment(
 	armDeployer arm.Deployer,
 	instance service.Instance,
-) error {
-	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Details as *cosmosdbInstanceDetails",
-		)
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+	dt := cosmosdbInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	if err := armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 	); err != nil {
-		return fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func deleteCosmosDBAccount(
 	ctx context.Context,
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient,
 	instance service.Instance,
-) error {
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Details as *cosmosdbInstanceDetails",
-		)
+	dt := cosmosdbInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	result, err := databaseAccountsClient.Delete(
 		ctx,
@@ -48,17 +44,16 @@ func deleteCosmosDBAccount(
 		dt.DatabaseAccountName,
 	)
 	if err != nil {
-		return fmt.Errorf("error deleting cosmosdb server: %s", err)
+		return nil, nil, fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}
 	if err := result.WaitForCompletion(
 		ctx,
 		databaseAccountsClient.Client,
 	); err != nil {
 		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
-		if strings.Contains(err.Error(), "StatusCode=404") {
-			return nil
+		if !strings.Contains(err.Error(), "StatusCode=404") {
+			return nil, nil, fmt.Errorf("error deleting cosmosdb server: %s", err)
 		}
-		return fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}
-	return nil
+	return instance.Details, instance.SecureDetails, nil
 }

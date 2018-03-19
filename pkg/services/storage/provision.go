@@ -50,14 +50,10 @@ func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*storageInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *storageInstanceDetails",
-		)
+	dt := instanceDetails{
+		ARMDeploymentName:  uuid.NewV4().String(),
+		StorageAccountName: generate.NewIdentifier(),
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.StorageAccountName = generate.NewIdentifier()
 
 	storeKind, ok := instance.Plan.
 		GetProperties().Extended[kindKey].(storageKind)
@@ -73,24 +69,21 @@ func (s *serviceManager) preProvision(
 		dt.ContainerName = uuid.NewV4().String()
 	}
 
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, instance.SecureDetails, err
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*storageInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *storageInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*storageSecureInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *storageSecureInstanceDetails",
-		)
+	sdt := secureInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
 	storeKind, ok := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
@@ -130,24 +123,21 @@ func (s *serviceManager) deployARMTemplate(
 		)
 	}
 
-	return dt, sdt, nil
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return instance.Details, sdtMap, err
 }
 
 func (s *serviceManager) createBlobContainer(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*storageInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *storageInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*storageSecureInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *storageSecureInstanceDetails",
-		)
+	sdt := secureInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
 
 	client, _ := storage.NewBasicClient(dt.StorageAccountName, sdt.AccessKey)
@@ -163,5 +153,5 @@ func (s *serviceManager) createBlobContainer(
 		)
 	}
 
-	return dt, sdt, nil
+	return instance.Details, instance.SecureDetails, nil
 }

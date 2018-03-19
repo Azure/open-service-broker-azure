@@ -2,7 +2,6 @@ package mssql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
@@ -14,12 +13,9 @@ func (d *dbmsManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*DBMSProvisioningParams)
-
-	if !ok {
-		return errors.New(
-			"error casting provisioningParameters as *mssql.DBMSProvisioningParams",
-		)
+	pp := dbmsProvisioningParams{}
+	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
+		return err
 	}
 	return validateDBMSProvisionParameters(pp)
 }
@@ -34,51 +30,41 @@ func (d *dbmsManager) GetProvisioner(
 }
 
 func (d *dbmsManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *mssql.dbmsInstanceDetails",
-		)
+	dt := dbmsInstanceDetails{
+		ARMDeploymentName:  uuid.NewV4().String(),
+		ServerName:         uuid.NewV4().String(),
+		AdministratorLogin: generate.NewIdentifier(),
 	}
-	sdt, ok := instance.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as " +
-				"*mssql.secureDBMSInstanceDetails",
-		)
+	sdt := secureDBMSInstanceDetails{
+		AdministratorLoginPassword: generate.NewPassword(),
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.ServerName = uuid.NewV4().String()
-	dt.AdministratorLogin = generate.NewIdentifier()
-	sdt.AdministratorLoginPassword = generate.NewPassword()
-	return dt, sdt, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
 }
 
 func (d *dbmsManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *mssql.dbmsInstanceDetails",
-		)
+	dt := dbmsInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as " +
-				"*mssql.secureDBMSInstanceDetails",
-		)
+	sdt := secureDBMSInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
-	pp, ok := instance.ProvisioningParameters.(*DBMSProvisioningParams)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting provisioningParameters as *mssql.DBMSProvisioningParams",
-		)
+	pp := dbmsProvisioningParams{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
 	}
 	p := map[string]interface{}{ // ARM template params
 		"serverName":                 dt.ServerName,
@@ -98,6 +84,7 @@ func (d *dbmsManager) deployARMTemplate(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
+	var ok bool
 	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
@@ -105,5 +92,6 @@ func (d *dbmsManager) deployARMTemplate(
 			err,
 		)
 	}
-	return dt, sdt, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, instance.SecureDetails, err
 }

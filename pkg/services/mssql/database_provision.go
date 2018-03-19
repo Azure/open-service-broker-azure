@@ -2,7 +2,6 @@ package mssql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
@@ -28,37 +27,29 @@ func (d *databaseManager) GetProvisioner(
 }
 
 func (d *databaseManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *mssql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		DatabaseName:      generate.NewIdentifier(),
 	}
-
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.DatabaseName = generate.NewIdentifier()
-
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, nil, err
 }
 
 func (d *databaseManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *mssql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Parent.Details as *mssql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, nil, err
 	}
 	p := map[string]interface{}{ // ARM template params
 		"serverName":   pdt.ServerName,
@@ -81,5 +72,5 @@ func (d *databaseManager) deployARMTemplate(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }

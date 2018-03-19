@@ -2,9 +2,9 @@ package cosmosdb
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// MongoCredentials encapsulates CosmosDB-specific connection details and
+// mongoCredentials encapsulates CosmosDB-specific connection details and
 // credentials for connecting with the MongoDB API.
-type MongoCredentials struct {
+type mongoCredentials struct {
 	Host             string `json:"host,omitempty"`
 	Port             int    `json:"port,omitempty"`
 	Username         string `json:"username,omitempty"`
@@ -12,48 +12,18 @@ type MongoCredentials struct {
 	ConnectionString string `json:"connectionString,omitempty"`
 }
 
-func (
-	m *mongoAccountManager,
-) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return nil
+func (m *mongoAccountManager) SplitProvisioningParameters(
+	cpp service.CombinedProvisioningParameters,
+) (
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
+	error,
+) {
+	return nil, nil, nil
 }
 
-func (
-	m *mongoAccountManager,
-) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return nil
-}
-
-func (
-	m *mongoAccountManager,
-) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &cosmosdbInstanceDetails{}
-}
-
-func (
-	m *mongoAccountManager,
-) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &cosmosdbSecureInstanceDetails{}
-}
-
-func (
-	m *mongoAccountManager,
-) GetEmptyBindingParameters() service.BindingParameters {
-	return nil
-}
-
-func (
-	m *mongoAccountManager,
-) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return nil
-}
-
-func (m *mongoAccountManager) GetEmptyBindingDetails() service.BindingDetails {
-	return nil
-}
-
-func (
-	m *mongoAccountManager,
-) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return nil
+func (m *mongoAccountManager) SplitBindingParameters(
+	params service.CombinedBindingParameters,
+) (service.BindingParameters, service.SecureBindingParameters, error) {
+	return nil, nil, nil
 }

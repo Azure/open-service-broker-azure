@@ -1,8 +1,6 @@
 package cosmosdb
 
 import (
-	"errors"
-
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
@@ -32,13 +30,10 @@ func generateAccountName(location string) string {
 func preProvision(
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *cosmosdbInstanceDetails",
-		)
+	dt := cosmosdbInstanceDetails{
+		ARMDeploymentName:   uuid.NewV4().String(),
+		DatabaseAccountName: generateAccountName(instance.Location),
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.DatabaseAccountName = generateAccountName(instance.Location)
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, nil, err
 }

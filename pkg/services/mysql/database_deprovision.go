@@ -20,11 +20,9 @@ func (d *databaseManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mysql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -32,7 +30,7 @@ func (d *databaseManager) deleteARMDeployment(
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (d *databaseManager) deleteMySQLDatabase(
@@ -41,17 +39,14 @@ func (d *databaseManager) deleteMySQLDatabase(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mysql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, nil, err
 	}
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mysql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	result, err := d.databasesClient.Delete(
 		ctx,
@@ -65,5 +60,5 @@ func (d *databaseManager) deleteMySQLDatabase(
 	if err := result.WaitForCompletion(ctx, d.databasesClient.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }

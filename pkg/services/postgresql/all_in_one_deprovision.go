@@ -23,11 +23,9 @@ func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	if err := a.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -35,7 +33,7 @@ func (a *allInOneManager) deleteARMDeployment(
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, nil, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (a *allInOneManager) deletePostgreSQLServer(
@@ -44,11 +42,9 @@ func (a *allInOneManager) deletePostgreSQLServer(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *postgresql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	result, err := a.serversClient.Delete(
 		ctx,
@@ -61,5 +57,5 @@ func (a *allInOneManager) deletePostgreSQLServer(
 	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
-	return dt, nil, nil
+	return instance.Details, instance.SecureDetails, nil
 }
