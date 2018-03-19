@@ -57,14 +57,14 @@ func getPostgresqlCases(
 			provisioningParameters: service.CombinedProvisioningParameters{
 				"firewallRules": []map[string]string{
 					{
+						"name":           "AllowSome",
 						"startIPAddress": "0.0.0.0",
 						"endIPAddress":   "35.0.0.0",
-						"name":           "AllowSome",
 					},
 					{
+						"name":           "AllowMore",
 						"startIPAddress": "35.0.0.1",
 						"endIPAddress":   "255.255.255.255",
-						"name":           "AllowMore",
 					},
 				},
 				"sslEnforcement": "disabled",
@@ -84,9 +84,9 @@ func getPostgresqlCases(
 			provisioningParameters: service.CombinedProvisioningParameters{
 				"firewallRules": []map[string]string{
 					{
-						"startIP": "0.0.0.0",
-						"endIP":   "255.255.255.255",
-						"name":    "AllowAll",
+						"name":           "AllowAll",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "255.255.255.255",
 					},
 				},
 			},
