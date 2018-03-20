@@ -48,7 +48,7 @@ func main() {
 	).Info("Setting log level")
 	log.SetLevel(logLevel)
 
-	azureConfig, err := azure.GetConfig()
+	azureConfig, err := azure.GetConfigFromEnvironment()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -110,8 +110,7 @@ func main() {
 		asyncEngine,
 		filterChain,
 		catalog,
-		azureConfig.GetDefaultLocation(),
-		azureConfig.GetDefaultResourceGroup(),
+		azureConfig,
 	)
 	if err != nil {
 		log.Fatal(err)
