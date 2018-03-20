@@ -141,16 +141,7 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 	if err != nil {
 		return service.Instance{}, false, err
 	}
-	instance, err := service.NewInstanceFromJSON(
-		bytes,
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-		nil,
-		s.codec,
-	)
+	instance, err := service.NewInstanceFromJSON(bytes, s.codec)
 	if err != nil {
 		return instance, false, err
 	}
@@ -173,15 +164,8 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 				instance.ServiceID,
 			)
 	}
-	serviceManager := svc.GetServiceManager()
 	instance, err = service.NewInstanceFromJSON(
 		bytes,
-		serviceManager.GetEmptyProvisioningParameters(),
-		serviceManager.GetEmptySecureProvisioningParameters(),
-		serviceManager.GetEmptyProvisioningParameters(),
-		serviceManager.GetEmptySecureProvisioningParameters(),
-		serviceManager.GetEmptyInstanceDetails(),
-		serviceManager.GetEmptySecureInstanceDetails(),
 		s.codec,
 	)
 	instance.Service = svc
@@ -287,28 +271,11 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	if err != nil {
 		return service.Binding{}, false, err
 	}
-	binding, err := service.NewBindingFromJSON(bytes, nil, nil, nil, nil, s.codec)
+	binding, err := service.NewBindingFromJSON(bytes, s.codec)
 	if err != nil {
 		return binding, false, err
 	}
-	svc, ok := s.catalog.GetService(binding.ServiceID)
-	if !ok {
-		return binding,
-			false,
-			fmt.Errorf(
-				`service not found in catalog for service ID "%s"`,
-				binding.ServiceID,
-			)
-	}
-	serviceManager := svc.GetServiceManager()
-	binding, err = service.NewBindingFromJSON(
-		bytes,
-		serviceManager.GetEmptyBindingParameters(),
-		serviceManager.GetEmptySecureBindingParameters(),
-		serviceManager.GetEmptyBindingDetails(),
-		serviceManager.GetEmptySecureBindingDetails(),
-		s.codec,
-	)
+	binding, err = service.NewBindingFromJSON(bytes, s.codec)
 	return binding, err == nil, err
 }
 

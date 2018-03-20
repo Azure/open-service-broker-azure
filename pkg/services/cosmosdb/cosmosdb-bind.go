@@ -1,8 +1,6 @@
 package cosmosdb
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -27,19 +25,15 @@ func (c *cosmosAccountManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Details as *cosmosdbInstanceDetails",
-		)
+	dt := cosmosdbInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*cosmosdbSecureInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.SecureDetails as *cosmosdbSecureInstanceDetails",
-		)
+	sdt := cosmosdbSecureInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, err
 	}
-	return &CosmosCredentials{
+	return cosmosCredentials{
 		URI:                     dt.FullyQualifiedDomainName,
 		PrimaryKey:              sdt.PrimaryKey,
 		PrimaryConnectionString: sdt.ConnectionString,

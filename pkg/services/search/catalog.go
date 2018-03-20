@@ -11,12 +11,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure Search (Experimental)",
 				Metadata: &service.ServiceMetadata{
 					DisplayName: "Azure Search",
-					ImageUrl: "https://azure.microsoft.com/svghandler/search/" +
+					ImageURL: "https://azure.microsoft.com/svghandler/search/" +
 						"?width=200",
 					LongDescription: "Cloud search service for web and mobile app " +
 						"development (Experimental)",
-					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/search/",
-					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/search/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "Search", "Elasticsearch"},

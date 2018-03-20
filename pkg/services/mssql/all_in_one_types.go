@@ -2,63 +2,36 @@ package mssql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// AllInOneProvisioningParameters encapsulates non-sensitive dbms AND database
-// MS SQL-specific provisioning options
-type AllInOneProvisioningParameters struct {
-	DBMSProvisioningParams `json:",squash"`
+type allInOneProvisioningParameters struct {
+	dbmsProvisioningParams `json:",squash"`
 }
 
 type allInOneInstanceDetails struct {
-	dbmsInstanceDetails
-	DatabaseName string `json:"database"`
+	dbmsInstanceDetails `json:",squash"`
+	DatabaseName        string `json:"database"`
 }
 
 type secureAllInOneInstanceDetails struct {
-	secureDBMSInstanceDetails
+	secureDBMSInstanceDetails `json:",squash"`
 }
 
-func (
-	a *allInOneManager,
-) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &AllInOneProvisioningParameters{}
+func (a *allInOneManager) SplitProvisioningParameters(
+	cpp service.CombinedProvisioningParameters,
+) (
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
+	error,
+) {
+	pp := allInOneProvisioningParameters{}
+	if err := service.GetStructFromMap(cpp, &pp); err != nil {
+		return nil, nil, err
+	}
+	ppMap, err := service.GetMapFromStruct(pp)
+	return ppMap, nil, err
 }
 
-func (
-	a *allInOneManager,
-) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return nil
-}
-
-func (
-	a *allInOneManager,
-) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &allInOneInstanceDetails{}
-}
-
-func (
-	a *allInOneManager,
-) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return &secureAllInOneInstanceDetails{}
-}
-
-func (
-	a *allInOneManager,
-) GetEmptyBindingParameters() service.BindingParameters {
-	return nil
-}
-
-func (
-	a *allInOneManager,
-) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return nil
-}
-
-func (a *allInOneManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &bindingDetails{}
-}
-
-func (
-	a *allInOneManager,
-) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &secureBindingDetails{}
+func (a *allInOneManager) SplitBindingParameters(
+	params service.CombinedBindingParameters,
+) (service.BindingParameters, service.SecureBindingParameters, error) {
+	return nil, nil, nil
 }

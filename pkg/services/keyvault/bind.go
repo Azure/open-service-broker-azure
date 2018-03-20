@@ -1,8 +1,6 @@
 package keyvault
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -20,28 +18,27 @@ func (s *serviceManager) Bind(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return &keyvaultBindingDetails{}, &keyvaultSecureBindingDetails{}, nil
+	return nil, nil, nil
 }
 
 func (s *serviceManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*keyvaultInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Details as *keyvaultInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*keyvaultSecureInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.SecureDetails as *keyvaultSecureInstanceDetails",
-		)
+	spp := secureProvisioningParameters{}
+	if err := service.GetStructFromMap(
+		instance.SecureProvisioningParameters,
+		&spp,
+	); err != nil {
+		return nil, err
 	}
-	return &Credentials{
+	return credentials{
 		VaultURI:     dt.VaultURI,
 		ClientID:     dt.ClientID,
-		ClientSecret: sdt.ClientSecret,
+		ClientSecret: spp.ClientSecret,
 	}, nil
 }

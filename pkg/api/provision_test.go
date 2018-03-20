@@ -132,8 +132,8 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: &fake.ProvisioningParameters{
-			SomeParameter: "foo",
+		ProvisioningParameters: service.ProvisioningParameters{
+			"someParameter": "foo",
 		},
 	}
 	err = s.store.WriteInstance(existingInstance)
@@ -168,7 +168,10 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		Status:     service.InstanceStateProvisioned,
+		ProvisioningParameters: service.ProvisioningParameters{
+			"someParameter": "foo",
+		},
+		Status: service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -179,6 +182,9 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
+			Parameters: service.CombinedProvisioningParameters{
+				"someParameter": "foo",
+			},
 		},
 	)
 	assert.Nil(t, err)
@@ -198,7 +204,10 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		Status:     service.InstanceStateProvisioning,
+		ProvisioningParameters: service.ProvisioningParameters{
+			"someParameter": "foo",
+		},
+		Status: service.InstanceStateProvisioning,
 	})
 	assert.Nil(t, err)
 	req, err := getProvisionRequest(
@@ -209,6 +218,9 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
+			Parameters: service.CombinedProvisioningParameters{
+				"someParameter": "foo",
+			},
 		},
 	)
 	assert.Nil(t, err)

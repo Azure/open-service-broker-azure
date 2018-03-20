@@ -9,7 +9,7 @@ type secureBindingDetails struct {
 }
 
 // Credentials encapsulates MSSQL-specific coonection details and credentials.
-type Credentials struct {
+type credentials struct {
 	Host     string   `json:"host"`
 	Port     int      `json:"port"`
 	Database string   `json:"database"`

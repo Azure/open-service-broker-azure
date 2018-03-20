@@ -13,7 +13,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func validateDBMSProvisionParameters(pp *DBMSProvisioningParameters) error {
+func validateDBMSProvisionParameters(pp dbmsProvisioningParameters) error {
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
 	if sslEnforcement != "" && sslEnforcement != enabled &&
 		sslEnforcement != disabled {
@@ -76,7 +76,7 @@ func validateDBMSProvisionParameters(pp *DBMSProvisioningParameters) error {
 }
 
 func buildGoTemplateParameters(
-	provisioningParameters *DBMSProvisioningParameters,
+	provisioningParameters dbmsProvisioningParameters,
 ) map[string]interface{} {
 	p := map[string]interface{}{}
 	// Only include these if they are not empty.
@@ -86,7 +86,7 @@ func buildGoTemplateParameters(
 		p["firewallRules"] = provisioningParameters.FirewallRules
 	} else {
 		// Build the azure default
-		p["firewallRules"] = []FirewallRule{
+		p["firewallRules"] = []firewallRule{
 			{
 				Name:    "AllowAzure",
 				StartIP: "0.0.0.0",

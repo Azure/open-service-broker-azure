@@ -10,7 +10,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
-	"github.com/mitchellh/mapstructure"
 )
 
 func (s *server) bind(w http.ResponseWriter, r *http.Request) {
@@ -102,64 +101,19 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 
 	serviceManager := instance.Service.GetServiceManager()
 
-	// Unpack the parameter map in the request to a struct
-	bindingParameters := serviceManager.GetEmptyBindingParameters()
-	if bindingParameters != nil {
-		decoderConfig := &mapstructure.DecoderConfig{
-			TagName: "json",
-			Result:  bindingParameters,
-		}
-		var decoder *mapstructure.Decoder
-		decoder, err = mapstructure.NewDecoder(decoderConfig)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"error building parameter map decoder",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
-		}
-		err = decoder.Decode(bindingRequest.Parameters)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Debug(
-				"bad binding request: error decoding parameter map",
-			)
-			// krancour: Choosing to interpret this scenario as a bad request since the
-			// probable cause would be disagreement between provided and expected types
-			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-			return
-		}
-	}
-
-	// Then the secure params
-	secureBindingParameters := serviceManager.GetEmptySecureBindingParameters()
-	if secureBindingParameters != nil {
-		decoderConfig := &mapstructure.DecoderConfig{
-			TagName: "json",
-			Result:  secureBindingParameters,
-		}
-		var decoder *mapstructure.Decoder
-		decoder, err = mapstructure.NewDecoder(decoderConfig)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"error building parameter map decoder",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
-		}
-		err = decoder.Decode(bindingRequest.Parameters)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Debug(
-				"bad binding request: error decoding parameter map",
-			)
-			// krancour: Choosing to interpret this scenario as a bad request since the
-			// probable cause would be disagreement between provided and expected types
-			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-			return
-		}
+	// Now service-specific parameters...
+	bindingParameters, secureBindingParameters, err :=
+		serviceManager.SplitBindingParameters(bindingRequest.Parameters)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Debug(
+			"bad binding request: error decoding parameter map into " +
+				"service-specific parameters",
+		)
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
+		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
+		return
 	}
 
 	binding, ok, err := s.store.GetBinding(bindingID)
