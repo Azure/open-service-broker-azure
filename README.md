@@ -6,8 +6,7 @@
 [Open Service Broker](https://www.openservicebrokerapi.org/)-compatible API
 server that provisions managed services in the Microsoft Azure public cloud.
 
-|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/150px-Warning.svg.png) | This software is under heavy development. Releases observe [semantic versioning](https://semver.org), but the project is in an ALPHA status and no assurances are made regarding backwards compatibility or stability. All releases prior to v1.0.0 will remain subject to the possibility of breaking changes when the MINOR version number has been incremented. Please see the offical [roadmap](docs/roadmap.md) for more information. |
-|---|---|
+_Note: This software is alpha quality. Releases use [semantic versioning](https://semver.org) labels, but any release prior to `v1.0.0` may introduce breaking changes if the MINOR version number was incremented. Please see the offical [roadmap](docs/roadmap.md) for more information._
 
 ![Open Service Broker for Azure GIF](docs/images/demovideo.gif)
 
