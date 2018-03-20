@@ -52,20 +52,18 @@ func getMysqlCases(
 			serviceID:   "997b8372-8dac-40ac-ae65-758b4a5075a5",
 			planID:      "427559f1-bf2a-45d3-8844-32374a3e58aa",
 			location:    "southcentralus",
-			provisioningParameters: &mysql.AllInOneProvisioningParameters{
-				DBMSProvisioningParameters: mysql.DBMSProvisioningParameters{
-					SSLEnforcement: "disabled",
-					FirewallRules: []mysql.FirewallRule{
-						{
-							Name:    "AllowSome",
-							StartIP: "0.0.0.0",
-							EndIP:   "35.0.0.0",
-						},
-						{
-							Name:    "AllowMore",
-							StartIP: "35.0.0.1",
-							EndIP:   "255.255.255.255",
-						},
+			provisioningParameters: service.CombinedProvisioningParameters{
+				"sslEnforcement": "disabled",
+				"firewallRules": []map[string]string{
+					{
+						"name":           "AllowSome",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "35.0.0.0",
+					},
+					{
+						"name":           "AllowMore",
+						"startIPAddress": "35.0.0.1",
+						"endIPAddress":   "255.255.255.255",
 					},
 				},
 			},
@@ -78,12 +76,12 @@ func getMysqlCases(
 			serviceID:   "30e7b836-199d-4335-b83d-adc7d23a95c2",
 			planID:      "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
 			location:    "eastus",
-			provisioningParameters: &mysql.DBMSProvisioningParameters{
-				FirewallRules: []mysql.FirewallRule{
+			provisioningParameters: service.CombinedProvisioningParameters{
+				"firewallRules": []map[string]string{
 					{
-						Name:    "AllowAll",
-						StartIP: "0.0.0.0",
-						EndIP:   "255.255.255.255",
+						"name":           "AllowAll",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "255.255.255.255",
 					},
 				},
 			},
@@ -103,16 +101,11 @@ func getMysqlCases(
 	}, nil
 }
 
-func testMySQLCreds() func(credentials service.Credentials) error {
-	return func(credentials service.Credentials) error {
-
-		cdts, ok := credentials.(*mysql.Credentials)
-		if !ok {
-			return fmt.Errorf("error casting credentials as *mssql.Credentials")
-		}
+func testMySQLCreds() func(credentials map[string]interface{}) error {
+	return func(credentials map[string]interface{}) error {
 
 		var connectionStrTemplate string
-		if cdts.SSLRequired {
+		if credentials["sslRequired"].(bool) {
 			connectionStrTemplate =
 				"%s:%s@tcp(%s:3306)/%s?allowNativePasswords=true&tls=true"
 		} else {
@@ -122,10 +115,10 @@ func testMySQLCreds() func(credentials service.Credentials) error {
 
 		db, err := sql.Open("mysql", fmt.Sprintf(
 			connectionStrTemplate,
-			cdts.Username,
-			cdts.Password,
-			cdts.Host,
-			cdts.Database,
+			credentials["username"].(string),
+			credentials["password"].(string),
+			credentials["host"].(string),
+			credentials["database"].(string),
 		))
 		if err != nil {
 			return fmt.Errorf("error validating the database arguments: %s", err)

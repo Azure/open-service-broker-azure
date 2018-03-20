@@ -2,7 +2,6 @@ package rediscache
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -27,35 +26,28 @@ func (s *serviceManager) GetProvisioner(
 }
 
 func (s *serviceManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*redisInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *redisInstanceDetails",
-		)
+	dt := instanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		ServerName:        uuid.NewV4().String(),
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.ServerName = uuid.NewV4().String()
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, nil, err
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*redisInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *redisInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*redisSecureInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *redisSecureInstanceDetails",
-		)
+	sdt := secureInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
 	plan := instance.Plan
 	outputs, err := s.armDeployer.Deploy(
@@ -76,23 +68,27 @@ func (s *serviceManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	var ok bool
+	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	primaryKey, ok := outputs["primaryKey"].(string)
+	sdt.PrimaryKey, ok = outputs["primaryKey"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving primary key from deployment: %s",
 			err,
 		)
 	}
-	sdt.PrimaryKey = primaryKey
 
-	return dt, sdt, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
 }

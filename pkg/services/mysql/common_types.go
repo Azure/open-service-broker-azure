@@ -8,8 +8,7 @@ type secureBindingDetails struct {
 	Password string `json:"password"`
 }
 
-// Credentials encapsulates MySQL-specific coonection details and credentials.
-type Credentials struct {
+type credentials struct {
 	Host        string   `json:"host"`
 	Port        int      `json:"port"`
 	Database    string   `json:"database"`

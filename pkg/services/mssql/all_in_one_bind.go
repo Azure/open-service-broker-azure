@@ -1,8 +1,6 @@
 package mssql
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -19,18 +17,13 @@ func (a *allInOneManager) Bind(
 	_ service.BindingParameters,
 	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mssql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.SecureDetails as " +
-				"*mssql.secureAllInOneInstanceDetails",
-		)
+	sdt := secureAllInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
 
 	return bind(
@@ -45,23 +38,17 @@ func (a *allInOneManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Details as *mssql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
 	}
-	bd, ok := binding.Details.(*bindingDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting binding.Details as *mssql.bindingDetails",
-		)
+	bd := bindingDetails{}
+	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
+		return nil, err
 	}
-	sbd, ok := binding.SecureDetails.(*secureBindingDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting binding.SecureDetails as *mssql.secureBindingDetails",
-		)
+	sbd := secureBindingDetails{}
+	if err := service.GetStructFromMap(binding.SecureDetails, &sbd); err != nil {
+		return nil, err
 	}
 	creds := createCredential(
 		dt.FullyQualifiedDomainName,

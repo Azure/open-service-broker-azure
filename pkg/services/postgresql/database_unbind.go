@@ -1,8 +1,6 @@
 package postgresql
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -10,26 +8,19 @@ func (d *databaseManager) Unbind(
 	instance service.Instance,
 	binding service.Binding,
 ) error {
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Parent.Details as " +
-				"*postgresql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return err
 	}
-	spdt, ok :=
-		instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting instance.Parent.SecureDetails as " +
-				"*postgresql.secureDBMSInstanceDetails",
-		)
+	spdt := secureDBMSInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
+		return err
 	}
-	bd, ok := binding.Details.(*bindingDetails)
-	if !ok {
-		return fmt.Errorf(
-			"error casting binding.Details as *postgresql.bindingDetails",
-		)
+	bd := bindingDetails{}
+	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
+		return err
 	}
 
 	return unbind(

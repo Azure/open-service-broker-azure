@@ -2,7 +2,6 @@ package cosmosdb
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"strings"
@@ -38,23 +37,9 @@ func (m *mongoAccountManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*cosmosdbInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *cosmosdbInstanceDetails",
-		)
-	}
-	sdt, ok := instance.SecureDetails.(*cosmosdbSecureInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as *cosmosdbSecureInstanceDetails",
-		)
-	}
-	dt.DatabaseKind = "MongoDB"
-	if !ok {
-		return nil, nil, errors.New(
-			"error retrieving the kind from deployment",
-		)
+	dt := cosmosdbInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 
 	outputs, err := m.armDeployer.Deploy(
@@ -65,7 +50,7 @@ func (m *mongoAccountManager) deployARMTemplate(
 		nil, // Go template params
 		map[string]interface{}{ // ARM template params
 			"name": dt.DatabaseAccountName,
-			"kind": dt.DatabaseKind,
+			"kind": "MongoDB",
 		},
 		instance.Tags,
 	)
@@ -73,14 +58,14 @@ func (m *mongoAccountManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	var ok bool
+	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
@@ -89,7 +74,10 @@ func (m *mongoAccountManager) deployARMTemplate(
 			err,
 		)
 	}
-	sdt.PrimaryKey = primaryKey
+
+	sdt := cosmosdbSecureInstanceDetails{
+		PrimaryKey: primaryKey,
+	}
 
 	// Allow to remove the https:// and the port 443 on the FQDN
 	// This will allow to adapt the FQDN for Azure Public / Azure Gov ...
@@ -112,5 +100,10 @@ func (m *mongoAccountManager) deployARMTemplate(
 		dt.FullyQualifiedDomainName,
 	)
 
-	return dt, sdt, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
 }

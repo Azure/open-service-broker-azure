@@ -45,19 +45,17 @@ func getMssqlCases(
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			location:    "southcentralus",
-			provisioningParameters: &mssql.AllInOneProvisioningParameters{
-				DBMSProvisioningParams: mssql.DBMSProvisioningParams{
-					FirewallRules: []mssql.FirewallRule{
-						{
-							Name:    "AllowSome",
-							StartIP: "0.0.0.0",
-							EndIP:   "35.0.0.0",
-						},
-						{
-							Name:    "AllowMore",
-							StartIP: "35.0.0.1",
-							EndIP:   "255.255.255.255",
-						},
+			provisioningParameters: service.CombinedProvisioningParameters{
+				"firewallRules": []map[string]string{
+					{
+						"name":           "AllowSome",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "35.0.0.0",
+					},
+					{
+						"name":           "AllowMore",
+						"startIPAddress": "35.0.0.1",
+						"endIPAddress":   "255.255.255.255",
 					},
 				},
 			},
@@ -70,12 +68,12 @@ func getMssqlCases(
 			serviceID:   "a7454e0e-be2c-46ac-b55f-8c4278117525",
 			planID:      "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 			location:    "southcentralus",
-			provisioningParameters: &mssql.DBMSProvisioningParams{
-				FirewallRules: []mssql.FirewallRule{
+			provisioningParameters: service.CombinedProvisioningParameters{
+				"firewallRules": []map[string]string{
 					{
-						Name:    "AllowAll",
-						StartIP: "0.0.0.0",
-						EndIP:   "255.255.255.255",
+						"name":           "AllowAll",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "255.255.255.255",
 					},
 				},
 			},
@@ -94,25 +92,24 @@ func getMssqlCases(
 	}, nil
 }
 
-func testMsSQLCreds() func(credentials service.Credentials) error {
-	return func(credentials service.Credentials) error {
-		cdts, ok := credentials.(*mssql.Credentials)
-		if !ok {
-			return fmt.Errorf("error casting credentials as *mssql.Credentials")
-		}
-
+func testMsSQLCreds() func(credentials map[string]interface{}) error {
+	return func(credentials map[string]interface{}) error {
 		query := url.Values{}
-		query.Add("database", cdts.Database)
+		query.Add("database", credentials["database"].(string))
 		query.Add("encrypt", "true")
 		query.Add("TrustServerCertificate", "true")
 
 		u := &url.URL{
 			Scheme: "sqlserver",
 			User: url.UserPassword(
-				cdts.Username,
-				cdts.Password,
+				credentials["username"].(string),
+				credentials["password"].(string),
 			),
-			Host:     fmt.Sprintf("%s:%d", cdts.Host, cdts.Port),
+			Host: fmt.Sprintf(
+				"%s:%d",
+				credentials["host"].(string),
+				int(credentials["port"].(float64)),
+			),
 			RawQuery: query.Encode(),
 		}
 

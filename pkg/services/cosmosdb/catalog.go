@@ -11,12 +11,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Description: "Azure Cosmos DB Database Account (SQL API)",
 					Metadata: &service.ServiceMetadata{
 						DisplayName: "Azure Cosmos DB",
-						ImageUrl: "https://azure.microsoft.com/svghandler/cosmos-db/" +
+						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
 							"?width=200",
 						LongDescription: "Globally distributed, multi-model database service" +
 							" (Experimental).",
-						DocumentationUrl: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
-						SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
+						SupportURL:       "https://azure.microsoft.com/en-us/support/",
 					},
 					Bindable: true,
 					Tags: []string{"Azure",
@@ -43,12 +43,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Description: "Azure Cosmos DB Database Account (MongoDB API)",
 					Metadata: &service.ServiceMetadata{
 						DisplayName: "Azure Cosmos DB (MongoDB)",
-						ImageUrl: "https://azure.microsoft.com/svghandler/cosmos-db/" +
+						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
 							"?width=200",
 						LongDescription: "Globally distributed, multi-model database service" +
 							" (Experimental)",
-						DocumentationUrl: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
-						SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
+						SupportURL:       "https://azure.microsoft.com/en-us/support/",
 					},
 					Bindable: true,
 					Tags: []string{"Azure",

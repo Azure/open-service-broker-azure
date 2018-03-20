@@ -176,8 +176,8 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
-		BindingParameters: &fake.BindingParameters{
-			SomeParameter: "foo",
+		BindingParameters: service.BindingParameters{
+			"someParameter": "foo",
 		},
 	}
 	err = s.store.WriteBinding(existingBinding)
@@ -216,13 +216,20 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
-		Status:     service.BindingStateBound,
+		BindingParameters: service.BindingParameters{
+			"someParameter": "foo",
+		},
+		Status: service.BindingStateBound,
 	})
 	assert.Nil(t, err)
 	req, err := getBindingRequest(
 		instanceID,
 		bindingID,
-		&BindingRequest{},
+		&BindingRequest{
+			Parameters: service.CombinedBindingParameters{
+				"someParameter": "foo",
+			},
+		},
 	)
 	assert.Nil(t, err)
 	rr := httptest.NewRecorder()

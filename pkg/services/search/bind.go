@@ -1,8 +1,6 @@
 package search
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -20,26 +18,22 @@ func (s *serviceManager) Bind(
 	service.BindingParameters,
 	service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return &searchBindingDetails{}, &searchSecureBindingDetails{}, nil
+	return nil, nil, nil
 }
 
 func (s *serviceManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	dt, ok := instance.Details.(*searchInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Details as *searchInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*searchSecureInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.SecureDetails as *searchSecureInstanceDetails",
-		)
+	sdt := secureInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, err
 	}
-	return &searchCredentials{
+	return credentials{
 		ServiceName: dt.ServiceName,
 		APIKey:      sdt.APIKey,
 	}, nil

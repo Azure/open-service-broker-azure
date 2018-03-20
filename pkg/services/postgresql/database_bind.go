@@ -1,8 +1,6 @@
 package postgresql
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -20,27 +18,19 @@ func (d *databaseManager) Bind(
 	_ service.BindingParameters,
 	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.Details as " +
-				"*postgresql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, nil, err
 	}
-	spdt, ok :=
-		instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.SecureDetails as " +
-				"*postgresql.secureDBMSInstanceDetails",
-		)
+	spdt := secureDBMSInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
+		return nil, nil, err
 	}
-
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *postgresql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 
 	bd, spd, err := createBinding(
@@ -57,31 +47,22 @@ func (d *databaseManager) GetCredentials(
 	instance service.Instance,
 	binding service.Binding,
 ) (service.Credentials, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Parent.Details as " +
-				"*postgresql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, err
 	}
-
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting instance.Details as *postgresql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
 	}
-	bd, ok := binding.Details.(*bindingDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting binding.Details as *postgresql.bindingDetails",
-		)
+	bd := bindingDetails{}
+	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
+		return nil, err
 	}
-	sbd, ok := binding.SecureDetails.(*secureBindingDetails)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error casting binding.SecureDetails as *postgresql.secureBindingDetails",
-		)
+	sbd := secureBindingDetails{}
+	if err := service.GetStructFromMap(binding.SecureDetails, &sbd); err != nil {
+		return nil, err
 	}
 	cred := createCredential(
 		pdt.FullyQualifiedDomainName,
