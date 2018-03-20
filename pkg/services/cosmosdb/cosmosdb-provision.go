@@ -15,15 +15,6 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 	return nil
 }
 
-func (c *cosmosAccountManager) GetProvisioner(
-	service.Plan,
-) (service.Provisioner, error) {
-	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", c.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", c.deployARMTemplate),
-	)
-}
-
 func (c *cosmosAccountManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
@@ -31,10 +22,20 @@ func (c *cosmosAccountManager) preProvision(
 	return preProvision(instance)
 }
 
+func (c *cosmosAccountManager) buildGoTemplateParams(
+	dt *cosmosdbInstanceDetails,
+) map[string]interface{} {
+	p := map[string]interface{}{}
+	p["name"] = dt.DatabaseAccountName
+	p["kind"] = "GlobalDocumentDB"
+	return p
+}
+
 func (c *cosmosAccountManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+	goParams map[string]interface{},
+) (*cosmosdbInstanceDetails, *cosmosdbSecureInstanceDetails, error) {
 	dt := cosmosdbInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
@@ -45,11 +46,8 @@ func (c *cosmosAccountManager) deployARMTemplate(
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
-		nil, // Go template params
-		map[string]interface{}{ // ARM template params
-			"name": dt.DatabaseAccountName,
-			"kind": "GlobalDocumentDB",
-		},
+		goParams, // Go template params
+		map[string]interface{}{},
 		instance.Tags,
 	)
 	if err != nil {
@@ -75,17 +73,7 @@ func (c *cosmosAccountManager) deployARMTemplate(
 
 	sdt := cosmosdbSecureInstanceDetails{
 		PrimaryKey: primaryKey,
-		ConnectionString: fmt.Sprintf(
-			"AccountEndpoint=%s;AccountKey=%s;",
-			dt.FullyQualifiedDomainName,
-			primaryKey,
-		),
 	}
 
-	dtMap, err := service.GetMapFromStruct(dt)
-	if err != nil {
-		return nil, nil, err
-	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+	return &dt, &sdt, nil
 }
