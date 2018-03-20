@@ -7,23 +7,33 @@ import (
 )
 
 type module struct {
-	serviceManager *serviceManager
+	cosmosAccountManager *cosmosAccountManager
+	mongoAccountManager  *mongoAccountManager
 }
 
-type serviceManager struct {
+type cosmosAccountManager struct {
+	armDeployer            arm.Deployer
+	databaseAccountsClient cosmosSDK.DatabaseAccountsClient
+}
+
+type mongoAccountManager struct {
 	armDeployer            arm.Deployer
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
-// interface and is capable of provisioning CosmosDB servers and databases
-// using "Azure Database for CosmosDB"
+// interface and is capable of provisioning CosmosDB database accounts and
+// databases using "Azure Database for CosmosDB"
 func New(
 	armDeployer arm.Deployer,
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient,
 ) service.Module {
 	return &module{
-		serviceManager: &serviceManager{
+		mongoAccountManager: &mongoAccountManager{
+			armDeployer:            armDeployer,
+			databaseAccountsClient: databaseAccountsClient,
+		},
+		cosmosAccountManager: &cosmosAccountManager{
 			armDeployer:            armDeployer,
 			databaseAccountsClient: databaseAccountsClient,
 		},

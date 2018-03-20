@@ -100,13 +100,18 @@ func bind(
 		)
 	}
 
-	return &bindingDetails{
-			LoginName: loginName,
-		},
-		&secureBindingDetails{
-			Password: password,
-		},
-		nil
+	bd := bindingDetails{
+		LoginName: loginName,
+	}
+	sbd := secureBindingDetails{
+		Password: password,
+	}
+	bdMap, err := service.GetMapFromStruct(bd)
+	if err != nil {
+		return nil, nil, err
+	}
+	sbdMap, err := service.GetMapFromStruct(sbd)
+	return bdMap, sbdMap, err
 }
 
 func createCredential(
@@ -114,7 +119,7 @@ func createCredential(
 	database string,
 	username string,
 	password string,
-) *Credentials {
+) credentials {
 
 	port := 1433
 
@@ -141,7 +146,7 @@ func createCredential(
 		port,
 		database,
 	)
-	return &Credentials{
+	return credentials{
 		Host:     fqdn,
 		Port:     port,
 		Database: database,

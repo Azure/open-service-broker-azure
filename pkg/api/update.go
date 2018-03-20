@@ -10,7 +10,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
-	"github.com/mitchellh/mapstructure"
 )
 
 func (s *server) update(w http.ResponseWriter, r *http.Request) {
@@ -112,63 +111,11 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 
 	serviceManager := svc.GetServiceManager()
 
-	// Unpack the parameter map in the request to a struct
-	updatingParameters := serviceManager.GetEmptyProvisioningParameters()
-	if updatingParameters != nil {
-		decoderConfig := &mapstructure.DecoderConfig{
-			TagName: "json",
-			Result:  updatingParameters,
-		}
-		decoder, err := mapstructure.NewDecoder(decoderConfig)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"error building parameter map decoder",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
-		}
-		err = decoder.Decode(updatingRequest.Parameters)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Debug(
-				"bad updating request: error decoding parameter map",
-			)
-			// krancour: Choosing to interpret this scenario as a bad request since the
-			// probable cause would be disagreement between provided and expected types
-			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-			return
-		}
-	}
-
-	// Then the secure parameters
-	secureUpdatingParameters :=
-		serviceManager.GetEmptySecureProvisioningParameters()
-	if secureUpdatingParameters != nil {
-		decoderConfig := &mapstructure.DecoderConfig{
-			TagName: "json",
-			Result:  secureUpdatingParameters,
-		}
-		decoder, err := mapstructure.NewDecoder(decoderConfig)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"error building parameter map decoder",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
-		}
-		err = decoder.Decode(updatingRequest.Parameters)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Debug(
-				"bad updating request: error decoding parameter map",
-			)
-			// krancour: Choosing to interpret this scenario as a bad request since the
-			// probable cause would be disagreement between provided and expected types
-			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-			return
-		}
+	updatingParameters, secureUpdatingParameters, err :=
+		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
+	if err != nil {
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
 	}
 
 	instance, ok, err := s.store.GetInstance(instanceID)

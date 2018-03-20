@@ -20,10 +20,10 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				Description: "Fake Service",
 				Metadata: &service.ServiceMetadata{
 					DisplayName:      "fake",
-					ImageUrl:         "fake",
+					ImageURL:         "fake",
 					LongDescription:  "Fake Service",
-					DocumentationUrl: "fake",
-					SupportUrl:       "fake",
+					DocumentationURL: "fake",
+					SupportURL:       "fake",
 				},
 				Bindable: true,
 				Tags:     []string{"Fake"},

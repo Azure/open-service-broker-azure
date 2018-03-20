@@ -11,12 +11,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure Redis Cache (Experimental)",
 				Metadata: &service.ServiceMetadata{
 					DisplayName: "Azure Redis Cache",
-					ImageUrl: "https://azure.microsoft.com/svghandler/redis-cache/" +
+					ImageURL: "https://azure.microsoft.com/svghandler/redis-cache/" +
 						"?width=200",
 					LongDescription: "High throughput and consistent low-latency data " +
 						"access to power fast, scalable Azure applications (Experimental)",
-					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/redis-cache/",
-					SupportUrl:       "https://azure.microsoft.com/en-us/support/",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/redis-cache/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "Redis", "Cache", "Database"},

@@ -1,0 +1,11 @@
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ServiceInstance
+metadata:
+  name: my-mongodb-instance
+  namespace: default
+spec:
+  clusterServiceClassExternalName: azure-cosmosdb-mongo-account
+  clusterServicePlanExternalName: account
+  parameters:
+    location: eastus
+    resourceGroup: demo

@@ -168,7 +168,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	var tags map[string]string
 	tagsIface, ok := provisioningRequest.Parameters["tags"]
 	if ok {
-		mapTagsIfaces, ok := tagsIface.(map[string]interface{})
+		var mapTagsIfaces map[string]interface{}
+		mapTagsIfaces, ok = tagsIface.(map[string]interface{})
 		if !ok {
 			s.handlePossibleValidationError(
 				service.NewValidationError(
@@ -242,64 +243,18 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Now service-specific parameters...
-	provisioningParameters := serviceManager.GetEmptyProvisioningParameters()
-	if provisioningParameters != nil {
-		decoderConfig := &mapstructure.DecoderConfig{
-			TagName: "json",
-			Result:  provisioningParameters,
-		}
-		decoder, err := mapstructure.NewDecoder(decoderConfig)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"error building parameter map decoder",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
-		}
-		err = decoder.Decode(provisioningRequest.Parameters)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Debug(
-				"bad provisioning request: error decoding parameter map into " +
-					"service-specific parameters",
-			)
-			// krancour: Choosing to interpret this scenario as a bad request since the
-			// probable cause would be disagreement between provided and expected types
-			s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
-			return
-		}
-	}
-
-	// And sensitive service-specific parameters...
-	secureProvisioningParameters :=
-		serviceManager.GetEmptySecureProvisioningParameters()
-	if secureProvisioningParameters != nil {
-		decoderConfig := &mapstructure.DecoderConfig{
-			TagName: "json",
-			Result:  secureProvisioningParameters,
-		}
-		decoder, err := mapstructure.NewDecoder(decoderConfig)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"error building parameter map decoder",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
-		}
-		err = decoder.Decode(provisioningRequest.Parameters)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Debug(
-				"bad provisioning request: error decoding parameter map into " +
-					"service-specific secured parameters",
-			)
-			// krancour: Choosing to interpret this scenario as a bad request since the
-			// probable cause would be disagreement between provided and expected types
-			s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
-			return
-		}
+	provisioningParameters, secureProvisioningParameters, err :=
+		serviceManager.SplitProvisioningParameters(provisioningRequest.Parameters)
+	if err != nil {
+		logFields["error"] = err
+		log.WithFields(logFields).Debug(
+			"bad provisioning request: error decoding parameter map into " +
+				"service-specific parameters",
+		)
+		// krancour: Choosing to interpret this scenario as a bad request since the
+		// probable cause would be disagreement between provided and expected types
+		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
+		return
 	}
 
 	instance, ok, err := s.store.GetInstance(instanceID)
@@ -434,8 +389,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		ResourceGroup: resourceGroup,
 		ParentAlias:   parentAlias,
 		Tags:          tags,
-		Details:       serviceManager.GetEmptyInstanceDetails(),
-		SecureDetails: serviceManager.GetEmptySecureInstanceDetails(),
 		Created:       time.Now(),
 	}
 

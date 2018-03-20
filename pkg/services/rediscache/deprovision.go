@@ -20,11 +20,9 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*redisInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *redisInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	if err := s.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -32,7 +30,7 @@ func (s *serviceManager) deleteARMDeployment(
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (s *serviceManager) deleteRedisServer(
@@ -41,11 +39,9 @@ func (s *serviceManager) deleteRedisServer(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*redisInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *redisInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	result, err := s.client.Delete(
 		ctx,
@@ -58,5 +54,5 @@ func (s *serviceManager) deleteRedisServer(
 	if err := result.WaitForCompletion(ctx, s.client.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting redis server: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }

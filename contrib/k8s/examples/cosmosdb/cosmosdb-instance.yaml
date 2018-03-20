@@ -5,7 +5,8 @@ metadata:
   name: my-cosmosdb-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-cosmos-document-db
+  clusterServiceClassExternalName: azure-cosmosdb-sql-account
+  clusterServicePlanExternalName: account
   parameters:
     location: eastus
     resourceGroup: demo

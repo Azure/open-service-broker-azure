@@ -111,7 +111,10 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		Status:     service.InstanceStateProvisioned,
+		UpdatingParameters: service.ProvisioningParameters{
+			"someParameter": "foo",
+		},
+		Status: service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
@@ -122,6 +125,9 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		&UpdatingRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
+			Parameters: service.CombinedProvisioningParameters{
+				"someParameter": "foo",
+			},
 		},
 	)
 	assert.Nil(t, err)
@@ -141,7 +147,10 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		Status:     service.InstanceStateUpdating,
+		UpdatingParameters: service.ProvisioningParameters{
+			"someParameter": "foo",
+		},
+		Status: service.InstanceStateUpdating,
 	})
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
@@ -152,6 +161,9 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 		&UpdatingRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
+			Parameters: service.CombinedProvisioningParameters{
+				"someParameter": "foo",
+			},
 		},
 	)
 	assert.Nil(t, err)

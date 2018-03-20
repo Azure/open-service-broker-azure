@@ -17,51 +17,59 @@ const (
 	StabilityStable
 )
 
-// ProvisioningParameters is an interface to be implemented by module-specific
-// types that represent non-sensitive provisioning parameters. This interface
-// doesn't require any functions to be implemented. It exists to improve the
-// clarity of function signatures and documentation.
-type ProvisioningParameters interface{}
-
-// SecureProvisioningParameters is an interface to be implemented by
-// module-specific types that represent secure (sensitive) provisioning
-// parameters. This interface doesn't require any functions to be implemented.
-// It exists to improve the clarity of function signatures and documentation.
-type SecureProvisioningParameters interface{}
-
-// InstanceDetails is an interface to be implemented by service-specific
-// types that represent the non-sensitive details of a service instance.
-type InstanceDetails interface{}
-
-// SecureInstanceDetails is an interface to be implemented by service-specific
-// types that represent the secure (sensitive) details of a service instance.
-type SecureInstanceDetails interface{}
-
-// BindingParameters is an interface to be implemented by service-specific types
-// that represent non-sensitive binding parameters. This interface doesn't
-// require any functions to be implemented. It exists to improve the clarity of
-// function signatures and documentation.
-type BindingParameters interface{}
-
-// SecureBindingParameters is an interface to be implemented by service-specific
-// types that represent sensitive binding parameters. This interface doesn't
-// require any functions to be implemented. It exists to improve the clarity of
-// function signatures and documentation.
-type SecureBindingParameters interface{}
-
-// BindingDetails is an interface to be implemented by service-specific types
-// that represent non-sensitive binding details. This interface doesn't require
-// any functions to be implemented. It exists to improve the clarity of function
+// CombinedProvisioningParameters is an alias for maps intended to contain
+// inbound provisioning parameters-- which may contain both sensitive and
+// non-sensitive values. It exists only to improve the clarity of function
 // signatures and documentation.
-type BindingDetails interface{}
+type CombinedProvisioningParameters map[string]interface{}
 
-// SecureBindingDetails is an interface to be implemented by service-specific
-// types that represent secure (sensitive) binding details. This interface
-// doesn't require any functions to be implemented. It exists to improve the
-// clarity of function signatures and documentation.
-type SecureBindingDetails interface{}
+// ProvisioningParameters is an alias for maps intended to contain non-sensitive
+// provisioning parameters. It exists only to improve the clarity of function
+// signatures and documentation.
+type ProvisioningParameters map[string]interface{}
 
-// Credentials is an interface to be implemented by module-specific types
+// SecureProvisioningParameters is an alias for maps intended to contain
+// sensitive provisioning parameters. It exists only to improve the clarity of
+// function signatures and documentation.
+type SecureProvisioningParameters map[string]interface{}
+
+// InstanceDetails is an alias for maps intended to contain non-sensitive
+// details of a service instance. It exists only to improve the clarity of
+// function signatures and documentation.
+type InstanceDetails map[string]interface{}
+
+// SecureInstanceDetails is an alias for maps intended to contain sensitive
+// details of a service instance. It exists only to improve the clarity of
+// function signatures and documentation.
+type SecureInstanceDetails map[string]interface{}
+
+// CombinedBindingParameters is an alias for maps intended to contain inbound
+// binding parameters-- which may contain both sensitive and non-sensitive
+// values. It exists only to improve the clarity of function signatures and
+// documentation.
+type CombinedBindingParameters map[string]interface{}
+
+// BindingParameters is an alias for maps intended to contain non-sensitive
+// binding parameters. It exists only to improve the clarity of function
+// signatures and documentation.
+type BindingParameters map[string]interface{}
+
+// SecureBindingParameters is an alias for maps intended to contain sensitive
+// binding parameters. It exists only to improve the clarity of function
+// signatures and documentation.
+type SecureBindingParameters map[string]interface{}
+
+// BindingDetails is an alias for maps intended to contain non-sensitive
+// details of a service binding. It exists only to improve the clarity of
+// function signatures and documentation.
+type BindingDetails map[string]interface{}
+
+// SecureBindingDetails is an alias for maps intended to contain sensitive
+// details of a service binding. It exists only to improve the clarity of
+// function signatures and documentation.
+type SecureBindingDetails map[string]interface{}
+
+// Credentials is an interface to be implemented by service-specific types
 // that represent service credentials. This interface doesn't require any
 // functions to be implemented. It exists to improve the clarity of function
 // signatures and documentation.
