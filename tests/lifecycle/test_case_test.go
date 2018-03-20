@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strings"
 	"testing"
 	"time"
 
@@ -19,35 +18,25 @@ import (
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
 type serviceLifecycleTestCase struct {
-	module                 service.Module
-	description            string
+	group                  string
+	name                   string
 	serviceID              string
 	planID                 string
 	location               string
 	provisioningParameters service.CombinedProvisioningParameters
 	parentServiceInstance  *service.Instance
-	childTestCases         []*serviceLifecycleTestCase
 	bindingParameters      service.CombinedBindingParameters
 	testCredentials        func(credentials map[string]interface{}) error
+	childTestCases         []*serviceLifecycleTestCase
 }
 
 func (s serviceLifecycleTestCase) getName() string {
-	base := fmt.Sprintf(
-		"TestServices/lifecycle/%s",
-		s.module.GetName(),
-	)
-	if s.description == "" {
-		return base
-	}
-	return fmt.Sprintf(
-		"%s/%s",
-		base,
-		strings.Replace(s.description, " ", "_", -1),
-	)
+	return fmt.Sprintf("TestServices/lifecycle/%s/%s", s.group, s.name)
 }
 
 func (s serviceLifecycleTestCase) execute(
 	t *testing.T,
+	catalog service.Catalog,
 	resourceGroup string,
 ) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*20)
@@ -64,28 +53,16 @@ func (s serviceLifecycleTestCase) execute(
 	go s.showStatus(ctx)
 
 	// Get the service and plan
-	cat, err := s.module.GetCatalog()
-	if err != nil {
-		return fmt.Errorf(
-			`error gettting catalog from module "%s"`,
-			s.module.GetName(),
-		)
-	}
-	svc, ok := cat.GetService(s.serviceID)
+	svc, ok := catalog.GetService(s.serviceID)
 	if !ok {
-		return fmt.Errorf(
-			`service "%s" not found in module "%s" catalog`,
-			s.serviceID,
-			s.module.GetName(),
-		)
+		return fmt.Errorf(`service "%s" not found catalog`, s.serviceID)
 	}
 	plan, ok := svc.GetPlan(s.planID)
 	if !ok {
 		return fmt.Errorf(
-			`plan "%s" not found for service "%s" in module "%s" catalog`,
+			`plan "%s" not found for service "%s"`,
 			s.planID,
 			s.serviceID,
-			s.module.GetName(),
 		)
 	}
 
@@ -93,6 +70,10 @@ func (s serviceLifecycleTestCase) execute(
 
 	pp, spp, err :=
 		serviceManager.SplitProvisioningParameters(s.provisioningParameters)
+	if err != nil {
+		return err
+	}
+	err = serviceManager.ValidateProvisioningParameters(pp, spp)
 	if err != nil {
 		return err
 	}
@@ -124,10 +105,7 @@ func (s serviceLifecycleTestCase) execute(
 	stepName, ok := provisioner.GetFirstStepName()
 	// There MUST be a first step
 	if !ok {
-		return fmt.Errorf(
-			`Module "%s" provisioner has no steps`,
-			s.module.GetName(),
-		)
+		return fmt.Errorf(`Provisioner for service "%s" has no steps`, s.serviceID)
 	}
 	// Execute provisioning steps until there are none left
 	for {
@@ -135,9 +113,9 @@ func (s serviceLifecycleTestCase) execute(
 		step, ok = provisioner.GetStep(stepName)
 		if !ok {
 			return fmt.Errorf(
-				`Module "%s" provisioning step "%s" not found`,
-				s.module.GetName(),
+				`Provisioner step "%s" for service "%s" not found`,
 				stepName,
+				s.serviceID,
 			)
 		}
 		instance.Details, instance.SecureDetails, err = step.Execute(ctx, instance)
@@ -199,20 +177,14 @@ func (s serviceLifecycleTestCase) execute(
 		}
 	}
 
-	//Iterate through any child test cases, setting the instnace from this
-	//test case as the parent.
-	for i, test := range s.childTestCases {
-		test.parentServiceInstance = &instance
-		var subTestName string
-		if test.description == "" {
-			subTestName = fmt.Sprintf("subtest-%v", i)
-		} else {
-			subTestName = strings.Replace(test.description, " ", "_", -1)
-		}
-		t.Run(subTestName, func(t *testing.T) {
-			err = test.execute(t, resourceGroup)
-			//This will fail this subtest, but also the parent lifecycle test
-			assert.Nil(t, err)
+	// Iterate through any child test cases, setting the instnace from this
+	// test case as the parent.
+	for _, childTestCase := range s.childTestCases {
+		childTestCase.parentServiceInstance = &instance
+		t.Run(childTestCase.getName(), func(t *testing.T) {
+			tErr := childTestCase.execute(t, catalog, resourceGroup)
+			// This will fail this subtest and also the parent lifecycle test
+			assert.Nil(t, tErr)
 		})
 	}
 
@@ -225,8 +197,8 @@ func (s serviceLifecycleTestCase) execute(
 	// There MUST be a first step
 	if !ok {
 		return fmt.Errorf(
-			`Module "%s" deprovisioner has no steps`,
-			s.module.GetName(),
+			`DepProvisioner for service "%s" has no steps`,
+			s.serviceID,
 		)
 	}
 	// Execute deprovisioning steps until there are none left
@@ -234,9 +206,9 @@ func (s serviceLifecycleTestCase) execute(
 		step, ok := deprovisioner.GetStep(stepName)
 		if !ok {
 			return fmt.Errorf(
-				`Module "%s" deprovisioning step "%s" not found`,
-				s.module.GetName(),
+				`Deprovisioner step "%s" for service "%s" not found`,
 				stepName,
+				s.serviceID,
 			)
 		}
 		instance.Details, instance.SecureDetails, err = step.Execute(ctx, instance)
