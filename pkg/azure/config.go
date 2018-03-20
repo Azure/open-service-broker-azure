@@ -5,64 +5,42 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+const envconfigPrefix = "AZURE"
+
 // Config represents details necessary for the broker to interact with
 // an Azure subscription
-type Config interface {
-	GetEnvironment() azure.Environment
-	GetSubscriptionID() string
-	GetTenantID() string
-	GetClientID() string
-	GetClientSecret() string
-	GetDefaultLocation() string
-	GetDefaultResourceGroup() string
-}
-
-type config struct {
-	EnvironmentStr       string `envconfig:"AZURE_ENVIRONMENT" default:"AzurePublicCloud"` // nolint: lll
+type Config struct {
 	Environment          azure.Environment
-	SubscriptionID       string `envconfig:"AZURE_SUBSCRIPTION_ID" required:"true"` // nolint: lll
-	TenantID             string `envconfig:"AZURE_TENANT_ID" required:"true"`
-	ClientID             string `envconfig:"AZURE_CLIENT_ID" required:"true"`
-	ClientSecret         string `envconfig:"AZURE_CLIENT_SECRET" required:"true"`
-	DefaultLocation      string `envconfig:"AZURE_DEFAULT_LOCATION"`
-	DefaultResourceGroup string `envconfig:"AZURE_DEFAULT_RESOURCE_GROUP"`
+	SubscriptionID       string `envconfig:"SUBSCRIPTION_ID" required:"true"` // nolint: lll
+	TenantID             string `envconfig:"TENANT_ID" required:"true"`
+	ClientID             string `envconfig:"CLIENT_ID" required:"true"`
+	ClientSecret         string `envconfig:"CLIENT_SECRET" required:"true"`
+	DefaultLocation      string `envconfig:"DEFAULT_LOCATION"`
+	DefaultResourceGroup string `envconfig:"DEFAULT_RESOURCE_GROUP"`
 }
 
-// GetConfig returns Azure-related configuration
-func GetConfig() (Config, error) {
-	c := config{}
-	err := envconfig.Process("", &c)
+type tempConfig struct {
+	Config
+	EnvironmentStr string `envconfig:"ENVIRONMENT" default:"AzurePublicCloud"` // nolint: lll
+}
+
+// NewConfigWithDefaults returns a Config object with default values already
+// applied. Callers are then free to set custom values for the remaining fields
+// and/or override default values.
+func NewConfigWithDefaults() Config {
+	return Config{}
+}
+
+// GetConfigFromEnvironment returns Azure-related configuration derived from
+// environment variables
+func GetConfigFromEnvironment() (Config, error) {
+	c := tempConfig{
+		Config: NewConfigWithDefaults(),
+	}
+	err := envconfig.Process(envconfigPrefix, &c)
 	if err != nil {
-		return c, err
+		return c.Config, err
 	}
 	c.Environment, err = azure.EnvironmentFromName(c.EnvironmentStr)
-	return c, err
-}
-
-func (c config) GetEnvironment() azure.Environment {
-	return c.Environment
-}
-
-func (c config) GetSubscriptionID() string {
-	return c.SubscriptionID
-}
-
-func (c config) GetTenantID() string {
-	return c.TenantID
-}
-
-func (c config) GetClientID() string {
-	return c.ClientID
-}
-
-func (c config) GetClientSecret() string {
-	return c.ClientSecret
-}
-
-func (c config) GetDefaultLocation() string {
-	return c.DefaultLocation
-}
-
-func (c config) GetDefaultResourceGroup() string {
-	return c.DefaultResourceGroup
+	return c.Config, err
 }

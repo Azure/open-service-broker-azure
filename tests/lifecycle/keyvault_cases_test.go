@@ -5,32 +5,32 @@ package lifecycle
 import (
 	keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault" // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/go-autorest/autorest/azure"
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	azureSDK "github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
 )
 
 func getKeyvaultCases(
-	azureEnvironment azure.Environment,
+	azureEnvironment azureSDK.Environment,
 	subscriptionID string,
 	authorizer autorest.Authorizer,
 	armDeployer arm.Deployer,
 ) ([]serviceLifecycleTestCase, error) {
-	azureConfig, err := az.GetConfig()
+	azureConfig, err := azure.GetConfigFromEnvironment()
 	if err != nil {
 		return nil, err
 	}
 	vaultsClient := keyVaultSDK.NewVaultsClientWithBaseURI(
 		azureEnvironment.ResourceManagerEndpoint,
-		azureConfig.GetSubscriptionID(),
+		azureConfig.SubscriptionID,
 	)
 	vaultsClient.Authorizer = authorizer
 	return []serviceLifecycleTestCase{
 		{
 			module: keyvault.New(
-				azureConfig.GetTenantID(),
+				azureConfig.TenantID,
 				armDeployer,
 				vaultsClient,
 			),

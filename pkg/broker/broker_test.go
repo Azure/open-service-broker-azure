@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 
@@ -146,8 +147,7 @@ func getTestBroker() (*broker, error) {
 		fakeAsync.NewEngine(),
 		filter.NewChain(),
 		service.NewCatalog(nil),
-		"",
-		"",
+		azure.NewConfigWithDefaults(),
 	)
 	if err != nil {
 		return nil, err
