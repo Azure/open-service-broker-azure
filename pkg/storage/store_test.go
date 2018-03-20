@@ -5,6 +5,7 @@ import (
 	"log"
 	"testing"
 
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
@@ -33,11 +34,15 @@ func init() {
 	config := NewConfigWithDefaults()
 	config.RedisHost = "redis"
 	config.RedisDB = 1
-	testStore = NewStore(
+	config.EncryptionScheme = crypto.NOOP
+	str, err := NewStore(
 		fakeCatalog,
-		noopCodec,
 		config,
-	).(*store)
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	testStore = str.(*store)
 }
 
 func TestWriteInstance(t *testing.T) {
