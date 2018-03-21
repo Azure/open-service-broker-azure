@@ -310,6 +310,7 @@ func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
 	if err := json.Unmarshal(jsonBytes, p); err != nil {
 		return nil, err
 	}
+
 	if p.ParameterSchemas.ServiceInstances != nil {
 		if p.ParameterSchemas.ServiceInstances.Create != nil {
 			p.ProvisionParamsSchema =
