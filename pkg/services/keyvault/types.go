@@ -7,7 +7,8 @@ type provisioningParameters struct {
 	ClientID string `json:"clientId"`
 }
 
-// GetProvisionParametersSchema generates the schema for instance provisioning parameters
+// GetProvisionParametersSchema generates the schema for instance provisioning
+// parameters
 func GetProvisionParametersSchema() *service.ParametersSchema {
 
 	p := service.GetCommonProvisionParametersSchema()

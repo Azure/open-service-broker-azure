@@ -9,16 +9,20 @@ type ParameterSchemas struct {
 }
 
 // InstancesSchema represents a plan's schemas for creation and
-// update of an API resource.
+// update of an a service instance resource.
 type InstancesSchema struct {
 	Create *ProvisioningParametersSchema `json:"create,omitempty"`
 	Update *UpdatingParametersSchema     `json:"update,omitempty"`
 }
 
+// ProvisioningParametersSchema represents the schema for any parameters that
+// might be needed for provisioning a service instance
 type ProvisioningParametersSchema struct {
 	Parameters *ParametersSchema `json:"parameters,omitempty"`
 }
 
+// UpdatingParametersSchema represents the schema for any parameters that
+// might be needed for updating a service instance
 type UpdatingParametersSchema struct {
 	Parameters *ParametersSchema `json:"parameters,omitempty"`
 }
@@ -29,6 +33,8 @@ type BindingsSchema struct {
 	Create *BindingSchema `json:"create,omitempty"`
 }
 
+// BindingSchema represents the schema for any parameters that
+// might be needed for creating a binding
 type BindingSchema struct {
 	Parameters *ParametersSchema `json:"parameters,omitempty"`
 }
