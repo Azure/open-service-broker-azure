@@ -4,13 +4,11 @@ package service
 // the expected parameters for creation and update of instances and
 // creation of bindings.
 type ParameterSchemas struct {
-	ServiceInstances *InstancesSchema `json:"service_instance,omitempty"`
+	ServiceInstances *instancesSchema `json:"service_instance,omitempty"`
 	ServiceBindings  *BindingsSchema  `json:"service_binding,omitempty"`
 }
 
-// InstancesSchema represents a plan's schemas for creation and
-// update of an a service instance resource.
-type InstancesSchema struct {
+type instancesSchema struct {
 	Create *ProvisioningParametersSchema `json:"create,omitempty"`
 	Update *UpdatingParametersSchema     `json:"update,omitempty"`
 }

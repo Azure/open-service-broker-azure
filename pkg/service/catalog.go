@@ -269,7 +269,7 @@ func NewPlan(planProperties *PlanProperties) Plan {
 		provisionParamsSchema = GetCommonProvisionParametersSchema()
 	}
 	paramSchemas := &ParameterSchemas{}
-	serviceInstances := &InstancesSchema{}
+	serviceInstances := &instancesSchema{}
 	serviceInstances.Create = &ProvisioningParametersSchema{
 		Parameters: provisionParamsSchema,
 	}
