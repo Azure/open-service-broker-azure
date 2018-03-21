@@ -264,17 +264,6 @@ func (s *service) GetChildServiceID() string {
 
 // NewPlan initializes and returns a new Plan
 func NewPlan(planProperties *PlanProperties) Plan {
-
-	// commonSchema := &service.ParameterSchemas{
-	// 	ServiceInstances: &service.InstancesSchema{
-	// 		Create: &service.ProvisioningParametersSchema{
-	// 			Parameters: service.GetCommonSchema(),
-	// 		},
-	// 	},
-	// }
-	//ProvisionParamSchema *ParametersSchema      `json:"-"`
-	//UpdateParamSchema    *ParametersSchema      `json:"-"`
-	//BindingParamSchema   *ParametersSchema      `json:"-"`
 	provisionParamsSchema := planProperties.ProvisionParamsSchema
 	if provisionParamsSchema == nil {
 		provisionParamsSchema = GetCommonProvisionParametersSchema()
