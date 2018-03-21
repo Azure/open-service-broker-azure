@@ -25,10 +25,10 @@ type credentials struct {
 	Encrypt  bool     `json:"encrypt"`
 }
 
-// GetDBMSCommonSchema generates a common schema for both the
-// DBMS-only and All In One service
-func GetDBMSCommonSchema() *service.ParametersSchema {
-	p := service.GetCommonSchema()
+// GetDBMSCommonProvisionParametersSchema generates a common schema for both
+// the DBMS-only and All In One service
+func GetDBMSCommonProvisionParametersSchema() *service.ParametersSchema {
+	p := service.GetCommonProvisionParametersSchema()
 
 	p.Properties["sslEnforcement"] = service.Parameter{
 		Type: "string",

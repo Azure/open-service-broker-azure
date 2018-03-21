@@ -9,10 +9,11 @@ type provisioningParameters struct {
 	Ports       []int   `json:"ports"`
 }
 
-// GetSchema generates the schema for instance provisioning parameters
-func GetSchema() *service.ParametersSchema {
+// GetProvisionParametersSchema generates the schema for instance
+// provisioning parameters
+func GetProvisionParametersSchema() *service.ParametersSchema {
 
-	p := service.GetCommonSchema()
+	p := service.GetCommonProvisionParametersSchema()
 
 	p.Properties["image"] = service.Parameter{
 		Type:        "string",

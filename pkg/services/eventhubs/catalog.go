@@ -3,14 +3,6 @@ package eventhubs
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 func (m *module) GetCatalog() (service.Catalog, error) {
-	commonSchema := &service.ParameterSchemas{
-		ServiceInstances: &service.InstanceSchema{
-			Create: &service.InputParameters{
-				Parameters: service.GetCommonSchema(),
-			},
-		},
-	}
-
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			&service.ServiceProperties{
@@ -44,7 +36,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"100 Brokered connections",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "264ab981-9e37-44ba-b6bb-2d0fe3e80565",
@@ -65,7 +56,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Publisher Policies",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 		),
 	}), nil

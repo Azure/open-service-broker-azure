@@ -10,7 +10,7 @@ type databaseProvisioningParameters struct {
 // in database instance provisioning
 func GetDatabaseProvisionParametersSchema() *service.ParametersSchema {
 	p := service.GetEmptyParameterSchema()
-	props := map[string]interface{}{}
+	props := map[string]service.Parameter{}
 	props["parentAlias"] = service.Parameter{
 		Type: "string",
 		Description: "Specifies the alias of the DBMS upon which the database " +

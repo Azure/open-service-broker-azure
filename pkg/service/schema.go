@@ -4,35 +4,41 @@ package service
 // the expected parameters for creation and update of instances and
 // creation of bindings.
 type ParameterSchemas struct {
-	ServiceInstances *InstanceSchema `json:"service_instance,omitempty"`
-	ServiceBindings  *BindingSchema  `json:"service_binding,omitempty"`
+	ServiceInstances *InstancesSchema `json:"service_instance,omitempty"`
+	ServiceBindings  *BindingsSchema  `json:"service_binding,omitempty"`
 }
 
-// InstanceSchema represents a plan's schemas for creation and
+// InstancesSchema represents a plan's schemas for creation and
 // update of an API resource.
-type InstanceSchema struct {
-	Create *InputParameters `json:"create,omitempty"`
-	Update *InputParameters `json:"update,omitempty"`
+type InstancesSchema struct {
+	Create *ProvisioningParametersSchema `json:"create,omitempty"`
+	Update *UpdatingParametersSchema     `json:"update,omitempty"`
 }
 
-// BindingSchema represents a plan's schemas for the parameters
+type ProvisioningParametersSchema struct {
+	Parameters *ParametersSchema `json:"parameters,omitempty"`
+}
+
+type UpdatingParametersSchema struct {
+	Parameters *ParametersSchema `json:"parameters,omitempty"`
+}
+
+// BindingsSchema represents a plan's schemas for the parameters
 // accepted for binding creation.
-type BindingSchema struct {
-	Create *InputParameters `json:"create,omitempty"`
+type BindingsSchema struct {
+	Create *BindingSchema `json:"create,omitempty"`
 }
 
-// InputParameters represents a schema for input parameters for creation or
-// update of an API resource.
-type InputParameters struct {
+type BindingSchema struct {
 	Parameters *ParametersSchema `json:"parameters,omitempty"`
 }
 
 // ParametersSchema represents the individual schema for a service
 type ParametersSchema struct {
-	Schema     string                 `json:"$schema"`
-	Type       string                 `json:"type"`
-	Properties map[string]interface{} `json:"properties,omitempty"`
-	Required   []string               `json:"required,omitempty"`
+	Schema     string               `json:"$schema"`
+	Type       string               `json:"type"`
+	Properties map[string]Parameter `json:"properties,omitempty"`
+	Required   []string             `json:"required,omitempty"`
 }
 
 // Parameter represents the individual schema for a given parameter
@@ -46,7 +52,8 @@ type Parameter struct {
 }
 
 // GetEmptyParameterSchema builds a stub Parameters object for use in schema
-// definition
+// definition. This can be used to construct provision parameter,
+// update paramater or binding paramater schemas.
 func GetEmptyParameterSchema() *ParametersSchema {
 	p := &ParametersSchema{
 		Schema: "http://json-schema.org/draft-04/schema#",
@@ -55,11 +62,11 @@ func GetEmptyParameterSchema() *ParametersSchema {
 	return p
 }
 
-// GetCommonSchema builds a default schema object with
+// GetCommonProvisionParametersSchema builds a default schema object with
 // location, resource group and tags
-func GetCommonSchema() *ParametersSchema {
+func GetCommonProvisionParametersSchema() *ParametersSchema {
 	p := GetEmptyParameterSchema()
-	props := map[string]interface{}{}
+	props := map[string]Parameter{}
 	props["location"] = Parameter{
 		Type: "string",
 		Description: "The Azure region in which to provision " +

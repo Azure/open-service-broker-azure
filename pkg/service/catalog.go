@@ -73,13 +73,15 @@ type service struct {
 // instantiated and passed to the NewPlan() constructor function which will
 // carry out all necessary initialization.
 type PlanProperties struct {
-	ID               string                 `json:"id"`
-	Name             string                 `json:"name"`
-	Description      string                 `json:"description"`
-	Free             bool                   `json:"free"`
-	Metadata         *ServicePlanMetadata   `json:"metadata,omitempty"`
-	Extended         map[string]interface{} `json:"-"`
-	ParameterSchemas *ParameterSchemas      `json:"schemas,omitempty"`
+	ID                    string                 `json:"id"`
+	Name                  string                 `json:"name"`
+	Description           string                 `json:"description"`
+	Free                  bool                   `json:"free"`
+	Metadata              *ServicePlanMetadata   `json:"metadata,omitempty"`
+	Extended              map[string]interface{} `json:"-"`
+	ProvisionParamsSchema *ParametersSchema      `json:"-"`
+	UpdateParamsSchema    *ParametersSchema      `json:"-"`
+	BindingParamsSchema   *ParametersSchema      `json:"-"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans
@@ -99,6 +101,7 @@ type Plan interface {
 
 type plan struct {
 	*PlanProperties
+	ParameterSchemas *ParameterSchemas `json:"schemas,omitempty"`
 }
 
 // NewCatalog initializes and returns a new Catalog
@@ -261,8 +264,43 @@ func (s *service) GetChildServiceID() string {
 
 // NewPlan initializes and returns a new Plan
 func NewPlan(planProperties *PlanProperties) Plan {
+
+	// commonSchema := &service.ParameterSchemas{
+	// 	ServiceInstances: &service.InstancesSchema{
+	// 		Create: &service.ProvisioningParametersSchema{
+	// 			Parameters: service.GetCommonSchema(),
+	// 		},
+	// 	},
+	// }
+	//ProvisionParamSchema *ParametersSchema      `json:"-"`
+	//UpdateParamSchema    *ParametersSchema      `json:"-"`
+	//BindingParamSchema   *ParametersSchema      `json:"-"`
+	provisionParamsSchema := planProperties.ProvisionParamsSchema
+	if provisionParamsSchema == nil {
+		provisionParamsSchema = GetCommonProvisionParametersSchema()
+	}
+	paramSchemas := &ParameterSchemas{}
+	serviceInstances := &InstancesSchema{}
+	serviceInstances.Create = &ProvisioningParametersSchema{
+		Parameters: provisionParamsSchema,
+	}
+	if planProperties.UpdateParamsSchema != nil {
+		serviceInstances.Update = &UpdatingParametersSchema{
+			Parameters: planProperties.UpdateParamsSchema,
+		}
+	}
+	if planProperties.BindingParamsSchema != nil {
+		paramSchemas.ServiceBindings = &BindingsSchema{
+			Create: &BindingSchema{
+				Parameters: planProperties.BindingParamsSchema,
+			},
+		}
+	}
+	paramSchemas.ServiceInstances = serviceInstances
+
 	return &plan{
-		planProperties,
+		PlanProperties:   planProperties,
+		ParameterSchemas: paramSchemas,
 	}
 }
 
@@ -271,6 +309,23 @@ func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
 	p := &plan{}
 	if err := json.Unmarshal(jsonBytes, p); err != nil {
 		return nil, err
+	}
+	if p.ParameterSchemas.ServiceInstances != nil {
+		if p.ParameterSchemas.ServiceInstances.Create != nil {
+			p.ProvisionParamsSchema =
+				p.ParameterSchemas.ServiceInstances.Create.Parameters
+		}
+		if p.ParameterSchemas.ServiceInstances.Update != nil {
+			p.UpdateParamsSchema =
+				p.ParameterSchemas.ServiceInstances.Update.Parameters
+		}
+	}
+	if p.ParameterSchemas.ServiceBindings != nil {
+		if p.ParameterSchemas.ServiceBindings.Create != nil {
+			p.BindingParamsSchema =
+				p.ParameterSchemas.ServiceBindings.Create.Parameters
+		}
+
 	}
 	return p, nil
 }

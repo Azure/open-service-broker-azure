@@ -7,14 +7,6 @@ import (
 const kindKey = "kind"
 
 func (m *module) GetCatalog() (service.Catalog, error) {
-	commonSchema := &service.ParameterSchemas{
-		ServiceInstances: &service.InstanceSchema{
-			Create: &service.InputParameters{
-				Parameters: service.GetCommonSchema(),
-			},
-		},
-	}
-
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			&service.ServiceProperties{
@@ -49,7 +41,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Create your own containers, files, and tables within this account",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "800a17e1-f20a-463d-a290-20516052f647",
@@ -68,7 +59,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Create your own containers, files, and tables within this account",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "189d3b8f-8307-4b3f-8c74-03d069237f70",
@@ -87,7 +77,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Automatically provisions a blob container within the account",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 		),
 	}), nil

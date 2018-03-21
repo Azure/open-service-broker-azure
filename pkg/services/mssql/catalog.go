@@ -4,30 +4,6 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
-	allInOneSchema := &service.ParameterSchemas{
-		ServiceInstances: &service.InstanceSchema{
-			Create: &service.InputParameters{
-				Parameters: GetDBMSCommonSchema(),
-			},
-		},
-	}
-
-	dbmsSchema := &service.ParameterSchemas{
-		ServiceInstances: &service.InstanceSchema{
-			Create: &service.InputParameters{
-				Parameters: GetDBMSSchema(),
-			},
-		},
-	}
-
-	databaseSchema := &service.ParameterSchemas{
-		ServiceInstances: &service.InstanceSchema{
-			Create: &service.InputParameters{
-				Parameters: GetDatabaseProvisionParametersSchema(),
-			},
-		},
-	}
-
 	return service.NewCatalog([]service.Service{
 		// all-in-one (dbms and database) service
 		service.NewService(
@@ -64,7 +40,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"7 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "2497b7f3-341b-4ac6-82fb-d4a48c005e19",
@@ -84,7 +60,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "17725188-76a2-4d6c-8e86-49f146766eeb",
@@ -104,7 +80,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "a5537f8e-d816-4b0e-9546-a13811944bdd",
@@ -124,7 +100,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "26cf84bf-f700-4e65-8048-cbfa9c319d5f",
@@ -144,7 +120,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "f9a3cc8e-a6e2-474d-b032-9837ea3dfcaa",
@@ -164,7 +140,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "2bbbcc59-a0e0-4153-841b-2833cb417d43",
@@ -184,7 +160,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "85d54d69-55ee-4fe8-a207-66bc96ecf9e7",
@@ -204,7 +180,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "af3dc76f-5b31-4cad-8adc-a9e756640a57",
@@ -224,7 +200,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "408f5f35-5f5e-48f3-98cf-9e10c1abc4e5",
@@ -243,7 +219,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "b69af389-7af5-47bd-9ccf-c1ffdc2620d9",
@@ -262,7 +238,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"100 DWUs",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "470a869b-1b02-474b-b5e5-10ca0ea488df",
@@ -281,7 +257,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"1200 DWUs",
 					},
 				},
-				ParameterSchemas: allInOneSchema,
+				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
 			}),
 		),
 		// dbms only service
@@ -310,7 +286,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure SQL Server-- DBMS Only",
 				},
-				ParameterSchemas: dbmsSchema,
+				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 		),
 		// database only service
@@ -349,7 +325,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"7 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "9d36b6b3-b5f3-4907-a713-5cc13b785409",
@@ -369,7 +345,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "01c397f8-c999-4e86-bcc2-654cd8cae5fd",
@@ -389,7 +365,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "9cd114a0-8356-4247-9b71-2e685e5a29f3",
@@ -409,7 +385,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "624828a9-c73c-4d35-bc9d-ea41cfc75853",
@@ -429,7 +405,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "220e922a-a5b2-43e4-9388-fe45a32bbf31",
@@ -449,7 +425,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "e7eb13df-1fda-4492-b218-00dd0db1c85d",
@@ -469,7 +445,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "feb25d68-2b52-41b5-a249-28a747bc2c2e",
@@ -489,7 +465,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "19487202-dc8a-4930-bbad-7bbf1486dbca",
@@ -509,7 +485,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "a561c45a-33c8-412e-9315-411c1d7035da",
@@ -528,7 +504,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "7a466f47-f137-4b9c-a63d-c5cbe724b874",
@@ -547,7 +523,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"100 DWUs",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "2717d839-be32-4225-8685-47adf0e6ff15",
@@ -566,7 +542,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"1200 DWUs",
 					},
 				},
-				ParameterSchemas: databaseSchema,
+				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
 			}),
 		),
 	}), nil

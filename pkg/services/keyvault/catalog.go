@@ -33,13 +33,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
 				},
-				ParameterSchemas: &service.ParameterSchemas{
-					ServiceInstances: &service.InstanceSchema{
-						Create: &service.InputParameters{
-							Parameters: GetSchema(),
-						},
-					},
-				},
+				ProvisionParamsSchema: GetProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "6893b1de-0a7b-42bb-b28d-1636c4b81f75",
@@ -52,13 +46,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Premium Tier",
 				},
-				ParameterSchemas: &service.ParameterSchemas{
-					ServiceInstances: &service.InstanceSchema{
-						Create: &service.InputParameters{
-							Parameters: GetSchema(),
-						},
-					},
-				},
+				ProvisionParamsSchema: GetProvisionParametersSchema(),
 			}),
 		),
 	}), nil

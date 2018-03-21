@@ -22,6 +22,20 @@ func init() {
 	planUpdatable := false
 	free := false
 
+	provisionSchema := GetEmptyParameterSchema()
+	props := map[string]Parameter{}
+	props["location"] = Parameter{
+		Type: "string",
+		Description: "The Azure region in which to provision " +
+			"applicable resources.",
+	}
+	props["resourceGroup"] = Parameter{
+		Type: "string",
+		Description: "The (new or existing) resource group with " +
+			"which to associate new resources.",
+	}
+	provisionSchema.Properties = props
+
 	testCatalog = NewCatalog([]Service{
 		NewService(
 			&ServiceProperties{
@@ -38,31 +52,58 @@ func init() {
 				Name:        name,
 				Description: description,
 				Free:        free,
+				ProvisionParamsSchema: provisionSchema,
 			}),
 		),
 	})
 
-	testCatalogJSONStr := fmt.Sprintf(
-		`{
-			"services":[
-				{
-					"name":"%s",
-					"id":"%s",
-					"description":"%s",
-					"tags":["%s"],
-					"bindable":%t,
-					"plan_updateable":%t,
-					"plans":[
-						{
-							"id":"%s",
-							"name":"%s",
-							"description":"%s",
-							"free":%t
+	testCatalogTemplate := `{
+		"services":[
+			{
+				"name":"%s",
+				"id":"%s",
+				"description":"%s",
+				"tags":["%s"],
+				"bindable":%t,
+				"plan_updateable":%t,
+				"plans":[
+					{
+						"id":"%s",
+						"name":"%s",
+						"description":"%s",
+						"free":%t,
+						"schemas": {
+							"service_instance": {
+								"create": {
+									"parameters": {
+										"$schema": "http://json-schema.org/draft-04/schema#",
+										"type": "object",
+										"properties": {
+											"location": {
+												"type": "string",
+												"description": "%s"
+											},
+											"resourceGroup": {
+												"type": "string",
+												"description": "%s"
+											}
+										}
+									}
+								}
+							}
 						}
-					]
-				}
-			]
-		}`,
+					}
+				]
+			}
+		]
+	}`
+
+	testCatalogTemplate = strings.Replace(testCatalogTemplate, " ", "", -1)
+	testCatalogTemplate = strings.Replace(testCatalogTemplate, "\n", "", -1)
+	testCatalogTemplate = strings.Replace(testCatalogTemplate, "\t", "", -1)
+
+	testCatalogJSONStr := fmt.Sprintf(
+		testCatalogTemplate,
 		name,
 		id,
 		description,
@@ -73,10 +114,10 @@ func init() {
 		name,
 		description,
 		free,
+		"The Azure region in which to provision applicable resources.",
+		"The (new or existing) resource group with which to associate new resources.",
 	)
-	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, " ", "", -1)
-	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, "\n", "", -1)
-	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, "\t", "", -1)
+
 	testCatalogJSON = []byte(testCatalogJSONStr)
 }
 

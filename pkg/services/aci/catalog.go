@@ -31,13 +31,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Container Instances",
 				},
-				ParameterSchemas: &service.ParameterSchemas{
-					ServiceInstances: &service.InstanceSchema{
-						Create: &service.InputParameters{
-							Parameters: GetSchema(),
-						},
-					},
-				},
+				ProvisionParamsSchema: GetProvisionParametersSchema(),
 			}),
 		),
 	}), nil

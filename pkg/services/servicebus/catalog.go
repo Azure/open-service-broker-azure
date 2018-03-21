@@ -3,14 +3,6 @@ package servicebus
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 func (m *module) GetCatalog() (service.Catalog, error) {
-	commonSchema := &service.ParameterSchemas{
-		ServiceInstances: &service.InstanceSchema{
-			Create: &service.InputParameters{
-				Parameters: service.GetCommonSchema(),
-			},
-		},
-	}
-
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			&service.ServiceProperties{
@@ -42,7 +34,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"Shared Capacity"},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "6be0d8b5-381f-4d68-bdfd-a131425d3835",
@@ -62,7 +53,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Variable Pricing",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:   "cec378a7-6452-4203-beca-d34898edbadc",
@@ -81,7 +71,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Fixed Pricing",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 		),
 	}), nil

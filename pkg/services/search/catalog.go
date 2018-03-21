@@ -3,14 +3,6 @@ package search
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 func (m *module) GetCatalog() (service.Catalog, error) {
-	commonSchema := &service.ParameterSchemas{
-		ServiceInstances: &service.InstanceSchema{
-			Create: &service.InputParameters{
-				Parameters: service.GetCommonSchema(),
-			},
-		},
-	}
-
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			&service.ServiceProperties{
@@ -45,7 +37,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"50MB Storage/Partition",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "4a50e008-5513-42d3-8b2f-d8b3ad43f7eb",
@@ -62,7 +53,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"2GB Storage/Partition",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "65e89af2-8da2-4559-b103-8dd2dd8fdd40",
@@ -79,7 +69,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"25GB Storage/Partition",
 					},
 				},
-				ParameterSchemas: commonSchema,
 			}),
 		),
 	}), nil
