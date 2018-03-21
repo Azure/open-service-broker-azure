@@ -73,12 +73,13 @@ type service struct {
 // instantiated and passed to the NewPlan() constructor function which will
 // carry out all necessary initialization.
 type PlanProperties struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Free        bool                   `json:"free"`
-	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"`
-	Extended    map[string]interface{} `json:"-"`
+	ID               string                 `json:"id"`
+	Name             string                 `json:"name"`
+	Description      string                 `json:"description"`
+	Free             bool                   `json:"free"`
+	Metadata         *ServicePlanMetadata   `json:"metadata,omitempty"`
+	Extended         map[string]interface{} `json:"-"`
+	ParameterSchemas *ParameterSchemas      `json:"schemas,omitempty"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans

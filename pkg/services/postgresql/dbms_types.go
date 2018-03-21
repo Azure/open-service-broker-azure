@@ -7,6 +7,18 @@ type dbmsProvisioningParameters struct {
 	FirewallRules  []firewallRule `json:"firewallRules"`
 }
 
+// GetDBMSSchema returns the parameter schema for DBMS only service instances
+func GetDBMSSchema() *service.ParametersSchema {
+	p := GetDBMSCommonSchema()
+
+	p.Properties["alias"] = service.Parameter{
+		Type:        "string",
+		Description: "Alias to use when provisioning databases on this DBMS",
+	}
+	p.Required = []string{"alias"}
+	return p
+}
+
 type firewallRule struct {
 	Name    string `json:"name"`
 	StartIP string `json:"startIPAddress"`

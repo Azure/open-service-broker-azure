@@ -4,6 +4,29 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
+	allInOneSchema := &service.ParameterSchemas{
+		ServiceInstances: &service.InstanceSchema{
+			Create: &service.InputParameters{
+				Parameters: GetDBMSCommonSchema(),
+			},
+		},
+	}
+
+	dbmsSchema := &service.ParameterSchemas{
+		ServiceInstances: &service.InstanceSchema{
+			Create: &service.InputParameters{
+				Parameters: GetDBMSSchema(),
+			},
+		},
+	}
+
+	databaseSchema := &service.ParameterSchemas{
+		ServiceInstances: &service.InstanceSchema{
+			Create: &service.InputParameters{
+				Parameters: GetDatabaseProvisionParametersSchema(),
+			},
+		},
+	}
 	return service.NewCatalog([]service.Service{
 		// all-in-one
 		service.NewService(
@@ -36,6 +59,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"50 DTUs"},
 				},
+				ParameterSchemas: allInOneSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "843d7d03-9306-447e-8c19-25ccc4ac30d7",
@@ -51,6 +75,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"100 DTUs"},
 				},
+				ParameterSchemas: allInOneSchema,
 			}),
 		),
 		// dbms only
@@ -85,6 +110,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"50 DTUs"},
 				},
+				ParameterSchemas: dbmsSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "58633c61-942c-42cb-b22c-346a4c594b8e",
@@ -100,6 +126,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"100 DTUs"},
 				},
+				ParameterSchemas: dbmsSchema,
 			}),
 		),
 		// database only
@@ -128,6 +155,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for PostgreSQL-- Database Only",
 				},
+				ParameterSchemas: databaseSchema,
 			}),
 		),
 	}), nil

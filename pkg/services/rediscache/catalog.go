@@ -3,6 +3,14 @@ package rediscache
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 func (m *module) GetCatalog() (service.Catalog, error) {
+	commonSchema := &service.ParameterSchemas{
+		ServiceInstances: &service.InstanceSchema{
+			Create: &service.InputParameters{
+				Parameters: service.GetCommonSchema(),
+			},
+		},
+	}
+
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			&service.ServiceProperties{
@@ -36,6 +44,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"250MB Cache"},
 				},
+				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "4af8bbd1-962d-4e26-84f1-f72d1d959d87",
@@ -51,6 +60,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Standard Tier",
 					Bullets:     []string{"1GB Cache"},
 				},
+				ParameterSchemas: commonSchema,
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "b1057a8f-9a01-423a-bc35-e168d5c04cf0",
@@ -66,6 +76,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Premium Tier",
 					Bullets:     []string{"6GB Cache"},
 				},
+				ParameterSchemas: commonSchema,
 			}),
 		),
 	}), nil

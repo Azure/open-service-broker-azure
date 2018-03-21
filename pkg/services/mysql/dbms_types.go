@@ -13,6 +13,18 @@ type firewallRule struct {
 	EndIP   string `json:"endIPAddress"`
 }
 
+// GetDBMSSchema returns the parameter schema for DBMS only service instances
+func GetDBMSSchema() *service.ParametersSchema {
+	p := GetDBMSCommonSchema()
+
+	p.Properties["alias"] = service.Parameter{
+		Type:        "string",
+		Description: "Alias to use when provisioning databases on this DBMS",
+	}
+	p.Required = []string{"alias"}
+	return p
+}
+
 type dbmsInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	ServerName               string `json:"server"`

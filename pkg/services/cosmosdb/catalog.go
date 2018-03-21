@@ -3,6 +3,13 @@ package cosmosdb
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 func (m *module) GetCatalog() (service.Catalog, error) {
+	commonSchema := &service.ParameterSchemas{
+		ServiceInstances: &service.InstanceSchema{
+			Create: &service.InputParameters{
+				Parameters: service.GetCommonSchema(),
+			},
+		},
+	}
 	return service.NewCatalog([]service.Service{
 			service.NewService(
 				&service.ServiceProperties{
@@ -34,6 +41,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Metadata: &service.ServicePlanMetadata{
 						DisplayName: "Azure CosmosDB (SQL API)",
 					},
+					ParameterSchemas: commonSchema,
 				}),
 			),
 			service.NewService(
@@ -66,6 +74,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Metadata: &service.ServicePlanMetadata{
 						DisplayName: "Azure MongoDB",
 					},
+					ParameterSchemas: commonSchema,
 				}),
 			),
 		}),
