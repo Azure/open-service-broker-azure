@@ -11,7 +11,7 @@ func unbind(
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
 	databaseName string,
-	bindingDetails *bindingDetails,
+	bindingDetails bindingDetails,
 
 ) error {
 	db, err := createDBConnection(

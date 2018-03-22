@@ -39,11 +39,11 @@ type ServiceProperties struct { // nolint: golint
 // ServiceMetadata contains metadata about the service classes
 type ServiceMetadata struct { // nolint: golint
 	DisplayName         string `json:"displayName,omitempty"`
-	ImageUrl            string `json:"imageUrl,omitempty"` // nolint: golint
+	ImageURL            string `json:"imageUrl,omitempty"`
 	LongDescription     string `json:"longDescription,omitempty"`
 	ProviderDisplayName string `json:"providerDisplayName,omitempty"`
-	DocumentationUrl    string `json:"documentationUrl,omitempty"` // nolint: golint, lll
-	SupportUrl          string `json:"supportUrl,omitempty"`       // nolint: golint, lll
+	DocumentationURL    string `json:"documentationUrl,omitempty"`
+	SupportURL          string `json:"supportUrl,omitempty"`
 }
 
 // Service is an interface to be implemented by types that represent a single

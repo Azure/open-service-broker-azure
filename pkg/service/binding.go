@@ -25,28 +25,13 @@ type Binding struct {
 
 // NewBindingFromJSON returns a new Binding unmarshalled from the provided JSON
 // []byte
-func NewBindingFromJSON(
-	jsonBytes []byte,
-	bp BindingParameters,
-	sbp SecureBindingParameters,
-	bd BindingDetails,
-	sbd SecureBindingDetails,
-	codec crypto.Codec,
-) (Binding, error) {
+func NewBindingFromJSON(jsonBytes []byte, codec crypto.Codec) (Binding, error) {
 	binding := Binding{
-		BindingParameters:       bp,
-		SecureBindingParameters: sbp,
-		Details:                 bd,
-		SecureDetails:           sbd,
+		SecureBindingParameters: SecureBindingParameters{},
+		SecureDetails:           SecureBindingDetails{},
 	}
 	if err := json.Unmarshal(jsonBytes, &binding); err != nil {
 		return binding, err
-	}
-	if binding.BindingParameters == nil {
-		binding.BindingParameters = bp
-	}
-	if binding.Details == nil {
-		binding.Details = bd
 	}
 	return binding.decrypt(codec)
 }
@@ -107,7 +92,7 @@ func (b Binding) decryptSecureBindingParameters(
 	if err != nil {
 		return b, err
 	}
-	return b, json.Unmarshal(plaintext, b.SecureBindingParameters)
+	return b, json.Unmarshal(plaintext, &b.SecureBindingParameters)
 }
 
 func (b Binding) decryptSecureDetails(codec crypto.Codec) (Binding, error) {
@@ -119,5 +104,5 @@ func (b Binding) decryptSecureDetails(codec crypto.Codec) (Binding, error) {
 	if err != nil {
 		return b, err
 	}
-	return b, json.Unmarshal(plaintext, b.SecureDetails)
+	return b, json.Unmarshal(plaintext, &b.SecureDetails)
 }

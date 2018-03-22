@@ -23,11 +23,9 @@ func (d *databaseManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *postgresql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -35,7 +33,7 @@ func (d *databaseManager) deleteARMDeployment(
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (d *databaseManager) deletePostgreSQLDatabase(
@@ -44,18 +42,14 @@ func (d *databaseManager) deletePostgreSQLDatabase(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Parent.Details as " +
-				"*postgresql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, nil, err
 	}
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *postgresql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	result, err := d.databasesClient.Delete(
 		ctx,
@@ -69,5 +63,5 @@ func (d *databaseManager) deletePostgreSQLDatabase(
 	if err := result.WaitForCompletion(ctx, d.databasesClient.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting postgresql database: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }

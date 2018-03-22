@@ -54,27 +54,23 @@ func getPostgresqlCases(
 			description:     "all-in-one",
 			location:        "southcentralus",
 			testCredentials: testPostgreSQLCreds(),
-			provisioningParameters: &postgresql.AllInOneProvisioningParameters{
-				DBMSProvisioningParameters: postgresql.DBMSProvisioningParameters{ //nolint:lll
-					FirewallRules: []postgresql.FirewallRule{
-						{
-							StartIP: "0.0.0.0",
-							EndIP:   "35.0.0.0",
-							Name:    "AllowSome",
-						},
-						{
-							StartIP: "35.0.0.1",
-							EndIP:   "255.255.255.255",
-							Name:    "AllowMore",
-						},
+			provisioningParameters: service.CombinedProvisioningParameters{
+				"firewallRules": []map[string]string{
+					{
+						"name":           "AllowSome",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "35.0.0.0",
 					},
-					SSLEnforcement: "disabled",
+					{
+						"name":           "AllowMore",
+						"startIPAddress": "35.0.0.1",
+						"endIPAddress":   "255.255.255.255",
+					},
 				},
-				DatabaseProvisioningParameters: postgresql.DatabaseProvisioningParameters{ //nolint:lll
-					Extensions: []string{
-						"uuid-ossp",
-						"postgis",
-					},
+				"sslEnforcement": "disabled",
+				"extensions": []string{
+					"uuid-ossp",
+					"postgis",
 				},
 			},
 			bindingParameters: nil,
@@ -85,12 +81,12 @@ func getPostgresqlCases(
 			planID:      "bf389028-8dcc-433a-ab6f-0ee9b8db142f",
 			description: "dbms-only",
 			location:    "eastus",
-			provisioningParameters: &postgresql.DBMSProvisioningParameters{
-				FirewallRules: []postgresql.FirewallRule{
+			provisioningParameters: service.CombinedProvisioningParameters{
+				"firewallRules": []map[string]string{
 					{
-						StartIP: "0.0.0.0",
-						EndIP:   "255.255.255.255",
-						Name:    "AllowAll",
+						"name":           "AllowAll",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "255.255.255.255",
 					},
 				},
 			},
@@ -103,8 +99,8 @@ func getPostgresqlCases(
 					location:          "", // This is actually irrelevant for this test
 					bindingParameters: nil,
 					testCredentials:   testPostgreSQLCreds(),
-					provisioningParameters: &postgresql.DatabaseProvisioningParameters{
-						Extensions: []string{
+					provisioningParameters: service.CombinedProvisioningParameters{
+						"extensions": []string{
 							"uuid-ossp",
 							"postgis",
 						},
@@ -115,16 +111,10 @@ func getPostgresqlCases(
 	}, nil
 }
 
-func testPostgreSQLCreds() func(credentials service.Credentials) error {
-	return func(credentials service.Credentials) error {
-		cdts, ok := credentials.(*postgresql.Credentials)
-		if !ok {
-			return fmt.Errorf(
-				"error casting credentials as *postgresql.Credentials",
-			)
-		}
+func testPostgreSQLCreds() func(credentials map[string]interface{}) error {
+	return func(credentials map[string]interface{}) error {
 		var connectionStrTemplate string
-		if cdts.SSLRequired {
+		if credentials["sslRequired"].(bool) {
 			connectionStrTemplate =
 				"postgres://%s:%s@%s/%s?sslmode=require"
 		} else {
@@ -132,10 +122,10 @@ func testPostgreSQLCreds() func(credentials service.Credentials) error {
 		}
 		db, err := sql.Open("postgres", fmt.Sprintf(
 			connectionStrTemplate,
-			cdts.Username,
-			cdts.Password,
-			cdts.Host,
-			cdts.Database,
+			credentials["username"].(string),
+			credentials["password"].(string),
+			credentials["host"].(string),
+			credentials["database"].(string),
 		))
 
 		if err != nil {

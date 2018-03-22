@@ -10,38 +10,35 @@ import (
 
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/go-autorest/autorest/azure"
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	azureSDK "github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 )
 
 func getTestCases() ([]serviceLifecycleTestCase, error) {
-	azureConfig, err := az.GetConfig()
+	azureConfig, err := azure.GetConfigFromEnvironment()
 	if err != nil {
 		return nil, err
 	}
 
-	azureEnvironment := azureConfig.GetEnvironment()
-	azureSubscriptionID := azureConfig.GetSubscriptionID()
-
-	authorizer, err := az.GetBearerTokenAuthorizer(
-		azureEnvironment,
-		azureConfig.GetTenantID(),
-		azureConfig.GetClientID(),
-		azureConfig.GetClientSecret(),
+	authorizer, err := azure.GetBearerTokenAuthorizer(
+		azureConfig.Environment,
+		azureConfig.TenantID,
+		azureConfig.ClientID,
+		azureConfig.ClientSecret,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	resourceGroupsClient := resourcesSDK.NewGroupsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
-		azureSubscriptionID,
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureConfig.SubscriptionID,
 	)
 	resourceGroupsClient.Authorizer = authorizer
 	resourceDeploymentsClient := resourcesSDK.NewDeploymentsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
-		azureSubscriptionID,
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureConfig.SubscriptionID,
 	)
 	resourceDeploymentsClient.Authorizer = authorizer
 	resourceDeploymentsClient.PollingDuration = time.Minute * 30
@@ -53,7 +50,7 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 	testCases := []serviceLifecycleTestCase{}
 
 	getTestCaseFuncs := []func(
-		azureEnvironment azure.Environment,
+		azureEnvironment azureSDK.Environment,
 		subscriptionID string,
 		authorizer autorest.Authorizer,
 		armDeployer arm.Deployer,
@@ -75,8 +72,8 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 
 	for _, getTestCaseFunc := range getTestCaseFuncs {
 		if tcs, err := getTestCaseFunc(
-			azureEnvironment,
-			azureSubscriptionID,
+			azureConfig.Environment,
+			azureConfig.SubscriptionID,
 			authorizer,
 			armDeployer,
 		); err == nil {

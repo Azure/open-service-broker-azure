@@ -3,12 +3,12 @@ package service
 // ServiceManager is an interface to be implemented by module components
 // responsible for managing the lifecycle of services and plans thereof
 type ServiceManager interface { // nolint: golint
-	// GetEmptyProvisioningParameters returns an empty instance of
-	// service-specific non-sensitive  provisioning parameters
-	GetEmptyProvisioningParameters() ProvisioningParameters
-	// GetEmptySecureProvisioningParameters returns an empty instance of
-	// service-specific secured (sensitive) provisioning parameters
-	GetEmptySecureProvisioningParameters() SecureProvisioningParameters
+	// SplitProvisioningParameters splits a map of provisioning parameters into
+	// two separate maps, with one containing non-sensitive provisioning
+	// parameters and the other containing sensitive provisioning parameters.
+	SplitProvisioningParameters(
+		CombinedProvisioningParameters,
+	) (ProvisioningParameters, SecureProvisioningParameters, error)
 	// ValidateProvisioningParameters validates the provided
 	// provisioningParameters and returns an error if there is any problem
 	ValidateProvisioningParameters(
@@ -18,12 +18,6 @@ type ServiceManager interface { // nolint: golint
 	// GetProvisioner returns a provisioner that defines the steps a module must
 	// execute asynchronously to provision a service.
 	GetProvisioner(Plan) (Provisioner, error)
-	// GetEmptyInstanceDetails returns an empty instance of non-sensitive
-	// service-specific instance details
-	GetEmptyInstanceDetails() InstanceDetails
-	// GetEmptySecureInstanceDetails returns an empty instance of sensitive
-	// service-specific instance details
-	GetEmptySecureInstanceDetails() SecureInstanceDetails
 	// ValidateUpdatingParameters validates the provided
 	// updating parameters against allowed values and current instance state
 	// and returns an error if there is any problem
@@ -31,12 +25,12 @@ type ServiceManager interface { // nolint: golint
 	// GetUpdater returns a updater that defines the steps a module must
 	// execute asynchronously to update a service.
 	GetUpdater(Plan) (Updater, error)
-	// GetEmptyBindingParameters returns an empty instance of non-sensitive
-	// service-specific binding parameters
-	GetEmptyBindingParameters() BindingParameters
-	// GetEmptySecureBindingParameters returns an empty instance of sensitive
-	// service-specific binding parameters
-	GetEmptySecureBindingParameters() SecureBindingParameters
+	// SplitBindingParameters splits a map of binding parameters into two separate
+	// maps, with one containing non-sensitive binding parameters and the other
+	// containing sensitive binding parameters.
+	SplitBindingParameters(
+		CombinedBindingParameters,
+	) (BindingParameters, SecureBindingParameters, error)
 	// ValidateBindingParameters validates the provided bindingParameters and
 	// returns an error if there is any problem
 	ValidateBindingParameters(BindingParameters, SecureBindingParameters) error
@@ -46,12 +40,6 @@ type ServiceManager interface { // nolint: golint
 		BindingParameters,
 		SecureBindingParameters,
 	) (BindingDetails, SecureBindingDetails, error)
-	// GetEmptyBindingDetails returns an empty instance of service-specific
-	// non-sensitive binding details
-	GetEmptyBindingDetails() BindingDetails
-	// GetEmptySecureBindingDetails returns an empty instance of service-specific
-	// secured (sensitive) binding details
-	GetEmptySecureBindingDetails() SecureBindingDetails
 	// GetCredentials returns service-specific credentials populated from instance
 	// and binding details
 	GetCredentials(Instance, Binding) (Credentials, error)

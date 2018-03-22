@@ -23,11 +23,9 @@ func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mssql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	err := a.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -36,7 +34,7 @@ func (a *allInOneManager) deleteARMDeployment(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (a *allInOneManager) deleteMsSQLServer(
@@ -45,11 +43,9 @@ func (a *allInOneManager) deleteMsSQLServer(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *mssql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	result, err := a.serversClient.Delete(
 		ctx,
@@ -62,5 +58,5 @@ func (a *allInOneManager) deleteMsSQLServer(
 	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
 		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
