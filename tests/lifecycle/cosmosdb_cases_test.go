@@ -29,9 +29,9 @@ func getCosmosdbCases(
 	)
 	dbAccountsClient.Authorizer = authorizer
 	return []serviceLifecycleTestCase{
-		{ // DocumentDB
+		{ // sql api
 			module:      cosmosdb.New(armDeployer, dbAccountsClient),
-			description: "CosmosDB",
+			description: "CosmosDB SQL API",
 			serviceID:   "6330de6f-a561-43ea-a15e-b99f44d183e6",
 			planID:      "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
 			location:    "eastus",
@@ -43,6 +43,20 @@ func getCosmosdbCases(
 			planID:          "86fdda05-78d7-4026-a443-1325928e7b02",
 			location:        "southcentralus",
 			testCredentials: testMongoDBCreds(),
+		},
+		{ // Graph API
+			module:      cosmosdb.New(armDeployer, dbAccountsClient),
+			description: "CosmosDB Graph API",
+			serviceID:   "5f5252a0-6922-4a0c-a755-f9be70d7c79b",
+			planID:      "126a2c47-11a3-49b1-833a-21b563de6c04",
+			location:    "southcentralus",
+		},
+		{ // Table API
+			module:      cosmosdb.New(armDeployer, dbAccountsClient),
+			description: "CosmosDB Table API",
+			serviceID:   "37915cad-5259-470d-a7aa-207ba89ada8c",
+			planID:      "c970b1e8-794f-4d7c-9458-d28423c08856",
+			location:    "southcentralus",
 		},
 	}, nil
 }

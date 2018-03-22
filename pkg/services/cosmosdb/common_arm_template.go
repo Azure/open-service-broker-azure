@@ -9,12 +9,6 @@ var armTemplateBytes = []byte(`
 		"location": {
 			"type": "string"
 		},
-		"name": {
-			"type": "string"
-		},
-		"kind": {
-			"type": "string"
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -22,15 +16,22 @@ var armTemplateBytes = []byte(`
 	"resources": [
 		{
 			"apiVersion": "2015-04-08",
-			"kind": "[parameters('kind')]",
+			"kind": "{{ .kind }}",
 			"type": "Microsoft.DocumentDb/databaseAccounts",
-			"name": "[parameters('name')]",
+			"name": "{{ .name }}",
 			"location": "[parameters('location')]",
 			"properties": {
 				"databaseAccountOfferType": "Standard",
+				{{ if .capability }}
+				"capabilities": [
+					{
+						"name": "{{ .capability }}"
+					}
+				],
+				{{ end }}
 				"locations": [
 					{
-						"id": "[concat(parameters('name'), '-', parameters('location'))]",
+						"id": "[concat('{{ .name}}', '-', parameters('location'))]",
 						"failoverPriority": 0,
 						"locationName": "[parameters('location')]"
 					}
@@ -42,11 +43,11 @@ var armTemplateBytes = []byte(`
 	"outputs": {
 		"fullyQualifiedDomainName": {
 			"type": "string",
-			"value": "[reference(parameters('name')).documentEndpoint]"
+			"value": "[reference('{{ .name }}').documentEndpoint]"
 		},
 		"primaryKey":{
 			"type": "string",
-			"value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', parameters('name')), '2015-04-08').primaryMasterKey]"
+			"value": "[listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', '{{ .name }}'), '2015-04-08').primaryMasterKey]"
 		}
 	}
 }
