@@ -38,7 +38,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"50 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
+				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "1a538e06-9bcc-4077-8480-966cbf85bf36",
@@ -55,7 +55,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"100 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
+				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "edc2badc-d93b-4d9c-9d8e-da2f1c8c3e1c",
@@ -75,7 +75,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
+				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "9995c891-48ba-46cc-8dae-83595c1f443f",
@@ -95,7 +95,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
+				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "ae3cd3dd-9818-48c0-9cd0-62c3b130944e",
@@ -115,7 +115,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
+				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "08e4b43a-36bc-447e-a81f-8202b13e339c",
@@ -135,7 +135,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParametersSchema(),
+				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 		),
 		// dbms only service
@@ -297,7 +297,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for MySQL-- Database Only",
 				},
-				ProvisionParamsSchema: GetDatabaseProvisionParametersSchema(),
+				ProvisionParamsSchema: GetDBaseProvisionParametersSchema(),
 			}),
 		),
 	}), nil

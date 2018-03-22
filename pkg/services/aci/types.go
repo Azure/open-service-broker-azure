@@ -41,7 +41,7 @@ func GetProvisionParametersSchema() map[string]*service.ParameterSchema {
 			"will be assigned a public IP (v4) address if and only if one or " +
 			"more ports are opened.",
 		Required: true,
-		Items: service.ParameterSchema{
+		Items: &service.ParameterSchema{
 			Type: "integer",
 		},
 	}

@@ -95,7 +95,7 @@ func init() {
 											"tags": {
 												"type": "object",
 												"description": "%s",
-												"additional": {
+												"additionalProperties": {
 													"type" : "string"
 												}
 											}

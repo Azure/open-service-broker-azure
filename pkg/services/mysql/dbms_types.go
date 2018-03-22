@@ -16,7 +16,7 @@ type firewallRule struct {
 // GetDBMSProvisionParametersSchema returns the parameter schema for
 // DBMS only service instances
 func GetDBMSProvisionParametersSchema() map[string]*service.ParameterSchema {
-	p := GetDBMSCommonProvisionParametersSchema()
+	p := GetDBMSCommonProvisionParamSchema()
 
 	p["alias"] = &service.ParameterSchema{
 		Type:        "string",

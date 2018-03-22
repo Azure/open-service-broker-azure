@@ -43,7 +43,81 @@ type ParameterSchema struct {
 	Additional  *ParameterSchema            `json:"additionalProperties,omitempty"`
 }
 
-func getEmptyParameterSchema() *parametersSchema {
+func (s *parametersSchema) addParameters(
+	newParams map[string]*ParameterSchema,
+) {
+	if s.Properties == nil {
+		s.Properties = newParams
+		for key, param := range newParams {
+			if param.Required {
+				s.Required = append(s.Required, key)
+			}
+		}
+	} else {
+		for key, param := range newParams {
+			s.Properties[key] = param
+			if param.Required {
+				s.Required = append(s.Required, key)
+			}
+		}
+	}
+}
+
+func (ps *planSchemas) addParameters(
+	instanceCreateParameters map[string]*ParameterSchema,
+	instanceUpdateParameters map[string]*ParameterSchema,
+	bindingCreateParameters map[string]*ParameterSchema,
+) {
+	if instanceCreateParameters != nil {
+		sips := ps.ServiceInstances
+		if sips == nil {
+			sips = &instanceSchemas{}
+			ps.ServiceInstances = sips
+		}
+		pps := sips.ProvisioningParametersSchema
+		if pps == nil {
+			pps = &provisioningParametersSchema{
+				Parameters: createEmptyParameterSchema(),
+			}
+			sips.ProvisioningParametersSchema = pps
+		}
+		pps.Parameters.addParameters(instanceCreateParameters)
+	}
+
+	if instanceUpdateParameters != nil {
+		sips := ps.ServiceInstances
+		if sips == nil {
+			sips = &instanceSchemas{}
+			ps.ServiceInstances = sips
+		}
+		ups := sips.UpdatingParametersSchema
+		if ups == nil {
+			ups = &updatingParametersSchema{
+				Parameters: createEmptyParameterSchema(),
+			}
+			sips.UpdatingParametersSchema = ups
+		}
+		ups.Parameters.addParameters(instanceUpdateParameters)
+	}
+	if bindingCreateParameters != nil {
+
+		sbps := ps.ServiceBindings
+		if sbps == nil {
+			sbps = &bindingSchemas{}
+			ps.ServiceBindings = sbps
+		}
+		bcps := sbps.BindingParametersSchema
+		if bcps == nil {
+			bcps = &bindingSchema{
+				Parameters: createEmptyParameterSchema(),
+			}
+			sbps.BindingParametersSchema = bcps
+		}
+		bcps.Parameters.addParameters(bindingCreateParameters)
+	}
+}
+
+func createEmptyParameterSchema() *parametersSchema {
 	p := &parametersSchema{
 		Schema: "http://json-schema.org/draft-04/schema#",
 		Type:   "object",
