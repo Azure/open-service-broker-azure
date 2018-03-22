@@ -9,17 +9,16 @@ type databaseInstanceDetails struct {
 
 // GetDatabaseProvisionParametersSchema generates a schema for parameters used
 // in database instance provisioning
-func GetDatabaseProvisionParametersSchema() *service.ParametersSchema {
-	p := service.GetEmptyParameterSchema()
-	props := map[string]service.Parameter{}
-	props["parentAlias"] = service.Parameter{
+func GetDatabaseProvisionParametersSchema() map[string]*service.ParameterSchema {
+
+	props := map[string]*service.ParameterSchema{}
+	props["parentAlias"] = &service.ParameterSchema{
 		Type: "string",
 		Description: "Specifies the alias of the DBMS upon which the database " +
 			"should be provisioned.",
+		Required: true,
 	}
-	p.Properties = props
-	p.Required = []string{"parentAlias"}
-	return p
+	return props
 }
 
 func (d *databaseManager) SplitProvisioningParameters(

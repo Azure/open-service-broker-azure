@@ -11,40 +11,40 @@ type provisioningParameters struct {
 
 // GetProvisionParametersSchema generates the schema for instance
 // provisioning parameters
-func GetProvisionParametersSchema() *service.ParametersSchema {
+func GetProvisionParametersSchema() map[string]*service.ParameterSchema {
 
-	p := service.GetCommonProvisionParametersSchema()
+	p := map[string]*service.ParameterSchema{}
 
-	p.Properties["image"] = service.Parameter{
+	p["image"] = &service.ParameterSchema{
 		Type:        "string",
 		Description: "The Docker image on which to base the container.",
+		Required:    true,
 	}
 
-	p.Properties["cpuCores"] = service.Parameter{
+	p["cpuCores"] = &service.ParameterSchema{
 		Type: "integer",
 		Description: "The number of virtual CPU cores requested " +
 			"for the container.",
 		Default: 1,
 	}
 
-	p.Properties["memoryInGb"] = service.Parameter{
+	p["memoryInGb"] = &service.ParameterSchema{
 		Type: "integer",
 		Description: "Gigabytes of memory requested for the container. " +
 			"Must be specified in increments of 0.10 GB.",
 		Default: 1.5,
 	}
 
-	p.Properties["ports"] = service.Parameter{
+	p["ports"] = &service.ParameterSchema{
 		Type: "array",
 		Description: "The port(s) to open on the container. The container " +
 			"will be assigned a public IP (v4) address if and only if one or " +
 			"more ports are opened.",
-		Items: service.Parameter{
+		Required: true,
+		Items: service.ParameterSchema{
 			Type: "integer",
 		},
 	}
-
-	p.Required = []string{"image", "ports"}
 	return p
 }
 

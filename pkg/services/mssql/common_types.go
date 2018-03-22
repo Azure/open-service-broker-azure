@@ -27,37 +27,37 @@ type credentials struct {
 
 // GetDBMSCommonProvisionParametersSchema generates a common schema for both
 // the DBMS-only and All In One service
-func GetDBMSCommonProvisionParametersSchema() *service.ParametersSchema {
-	p := service.GetCommonProvisionParametersSchema()
+func GetDBMSCommonProvisionParametersSchema() map[string]*service.ParameterSchema {
+	p := map[string]*service.ParameterSchema{}
 
-	p.Properties["sslEnforcement"] = service.Parameter{
+	p["sslEnforcement"] = &service.ParameterSchema{
 		Type: "string",
 		Description: "Specifies whether the server requires the use of TLS " +
 			"when connecting. Can be 'enabled', 'disabled' or ''. " +
 			"Left unspecified, SSL will be enforced",
 	}
 
-	firewallRuleSchema := map[string]interface{}{}
-	firewallRuleSchema["name"] = service.Parameter{
+	firewallRuleSchema := make(map[string]*service.ParameterSchema)
+	firewallRuleSchema["name"] = &service.ParameterSchema{
 		Type:        "string",
 		Description: "Name of firewall rule",
 	}
 
-	firewallRuleSchema["startIPAddress"] = service.Parameter{
+	firewallRuleSchema["startIPAddress"] = &service.ParameterSchema{
 		Type:        "string",
 		Description: "Start of firewall rule range",
 	}
 
-	firewallRuleSchema["endIPAddress"] = service.Parameter{
+	firewallRuleSchema["endIPAddress"] = &service.ParameterSchema{
 		Type:        "string",
 		Description: "End of firewall rule range",
 	}
 
-	p.Properties["firewallRules"] = service.Parameter{
+	p["firewallRules"] = &service.ParameterSchema{
 		Type: "array",
 		Description: "Firewall rules to apply to instance. " +
 			"If left unspecified, defaults to only Azure IPs",
-		Items: service.Parameter{
+		Items: &service.ParameterSchema{
 			Type:       "object",
 			Properties: firewallRuleSchema,
 		},

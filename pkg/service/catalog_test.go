@@ -21,20 +21,25 @@ func init() {
 	bindable := true
 	planUpdatable := false
 	free := false
-
-	provisionSchema := GetEmptyParameterSchema()
-	props := map[string]Parameter{}
-	props["location"] = Parameter{
+	props := map[string]*ParameterSchema{}
+	props["location"] = &ParameterSchema{
 		Type: "string",
 		Description: "The Azure region in which to provision " +
 			"applicable resources.",
 	}
-	props["resourceGroup"] = Parameter{
+	props["resourceGroup"] = &ParameterSchema{
 		Type: "string",
 		Description: "The (new or existing) resource group with " +
 			"which to associate new resources.",
 	}
-	provisionSchema.Properties = props
+	props["tags"] = &ParameterSchema{
+		Type: "object",
+		Description: "Tags to be applied to new resources, specified " +
+			"as key/value pairs.",
+		Additional: &ParameterSchema{
+			Type: "string",
+		},
+	}
 
 	testCatalog = NewCatalog([]Service{
 		NewService(
@@ -52,7 +57,7 @@ func init() {
 				Name:        name,
 				Description: description,
 				Free:        free,
-				ProvisionParamsSchema: provisionSchema,
+				ProvisionParamsSchema: props,
 			}),
 		),
 	})
@@ -86,6 +91,13 @@ func init() {
 											"resourceGroup": {
 												"type": "string",
 												"description": "%s"
+											},
+											"tags": {
+												"type": "object",
+												"description": "%s",
+												"additional": {
+													"type" : "string"
+												}
 											}
 										}
 									}
@@ -116,6 +128,7 @@ func init() {
 		free,
 		"The Azure region in which to provision applicable resources.",
 		"The (new or existing) resource group with which to associate new resources.",
+		"Tags to be applied to new resources, specified as key/value pairs.",
 	)
 
 	testCatalogJSON = []byte(testCatalogJSONStr)

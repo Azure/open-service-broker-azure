@@ -9,29 +9,30 @@ type provisioningParameters struct {
 
 // GetProvisionParametersSchema generates the schema for instance provisioning
 // parameters
-func GetProvisionParametersSchema() *service.ParametersSchema {
+func GetProvisionParametersSchema() map[string]*service.ParameterSchema {
 
-	p := service.GetCommonProvisionParametersSchema()
+	p := map[string]*service.ParameterSchema{}
 
-	p.Properties["objectId"] = service.Parameter{
+	p["objectId"] = &service.ParameterSchema{
 		Type: "string",
 		Description: "Object ID for an existing service principal, " +
 			"which will be granted access to the new vault.",
+		Required: true,
 	}
 
-	p.Properties["clientId"] = service.Parameter{
+	p["clientId"] = &service.ParameterSchema{
 		Type: "string",
 		Description: "Client ID (username) for an existing service principal," +
 			"which will be granted access to the new vault.",
+		Required: true,
 	}
 
-	p.Properties["clientSecret"] = service.Parameter{
+	p["clientSecret"] = &service.ParameterSchema{
 		Type: "string",
 		Description: "Client secret (password) for an existing service " +
 			"principal, which will be granted access to the new vault.",
+		Required: true,
 	}
-
-	p.Required = []string{"objectId", "clientId", "clientSecret"}
 	return p
 }
 

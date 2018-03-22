@@ -15,14 +15,14 @@ type firewallRule struct {
 
 // GetDBMSProvisionParametersSchema returns the parameter schema for
 // DBMS only service instances
-func GetDBMSProvisionParametersSchema() *service.ParametersSchema {
+func GetDBMSProvisionParametersSchema() map[string]*service.ParameterSchema {
 	p := GetDBMSCommonProvisionParametersSchema()
 
-	p.Properties["alias"] = service.Parameter{
+	p["alias"] = &service.ParameterSchema{
 		Type:        "string",
 		Description: "Alias to use when provisioning databases on this DBMS",
+		Required:    true,
 	}
-	p.Required = []string{"alias"}
 	return p
 }
 
