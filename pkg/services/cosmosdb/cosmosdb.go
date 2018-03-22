@@ -7,8 +7,10 @@ import (
 )
 
 type module struct {
-	cosmosAccountManager *cosmosAccountManager
-	mongoAccountManager  *mongoAccountManager
+	sqlAccountManager   *sqlAccountManager
+	mongoAccountManager *mongoAccountManager
+	graphAccountManager *graphAccountManager
+	tableAccountManager *tableAccountManager
 }
 
 type cosmosAccountManager struct {
@@ -16,9 +18,21 @@ type cosmosAccountManager struct {
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient
 }
 
+type sqlAccountManager struct {
+	cosmosAccountManager
+}
+
 type mongoAccountManager struct {
 	armDeployer            arm.Deployer
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient
+}
+
+type tableAccountManager struct {
+	cosmosAccountManager
+}
+
+type graphAccountManager struct {
+	cosmosAccountManager
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -28,15 +42,18 @@ func New(
 	armDeployer arm.Deployer,
 	databaseAccountsClient cosmosSDK.DatabaseAccountsClient,
 ) service.Module {
+	cosmos := cosmosAccountManager{
+		armDeployer:            armDeployer,
+		databaseAccountsClient: databaseAccountsClient,
+	}
 	return &module{
 		mongoAccountManager: &mongoAccountManager{
 			armDeployer:            armDeployer,
 			databaseAccountsClient: databaseAccountsClient,
 		},
-		cosmosAccountManager: &cosmosAccountManager{
-			armDeployer:            armDeployer,
-			databaseAccountsClient: databaseAccountsClient,
-		},
+		sqlAccountManager:   &sqlAccountManager{cosmos},
+		graphAccountManager: &graphAccountManager{cosmos},
+		tableAccountManager: &tableAccountManager{cosmos},
 	}
 }
 
