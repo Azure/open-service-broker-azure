@@ -48,8 +48,7 @@ jobs:
           command: make test-api-compliance
   build:
     docker:
-      - image: krancour/go-n-docker:canary
-    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+      - image: docker:18.03.0-dind
     steps:
       - checkout
       - setup_remote_docker
@@ -70,10 +69,9 @@ jobs:
           command: make test-service-lifecycles
   publish-rc-images:
     docker:
-      - image: krancour/go-n-docker:canary
+      - image: docker:18.03.0-dind
     environment:
       DOCKER_REPO: microsoft/
-    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - setup_remote_docker
@@ -85,10 +83,9 @@ jobs:
           command: make push-rc
   publish-release-images:
     docker:
-      - image: krancour/go-n-docker:canary
+      - image: docker:18.03.0-dind
     environment:
       DOCKER_REPO: microsoft/
-    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - setup_remote_docker
