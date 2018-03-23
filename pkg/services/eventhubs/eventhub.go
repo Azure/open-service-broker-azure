@@ -30,7 +30,7 @@ func New(
 }
 
 func (m *module) GetName() string {
-	return "eventhub"
+	return "eventhubs"
 }
 
 func (m *module) GetStability() service.Stability {

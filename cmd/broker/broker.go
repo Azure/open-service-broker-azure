@@ -12,6 +12,7 @@ import (
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
 	async "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/boot"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
@@ -48,21 +49,16 @@ func main() {
 	).Info("Setting log level")
 	log.SetLevel(logLevel)
 
+	// Initialize catalog
+	catalogConfig, err := service.GetCatalogConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
 	azureConfig, err := azure.GetConfigFromEnvironment()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Initialize catalog
-	modulesConfig, err := service.GetModulesConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-	modules, err := getModules(modulesConfig, azureConfig)
-	if err != nil {
-		log.Fatal(err)
-	}
-	catalog, err := getCatalog(modules)
+	catalog, err := boot.GetCatalog(catalogConfig, azureConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
