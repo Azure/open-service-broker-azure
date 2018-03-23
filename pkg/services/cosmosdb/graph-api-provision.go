@@ -21,12 +21,19 @@ func (g *graphAccountManager) deployARMTemplate(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+
+	pp := &provisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
+		return nil, nil, err
+	}
+
 	dt := &cosmosdbInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
 
-	p := g.buildGoTemplateParams(dt)
+	p := g.buildGoTemplateParams(pp, dt)
 	p["capability"] = "EnableGremlin"
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)

@@ -20,12 +20,19 @@ func (s *sqlAccountManager) deployARMTemplate(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+
+	pp := &provisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
+		return nil, nil, err
+	}
+
 	dt := &cosmosdbInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
 
-	p := s.buildGoTemplateParams(dt)
+	p := s.buildGoTemplateParams(pp, dt)
 	p["capability"] = "EnableTable"
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)
