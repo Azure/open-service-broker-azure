@@ -111,12 +111,12 @@ workflows:
           filters:
             branches:
               ignore: master
-      - test-api-compliance:
-          requires:
-            - hold
-          filters:
-            branches:
-              ignore: master
+      # - test-api-compliance:
+      #     requires:
+      #       - hold
+      #     filters:
+      #       branches:
+      #         ignore: master
       - build:
           requires:
             - hold
@@ -129,7 +129,7 @@ workflows:
             - lint
             - verify-vendored-code
             - test-unit
-            - test-api-compliance
+            # - test-api-compliance
             - build
           filters:
             branches:
@@ -148,10 +148,10 @@ workflows:
           filters:
             branches:
               only: master
-      - test-api-compliance:
-          filters:
-            branches:
-              only: master
+      # - test-api-compliance:
+      #     filters:
+      #       branches:
+      #         only: master
       - build:
           filters:
             branches:
@@ -161,7 +161,7 @@ workflows:
             - lint
             - verify-vendored-code
             - test-unit
-            - test-api-compliance
+            # - test-api-compliance
             - build
           filters:
             branches:
@@ -171,7 +171,7 @@ workflows:
             - lint
             - verify-vendored-code
             - test-unit
-            - test-api-compliance
+            # - test-api-compliance
             - build
             - test-service-lifecycles
           filters:
