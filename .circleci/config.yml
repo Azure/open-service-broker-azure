@@ -47,9 +47,12 @@ jobs:
           name: Run API Compliance Tests
           command: make test-api-compliance
   build:
-    machine: true
+    docker:
+      - image: krancour/go-n-docker:canary
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Build Binary & Docker Image
           command: make build
@@ -66,11 +69,14 @@ jobs:
           name: Run Service Lifecycle Tests
           command: make test-service-lifecycles
   publish-rc-images:
+    docker:
+      - image: krancour/go-n-docker:canary
     environment:
       DOCKER_REPO: microsoft/
-    machine: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
@@ -78,11 +84,14 @@ jobs:
           name: Publish Release Candidate Images to Docker Hub
           command: make push-rc
   publish-release-images:
+    docker:
+      - image: krancour/go-n-docker:canary
     environment:
       DOCKER_REPO: microsoft/
-    machine: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
