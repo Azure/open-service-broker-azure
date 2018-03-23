@@ -3,6 +3,8 @@ package cosmosdb
 import (
 	"context"
 	"fmt"
+	"net"
+	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -42,10 +44,47 @@ func preProvision(
 }
 
 func (c *cosmosAccountManager) ValidateProvisioningParameters(
-	service.ProvisioningParameters,
-	service.SecureProvisioningParameters,
+	provisionParameters service.ProvisioningParameters,
+	_ service.SecureProvisioningParameters,
 ) error {
-	// Nothing to validate
+	pp := provisioningParameters{}
+	if err := service.GetStructFromMap(provisionParameters, &pp); err != nil {
+		return err
+	}
+	if pp.IPFilterRules != nil {
+
+		allowAzure := strings.ToLower(pp.IPFilterRules.AllowAzure)
+		if allowAzure != "" && allowAzure != "enabled" &&
+			allowAzure != "disabled" {
+			return service.NewValidationError(
+				"allowAzure",
+				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowAzure),
+			)
+		}
+
+		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
+		if allowPortal != "" && allowPortal != "enabled" &&
+			allowPortal != "disabled" {
+			return service.NewValidationError(
+				"allowPortal",
+				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowPortal),
+			)
+		}
+
+		for _, filter := range pp.IPFilterRules.Filters {
+			var ip net.IP
+			ip = net.ParseIP(filter)
+			if ip == nil {
+				ip, _, _ = net.ParseCIDR(filter)
+				if ip == nil {
+					return service.NewValidationError(
+						"IP Filter",
+						fmt.Sprintf(`invalid value: "%s"`, filter),
+					)
+				}
+			}
+		}
+	}
 	return nil
 }
 
@@ -57,11 +96,48 @@ func (c *cosmosAccountManager) preProvision(
 }
 
 func (c *cosmosAccountManager) buildGoTemplateParams(
+	pp *provisioningParameters,
 	dt *cosmosdbInstanceDetails,
 ) map[string]interface{} {
 	p := map[string]interface{}{}
 	p["name"] = dt.DatabaseAccountName
 	p["kind"] = "GlobalDocumentDB"
+
+	if pp.IPFilterRules != nil {
+		filters := []string{}
+		if pp.IPFilterRules.AllowAzure != "disable" {
+			filters = append(filters, "0.0.0.0")
+		} else if pp.IPFilterRules.AllowPortal != "disable" {
+			// Azure Portal IP Addresses per:
+			// https://aka.ms/Vwxndo
+			// Region	IP address
+			// All regions except those specified below
+			//                  104.42.195.92,
+			//					40.76.54.131,
+			//					52.176.6.30,
+			//					52.169.50.45,
+			//					52.187.184.26
+			// Germany	51.4.229.218
+			// China	139.217.8.252
+			// US Gov	52.244.48.71
+			filters = append(filters,
+				"104.42.195.92",
+				"40.76.54.131",
+				"52.176.6.30",
+				"52.169.50.45",
+				"52.187.184.26",
+				"51.4.229.218",
+				"139.217.8.252",
+				"52.244.48.71",
+			)
+		}
+		for _, filter := range pp.IPFilterRules.Filters {
+			filters = append(filters, filter)
+		}
+		if len(filters) > 0 {
+			p["ipFilters"] = strings.Join(filters, ",")
+		}
+	}
 	return p
 }
 

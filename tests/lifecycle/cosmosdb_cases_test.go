@@ -8,6 +8,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -18,7 +19,12 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		name:      "sql-api",
 		serviceID: "6330de6f-a561-43ea-a15e-b99f44d183e6",
 		planID:    "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
-		location:  "eastus",
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipFilters": map[string]interface{}{
+				"allowAccessFromAzure": true,
+			},
+		},
+		location: "eastus",
 	},
 	{ // Graph API
 		group:     "cosmosdb",
@@ -26,6 +32,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		serviceID: "5f5252a0-6922-4a0c-a755-f9be70d7c79b",
 		planID:    "126a2c47-11a3-49b1-833a-21b563de6c04",
 		location:  "southcentralus",
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipFilters": map[string]interface{}{
+				"filters": []string{"0.0.0.0"},
+			},
+		},
 	},
 	{ // Table API
 		group:     "cosmosdb",

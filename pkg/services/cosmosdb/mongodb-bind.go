@@ -4,23 +4,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (m *mongoAccountManager) ValidateBindingParameters(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error {
-	// There are no parameters for binding to CosmosDB, so there is nothing
-	// to validate
-	return nil
-}
-
-func (m *mongoAccountManager) Bind(
-	service.Instance,
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return nil, nil, nil
-}
-
 func (m *mongoAccountManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
