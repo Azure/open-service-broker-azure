@@ -2,7 +2,7 @@ version: 2
 jobs:
   lint:
     docker:
-      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+      - image: krancour/gometalinter:canary
     environment:
       SKIP_DOCKER: true
       CGO_ENABLED: 0
@@ -149,17 +149,17 @@ workflows:
           filters:
             branches:
               ignore: master
-      - test-service-lifecycles:
-          requires:
-            - hold
-            - lint
-            - verify-vendored-code
-            - test-unit
-            # - test-api-compliance
-            - build
-          filters:
-            branches:
-              ignore: master
+      # - test-service-lifecycles:
+      #     requires:
+      #       - hold
+      #       - lint
+      #       - verify-vendored-code
+      #       - test-unit
+      #       # - test-api-compliance
+      #       - build
+      #     filters:
+      #       branches:
+      #         ignore: master
   build-and-test-master:
     jobs:
       - lint:
