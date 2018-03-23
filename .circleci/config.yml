@@ -1,21 +1,36 @@
 version: 2
 jobs:
   lint:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Run Lint
           command: make lint
   verify-vendored-code:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Verify Vendored Code
           command: make verify-vendored-code
   test-unit:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+      - image: redis:3.2.4
+    environment:
+      SKIP_DOCKER: true
+      STORAGE_REDIS_HOST: localhost
+      ASYNC_REDIS_HOST: localhost
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
@@ -36,7 +51,10 @@ jobs:
           name: Build Binary & Docker Image
           command: make build
   test-service-lifecycles:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
     steps:
       - checkout
       - run:

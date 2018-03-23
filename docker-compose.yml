@@ -2,6 +2,9 @@ version: "3.2"
 services:
   test:
     image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      STORAGE_REDIS_HOST: redis
+      ASYNC_REDIS_HOST: redis
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
