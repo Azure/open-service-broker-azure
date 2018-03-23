@@ -53,10 +53,10 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Install Make
+          name: Install Make & Git
           command: |
             apk update
-            apk add make
+            apk add make git
       - run:
           name: Build Binary & Docker Image
           command: make build
@@ -81,10 +81,10 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Install Make
+          name: Install Make & Git
           command: |
             apk update
-            apk add make
+            apk add make git
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
@@ -100,10 +100,10 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Install Make
+          name: Install Make & Git
           command: |
             apk update
-            apk add make
+            apk add make git
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
