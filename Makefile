@@ -27,6 +27,7 @@ DEV_IMAGE := quay.io/deis/lightweight-docker-go:v0.2.0
 
 DOCKER_CMD_BASE := docker run \
 	--rm \
+	-e CGO_ENABLED=0 \
 	-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \
 	-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
 	-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
@@ -112,7 +113,6 @@ LINT_CMD := gometalinter ./... \
 	--enable golint \
 	--enable varcheck \
 	--enable structcheck \
-	--enable aligncheck \
 	--enable errcheck \
 	--enable megacheck \
 	--enable ineffassign \
