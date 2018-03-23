@@ -1,21 +1,39 @@
 version: 2
 jobs:
   lint:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+      CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Run Lint
           command: make lint
   verify-vendored-code:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+      CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Verify Vendored Code
           command: make verify-vendored-code
   test-unit:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+      - image: redis:3.2.4
+    environment:
+      SKIP_DOCKER: true
+      STORAGE_REDIS_HOST: localhost
+      ASYNC_REDIS_HOST: localhost
+      CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
@@ -29,43 +47,69 @@ jobs:
           name: Run API Compliance Tests
           command: make test-api-compliance
   build:
-    machine: true
+    docker:
+      - image: docker:18.03.0-dind
     steps:
       - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
       - run:
           name: Build Binary & Docker Image
-          command: make docker-build
+          command: make build
   test-service-lifecycles:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+      CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Run Service Lifecycle Tests
           command: make test-service-lifecycles
   publish-rc-images:
+    docker:
+      - image: docker:18.03.0-dind
     environment:
       DOCKER_REPO: microsoft/
-    machine: true
     steps:
       - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
       - run:
           name: Publish Release Candidate Images to Docker Hub
-          command: make docker-push-rc
+          command: make push-rc
   publish-release-images:
+    docker:
+      - image: docker:18.03.0-dind
     environment:
       DOCKER_REPO: microsoft/
-    machine: true
     steps:
       - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
       - run:
           name: Publish Release Images to Docker Hub
-          command: REL_VERSION="${CIRCLE_TAG}" make docker-push-release
+          command: REL_VERSION="${CIRCLE_TAG}" make push-release
 workflows:
   version: 2
   build-and-test-pr:
@@ -93,12 +137,12 @@ workflows:
           filters:
             branches:
               ignore: master
-      - test-api-compliance:
-          requires:
-            - hold
-          filters:
-            branches:
-              ignore: master
+      # - test-api-compliance:
+      #     requires:
+      #       - hold
+      #     filters:
+      #       branches:
+      #         ignore: master
       - build:
           requires:
             - hold
@@ -111,7 +155,7 @@ workflows:
             - lint
             - verify-vendored-code
             - test-unit
-            - test-api-compliance
+            # - test-api-compliance
             - build
           filters:
             branches:
@@ -130,10 +174,10 @@ workflows:
           filters:
             branches:
               only: master
-      - test-api-compliance:
-          filters:
-            branches:
-              only: master
+      # - test-api-compliance:
+      #     filters:
+      #       branches:
+      #         only: master
       - build:
           filters:
             branches:
@@ -143,7 +187,7 @@ workflows:
             - lint
             - verify-vendored-code
             - test-unit
-            - test-api-compliance
+            # - test-api-compliance
             - build
           filters:
             branches:
@@ -153,7 +197,7 @@ workflows:
             - lint
             - verify-vendored-code
             - test-unit
-            - test-api-compliance
+            # - test-api-compliance
             - build
             - test-service-lifecycles
           filters:
