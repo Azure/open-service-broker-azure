@@ -52,7 +52,6 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 		return err
 	}
 	if pp.IPFilterRules != nil {
-
 		allowAzure := strings.ToLower(pp.IPFilterRules.AllowAzure)
 		if allowAzure != "" && allowAzure != "enabled" &&
 			allowAzure != "disabled" {
@@ -61,7 +60,6 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowAzure),
 			)
 		}
-
 		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
 		if allowPortal != "" && allowPortal != "enabled" &&
 			allowPortal != "disabled" {
@@ -70,11 +68,12 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowPortal),
 			)
 		}
-
 		for _, filter := range pp.IPFilterRules.Filters {
 			var ip net.IP
+			// First check if it is a valid IP
 			ip = net.ParseIP(filter)
 			if ip == nil {
+				// Check to see if it is a valid CIDR
 				ip, _, _ = net.ParseCIDR(filter)
 				if ip == nil {
 					return service.NewValidationError(
