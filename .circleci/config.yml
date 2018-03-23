@@ -53,6 +53,11 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          name: Install Make
+          command: |
+            apk update
+            apk add make
+      - run:
           name: Build Binary & Docker Image
           command: make build
   test-service-lifecycles:
@@ -76,6 +81,11 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          name: Install Make
+          command: |
+            apk update
+            apk add make
+      - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
       - run:
@@ -89,6 +99,11 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - run:
+          name: Install Make
+          command: |
+            apk update
+            apk add make
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
