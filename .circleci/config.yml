@@ -10,6 +10,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Describe Environment
+          command: |
+            pwd
+            env
+      - run:
           name: Run Lint
           command: make lint
   verify-vendored-code:
