@@ -59,6 +59,7 @@ jobs:
     environment:
       SKIP_DOCKER: true
       CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
