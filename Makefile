@@ -139,10 +139,8 @@ endif
 
 VERIFY_CMD := bash -c ' \
 	export PRJ_DIR=$$(pwd) \
-	&& export TMP_PRJ_DIR=/tmp$$PRJ_DIR \
-	&& mkdir -p $$TMP_PRJ_DIR \
-	&& cp -r $$PRJ_DIR $$TMP_PRJ_DIR/.. \
-	&& cd $$TMP_PRJ_DIR \
+	&& cp -r --parent $$PRJ_DIR /tmp \
+	&& cd /tmp$$PRJ_DIR \
 	&& export GOPATH=/tmp$$GOPATH \
 	&& dep ensure -v \
 	&& diff $$PRJ_DIR/Gopkg.lock Gopkg.lock \
