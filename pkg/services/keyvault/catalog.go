@@ -20,6 +20,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "Key", "Vault"},
+				ProvisionParamsSchema: m.serviceManager.getProvisionParametersSchema(),
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -33,7 +34,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
 				},
-				ProvisionParamsSchema: GetProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "6893b1de-0a7b-42bb-b28d-1636c4b81f75",
@@ -46,7 +46,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Premium Tier",
 				},
-				ProvisionParamsSchema: GetProvisionParametersSchema(),
 			}),
 		),
 	}), nil

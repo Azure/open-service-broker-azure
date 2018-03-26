@@ -32,8 +32,11 @@ type ServiceProperties struct { // nolint: golint
 	Bindable      bool             `json:"bindable"`
 	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
 	// deliberate to match the spec
-	ParentServiceID string `json:"-"`
-	ChildServiceID  string `json:"-"`
+	ParentServiceID       string                      `json:"-"`
+	ChildServiceID        string                      `json:"-"`
+	ProvisionParamsSchema map[string]*ParameterSchema `json:"-"`
+	UpdateParamsSchema    map[string]*ParameterSchema `json:"-"`
+	BindingParamsSchema   map[string]*ParameterSchema `json:"-"`
 }
 
 // ServiceMetadata contains metadata about the service classes
@@ -73,15 +76,12 @@ type service struct {
 // instantiated and passed to the NewPlan() constructor function which will
 // carry out all necessary initialization.
 type PlanProperties struct {
-	ID                    string                      `json:"id"`
-	Name                  string                      `json:"name"`
-	Description           string                      `json:"description"`
-	Free                  bool                        `json:"free"`
-	Metadata              *ServicePlanMetadata        `json:"metadata,omitempty"` // nolint: lll
-	Extended              map[string]interface{}      `json:"-"`
-	ProvisionParamsSchema map[string]*ParameterSchema `json:"-"`
-	UpdateParamsSchema    map[string]*ParameterSchema `json:"-"`
-	BindingParamsSchema   map[string]*ParameterSchema `json:"-"`
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Free        bool                   `json:"free"`
+	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
+	Extended    map[string]interface{} `json:"-"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans
@@ -182,6 +182,18 @@ func NewService(
 	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
+		var paramSchemas *planSchemas
+		if serviceProperties.ProvisionParamsSchema != nil ||
+			serviceProperties.UpdateParamsSchema != nil ||
+			serviceProperties.BindingParamsSchema != nil {
+			paramSchemas = &planSchemas{}
+			paramSchemas.addParameters(
+				serviceProperties.ProvisionParamsSchema,
+				serviceProperties.UpdateParamsSchema,
+				serviceProperties.BindingParamsSchema,
+			)
+			p.ParameterSchemas = paramSchemas
+		}
 		if serviceProperties.ParentServiceID == "" {
 			if p.ParameterSchemas == nil {
 				p.ParameterSchemas = &planSchemas{}
@@ -275,21 +287,8 @@ func (s *service) GetChildServiceID() string {
 
 // NewPlan initializes and returns a new Plan
 func NewPlan(planProperties *PlanProperties) Plan {
-
-	var paramSchemas *planSchemas
-	if planProperties.ProvisionParamsSchema != nil ||
-		planProperties.UpdateParamsSchema != nil ||
-		planProperties.BindingParamsSchema != nil {
-		paramSchemas = &planSchemas{}
-		paramSchemas.addParameters(
-			planProperties.ProvisionParamsSchema,
-			planProperties.UpdateParamsSchema,
-			planProperties.BindingParamsSchema,
-		)
-	}
 	return &plan{
-		PlanProperties:   planProperties,
-		ParameterSchemas: paramSchemas,
+		PlanProperties: planProperties,
 	}
 }
 
@@ -298,28 +297,6 @@ func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
 	p := &plan{}
 	if err := json.Unmarshal(jsonBytes, p); err != nil {
 		return nil, err
-	}
-	if p.ParameterSchemas.ServiceInstances != nil {
-		si := p.ParameterSchemas.ServiceInstances
-		if si.ProvisioningParametersSchema != nil &&
-			si.ProvisioningParametersSchema.Parameters != nil {
-			p.ProvisionParamsSchema =
-				si.ProvisioningParametersSchema.Parameters.Properties
-		}
-		if si.UpdatingParametersSchema != nil &&
-			si.UpdatingParametersSchema.Parameters != nil {
-			p.UpdateParamsSchema =
-				si.UpdatingParametersSchema.Parameters.Properties
-		}
-	}
-	if p.ParameterSchemas.ServiceBindings != nil {
-		sb := p.ParameterSchemas.ServiceBindings
-		if sb.BindingParametersSchema != nil &&
-			sb.BindingParametersSchema.Parameters != nil {
-			p.BindingParamsSchema =
-				sb.BindingParametersSchema.Parameters.Properties
-		}
-
 	}
 	return p, nil
 }

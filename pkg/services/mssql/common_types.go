@@ -25,9 +25,7 @@ type credentials struct {
 	Encrypt  bool     `json:"encrypt"`
 }
 
-// GetDBMSCommonProvisionParamSchema generates a common schema for both
-// the DBMS-only and All In One service
-func GetDBMSCommonProvisionParamSchema() map[string]*service.ParameterSchema {
+func getDBMSCommonProvisionParamSchema() map[string]*service.ParameterSchema {
 	p := map[string]*service.ParameterSchema{}
 
 	p["sslEnforcement"] = &service.ParameterSchema{

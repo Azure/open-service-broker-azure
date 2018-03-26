@@ -21,6 +21,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "MySQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 			},
 			m.allInOneServiceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -38,7 +39,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"50 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "1a538e06-9bcc-4077-8480-966cbf85bf36",
@@ -55,7 +55,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"100 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "edc2badc-d93b-4d9c-9d8e-da2f1c8c3e1c",
@@ -75,7 +74,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "9995c891-48ba-46cc-8dae-83595c1f443f",
@@ -95,7 +93,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "ae3cd3dd-9818-48c0-9cd0-62c3b130944e",
@@ -115,7 +112,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "08e4b43a-36bc-447e-a81f-8202b13e339c",
@@ -135,7 +131,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 		),
 		// dbms only service
@@ -154,6 +149,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "MySQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 			},
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
@@ -171,7 +167,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"50 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "9f71584c-8e97-46a7-b170-20c4273a64f9",
@@ -188,7 +183,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"100 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "dac995d8-2618-4aa5-9f2b-0376914ed2f7",
@@ -208,7 +202,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "1c7cf479-7dba-4ed4-a855-9ab032c40466",
@@ -228,7 +221,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "d8565a53-1db0-4842-9e64-5a5df560b668",
@@ -248,7 +240,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "6765fa7b-6b0a-4560-960f-7425dac56d47",
@@ -268,7 +259,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Additional Storage",
 					},
 				},
-				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 		),
 		// database only service
@@ -287,6 +277,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "MySQL", "Database"},
+				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{
@@ -297,7 +288,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for MySQL-- Database Only",
 				},
-				ProvisionParamsSchema: GetDBaseProvisionParametersSchema(),
 			}),
 		),
 	}), nil

@@ -11,7 +11,7 @@ type provisioningParameters struct {
 
 // GetProvisionParametersSchema generates the schema for instance
 // provisioning parameters
-func GetProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (s *serviceManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 
 	p := map[string]*service.ParameterSchema{}
 

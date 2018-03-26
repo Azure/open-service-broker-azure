@@ -20,6 +20,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.allInOneManager.getProvisionParametersSchema(),
 			},
 			m.allInOneManager,
 			service.NewPlan(&service.PlanProperties{
@@ -36,7 +37,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"50 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "843d7d03-9306-447e-8c19-25ccc4ac30d7",
@@ -52,7 +52,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"100 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSCommonProvisionParamSchema(),
 			}),
 		),
 		// dbms only
@@ -71,6 +70,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 			},
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
@@ -87,7 +87,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"50 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "58633c61-942c-42cb-b22c-346a4c594b8e",
@@ -103,7 +102,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"100 DTUs"},
 				},
-				ProvisionParamsSchema: GetDBMSProvisionParametersSchema(),
 			}),
 		),
 		// database only
@@ -122,6 +120,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "Database"},
+				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{
@@ -132,7 +131,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for PostgreSQL-- Database Only",
 				},
-				ProvisionParamsSchema: GetDBaseProvisionParametersSchema(),
 			}),
 		),
 	}), nil

@@ -7,9 +7,7 @@ type databaseInstanceDetails struct {
 	DatabaseName      string `json:"database"`
 }
 
-// GetDBaseProvisionParametersSchema generates a schema for parameters used
-// in database instance provisioning
-func GetDBaseProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (d *databaseManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 	props := map[string]*service.ParameterSchema{}
 	props["parentAlias"] = &service.ParameterSchema{
 		Type: "string",

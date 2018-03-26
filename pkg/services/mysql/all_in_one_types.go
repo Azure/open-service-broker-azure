@@ -15,6 +15,10 @@ type secureAllInOneInstanceDetails struct {
 	secureDBMSInstanceDetails `json:",squash"`
 }
 
+func (a *allInOneManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+	return getDBMSCommonProvisionParamSchema()
+}
+
 func (a *allInOneManager) SplitProvisioningParameters(
 	cpp service.CombinedProvisioningParameters,
 ) (

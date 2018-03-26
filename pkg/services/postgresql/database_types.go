@@ -6,9 +6,7 @@ type databaseProvisioningParameters struct {
 	Extensions []string `json:"extensions"`
 }
 
-// GetDBaseProvisionParametersSchema generates a schema for parameters used
-// in database instance provisioning
-func GetDBaseProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (d *databaseManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 	p := map[string]*service.ParameterSchema{}
 	p["parentAlias"] = &service.ParameterSchema{
 		Type: "string",
