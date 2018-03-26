@@ -7,7 +7,9 @@ type dbmsProvisioningParameters struct {
 	FirewallRules  []firewallRule `json:"firewallRules"`
 }
 
-func (d *dbmsManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (
+	d *dbmsManager,
+) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 
 	p := getDBMSCommonProvisionParamSchema()
 

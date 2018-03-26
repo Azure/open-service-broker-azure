@@ -7,7 +7,9 @@ type provisioningParameters struct {
 	ClientID string `json:"clientId"`
 }
 
-func (m *serviceManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (
+	s *serviceManager,
+) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 
 	p := map[string]*service.ParameterSchema{}
 

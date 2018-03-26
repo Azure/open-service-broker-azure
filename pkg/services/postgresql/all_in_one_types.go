@@ -16,7 +16,9 @@ type secureAllInOneInstanceDetails struct {
 	secureDBMSInstanceDetails `json:",squash"`
 }
 
-func (d *allInOneManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (
+	a *allInOneManager,
+) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 	return getDBMSCommonProvisionParamSchema()
 }
 

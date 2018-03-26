@@ -6,7 +6,9 @@ type databaseProvisioningParameters struct {
 	Extensions []string `json:"extensions"`
 }
 
-func (d *databaseManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (
+	d *databaseManager,
+) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 	p := map[string]*service.ParameterSchema{}
 	p["parentAlias"] = &service.ParameterSchema{
 		Type: "string",
