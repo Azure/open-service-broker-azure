@@ -20,8 +20,8 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		serviceID: "6330de6f-a561-43ea-a15e-b99f44d183e6",
 		planID:    "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
 		provisioningParameters: service.CombinedProvisioningParameters{
-			"ipFilters": map[string]interface{}{
-				"allowAccessFromAzure": true,
+			"ipRangeFilters": map[string]interface{}{
+				"filters": []string{"0.0.0.0/0"},
 			},
 		},
 		location: "eastus",
@@ -33,8 +33,8 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		planID:    "126a2c47-11a3-49b1-833a-21b563de6c04",
 		location:  "southcentralus",
 		provisioningParameters: service.CombinedProvisioningParameters{
-			"ipFilters": map[string]interface{}{
-				"filters": []string{"0.0.0.0"},
+			"ipRangeFilters": map[string]interface{}{
+				"filters": []string{"0.0.0.0/0"},
 			},
 		},
 	},
@@ -44,6 +44,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		serviceID: "37915cad-5259-470d-a7aa-207ba89ada8c",
 		planID:    "c970b1e8-794f-4d7c-9458-d28423c08856",
 		location:  "southcentralus",
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipRangeFilters": map[string]interface{}{
+				"filters": []string{"0.0.0.0/0"},
+			},
+		},
 	},
 	{ // MongoDB
 		group:           "cosmosdb",
@@ -52,6 +57,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		planID:          "86fdda05-78d7-4026-a443-1325928e7b02",
 		location:        "southcentralus",
 		testCredentials: testMongoDBCreds,
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipRangeFilters": map[string]interface{}{
+				"filters": []string{"0.0.0.0/0"},
+			},
+		},
 	},
 }
 

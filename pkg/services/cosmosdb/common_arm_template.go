@@ -23,7 +23,7 @@ var armTemplateBytes = []byte(`
 			"properties": {
 				"databaseAccountOfferType": "Standard",
 				{{ if .ipFilters }} 
-				"ipRangeFilter" : {{ .ipFilters }}",
+				"ipRangeFilter" : "{{ .ipFilters }}",
 				{{ end }}
 				{{ if .capability }}
 				"capabilities": [

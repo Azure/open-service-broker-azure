@@ -34,7 +34,7 @@ func (m *mongoAccountManager) deployARMTemplate(
 		return nil, nil, err
 	}
 
-	p := m.buildGoTemplateParams(pp, dt)
+	p := m.buildGoTemplateParams(pp, dt, "MongoDB")
 	dt, sdt, err := m.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
 
 	if err != nil {
