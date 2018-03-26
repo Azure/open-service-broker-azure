@@ -66,16 +66,6 @@ forms:
   label: Azure Config
   description: Configuration properties for Azure
   properties:
-  - name: log_level
-    type: dropdown_select
-    label: Log Level
-    configurable: true
-    default: INFO
-    options:
-      - name: INFO
-        label: INFO
-      - name: DEBUG
-        label: DEBUG
   - name: azure_environment
     type: dropdown_select
     label: Azure Environment
@@ -109,6 +99,16 @@ forms:
 - name: broker-config-form
   label: Broker Config
   properties:
+  - name: log_level
+    type: dropdown_select
+    label: Log Level
+    configurable: true
+    default: INFO
+    options:
+      - name: INFO
+        label: INFO
+      - name: DEBUG
+        label: DEBUG
   - name: storage_redis_host
     type: string
     label: Storage Redis Host
