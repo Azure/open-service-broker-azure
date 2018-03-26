@@ -7,20 +7,20 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-// ModulesConfig represents details re: which modules' services should be
+// CatalogConfig represents details re: which modules' services should be
 // included or excluded from the catalog
-type ModulesConfig interface {
+type CatalogConfig interface {
 	GetMinStability() Stability
 }
 
-type modulesConfig struct {
+type catalogConfig struct {
 	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"EXPERIMENTAL"`
 	MinStability    Stability
 }
 
-// GetModulesConfig returns modules configuration
-func GetModulesConfig() (ModulesConfig, error) {
-	mc := modulesConfig{}
+// GetCatalogConfigFromEnvironment returns catalog configuration
+func GetCatalogConfigFromEnvironment() (CatalogConfig, error) {
+	mc := catalogConfig{}
 	err := envconfig.Process("", &mc)
 	if err != nil {
 		return mc, err
@@ -42,6 +42,6 @@ func GetModulesConfig() (ModulesConfig, error) {
 	return mc, nil
 }
 
-func (m modulesConfig) GetMinStability() Stability {
-	return m.MinStability
+func (c catalogConfig) GetMinStability() Stability {
+	return c.MinStability
 }

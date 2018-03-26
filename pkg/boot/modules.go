@@ -1,4 +1,4 @@
-package main
+package boot
 
 import (
 	"fmt"
@@ -35,7 +35,7 @@ import (
 )
 
 func getModules(
-	modulesConfig service.ModulesConfig,
+	catalogConfig service.CatalogConfig,
 	azureConfig azure.Config,
 ) ([]service.Module, error) {
 	azureSubscriptionID := azureConfig.SubscriptionID
@@ -215,7 +215,7 @@ func getModules(
 	// Filter modules based on stability
 	filteredModules := []service.Module{}
 	for _, module := range modules {
-		if module.GetStability() >= modulesConfig.GetMinStability() {
+		if module.GetStability() >= catalogConfig.GetMinStability() {
 			filteredModules = append(filteredModules, module)
 		}
 	}
