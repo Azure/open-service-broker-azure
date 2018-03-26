@@ -110,7 +110,7 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 		} else if pp.IPFilterRules.AllowPortal != "disable" {
 			// Azure Portal IP Addresses per:
 			// https://aka.ms/Vwxndo
-			//|| Region	           || IP address(es) ||
+			//|| Region            || IP address(es) ||
 			//||=====================================||
 			//|| China             || 139.217.8.252  ||
 			//||===================||================||
