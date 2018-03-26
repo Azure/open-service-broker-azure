@@ -3,11 +3,11 @@ package cosmosdb
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type provisioningParameters struct {
-	IPFilterRules *ipFilterRule `json:"ipRangeFilters"`
+	IPFilterRules *ipFilterRule `json:"ipFilters"`
 }
 
 type ipFilterRule struct {
-	Filters     []string `json:"filters"`
+	Filters     []string `json:"allowedIPRanges"`
 	AllowAzure  string   `json:"allowAccessFromAzure,omitempty"`
 	AllowPortal string   `json:"allowAccessFromPortal,omitempty"`
 }
