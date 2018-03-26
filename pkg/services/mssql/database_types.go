@@ -7,7 +7,9 @@ type databaseInstanceDetails struct {
 	DatabaseName      string `json:"database"`
 }
 
-func (d *databaseManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (
+	d *databaseManager,
+) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 	props := map[string]*service.ParameterSchema{}
 	props["parentAlias"] = &service.ParameterSchema{
 		Type: "string",

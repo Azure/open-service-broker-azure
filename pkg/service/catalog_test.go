@@ -42,6 +42,7 @@ func init() {
 		),
 	})
 
+	//nolint: lll
 	testCatalogTemplate := `{
             "services":[
                 {

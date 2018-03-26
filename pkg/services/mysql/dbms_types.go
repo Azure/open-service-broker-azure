@@ -13,7 +13,9 @@ type firewallRule struct {
 	EndIP   string `json:"endIPAddress"`
 }
 
-func (d *dbmsManager) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+func (
+	d *dbmsManager,
+) getProvisionParametersSchema() map[string]*service.ParameterSchema {
 	p := getDBMSCommonProvisionParamSchema()
 
 	p["alias"] = &service.ParameterSchema{
