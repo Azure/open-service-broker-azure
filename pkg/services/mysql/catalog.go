@@ -1,6 +1,8 @@
 package mysql
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import (
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+)
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
@@ -19,6 +21,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "MySQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 			},
 			m.allInOneServiceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -146,6 +149,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "MySQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 			},
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
@@ -273,6 +277,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "MySQL", "Database"},
+				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{
