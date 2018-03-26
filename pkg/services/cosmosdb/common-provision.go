@@ -97,28 +97,36 @@ func (c *cosmosAccountManager) preProvision(
 func (c *cosmosAccountManager) buildGoTemplateParams(
 	pp *provisioningParameters,
 	dt *cosmosdbInstanceDetails,
+	kind string,
 ) map[string]interface{} {
 	p := map[string]interface{}{}
 	p["name"] = dt.DatabaseAccountName
-	p["kind"] = "GlobalDocumentDB"
+	p["kind"] = kind
 
+	filters := []string{}
 	if pp.IPFilterRules != nil {
-		filters := []string{}
 		if pp.IPFilterRules.AllowAzure != "disable" {
 			filters = append(filters, "0.0.0.0")
 		} else if pp.IPFilterRules.AllowPortal != "disable" {
 			// Azure Portal IP Addresses per:
 			// https://aka.ms/Vwxndo
-			// Region	IP address
-			// All regions except those specified below
-			//                  104.42.195.92,
-			//					40.76.54.131,
-			//					52.176.6.30,
-			//					52.169.50.45,
-			//					52.187.184.26
-			// Germany	51.4.229.218
-			// China	139.217.8.252
-			// US Gov	52.244.48.71
+			//|| Region	           || IP address(es) ||
+			//||=====================================||
+			//|| China             || 139.217.8.252  ||
+			//||===================||================||
+			//|| Germany           || 51.4.229.218   ||
+			//||===================||================||
+			//|| US Gov            || 52.244.48.71   ||
+			//||===================||================||
+			//|| All other regions || 104.42.195.92  ||
+			//||                   || 40.76.54.131   ||
+			//||                   || 52.176.6.30    ||
+			//||                   || 52.169.50.45   ||
+			//||                   || 52.187.184.26  ||
+			//=======================================||
+			// Given that we don't really have context of the cloud
+			// we are provisioning with right now, use all of the above
+			// addresses.
 			filters = append(filters,
 				"104.42.195.92",
 				"40.76.54.131",
@@ -133,9 +141,12 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 		for _, filter := range pp.IPFilterRules.Filters {
 			filters = append(filters, filter)
 		}
-		if len(filters) > 0 {
-			p["ipFilters"] = strings.Join(filters, ",")
-		}
+
+	} else {
+		filters = append(filters, "0.0.0.0")
+	}
+	if len(filters) > 0 {
+		p["ipFilters"] = strings.Join(filters, ",")
 	}
 	return p
 }

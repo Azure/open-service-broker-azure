@@ -32,7 +32,7 @@ func (s *sqlAccountManager) deployARMTemplate(
 		return nil, nil, err
 	}
 
-	p := s.buildGoTemplateParams(pp, dt)
+	p := s.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
 	p["capability"] = "EnableTable"
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)

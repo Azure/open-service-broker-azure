@@ -3,7 +3,7 @@ package cosmosdb
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type provisioningParameters struct {
-	IPFilterRules *ipFilterRule `json:"ipFilters"`
+	IPFilterRules *ipFilterRule `json:"ipRangeFilters"`
 }
 
 type ipFilterRule struct {
@@ -39,7 +39,13 @@ func (c *cosmosAccountManager) SplitProvisioningParameters(
 	service.SecureProvisioningParameters,
 	error,
 ) {
-	return nil, nil, nil
+
+	pp := &provisioningParameters{}
+	if err := service.GetStructFromMap(cpp, &pp); err != nil {
+		return nil, nil, err
+	}
+	ppMap, err := service.GetMapFromStruct(pp)
+	return ppMap, nil, err
 }
 
 func (c *cosmosAccountManager) SplitBindingParameters(
