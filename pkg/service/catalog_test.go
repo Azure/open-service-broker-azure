@@ -42,27 +42,60 @@ func init() {
 		),
 	})
 
-	testCatalogJSONStr := fmt.Sprintf(
-		`{
-			"services":[
-				{
-					"name":"%s",
-					"id":"%s",
-					"description":"%s",
-					"tags":["%s"],
-					"bindable":%t,
-					"plan_updateable":%t,
-					"plans":[
-						{
-							"id":"%s",
-							"name":"%s",
-							"description":"%s",
-							"free":%t
-						}
-					]
-				}
-			]
-		}`,
+	//nolint: lll
+	testCatalogTemplate := `{
+            "services":[
+                {
+                    "name":"%s",
+                    "id":"%s",
+                    "description":"%s",
+                    "tags":["%s"],
+                    "bindable":%t,
+                    "plan_updateable":%t,
+                    "plans":[
+                        {
+                            "id":"%s",
+                            "name":"%s",
+                            "description":"%s",
+                            "free":%t,
+                            "schemas": {
+                              	"service_instance": {
+                                	"create": {
+                                		"parameters": {
+                                			"$schema": "http://json-schema.org/draft-04/schema#",
+                                			"type": "object",
+                                			"properties": {
+                                				"location": {
+                                					"type": "string",
+                                					"description": "%s"
+                                				},
+                                				"resourceGroup": {
+                                					"type": "string",
+                                					"description": "%s"
+                                                },
+                                                "tags": {
+                                                    "type": "object",
+                                                    "description": "%s",
+                                                    "additionalProperties" : {
+                                                        "type" : "string"
+                                                    }
+                                                }
+                                			}
+                                		}
+                                	}
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }`
+
+	testCatalogTemplate = strings.Replace(testCatalogTemplate, " ", "", -1)
+	testCatalogTemplate = strings.Replace(testCatalogTemplate, "\n", "", -1)
+	testCatalogTemplate = strings.Replace(testCatalogTemplate, "\t", "", -1)
+
+	testCatalogJSONStr := fmt.Sprintf(testCatalogTemplate,
 		name,
 		id,
 		description,
@@ -73,17 +106,12 @@ func init() {
 		name,
 		description,
 		free,
+		"The Azure region in which to provision applicable resources.",
+		"The (new or existing) resource group with which to associate new resources.",
+		"Tags to be applied to new resources, specified as key/value pairs.",
 	)
-	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, " ", "", -1)
-	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, "\n", "", -1)
-	testCatalogJSONStr = strings.Replace(testCatalogJSONStr, "\t", "", -1)
-	testCatalogJSON = []byte(testCatalogJSONStr)
-}
 
-func TestNewCatalogFromJSON(t *testing.T) {
-	catalog, err := NewCatalogFromJSON(testCatalogJSON)
-	assert.Nil(t, err)
-	assert.Equal(t, testCatalog, catalog)
+	testCatalogJSON = []byte(testCatalogJSONStr)
 }
 
 func TestCatalogToJSON(t *testing.T) {

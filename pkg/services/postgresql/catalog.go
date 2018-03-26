@@ -20,6 +20,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.allInOneManager.getProvisionParametersSchema(),
 			},
 			m.allInOneManager,
 			service.NewPlan(&service.PlanProperties{
@@ -69,6 +70,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 			},
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
@@ -118,6 +120,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "Database"},
+				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{

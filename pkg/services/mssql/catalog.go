@@ -20,6 +20,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 			},
 			m.allInOneServiceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -264,6 +265,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
+				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 			},
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
@@ -292,6 +294,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Tags: []string{"Azure", "SQL", "Database"},
+				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{

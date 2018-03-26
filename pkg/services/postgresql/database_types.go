@@ -6,6 +6,25 @@ type databaseProvisioningParameters struct {
 	Extensions []string `json:"extensions"`
 }
 
+func (
+	d *databaseManager,
+) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+	p := map[string]*service.ParameterSchema{}
+	p["parentAlias"] = &service.ParameterSchema{
+		Type: "string",
+		Description: "Specifies the alias of the DBMS upon which the database " +
+			"should be provisioned.",
+		Required: true,
+	}
+	p["extensions"] = &service.ParameterSchema{
+		Type: "array",
+		Items: &service.ParameterSchema{
+			Type: "string",
+		},
+	}
+	return p
+}
+
 type databaseInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	DatabaseName      string `json:"database"`
