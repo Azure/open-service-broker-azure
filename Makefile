@@ -1,8 +1,5 @@
 GIT_VERSION = $(shell git describe --always --abbrev=7 --dirty)
 
-BINARY_DIR := bin
-BINARY_NAME := osba
-
 BASE_PACKAGE_NAME := github.com/Azure/open-service-broker-azure
 
 # This is left as 'azure-service-broker' because we don't yet have a docker repo
@@ -64,7 +61,6 @@ endif
 # destroys the dev environment image.
 .PHONY: clean
 clean: check-docker-compose
-	rm -rf ${BINARY_DIR}
 	rm -rf ${CONTRIB_BINARY_DIR}
 	docker-compose down --rmi local &> /dev/null
 
@@ -174,19 +170,16 @@ stop-test-redis: check-docker-compose
 	docker-compose kill test-redis
 	docker-compose rm -f test-redis
 
-# Containerized binary build for linux/64 only-- requires docker-compose
-.PHONY: build
-build: check-docker-compose
-	docker-compose run --rm dev \
-		go build -o ${BINARY_DIR}/${BINARY_NAME} -ldflags '$(LDFLAGS)' ./cmd/broker
-
 # (Re)Build the Docker image for the osba and run it
 .PHONY: run
-run: check-docker-compose check-azure-env-vars build
+run: check-docker-compose check-azure-env-vars
 	@# Force the docker-compose "broker" service to be rebuilt-- this is separate
-	@# from the docker-build task used to produce a correctly tagged Docker image,
+	@# from the build task used to produce a correctly tagged Docker image,
 	@# although both builds are based on the same Dockerfile
-	docker-compose build broker
+	docker-compose build \
+		--build-arg BASE_PACKAGE_NAME='$(BASE_PACKAGE_NAME)' \
+		--build-arg LDFLAGS='$(LDFLAGS)' \
+		broker
 	docker-compose run \
 		--rm -p 8080:8080 \
 		-e AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} \
@@ -205,21 +198,25 @@ stop-broker-redis: check-docker-compose
 	docker-compose kill broker-redis
 	docker-compose rm -f broker-redis
 
-# Build the Docker image
-.PHONY: docker-build
-docker-build: check-docker build
-	docker build -t $(RC_IMAGE_NAME) .
+# Build the binary and the Docker images
+.PHONY: build
+build: check-docker
+	docker build \
+		--build-arg BASE_PACKAGE_NAME='$(BASE_PACKAGE_NAME)' \
+		--build-arg LDFLAGS='$(LDFLAGS)' \
+		-t $(RC_IMAGE_NAME) \
+		.
 	docker tag $(RC_IMAGE_NAME) $(RC_MUTABLE_IMAGE_NAME)
 
 # Push the release candidate Docker images
-.PHONY: docker-push-rc
-docker-push-rc: check-docker docker-build
+.PHONY: push-rc
+push-rc: check-docker build
 	docker push $(RC_IMAGE_NAME)
 	docker push $(RC_MUTABLE_IMAGE_NAME)
 
 # Push the release  / semver Docker images
-.PHONY: docker-push-release
-docker-push-release:
+.PHONY: push-release
+push-release:
 ifndef REL_VERSION
 	$(error REL_VERSION is undefined)
 endif

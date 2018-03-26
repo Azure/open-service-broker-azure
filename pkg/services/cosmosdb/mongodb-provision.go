@@ -33,12 +33,21 @@ func (m *mongoAccountManager) preProvision(
 	return preProvision(instance)
 }
 
+func (m *mongoAccountManager) buildGoTemplateParams(
+	dt *cosmosdbInstanceDetails,
+) map[string]interface{} {
+	p := map[string]interface{}{}
+	p["name"] = dt.DatabaseAccountName
+	p["kind"] = "GlobalDocumentDB"
+	return p
+}
+
 func (m *mongoAccountManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := cosmosdbInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+	dt := &cosmosdbInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, dt); err != nil {
 		return nil, nil, err
 	}
 
@@ -47,11 +56,8 @@ func (m *mongoAccountManager) deployARMTemplate(
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
-		nil, // Go template params
-		map[string]interface{}{ // ARM template params
-			"name": dt.DatabaseAccountName,
-			"kind": "MongoDB",
-		},
+		m.buildGoTemplateParams(dt), // Go template params
+		map[string]interface{}{},    // ARM template params
 		instance.Tags,
 	)
 	if err != nil {

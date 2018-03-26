@@ -1,0 +1,61 @@
+package cosmosdb
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+)
+
+func (t *tableAccountManager) GetProvisioner(
+	service.Plan,
+) (service.Provisioner, error) {
+	return service.NewProvisioner(
+		service.NewProvisioningStep("preProvision", t.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", t.deployARMTemplate),
+	)
+}
+
+func (t *tableAccountManager) deployARMTemplate(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+
+	dt := &cosmosdbInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
+	}
+
+	p := t.buildGoTemplateParams(dt)
+	p["capability"] = "EnableTable"
+	if instance.Tags == nil {
+		instance.Tags = make(map[string]string)
+	}
+	instance.Tags["defaultExperience"] = "Table"
+
+	dt, sdt, err := t.cosmosAccountManager.deployARMTemplate(
+		ctx,
+		instance,
+		p,
+	)
+
+	if err != nil {
+		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+	}
+
+	sdt.ConnectionString = fmt.Sprintf(
+		"DefaultEndpointsProtocol=https;AccountName=%s;"+
+			"AccountKey=%s;TableEndpoint=%s",
+		dt.DatabaseAccountName,
+		dt.FullyQualifiedDomainName,
+		sdt.PrimaryKey,
+	)
+
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
+
+}

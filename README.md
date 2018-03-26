@@ -1,6 +1,7 @@
 # Open Service Broker&trade; for Azure
 
 [![CircleCI](https://circleci.com/gh/Azure/open-service-broker-azure.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/open-service-broker-azure)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Azure/open-service-broker-azure)](https://goreportcard.com/report/github.com/Azure/open-service-broker-azure)
 
 **Open Service Broker for Azure** is the open source,
 [Open Service Broker](https://www.openservicebrokerapi.org/)-compatible API
