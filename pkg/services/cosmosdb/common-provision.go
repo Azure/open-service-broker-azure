@@ -69,9 +69,8 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 			)
 		}
 		for _, filter := range pp.IPFilterRules.Filters {
-			var ip net.IP
 			// First check if it is a valid IP
-			ip = net.ParseIP(filter)
+			ip := net.ParseIP(filter)
 			if ip == nil {
 				// Check to see if it is a valid CIDR
 				ip, _, _ = net.ParseCIDR(filter)
@@ -138,9 +137,8 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 				"52.244.48.71",
 			)
 		}
-		for _, filter := range pp.IPFilterRules.Filters {
-			filters = append(filters, filter)
-		}
+
+		filters = append(filters, pp.IPFilterRules.Filters...)
 
 	} else {
 		filters = append(filters, "0.0.0.0")
