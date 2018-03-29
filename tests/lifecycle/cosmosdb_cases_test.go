@@ -8,6 +8,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -18,7 +19,12 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		name:      "sql-api",
 		serviceID: "6330de6f-a561-43ea-a15e-b99f44d183e6",
 		planID:    "71168d1a-c704-49ff-8c79-214dd3d6f8eb",
-		location:  "eastus",
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipFilters": map[string]interface{}{
+				"allowedIPRanges": []string{"0.0.0.0/0"},
+			},
+		},
+		location: "eastus",
 	},
 	{ // Graph API
 		group:     "cosmosdb",
@@ -26,6 +32,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		serviceID: "5f5252a0-6922-4a0c-a755-f9be70d7c79b",
 		planID:    "126a2c47-11a3-49b1-833a-21b563de6c04",
 		location:  "southcentralus",
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipFilters": map[string]interface{}{
+				"allowedIPRanges": []string{"0.0.0.0/0"},
+			},
+		},
 	},
 	{ // Table API
 		group:     "cosmosdb",
@@ -33,6 +44,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		serviceID: "37915cad-5259-470d-a7aa-207ba89ada8c",
 		planID:    "c970b1e8-794f-4d7c-9458-d28423c08856",
 		location:  "southcentralus",
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipFilters": map[string]interface{}{
+				"allowedIPRanges": []string{"0.0.0.0/0"},
+			},
+		},
 	},
 	{ // MongoDB
 		group:           "cosmosdb",
@@ -41,6 +57,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		planID:          "86fdda05-78d7-4026-a443-1325928e7b02",
 		location:        "southcentralus",
 		testCredentials: testMongoDBCreds,
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipFilters": map[string]interface{}{
+				"allowedIPRanges": []string{"0.0.0.0/0"},
+			},
+		},
 	},
 }
 

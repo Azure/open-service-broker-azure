@@ -24,6 +24,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Database",
 						"SQL",
 					},
+					ProvisionParamsSchema: m.sqlAccountManager.getProvisionParametersSchema(), // nolint: lll
 				},
 				m.sqlAccountManager,
 				service.NewPlan(&service.PlanProperties{
@@ -56,6 +57,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Database",
 						"MongoDB",
 					},
+					ProvisionParamsSchema: m.mongoAccountManager.getProvisionParametersSchema(), // nolint: lll
 				},
 				m.mongoAccountManager,
 				service.NewPlan(&service.PlanProperties{
@@ -89,6 +91,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Graph",
 						"Gremlin",
 					},
+					ProvisionParamsSchema: m.graphAccountManager.getProvisionParametersSchema(), // nolint: lll
 				},
 				m.graphAccountManager,
 				service.NewPlan(&service.PlanProperties{
@@ -121,6 +124,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Database",
 						"Table",
 					},
+					ProvisionParamsSchema: m.tableAccountManager.getProvisionParametersSchema(), // nolint: lll
 				},
 				m.graphAccountManager,
 				service.NewPlan(&service.PlanProperties{

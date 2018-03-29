@@ -9,8 +9,6 @@ type provisioningParameters struct {
 	Ports       []int   `json:"ports"`
 }
 
-// GetProvisionParametersSchema generates the schema for instance
-// provisioning parameters
 func (
 	s *serviceManager,
 ) getProvisionParametersSchema() map[string]*service.ParameterSchema {
