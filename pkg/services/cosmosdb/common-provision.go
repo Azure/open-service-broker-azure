@@ -103,10 +103,12 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	p["kind"] = kind
 
 	filters := []string{}
+	allowAzure := strings.ToLower(pp.IPFilterRules.AllowPortal)
+	allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
 	if pp.IPFilterRules != nil {
-		if pp.IPFilterRules.AllowAzure != "disable" {
+		if allowAzure != "disable" {
 			filters = append(filters, "0.0.0.0")
-		} else if pp.IPFilterRules.AllowPortal != "disable" {
+		} else if allowPortal != "disable" {
 			// Azure Portal IP Addresses per:
 			// https://aka.ms/Vwxndo
 			//|| Region            || IP address(es) ||
