@@ -216,7 +216,7 @@ LINT_CMD := gometalinter ./... \
 	--enable unparam \
 	--enable lll \
 	--line-length 80 \
-	--deadline 120s \
+	--deadline 240s \
 	--vendor
 
 # Executes an extensive series of lint checks against broker code

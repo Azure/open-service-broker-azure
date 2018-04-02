@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/Azure/open-service-broker-azure/pkg/crypto"
@@ -32,8 +33,7 @@ func init() {
 	}
 	fakeServiceManager = fakeModule.ServiceManager
 	config := NewConfigWithDefaults()
-	config.RedisHost = "redis"
-	config.RedisDB = 1
+	config.RedisHost = os.Getenv("STORAGE_REDIS_HOST")
 	config.EncryptionScheme = crypto.NOOP
 	str, err := NewStore(
 		fakeCatalog,
