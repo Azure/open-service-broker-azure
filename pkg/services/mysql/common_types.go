@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	log "github.com/Sirupsen/logrus"
 )
 
 type bindingDetails struct {
@@ -23,40 +24,61 @@ type credentials struct {
 	Tags        []string `json:"tags"`
 }
 
-func getDBMSCommonProvisionParamSchema() map[string]*service.ParameterSchema {
-	p := map[string]*service.ParameterSchema{}
+func getDBMSCommonProvisionParamSchema() map[string]service.ParameterSchema {
+	p := map[string]service.ParameterSchema{}
 
-	p["sslEnforcement"] = &service.ParameterSchema{
-		Type: "string",
-		Description: "Specifies whether the server requires the use of TLS " +
-			"when connecting. Can be 'enabled', 'disabled' or ''. " +
-			"Left unspecified, SSL will be enforced",
+	sslEnforcementSchema := service.NewParameterSchema(
+		"string",
+		"Specifies whether the server requires the use of TLS"+
+			" when connecting. Left unspecified, SSL will be enforced",
+	)
+	sslEnforcementSchema.SetRequired(true)
+	sslEnforcementSchema.SetAllowedValues(
+		[]string{"", "enabled", "disabled"},
+	)
+	sslEnforcementSchema.SetDefault("")
+
+	firewallRuleSchema := map[string]service.ParameterSchema{}
+
+	firewallRuleNameSchema := service.NewParameterSchema(
+		"string",
+		"Name of firewall rule",
+	)
+	firewallRuleNameSchema.SetRequired(true)
+	firewallRuleSchema["name"] = firewallRuleNameSchema
+
+	startIPSchema := service.NewParameterSchema(
+		"string",
+		"Start of firewall rule range",
+	)
+	startIPSchema.SetRequired(true)
+	firewallRuleSchema["startIPAddress"] = startIPSchema
+
+	endIPSchema := service.NewParameterSchema(
+		"string",
+		"End of firewall rule range",
+	)
+	endIPSchema.SetRequired(true)
+	firewallRuleSchema["endIPAddress"] = endIPSchema
+
+	firewallObject := service.NewParameterSchema(
+		"object",
+		"Individual Firewall Rule",
+	)
+	err := firewallObject.AddParameters(firewallRuleSchema)
+	if err != nil {
+		log.Errorf("error building firewallObject schema : %s", err)
 	}
-
-	firewallRuleSchema := map[string]*service.ParameterSchema{}
-	firewallRuleSchema["name"] = &service.ParameterSchema{
-		Type:        "string",
-		Description: "Name of firewall rule",
-	}
-
-	firewallRuleSchema["startIPAddress"] = &service.ParameterSchema{
-		Type:        "string",
-		Description: "Start of firewall rule range",
-	}
-
-	firewallRuleSchema["endIPAddress"] = &service.ParameterSchema{
-		Type:        "string",
-		Description: "End of firewall rule range",
-	}
-
-	p["firewallRules"] = &service.ParameterSchema{
-		Type: "array",
-		Description: "Firewall rules to apply to instance. " +
+	firewallRulesSchema := service.NewParameterSchema(
+		"arary",
+		"Firewall rules to apply to instance. "+
 			"If left unspecified, defaults to only Azure IPs",
-		Items: &service.ParameterSchema{
-			Type:       "object",
-			Properties: firewallRuleSchema,
-		},
+	)
+	err = firewallRulesSchema.SetItems(firewallObject)
+	if err != nil {
+		log.Errorf("error building firewallObject array schema : %s", err)
 	}
+
+	p["firewallRules"] = firewallRulesSchema
 	return p
 }

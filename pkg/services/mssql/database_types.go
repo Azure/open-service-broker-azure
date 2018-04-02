@@ -9,14 +9,15 @@ type databaseInstanceDetails struct {
 
 func (
 	d *databaseManager,
-) getProvisionParametersSchema() map[string]*service.ParameterSchema {
-	props := map[string]*service.ParameterSchema{}
-	props["parentAlias"] = &service.ParameterSchema{
-		Type: "string",
-		Description: "Specifies the alias of the DBMS upon which the database " +
+) getProvisionParametersSchema() map[string]service.ParameterSchema {
+	props := map[string]service.ParameterSchema{}
+	parentAliasSchema := service.NewParameterSchema(
+		"string",
+		"Specifies the alias of the DBMS upon which the database "+
 			"should be provisioned.",
-		Required: true,
-	}
+	)
+	parentAliasSchema.SetRequired(true)
+	props["parentAlias"] = parentAliasSchema
 	return props
 }
 

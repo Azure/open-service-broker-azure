@@ -1,6 +1,9 @@
 package aci
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import (
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	log "github.com/Sirupsen/logrus"
+)
 
 type provisioningParameters struct {
 	ImageName   string  `json:"image"`
@@ -11,40 +14,50 @@ type provisioningParameters struct {
 
 func (
 	s *serviceManager,
-) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+) getProvisionParametersSchema() map[string]service.ParameterSchema {
 
-	p := map[string]*service.ParameterSchema{}
+	p := map[string]service.ParameterSchema{}
 
-	p["image"] = &service.ParameterSchema{
-		Type:        "string",
-		Description: "The Docker image on which to base the container.",
-		Required:    true,
-	}
+	imageSchema := service.NewParameterSchema(
+		"string",
+		"The Docker image on which to base the container.",
+	)
+	imageSchema.SetRequired(true)
+	p["image"] = imageSchema
 
-	p["cpuCores"] = &service.ParameterSchema{
-		Type: "integer",
-		Description: "The number of virtual CPU cores requested " +
+	cpuCoreSchema := service.NewParameterSchema(
+		"integer",
+		"The number of virtual CPU cores requested "+
 			"for the container.",
-		Default: 1,
-	}
+	)
+	cpuCoreSchema.SetDefault(1)
+	p["cpuCores"] = cpuCoreSchema
 
-	p["memoryInGb"] = &service.ParameterSchema{
-		Type: "integer",
-		Description: "Gigabytes of memory requested for the container. " +
+	memorySchema := service.NewParameterSchema(
+		"integer",
+		"Gigabytes of memory requested for the container. "+
 			"Must be specified in increments of 0.10 GB.",
-		Default: 1.5,
-	}
+	)
+	memorySchema.SetDefault(1.5)
+	p["memoryInGb"] = memorySchema
 
-	p["ports"] = &service.ParameterSchema{
-		Type: "array",
-		Description: "The port(s) to open on the container. The container " +
-			"will be assigned a public IP (v4) address if and only if one or " +
+	portsSchema := service.NewParameterSchema(
+		"array",
+		"The port(s) to open on the container. The container "+
+			"will be assigned a public IP (v4) address if and only if one or "+
 			"more ports are opened.",
-		Required: true,
-		Items: &service.ParameterSchema{
-			Type: "integer",
-		},
+	)
+	err := portsSchema.SetItems(
+		service.NewParameterSchema(
+			"integer",
+			"Port to open on container",
+		),
+	)
+	if err != nil {
+		log.Errorf("error building ports schema %s", err)
 	}
+	portsSchema.SetRequired(true)
+	p["ports"] = portsSchema
 	return p
 }
 

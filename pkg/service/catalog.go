@@ -32,11 +32,11 @@ type ServiceProperties struct { // nolint: golint
 	Bindable      bool             `json:"bindable"`
 	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
 	// deliberate to match the spec
-	ParentServiceID       string                      `json:"-"`
-	ChildServiceID        string                      `json:"-"`
-	ProvisionParamsSchema map[string]*ParameterSchema `json:"-"`
-	UpdateParamsSchema    map[string]*ParameterSchema `json:"-"`
-	BindingParamsSchema   map[string]*ParameterSchema `json:"-"`
+	ParentServiceID       string                     `json:"-"`
+	ChildServiceID        string                     `json:"-"`
+	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
+	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
+	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
 }
 
 // ServiceMetadata contains metadata about the service classes
@@ -187,7 +187,7 @@ func NewService(
 			serviceProperties.UpdateParamsSchema != nil ||
 			serviceProperties.BindingParamsSchema != nil {
 			paramSchemas = &planSchemas{}
-			paramSchemas.addParameters(
+			paramSchemas.addParameterSchemas(
 				serviceProperties.ProvisionParamsSchema,
 				serviceProperties.UpdateParamsSchema,
 				serviceProperties.BindingParamsSchema,
@@ -198,7 +198,7 @@ func NewService(
 			if p.ParameterSchemas == nil {
 				p.ParameterSchemas = &planSchemas{}
 			}
-			p.ParameterSchemas.addParameters(
+			p.ParameterSchemas.addParameterSchemas(
 				getCommonProvisionParameters(),
 				nil,
 				nil,

@@ -1,6 +1,9 @@
 package postgresql
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import (
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+	log "github.com/Sirupsen/logrus"
+)
 
 type databaseProvisioningParameters struct {
 	Extensions []string `json:"extensions"`
@@ -8,21 +11,32 @@ type databaseProvisioningParameters struct {
 
 func (
 	d *databaseManager,
-) getProvisionParametersSchema() map[string]*service.ParameterSchema {
-	p := map[string]*service.ParameterSchema{}
-	p["parentAlias"] = &service.ParameterSchema{
-		Type: "string",
-		Description: "Specifies the alias of the DBMS upon which the database " +
+) getProvisionParametersSchema() map[string]service.ParameterSchema {
+
+	props := map[string]service.ParameterSchema{}
+	parentAliasSchema := service.NewParameterSchema(
+		"string",
+		"Specifies the alias of the DBMS upon which the database "+
 			"should be provisioned.",
-		Required: true,
+	)
+	parentAliasSchema.SetRequired(true)
+	props["parentAlias"] = parentAliasSchema
+
+	extensionsSchema := service.NewParameterSchema(
+		"array",
+		"Database extensions to install",
+	)
+	err := extensionsSchema.SetItems(
+		service.NewParameterSchema(
+			"string",
+			"Extension Name",
+		),
+	)
+	if err != nil {
+		log.Errorf("unable to build extensions schema: %s", err)
 	}
-	p["extensions"] = &service.ParameterSchema{
-		Type: "array",
-		Items: &service.ParameterSchema{
-			Type: "string",
-		},
-	}
-	return p
+	props["extensions"] = extensionsSchema
+	return props
 }
 
 type databaseInstanceDetails struct {

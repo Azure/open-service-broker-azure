@@ -9,14 +9,14 @@ type dbmsProvisioningParams struct {
 
 func (
 	d *dbmsManager,
-) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+) getProvisionParametersSchema() map[string]service.ParameterSchema {
 	p := getDBMSCommonProvisionParamSchema()
-
-	p["alias"] = &service.ParameterSchema{
-		Type:        "string",
-		Description: "Alias to use when provisioning databases on this DBMS",
-		Required:    true,
-	}
+	aliasSchema := service.NewParameterSchema(
+		"string",
+		"Alias to use when provisioning databases on this DBMS",
+	)
+	aliasSchema.SetRequired(true)
+	p["alias"] = aliasSchema
 	return p
 }
 
