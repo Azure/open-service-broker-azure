@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
@@ -436,7 +437,7 @@ func TestRunRespondsToCanceledContext(t *testing.T) {
 // amend these overrides to test specific scenarios.
 func getTestEngine() *engine {
 	config := NewConfigWithDefaults()
-	config.RedisHost = "redis"
+	config.RedisHost = os.Getenv("ASYNC_REDIS_HOST")
 	config.RedisDB = 1
 	config.PendingTaskWorkerCount = 1
 	config.DeferedTaskWatcherCount = 1
