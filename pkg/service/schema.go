@@ -53,10 +53,8 @@ type parameterSchema struct {
 type ParameterSchema interface {
 	SetRequired(bool)
 	IsRequired() bool
-	AddParameters(map[string]ParameterSchema) error
 	SetAdditionalPropertiesType(kind string)
 	SetDefault(defaultVal interface{})
-	SetItems(items ParameterSchema) error
 	SetAllowedValues(interface{})
 }
 
@@ -113,16 +111,56 @@ func (p *parameterSchema) SetItems(itemSchema ParameterSchema) error {
 	return nil
 }
 
-// NewParameterSchema returns an instance of a type that implements
-// the ParameterSchema interface. Service authors can use the interface
-// methods to fully construct the object
-func NewParameterSchema(
+// NewSimpleParameterSchema returns an instance of a type that implements
+// the ParameterSchema interface with a type and description.
+func NewSimpleParameterSchema(
 	typeString string,
 	description string,
 ) ParameterSchema {
 	ps := &parameterSchema{
 		Type:        typeString,
 		Description: description,
+	}
+	return ps
+}
+
+// NewObjectParameterSchema returns an instance of a type that implements
+// the ParameterSchema interface. This assumes the "object" type and
+// adds any specified properties to the schema instance.
+func NewObjectParameterSchema(
+	description string,
+	properties map[string]ParameterSchema,
+) ParameterSchema {
+	ps := &parameterSchema{
+		Type:        "object",
+		Description: description,
+	}
+
+	err := ps.AddParameters(properties)
+	if err != nil {
+		log.Errorf(
+			"error adding parameter properties to object schema: %s",
+			err,
+		)
+	}
+	return ps
+}
+
+// NewArrayParameterSchema returns an instance of a type that implements
+// the ParameterSchema interface. This assumes the "object" type and
+// adds any specified properties to the schema instance.
+func NewArrayParameterSchema(
+	description string,
+	itemSchema ParameterSchema,
+) ParameterSchema {
+	ps := &parameterSchema{
+		Type:        "array",
+		Description: description,
+	}
+
+	err := ps.SetItems(itemSchema)
+	if err != nil {
+		log.Errorf("Error adding items to the array schema: %s", err)
 	}
 	return ps
 }
@@ -198,20 +236,20 @@ func createEmptyParameterSchema() *parametersSchema {
 
 func getCommonProvisionParameters() map[string]ParameterSchema {
 	p := map[string]ParameterSchema{}
-	p["location"] = NewParameterSchema(
+	p["location"] = NewSimpleParameterSchema(
 		"string",
 		"The Azure region in which to provision applicable resources.",
 	)
 
-	p["resourceGroup"] = NewParameterSchema(
+	p["resourceGroup"] = NewSimpleParameterSchema(
 		"string",
 		"The (new or existing) resource group with which to associate new"+
 			" resources.",
 	)
 
-	tagsSchema := NewParameterSchema(
-		"object",
+	tagsSchema := NewObjectParameterSchema(
 		"Tags to be applied to new resources, specified as key/value pairs.",
+		nil,
 	)
 	tagsSchema.SetAdditionalPropertiesType("string")
 

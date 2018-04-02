@@ -13,7 +13,7 @@ func (
 
 	p := map[string]service.ParameterSchema{}
 
-	objectIDSchema := service.NewParameterSchema(
+	objectIDSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Object ID for an existing service principal, "+
 			"which will be granted access to the new vault.",
@@ -21,7 +21,7 @@ func (
 	objectIDSchema.SetRequired(true)
 	p["objectId"] = objectIDSchema
 
-	clientIDSchema := service.NewParameterSchema(
+	clientIDSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Client ID (username) for an existing service principal,"+
 			"which will be granted access to the new vault.",
@@ -29,7 +29,7 @@ func (
 	clientIDSchema.SetRequired(true)
 	p["clientId"] = clientIDSchema
 
-	clientSecretSchema := service.NewParameterSchema(
+	clientSecretSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Client secret (password) for an existing service "+
 			"principal, which will be granted access to the new vault.",

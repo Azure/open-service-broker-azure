@@ -2,7 +2,6 @@ package aci
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	log "github.com/Sirupsen/logrus"
 )
 
 type provisioningParameters struct {
@@ -18,14 +17,14 @@ func (
 
 	p := map[string]service.ParameterSchema{}
 
-	imageSchema := service.NewParameterSchema(
+	imageSchema := service.NewSimpleParameterSchema(
 		"string",
 		"The Docker image on which to base the container.",
 	)
 	imageSchema.SetRequired(true)
 	p["image"] = imageSchema
 
-	cpuCoreSchema := service.NewParameterSchema(
+	cpuCoreSchema := service.NewSimpleParameterSchema(
 		"integer",
 		"The number of virtual CPU cores requested "+
 			"for the container.",
@@ -33,7 +32,7 @@ func (
 	cpuCoreSchema.SetDefault(1)
 	p["cpuCores"] = cpuCoreSchema
 
-	memorySchema := service.NewParameterSchema(
+	memorySchema := service.NewSimpleParameterSchema(
 		"integer",
 		"Gigabytes of memory requested for the container. "+
 			"Must be specified in increments of 0.10 GB.",
@@ -41,21 +40,15 @@ func (
 	memorySchema.SetDefault(1.5)
 	p["memoryInGb"] = memorySchema
 
-	portsSchema := service.NewParameterSchema(
-		"array",
+	portsSchema := service.NewArrayParameterSchema(
 		"The port(s) to open on the container. The container "+
 			"will be assigned a public IP (v4) address if and only if one or "+
 			"more ports are opened.",
-	)
-	err := portsSchema.SetItems(
-		service.NewParameterSchema(
+		service.NewSimpleParameterSchema(
 			"integer",
 			"Port to open on container",
 		),
 	)
-	if err != nil {
-		log.Errorf("error building ports schema %s", err)
-	}
 	portsSchema.SetRequired(true)
 	p["ports"] = portsSchema
 	return p

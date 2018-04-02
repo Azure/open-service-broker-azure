@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	log "github.com/Sirupsen/logrus"
 )
 
 type databaseProvisioningParameters struct {
@@ -14,7 +13,7 @@ func (
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
 
 	props := map[string]service.ParameterSchema{}
-	parentAliasSchema := service.NewParameterSchema(
+	parentAliasSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Specifies the alias of the DBMS upon which the database "+
 			"should be provisioned.",
@@ -22,19 +21,13 @@ func (
 	parentAliasSchema.SetRequired(true)
 	props["parentAlias"] = parentAliasSchema
 
-	extensionsSchema := service.NewParameterSchema(
-		"array",
+	extensionsSchema := service.NewArrayParameterSchema(
 		"Database extensions to install",
-	)
-	err := extensionsSchema.SetItems(
-		service.NewParameterSchema(
+		service.NewSimpleParameterSchema(
 			"string",
 			"Extension Name",
 		),
 	)
-	if err != nil {
-		log.Errorf("unable to build extensions schema: %s", err)
-	}
 	props["extensions"] = extensionsSchema
 	return props
 }

@@ -11,7 +11,7 @@ func (
 	d *databaseManager,
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
 	props := map[string]service.ParameterSchema{}
-	parentAliasSchema := service.NewParameterSchema(
+	parentAliasSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Specifies the alias of the DBMS upon which the database "+
 			"should be provisioned.",

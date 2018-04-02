@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	log "github.com/Sirupsen/logrus"
 )
 
 type bindingDetails struct {
@@ -27,7 +26,7 @@ type credentials struct {
 func getDBMSCommonProvisionParamSchema() map[string]service.ParameterSchema {
 	p := map[string]service.ParameterSchema{}
 
-	sslEnforcementSchema := service.NewParameterSchema(
+	sslEnforcementSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Specifies whether the server requires the use of TLS"+
 			" when connecting. Left unspecified, SSL will be enforced",
@@ -40,44 +39,37 @@ func getDBMSCommonProvisionParamSchema() map[string]service.ParameterSchema {
 
 	firewallRuleSchema := map[string]service.ParameterSchema{}
 
-	firewallRuleNameSchema := service.NewParameterSchema(
+	firewallRuleNameSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Name of firewall rule",
 	)
 	firewallRuleNameSchema.SetRequired(true)
 	firewallRuleSchema["name"] = firewallRuleNameSchema
 
-	startIPSchema := service.NewParameterSchema(
+	startIPSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Start of firewall rule range",
 	)
 	startIPSchema.SetRequired(true)
 	firewallRuleSchema["startIPAddress"] = startIPSchema
 
-	endIPSchema := service.NewParameterSchema(
+	endIPSchema := service.NewSimpleParameterSchema(
 		"string",
 		"End of firewall rule range",
 	)
 	endIPSchema.SetRequired(true)
 	firewallRuleSchema["endIPAddress"] = endIPSchema
 
-	firewallObject := service.NewParameterSchema(
-		"object",
+	firewallObject := service.NewObjectParameterSchema(
 		"Individual Firewall Rule",
+		firewallRuleSchema,
 	)
-	err := firewallObject.AddParameters(firewallRuleSchema)
-	if err != nil {
-		log.Errorf("error building firewallObject schema : %s", err)
-	}
-	firewallRulesSchema := service.NewParameterSchema(
-		"arary",
+
+	firewallRulesSchema := service.NewArrayParameterSchema(
 		"Firewall rules to apply to instance. "+
 			"If left unspecified, defaults to only Azure IPs",
+		firewallObject,
 	)
-	err = firewallRulesSchema.SetItems(firewallObject)
-	if err != nil {
-		log.Errorf("error building firewallObject array schema : %s", err)
-	}
 
 	p["firewallRules"] = firewallRulesSchema
 	return p

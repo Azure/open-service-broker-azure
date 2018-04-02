@@ -17,7 +17,7 @@ func (
 	d *dbmsManager,
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
 	p := getDBMSCommonProvisionParamSchema()
-	aliasSchema := service.NewParameterSchema(
+	aliasSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Alias to use when provisioning databases on this DBMS",
 	)

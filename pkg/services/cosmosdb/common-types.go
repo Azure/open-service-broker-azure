@@ -2,7 +2,6 @@ package cosmosdb
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	log "github.com/Sirupsen/logrus"
 )
 
 type provisioningParameters struct {
@@ -64,7 +63,7 @@ func (
 
 	ipFilterSchema := make(map[string]service.ParameterSchema)
 
-	allowAccessFromAzureSchema := service.NewParameterSchema(
+	allowAccessFromAzureSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Specifies if Azure Services should be able to access"+
 			" the CosmosDB account.",
@@ -75,7 +74,7 @@ func (
 	allowAccessFromAzureSchema.SetDefault("")
 	ipFilterSchema["allowAccessFromAzure"] = allowAccessFromAzureSchema
 
-	allowAccessFromPortalSchema := service.NewParameterSchema(
+	allowAccessFromPortalSchema := service.NewSimpleParameterSchema(
 		"string",
 		"Specifies if the Azure Portal should be able to"+
 			" access the CosmosDB account. If `allowAccessFromAzure` is"+
@@ -87,29 +86,19 @@ func (
 	allowAccessFromPortalSchema.SetDefault("")
 	ipFilterSchema["allowAccessFromPortal"] = allowAccessFromPortalSchema
 
-	allowedIPRangeSchema := service.NewParameterSchema(
-		"array",
+	allowedIPRangeSchema := service.NewArrayParameterSchema(
 		"Values to include in IP Filter. Can be IP Address or CIDR range.",
-	)
-	err := allowedIPRangeSchema.SetItems(
-		service.NewParameterSchema(
+		service.NewSimpleParameterSchema(
 			"string",
 			"Must be a valid IP address or CIDR",
 		),
 	)
-	if err != nil {
-		log.Errorf("error creating allowedIPRangeSchema: %s", err)
-	}
 	ipFilterSchema["allowedIPRanges"] = allowedIPRangeSchema
 
-	ipFilters := service.NewParameterSchema(
-		"object",
+	ipFilters := service.NewObjectParameterSchema(
 		"IP Range Filter to be applied to new CosmosDB account",
+		ipFilterSchema,
 	)
-	err = ipFilters.AddParameters(ipFilterSchema)
-	if err != nil {
-		log.Errorf("error adding properties to IP Filter schema: %s", err)
-	}
 	p["ipFilters"] = ipFilters
 
 	return p
