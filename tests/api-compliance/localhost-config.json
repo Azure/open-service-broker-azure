@@ -1,0 +1,81 @@
+{
+    "url": "http://localhost:8088",
+    "apiVersion" : "2.13",
+    "user": "username",
+    "password": "password",
+    "authentication": "basic",    
+    "provisions":[
+        {
+            "instance_id":"",
+            "body": {
+                "plan_id": "bd15e6f3-4ff5-477c-bb57-26313a368e74", 
+                "service_id" :"cdd1fb7a-d1e9-49e0-b195-e0bab747798a", 
+                "parameters": {
+                    "resourceGroup": "osb-test-group",
+                    "storageAccountName": "wmll118",
+                    "location": "eastus",
+                    "accountType": "Standard_LRS"
+                },
+                "organization_guid": "org-guid-here",
+                "space_guid": "space-guid-here" 
+            },            
+            "scenario": "new",
+            "notes": "Azure Storage - General Purpose Storage Account",
+            "async": true
+        }
+    ],
+    "updates":[
+        {
+            "instance_id":"",
+            "body":{
+                "context" :{
+                    "platform": "cloudfoundry",
+                    "some_field": "some-contextual-data"
+                },
+                "service_id": "cdd1fb7a-d1e9-49e0-b195-e0bab747798a",
+                "plan_id":"bd15e6f3-4ff5-477c-bb57-26313a368e74",
+                "parameters":{
+                    "parameter1":1,
+                    "parameter2":"foo"
+                },
+                "previous_values":{
+                    "plan_id":"bd15e6f3-4ff5-477c-bb57-26313a368e74",
+                    "service_id":"cdd1fb7a-d1e9-49e0-b195-e0bab747798a",
+                    "organization_id":"org-guid-here",
+                    "space_id":"spcae-guid-here"
+                }
+            },
+            "scenario": "gone",
+            "async": true
+        }
+    ],
+    "bindings": [
+        {
+            "body": {
+                "context": {
+                    "platform": "cloudfoundry",
+                    "some_field":"some-contextual-data"
+                },
+                "service_id":"cdd1fb7a-d1e9-49e0-b195-e0bab747798a",
+                "plan_id":"bd15e6f3-4ff5-477c-bb57-26313a368e74",
+                "bind_resource": {
+                    "app_guid": "app-guid-here"
+                },
+                "parameters": {
+                    "parameter1-name-here": 1,
+                    "parameter2-name-here": "parameter2-value-here"
+                }
+            },            
+            "async": false,
+            "scenario": "new"
+        },
+        {
+            "body": {
+                "service_id":"cdd1fb7a-d1e9-49e0-b195-e0bab747798a",
+                "plan_id":"bd15e6f3-4ff5-477c-bb57-26313a368e74"                
+            },            
+            "async": false,
+            "scenario": "delete"
+        }
+    ]                     
+}

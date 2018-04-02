@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -21,35 +22,44 @@ func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
 	}
 
 	// Override the default cleanActiveTaskQueue function to just count how many
-	// times it is invoked
+	// times it is invoked and then notify us when its been invoked workerCount
+	// times.
 	var cleanActiveTaskQueueCallCount int
+	cleanActiveTaskQueueMutex := sync.Mutex{}
+	cleanActiveTaskQueueDoneCh := make(chan struct{})
 	e.cleanActiveTaskQueue = func(context.Context, string, string, string) error {
+		cleanActiveTaskQueueMutex.Lock()
+		defer cleanActiveTaskQueueMutex.Unlock()
 		cleanActiveTaskQueueCallCount++
+		if cleanActiveTaskQueueCallCount == workerCount {
+			close(cleanActiveTaskQueueDoneCh)
+		}
 		return nil
 	}
 
 	// Override the default cleanWatchedTaskQueue function to just count how many
-	// times it is invoked
+	// times it is invoked and then notify us when its been invoked workerCount
+	// times.
 	var cleanWatchedTaskQueueCallCount int
-	e.cleanWatchedTaskQueue = func(
-		context.Context,
+	cleanWatchedTaskQueueMutex := sync.Mutex{}
+	cleanWatchedTaskQueueDoneCh := make(chan struct{})
+	e.cleanWatchedTaskQueue = func(context.Context,
 		string,
 		string,
 		string,
 	) error {
+		cleanWatchedTaskQueueMutex.Lock()
+		defer cleanWatchedTaskQueueMutex.Unlock()
 		cleanWatchedTaskQueueCallCount++
+		if cleanWatchedTaskQueueCallCount == workerCount {
+			close(cleanWatchedTaskQueueDoneCh)
+		}
 		return nil
 	}
 
-	// Under nominal conditions, defaultClean could block for a very long time,
-	// unless the context it is passed is canceled. Use a context that will cancel
-	// itself after 2 seconds to make defaultClean STOP working so we can then
-	// examine what it accomplished.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Call defaultClean in a goroutine. If it never unblocks, as we hope it does,
-	// we don't want the test to stall.
 	errCh := make(chan error)
 	go func() {
 		errCh <- e.defaultClean(
@@ -61,22 +71,64 @@ func TestDefaultCleanCleansDeadWorkers(t *testing.T) {
 		)
 	}()
 
+	cleanActiveTaskQueueTimer := time.NewTimer(10 * time.Second)
+	defer cleanActiveTaskQueueTimer.Stop()
+
+	cleanWatchedTaskQueueTimer := time.NewTimer(10 * time.Second)
+	defer cleanWatchedTaskQueueTimer.Stop()
+
+	// Wait for cleanActiveTaskQueue to have been called workerCount
+	// times.
+	select {
+	case <-cleanActiveTaskQueueDoneCh:
+	case err := <-errCh:
+		assert.Failf(
+			t,
+			err.Error(),
+			"received an unanticipated error",
+		)
+	case <-cleanActiveTaskQueueTimer.C:
+		assert.Failf(
+			t,
+			"",
+			"timed out waiting for cleanActiveTaskQueue to be invoked %d times",
+			workerCount,
+		)
+	}
+
+	// Wait for cleanWatchedTaskQueue to have been called workerCount
+	// times.
+	select {
+	case <-cleanWatchedTaskQueueDoneCh:
+	case err := <-errCh:
+		assert.Failf(
+			t,
+			err.Error(),
+			"received an unanticipated error",
+		)
+	case <-cleanWatchedTaskQueueTimer.C:
+		assert.Failf(
+			t,
+			"",
+			"timed out waiting for cleanWatchedTaskQueue to be invoked %d times",
+			workerCount,
+		)
+	}
+
+	cancel()
+
 	// Assert that the error returned from defaultClean indicates that the
 	// context was canceled
 	select {
 	case err := <-errCh:
 		assert.Equal(t, ctx.Err(), err)
-	case <-time.After(time.Second * 3):
+	// If the context isn't canceled, move on and fail
+	case <-time.After(time.Second):
 		assert.Fail(
 			t,
 			"a context canceled error should have been returned, but wasn't",
 		)
 	}
-
-	// Assert cleanActiveTaskQueue and cleanWatchedTaskQueue were each invoked
-	// once per dead worker
-	assert.Equal(t, workerCount, cleanActiveTaskQueueCallCount)
-	assert.Equal(t, workerCount, cleanWatchedTaskQueueCallCount)
 }
 
 func TestDefaultCleanDoesNotCleanLiveWorkers(t *testing.T) {
