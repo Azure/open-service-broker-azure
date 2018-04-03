@@ -21,12 +21,18 @@ func (t *tableAccountManager) deployARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 
+	pp := &provisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
+		return nil, nil, err
+	}
+
 	dt := &cosmosdbInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
 
-	p := t.buildGoTemplateParams(dt)
+	p := t.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
 	p["capability"] = "EnableTable"
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)

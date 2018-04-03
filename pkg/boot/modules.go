@@ -215,7 +215,7 @@ func getModules(
 	// Filter modules based on stability
 	filteredModules := []service.Module{}
 	for _, module := range modules {
-		if module.GetStability() >= catalogConfig.GetMinStability() {
+		if module.GetStability() >= catalogConfig.MinStability {
 			filteredModules = append(filteredModules, module)
 		}
 	}

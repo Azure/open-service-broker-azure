@@ -20,6 +20,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "Key", "Vault"},
+				ProvisionParamsSchema: m.serviceManager.getProvisionParametersSchema(),
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{

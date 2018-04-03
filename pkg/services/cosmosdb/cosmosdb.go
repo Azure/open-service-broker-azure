@@ -23,8 +23,7 @@ type sqlAccountManager struct {
 }
 
 type mongoAccountManager struct {
-	armDeployer            arm.Deployer
-	databaseAccountsClient cosmosSDK.DatabaseAccountsClient
+	cosmosAccountManager
 }
 
 type tableAccountManager struct {
@@ -47,10 +46,7 @@ func New(
 		databaseAccountsClient: databaseAccountsClient,
 	}
 	return &module{
-		mongoAccountManager: &mongoAccountManager{
-			armDeployer:            armDeployer,
-			databaseAccountsClient: databaseAccountsClient,
-		},
+		mongoAccountManager: &mongoAccountManager{cosmos},
 		sqlAccountManager:   &sqlAccountManager{cosmos},
 		graphAccountManager: &graphAccountManager{cosmos},
 		tableAccountManager: &tableAccountManager{cosmos},

@@ -1,6 +1,48 @@
+################################################################################
+# Version details                                                              #
+################################################################################
+
 GIT_VERSION = $(shell git describe --always --abbrev=7 --dirty)
 
+ifeq ($(REL_VERSION),)
+	BROKER_VERSION := devel
+else
+	BROKER_VERSION := $(REL_VERSION)
+endif
+
+################################################################################
+# Go build details                                                             #
+################################################################################
+
 BASE_PACKAGE_NAME := github.com/Azure/open-service-broker-azure
+
+LDFLAGS = -w -X $(BASE_PACKAGE_NAME)/pkg/version.commit=$(GIT_VERSION) \
+	-X $(BASE_PACKAGE_NAME)/pkg/version.version=$(BROKER_VERSION)
+
+################################################################################
+# Containerized development environment                                        #
+################################################################################
+
+DEV_IMAGE := quay.io/deis/lightweight-docker-go:v0.2.0
+
+DOCKER_CMD_BASE := docker run \
+	--rm \
+	-e CGO_ENABLED=0 \
+	-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \
+	-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
+	-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
+	-e AZURE_CLIENT_SECRET=$${AZURE_CLIENT_SECRET} \
+	-e TEST_MODULES=$${TEST_MODULES} \
+	-v $$(pwd):/go/src/$(BASE_PACKAGE_NAME) \
+	-w /go/src/$(BASE_PACKAGE_NAME)
+
+DOCKER_CMD := $(DOCKER_CMD_BASE) $(DEV_IMAGE)
+
+DOCKER_CMD_INT := $(DOCKER_CMD_BASE) -it $(DEV_IMAGE)
+
+################################################################################
+# Docker images we build and publish                                           #
+################################################################################
 
 # This is left as 'azure-service-broker' because we don't yet have a docker repo
 # for 'open-service-broker-azure'
@@ -14,31 +56,9 @@ RC_MUTABLE_IMAGE_NAME  = $(DOCKER_REPO)$(BASE_IMAGE_NAME):canary
 REL_IMAGE_NAME         = $(DOCKER_REPO)$(BASE_IMAGE_NAME):$(REL_VERSION)
 REL_MUTABLE_IMAGE_NAME = $(DOCKER_REPO)$(BASE_IMAGE_NAME):latest
 
-ifeq ($(REL_VERSION),)
-BROKER_VERSION=devel
-else
-BROKER_VERSION=$(REL_VERSION)
-endif
-
-LDFLAGS = -w -X $(BASE_PACKAGE_NAME)/pkg/version.commit=$(GIT_VERSION) -X $(BASE_PACKAGE_NAME)/pkg/version.version=$(BROKER_VERSION)
-
-# Checks for the existence of a docker client and prints a nice error message
-# if it isn't present
-.PHONY: check-docker
-check-docker:
-	@if [ -z $$(which docker) ]; then \
-		echo "Missing \`docker\` client which is required for development"; \
-		exit 2; \
-	fi
-
-# Checks for the existence of docker-compose and prints a nice error message if
-# it isn't present
-.PHONY: check-docker-compose
-check-docker-compose: check-docker
-	@if [ -z $$(which docker-compose) ]; then \
-		echo "Missing \`docker-compose\` which is required for development"; \
-		exit 2; \
-	fi
+################################################################################
+# Utility targets                                                              #
+################################################################################
 
 # Checks to ensure that AZURE_* environment variables needed to run the broker
 # and its integration tests are set
@@ -57,50 +77,97 @@ ifndef AZURE_CLIENT_SECRET
 	$(error AZURE_CLIENT_SECRET is not defined)
 endif
 
-# Deletes any existing osba binary AND destroys any running containers AND
-# destroys the dev environment image.
+# Deletes any existing osba binaries AND destroys any running Docker compose
+# containers
 .PHONY: clean
-clean: check-docker-compose
+clean:
 	rm -rf ${CONTRIB_BINARY_DIR}
+ifndef SKIP_DOCKER
 	docker-compose down --rmi local &> /dev/null
+endif
 
 # Allow developers to step into the containerized development environment--
-# requires docker-compose
+# unconditionally requires docker
 .PHONY: dev
-dev: check-docker-compose
-	docker-compose run --rm dev bash
+dev:
+	$(DOCKER_CMD_INT) bash
 
-# Containerized dependency install/update-- requires docker-compose
+DEP_CMD := dep ensure -v
+
+# Install/update dependencies
 .PHONY: dep
-dep: check-docker-compose
-	docker-compose run --rm dev dep ensure -v
+dep:
+ifdef SKIP_DOCKER
+	$(DEP_CMD)
+else
+	$(DOCKER_CMD) $(DEP_CMD)
+endif
 
+# Running the tests starts a containerized Redis dedicated to testing (if it
+# isn't already running). It's left running afterwards (to speed up the next
+# execution). It remains running unless explicitly shut down. This is a
+# convenience task for stopping it.
+.PHONY: stop-test-redis
+stop-test-redis:
+	docker-compose kill test-redis
+	docker-compose rm -f test-redis
+
+# Running the broker starts a containerized Redis dedicated to that purpose (if
+# it isn't already running). It's left running afterwards (to speed up the next
+# execution AND to retain state so broker recovery from incomplete async
+# operations can be demonstrated). It remains running unless explicitly shut
+# down. This is a convenience task for stopping it.
+.PHONY: stop-broker-redis
+stop-broker-redis:
+	docker-compose kill broker-redis
+	docker-compose rm -f broker-redis
+
+################################################################################
+# Tests                                                                        #
+################################################################################
+
+VERIFY_CMD := bash -c ' \
+	PRJ_DIR=$$(pwd) \
+	&& cp -r --parent -L $$PRJ_DIR /tmp \
+	&& cd /tmp$$PRJ_DIR \
+	&& GOPATH=/tmp$$GOPATH dep ensure -v \
+	&& diff $$PRJ_DIR/Gopkg.lock Gopkg.lock \
+	&& diff -r $$PRJ_DIR/vendor vendor'
+
+# Verifies there are no disrepancies between desired dependencies and the
+# tracked, vendored dependencies
 .PHONY: verify-vendored-code
-verify-vendored-code: check-docker-compose
-	docker-compose run --rm dev bash -c ' \
-		export PRJ_DIR=$$(pwd) \
-		&& export TMP_PRJ_DIR=/tmp$$PRJ_DIR \
-		&& mkdir -p $$TMP_PRJ_DIR \
-		&& cp -r $$PRJ_DIR $$TMP_PRJ_DIR/.. \
-		&& cd $$TMP_PRJ_DIR \
-		&& export GOPATH=/tmp$$GOPATH \
-		&& dep ensure -v \
-		&& diff $$PRJ_DIR/Gopkg.lock Gopkg.lock \
-		&& diff -r $$PRJ_DIR/vendor vendor \
-	'
+verify-vendored-code:
+ifdef SKIP_DOCKER
+	$(VERIFY_CMD)
+else
+	$(DOCKER_CMD) $(VERIFY_CMD)
+endif
 
 .PHONY: test
 test: test-unit test-api-compliance test-service-lifecycles
 
-# Containerized unit tests-- requires docker-compose
-.PHONY: test-unit
-test-unit: check-docker-compose
-	@# As of Go 1.9.0, testing ./... excludes tests on vendored code
-	docker-compose run --rm test bash -c 'go test -tags unit ./...'
+# As of Go 1.9.0, testing ./... excludes tests on vendored code
+UNIT_TEST_CMD := go test -tags unit ./...
 
-# Containerized service lifecycle tests-- requires docker-compose
+# Executes unit tests
+.PHONY: test-unit
+test-unit:
+ifdef SKIP_DOCKER
+	$(UNIT_TEST_CMD)
+else
+	docker-compose run --rm test $(UNIT_TEST_CMD)
+endif
+
+LIFECYCLE_TEST_CMD := go test \
+	-parallel 10 \
+	-timeout 60m \
+	$(BASE_PACKAGE_NAME)/tests/lifecycle -v
+
+# Executes all or a subset of integration tests that test modules independently
+# from the broker core/framework
 .PHONY: test-service-lifecycles
-test-service-lifecycles: check-docker-compose check-azure-env-vars
+test-service-lifecycles: check-azure-env-vars
 	@echo
 	##############################################################################
 	# WARNING! This creates services in Azure and will cost you real MONEY!      #
@@ -109,70 +176,66 @@ test-service-lifecycles: check-docker-compose check-azure-env-vars
 	# subscription!                                                              #
 	##############################################################################
 	@echo
-	docker-compose run \
-		--rm \
-		-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \
-		-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
-		-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
-		-e AZURE_CLIENT_SECRET=$${AZURE_CLIENT_SECRET} \
-		-e TEST_MODULES=$${TEST_MODULES} \
-		test \
-		bash -c 'go test \
-			-parallel 10 \
-		  -timeout 60m \
-			$(BASE_PACKAGE_NAME)/tests/lifecycle -v'
+ifdef SKIP_DOCKER
+	$(LIFECYCLE_TEST_CMD)
+else
+	$(DOCKER_CMD) $(LIFECYCLE_TEST_CMD)
+endif
 
-
-# Containerized API compliance check via osb-checker. Currently ignores exit code. 
+# Evaluates broker compliance with the OSB specification
 .PHONY: test-api-compliance
-test-api-compliance: check-docker-compose
-	docker-compose build test-api-compliance-broker test-api-compliance
+test-api-compliance:
+ifdef SKIP_DOCKER
+	-/app/test.sh localhost 8088 60
+else
+	docker-compose build test-api-compliance-broker
 	-docker-compose run --rm test-api-compliance
 	docker-compose kill test-api-compliance-broker
 	docker-compose rm -f test-api-compliance-broker
+endif
 	
+LINT_CMD := gometalinter ./... \
+	--disable-all \
+	--enable gofmt \
+	--enable vet \
+	--enable vetshadow \
+	--enable gotype \
+	--enable deadcode \
+	--enable golint \
+	--enable varcheck \
+	--enable structcheck \
+	--enable errcheck \
+	--enable megacheck \
+	--enable ineffassign \
+	--enable interfacer \
+	--enable unconvert \
+	--enable goconst \
+	--enable gas \
+	--enable goimports \
+	--enable misspell \
+	--enable unparam \
+	--enable lll \
+	--line-length 80 \
+	--deadline 240s \
+	--vendor
+
+# Executes an extensive series of lint checks against broker code
 .PHONY: lint
-lint: check-docker-compose
-	docker-compose run \
-		--rm dev \
-		bash -c 'gometalinter ./... \
-			--disable-all \
-			--enable gofmt \
-			--enable vet \
-			--enable vetshadow \
-			--enable gotype \
-			--enable deadcode \
-			--enable golint \
-			--enable varcheck \
-			--enable structcheck \
-			--enable aligncheck \
-			--enable errcheck \
-			--enable megacheck \
-			--enable ineffassign \
-			--enable interfacer \
-			--enable unconvert \
-			--enable goconst \
-			--enable gas \
-			--enable goimports \
-			--enable misspell \
-			--enable unparam \
-			--enable lll \
-			--line-length 80 \
-			--deadline 120s \
-			--vendor'
+lint:
+ifdef SKIP_DOCKER
+	$(LINT_CMD)
+else
+	$(DOCKER_CMD) $(LINT_CMD)
+endif
 
-# Running the tests starts a containerized Redis dedicated to testing (if it
-# isn't already running). It's left running afterwards (to speed up the next
-# execution). It remains running unless explicitly shut down. This is a
-# convenience task for stopping it.
-.PHONY: stop-test-redis
-stop-test-redis: check-docker-compose
-	docker-compose kill test-redis
-	docker-compose rm -f test-redis
+################################################################################
+# Misc                                                                         #
+################################################################################
 
-# (Re)Build the Docker image for the osba and run it
+# Build the broker binary and docker image from code, then run it--
+# unconditionally requires docker-compose
 .PHONY: run
-run: check-docker-compose check-azure-env-vars
+run: check-azure-env-vars
 	@# Force the docker-compose "broker" service to be rebuilt-- this is separate
 	@# from the build task used to produce a correctly tagged Docker image,
 	@# although both builds are based on the same Dockerfile
@@ -188,19 +251,13 @@ run: check-docker-compose check-azure-env-vars
 		-e AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET} \
 		broker
 
-# Running the broker starts a containerized Redis dedicated to that purpose (if
-# it isn't already running). It's left running afterwards (to speed up the next
-# execution AND to retain state so broker recovery from incomplete async
-# operations can be demonstrated). It remains running unless explicitly shut
-# down. This is a convenience task for stopping it.
-.PHONY: stop-broker-redis
-stop-broker-redis: check-docker-compose
-	docker-compose kill broker-redis
-	docker-compose rm -f broker-redis
+################################################################################
+# Build / Publish                                                              #
+################################################################################
 
-# Build the binary and the Docker images
+# Build the broker binary and docker image
 .PHONY: build
-build: check-docker
+build:
 	docker build \
 		--build-arg BASE_PACKAGE_NAME='$(BASE_PACKAGE_NAME)' \
 		--build-arg LDFLAGS='$(LDFLAGS)' \
@@ -208,13 +265,13 @@ build: check-docker
 		.
 	docker tag $(RC_IMAGE_NAME) $(RC_MUTABLE_IMAGE_NAME)
 
-# Push the release candidate Docker images
+# Push release candidate image
 .PHONY: push-rc
-push-rc: check-docker build
+push-rc: build
 	docker push $(RC_IMAGE_NAME)
 	docker push $(RC_MUTABLE_IMAGE_NAME)
 
-# Push the release  / semver Docker images
+# Push officially released, semantically versioned image
 .PHONY: push-release
 push-release:
 ifndef REL_VERSION
@@ -226,27 +283,90 @@ endif
 	docker push $(REL_IMAGE_NAME)
 	docker push $(REL_MUTABLE_IMAGE_NAME)
 
-# ---------------------------------------------------------------------------- #
+################################################################################
+# Chart-Related Targets                                                        #
+################################################################################
+
+HELM_IMAGE := quay.io/deis/helm-chart-publishing-tools:v0.1.0
+
+DOCKER_HELM_CMD := docker run \
+	--rm \
+	-e AZURE_STORAGE_CONNECTION_STRING=$${AZURE_STORAGE_CONNECTION_STRING} \
+	-v $$(pwd):/go/src/$(BASE_PACKAGE_NAME) \
+	-w /go/src/$(BASE_PACKAGE_NAME) \
+	$(HELM_IMAGE)
+
+LINT_CHART_CMD := helm lint contrib/k8s/charts/open-service-broker-azure \
+	--set azure.tenantId=foo \
+	--set azure.subscriptionId=foo \
+	--set azure.clientId=foo \
+	--set azure.clientSecret=foo
+
+.PHONY: lint-chart
+lint-chart:
+ifdef SKIP_DOCKER
+	$(LINT_CHART_CMD)
+else
+	$(DOCKER_HELM_CMD) $(LINT_CHART_CMD)
+endif
+
+PUBLISH_CHART_CMD := bash -c ' \
+	cd contrib/k8s/charts \
+	&& rm -rf repo \
+	&& mkdir repo \
+	&& cd repo \
+	&& sed -i s/0.0.1/$(REL_VERSION)/g ../open-service-broker-azure/Chart.yaml \
+	&& helm dep build ../open-service-broker-azure \
+	&& helm package ../open-service-broker-azure \
+	&& az storage blob upload \
+		-c azure \
+		--file open-service-broker-azure-$(REL_VERSION).tgz \
+		--name open-service-broker-azure-$(REL_VERSION).tgz \
+	&& az storage container lease acquire -c azure --lease-duration 60 \
+	&& az storage blob download \
+		-c azure \
+		--name index.yaml \
+		--file index.yaml \
+	&& helm repo index --url https://kubernetescharts.blob.core.windows.net/azure --merge index.yaml . \
+	&& az storage blob upload \
+		-c azure \
+		--file index.yaml \
+		--name index.yaml'
+
+.PHONY: publish-chart
+publish-chart:
+ifndef REL_VERSION
+	$(error REL_VERSION is undefined)
+endif
+ifndef AZURE_STORAGE_CONNECTION_STRING
+	$(error AZURE_STORAGE_CONNECTION_STRING is not defined)
+endif
+ifdef SKIP_DOCKER
+	$(PUBLISH_CHART_CMD)
+else
+	$(DOCKER_HELM_CMD) $(PUBLISH_CHART_CMD)
+endif
+
+################################################################################
 # contrib/                                                                     #
-# ---------------------------------------------------------------------------- #
+################################################################################
 
 CONTRIB_BINARY_DIR := contrib/bin
 CLI_BINARY_NAME := broker-cli
 
-.PHONY: build-mac-broker-cli
-build-mac-broker-cli: check-docker-compose
-	docker-compose run --rm -e GOOS=darwin -e GOARCH=amd64 dev \
-		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
-		./contrib/cmd/cli
+BUILD_CMD := go build -o $(CONTRIB_BINARY_DIR)/$(CLI_BINARY_NAME) ./cmd/cli
 
-.PHONY: build-linux-broker-cli
-build-linux-broker-cli: check-docker-compose
-	docker-compose run --rm -e GOOS=linux -e GOARCH=amd64 dev \
-		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
-		./contrib/cmd/cli
-
-.PHONY: build-win-broker-cli
-build-win-broker-cli: check-docker-compose
-	docker-compose run --rm -e GOOS=windows -e GOARCH=amd64 dev \
-		go build -o ${CONTRIB_BINARY_DIR}/${CLI_BINARY_NAME} \
-		./contrib/cmd/cli
+.PHONY: build-broker-cli
+build-broker-cli:
+ifdef SKIP_DOCKER
+	$(BUILD_CMD)
+else
+	docker run \
+	--rm \
+	-e GOOS=$(GOOS) \
+	-e GOARCH=$(GOARCH) \
+	-v $$(pwd)/..:/go/src/$(BASE_PACKAGE_NAME) \
+	-w /go/src/$(BASE_PACKAGE_NAME)/contrib \
+	$(DEV_IMAGE) \
+	$(BUILD_CMD)
+endif

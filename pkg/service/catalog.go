@@ -32,8 +32,11 @@ type ServiceProperties struct { // nolint: golint
 	Bindable      bool             `json:"bindable"`
 	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
 	// deliberate to match the spec
-	ParentServiceID string `json:"-"`
-	ChildServiceID  string `json:"-"`
+	ParentServiceID       string                      `json:"-"`
+	ChildServiceID        string                      `json:"-"`
+	ProvisionParamsSchema map[string]*ParameterSchema `json:"-"`
+	UpdateParamsSchema    map[string]*ParameterSchema `json:"-"`
+	BindingParamsSchema   map[string]*ParameterSchema `json:"-"`
 }
 
 // ServiceMetadata contains metadata about the service classes
@@ -77,7 +80,7 @@ type PlanProperties struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	Free        bool                   `json:"free"`
-	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"`
+	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
 	Extended    map[string]interface{} `json:"-"`
 }
 
@@ -98,6 +101,7 @@ type Plan interface {
 
 type plan struct {
 	*PlanProperties
+	ParameterSchemas *planSchemas `json:"schemas,omitempty"`
 }
 
 // NewCatalog initializes and returns a new Catalog
@@ -176,8 +180,31 @@ func NewService(
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
-	for _, plan := range s.plans {
-		s.indexedPlans[plan.GetID()] = plan
+	for _, planIfc := range s.plans {
+		p := planIfc.(*plan)
+		var paramSchemas *planSchemas
+		if serviceProperties.ProvisionParamsSchema != nil ||
+			serviceProperties.UpdateParamsSchema != nil ||
+			serviceProperties.BindingParamsSchema != nil {
+			paramSchemas = &planSchemas{}
+			paramSchemas.addParameters(
+				serviceProperties.ProvisionParamsSchema,
+				serviceProperties.UpdateParamsSchema,
+				serviceProperties.BindingParamsSchema,
+			)
+			p.ParameterSchemas = paramSchemas
+		}
+		if serviceProperties.ParentServiceID == "" {
+			if p.ParameterSchemas == nil {
+				p.ParameterSchemas = &planSchemas{}
+			}
+			p.ParameterSchemas.addParameters(
+				getCommonProvisionParameters(),
+				nil,
+				nil,
+			)
+		}
+		s.indexedPlans[p.GetID()] = p
 	}
 	return s
 }
@@ -261,7 +288,7 @@ func (s *service) GetChildServiceID() string {
 // NewPlan initializes and returns a new Plan
 func NewPlan(planProperties *PlanProperties) Plan {
 	return &plan{
-		planProperties,
+		PlanProperties: planProperties,
 	}
 }
 
