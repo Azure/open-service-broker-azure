@@ -1,71 +1,170 @@
 version: 2
 jobs:
   lint:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+      CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+    steps:
+      - checkout
+      # This is a workaround for a problem I (krancour) cannot pin down. The
+      # linter works flawlessly in all environments (containers included)
+      # EXCEPT a container in Circle. I've remoted into running containers in
+      # Circle and have attempted, at great length, to diagnose the issue, but
+      # am unable to do so. What I did discover, however, was that by
+      # re-installing gometalinter (and the linters it, in turn, uses), I can
+      # make the problem go away. ODDLY, when comparing the binaries that were
+      # included in the image to the NEW binaries, diff says they are identical.
+      # I'm at a complete loss for why this happens. I can live with this
+      # workaround for now because I anticipate our days using Circle for CI
+      # are numbered anyhow.
+      - run:
+          name: Re-Install Gometalinter
+          command: |
+            rm /go/bin/*
+            cd /go/src/github.com/alecthomas/gometalinter
+            go clean -i
+            go install
+            gometalinter --install
+      - run:
+          name: Lint Go Code
+          command: make lint
+  lint-chart:
+    docker:
+      - image: quay.io/deis/helm-chart-publishing-tools:v0.1.0
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
-          name: Run Lint
-          command: make lint
+          name: Run Lint Helm Chart
+          command: make lint-chart
   verify-vendored-code:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+      CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Verify Vendored Code
           command: make verify-vendored-code
   test-unit:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+      - image: redis:3.2.4
+    environment:
+      SKIP_DOCKER: true
+      STORAGE_REDIS_HOST: localhost
+      ASYNC_REDIS_HOST: localhost
+      CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Run Unit Tests
           command: make test-unit
   test-api-compliance:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+      CGO_ENABLED: 0
+      TESTS_PATH: /opt/osb-checker/2.13/tests
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
+      # This is a workaround. See comments in the script.
+      - run:
+          name: Copy Modified Test Scripts
+          command: |
+            mkdir -p /app
+            cp tests/api-compliance/scripts/* /app/
       - run:
           name: Run API Compliance Tests
-          command: make test-api-compliance
+          command: |
+            go run cmd/compliance-test-broker/compliance-test-broker.go &
+            make test-api-compliance
   build:
-    machine: true
+    docker:
+      - image: docker:18.03.0-dind
     steps:
       - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
       - run:
           name: Build Binary & Docker Image
-          command: make docker-build
+          command: make build
   test-service-lifecycles:
-    machine: true
+    docker:
+      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      SKIP_DOCKER: true
+      CGO_ENABLED: 0
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Run Service Lifecycle Tests
           command: make test-service-lifecycles
   publish-rc-images:
+    docker:
+      - image: docker:18.03.0-dind
     environment:
       DOCKER_REPO: microsoft/
-    machine: true
     steps:
       - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
       - run:
           name: Publish Release Candidate Images to Docker Hub
-          command: make docker-push-rc
+          command: make push-rc
   publish-release-images:
+    docker:
+      - image: docker:18.03.0-dind
     environment:
       DOCKER_REPO: microsoft/
-    machine: true
     steps:
       - checkout
+      - setup_remote_docker
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
       - run:
           name: Publish Release Images to Docker Hub
-          command: REL_VERSION="${CIRCLE_TAG}" make docker-push-release
+          command: REL_VERSION="${CIRCLE_TAG}" make push-release
+  publish-chart:
+    docker:
+      - image: quay.io/deis/helm-chart-publishing-tools:v0.1.0
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+    steps:
+      - checkout
+      - run:
+          name: Publish Helm Chart
+          command: make publish-chart
 workflows:
   version: 2
   build-and-test-pr:
@@ -81,6 +180,12 @@ workflows:
           filters:
             branches:
               ignore: master
+      - lint-chart:
+          requires:
+            - hold
+          filters:
+            branches:
+              ignore: master
       - verify-vendored-code:
           requires:
             - hold
@@ -109,6 +214,7 @@ workflows:
           requires:
             - hold
             - lint
+            - lint-chart
             - verify-vendored-code
             - test-unit
             - test-api-compliance
@@ -122,6 +228,10 @@ workflows:
           filters:
             branches:
               only: master
+      - lint-chart:
+          filters:
+            branches:
+              only: master
       - verify-vendored-code:
           filters:
             branches:
@@ -141,6 +251,7 @@ workflows:
       - test-service-lifecycles:
           requires:
             - lint
+            - lint-chart
             - verify-vendored-code
             - test-unit
             - test-api-compliance
@@ -151,6 +262,7 @@ workflows:
       - publish-rc-images:
           requires:
             - lint
+            - lint-chart
             - verify-vendored-code
             - test-unit
             - test-api-compliance
@@ -162,6 +274,14 @@ workflows:
   release:
     jobs:
       - publish-release-images:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
+      - publish-chart:
+          requires:
+            - publish-release-images
           filters:
             branches:
               ignore: /.*/

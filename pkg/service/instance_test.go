@@ -11,6 +11,12 @@ import (
 )
 
 var (
+	testSecureProvisioningParameters = SecureProvisioningParameters{
+		"foo": fooValue,
+	}
+	testSecureInstanceDetails = SecureInstanceDetails{
+		"foo": fooValue,
+	}
 	testInstance     Instance
 	testInstanceJSON []byte
 )
@@ -25,29 +31,29 @@ func init() {
 	parentAlias := "test-parent-alias"
 	tagKey := "foo"
 	tagVal := "bar"
-	provisioningParameters := &ArbitraryType{
-		Foo: "bar",
+	provisioningParameters := ProvisioningParameters{
+		"foo": "bar",
 	}
 	provisioningParametersJSONStr := []byte(`{"foo":"bar"}`)
-	secureProvisioningParameters := &ArbitraryType{
-		Foo: "bar",
+	secureProvisioningParameters := SecureProvisioningParameters{
+		"foo": "bar",
 	}
 	encryptedSecureProvisiongingParameters := []byte(`{"foo":"bar"}`)
-	updatingParameters := &ArbitraryType{
-		Foo: "bat",
+	updatingParameters := ProvisioningParameters{
+		"foo": "bat",
 	}
 	updatingParametersJSONStr := []byte(`{"foo":"bat"}`)
-	secureUpdatingParameters := &ArbitraryType{
-		Foo: "bat",
+	secureUpdatingParameters := SecureProvisioningParameters{
+		"foo": "bat",
 	}
 	encryptedSecureUpdatingParameters := []byte(`{"foo":"bat"}`)
 	statusReason := "in-progress"
-	details := &ArbitraryType{
-		Foo: "baz",
+	details := InstanceDetails{
+		"foo": "baz",
 	}
 	detailsJSONStr := `{"foo":"baz"}`
-	secureDetails := &ArbitraryType{
-		Foo: "baz",
+	secureDetails := SecureInstanceDetails{
+		"foo": "baz",
 	}
 	encryptedSecureDetails := []byte(`{"foo":"baz"}`)
 	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
@@ -134,16 +140,7 @@ func init() {
 }
 
 func TestNewInstanceFromJSON(t *testing.T) {
-	instance, err := NewInstanceFromJSON(
-		testInstanceJSON,
-		&ArbitraryType{},
-		&ArbitraryType{},
-		&ArbitraryType{},
-		&ArbitraryType{},
-		&ArbitraryType{},
-		&ArbitraryType{},
-		noopCodec,
-	)
+	instance, err := NewInstanceFromJSON(testInstanceJSON, noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(t, testInstance, instance)
 }
@@ -156,7 +153,7 @@ func TestInstanceToJSON(t *testing.T) {
 
 func TestEncryptSecureProvisioningParameters(t *testing.T) {
 	instance := Instance{
-		SecureProvisioningParameters: testArbitraryObject,
+		SecureProvisioningParameters: testSecureProvisioningParameters,
 	}
 	var err error
 	instance, err = instance.encryptSecureProvisioningParameters(noopCodec)
@@ -170,7 +167,7 @@ func TestEncryptSecureProvisioningParameters(t *testing.T) {
 
 func TestEncryptSecureUpdatingParameters(t *testing.T) {
 	instance := Instance{
-		SecureUpdatingParameters: testArbitraryObject,
+		SecureUpdatingParameters: testSecureProvisioningParameters,
 	}
 	var err error
 	instance, err = instance.encryptSecureUpdatingParameters(noopCodec)
@@ -184,47 +181,55 @@ func TestEncryptSecureUpdatingParameters(t *testing.T) {
 
 func TestEncryptSecureDetails(t *testing.T) {
 	instance := Instance{
-		SecureDetails: testArbitraryObject,
+		SecureDetails: testSecureInstanceDetails,
 	}
 	var err error
 	instance, err = instance.encryptSecureDetails(noopCodec)
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
-		instance.EncryptedSecureDetails,
 		testArbitraryObjectJSON,
+		instance.EncryptedSecureDetails,
 	)
 }
 
 func TestDecryptSecureProvisioningParameters(t *testing.T) {
 	instance := Instance{
 		EncryptedSecureProvisioningParameters: testArbitraryObjectJSON,
-		SecureProvisioningParameters:          &ArbitraryType{},
+		SecureProvisioningParameters:          SecureProvisioningParameters{},
 	}
 	var err error
 	instance, err = instance.decryptSecureProvisioningParameters(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, instance.SecureProvisioningParameters)
+	assert.Equal(
+		t,
+		testSecureProvisioningParameters,
+		instance.SecureProvisioningParameters,
+	)
 }
 
 func TestDecryptUpdatingParameters(t *testing.T) {
 	instance := Instance{
 		EncryptedSecureUpdatingParameters: testArbitraryObjectJSON,
-		SecureUpdatingParameters:          &ArbitraryType{},
+		SecureUpdatingParameters:          SecureProvisioningParameters{},
 	}
 	var err error
 	instance, err = instance.decryptSecureUpdatingParameters(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, instance.SecureUpdatingParameters)
+	assert.Equal(
+		t,
+		testSecureProvisioningParameters,
+		instance.SecureUpdatingParameters,
+	)
 }
 
 func TestDecryptSecureDetails(t *testing.T) {
 	instance := Instance{
 		EncryptedSecureDetails: testArbitraryObjectJSON,
-		SecureDetails:          &ArbitraryType{},
+		SecureDetails:          SecureInstanceDetails{},
 	}
 	var err error
 	instance, err = instance.decryptSecureDetails(noopCodec)
 	assert.Nil(t, err)
-	assert.Equal(t, testArbitraryObject, instance.SecureDetails)
+	assert.Equal(t, testSecureInstanceDetails, instance.SecureDetails)
 }

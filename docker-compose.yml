@@ -1,6 +1,6 @@
 version: "3.2"
 services:
-  dev: # 
+  dev:
     image: quay.io/deis/lightweight-docker-go:v0.2.0
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     environment:
@@ -10,19 +10,26 @@ services:
     network_mode: host
   test: # Like dev, but linked to redis
     image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      STORAGE_REDIS_HOST: redis
+      ASYNC_REDIS_HOST: redis
+      CGO_ENABLED: 0
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
     links:
     - test-redis:redis
-  test-api-compliance: #Run the API compliance tests, run the broker, redis and the osb-checker
-    build:
-      context: .
-      dockerfile: Dockerfile.osb-checker
+  test-api-compliance: #Run the API compliance tests-- osb checker linked to a dummy broker
+    image: quay.io/deis/osb-checker:v0.3.0
+    command: ./test.sh broker 8088 60
+    volumes:
+    - ./tests/api-compliance/broker-config.json:/app/config.json
     links:
     - test-api-compliance-broker:broker
   test-api-compliance-broker:
     image: quay.io/deis/lightweight-docker-go:v0.2.0
+    environment:
+      CGO_ENABLED: 0
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
@@ -35,8 +42,8 @@ services:
       STORAGE_REDIS_DB: 0
       ASYNC_REDIS_HOST: redis
       ASYNC_REDIS_DB: 1
-      ENCRYPTION_SCHEME: NOOP
-      # AES256_KEY: AES256Key-32Characters1234567890
+      STORAGE_ENCRYPTION_SCHEME: NOOP
+      # STORAGE_AES256_KEY: AES256Key-32Characters1234567890
       BASIC_AUTH_USERNAME: username
       BASIC_AUTH_PASSWORD: password
       MIN_STABILITY: EXPERIMENTAL

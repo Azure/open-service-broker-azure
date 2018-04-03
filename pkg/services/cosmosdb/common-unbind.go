@@ -4,7 +4,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) Unbind(
+func (c *cosmosAccountManager) Unbind(
 	_ service.Instance,
 	_ service.Binding,
 ) error {

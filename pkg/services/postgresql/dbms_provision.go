@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -15,12 +14,9 @@ func (d *dbmsManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*DBMSProvisioningParameters)
-	if !ok {
-		return errors.New(
-			"error casting provisioningParameters as " +
-				"*postgresql.DBMSProvisioningParameters",
-		)
+	pp := dbmsProvisioningParameters{}
+	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
+		return err
 	}
 	return validateDBMSProvisionParameters(pp)
 }
@@ -40,54 +36,46 @@ func (d *dbmsManager) preProvision(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *postgresql.dbmsInstanceDetails",
-		)
-	}
-	sdt, ok := instance.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as " +
-				"*postgresql.secureDBMSInstanceDetails",
-		)
-	}
-	pp, ok := instance.ProvisioningParameters.(*DBMSProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*postgresql.DBMSProvisioningParameters",
-		)
-	}
 
-	dt.ARMDeploymentName = uuid.NewV4().String()
-
-	var err error
-	if dt.ServerName, err = getAvailableServerName(
+	serverName, err := getAvailableServerName(
 		ctx,
 		d.checkNameAvailabilityClient,
-	); err != nil {
+	)
+	if err != nil {
 		return nil, nil, err
 	}
-
-	sdt.AdministratorLoginPassword = generate.NewPassword()
-
+	pp := allInOneProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
+	}
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	switch sslEnforcement {
-	case "", enabled:
-		dt.EnforceSSL = true
-	case disabled:
-		dt.EnforceSSL = false
+	var enforceSSL bool
+	if sslEnforcement == "" || sslEnforcement == enabled {
+		enforceSSL = true
+	}
+	dt := dbmsInstanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		ServerName:        serverName,
+		EnforceSSL:        enforceSSL,
 	}
 
-	return dt, instance.SecureDetails, nil
+	sdt := secureDBMSInstanceDetails{
+		AdministratorLoginPassword: generate.NewPassword(),
+	}
+
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
 }
 
 func (d *dbmsManager) buildARMTemplateParameters(
 	plan service.Plan,
-	details *dbmsInstanceDetails,
-	secureDetails *secureDBMSInstanceDetails,
+	details dbmsInstanceDetails,
+	secureDetails secureDBMSInstanceDetails,
 ) map[string]interface{} {
 	var sslEnforcement string
 	if details.EnforceSSL {
@@ -111,25 +99,18 @@ func (d *dbmsManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *postgresql.dbmsInstanceDetails",
-		)
+	dt := dbmsInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as " +
-				"*postgresql.secureDBMSInstanceDetails",
-		)
+	sdt := secureDBMSInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
-	pp, ok := instance.ProvisioningParameters.(*DBMSProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*postgresql.DBMSProvisioningParameters",
-		)
+	pp := dbmsProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
 	}
 	armTemplateParameters := d.buildARMTemplateParameters(
 		instance.Plan,
@@ -150,14 +131,15 @@ func (d *dbmsManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	fullyQualifiedDomainName, ok := outputs["fullyQualifiedDomainName"].(string)
+	var ok bool
+	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-	dt.FullyQualifiedDomainName = fullyQualifiedDomainName
 
-	return dt, sdt, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, instance.SecureDetails, err
 }

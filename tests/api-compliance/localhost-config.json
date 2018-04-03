@@ -1,5 +1,5 @@
 {
-    "url": "http://broker:8080",
+    "url": "http://localhost:8088",
     "apiVersion" : "2.13",
     "user": "username",
     "password": "password",

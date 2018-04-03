@@ -23,11 +23,9 @@ func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*storageInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *storageInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	if err := s.armDeployer.Delete(
 		dt.ARMDeploymentName,
@@ -35,7 +33,7 @@ func (s *serviceManager) deleteARMDeployment(
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (s *serviceManager) deleteStorageAccount(
@@ -44,11 +42,9 @@ func (s *serviceManager) deleteStorageAccount(
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt, ok := instance.Details.(*storageInstanceDetails)
-	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error casting instance.Details as *storageInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	_, err := s.accountsClient.Delete(
 		ctx,
@@ -58,5 +54,5 @@ func (s *serviceManager) deleteStorageAccount(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting storage account: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }

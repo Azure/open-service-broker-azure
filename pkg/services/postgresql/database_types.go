@@ -2,10 +2,27 @@ package postgresql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-// DatabaseProvisioningParameters encapsulates non-sensitive PostgreSQL-specific
-// database provisioning options
-type DatabaseProvisioningParameters struct {
+type databaseProvisioningParameters struct {
 	Extensions []string `json:"extensions"`
+}
+
+func (
+	d *databaseManager,
+) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+	p := map[string]*service.ParameterSchema{}
+	p["parentAlias"] = &service.ParameterSchema{
+		Type: "string",
+		Description: "Specifies the alias of the DBMS upon which the database " +
+			"should be provisioned.",
+		Required: true,
+	}
+	p["extensions"] = &service.ParameterSchema{
+		Type: "array",
+		Items: &service.ParameterSchema{
+			Type: "string",
+		},
+	}
+	return p
 }
 
 type databaseInstanceDetails struct {
@@ -13,48 +30,24 @@ type databaseInstanceDetails struct {
 	DatabaseName      string `json:"database"`
 }
 
-func (
-	d *databaseManager,
-) GetEmptyProvisioningParameters() service.ProvisioningParameters {
-	return &DatabaseProvisioningParameters{}
+func (d *databaseManager) SplitProvisioningParameters(
+	cpp service.CombinedProvisioningParameters,
+) (
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
+	error,
+) {
+	pp := databaseProvisioningParameters{}
+	if err := service.GetStructFromMap(cpp, &pp); err != nil {
+		return nil, nil, err
+	}
+
+	ppMap, err := service.GetMapFromStruct(pp)
+	return ppMap, nil, err
 }
 
-func (
-	d *databaseManager,
-) GetEmptySecureProvisioningParameters() service.SecureProvisioningParameters {
-	return nil
-}
-
-func (
-	d *databaseManager,
-) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &databaseInstanceDetails{}
-}
-
-func (
-	d *databaseManager,
-) GetEmptySecureInstanceDetails() service.SecureInstanceDetails {
-	return nil
-}
-
-func (
-	d *databaseManager,
-) GetEmptyBindingParameters() service.BindingParameters {
-	return nil
-}
-
-func (
-	d *databaseManager,
-) GetEmptySecureBindingParameters() service.SecureBindingParameters {
-	return nil
-}
-
-func (d *databaseManager) GetEmptyBindingDetails() service.BindingDetails {
-	return &bindingDetails{}
-}
-
-func (
-	d *databaseManager,
-) GetEmptySecureBindingDetails() service.SecureBindingDetails {
-	return &secureBindingDetails{}
+func (d *databaseManager) SplitBindingParameters(
+	params service.CombinedBindingParameters,
+) (service.BindingParameters, service.SecureBindingParameters, error) {
+	return nil, nil, nil
 }

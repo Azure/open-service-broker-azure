@@ -76,13 +76,19 @@ func createBinding(
 		return nil, nil, fmt.Errorf("error committing transaction: %s", err)
 	}
 
-	return &bindingDetails{
-			LoginName: roleName,
-		},
-		&secureBindingDetails{
-			Password: password,
-		},
-		nil
+	bd := bindingDetails{
+		LoginName: roleName,
+	}
+	sbd := secureBindingDetails{
+		Password: password,
+	}
+
+	bdMap, err := service.GetMapFromStruct(bd)
+	if err != nil {
+		return nil, nil, err
+	}
+	sbdMap, err := service.GetMapFromStruct(sbd)
+	return bdMap, sbdMap, err
 }
 
 // Create a credential to be returned for binding purposes. This includes a CF
@@ -94,9 +100,9 @@ func createCredential(
 	sslRequired bool,
 	serverName string,
 	databaseName string,
-	bindDetails *bindingDetails,
-	secureBindingDetails *secureBindingDetails,
-) *Credentials {
+	bindDetails bindingDetails,
+	secureBindingDetails secureBindingDetails,
+) credentials {
 	username := fmt.Sprintf("%s@%s", bindDetails.LoginName, serverName)
 	port := 5432
 	var connectionTemplate string
@@ -114,7 +120,7 @@ func createCredential(
 		port,
 		databaseName,
 	)
-	return &Credentials{
+	return credentials{
 		Host:        fqdn,
 		Port:        port,
 		Database:    databaseName,

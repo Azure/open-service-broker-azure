@@ -8,6 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/boot"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,6 +19,15 @@ var resourceGroup string
 
 func TestServices(t *testing.T) {
 	log.Printf("----> testing in resource group \"%s\"\n", resourceGroup)
+
+	azureConfig, err := azure.GetConfigFromEnvironment()
+	assert.Nil(t, err)
+
+	catalogConfig := service.NewCatalogConfigWithDefaults()
+	catalogConfig.MinStability = service.StabilityExperimental
+
+	catalog, err := boot.GetCatalog(catalogConfig, azureConfig)
+	assert.Nil(t, err)
 
 	testCases, err := getTestCases()
 	assert.Nil(t, err)
@@ -30,12 +42,11 @@ func TestServices(t *testing.T) {
 			t.Run(tc.getName(), func(t *testing.T) {
 				// Run subtests in parallel!
 				t.Parallel()
-				err := tc.execute(t, resourceGroup)
+				err := tc.execute(t, catalog, resourceGroup)
 				assert.Nil(t, err)
 			})
 		}
 	})
-
 }
 
 func TestMain(m *testing.M) {

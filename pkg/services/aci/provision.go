@@ -2,7 +2,6 @@ package aci
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -10,19 +9,17 @@ import (
 )
 
 func (s *serviceManager) ValidateProvisioningParameters(
-	provisioningParameters service.ProvisioningParameters,
+	pp service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return errors.New(
-			"error casting provisioningParameters as *aci.ProvisioningParameters",
-		)
+	aciPP := provisioningParameters{}
+	if err := service.GetStructFromMap(pp, &aciPP); err != nil {
+		return err
 	}
-	if pp.ImageName == "" {
+	if aciPP.ImageName == "" {
 		return service.NewValidationError(
 			"image",
-			fmt.Sprintf(`invalid image: "%s"`, pp.ImageName),
+			fmt.Sprintf(`invalid image: "%s"`, aciPP.ImageName),
 		)
 	}
 	return nil
@@ -38,36 +35,32 @@ func (s *serviceManager) GetProvisioner(
 }
 
 func (s *serviceManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*aciInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *aciInstanceDetails",
-		)
+	dt := instanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		ContainerName:     uuid.NewV4().String(),
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.ContainerName = uuid.NewV4().String()
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	return dtMap, nil, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*aciInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *aciInstanceDetails",
-		)
+	dt := instanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	pp, ok := instance.ProvisioningParameters.(*ProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*aci.ProvisioningParameters",
-		)
+	pp := provisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
 	}
 
 	outputs, err := s.armDeployer.Deploy(
@@ -88,12 +81,13 @@ func (s *serviceManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	// We don't check if this is ok, because "no public IP" is a legitimate
-	// scenario.
 	publicIPv4Address, ok := outputs["publicIPv4Address"].(string)
 	if ok {
 		dt.PublicIPv4Address = publicIPv4Address
 	}
-
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	return dtMap, instance.SecureDetails, nil
 }

@@ -1,0 +1,89 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        release: "{{ .Release.Name }}"
+        heritage: "{{ .Release.Service }}"
+    spec:
+      containers:
+        - name: open-service-broker-azure
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: ENVIRONMENT
+            value: {{ .Values.azure.environment }}
+          - name: AZURE_SUBSCRIPTION_ID
+            value: {{ required "A value is required for azure.subscriptionId" .Values.azure.subscriptionId }}
+          - name: AZURE_TENANT_ID
+            value: {{ required "A value is required for azure.tenantId" .Values.azure.tenantId }}
+          - name: AZURE_CLIENT_ID
+            value: {{ required "A value is required for azure.clientId" .Values.azure.clientId }}
+          - name: AZURE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: azure-client-secret
+          - name: AZURE_DEFAULT_LOCATION
+            value: {{ .Values.azure.defaultLocation }}
+          - name: REDIS_HOST
+            {{- if .Values.redis.embedded }}
+            value: {{ .Release.Name }}-redis
+            {{- else }}
+            value: {{ required "A value is required for redis.host" .Values.redis.host }}
+          - name: REDIS_PORT
+            value: {{ .Values.redis.port | quote }}
+          - name: REDIS_ENABLE_TLS
+            value: {{ .Values.redis.enableTls | quote }}
+            {{- end }}
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: redis-password
+          - name: AES256_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: encryption-key
+          - name: BASIC_AUTH_USERNAME
+            value: {{ .Values.basicAuth.username }}
+          - name: BASIC_AUTH_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "fullname" . }}
+                key: basic-auth-password
+          - name: MIN_STABILITY
+            value: {{ .Values.modules.minStability }}
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 1
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 2

@@ -1,13 +1,13 @@
 # Open Service Broker&trade; for Azure
 
 [![CircleCI](https://circleci.com/gh/Azure/open-service-broker-azure.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/open-service-broker-azure)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Azure/open-service-broker-azure)](https://goreportcard.com/report/github.com/Azure/open-service-broker-azure)
 
 **Open Service Broker for Azure** is the open source,
 [Open Service Broker](https://www.openservicebrokerapi.org/)-compatible API
 server that provisions managed services in the Microsoft Azure public cloud.
 
-|![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Warning.svg/150px-Warning.svg.png) | This software is under heavy development. Releases observe [semantic versioning](https://semver.org), but the project is in an ALPHA status and no assurances are made regarding backwards compatibility or stability. All releases prior to v1.0.0 will remain subject to the possibility of breaking changes when the MINOR version number has been incremented. Please see the offical [roadmap](docs/roadmap.md) for more information. |
-|---|---|
+_Note: This software is alpha quality. Releases use [semantic versioning](https://semver.org) labels, but any release prior to `v1.0.0` may introduce breaking changes if the MINOR version number was incremented. Please see the offical [roadmap](docs/roadmap.md) for more information._
 
 ![Open Service Broker for Azure GIF](docs/images/demovideo.gif)
 
@@ -17,12 +17,12 @@ server that provisions managed services in the Microsoft Azure public cloud.
 
 * [Azure Container Instances](docs/modules/aci.md)
 * [Azure CosmosDB](docs/modules/cosmosdb.md)
-* [Azure Database for MySQL](docs/modules/mysqldb.md)
-* [Azure Database for PostgreSQL](docs/modules/postgresqldb.md)
+* [Azure Database for MySQL](docs/modules/mysql.md)
+* [Azure Database for PostgreSQL](docs/modules/postgresql.md)
 * [Azure Event Hubs](docs/modules/eventhubs.md)
 * [Azure Key Vault](docs/modules/keyvault.md)
 * [Azure Redis Cache](docs/modules/rediscache.md)
-* [Azure SQL Database](docs/modules/mssqldb.md)
+* [Azure SQL Database](docs/modules/mssql.md)
 * [Azure Search](docs/modules/search.md)
 * [Azure Service Bus](docs/modules/servicebus.md)
 * [Azure Storage](docs/modules/storage.md)

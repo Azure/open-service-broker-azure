@@ -11,16 +11,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure Container Instances (Experimental)",
 				Metadata: &service.ServiceMetadata{
 					DisplayName: "Azure Container Instances",
-					ImageUrl: "https://azure.microsoft.com/svghandler/container-instances/" +
+					ImageURL: "https://azure.microsoft.com/svghandler/container-instances/" +
 						"?width=200",
 					LongDescription: "Easily run containers on Azure with a single command" +
 						" (Experimental)",
-					DocumentationUrl: "https://docs.microsoft.com/en-us/azure/" +
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/" +
 						"container-instances/",
-					SupportUrl: "https://azure.microsoft.com/en-us/support/",
+					SupportURL: "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "Container", "Instance"},
+				ProvisionParamsSchema: m.serviceManager.getProvisionParametersSchema(),
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{

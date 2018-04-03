@@ -1,12 +1,22 @@
-package main
+package boot
 
 import (
 	"fmt"
 
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func getCatalog(modules []service.Module) (service.Catalog, error) {
+// GetCatalog returns a fully initialized catalog
+func GetCatalog(
+	catalogConfig service.CatalogConfig,
+	azureConfig azure.Config,
+) (service.Catalog, error) {
+	modules, err := getModules(catalogConfig, azureConfig)
+	if err != nil {
+		return nil, fmt.Errorf("error getting modules: %s", err)
+	}
+
 	// Consolidate the catalogs from all the individual modules into a single
 	// catalog. Check as we go along to make sure that no two modules provide
 	// services having the same ID.

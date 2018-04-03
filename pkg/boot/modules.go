@@ -1,4 +1,4 @@
-package main
+package boot
 
 import (
 	"fmt"
@@ -35,30 +35,29 @@ import (
 )
 
 func getModules(
-	modulesConfig service.ModulesConfig,
+	catalogConfig service.CatalogConfig,
 	azureConfig azure.Config,
 ) ([]service.Module, error) {
-	azureEnvironment := azureConfig.GetEnvironment()
-	azureSubscriptionID := azureConfig.GetSubscriptionID()
+	azureSubscriptionID := azureConfig.SubscriptionID
 
 	authorizer, err := azure.GetBearerTokenAuthorizer(
-		azureEnvironment,
-		azureConfig.GetTenantID(),
-		azureConfig.GetClientID(),
-		azureConfig.GetClientSecret(),
+		azureConfig.Environment,
+		azureConfig.TenantID,
+		azureConfig.ClientID,
+		azureConfig.ClientSecret,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error getting bearer token authorizer: %s", err)
 	}
 
 	resourceGroupsClient := resourcesSDK.NewGroupsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	resourceGroupsClient.Authorizer = authorizer
 	resourceGroupsClient.UserAgent = getUserAgent(resourceGroupsClient.Client)
 	resourceDeploymentsClient := resourcesSDK.NewDeploymentsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	resourceDeploymentsClient.Authorizer = authorizer
@@ -71,21 +70,21 @@ func getModules(
 	)
 
 	aciClient := aciSDK.NewContainerGroupsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	aciClient.Authorizer = authorizer
 	aciClient.UserAgent = getUserAgent(aciClient.Client)
 
 	cosmosdbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	cosmosdbAccountsClient.Authorizer = authorizer
 	cosmosdbAccountsClient.UserAgent = getUserAgent(cosmosdbAccountsClient.Client)
 
 	eventHubNamespacesClient := eventHubSDK.NewNamespacesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	eventHubNamespacesClient.Authorizer = authorizer
@@ -93,7 +92,7 @@ func getModules(
 		getUserAgent(eventHubNamespacesClient.Client)
 
 	keyVaultsClient := keyVaultSDK.NewVaultsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	keyVaultsClient.Authorizer = authorizer
@@ -101,20 +100,20 @@ func getModules(
 
 	mysqlCheckNameAvailabilityClient :=
 		mysqlSDK.NewCheckNameAvailabilityClientWithBaseURI(
-			azureEnvironment.ResourceManagerEndpoint,
+			azureConfig.Environment.ResourceManagerEndpoint,
 			azureSubscriptionID,
 		)
 	mysqlCheckNameAvailabilityClient.Authorizer = authorizer
 	mysqlCheckNameAvailabilityClient.UserAgent =
 		getUserAgent(mysqlCheckNameAvailabilityClient.Client)
 	mysqlServersClient := mysqlSDK.NewServersClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	mysqlServersClient.Authorizer = authorizer
 	mysqlServersClient.UserAgent = getUserAgent(mysqlServersClient.Client)
 	mysqlDatabasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	mysqlDatabasesClient.Authorizer = authorizer
@@ -122,54 +121,54 @@ func getModules(
 
 	postgresCheckNameAvailabilityClient :=
 		postgresSDK.NewCheckNameAvailabilityClientWithBaseURI(
-			azureEnvironment.ResourceManagerEndpoint,
+			azureConfig.Environment.ResourceManagerEndpoint,
 			azureSubscriptionID,
 		)
 	postgresCheckNameAvailabilityClient.Authorizer = authorizer
 	postgresCheckNameAvailabilityClient.UserAgent =
 		getUserAgent(postgresCheckNameAvailabilityClient.Client)
 	postgresServersClient := postgresSDK.NewServersClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	postgresServersClient.Authorizer = authorizer
 	postgresServersClient.UserAgent = getUserAgent(postgresServersClient.Client)
 	postgresDatabasesClient := postgresSDK.NewDatabasesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	postgresDatabasesClient.Authorizer = authorizer
 	postgresDatabasesClient.UserAgent = getUserAgent(postgresServersClient.Client)
 
 	sqlServersClient := sqlSDK.NewServersClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	sqlServersClient.Authorizer = authorizer
 	sqlServersClient.UserAgent = getUserAgent(sqlServersClient.Client)
 	sqlDatabasesClient := sqlSDK.NewDatabasesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	sqlDatabasesClient.Authorizer = authorizer
 	sqlDatabasesClient.UserAgent = getUserAgent(sqlDatabasesClient.Client)
 
 	redisClient := redisSDK.NewClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	redisClient.Authorizer = authorizer
 	redisClient.UserAgent = getUserAgent(redisClient.Client)
 
 	searchServicesClient := searchSDK.NewServicesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	searchServicesClient.Authorizer = authorizer
 	searchServicesClient.UserAgent = getUserAgent(searchServicesClient.Client)
 
 	serviceBusNamespacesClient := servicebusSDK.NewNamespacesClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	serviceBusNamespacesClient.Authorizer = authorizer
@@ -177,7 +176,7 @@ func getModules(
 		getUserAgent(serviceBusNamespacesClient.Client)
 
 	storageAccountsClient := storageSDK.NewAccountsClientWithBaseURI(
-		azureEnvironment.ResourceManagerEndpoint,
+		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
 	storageAccountsClient.Authorizer = authorizer
@@ -192,7 +191,7 @@ func getModules(
 		),
 		rediscache.New(armDeployer, redisClient),
 		mysql.New(
-			azureEnvironment,
+			azureConfig.Environment,
 			armDeployer,
 			mysqlCheckNameAvailabilityClient,
 			mysqlServersClient,
@@ -200,9 +199,9 @@ func getModules(
 		),
 		servicebus.New(armDeployer, serviceBusNamespacesClient),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
-		keyvault.New(azureConfig.GetTenantID(), armDeployer, keyVaultsClient),
+		keyvault.New(azureConfig.TenantID, armDeployer, keyVaultsClient),
 		mssql.New(
-			azureEnvironment,
+			azureConfig.Environment,
 			armDeployer,
 			sqlServersClient,
 			sqlDatabasesClient,
@@ -216,7 +215,7 @@ func getModules(
 	// Filter modules based on stability
 	filteredModules := []service.Module{}
 	for _, module := range modules {
-		if module.GetStability() >= modulesConfig.GetMinStability() {
+		if module.GetStability() >= catalogConfig.MinStability {
 			filteredModules = append(filteredModules, module)
 		}
 	}

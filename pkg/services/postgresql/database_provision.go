@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
@@ -29,36 +28,29 @@ func (d *databaseManager) GetProvisioner(
 }
 
 func (d *databaseManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *postgresql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		DatabaseName:      generate.NewIdentifier(),
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.DatabaseName = generate.NewIdentifier()
-	return dt, instance.SecureDetails, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, nil, err
 }
 
 func (d *databaseManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Parent.Details as " +
-				"*postgresql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, nil, err
 	}
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *postgresql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	armTemplateParameters := map[string]interface{}{
 		"serverName":   pdt.ServerName,
@@ -76,33 +68,26 @@ func (d *databaseManager) deployARMTemplate(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (d *databaseManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Parent.Details as " +
-				"*postgresql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, nil, err
 	}
-	spdt, ok :=
-		instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Parent.SecureDetails as " +
-				"*postgresql.secureDBMSInstanceDetails",
-		)
+	spdt := secureDBMSInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
+		return nil, nil, err
 	}
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *postgresql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
 	err := setupDatabase(
 		pdt.EnforceSSL,
@@ -114,40 +99,31 @@ func (d *databaseManager) setupDatabase(
 	if err != nil {
 		return nil, nil, err
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }
 
 func (d *databaseManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt, ok := instance.Parent.Details.(*dbmsInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Parent.Details as " +
-				"*postgresql.dbmsInstanceDetails",
-		)
+	pdt := dbmsInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
+		return nil, nil, err
 	}
-	spdt, ok :=
-		instance.Parent.SecureDetails.(*secureDBMSInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Parent.SecureDetails as " +
-				"*postgresql.secureDBMSInstanceDetails",
-		)
+	spdt := secureDBMSInstanceDetails{}
+	if err :=
+		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
+		return nil, nil, err
 	}
-	dt, ok := instance.Details.(*databaseInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *postgresql.databaseInstanceDetails",
-		)
+	dt := databaseInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	pp, ok := instance.ProvisioningParameters.(*DatabaseProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.ProvisioningParameters as " +
-				"*postgresql.DatabaseProvisioningParameters",
-		)
+	pp := databaseProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
 	}
 
 	if len(pp.Extensions) > 0 {
@@ -163,5 +139,5 @@ func (d *databaseManager) createExtensions(
 			return nil, nil, err
 		}
 	}
-	return dt, instance.SecureDetails, nil
+	return instance.Details, instance.SecureDetails, nil
 }

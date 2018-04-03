@@ -2,7 +2,6 @@ package mssql
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
@@ -14,14 +13,11 @@ func (a *allInOneManager) ValidateProvisioningParameters(
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
-	pp, ok := provisioningParameters.(*AllInOneProvisioningParameters)
-	if !ok {
-		return errors.New(
-			"error casting provisioningParameters as " +
-				"*mssql.AllInOneProvisioningParameters",
-		)
+	pp := allInOneProvisioningParameters{}
+	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
+		return err
 	}
-	return validateDBMSProvisionParameters(&pp.DBMSProvisioningParams)
+	return validateDBMSProvisionParameters(pp.dbmsProvisioningParams)
 }
 
 func (a *allInOneManager) GetProvisioner(
@@ -34,53 +30,46 @@ func (a *allInOneManager) GetProvisioner(
 }
 
 func (a *allInOneManager) preProvision(
-	_ context.Context,
-	instance service.Instance,
+	context.Context,
+	service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *mssql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{
+		dbmsInstanceDetails: dbmsInstanceDetails{
+			ARMDeploymentName:  uuid.NewV4().String(),
+			ServerName:         uuid.NewV4().String(),
+			AdministratorLogin: generate.NewIdentifier(),
+		},
+		DatabaseName: generate.NewIdentifier(),
 	}
-	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as " +
-				"*mssql.secureAllInOneInstanceDetails",
-		)
+	sdt := secureAllInOneInstanceDetails{
+		secureDBMSInstanceDetails: secureDBMSInstanceDetails{
+			AdministratorLoginPassword: generate.NewPassword(),
+		},
 	}
-	dt.ARMDeploymentName = uuid.NewV4().String()
-	dt.ServerName = uuid.NewV4().String()
-	dt.AdministratorLogin = generate.NewIdentifier()
-	sdt.AdministratorLoginPassword = generate.NewPassword()
-	dt.DatabaseName = generate.NewIdentifier()
-	return dt, sdt, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	if err != nil {
+		return nil, nil, err
+	}
+	sdtMap, err := service.GetMapFromStruct(sdt)
+	return dtMap, sdtMap, err
 }
 
 func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt, ok := instance.Details.(*allInOneInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.Details as *mssql.allInOneInstanceDetails",
-		)
+	dt := allInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, nil, err
 	}
-	sdt, ok := instance.SecureDetails.(*secureAllInOneInstanceDetails)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting instance.SecureDetails as " +
-				"*mssql.secureAllInOneInstanceDetails",
-		)
+	sdt := secureAllInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
 	}
-	pp, ok := instance.ProvisioningParameters.(*AllInOneProvisioningParameters)
-	if !ok {
-		return nil, nil, errors.New(
-			"error casting provisioningParameters as " +
-				"*mssql.AllInOneProvisioningParameters",
-		)
+	pp := allInOneProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
 	}
 	p := map[string]interface{}{ // ARM template params
 		"serverName":                 dt.ServerName,
@@ -93,8 +82,7 @@ func (a *allInOneManager) deployARMTemplate(
 			Extended["requestedServiceObjectiveName"],
 		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
-	goTemplateParams := buildGoTemplateParameters(&pp.DBMSProvisioningParams)
-	// new server scenario
+	goTemplateParams := buildGoTemplateParameters(pp.dbmsProvisioningParams)
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
@@ -107,6 +95,7 @@ func (a *allInOneManager) deployARMTemplate(
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
+	var ok bool
 	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
@@ -114,5 +103,6 @@ func (a *allInOneManager) deployARMTemplate(
 			err,
 		)
 	}
-	return dt, sdt, nil
+	dtMap, err := service.GetMapFromStruct(dt)
+	return dtMap, instance.SecureDetails, err
 }
