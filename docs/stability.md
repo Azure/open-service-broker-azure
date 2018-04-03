@@ -30,9 +30,10 @@ indicate how mature it is. Each service may have a different stability:
   won't go back to `experimental`, so we are committing to making it exist in
   some shape or form
 * `stable` - We now understand usage patterns of the service very well and we
-  guarantee full backward compatibility
+  guarantee full backward compatibility. We will not promote a service to stable
+  if the Azure service it provisions is not GA.
 
-We've added these stability labels so that service can move freely and
+We've added these stability labels so that services can move freely and
 independently across semver releases, which is important so we can improve
 an individual service, or subset of service at one time.
 
