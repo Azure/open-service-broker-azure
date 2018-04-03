@@ -23,8 +23,8 @@ func TestServices(t *testing.T) {
 	azureConfig, err := azure.GetConfigFromEnvironment()
 	assert.Nil(t, err)
 
-	catalogConfig, err := service.GetCatalogConfigFromEnvironment()
-	assert.Nil(t, err)
+	catalogConfig := service.NewCatalogConfigWithDefaults()
+	catalogConfig.MinStability = service.StabilityExperimental
 
 	catalog, err := boot.GetCatalog(catalogConfig, azureConfig)
 	assert.Nil(t, err)
