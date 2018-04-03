@@ -1,0 +1,86 @@
+replicaCount: 1
+
+image:
+  ## Image location, NOT including the tag
+  repository: microsoft/azure-service-broker
+  ## Image tag
+  tag: v0.9.0-alpha
+  ## "IfNotPresent", "Always", or "Never"
+  pullPolicy: IfNotPresent
+
+## Whether to register this broker with the Kubernetes Service Catalog. If true,
+## the Kubernetes Service Catalog must already be installed on the cluster.
+## Marking this option false is useful for scenarios wherein one wishes to host
+## the broker in a separate cluster than the Service Catalog (or other client)
+## that will access it.
+registerBroker: true
+
+service:
+  ## Type of service; valid values are "ClusterIP", "LoadBalancer", and
+  ## "NodePort". "ClusterIP" is sufficient in the average case where a service
+  ## catalog installation in the same cluster is the only client that needs to
+  ## communicate with this broker. i.e. The broker does not need to receive
+  ## inbound requests from outside the cluster.
+  type: ClusterIP
+  ## Further configuration if service is of type "NodePort"
+  nodePort:
+    ## Available port in allowable range (e.g. 30000 - 32767 on minikube)
+    port: 30080
+
+azure:
+  ## Valid values are "AzureCloud" and "AzureChinaCloud"
+  environment: AzureCloud
+  ## Required; this is the identifier for the Azure account into which services
+  ## will be provisioned. BE AWARE THAT DOING SO WILL COST YOU MONEY!
+  subscriptionId: 
+  ## Required; this is the identifier of the Azure Service Directory that
+  ## contains the service principal the broker will use for interacting with
+  ## Azure.
+  tenantId: 
+  ## Required; this identifies the service principal. When viewed in Azure
+  ## Active Directory, this is also known as the Application ID.
+  clientId: 
+  ## Required
+  clientSecret: 
+  ## Optional; default Azure location for provisioning resources
+  defaultLocation: 
+
+## Basic auth credentials that can later be used to access this broker
+basicAuth:
+  ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+  username: username
+  ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+  password: password
+
+## A 256 bit key used for database encryption
+## NB: 32 ascii characters == 256 bits
+## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+encryptionKey: This is a key that is 256 bits!!
+
+modules:
+  ## Minimum stability required for a module's services and plans to be listed
+  ## in the broker's catalog. For production, use STABLE only!
+  minStability: EXPERIMENTAL
+
+## Redis configuration 
+redis:
+  ## Should a containerized Redis server be included in the Helm release?
+  embedded: true
+
+  ## Required if not embedded
+  host: 
+
+  ## If not embedded, specifies the port for the client to connect to.
+  ## 6380 is the port often used for Redis secured using TLS.
+  port: 6380
+
+  ## If embedded, specifies the password the server will require AND the
+  ## password the client will use. If not embedded, this only specifies the
+  ## password the client will use. It must be the correct password for whatever
+  ## external Redis server it connects to.
+  ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
+  redisPassword: password
+
+  ## If not emnedded, specifies whether to use a secure connection to the
+  ## remote Redis host
+  enableTls: true

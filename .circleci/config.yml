@@ -29,8 +29,19 @@ jobs:
             go install
             gometalinter --install
       - run:
-          name: Run Lint
+          name: Lint Go Code
           command: make lint
+  lint-chart:
+    docker:
+      - image: quay.io/deis/helm-chart-publishing-tools:v0.1.0
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+    steps:
+      - checkout
+      - run:
+          name: Run Lint Helm Chart
+          command: make lint-chart
   verify-vendored-code:
     docker:
       - image: quay.io/deis/lightweight-docker-go:v0.2.0
@@ -143,6 +154,17 @@ jobs:
       - run:
           name: Publish Release Images to Docker Hub
           command: REL_VERSION="${CIRCLE_TAG}" make push-release
+  publish-chart:
+    docker:
+      - image: quay.io/deis/helm-chart-publishing-tools:v0.1.0
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+    steps:
+      - checkout
+      - run:
+          name: Publish Helm Chart
+          command: make publish-chart
 workflows:
   version: 2
   build-and-test-pr:
@@ -158,6 +180,12 @@ workflows:
           filters:
             branches:
               ignore: master
+      - lint-chart:
+          requires:
+            - hold
+          filters:
+            branches:
+              ignore: master
       - verify-vendored-code:
           requires:
             - hold
@@ -186,6 +214,7 @@ workflows:
           requires:
             - hold
             - lint
+            - lint-chart
             - verify-vendored-code
             - test-unit
             - test-api-compliance
@@ -199,6 +228,10 @@ workflows:
           filters:
             branches:
               only: master
+      - lint-chart:
+          filters:
+            branches:
+              only: master
       - verify-vendored-code:
           filters:
             branches:
@@ -218,6 +251,7 @@ workflows:
       - test-service-lifecycles:
           requires:
             - lint
+            - lint-chart
             - verify-vendored-code
             - test-unit
             - test-api-compliance
@@ -228,6 +262,7 @@ workflows:
       - publish-rc-images:
           requires:
             - lint
+            - lint-chart
             - verify-vendored-code
             - test-unit
             - test-api-compliance
@@ -239,6 +274,14 @@ workflows:
   release:
     jobs:
       - publish-release-images:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
+      - publish-chart:
+          requires:
+            - publish-release-images
           filters:
             branches:
               ignore: /.*/
