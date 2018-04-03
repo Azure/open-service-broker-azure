@@ -284,6 +284,70 @@ endif
 	docker push $(REL_MUTABLE_IMAGE_NAME)
 
 ################################################################################
+# Chart-Related Targets                                                        #
+################################################################################
+
+HELM_IMAGE := quay.io/deis/helm-chart-publishing-tools:v0.1.0
+
+DOCKER_HELM_CMD := docker run \
+	--rm \
+	-e AZURE_STORAGE_CONNECTION_STRING=$${AZURE_STORAGE_CONNECTION_STRING} \
+	-v $$(pwd):/go/src/$(BASE_PACKAGE_NAME) \
+	-w /go/src/$(BASE_PACKAGE_NAME) \
+	$(HELM_IMAGE)
+
+LINT_CHART_CMD := helm lint contrib/k8s/charts/open-service-broker-azure \
+	--set azure.tenantId=foo \
+	--set azure.subscriptionId=foo \
+	--set azure.clientId=foo \
+	--set azure.clientSecret=foo
+
+.PHONY: lint-chart
+lint-chart:
+ifdef SKIP_DOCKER
+	$(LINT_CHART_CMD)
+else
+	$(DOCKER_HELM_CMD) $(LINT_CHART_CMD)
+endif
+
+PUBLISH_CHART_CMD := bash -c ' \
+	cd contrib/k8s/charts \
+	&& rm -rf repo \
+	&& mkdir repo \
+	&& cd repo \
+	&& sed -i s/0.0.1/$(REL_VERSION)/g ../open-service-broker-azure/Chart.yaml \
+	&& helm dep build ../open-service-broker-azure \
+	&& helm package ../open-service-broker-azure \
+	&& az storage blob upload \
+		-c azure \
+		--file open-service-broker-azure-$(REL_VERSION).tgz \
+		--name open-service-broker-azure-$(REL_VERSION).tgz \
+	&& az storage container lease acquire -c azure --lease-duration 60 \
+	&& az storage blob download \
+		-c azure \
+		--name index.yaml \
+		--file index.yaml \
+	&& helm repo index --url https://kubernetescharts.blob.core.windows.net/azure --merge index.yaml . \
+	&& az storage blob upload \
+		-c azure \
+		--file index.yaml \
+		--name index.yaml'
+
+.PHONY: publish-chart
+publish-chart:
+ifndef REL_VERSION
+	$(error REL_VERSION is undefined)
+endif
+ifndef AZURE_STORAGE_CONNECTION_STRING
+	$(error AZURE_STORAGE_CONNECTION_STRING is not defined)
+endif
+ifdef SKIP_DOCKER
+	$(PUBLISH_CHART_CMD)
+else
+	$(DOCKER_HELM_CMD) $(PUBLISH_CHART_CMD)
+endif
+
+################################################################################
 # contrib/                                                                     #
 ################################################################################
 

@@ -3,3 +3,5 @@
 bin/
 _vendor-*/
 vendor.orig/
+contrib/k8s/charts/repo/
+contrib/k8s/charts/open-service-broker-azure/charts/
