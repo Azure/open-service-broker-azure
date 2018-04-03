@@ -4,21 +4,24 @@ OSBA has an overall stability, defined by its release version, which is
 based on [semver](https://semver.org/), but each of its
 [services](/README.md#supported-services) also has a stability label.
 
+Note that OSBA services refer to the catalog offering, and not necessarily one
+specific Azure service.
+
 # Overall Stability and OSBA Version
 
 We version OSBA generally via its release version to indicate its overall
-stability. Generally, this includes how well it's tested, its stability in the wild,
+stability. Generally, this includes how well it's tested, its stability "in the wild,"
 how many people using it, bug reports, and more.
 
 But when we increase a semver MAJOR, MINOR or PATCH version, we also take into
-account if any modules change in stability. Read on for how this works.
+account if any of the OSBA services change in stability. Read on for how this works.
 
 # Service Stability
 
 We indicate a stability for each service in the OSBA catalog and docs to
 indicate how mature it is. Each service may have a different stability:
 
-* `experimental` - We have an idea for a new service that we want to support,
+* `experimental` - We have an idea for a new service in the catalog that we want to support,
   but don't have a good idea how it should look. We are essentially
   “throwing something against the wall” to see if it'll stick. Experimental
   services may be radically changed or removed at any time
@@ -42,8 +45,6 @@ following rules:
   or MAJOR release must happen
 * If a service stability goes from `preview` to `stable`, a semver MINOR
   or MAJOR release must happen
-* If a service stability goes from `preview` to `experimental`, a semver
-  MINOR or MAJOR release must happen
 * If any service's stability goes "down" (from `stable` to `preview` or
   `experimental`, or from `preview` to `experimental`), a MAJOR release must
   happen (this would be a breaking change)
