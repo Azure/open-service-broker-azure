@@ -9,39 +9,44 @@ import (
 
 // CatalogConfig represents details re: which modules' services should be
 // included or excluded from the catalog
-type CatalogConfig interface {
-	GetMinStability() Stability
+type CatalogConfig struct {
+	MinStability Stability
 }
 
-type catalogConfig struct {
-	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"EXPERIMENTAL"`
-	MinStability    Stability
+type tempCatalogConfig struct {
+	CatalogConfig
+	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"PREVIEW"`
+}
+
+// NewCatalogConfigWithDefaults returns a CatalogConfig object with default
+// values already applied. Callers are then free to set custom values for the
+// remaining fields and/or override default values.
+func NewCatalogConfigWithDefaults() CatalogConfig {
+	return CatalogConfig{MinStability: StabilityPreview}
 }
 
 // GetCatalogConfigFromEnvironment returns catalog configuration
 func GetCatalogConfigFromEnvironment() (CatalogConfig, error) {
-	mc := catalogConfig{}
-	err := envconfig.Process("", &mc)
-	if err != nil {
-		return mc, err
+	c := tempCatalogConfig{
+		CatalogConfig: NewCatalogConfigWithDefaults(),
 	}
-	minStabilityStr := strings.ToUpper(mc.MinStabilityStr)
+	err := envconfig.Process("", &c)
+	if err != nil {
+		return c.CatalogConfig, err
+	}
+	minStabilityStr := strings.ToUpper(c.MinStabilityStr)
 	switch minStabilityStr {
 	case "EXPERIMENTAL":
-		mc.MinStability = StabilityExperimental
+		c.MinStability = StabilityExperimental
 	case "PREVIEW":
-		mc.MinStability = StabilityPreview
+		c.MinStability = StabilityPreview
 	case "STABLE":
-		mc.MinStability = StabilityStable
+		c.MinStability = StabilityStable
 	default:
-		return mc, fmt.Errorf(
+		return c.CatalogConfig, fmt.Errorf(
 			`unrecognized stability level "%s"`,
 			minStabilityStr,
 		)
 	}
-	return mc, nil
-}
-
-func (c catalogConfig) GetMinStability() Stability {
-	return c.MinStability
+	return c.CatalogConfig, nil
 }

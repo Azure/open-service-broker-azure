@@ -59,8 +59,9 @@ encryptionKey: This is a key that is 256 bits!!
 
 modules:
   ## Minimum stability required for a module's services and plans to be listed
-  ## in the broker's catalog. For production, use STABLE only!
-  minStability: EXPERIMENTAL
+  ## in the broker's catalog. Valid values are "EXPERIMENTAL", "PREVIEW", and
+  ## "STABLE". For production, use "STABLE" only!
+  minStability: PREVIEW
 
 ## Redis configuration 
 redis:
