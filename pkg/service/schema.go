@@ -257,3 +257,26 @@ func getCommonProvisionParameters() map[string]ParameterSchema {
 
 	return p
 }
+
+func getChildServiceParameters() map[string]ParameterSchema {
+	p := map[string]ParameterSchema{}
+	parentAliasSchema := NewSimpleParameterSchema(
+		"string",
+		"Specifies the alias of the DBMS upon which the database "+
+			"should be provisioned.",
+	)
+	parentAliasSchema.SetRequired(true)
+	p["parentAlias"] = parentAliasSchema
+	return p
+}
+
+func getParentServiceParameters() map[string]ParameterSchema {
+	p := map[string]ParameterSchema{}
+	aliasSchema := NewSimpleParameterSchema(
+		"string",
+		"Alias to use when provisioning databases on this DBMS",
+	)
+	aliasSchema.SetRequired(true)
+	p["alias"] = aliasSchema
+	return p
+}

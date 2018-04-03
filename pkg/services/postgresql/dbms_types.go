@@ -10,14 +10,7 @@ type dbmsProvisioningParameters struct {
 func (
 	d *dbmsManager,
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
-	p := getDBMSCommonProvisionParamSchema()
-	aliasSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Alias to use when provisioning databases on this DBMS",
-	)
-	aliasSchema.SetRequired(true)
-	p["alias"] = aliasSchema
-	return p
+	return getDBMSCommonProvisionParamSchema()
 }
 
 type firewallRule struct {

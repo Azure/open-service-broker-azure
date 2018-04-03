@@ -13,14 +13,6 @@ func (
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
 
 	props := map[string]service.ParameterSchema{}
-	parentAliasSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Specifies the alias of the DBMS upon which the database "+
-			"should be provisioned.",
-	)
-	parentAliasSchema.SetRequired(true)
-	props["parentAlias"] = parentAliasSchema
-
 	extensionsSchema := service.NewArrayParameterSchema(
 		"Database extensions to install",
 		service.NewSimpleParameterSchema(

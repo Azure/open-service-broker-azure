@@ -194,16 +194,30 @@ func NewService(
 			)
 			p.ParameterSchemas = paramSchemas
 		}
+		if p.ParameterSchemas == nil {
+			p.ParameterSchemas = &planSchemas{}
+		}
 		if serviceProperties.ParentServiceID == "" {
-			if p.ParameterSchemas == nil {
-				p.ParameterSchemas = &planSchemas{}
-			}
 			p.ParameterSchemas.addParameterSchemas(
 				getCommonProvisionParameters(),
 				nil,
 				nil,
 			)
+			if serviceProperties.ChildServiceID != "" {
+				p.ParameterSchemas.addParameterSchemas(
+					getParentServiceParameters(),
+					nil,
+					nil,
+				)
+			}
+		} else {
+			p.ParameterSchemas.addParameterSchemas(
+				getChildServiceParameters(),
+				nil,
+				nil,
+			)
 		}
+
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s

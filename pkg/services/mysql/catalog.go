@@ -277,7 +277,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "MySQL", "Database"},
-				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{
