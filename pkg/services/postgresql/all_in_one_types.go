@@ -18,7 +18,7 @@ type secureAllInOneInstanceDetails struct {
 
 func (
 	a *allInOneManager,
-) getProvisionParametersSchema() map[string]*service.ParameterSchema {
+) getProvisionParametersSchema() map[string]service.ParameterSchema {
 	return getDBMSCommonProvisionParamSchema()
 }
 

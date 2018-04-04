@@ -32,11 +32,11 @@ type ServiceProperties struct { // nolint: golint
 	Bindable      bool             `json:"bindable"`
 	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
 	// deliberate to match the spec
-	ParentServiceID       string                      `json:"-"`
-	ChildServiceID        string                      `json:"-"`
-	ProvisionParamsSchema map[string]*ParameterSchema `json:"-"`
-	UpdateParamsSchema    map[string]*ParameterSchema `json:"-"`
-	BindingParamsSchema   map[string]*ParameterSchema `json:"-"`
+	ParentServiceID       string                     `json:"-"`
+	ChildServiceID        string                     `json:"-"`
+	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
+	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
+	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
 }
 
 // ServiceMetadata contains metadata about the service classes
@@ -180,30 +180,40 @@ func NewService(
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
+	paramSchemas := &planSchemas{}
+	if serviceProperties.ProvisionParamsSchema != nil ||
+		serviceProperties.UpdateParamsSchema != nil ||
+		serviceProperties.BindingParamsSchema != nil {
+
+		paramSchemas.addParameterSchemas(
+			serviceProperties.ProvisionParamsSchema,
+			serviceProperties.UpdateParamsSchema,
+			serviceProperties.BindingParamsSchema,
+		)
+	}
+	if serviceProperties.ParentServiceID == "" {
+		paramSchemas.addParameterSchemas(
+			getCommonProvisionParameters(),
+			nil,
+			nil,
+		)
+		if serviceProperties.ChildServiceID != "" {
+			paramSchemas.addParameterSchemas(
+				getParentServiceParameters(),
+				nil,
+				nil,
+			)
+		}
+	} else {
+		paramSchemas.addParameterSchemas(
+			getChildServiceParameters(),
+			nil,
+			nil,
+		)
+	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		var paramSchemas *planSchemas
-		if serviceProperties.ProvisionParamsSchema != nil ||
-			serviceProperties.UpdateParamsSchema != nil ||
-			serviceProperties.BindingParamsSchema != nil {
-			paramSchemas = &planSchemas{}
-			paramSchemas.addParameters(
-				serviceProperties.ProvisionParamsSchema,
-				serviceProperties.UpdateParamsSchema,
-				serviceProperties.BindingParamsSchema,
-			)
-			p.ParameterSchemas = paramSchemas
-		}
-		if serviceProperties.ParentServiceID == "" {
-			if p.ParameterSchemas == nil {
-				p.ParameterSchemas = &planSchemas{}
-			}
-			p.ParameterSchemas.addParameters(
-				getCommonProvisionParameters(),
-				nil,
-				nil,
-			)
-		}
+		p.ParameterSchemas = paramSchemas
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
