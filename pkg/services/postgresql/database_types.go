@@ -1,6 +1,8 @@
 package postgresql
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import (
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+)
 
 type databaseProvisioningParameters struct {
 	Extensions []string `json:"extensions"`
@@ -8,21 +10,17 @@ type databaseProvisioningParameters struct {
 
 func (
 	d *databaseManager,
-) getProvisionParametersSchema() map[string]*service.ParameterSchema {
-	p := map[string]*service.ParameterSchema{}
-	p["parentAlias"] = &service.ParameterSchema{
-		Type: "string",
-		Description: "Specifies the alias of the DBMS upon which the database " +
-			"should be provisioned.",
-		Required: true,
-	}
-	p["extensions"] = &service.ParameterSchema{
-		Type: "array",
-		Items: &service.ParameterSchema{
-			Type: "string",
+) getProvisionParametersSchema() map[string]service.ParameterSchema {
+
+	props := map[string]service.ParameterSchema{}
+	props["extensions"] = &service.ArrayParameterSchema{
+		Description: "Database extensions to install",
+		ItemsSchema: &service.SimpleParameterSchema{
+			Type:        "string",
+			Description: "Extension Name",
 		},
 	}
-	return p
+	return props
 }
 
 type databaseInstanceDetails struct {

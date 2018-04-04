@@ -25,40 +25,40 @@ type credentials struct {
 	Encrypt  bool     `json:"encrypt"`
 }
 
-func getDBMSCommonProvisionParamSchema() map[string]*service.ParameterSchema {
-	p := map[string]*service.ParameterSchema{}
+func getDBMSCommonProvisionParamSchema() map[string]service.ParameterSchema {
+	p := map[string]service.ParameterSchema{}
 
-	p["sslEnforcement"] = &service.ParameterSchema{
-		Type: "string",
-		Description: "Specifies whether the server requires the use of TLS " +
-			"when connecting. Can be 'enabled', 'disabled' or ''. " +
-			"Left unspecified, SSL will be enforced",
-	}
-
-	firewallRuleSchema := make(map[string]*service.ParameterSchema)
-	firewallRuleSchema["name"] = &service.ParameterSchema{
-		Type:        "string",
-		Description: "Name of firewall rule",
-	}
-
-	firewallRuleSchema["startIPAddress"] = &service.ParameterSchema{
-		Type:        "string",
-		Description: "Start of firewall rule range",
-	}
-
-	firewallRuleSchema["endIPAddress"] = &service.ParameterSchema{
-		Type:        "string",
-		Description: "End of firewall rule range",
-	}
-
-	p["firewallRules"] = &service.ParameterSchema{
-		Type: "array",
+	p["firewallRules"] = &service.ArrayParameterSchema{
 		Description: "Firewall rules to apply to instance. " +
 			"If left unspecified, defaults to only Azure IPs",
-		Items: &service.ParameterSchema{
-			Type:       "object",
-			Properties: firewallRuleSchema,
+		ItemsSchema: &service.ObjectParameterSchema{
+			Description: "Individual Firewall Rule",
+			Properties: map[string]service.ParameterSchema{
+				"name": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "Name of firewall rule",
+					Required:    true,
+				},
+				"startIPAddress": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "Start of firewall rule range",
+					Required:    true,
+				},
+				"endIPAddress": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "End of firewall rule range",
+					Required:    true,
+				},
+			},
 		},
+	}
+
+	p["sslEnforcement"] = &service.SimpleParameterSchema{
+		Type: "string",
+		Description: "Specifies whether the server requires the use of TLS" +
+			" when connecting. Left unspecified, SSL will be enforced",
+		AllowedValues: []string{"", "enabled", "disabled"},
+		Default:       "",
 	}
 	return p
 }

@@ -294,7 +294,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Tags: []string{"Azure", "SQL", "Database"},
-				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{
