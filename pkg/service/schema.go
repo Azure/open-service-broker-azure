@@ -136,44 +136,6 @@ func (a *ArrayParameterSchema) setRequiredProperties() {
 func (s *SimpleParameterSchema) setRequiredProperties() {
 }
 
-func (ps *planSchemas) setRequiredProperties() {
-	if ps.ServiceInstances != nil {
-		sips := ps.ServiceInstances
-		if sips.ProvisioningParametersSchema != nil {
-			provisionSchema := sips.ProvisioningParametersSchema.Parameters
-			for key, param := range provisionSchema.Properties {
-				param.setRequiredProperties()
-				if param.isRequired() {
-					provisionSchema.RequiredProperties =
-						append(provisionSchema.RequiredProperties, key)
-				}
-			}
-		}
-		if sips.UpdatingParametersSchema != nil {
-			updatingSchema := sips.UpdatingParametersSchema.Parameters
-			for key, param := range updatingSchema.Properties {
-				param.setRequiredProperties()
-				if param.isRequired() {
-					updatingSchema.RequiredProperties =
-						append(updatingSchema.RequiredProperties, key)
-				}
-			}
-		}
-	}
-	if ps.ServiceBindings != nil {
-		bps := ps.ServiceBindings.BindingParametersSchema
-		if bps.Parameters != nil {
-			for key, param := range bps.Parameters.Properties {
-				param.setRequiredProperties()
-				if param.isRequired() {
-					bps.Parameters.RequiredProperties =
-						append(bps.Parameters.RequiredProperties, key)
-				}
-			}
-		}
-	}
-}
-
 func (p *parametersSchema) addProperties(
 	newProperties map[string]ParameterSchema,
 ) error {
@@ -184,6 +146,11 @@ func (p *parametersSchema) addProperties(
 		p.Properties = make(map[string]ParameterSchema)
 	}
 	for key, param := range newProperties {
+		param.setRequiredProperties()
+		if param.isRequired() {
+			p.RequiredProperties =
+				append(p.RequiredProperties, key)
+		}
 		p.Properties[key] = param
 	}
 	return nil

@@ -211,7 +211,6 @@ func NewService(
 			nil,
 		)
 	}
-	paramSchemas.setRequiredProperties()
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
 		p.ParameterSchemas = paramSchemas
