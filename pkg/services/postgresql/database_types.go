@@ -14,7 +14,6 @@ func (
 
 	props := map[string]service.ParameterSchema{}
 	props["extensions"] = &service.ArrayParameterSchema{
-		Type:        "array",
 		Description: "Database extensions to install",
 		ItemsSchema: &service.SimpleParameterSchema{
 			Type:        "string",

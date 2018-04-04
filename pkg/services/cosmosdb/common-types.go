@@ -80,7 +80,6 @@ func (
 				Default:       "",
 			},
 			"allowedIPRanges": &service.ArrayParameterSchema{
-				Type: "array",
 				Description: "Values to include in IP Filter. " +
 					"Can be an IP Address or CIDR range.",
 				ItemsSchema: &service.SimpleParameterSchema{

@@ -27,11 +27,9 @@ func getDBMSCommonProvisionParamSchema() map[string]service.ParameterSchema {
 	p := map[string]service.ParameterSchema{}
 
 	p["firewallRules"] = &service.ArrayParameterSchema{
-		Type: "array",
 		Description: "Firewall rules to apply to instance. " +
 			"If left unspecified, defaults to only Azure IPs",
 		ItemsSchema: &service.ObjectParameterSchema{
-			Type:        "object",
 			Description: "Individual Firewall Rule",
 			Properties: map[string]service.ParameterSchema{
 				"name": &service.SimpleParameterSchema{

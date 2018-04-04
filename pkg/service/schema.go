@@ -1,6 +1,8 @@
 package service
 
 import (
+	"encoding/json"
+
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -52,20 +54,50 @@ type SimpleParameterSchema struct {
 // ObjectParameterSchema represents the attributes of a complicated schema type
 // that can have nested properties
 type ObjectParameterSchema struct {
-	Type               string                     `json:"type"`
-	Description        string                     `json:"description,omitempty"`
-	Required           bool                       `json:"-"`
-	RequiredProperties []string                   `json:"required,omitempty"`
-	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
-	Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
+	Description        string
+	Required           bool
+	requiredProperties []string
+	Properties         map[string]ParameterSchema
+	Additional         ParameterSchema
+}
+
+// MarshalJSON provides functionality to marshal an
+// ObjectParameterSchema to JSON
+func (o *ObjectParameterSchema) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Type               string                     `json:"type"`
+		Description        string                     `json:"description,omitempty"`
+		RequiredProperties []string                   `json:"required,omitempty"`
+		Properties         map[string]ParameterSchema `json:"properties,omitempty"`
+		Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
+	}{
+		Type:               "object",
+		Description:        o.Description,
+		RequiredProperties: o.requiredProperties,
+		Properties:         o.Properties,
+		Additional:         o.Additional,
+	})
 }
 
 // ArrayParameterSchema represents the attributes of an array type
 type ArrayParameterSchema struct {
-	Type        string          `json:"type"`
-	Description string          `json:"description,omitempty"`
-	Required    bool            `json:"-"`
-	ItemsSchema ParameterSchema `json:"items,omitempty"`
+	Description string
+	Required    bool
+	ItemsSchema ParameterSchema
+}
+
+// MarshalJSON provides functionality to marshal an
+// ArrayParameterSchema to JSON
+func (a *ArrayParameterSchema) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Type        string          `json:"type"`
+		Description string          `json:"description,omitempty"`
+		ItemsSchema ParameterSchema `json:"items,omitempty"`
+	}{
+		Type:        "array",
+		Description: a.Description,
+		ItemsSchema: a.ItemsSchema,
+	})
 }
 
 // ParameterSchema defines an interface representing a given Parameter schema.
@@ -91,7 +123,7 @@ func (a *ArrayParameterSchema) isRequired() bool {
 func (o *ObjectParameterSchema) setRequiredProperties() {
 	for key, param := range o.Properties {
 		if param.isRequired() {
-			o.RequiredProperties = append(o.RequiredProperties, key)
+			o.requiredProperties = append(o.requiredProperties, key)
 		}
 	}
 }
@@ -100,8 +132,8 @@ func (a *ArrayParameterSchema) setRequiredProperties() {
 	a.ItemsSchema.setRequiredProperties()
 }
 
+// NOOP method to implement the interface
 func (s *SimpleParameterSchema) setRequiredProperties() {
-	return
 }
 
 func (ps *planSchemas) setRequiredProperties() {
@@ -140,21 +172,6 @@ func (ps *planSchemas) setRequiredProperties() {
 			}
 		}
 	}
-}
-
-func (o *ObjectParameterSchema) addProperties(
-	newProperties map[string]ParameterSchema,
-) error {
-	if newProperties == nil {
-		return nil
-	}
-	if o.Properties == nil {
-		o.Properties = make(map[string]ParameterSchema)
-	}
-	for key, param := range newProperties {
-		o.Properties[key] = param
-	}
-	return nil
 }
 
 func (p *parametersSchema) addProperties(
@@ -252,7 +269,6 @@ func getCommonProvisionParameters() map[string]ParameterSchema {
 			" to associate new resources.",
 	}
 	p["tags"] = &ObjectParameterSchema{
-		Type: "object",
 		Description: "Tags to be applied to new resources," +
 			" specified as key/value pairs.",
 		Additional: &SimpleParameterSchema{
