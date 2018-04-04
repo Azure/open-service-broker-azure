@@ -1,6 +1,6 @@
 SHELL = /bin/bash
 
-GENERATE_TILE = docker run --rm -v ${CURDIR}:/workspace -w /workspace --name=tile-generator cfplatformeng/tile-generator tile build
+GENERATE_TILE = docker run --rm -v ${CURDIR}:/workspace -w /workspace --name=tile-generator cfplatformeng/tile-generator:v11.0.5 tile build
 
 # Checks for the existence of a docker client and prints a nice error message
 # if it isn't present
