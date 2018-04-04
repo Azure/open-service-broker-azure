@@ -164,7 +164,7 @@ jobs:
       - checkout
       - run:
           name: Publish Helm Chart
-          command: make publish-chart
+          command: REL_VERSION="${CIRCLE_TAG}" make publish-chart
 workflows:
   version: 2
   build-and-test-pr:
