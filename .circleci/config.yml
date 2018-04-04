@@ -104,7 +104,7 @@ jobs:
       - run:
           name: Build Binary & Docker Image
           command: make build
-  generate-pcf-tile:
+  test-generate-pcf-tile:
     docker:
       - image: cfplatformeng/tile-generator:v11.0.4
     environment:
@@ -120,6 +120,22 @@ jobs:
       - run:
           name: Generate PCF Tile
           command: make generate-pcf-tile
+  generate-pcf-tile:
+    docker:
+      - image: cfplatformeng/tile-generator:v11.0.4
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /workspace
+    steps:
+      - checkout
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
+      - run:
+          name: Generate PCF Tile
+          command: REL_VERSION="${CIRCLE_TAG}" make generate-pcf-tile
   test-service-lifecycles:
     docker:
       - image: quay.io/deis/lightweight-docker-go:v0.2.0
@@ -226,7 +242,7 @@ workflows:
           filters:
             branches:
               ignore: master
-      - generate-pcf-tile:
+      - test-generate-pcf-tile:
           requires:
             - hold
           filters:
@@ -241,7 +257,7 @@ workflows:
             - test-unit
             - test-api-compliance
             - build
-            - generate-pcf-tile
+            - test-generate-pcf-tile
           filters:
             branches:
               ignore: master
@@ -271,7 +287,7 @@ workflows:
           filters:
             branches:
               only: master
-      - generate-pcf-tile:
+      - test-generate-pcf-tile:
           filters:
             branches:
               only: master
@@ -283,7 +299,7 @@ workflows:
             - test-unit
             - test-api-compliance
             - build
-            - generate-pcf-tile
+            - test-generate-pcf-tile
           filters:
             branches:
               only: master
@@ -295,7 +311,7 @@ workflows:
             - test-unit
             - test-api-compliance
             - build
-            - generate-pcf-tile
+            - test-generate-pcf-tile
             - test-service-lifecycles
           filters:
             branches:
