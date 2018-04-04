@@ -101,3 +101,11 @@ With the broker app deployed, the final step is to register it as a service brok
 ```console
 cf create-service-broker open-service-broker-azure username password https://osba.apps.example.com
 ```
+
+If you are *not* using a `--space-scoped` broker, services provided by a broker are not visible to Cloud Foundry users. To make them visible, you will also need to grant access to the services provided by Open Service Broker for Azure using the `cf enable-service-access` command. For example, to expose the `azure-postgresql` service, you will need to execute the following command. 
+
+```console
+cf enable-service-access azure-postgresql
+```
+
+This is not needed if registering the broker with the `--space-scoped` flag.
