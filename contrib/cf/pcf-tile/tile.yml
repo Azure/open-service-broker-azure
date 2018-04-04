@@ -109,6 +109,18 @@ forms:
         label: INFO
       - name: DEBUG
         label: DEBUG
+  - name: min_stability
+    type: dropdown_select
+    label: Minimum Module Stability
+    configurable: true
+    default: PREVIEW
+    options:
+      - name: EXPERIMENTAL
+        label: EXPERIMENTAL
+      - name: PREVIEW
+        label: PREVIEW
+      - name: STABLE
+        label: STABLE
   - name: storage_redis_host
     type: string
     label: Storage Redis Host
