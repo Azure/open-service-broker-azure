@@ -18,7 +18,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
 	brokerLog "github.com/Azure/open-service-broker-azure/pkg/log"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/storage"
+	storage "github.com/Azure/open-service-broker-azure/pkg/storage/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
 )
