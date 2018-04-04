@@ -26,51 +26,39 @@ type credentials struct {
 func getDBMSCommonProvisionParamSchema() map[string]service.ParameterSchema {
 	p := map[string]service.ParameterSchema{}
 
-	sslEnforcementSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Specifies whether the server requires the use of TLS"+
-			" when connecting. Left unspecified, SSL will be enforced",
-	)
-	sslEnforcementSchema.SetRequired(true)
-	sslEnforcementSchema.SetAllowedValues(
-		[]string{"", "enabled", "disabled"},
-	)
-	sslEnforcementSchema.SetDefault("")
-
-	firewallRuleSchema := map[string]service.ParameterSchema{}
-
-	firewallRuleNameSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Name of firewall rule",
-	)
-	firewallRuleNameSchema.SetRequired(true)
-	firewallRuleSchema["name"] = firewallRuleNameSchema
-
-	startIPSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Start of firewall rule range",
-	)
-	startIPSchema.SetRequired(true)
-	firewallRuleSchema["startIPAddress"] = startIPSchema
-
-	endIPSchema := service.NewSimpleParameterSchema(
-		"string",
-		"End of firewall rule range",
-	)
-	endIPSchema.SetRequired(true)
-	firewallRuleSchema["endIPAddress"] = endIPSchema
-
-	firewallObject := service.NewObjectParameterSchema(
-		"Individual Firewall Rule",
-		firewallRuleSchema,
-	)
-
-	firewallRulesSchema := service.NewArrayParameterSchema(
-		"Firewall rules to apply to instance. "+
+	p["firewallRules"] = &service.ArrayParameterSchema{
+		Type: "array",
+		Description: "Firewall rules to apply to instance. " +
 			"If left unspecified, defaults to only Azure IPs",
-		firewallObject,
-	)
+		ItemsSchema: &service.ObjectParameterSchema{
+			Type:        "object",
+			Description: "Individual Firewall Rule",
+			Properties: map[string]service.ParameterSchema{
+				"name": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "Name of firewall rule",
+					Required:    true,
+				},
+				"startIPAddress": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "Start of firewall rule range",
+					Required:    true,
+				},
+				"endIPAddress": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "End of firewall rule range",
+					Required:    true,
+				},
+			},
+		},
+	}
 
-	p["firewallRules"] = firewallRulesSchema
+	p["sslEnforcement"] = &service.SimpleParameterSchema{
+		Type: "string",
+		Description: "Specifies whether the server requires the use of TLS" +
+			" when connecting. Left unspecified, SSL will be enforced",
+		AllowedValues: []string{"", "enabled", "disabled"},
+		Default:       "",
+	}
 	return p
 }

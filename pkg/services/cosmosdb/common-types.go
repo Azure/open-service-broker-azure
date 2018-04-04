@@ -61,45 +61,35 @@ func (
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
 	p := map[string]service.ParameterSchema{}
 
-	ipFilterSchema := make(map[string]service.ParameterSchema)
-
-	allowAccessFromAzureSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Specifies if Azure Services should be able to access"+
-			" the CosmosDB account.",
-	)
-	allowAccessFromAzureSchema.SetAllowedValues(
-		[]string{"", "enabled", "disabled"},
-	)
-	allowAccessFromAzureSchema.SetDefault("")
-	ipFilterSchema["allowAccessFromAzure"] = allowAccessFromAzureSchema
-
-	allowAccessFromPortalSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Specifies if the Azure Portal should be able to"+
-			" access the CosmosDB account. If `allowAccessFromAzure` is"+
-			" set to enabled, this value is ignored.",
-	)
-	allowAccessFromPortalSchema.SetAllowedValues(
-		[]string{"", "enabled", "disabled"},
-	)
-	allowAccessFromPortalSchema.SetDefault("")
-	ipFilterSchema["allowAccessFromPortal"] = allowAccessFromPortalSchema
-
-	allowedIPRangeSchema := service.NewArrayParameterSchema(
-		"Values to include in IP Filter. Can be IP Address or CIDR range.",
-		service.NewSimpleParameterSchema(
-			"string",
-			"Must be a valid IP address or CIDR",
-		),
-	)
-	ipFilterSchema["allowedIPRanges"] = allowedIPRangeSchema
-
-	ipFilters := service.NewObjectParameterSchema(
-		"IP Range Filter to be applied to new CosmosDB account",
-		ipFilterSchema,
-	)
-	p["ipFilters"] = ipFilters
+	p["ipFilters"] = &service.ObjectParameterSchema{
+		Description: "IP Range Filter to be applied to new CosmosDB account",
+		Properties: map[string]service.ParameterSchema{
+			"allowAccessFromAzure": &service.SimpleParameterSchema{
+				Type: "string",
+				Description: "Specifies if Azure Services should be able to access" +
+					" the CosmosDB account.",
+				AllowedValues: []string{"", "enabled", "disabled"},
+				Default:       "",
+			},
+			"allowAccessFromPortal": &service.SimpleParameterSchema{
+				Type: "string",
+				Description: "Specifies if the Azure Portal should be able to" +
+					" access the CosmosDB account. If `allowAccessFromAzure` is" +
+					" set to enabled, this value is ignored.",
+				AllowedValues: []string{"", "enabled", "disabled"},
+				Default:       "",
+			},
+			"allowedIPRanges": &service.ArrayParameterSchema{
+				Type: "array",
+				Description: "Values to include in IP Filter. " +
+					"Can be an IP Address or CIDR range.",
+				ItemsSchema: &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "Must be a valid IP address or CIDR",
+				},
+			},
+		},
+	}
 
 	return p
 

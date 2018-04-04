@@ -1,8 +1,6 @@
 package service
 
 import (
-	"fmt"
-
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -32,137 +30,146 @@ type bindingSchema struct {
 }
 
 type parametersSchema struct {
-	Schema           string `json:"$schema"`
-	*parameterSchema `json:",inline"`
+	Schema             string                     `json:"$schema"`
+	Type               string                     `json:"type"`
+	Description        string                     `json:"description,omitempty"`
+	Required           bool                       `json:"-"`
+	RequiredProperties []string                   `json:"required,omitempty"`
+	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
+	Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
 }
 
-type parameterSchema struct {
-	Type          string                      `json:"type"`
-	RequiredField bool                        `json:"-"`
-	Required      []string                    `json:"required,omitempty"`
-	Description   string                      `json:"description,omitempty"`
-	Default       interface{}                 `json:"default,omitempty"`
-	Items         *parameterSchema            `json:"items,omitempty"`
-	Properties    map[string]*parameterSchema `json:"properties,omitempty"`
-	Additional    *parameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
-	AllowedValues interface{}                 `json:"enum,omitempty"`
+// SimpleParameterSchema represents the attributes of a simple schema type
+// such as a string or integer
+type SimpleParameterSchema struct {
+	Type          string      `json:"type"`
+	Description   string      `json:"description,omitempty"`
+	Required      bool        `json:"-"`
+	Default       interface{} `json:"default,omitempty"`
+	AllowedValues interface{} `json:"enum,omitempty"`
+}
+
+// ObjectParameterSchema represents the attributes of a complicated schema type
+// that can have nested properties
+type ObjectParameterSchema struct {
+	Type               string                     `json:"type"`
+	Description        string                     `json:"description,omitempty"`
+	Required           bool                       `json:"-"`
+	RequiredProperties []string                   `json:"required,omitempty"`
+	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
+	Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
+}
+
+// ArrayParameterSchema represents the attributes of an array type
+type ArrayParameterSchema struct {
+	Type        string          `json:"type"`
+	Description string          `json:"description,omitempty"`
+	Required    bool            `json:"-"`
+	ItemsSchema ParameterSchema `json:"items,omitempty"`
 }
 
 // ParameterSchema defines an interface representing a given Parameter schema.
 // This could be a provision or binding parameter.
 type ParameterSchema interface {
-	SetRequired(bool)
-	IsRequired() bool
-	SetAdditionalPropertiesType(kind string)
-	SetDefault(defaultVal interface{})
-	SetAllowedValues(interface{})
+	isRequired() bool
+	setRequiredProperties()
 }
 
-func (p *parameterSchema) SetRequired(isRequired bool) {
-	p.RequiredField = isRequired
+func (s *SimpleParameterSchema) isRequired() bool {
+	return s.Required
 }
 
-func (p *parameterSchema) IsRequired() bool {
-	return p.RequiredField
+func (o *ObjectParameterSchema) isRequired() bool {
+	return o.Required
 }
 
-func (p *parameterSchema) AddParameters(
-	newParams map[string]ParameterSchema,
+// IsRequired returns true if the property is required
+func (a *ArrayParameterSchema) isRequired() bool {
+	return a.Required
+}
+
+func (o *ObjectParameterSchema) setRequiredProperties() {
+	for key, param := range o.Properties {
+		if param.isRequired() {
+			o.RequiredProperties = append(o.RequiredProperties, key)
+		}
+	}
+}
+
+func (a *ArrayParameterSchema) setRequiredProperties() {
+	a.ItemsSchema.setRequiredProperties()
+}
+
+func (s *SimpleParameterSchema) setRequiredProperties() {
+	return
+}
+
+func (ps *planSchemas) setRequiredProperties() {
+	if ps.ServiceInstances != nil {
+		sips := ps.ServiceInstances
+		if sips.ProvisioningParametersSchema != nil {
+			provisionSchema := sips.ProvisioningParametersSchema.Parameters
+			for key, param := range provisionSchema.Properties {
+				param.setRequiredProperties()
+				if param.isRequired() {
+					provisionSchema.RequiredProperties =
+						append(provisionSchema.RequiredProperties, key)
+				}
+			}
+		}
+		if sips.UpdatingParametersSchema != nil {
+			updatingSchema := sips.UpdatingParametersSchema.Parameters
+			for key, param := range updatingSchema.Properties {
+				param.setRequiredProperties()
+				if param.isRequired() {
+					updatingSchema.RequiredProperties =
+						append(updatingSchema.RequiredProperties, key)
+				}
+			}
+		}
+	}
+	if ps.ServiceBindings != nil {
+		bps := ps.ServiceBindings.BindingParametersSchema
+		if bps.Parameters != nil {
+			for key, param := range bps.Parameters.Properties {
+				param.setRequiredProperties()
+				if param.isRequired() {
+					bps.Parameters.RequiredProperties =
+						append(bps.Parameters.RequiredProperties, key)
+				}
+			}
+		}
+	}
+}
+
+func (o *ObjectParameterSchema) addProperties(
+	newProperties map[string]ParameterSchema,
 ) error {
-	if newParams == nil {
+	if newProperties == nil {
+		return nil
+	}
+	if o.Properties == nil {
+		o.Properties = make(map[string]ParameterSchema)
+	}
+	for key, param := range newProperties {
+		o.Properties[key] = param
+	}
+	return nil
+}
+
+func (p *parametersSchema) addProperties(
+	newProperties map[string]ParameterSchema,
+) error {
+	if newProperties == nil {
 		return nil
 	}
 	if p.Properties == nil {
-		p.Properties = make(map[string]*parameterSchema)
+		p.Properties = make(map[string]ParameterSchema)
 	}
-	for key, param := range newParams {
-		ps, ok := param.(*parameterSchema)
-		if !ok {
-			return fmt.Errorf("Unknown parameters object")
-		}
-		p.Properties[key] = ps
-		if param.IsRequired() {
-			p.Required = append(p.Required, key)
-		}
+	for key, param := range newProperties {
+		p.Properties[key] = param
 	}
 	return nil
-}
-
-func (p *parameterSchema) SetAdditionalPropertiesType(kind string) {
-	p.Additional = &parameterSchema{
-		Type: kind,
-	}
-}
-
-func (p *parameterSchema) SetDefault(defaultVal interface{}) {
-	p.Default = defaultVal
-}
-
-func (p *parameterSchema) SetAllowedValues(allowedValues interface{}) {
-	p.AllowedValues = allowedValues
-}
-
-func (p *parameterSchema) SetItems(itemSchema ParameterSchema) error {
-	items, ok := itemSchema.(*parameterSchema)
-	if !ok {
-		return fmt.Errorf("Unknown parameters object")
-	}
-	p.Items = items
-	return nil
-}
-
-// NewSimpleParameterSchema returns an instance of a type that implements
-// the ParameterSchema interface with a type and description.
-func NewSimpleParameterSchema(
-	typeString string,
-	description string,
-) ParameterSchema {
-	ps := &parameterSchema{
-		Type:        typeString,
-		Description: description,
-	}
-	return ps
-}
-
-// NewObjectParameterSchema returns an instance of a type that implements
-// the ParameterSchema interface. This assumes the "object" type and
-// adds any specified properties to the schema instance.
-func NewObjectParameterSchema(
-	description string,
-	properties map[string]ParameterSchema,
-) ParameterSchema {
-	ps := &parameterSchema{
-		Type:        "object",
-		Description: description,
-	}
-
-	err := ps.AddParameters(properties)
-	if err != nil {
-		log.Errorf(
-			"error adding parameter properties to object schema: %s",
-			err,
-		)
-	}
-	return ps
-}
-
-// NewArrayParameterSchema returns an instance of a type that implements
-// the ParameterSchema interface. This assumes the "object" type and
-// adds any specified properties to the schema instance.
-func NewArrayParameterSchema(
-	description string,
-	itemSchema ParameterSchema,
-) ParameterSchema {
-	ps := &parameterSchema{
-		Type:        "array",
-		Description: description,
-	}
-
-	err := ps.SetItems(itemSchema)
-	if err != nil {
-		log.Errorf("Error adding items to the array schema: %s", err)
-	}
-	return ps
 }
 
 func (ps *planSchemas) addParameterSchemas(
@@ -183,7 +190,7 @@ func (ps *planSchemas) addParameterSchemas(
 			}
 			sips.ProvisioningParametersSchema = pps
 		}
-		err := pps.Parameters.AddParameters(instanceCreateParameters)
+		err := pps.Parameters.addProperties(instanceCreateParameters)
 		if err != nil {
 			log.Errorf("error building instance creation param schema %s", err)
 		}
@@ -202,7 +209,7 @@ func (ps *planSchemas) addParameterSchemas(
 			}
 			sips.UpdatingParametersSchema = ups
 		}
-		err := ups.Parameters.AddParameters(instanceUpdateParameters)
+		err := ups.Parameters.addProperties(instanceUpdateParameters)
 		log.Errorf("error building instance update param schema %s", err)
 	}
 	if bindingCreateParameters != nil {
@@ -219,7 +226,7 @@ func (ps *planSchemas) addParameterSchemas(
 			}
 			sbps.BindingParametersSchema = bcps
 		}
-		err := bcps.Parameters.AddParameters(bindingCreateParameters)
+		err := bcps.Parameters.addProperties(bindingCreateParameters)
 		log.Errorf("error building binding creation param schema %s", err)
 	}
 }
@@ -227,56 +234,52 @@ func (ps *planSchemas) addParameterSchemas(
 func createEmptyParameterSchema() *parametersSchema {
 	p := &parametersSchema{
 		Schema: "http://json-schema.org/draft-04/schema#",
-		parameterSchema: &parameterSchema{
-			Type: "object",
-		},
+		Type:   "object",
 	}
 	return p
 }
 
 func getCommonProvisionParameters() map[string]ParameterSchema {
 	p := map[string]ParameterSchema{}
-	p["location"] = NewSimpleParameterSchema(
-		"string",
-		"The Azure region in which to provision applicable resources.",
-	)
-
-	p["resourceGroup"] = NewSimpleParameterSchema(
-		"string",
-		"The (new or existing) resource group with which to associate new"+
-			" resources.",
-	)
-
-	tagsSchema := NewObjectParameterSchema(
-		"Tags to be applied to new resources, specified as key/value pairs.",
-		nil,
-	)
-	tagsSchema.SetAdditionalPropertiesType("string")
-
-	p["tags"] = tagsSchema
+	p["location"] = &SimpleParameterSchema{
+		Type: "string",
+		Description: "The Azure region in which to provision" +
+			" applicable resources.",
+	}
+	p["resourceGroup"] = &SimpleParameterSchema{
+		Type: "string",
+		Description: "The (new or existing) resource group with which" +
+			" to associate new resources.",
+	}
+	p["tags"] = &ObjectParameterSchema{
+		Type: "object",
+		Description: "Tags to be applied to new resources," +
+			" specified as key/value pairs.",
+		Additional: &SimpleParameterSchema{
+			Type: "string",
+		},
+	}
 
 	return p
 }
 
 func getChildServiceParameters() map[string]ParameterSchema {
 	p := map[string]ParameterSchema{}
-	parentAliasSchema := NewSimpleParameterSchema(
-		"string",
-		"Specifies the alias of the DBMS upon which the database "+
+	p["parentAlias"] = &SimpleParameterSchema{
+		Type: "string",
+		Description: "Specifies the alias of the DBMS upon which the database " +
 			"should be provisioned.",
-	)
-	parentAliasSchema.SetRequired(true)
-	p["parentAlias"] = parentAliasSchema
+		Required: true,
+	}
 	return p
 }
 
 func getParentServiceParameters() map[string]ParameterSchema {
 	p := map[string]ParameterSchema{}
-	aliasSchema := NewSimpleParameterSchema(
-		"string",
-		"Alias to use when provisioning databases on this DBMS",
-	)
-	aliasSchema.SetRequired(true)
-	p["alias"] = aliasSchema
+	p["alias"] = &SimpleParameterSchema{
+		Type:        "string",
+		Description: "Alias to use when provisioning databases on this DBMS",
+		Required:    true,
+	}
 	return p
 }

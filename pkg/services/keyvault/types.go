@@ -12,30 +12,25 @@ func (
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
 
 	p := map[string]service.ParameterSchema{}
-
-	objectIDSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Object ID for an existing service principal, "+
+	p["objectId"] = &service.SimpleParameterSchema{
+		Type: "string",
+		Description: "Object ID for an existing service principal, " +
 			"which will be granted access to the new vault.",
-	)
-	objectIDSchema.SetRequired(true)
-	p["objectId"] = objectIDSchema
+		Required: true,
+	}
 
-	clientIDSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Client ID (username) for an existing service principal,"+
+	p["clientId"] = &service.SimpleParameterSchema{
+		Type: "string",
+		Description: "Client ID (username) for an existing service principal," +
 			"which will be granted access to the new vault.",
-	)
-	clientIDSchema.SetRequired(true)
-	p["clientId"] = clientIDSchema
+		Required: true,
+	}
 
-	clientSecretSchema := service.NewSimpleParameterSchema(
-		"string",
-		"Client secret (password) for an existing service "+
+	p["clientSecret"] = &service.SimpleParameterSchema{
+		Type: "string",
+		Description: "Client secret (password) for an existing service " +
 			"principal, which will be granted access to the new vault.",
-	)
-	clientSecretSchema.SetRequired(true)
-	p["clientSecret"] = clientSecretSchema
+	}
 
 	return p
 }

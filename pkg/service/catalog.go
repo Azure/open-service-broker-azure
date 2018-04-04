@@ -180,44 +180,41 @@ func NewService(
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
+	paramSchemas := &planSchemas{}
+	if serviceProperties.ProvisionParamsSchema != nil ||
+		serviceProperties.UpdateParamsSchema != nil ||
+		serviceProperties.BindingParamsSchema != nil {
+
+		paramSchemas.addParameterSchemas(
+			serviceProperties.ProvisionParamsSchema,
+			serviceProperties.UpdateParamsSchema,
+			serviceProperties.BindingParamsSchema,
+		)
+	}
+	if serviceProperties.ParentServiceID == "" {
+		paramSchemas.addParameterSchemas(
+			getCommonProvisionParameters(),
+			nil,
+			nil,
+		)
+		if serviceProperties.ChildServiceID != "" {
+			paramSchemas.addParameterSchemas(
+				getParentServiceParameters(),
+				nil,
+				nil,
+			)
+		}
+	} else {
+		paramSchemas.addParameterSchemas(
+			getChildServiceParameters(),
+			nil,
+			nil,
+		)
+	}
+	paramSchemas.setRequiredProperties()
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		var paramSchemas *planSchemas
-		if serviceProperties.ProvisionParamsSchema != nil ||
-			serviceProperties.UpdateParamsSchema != nil ||
-			serviceProperties.BindingParamsSchema != nil {
-			paramSchemas = &planSchemas{}
-			paramSchemas.addParameterSchemas(
-				serviceProperties.ProvisionParamsSchema,
-				serviceProperties.UpdateParamsSchema,
-				serviceProperties.BindingParamsSchema,
-			)
-			p.ParameterSchemas = paramSchemas
-		}
-		if p.ParameterSchemas == nil {
-			p.ParameterSchemas = &planSchemas{}
-		}
-		if serviceProperties.ParentServiceID == "" {
-			p.ParameterSchemas.addParameterSchemas(
-				getCommonProvisionParameters(),
-				nil,
-				nil,
-			)
-			if serviceProperties.ChildServiceID != "" {
-				p.ParameterSchemas.addParameterSchemas(
-					getParentServiceParameters(),
-					nil,
-					nil,
-				)
-			}
-		} else {
-			p.ParameterSchemas.addParameterSchemas(
-				getChildServiceParameters(),
-				nil,
-				nil,
-			)
-		}
-
+		p.ParameterSchemas = paramSchemas
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s

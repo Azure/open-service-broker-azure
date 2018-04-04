@@ -13,14 +13,14 @@ func (
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
 
 	props := map[string]service.ParameterSchema{}
-	extensionsSchema := service.NewArrayParameterSchema(
-		"Database extensions to install",
-		service.NewSimpleParameterSchema(
-			"string",
-			"Extension Name",
-		),
-	)
-	props["extensions"] = extensionsSchema
+	props["extensions"] = &service.ArrayParameterSchema{
+		Type:        "array",
+		Description: "Database extensions to install",
+		ItemsSchema: &service.SimpleParameterSchema{
+			Type:        "string",
+			Description: "Extension Name",
+		},
+	}
 	return props
 }
 

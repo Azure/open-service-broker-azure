@@ -17,40 +17,37 @@ func (
 
 	p := map[string]service.ParameterSchema{}
 
-	imageSchema := service.NewSimpleParameterSchema(
-		"string",
-		"The Docker image on which to base the container.",
-	)
-	imageSchema.SetRequired(true)
-	p["image"] = imageSchema
+	p["image"] = &service.SimpleParameterSchema{
+		Type:        "string",
+		Description: "The Docker image on which to base the container.",
+		Required:    true,
+	}
 
-	cpuCoreSchema := service.NewSimpleParameterSchema(
-		"integer",
-		"The number of virtual CPU cores requested "+
+	p["cpuCores"] = &service.SimpleParameterSchema{
+		Type: "integer",
+		Description: "The number of virtual CPU cores requested " +
 			"for the container.",
-	)
-	cpuCoreSchema.SetDefault(1)
-	p["cpuCores"] = cpuCoreSchema
+		Default: 1,
+	}
 
-	memorySchema := service.NewSimpleParameterSchema(
-		"integer",
-		"Gigabytes of memory requested for the container. "+
+	p["memoryInGb"] = &service.SimpleParameterSchema{
+
+		Type: "integer",
+		Description: "Gigabytes of memory requested for the container. " +
 			"Must be specified in increments of 0.10 GB.",
-	)
-	memorySchema.SetDefault(1.5)
-	p["memoryInGb"] = memorySchema
+		Default: 1.5,
+	}
 
-	portsSchema := service.NewArrayParameterSchema(
-		"The port(s) to open on the container. The container "+
-			"will be assigned a public IP (v4) address if and only if one or "+
-			"more ports are opened.",
-		service.NewSimpleParameterSchema(
-			"integer",
-			"Port to open on container",
-		),
-	)
-	portsSchema.SetRequired(true)
-	p["ports"] = portsSchema
+	p["ports"] = &service.ArrayParameterSchema{
+		Description: "The port(s) to open on the container." +
+			"The container will be assigned a public IP (v4) address if" +
+			" and only if one or more ports are opened.",
+		ItemsSchema: &service.SimpleParameterSchema{
+			Type:        "integer",
+			Description: "Port to open on container",
+		},
+		Required: true,
+	}
 	return p
 }
 
