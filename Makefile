@@ -370,3 +370,35 @@ else
 	$(DEV_IMAGE) \
 	$(BUILD_CMD)
 endif
+
+################################################################################
+# PCF Tile Targets                                                             #
+################################################################################
+
+TILE_GENERATOR_IMAGE := cfplatformeng/tile-generator:v11.0.4
+
+DOCKER_TILE_CMD := docker run \
+	--rm \
+	-v $$(pwd):/workspace \
+	-w /workspace \
+	$(TILE_GENERATOR_IMAGE)
+
+GENERATE_TILE_CMD := bash -c ' \
+	rm -rf \
+		contrib/cf/pcf-tile/product \
+		contrib/cf/pcf-tile/release \
+		contrib/cf/pcf-tile/resources/open-service-broker-azure.zip \
+		contrib/cf/pcf-tile/tile-history.yml \
+	&& zip -r \
+		contrib/cf/pcf-tile/resources/open-service-broker-azure.zip \
+		cmd pkg vendor \
+	&& cd contrib/cf/pcf-tile \
+	&& tile build $$(echo $(REL_VERSION) | cut -c 2-)'
+
+.PHONY: generate-pcf-tile
+generate-pcf-tile:
+ifdef SKIP_DOCKER
+	$(GENERATE_TILE_CMD)
+else
+	$(DOCKER_TILE_CMD) $(GENERATE_TILE_CMD)
+endif
