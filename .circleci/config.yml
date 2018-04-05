@@ -104,6 +104,38 @@ jobs:
       - run:
           name: Build Binary & Docker Image
           command: make build
+  test-generate-pcf-tile:
+    docker:
+      - image: cfplatformeng/tile-generator:v11.0.4
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /workspace
+    steps:
+      - checkout
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
+      - run:
+          name: Generate PCF Tile
+          command: make generate-pcf-tile
+  generate-pcf-tile:
+    docker:
+      - image: cfplatformeng/tile-generator:v11.0.4
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /workspace
+    steps:
+      - checkout
+      - run:
+          name: Install Make & Git
+          command: |
+            apk update
+            apk add make git
+      - run:
+          name: Generate PCF Tile
+          command: REL_VERSION="${CIRCLE_TAG}" make generate-pcf-tile
   test-service-lifecycles:
     docker:
       - image: quay.io/deis/lightweight-docker-go:v0.2.0
@@ -210,6 +242,12 @@ workflows:
           filters:
             branches:
               ignore: master
+      - test-generate-pcf-tile:
+          requires:
+            - hold
+          filters:
+            branches:
+              ignore: master
       - test-service-lifecycles:
           requires:
             - hold
@@ -219,6 +257,7 @@ workflows:
             - test-unit
             - test-api-compliance
             - build
+            - test-generate-pcf-tile
           filters:
             branches:
               ignore: master
@@ -248,6 +287,10 @@ workflows:
           filters:
             branches:
               only: master
+      - test-generate-pcf-tile:
+          filters:
+            branches:
+              only: master
       - test-service-lifecycles:
           requires:
             - lint
@@ -256,6 +299,7 @@ workflows:
             - test-unit
             - test-api-compliance
             - build
+            - test-generate-pcf-tile
           filters:
             branches:
               only: master
@@ -267,12 +311,19 @@ workflows:
             - test-unit
             - test-api-compliance
             - build
+            - test-generate-pcf-tile
             - test-service-lifecycles
           filters:
             branches:
               only: master
   release:
     jobs:
+      - generate-pcf-tile:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
       - publish-release-images:
           filters:
             branches:

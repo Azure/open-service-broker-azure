@@ -5,3 +5,7 @@ _vendor-*/
 vendor.orig/
 contrib/k8s/charts/repo/
 contrib/k8s/charts/open-service-broker-azure/charts/
+contrib/cf/pcf-tile/product/
+contrib/cf/pcf-tile/release/
+contrib/cf/pcf-tile/resources/open-service-broker-azure.zip
+contrib/cf/pcf-tile/tile-history.yml
