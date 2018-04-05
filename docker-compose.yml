@@ -1,22 +1,18 @@
 version: "3.2"
 services:
-  dev:
+  base-go-service: &base-go-service
     image: quay.io/deis/lightweight-docker-go:v0.2.0
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
-    environment:
+    environment: &base-go-environment
       CGO_ENABLED: 0
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
-    network_mode: host
   test: # Like dev, but linked to redis
-    image: quay.io/deis/lightweight-docker-go:v0.2.0
+    <<: *base-go-service
     environment:
+      <<: *base-go-environment
       STORAGE_REDIS_HOST: redis
       ASYNC_REDIS_HOST: redis
-      CGO_ENABLED: 0
-    working_dir: /go/src/github.com/Azure/open-service-broker-azure
-    volumes:
-    - .:/go/src/github.com/Azure/open-service-broker-azure
     links:
     - test-redis:redis
   test-api-compliance: #Run the API compliance tests-- osb checker linked to a dummy broker
@@ -27,12 +23,7 @@ services:
     links:
     - test-api-compliance-broker:broker
   test-api-compliance-broker:
-    image: quay.io/deis/lightweight-docker-go:v0.2.0
-    environment:
-      CGO_ENABLED: 0
-    working_dir: /go/src/github.com/Azure/open-service-broker-azure
-    volumes:
-    - .:/go/src/github.com/Azure/open-service-broker-azure
+    <<: *base-go-service
     command:  bash -c 'go run cmd/compliance-test-broker/compliance-test-broker.go'
   broker:
     build: .
@@ -50,8 +41,8 @@ services:
     links:
     - broker-redis:redis
   test-redis:
-    image: redis:3.2.4
+    image: &redis-image redis:3.2.4
   broker-redis:
-    image: redis:3.2.4
+    image: *redis-image
     ports:
     - "6379:6379"

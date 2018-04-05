@@ -1,12 +1,30 @@
 version: 2
+
+go-image: &go-image quay.io/deis/lightweight-docker-go:v0.2.0
+docker-image: &docker-image docker:18.03.0-dind
+chart-image: &chart-image quay.io/deis/helm-chart-publishing-tools:v0.1.0
+redis-image: &redis-image redis:3.2.4
+
+base-go-job: &base-go-job
+  docker:
+    - image: *go-image
+  environment: &base-go-environment
+    SKIP_DOCKER: true
+    CGO_ENABLED: 0
+  working_directory: /go/src/github.com/Azure/open-service-broker-azure
+
+base-docker-job: &base-docker-job
+  docker:
+    - image: *docker-image
+install-make-and-git-step: &install-make-and-git-step
+  name: Install Make & Git
+  command: |
+    apk update
+    apk add make git
+
 jobs:
   lint:
-    docker:
-      - image: quay.io/deis/lightweight-docker-go:v0.2.0
-    environment:
-      SKIP_DOCKER: true
-      CGO_ENABLED: 0
-    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+    <<: *base-go-job
     steps:
       - checkout
       # This is a workaround for a problem I (krancour) cannot pin down. The
@@ -33,7 +51,7 @@ jobs:
           command: make lint
   lint-chart:
     docker:
-      - image: quay.io/deis/helm-chart-publishing-tools:v0.1.0
+      - image: *chart-image
     environment:
       SKIP_DOCKER: true
     working_directory: /go/src/github.com/Azure/open-service-broker-azure
@@ -43,40 +61,31 @@ jobs:
           name: Run Lint Helm Chart
           command: make lint-chart
   verify-vendored-code:
-    docker:
-      - image: quay.io/deis/lightweight-docker-go:v0.2.0
-    environment:
-      SKIP_DOCKER: true
-      CGO_ENABLED: 0
-    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+    <<: *base-go-job
     steps:
       - checkout
       - run:
           name: Verify Vendored Code
           command: make verify-vendored-code
   test-unit:
+    <<: *base-go-job
     docker:
-      - image: quay.io/deis/lightweight-docker-go:v0.2.0
-      - image: redis:3.2.4
+      - image: *go-image
+      - image: *redis-image
     environment:
-      SKIP_DOCKER: true
+      <<: *base-go-environment
       STORAGE_REDIS_HOST: localhost
       ASYNC_REDIS_HOST: localhost
-      CGO_ENABLED: 0
-    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       - run:
           name: Run Unit Tests
           command: make test-unit
   test-api-compliance:
-    docker:
-      - image: quay.io/deis/lightweight-docker-go:v0.2.0
+    <<: *base-go-job
     environment:
-      SKIP_DOCKER: true
-      CGO_ENABLED: 0
+      <<: *base-go-environment
       TESTS_PATH: /opt/osb-checker/2.13/tests
-    working_directory: /go/src/github.com/Azure/open-service-broker-azure
     steps:
       - checkout
       # This is a workaround. See comments in the script.
@@ -91,16 +100,12 @@ jobs:
             go run cmd/compliance-test-broker/compliance-test-broker.go &
             make test-api-compliance
   build:
-    docker:
-      - image: docker:18.03.0-dind
+    <<: *base-docker-job
     steps:
       - checkout
       - setup_remote_docker
       - run:
-          name: Install Make & Git
-          command: |
-            apk update
-            apk add make git
+          <<: *install-make-and-git-step
       - run:
           name: Build Binary & Docker Image
           command: make build
@@ -137,30 +142,21 @@ jobs:
           name: Generate PCF Tile
           command: REL_VERSION="${CIRCLE_TAG}" make generate-pcf-tile
   test-service-lifecycles:
-    docker:
-      - image: quay.io/deis/lightweight-docker-go:v0.2.0
-    environment:
-      SKIP_DOCKER: true
-      CGO_ENABLED: 0
-    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+    <<: *base-go-job
     steps:
       - checkout
       - run:
           name: Run Service Lifecycle Tests
           command: make test-service-lifecycles
   publish-rc-images:
-    docker:
-      - image: docker:18.03.0-dind
+    <<: *base-docker-job
     environment:
       DOCKER_REPO: microsoft/
     steps:
       - checkout
       - setup_remote_docker
       - run:
-          name: Install Make & Git
-          command: |
-            apk update
-            apk add make git
+          <<: *install-make-and-git-step
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
@@ -168,18 +164,14 @@ jobs:
           name: Publish Release Candidate Images to Docker Hub
           command: make push-rc
   publish-release-images:
-    docker:
-      - image: docker:18.03.0-dind
+    <<: *base-docker-job
     environment:
       DOCKER_REPO: microsoft/
     steps:
       - checkout
       - setup_remote_docker
       - run:
-          name: Install Make & Git
-          command: |
-            apk update
-            apk add make git
+          <<: *install-make-and-git-step
       - run:
           name: Log in to Docker Hub
           command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
@@ -188,7 +180,7 @@ jobs:
           command: REL_VERSION="${CIRCLE_TAG}" make push-release
   publish-chart:
     docker:
-      - image: quay.io/deis/helm-chart-publishing-tools:v0.1.0
+      - image: *chart-image
     environment:
       SKIP_DOCKER: true
     working_directory: /go/src/github.com/Azure/open-service-broker-azure
@@ -197,58 +189,61 @@ jobs:
       - run:
           name: Publish Helm Chart
           command: REL_VERSION="${CIRCLE_TAG}" make publish-chart
+
+base-pr-step: &base-pr-step
+  filters:
+    branches:
+      ignore: master
+
+base-master-step: &base-master-step
+  filters:
+    branches:
+      only: master
+
+base-release-step: &base-release-step
+  filters:
+    branches:
+      ignore: /.*/
+    tags:
+      only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
+
 workflows:
   version: 2
   build-and-test-pr:
     jobs:
       - hold:
+          <<: *base-pr-step
           type: approval
-          filters:
-            branches:
-              ignore: master
       - lint:
+          <<: *base-pr-step
           requires:
             - hold
-          filters:
-            branches:
-              ignore: master
       - lint-chart:
+          <<: *base-pr-step
           requires:
             - hold
-          filters:
-            branches:
-              ignore: master
       - verify-vendored-code:
+          <<: *base-pr-step
           requires:
             - hold
-          filters:
-            branches:
-              ignore: master
       - test-unit:
+          <<: *base-pr-step
           requires:
             - hold
-          filters:
-            branches:
-              ignore: master
       - test-api-compliance:
+          <<: *base-pr-step
           requires:
             - hold
-          filters:
-            branches:
-              ignore: master
       - build:
+          <<: *base-pr-step
           requires:
             - hold
-          filters:
-            branches:
-              ignore: master
       - test-generate-pcf-tile:
+          <<: *base-pr-step
           requires:
             - hold
-          filters:
-            branches:
-              ignore: master
       - test-service-lifecycles:
+          <<: *base-pr-step
           requires:
             - hold
             - lint
@@ -258,40 +253,24 @@ workflows:
             - test-api-compliance
             - build
             - test-generate-pcf-tile
-          filters:
-            branches:
-              ignore: master
   build-and-test-master:
     jobs:
       - lint:
-          filters:
-            branches:
-              only: master
+          <<: *base-master-step
       - lint-chart:
-          filters:
-            branches:
-              only: master
+          <<: *base-master-step
       - verify-vendored-code:
-          filters:
-            branches:
-              only: master
+          <<: *base-master-step
       - test-unit:
-          filters:
-            branches:
-              only: master
+          <<: *base-master-step
       - test-api-compliance:
-          filters:
-            branches:
-              only: master
+          <<: *base-master-step
       - build:
-          filters:
-            branches:
-              only: master
+          <<: *base-master-step
       - test-generate-pcf-tile:
-          filters:
-            branches:
-              only: master
+          <<: *base-master-step
       - test-service-lifecycles:
+          <<: *base-master-step
           requires:
             - lint
             - lint-chart
@@ -300,10 +279,8 @@ workflows:
             - test-api-compliance
             - build
             - test-generate-pcf-tile
-          filters:
-            branches:
-              only: master
       - publish-rc-images:
+          <<: *base-master-step
           requires:
             - lint
             - lint-chart
@@ -313,28 +290,13 @@ workflows:
             - build
             - test-generate-pcf-tile
             - test-service-lifecycles
-          filters:
-            branches:
-              only: master
   release:
     jobs:
       - generate-pcf-tile:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
+          <<: *base-release-step
       - publish-release-images:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
+          <<: *base-release-step
       - publish-chart:
+          <<: *base-release-step
           requires:
             - publish-release-images
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(\-.+)?/
