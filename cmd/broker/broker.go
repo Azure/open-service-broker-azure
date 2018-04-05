@@ -37,11 +37,19 @@ func main() {
 		FullTimestamp: true,
 	}
 	log.SetFormatter(formatter)
+	log.SetLevel(log.InfoLevel)
+
+	log.WithFields(
+		log.Fields{
+			"version": version.GetVersion(),
+			"commit":  version.GetCommit(),
+		},
+	).Info("Open Service Broker for Azure starting")
+
 	logConfig, err := brokerLog.GetConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.SetLevel(log.InfoLevel)
 	logLevel := logConfig.GetLevel()
 	log.WithField(
 		"logLevel",
@@ -62,13 +70,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.WithFields(
-		log.Fields{
-			"version": version.GetVersion(),
-			"commit":  version.GetCommit(),
-		},
-	).Info("Open Service Broker for Azure starting")
 
 	// Storage
 	storageConfig, err := storage.GetConfigFromEnvironment()
