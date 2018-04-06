@@ -83,7 +83,70 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 			}
 		}
 	}
+	if pp.ConsistencyPolicy != nil {
+		cp := strings.ToLower(pp.ConsistencyPolicy.DefaultConsistency)
+		// treat this map like a set and use lookup to check the
+		// validuty of the given consistency policy
+		validValues := map[string]struct{}{
+			"eventual":         {},
+			"session":          {},
+			"boundedstaleness": {},
+			"strong":           {},
+			"consistentprefix": {},
+		}
+		if _, valid := validValues[cp]; !valid {
+			return service.NewValidationError(
+				"consistencyPolicy",
+				fmt.Sprintf(`invalid default consistency level: "%s"`, cp),
+			)
+		}
+		if cp == "boundedstaleness" {
+			if pp.ConsistencyPolicy.MaxInternal == nil {
+				return service.NewValidationError(
+					"consistencyPolicy",
+					"default maxIntervalInSeconds must be provided when "+
+						"defaultConsistencyPolicy is set to "+
+						"'BoundedStaleness'.",
+				)
+			}
+			if pp.ConsistencyPolicy.MaxStaleness == nil {
+				return service.NewValidationError(
+					"consistencyPolicy",
+					"default maxStalenessPrefix must be provided when "+
+						"defaultConsistencyPolicy is set to "+
+						"'BoundedStaleness'.",
+				)
+			}
+		}
+
+		if pp.ConsistencyPolicy.MaxInternal != nil {
+			maxIntervalParam := *pp.ConsistencyPolicy.MaxInternal
+			if maxIntervalParam < 5 || maxIntervalParam > 86400 {
+				return service.NewValidationError(
+					"consistencyPolicy",
+					fmt.Sprintf(
+						`invalid maxIntervalInSeconds: "%d"`,
+						maxIntervalParam,
+					),
+				)
+			}
+		}
+
+		if pp.ConsistencyPolicy.MaxStaleness != nil {
+			maxStalenessParam := *pp.ConsistencyPolicy.MaxStaleness
+			if maxStalenessParam < 1 || maxStalenessParam > 2147483647 {
+				return service.NewValidationError(
+					"consistencyPolicy",
+					fmt.Sprintf(
+						`invalid maxStalenessPrefix: "%d"`,
+						maxStalenessParam,
+					),
+				)
+			}
+		}
+	}
 	return nil
+
 }
 
 func (c *cosmosAccountManager) preProvision(
@@ -141,12 +204,40 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 		}
 
 		filters = append(filters, pp.IPFilterRules.Filters...)
-
 	} else {
 		filters = append(filters, "0.0.0.0")
 	}
 	if len(filters) > 0 {
 		p["ipFilters"] = strings.Join(filters, ",")
+	}
+
+	if pp.ConsistencyPolicy != nil {
+		consistencyPolicy := make(map[string]interface{})
+		cp := strings.ToLower(pp.ConsistencyPolicy.DefaultConsistency)
+		switch cp {
+		case "eventual":
+			consistencyPolicy["defaultConsistencyLevel"] = "Eventual"
+		case "session":
+			consistencyPolicy["defaultConsistencyLevel"] = "Session"
+		case "boundedstaleness":
+			consistencyPolicy["defaultConsistencyLevel"] = "BoundedStaleness"
+		case "strong":
+			consistencyPolicy["defaultConsistencyLevel"] = "Strong"
+		case "consistentprefix":
+			consistencyPolicy["defaultConsistencyLevel"] = "ConsistentPrefix"
+		}
+
+		if pp.ConsistencyPolicy.MaxInternal != nil {
+			consistencyPolicy["maxIntervalInSeconds"] =
+				*pp.ConsistencyPolicy.MaxInternal
+		}
+
+		if pp.ConsistencyPolicy.MaxStaleness != nil {
+			consistencyPolicy["maxStalenessPrefix"] =
+				*pp.ConsistencyPolicy.MaxStaleness
+		}
+		p["consistencyPolicy"] = consistencyPolicy
+
 	}
 	return p
 }

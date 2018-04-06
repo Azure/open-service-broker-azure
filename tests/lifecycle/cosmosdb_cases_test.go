@@ -36,6 +36,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"ipFilters": map[string]interface{}{
 				"allowedIPRanges": []string{"0.0.0.0/0"},
 			},
+			"consistencyPolicy": map[string]interface{}{
+				"defaultConsistencyLevel": "BoundedStaleness",
+				"maxStalenessPrefix":      10,
+				"maxIntervalInSeconds":    500,
+			},
 		},
 	},
 	{ // Table API
