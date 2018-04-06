@@ -21,6 +21,9 @@ install-make-and-git-step: &install-make-and-git-step
   command: |
     apk update
     apk add make git
+log-into-docker-hub-step: &log-into-docker-hub-step
+  name: Log into Docker Hub
+  command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
 
 jobs:
   lint:
@@ -158,8 +161,7 @@ jobs:
       - run:
           <<: *install-make-and-git-step
       - run:
-          name: Log in to Docker Hub
-          command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+          <<: *log-into-docker-hub-step
       - run:
           name: Publish Release Candidate Images to Docker Hub
           command: make push-rc
@@ -173,8 +175,7 @@ jobs:
       - run:
           <<: *install-make-and-git-step
       - run:
-          name: Log in to Docker Hub
-          command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+          <<: *log-into-docker-hub-step
       - run:
           name: Publish Release Images to Docker Hub
           command: REL_VERSION="${CIRCLE_TAG}" make push-release
