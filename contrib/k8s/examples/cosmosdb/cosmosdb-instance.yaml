@@ -10,3 +10,5 @@ spec:
   parameters:
     location: eastus
     resourceGroup: demo
+    consistencyPolicy:
+      defaultConsistencyLevel: Strong
