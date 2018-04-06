@@ -11,4 +11,4 @@ spec:
     location: eastus
     resourceGroup: demo
     consistencyPolicy:
-      defaultConsistencyLevel: Strong
+      defaultConsistencyLevel: Eventual
