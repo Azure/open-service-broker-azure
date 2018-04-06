@@ -179,7 +179,7 @@ jobs:
       - run:
           name: Publish Release Images to Docker Hub
           command: REL_VERSION="${CIRCLE_TAG}" make push-release
-  publish-chart:
+  publish-rc-chart:
     docker:
       - image: *chart-image
     environment:
@@ -189,7 +189,18 @@ jobs:
       - checkout
       - run:
           name: Publish Helm Chart
-          command: REL_VERSION="${CIRCLE_TAG}" make publish-chart
+          command: make publish-rc-chart
+  publish-release-chart:
+    docker:
+      - image: *chart-image
+    environment:
+      SKIP_DOCKER: true
+    working_directory: /go/src/github.com/Azure/open-service-broker-azure
+    steps:
+      - checkout
+      - run:
+          name: Publish Helm Chart
+          command: REL_VERSION="${CIRCLE_TAG}" make publish-release-chart
 
 base-pr-step: &base-pr-step
   filters:
@@ -291,13 +302,25 @@ workflows:
             - build
             - test-generate-pcf-tile
             - test-service-lifecycles
+      - publish-rc-chart:
+          <<: *base-master-step
+          requires:
+            - lint
+            - lint-chart
+            - verify-vendored-code
+            - test-unit
+            - test-api-compliance
+            - build
+            - test-generate-pcf-tile
+            - test-service-lifecycles
+            - publish-rc-images
   release:
     jobs:
       - generate-pcf-tile:
           <<: *base-release-step
       - publish-release-images:
           <<: *base-release-step
-      - publish-chart:
+      - publish-release-chart:
           <<: *base-release-step
           requires:
             - publish-release-images

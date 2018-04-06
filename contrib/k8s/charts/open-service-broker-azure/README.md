@@ -101,7 +101,7 @@ Broker chart and their default values.
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
 | `image.repository` | Docker image location, _without_ the tag. | `"microsoft/azure-service-broker"` |
-| `image.tag` | Tag / version of the Docker image. | `"v0.4.0-alpha"` |
+| `image.tag` | Tag / version of the Docker image. | OSBA release matching chart version |
 | `image.pullPolicy` | `"IfNotPresent"`, `"Always"`, or `"Never"`; When launching a pod, this option indicates when to pull the OSBA Docker image. | `"IfNotPresent"` |
 | `registerBroker` | Whether to register this broker with the Kubernetes Service Catalog. If true, the Kubernetes Service Catalog must already be installed on the cluster. Marking this option false is useful for scenarios wherein one wishes to host the broker in a separate cluster than the Service Catalog (or other client) that will access it. | `true` |
 | `service.type` | Type of service; valid values are `"ClusterIP"`, `"LoadBalancer"`, and `"NodePort"`. `"ClusterIP"` is sufficient in the average case where OSBA only receives traffic from within the cluster-- e.g. from Kubernetes Service Catalog. | `"ClusterIP"` |
