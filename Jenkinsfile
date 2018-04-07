@@ -1,59 +1,73 @@
 def label = "worker-${UUID.randomUUID().toString()}"
 
-def containers = [
-  containerTemplate(
+def containers = []
+
+withCredentials([
+  [$class: 'StringBinding', credentialsId: 'DOCKER_HUB_USERNAME', variable: 'DOCKER_HUB_USERNAME'],
+  [$class: 'StringBinding', credentialsId: 'DOCKER_HUB_PASSWORD', variable: 'DOCKER_HUB_PASSWORD']
+]) {
+  containers << containerTemplate(
     name: 'docker',
     image: 'docker:18.03.0-dind',
     ttyEnabled: true,
     command: 'cat',
     envVars: [
-      secretEnvVar(key: 'DOCKER_HUB_USERNAME', secretName: 'docker-hub-secret', secretKey: 'username'),
-      secretEnvVar(key: 'DOCKER_HUB_PASSWORD', secretName: 'docker-hub-secret', secretKey: 'password'),
+      envVar(key: 'DOCKER_HUB_USERNAME', value: env.DOCKER_HUB_USERNAME),
+      envVar(key: 'DOCKER_HUB_PASSWORD', value: env.DOCKER_HUB_PASSWORD),
       // TODO: This should be set to microsoft/
       // But be careful with that-- my creds CAN push to there
       // envVar(key: 'DOCKER_REPO', value: 'microsoft/')
       envVar(key: 'DOCKER_REPO', value: 'krancour/')
     ]
-  ),
-  containerTemplate(
-    name: 'helm',
-    image: 'quay.io/deis/helm-chart-publishing-tools:v0.1.0',
-    ttyEnabled: true,
-    command: 'cat',
-    envVars: [
-      envVar(key: 'SKIP_DOCKER', value: 'TRUE')
-    ]
-  ),
-  containerTemplate(
-    name: 'pcf-tile',
-    image: 'cfplatformeng/tile-generator:v11.0.4',
-    ttyEnabled: true,
-    command: 'cat',
-    envVars: [
-      envVar(key: 'SKIP_DOCKER', value: 'TRUE')
-    ]
   )
-]
+}
+
+containers << containerTemplate(
+  name: 'helm',
+  image: 'quay.io/deis/helm-chart-publishing-tools:v0.1.0',
+  ttyEnabled: true,
+  command: 'cat',
+  envVars: [
+    envVar(key: 'SKIP_DOCKER', value: 'TRUE')
+  ]
+)
+
+containers << containerTemplate(
+  name: 'pcf-tile',
+  image: 'cfplatformeng/tile-generator:v11.0.4',
+  ttyEnabled: true,
+  command: 'cat',
+  envVars: [
+    envVar(key: 'SKIP_DOCKER', value: 'TRUE')
+  ]
+)
 
 def isMaster = env.BRANCH_NAME == 'master'
 def isRelease = env.BRANCH_NAME ==~ /v[0-9]+(\.[0-9]+)*(\-.+)?/
 
 if (!isRelease) {
-  containers << containerTemplate(
-    name: 'go', image: 'quay.io/deis/lightweight-docker-go:v0.2.0',
-    ttyEnabled: true,
-    command: 'cat',
-    envVars: [
-      envVar(key: 'SKIP_DOCKER', value: 'TRUE'),
-      envVar(key: 'STORAGE_REDIS_HOST', value: 'localhost'),
-      envVar(key: 'ASYNC_REDIS_HOST', value: 'localhost'),
-      envVar(key: 'CGO_ENABLED', value: '0'),
-      secretEnvVar(key: 'AZURE_TENANT_ID', secretName: 'azure-sub-secret', secretKey: 'tenant-id'),
-      secretEnvVar(key: 'AZURE_SUBSCRIPTION_ID', secretName: 'azure-sub-secret', secretKey: 'sub-id'),
-      secretEnvVar(key: 'AZURE_CLIENT_ID', secretName: 'azure-sub-secret', secretKey: 'client-id'),
-      secretEnvVar(key: 'AZURE_CLIENT_SECRET', secretName: 'azure-sub-secret', secretKey: 'client-secret')
-    ]
-  )
+  withCredentials([
+    [$class: 'StringBinding', credentialsId: 'AZURE_TENANT_ID', variable: 'AZURE_TENANT_ID'],
+    [$class: 'StringBinding', credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZURE_SUBSCRIPTION_ID'],
+    [$class: 'StringBinding', credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'],
+    [$class: 'StringBinding', credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET']
+  ]) {
+    containers << containerTemplate(
+      name: 'go', image: 'quay.io/deis/lightweight-docker-go:v0.2.0',
+      ttyEnabled: true,
+      command: 'cat',
+      envVars: [
+        envVar(key: 'SKIP_DOCKER', value: 'TRUE'),
+        envVar(key: 'STORAGE_REDIS_HOST', value: 'localhost'),
+        envVar(key: 'ASYNC_REDIS_HOST', value: 'localhost'),
+        envVar(key: 'CGO_ENABLED', value: '0'),
+        envVar(key: 'AZURE_TENANT_ID', value: env.AZURE_TENANT_ID),
+        envVar(key: 'AZURE_SUBSCRIPTION_ID', value: env.AZURE_SUBSCRIPTION_ID),
+        envVar(key: 'AZURE_CLIENT_ID', value: env.AZURE_CLIENT_ID),
+        envVar(key: 'AZURE_CLIENT_SECRET', value: env.AZURE_CLIENT_SECRET)
+      ]
+    )
+  }
   containers << containerTemplate(
     name: 'redis',
     image: 'redis:3.2.4'
