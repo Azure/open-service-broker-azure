@@ -46,12 +46,7 @@ def isMaster = env.BRANCH_NAME == 'master'
 def isRelease = env.BRANCH_NAME ==~ /v[0-9]+(\.[0-9]+)*(\-.+)?/
 
 if (!isRelease) {
-  withCredentials([
-    [$class: 'StringBinding', credentialsId: 'AZURE_TENANT_ID', variable: 'AZURE_TENANT_ID'],
-    [$class: 'StringBinding', credentialsId: 'AZURE_SUBSCRIPTION_ID', variable: 'AZURE_SUBSCRIPTION_ID'],
-    [$class: 'StringBinding', credentialsId: 'AZURE_CLIENT_ID', variable: 'AZURE_CLIENT_ID'],
-    [$class: 'StringBinding', credentialsId: 'AZURE_CLIENT_SECRET', variable: 'AZURE_CLIENT_SECRET']
-  ]) {
+  withCredentials([azureServicePrincipal('AZURE_CREDENTIALS')]) {
     containers << containerTemplate(
       name: 'go', image: 'quay.io/deis/lightweight-docker-go:v0.2.0',
       ttyEnabled: true,
