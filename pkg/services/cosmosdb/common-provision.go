@@ -103,9 +103,10 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	p["kind"] = kind
 
 	filters := []string{}
-	allowAzure := strings.ToLower(pp.IPFilterRules.AllowPortal)
-	allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
+
 	if pp.IPFilterRules != nil {
+		allowAzure := strings.ToLower(pp.IPFilterRules.AllowPortal)
+		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
 		if allowAzure != "disable" {
 			filters = append(filters, "0.0.0.0")
 		} else if allowPortal != "disable" {
@@ -139,9 +140,7 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 				"52.244.48.71",
 			)
 		}
-
 		filters = append(filters, pp.IPFilterRules.Filters...)
-
 	} else {
 		filters = append(filters, "0.0.0.0")
 	}
