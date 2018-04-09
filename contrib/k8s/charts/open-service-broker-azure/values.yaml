@@ -28,8 +28,8 @@ service:
     port: 30080
 
 azure:
-  ## Valid values are "AzureCloud" and "AzureChinaCloud"
-  environment: AzureCloud
+  ## Valid values are "AzurePublicCloud" and "AzureChinaCloud"
+  environment: AzurePublicCloud
   ## Required; this is the identifier for the Azure account into which services
   ## will be provisioned. BE AWARE THAT DOING SO WILL COST YOU MONEY!
   subscriptionId: 
