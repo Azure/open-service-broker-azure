@@ -322,15 +322,15 @@ PUBLISH_RC_CHART_CMD := bash -c ' \
 	&& rm -rf repo \
 	&& mkdir repo \
 	&& cd repo \
-	&& sed -i "s/^version:.*/version: 0.0.1+$(GIT_VERSION)/g" ../open-service-broker-azure/Chart.yaml \
-	&& sed -i "s/^appVersion:.*/appVersion: 0.0.1+$(GIT_VERSION)/g" ../open-service-broker-azure/Chart.yaml \
+	&& sed -i "s/^version:.*/version: 0.0.1-$(GIT_VERSION)/g" ../open-service-broker-azure/Chart.yaml \
+	&& sed -i "s/^appVersion:.*/appVersion: $(GIT_VERSION)/g" ../open-service-broker-azure/Chart.yaml \
 	&& sed -i "s/^  tag:.*/  tag: $(GIT_VERSION)/g" ../open-service-broker-azure/values.yaml \
 	&& helm dep build ../open-service-broker-azure \
 	&& helm package ../open-service-broker-azure \
 	&& az storage blob upload \
 		-c azure-rc \
-		--file open-service-broker-azure-0.0.1+$(GIT_VERSION).tgz \
-		--name open-service-broker-azure-0.0.1+$(GIT_VERSION).tgz \
+		--file open-service-broker-azure-0.0.1-$(GIT_VERSION).tgz \
+		--name open-service-broker-azure-0.0.1-$(GIT_VERSION).tgz \
 	&& az storage container lease acquire -c azure-rc --lease-duration 60 \
 	&& helm repo index --url https://kubernetescharts.blob.core.windows.net/azure-rc . \
 	&& az storage blob upload \
