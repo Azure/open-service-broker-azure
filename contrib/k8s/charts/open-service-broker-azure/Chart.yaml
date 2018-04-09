@@ -1,8 +1,8 @@
 apiVersion: v1
 description: A Helm chart for Open Service Broker For Azure
 name: open-service-broker-azure
-version: 0.0.1
-appVersion: 0.0.1
+version: v0.0.1 # This gets automatically overridden by our release process
+appVersion: v0.0.1 # This gets automatically overridden by our release process
 keywords:
   - azure
   - services
