@@ -106,7 +106,7 @@ Broker chart and their default values.
 | `registerBroker` | Whether to register this broker with the Kubernetes Service Catalog. If true, the Kubernetes Service Catalog must already be installed on the cluster. Marking this option false is useful for scenarios wherein one wishes to host the broker in a separate cluster than the Service Catalog (or other client) that will access it. | `true` |
 | `service.type` | Type of service; valid values are `"ClusterIP"`, `"LoadBalancer"`, and `"NodePort"`. `"ClusterIP"` is sufficient in the average case where OSBA only receives traffic from within the cluster-- e.g. from Kubernetes Service Catalog. | `"ClusterIP"` |
 | `service.nodePort.port` | _If and only if_ `service.type` is set to `"NodePort"`, `service.nodePort.port` indicates the port this service should bind to on each Kubernetes node. | `30080` |
-| `azure.environment` | Indicates which Azure public cloud to use. Valid values are `"AzureCloud"` and `"AzureChinaCloud"`. | `"AzureCloud"` |
+| `azure.environment` | Indicates which Azure public cloud to use. Valid values are `"AzurePublicCloud"` and `"AzureChinaCloud"`. | `"AzurePublicCloud"` |
 | `azure.subscriptionId` | Identifies the Azure subscription into which OSBA will provision services. | none |
 | `azure.tenantId` | Identifies the Azure Active Directory to which the _service principal_ used by OSBA to access the Azure subscription belongs. | none |
 | `azure.clientId` | Identifies the _service principal_ used by OSBA to access the Azure subscription. | none |
