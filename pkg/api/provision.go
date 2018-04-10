@@ -167,7 +167,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	// Tags...
 	var tags map[string]string
 	tagsIface, ok := provisioningRequest.Parameters["tags"]
-	if ok {
+	if ok && tagsIface != nil {
 		var mapTagsIfaces map[string]interface{}
 		mapTagsIfaces, ok = tagsIface.(map[string]interface{})
 		if !ok {

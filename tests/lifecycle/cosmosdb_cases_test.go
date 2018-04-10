@@ -14,7 +14,19 @@ import (
 )
 
 var cosmosdbTestCases = []serviceLifecycleTestCase{
-	{ // SQL API
+	{ // SQL API all-in-one scenario
+		group:     "cosmosdb",
+		name:      "sql-api-all-in-one",
+		serviceID: "58d9fbbd-7041-4dbe-aabe-6268cd31de84",
+		planID:    "58d7223d-934e-4fb5-a046-0c67781eb24e",
+		provisioningParameters: service.CombinedProvisioningParameters{
+			"ipFilters": map[string]interface{}{
+				"allowedIPRanges": []string{"0.0.0.0/0"},
+			},
+		},
+		location: "eastus",
+	},
+	{ // SQL API account only scenario
 		group:     "cosmosdb",
 		name:      "sql-api-account-only",
 		serviceID: "6330de6f-a561-43ea-a15e-b99f44d183e6",
@@ -27,7 +39,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		},
 		location: "eastus",
 		childTestCases: []*serviceLifecycleTestCase{
-			{ // database only scenario
+			{ // SQL API database only scenario
 				group:     "cosmosdb",
 				name:      "database-only",
 				serviceID: "87c5132a-6d76-40c6-9621-0c7b7542571b",
@@ -39,7 +51,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			},
 		},
 	},
-	{ // Graph API
+	{ // Graph API scenario
 		group:     "cosmosdb",
 		name:      "graph-api-account-only",
 		serviceID: "5f5252a0-6922-4a0c-a755-f9be70d7c79b",
@@ -58,7 +70,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			},
 		},
 	},
-	{ // Table API
+	{ // Table API scenario
 		group:     "cosmosdb",
 		name:      "table-api-account-only",
 		serviceID: "37915cad-5259-470d-a7aa-207ba89ada8c",
@@ -70,7 +82,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			},
 		},
 	},
-	{ // MongoDB
+	{ // MongoDB API scemario
 		group:           "cosmosdb",
 		name:            "mongo-api-account-only",
 		serviceID:       "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
@@ -82,18 +94,6 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 				"allowedIPRanges": []string{"0.0.0.0/0"},
 			},
 		},
-	},
-	{ // SQL API All In One
-		group:     "cosmosdb",
-		name:      "sql-api-all-in-one",
-		serviceID: "58d9fbbd-7041-4dbe-aabe-6268cd31de84",
-		planID:    "58d7223d-934e-4fb5-a046-0c67781eb24e",
-		provisioningParameters: service.CombinedProvisioningParameters{
-			"ipFilters": map[string]interface{}{
-				"allowedIPRanges": []string{"0.0.0.0/0"},
-			},
-		},
-		location: "eastus",
 	},
 }
 
