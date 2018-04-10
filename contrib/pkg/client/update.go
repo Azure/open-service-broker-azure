@@ -1,10 +1,9 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"github.com/Azure/open-service-broker-azure/pkg/api"
 )
 
 // Update initiates updating of an existing service instance
@@ -23,16 +22,16 @@ func Update(
 		getBaseURL(host, port),
 		instanceID,
 	)
-	updatingRequest := &api.UpdatingRequest{
+	updatingRequest := UpdatingRequest{
 		ServiceID:  serviceID,
 		PlanID:     planID,
 		Parameters: params,
 	}
-	json, err := updatingRequest.ToJSON()
+	jsonBytes, err := json.Marshal(updatingRequest)
 	if err != nil {
 		return fmt.Errorf("error encoding request body: %s", err)
 	}
-	req, err := newRequest(http.MethodPatch, url, username, password, json)
+	req, err := newRequest(http.MethodPatch, url, username, password, jsonBytes)
 	if err != nil {
 		return err
 	}

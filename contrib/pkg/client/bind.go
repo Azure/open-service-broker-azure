@@ -1,11 +1,11 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -25,14 +25,14 @@ func Bind(
 		instanceID,
 		bindingID,
 	)
-	bindingRequest := &api.BindingRequest{
+	bindingRequest := BindingRequest{
 		Parameters: params,
 	}
-	json, err := bindingRequest.ToJSON()
+	jsonBytes, err := json.Marshal(bindingRequest)
 	if err != nil {
 		return "", nil, fmt.Errorf("error encoding request body: %s", err)
 	}
-	req, err := newRequest(http.MethodPut, url, username, password, json)
+	req, err := newRequest(http.MethodPut, url, username, password, jsonBytes)
 	if err != nil {
 		return "", nil, err
 	}
@@ -52,14 +52,9 @@ func Bind(
 			resp.StatusCode,
 		)
 	}
-	bindingResponse := &api.BindingResponse{}
-	err = api.GetBindingResponseFromJSON(bodyBytes, bindingResponse)
-	if err != nil {
+	bindingResponse := BindingResponse{}
+	if err := json.Unmarshal(bodyBytes, &bindingResponse); err != nil {
 		return "", nil, fmt.Errorf("error unmarshaling response body: %s", err)
 	}
-	credsMap, ok := bindingResponse.Credentials.(map[string]interface{})
-	if !ok {
-		return "", nil, fmt.Errorf("error unmarshaling response body: %s", err)
-	}
-	return bindingID, credsMap, nil
+	return bindingID, bindingResponse.Credentials, nil
 }

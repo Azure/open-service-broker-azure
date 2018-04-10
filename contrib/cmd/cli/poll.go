@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/contrib/pkg/client"
-	"github.com/Azure/open-service-broker-azure/pkg/api"
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -22,9 +21,9 @@ func poll(c *cli.Context) error {
 	if operation == "" {
 		return fmt.Errorf("--%s is a required flag", flagOperation)
 	}
-	if operation != api.OperationProvisioning &&
-		operation != api.OperationDeprovisioning &&
-		operation != api.OperationUpdating {
+	if operation != client.OperationProvisioning &&
+		operation != client.OperationDeprovisioning &&
+		operation != client.OperationUpdating {
 		return fmt.Errorf("invalid value for flag --%s", flagOperation)
 	}
 	status, err := client.Poll(

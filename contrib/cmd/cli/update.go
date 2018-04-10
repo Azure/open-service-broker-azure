@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/contrib/pkg/client"
-	"github.com/Azure/open-service-broker-azure/pkg/api"
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -51,21 +50,21 @@ func update(c *cli.Context) error {
 				username,
 				password,
 				instanceID,
-				api.OperationUpdating,
+				client.OperationUpdating,
 			)
 			if err != nil {
 				return fmt.Errorf("error polling for updating status: %s", err)
 			}
 			switch result {
-			case api.OperationStateInProgress:
+			case client.OperationStateInProgress:
 				fmt.Print(".")
-			case api.OperationStateSucceeded:
+			case client.OperationStateSucceeded:
 				fmt.Printf(
 					"\n\nService instance %s has been successfully updated\n\n",
 					instanceID,
 				)
 				return nil
-			case api.OperationStateFailed:
+			case client.OperationStateFailed:
 				return fmt.Errorf(
 					"Updating service instance %s has failed",
 					instanceID,
