@@ -15,7 +15,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 		group:           "postgresql",
 		name:            "all-in-one",
 		serviceID:       "b43b4bba-5741-4d98-a10b-17dc5cee0175",
-		planID:          "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
+		planID:          "bd588e32-0514-4421-8ef3-f54039914e61",
 		location:        "southcentralus",
 		testCredentials: testPostgreSQLCreds,
 		provisioningParameters: service.CombinedProvisioningParameters{

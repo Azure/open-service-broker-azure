@@ -19,11 +19,11 @@ var allInOneARMTemplateBytes = []byte(`
 		},
 		"skuName": {
 			"type": "string",
-			"allowedValues": [ "PGSQLB50", "PGSQLB100" ]
+			"allowedValues": [ "PGSQLB50", "PGSQLB100", "PGSQLS100" ]
 		},
 		"skuTier": {
 			"type": "string",
-			"allowedValues": [ "Basic" ]
+			"allowedValues": [ "Basic", "Standard" ]
 		},
 		"skuCapacityDTU": {
 			"type": "int",
