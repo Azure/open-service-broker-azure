@@ -53,6 +53,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Bullets:     []string{"100 DTUs"},
 				},
 			}),
+			service.NewPlan(&service.PlanProperties{
+				ID:          "bd588e32-0514-4421-8ef3-f54039914e61",
+				Name:        "standard100",
+				Description: "Standard Tier, 100 DTUs",
+				Free:        false,
+				Extended: map[string]interface{}{
+					"skuName":        "PGSQLS100",
+					"skuTier":        "Standard",
+					"skuCapacityDTU": 100,
+				},
+			}),
 		),
 		// dbms only
 		service.NewService(
