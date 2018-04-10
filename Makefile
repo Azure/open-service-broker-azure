@@ -317,18 +317,42 @@ else
 	$(DOCKER_HELM_CMD) $(LINT_CHART_CMD)
 endif
 
-PUBLISH_CHART_CMD := bash -c ' \
+PUBLISH_RC_CHART_CMD := bash -c ' \
 	cd contrib/k8s/charts \
 	&& rm -rf repo \
 	&& mkdir repo \
 	&& cd repo \
-	&& sed -i s/0.0.1/$(REL_VERSION)/g ../open-service-broker-azure/Chart.yaml \
+	&& sed -i "s/^version:.*/version: 0.0.1-$(GIT_VERSION)/g" ../open-service-broker-azure/Chart.yaml \
+	&& sed -i "s/^appVersion:.*/appVersion: $(GIT_VERSION)/g" ../open-service-broker-azure/Chart.yaml \
+	&& sed -i "s/^  tag:.*/  tag: $(GIT_VERSION)/g" ../open-service-broker-azure/values.yaml \
+	&& helm dep build ../open-service-broker-azure \
+	&& helm package ../open-service-broker-azure \
+	&& az storage blob upload \
+		-c azure-rc \
+		--file open-service-broker-azure-0.0.1-$(GIT_VERSION).tgz \
+		--name open-service-broker-azure-0.0.1-$(GIT_VERSION).tgz \
+	&& az storage container lease acquire -c azure-rc --lease-duration 60 \
+	&& helm repo index --url https://kubernetescharts.blob.core.windows.net/azure-rc . \
+	&& az storage blob upload \
+		-c azure-rc \
+		--file index.yaml \
+		--name index.yaml'
+
+PUBLISH_RELEASE_CHART_CMD := bash -c ' \
+	SIMPLE_REL_VERSION=$$(echo $(REL_VERSION) | cut -c 2-) \
+	&& cd contrib/k8s/charts \
+	&& rm -rf repo \
+	&& mkdir repo \
+	&& cd repo \
+	&& sed -i "s/^version:.*/version: $${SIMPLE_REL_VERSION}/g" ../open-service-broker-azure/Chart.yaml \
+	&& sed -i "s/^appVersion:.*/appVersion: $${SIMPLE_REL_VERSION}/g" ../open-service-broker-azure/Chart.yaml \
+	&& sed -i "s/^  tag:.*/  tag: $(REL_VERSION)/g" ../open-service-broker-azure/values.yaml \
 	&& helm dep build ../open-service-broker-azure \
 	&& helm package ../open-service-broker-azure \
 	&& az storage blob upload \
 		-c azure \
-		--file open-service-broker-azure-$(REL_VERSION).tgz \
-		--name open-service-broker-azure-$(REL_VERSION).tgz \
+		--file open-service-broker-azure-$${SIMPLE_REL_VERSION}.tgz \
+		--name open-service-broker-azure-$${SIMPLE_REL_VERSION}.tgz \
 	&& az storage container lease acquire -c azure --lease-duration 60 \
 	&& az storage blob download \
 		-c azure \
@@ -340,8 +364,19 @@ PUBLISH_CHART_CMD := bash -c ' \
 		--file index.yaml \
 		--name index.yaml'
 
-.PHONY: publish-chart
-publish-chart:
+.PHONY: publish-rc-chart
+publish-rc-chart:
+ifndef AZURE_STORAGE_CONNECTION_STRING
+	$(error AZURE_STORAGE_CONNECTION_STRING is not defined)
+endif
+ifdef SKIP_DOCKER
+	$(PUBLISH_RC_CHART_CMD)
+else
+	$(DOCKER_HELM_CMD) $(PUBLISH_RC_CHART_CMD)
+endif
+
+.PHONY: publish-release-chart
+publish-release-chart:
 ifndef REL_VERSION
 	$(error REL_VERSION is undefined)
 endif
@@ -349,9 +384,9 @@ ifndef AZURE_STORAGE_CONNECTION_STRING
 	$(error AZURE_STORAGE_CONNECTION_STRING is not defined)
 endif
 ifdef SKIP_DOCKER
-	$(PUBLISH_CHART_CMD)
+	$(PUBLISH_RELEASE_CHART_CMD)
 else
-	$(DOCKER_HELM_CMD) $(PUBLISH_CHART_CMD)
+	$(DOCKER_HELM_CMD) $(PUBLISH_RELEASE_CHART_CMD)
 endif
 
 ################################################################################

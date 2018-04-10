@@ -1,10 +1,10 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -26,16 +26,16 @@ func Provision(
 		instanceID,
 	)
 	params["tags"] = tags
-	provisioningRequest := &api.ProvisioningRequest{
+	provisioningRequest := ProvisioningRequest{
 		ServiceID:  serviceID,
 		PlanID:     planID,
 		Parameters: params,
 	}
-	json, err := provisioningRequest.ToJSON()
+	jsonBytes, err := json.Marshal(provisioningRequest)
 	if err != nil {
 		return "", fmt.Errorf("error encoding request body: %s", err)
 	}
-	req, err := newRequest(http.MethodPut, url, username, password, json)
+	req, err := newRequest(http.MethodPut, url, username, password, jsonBytes)
 	if err != nil {
 		return "", err
 	}

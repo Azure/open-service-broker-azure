@@ -4,7 +4,7 @@ image:
   ## Image location, NOT including the tag
   repository: microsoft/azure-service-broker
   ## Image tag
-  tag: v0.9.0-alpha
+  tag: v0.0.1 # This gets automatically overridden by our release process
   ## "IfNotPresent", "Always", or "Never"
   pullPolicy: IfNotPresent
 
@@ -28,8 +28,8 @@ service:
     port: 30080
 
 azure:
-  ## Valid values are "AzureCloud" and "AzureChinaCloud"
-  environment: AzureCloud
+  ## Valid values are "AzurePublicCloud" and "AzureChinaCloud"
+  environment: AzurePublicCloud
   ## Required; this is the identifier for the Azure account into which services
   ## will be provisioned. BE AWARE THAT DOING SO WILL COST YOU MONEY!
   subscriptionId: 

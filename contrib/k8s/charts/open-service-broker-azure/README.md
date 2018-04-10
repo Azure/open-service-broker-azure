@@ -101,12 +101,12 @@ Broker chart and their default values.
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
 | `image.repository` | Docker image location, _without_ the tag. | `"microsoft/azure-service-broker"` |
-| `image.tag` | Tag / version of the Docker image. | `"v0.4.0-alpha"` |
+| `image.tag` | Tag / version of the Docker image. | OSBA release matching chart version |
 | `image.pullPolicy` | `"IfNotPresent"`, `"Always"`, or `"Never"`; When launching a pod, this option indicates when to pull the OSBA Docker image. | `"IfNotPresent"` |
 | `registerBroker` | Whether to register this broker with the Kubernetes Service Catalog. If true, the Kubernetes Service Catalog must already be installed on the cluster. Marking this option false is useful for scenarios wherein one wishes to host the broker in a separate cluster than the Service Catalog (or other client) that will access it. | `true` |
 | `service.type` | Type of service; valid values are `"ClusterIP"`, `"LoadBalancer"`, and `"NodePort"`. `"ClusterIP"` is sufficient in the average case where OSBA only receives traffic from within the cluster-- e.g. from Kubernetes Service Catalog. | `"ClusterIP"` |
 | `service.nodePort.port` | _If and only if_ `service.type` is set to `"NodePort"`, `service.nodePort.port` indicates the port this service should bind to on each Kubernetes node. | `30080` |
-| `azure.environment` | Indicates which Azure public cloud to use. Valid values are `"AzureCloud"` and `"AzureChinaCloud"`. | `"AzureCloud"` |
+| `azure.environment` | Indicates which Azure public cloud to use. Valid values are `"AzurePublicCloud"` and `"AzureChinaCloud"`. | `"AzurePublicCloud"` |
 | `azure.subscriptionId` | Identifies the Azure subscription into which OSBA will provision services. | none |
 | `azure.tenantId` | Identifies the Azure Active Directory to which the _service principal_ used by OSBA to access the Azure subscription belongs. | none |
 | `azure.clientId` | Identifies the _service principal_ used by OSBA to access the Azure subscription. | none |
