@@ -53,6 +53,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Bullets:     []string{"100 DTUs"},
 				},
 			}),
+			service.NewPlan(&service.PlanProperties{
+				ID:          "bd588e32-0514-4421-8ef3-f54039914e61",
+				Name:        "standard100",
+				Description: "Standard Tier, 100 DTUs",
+				Free:        false,
+				Extended: map[string]interface{}{
+					"skuName":        "PGSQLS100",
+					"skuTier":        "Standard",
+					"skuCapacityDTU": 100,
+				},
+			}),
 		),
 		// dbms only
 		service.NewService(
@@ -101,6 +112,17 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Basic Tier",
 					Bullets:     []string{"100 DTUs"},
+				},
+			}),
+			service.NewPlan(&service.PlanProperties{
+				ID:          "ba653f35-2152-4d76-8641-b21d4636b2e1",
+				Name:        "standard100",
+				Description: "Standard Tier, 100 DTUs",
+				Free:        false,
+				Extended: map[string]interface{}{
+					"skuName":        "PGSQLS100",
+					"skuTier":        "Standard",
+					"skuCapacityDTU": 100,
 				},
 			}),
 		),
