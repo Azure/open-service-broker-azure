@@ -2,9 +2,9 @@
 # The high-level description of your tile.
 # Replace these properties with real values.
 #
-name: open-service-broker-azure
+name: azure-open-service-broker-pcf
 icon_file: resources/icon.png
-label: Microsoft Open Service Broker for Azure
+label: Azure Open Service Broker for PCF
 description: A service broker for Microsoft Azure services
 
 # Global defaults (all optional)
