@@ -10,7 +10,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "azure-cosmosdb-sql-account",
 					Description: "Azure Cosmos DB Database Account (SQL API)",
 					Metadata: &service.ServiceMetadata{
-						DisplayName: "Azure Cosmos DB",
+						DisplayName: "Azure Cosmos DB (SQL API)",
 						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
 							"?width=200",
 						LongDescription: "Globally distributed, multi-model database service" +
@@ -43,7 +43,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "azure-cosmosdb-mongo-account",
 					Description: "Azure Cosmos DB Database Account (MongoDB API)",
 					Metadata: &service.ServiceMetadata{
-						DisplayName: "Azure Cosmos DB (MongoDB)",
+						DisplayName: "Azure Cosmos DB (MongoDB API)",
 						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
 							"?width=200",
 						LongDescription: "Globally distributed, multi-model database service" +
@@ -66,7 +66,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Description: "Database Account with the MongoDB API",
 					Free:        false,
 					Metadata: &service.ServicePlanMetadata{
-						DisplayName: "Azure MongoDB",
+						DisplayName: "Azure Cosmos DB (MongoDB API)",
 					},
 				}),
 			),
@@ -100,7 +100,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Description: "Database Account with the Graph API",
 					Free:        false,
 					Metadata: &service.ServicePlanMetadata{
-						DisplayName: "Azure CosmosDB with Graph API",
+						DisplayName: "Azure Cosmos DB (Graph API)",
 					},
 				}),
 			),
@@ -110,7 +110,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "azure-cosmosdb-table-account",
 					Description: "Azure Cosmos DB Database Account (Table API)",
 					Metadata: &service.ServiceMetadata{
-						DisplayName: "Azure Cosmos DB (MongoDB)",
+						DisplayName: "Azure Cosmos DB (Table API)",
 						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
 							"?width=200",
 						LongDescription: "Globally distributed, multi-model database service" +
@@ -133,7 +133,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Description: "Database Account with the Table API",
 					Free:        false,
 					Metadata: &service.ServicePlanMetadata{
-						DisplayName: "Azure CosmosDB with Table API",
+						DisplayName: "Azure Cosmos DB (Table API)",
 					},
 				}),
 			),

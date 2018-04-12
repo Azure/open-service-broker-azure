@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/contrib/pkg/client"
-	"github.com/Azure/open-service-broker-azure/pkg/api"
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -65,21 +64,21 @@ func provision(c *cli.Context) error {
 				username,
 				password,
 				instanceID,
-				api.OperationProvisioning,
+				client.OperationProvisioning,
 			)
 			if err != nil {
 				return fmt.Errorf("error polling for provisioning status: %s", err)
 			}
 			switch result {
-			case api.OperationStateInProgress:
+			case client.OperationStateInProgress:
 				fmt.Print(".")
-			case api.OperationStateSucceeded:
+			case client.OperationStateSucceeded:
 				fmt.Printf(
 					"\n\nService instance %s has been successfully provisioned\n\n",
 					instanceID,
 				)
 				return nil
-			case api.OperationStateFailed:
+			case client.OperationStateFailed:
 				return fmt.Errorf(
 					"Provisioning service instance %s has failed",
 					instanceID,

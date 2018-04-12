@@ -17,10 +17,10 @@ func catalog(c *cli.Context) error {
 		return fmt.Errorf("error retrieving catalog: %s", err)
 	}
 	fmt.Println()
-	for _, svc := range catalog.GetServices() {
-		fmt.Printf("service: %-20s id: %s\n", svc.GetName(), svc.GetID())
-		for _, plan := range svc.GetPlans() {
-			fmt.Printf("   plan: %-20s id: %s\n", plan.GetName(), plan.GetID())
+	for _, svc := range catalog.Services {
+		fmt.Printf("service: %-20s id: %s\n", svc.Name, svc.ID)
+		for _, plan := range svc.Plans {
+			fmt.Printf("   plan: %-20s id: %s\n", plan.Name, plan.ID)
 		}
 		fmt.Println()
 	}

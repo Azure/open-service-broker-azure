@@ -116,28 +116,6 @@ func NewCatalog(services []Service) Catalog {
 	return c
 }
 
-// NewCatalogFromJSON returns a new Catalog unmarshalled from the provided JSON
-// []byte
-func NewCatalogFromJSON(jsonBytes []byte) (Catalog, error) {
-	c := &catalog{
-		services:        []Service{},
-		indexedServices: make(map[string]Service),
-	}
-	if err := json.Unmarshal(jsonBytes, c); err != nil {
-		return nil, err
-	}
-	for _, svcRawJSON := range c.Services {
-		svc, err := NewServiceFromJSON(svcRawJSON)
-		if err != nil {
-			return nil, err
-		}
-		c.services = append(c.services, svc)
-		c.indexedServices[svc.GetID()] = svc
-	}
-	c.Services = nil
-	return c, nil
-}
-
 // ToJSON returns a []byte containing a JSON representation of the catalog
 func (c *catalog) ToJSON() ([]byte, error) {
 	c.jsonMutex.Lock()

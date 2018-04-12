@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/Azure/open-service-broker-azure/pkg/api"
 )
 
 // Poll polls the status of an instance
@@ -41,7 +39,7 @@ func Poll(
 		return "", fmt.Errorf("error reading response body: %s", err)
 	}
 	defer resp.Body.Close() // nolint: errcheck
-	if operation == api.OperationDeprovisioning &&
+	if operation == OperationDeprovisioning &&
 		resp.StatusCode == http.StatusGone {
 		return "gone", nil
 	}
