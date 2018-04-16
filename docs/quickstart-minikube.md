@@ -228,6 +228,22 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
       --set azure.clientSecret=$env:AZURE_CLIENT_SECRET
     ```
 
+   **Note**
+   The helm chart is configured to set the minimum stability level of the broker to `preview`,
+   meaning that only services that are marked `preview` or `stable` will be available from the broker.
+   This is currently Azure Database for MySQL, Azure Database for PostgreSQL and Azure SQL Database.
+   If you would like to use other services, you will need to add an additional flag to your helm install
+   command:
+
+   ```console
+   helm install azure/open-service-broker-azure --name osba --namespace osba \
+      --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
+      --set azure.tenantId=$AZURE_TENANT_ID \
+      --set azure.clientId=$AZURE_CLIENT_ID \
+      --set azure.clientSecret=$AZURE_CLIENT_SECRET \
+      --set modules.minStability=EXPERIMENTAL
+   ```
+
 1. Check on the status of Open Service Broker for Azure by running the
     following command and checking that every pod is in the `Running` state.
     You may need to wait a few minutes, rerunning the command until all of the
