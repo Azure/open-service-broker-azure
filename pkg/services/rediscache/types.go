@@ -16,6 +16,7 @@ type credentials struct {
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
 	Password string `json:"password"`
+	URI      string `json:"uri"`
 }
 
 func (s *serviceManager) SplitProvisioningParameters(
