@@ -37,14 +37,13 @@ func (s *serviceManager) GetCredentials(
 		return nil, err
 	}
 
-	uriStringTemplate := "redis://:%s@%s:%d"
 	redisPort := 6379
 	return credentials{
 		Host:     dt.FullyQualifiedDomainName,
 		Password: sdt.PrimaryKey,
 		Port:     redisPort,
 		URI: fmt.Sprintf(
-			uriStringTemplate,
+			"redis://:%s@%s:%d",
 			url.QueryEscape(sdt.PrimaryKey),
 			dt.FullyQualifiedDomainName,
 			redisPort,
