@@ -22,6 +22,11 @@ var (
 	}
 )
 
+const (
+	disabled = "disabled"
+	enabled  = "enabled"
+)
+
 func generateAccountName(location string) string {
 	databaseAccountName := uuid.NewV4().String()
 	// CosmosDB currently limits database account names to 50 characters,
@@ -63,16 +68,16 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 	}
 	if pp.IPFilterRules != nil {
 		allowAzure := strings.ToLower(pp.IPFilterRules.AllowAzure)
-		if allowAzure != "" && allowAzure != "enabled" &&
-			allowAzure != "disabled" {
+		if allowAzure != "" && allowAzure != enabled &&
+			allowAzure != disabled {
 			return service.NewValidationError(
 				"allowAzure",
 				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowAzure),
 			)
 		}
 		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
-		if allowPortal != "" && allowPortal != "enabled" &&
-			allowPortal != "disabled" {
+		if allowPortal != "" && allowPortal != enabled &&
+			allowPortal != disabled {
 			return service.NewValidationError(
 				"allowPortal",
 				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowPortal),
@@ -173,9 +178,9 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	if pp.IPFilterRules != nil {
 		allowAzure := strings.ToLower(pp.IPFilterRules.AllowPortal)
 		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
-		if allowAzure != "disable" {
+		if allowAzure != disabled {
 			filters = append(filters, "0.0.0.0")
-		} else if allowPortal != "disable" {
+		} else if allowPortal != disabled {
 			// Azure Portal IP Addresses per:
 			// https://aka.ms/Vwxndo
 			//|| Region            || IP address(es) ||

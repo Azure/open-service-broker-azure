@@ -6,6 +6,39 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 			service.NewService(
 				&service.ServiceProperties{
+					ID:          "58d9fbbd-7041-4dbe-aabe-6268cd31de84",
+					Name:        "azure-cosmosdb-sql",
+					Description: "Azure Cosmos DB Database Account (SQL API)",
+					Metadata: &service.ServiceMetadata{
+						DisplayName: "Azure Cosmos DB (SQL API)",
+						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
+							"?width=200",
+						LongDescription: "Globally distributed, multi-model database service" +
+							" (Experimental).",
+						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
+						SupportURL:       "https://azure.microsoft.com/en-us/support/",
+					},
+					Bindable: true,
+					Tags: []string{"Azure",
+						"CosmosDB",
+						"Database",
+						"SQL",
+					},
+					ProvisionParamsSchema: m.sqlAccountManager.getProvisionParametersSchema(), // nolint: lll
+				},
+				m.sqlAllInOneManager,
+				service.NewPlan(&service.PlanProperties{
+					ID:          "58d7223d-934e-4fb5-a046-0c67781eb24e",
+					Name:        "default",
+					Description: "Database Account with the SQL API",
+					Free:        false,
+					Metadata: &service.ServicePlanMetadata{
+						DisplayName: "Azure CosmosDB (SQL API)",
+					},
+				}),
+			),
+			service.NewService(
+				&service.ServiceProperties{
 					ID:          "6330de6f-a561-43ea-a15e-b99f44d183e6",
 					Name:        "azure-cosmosdb-sql-account",
 					Description: "Azure Cosmos DB Database Account (SQL API)",

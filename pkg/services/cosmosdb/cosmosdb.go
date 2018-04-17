@@ -8,6 +8,7 @@ import (
 
 type module struct {
 	sqlAccountManager   *sqlAccountManager
+	sqlAllInOneManager  *sqlAllInOneManager
 	mongoAccountManager *mongoAccountManager
 	graphAccountManager *graphAccountManager
 	tableAccountManager *tableAccountManager
@@ -20,6 +21,10 @@ type cosmosAccountManager struct {
 
 type sqlAccountManager struct {
 	cosmosAccountManager
+}
+
+type sqlAllInOneManager struct {
+	sqlAccountManager
 }
 
 type mongoAccountManager struct {
@@ -48,6 +53,9 @@ func New(
 	return &module{
 		mongoAccountManager: &mongoAccountManager{cosmos},
 		sqlAccountManager:   &sqlAccountManager{cosmos},
+		sqlAllInOneManager: &sqlAllInOneManager{
+			sqlAccountManager: sqlAccountManager{cosmos},
+		},
 		graphAccountManager: &graphAccountManager{cosmos},
 		tableAccountManager: &tableAccountManager{cosmos},
 	}
