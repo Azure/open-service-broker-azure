@@ -36,6 +36,7 @@ func (s *sqlAccountManager) deployARMTemplate(
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)
 	}
+	instance.Tags["defaultExperience"] = "DocumentDB"
 
 	dt, sdt, err := s.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
 
