@@ -23,5 +23,6 @@ func (m *mongoAccountManager) GetCredentials(
 		Username:         dt.DatabaseAccountName,
 		Password:         sdt.PrimaryKey,
 		ConnectionString: sdt.ConnectionString,
+		URI:              sdt.ConnectionString,
 	}, nil
 }

@@ -1,6 +1,9 @@
 package rediscache
 
 import (
+	"fmt"
+	"net/url"
+
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -33,9 +36,17 @@ func (s *serviceManager) GetCredentials(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, err
 	}
+
+	redisPort := 6379
 	return credentials{
 		Host:     dt.FullyQualifiedDomainName,
 		Password: sdt.PrimaryKey,
-		Port:     6379,
+		Port:     redisPort,
+		URI: fmt.Sprintf(
+			"redis://:%s@%s:%d",
+			url.QueryEscape(sdt.PrimaryKey),
+			dt.FullyQualifiedDomainName,
+			redisPort,
+		),
 	}, nil
 }
