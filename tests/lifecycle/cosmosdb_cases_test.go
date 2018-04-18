@@ -38,8 +38,10 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			},
 			"consistencyPolicy": map[string]interface{}{
 				"defaultConsistencyLevel": "BoundedStaleness",
-				"maxStalenessPrefix":      10,
-				"maxIntervalInSeconds":    500,
+				"boundedStaleness": map[string]interface{}{
+					"maxStalenessPrefix":   10,
+					"maxIntervalInSeconds": 500,
+				},
 			},
 		},
 	},

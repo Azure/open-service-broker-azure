@@ -15,10 +15,14 @@ type ipFilterRule struct {
 	AllowPortal string   `json:"allowAccessFromPortal,omitempty"`
 }
 
+type boundedStaleness struct {
+	MaxStaleness *int `json:"maxStalenessPrefix,omitempty"`
+	MaxInternal  *int `json:"maxIntervalInSeconds,omitempty"`
+}
+
 type consistencyPolicy struct {
-	DefaultConsistency string `json:"defaultConsistencyLevel,omitempty"`
-	MaxStaleness       *int   `json:"maxStalenessPrefix,omitempty"`
-	MaxInternal        *int   `json:"maxIntervalInSeconds,omitempty"`
+	DefaultConsistency string            `json:"defaultConsistencyLevel,omitempty"`
+	BoundedStaleness   *boundedStaleness `json:"boundedStaleness,omitempty"`
 }
 
 type cosmosdbInstanceDetails struct {
@@ -117,25 +121,32 @@ func (
 					"ConsistentPrefix",
 				},
 			},
-			"maxStalenessPrefix": &service.NumericParameterSchema{
-				Type: "integer",
-				Description: "When used with the Bounded Staleness " +
-					"consistency level, this value represents the number of " +
-					"stale requests tolerated" +
-					"Required when defaultConsistencyPolicy is set to " +
-					" 'BoundedStaleness'.",
-				Minimum: maxStalenessPrefixMin,
-				Maximum: maxStalenessPrefixMax,
-			},
-			"maxIntervalInSeconds": &service.NumericParameterSchema{
-				Type: "integer",
-				Description: "When used with the Bounded Staleness " +
-					"consistency level, this value represents the time " +
-					"amount of staleness (in seconds) tolerated. " +
-					"Required when defaultConsistencyPolicy is set to " +
-					" 'BoundedStaleness'.",
-				Minimum: maxIntervalInSecondsMin,
-				Maximum: maxIntervalInSecondsMax,
+			"boundedStaleness": &service.ObjectParameterSchema{
+				Description: "The staleness settings when using " +
+					"BoundedStaleness consistency.  Required when " +
+					"using BoundedStaleness",
+				Properties: map[string]service.ParameterSchema{
+					"maxStalenessPrefix": &service.NumericParameterSchema{
+						Type: "integer",
+						Description: "When used with the Bounded Staleness " +
+							"consistency level, this value represents the number of " +
+							"stale requests tolerated" +
+							"Required when defaultConsistencyPolicy is set to " +
+							" 'BoundedStaleness'.",
+						Minimum: maxStalenessPrefixMin,
+						Maximum: maxStalenessPrefixMax,
+					},
+					"maxIntervalInSeconds": &service.NumericParameterSchema{
+						Type: "integer",
+						Description: "When used with the Bounded Staleness " +
+							"consistency level, this value represents the time " +
+							"amount of staleness (in seconds) tolerated. " +
+							"Required when defaultConsistencyPolicy is set to " +
+							" 'BoundedStaleness'.",
+						Minimum: maxIntervalInSecondsMin,
+						Maximum: maxIntervalInSecondsMax,
+					},
+				},
 			},
 		},
 	}

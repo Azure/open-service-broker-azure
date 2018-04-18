@@ -24,11 +24,11 @@ var armTemplateBytes = []byte(`
 				{{ if .consistencyPolicy }}
 				"consistencyPolicy" : {
 					"defaultConsistencyLevel" : "{{ .consistencyPolicy.defaultConsistencyLevel }}"
-					{{ if .consistencyPolicy.maxStalenessPrefix }}
-						,"maxStalenessPrefix": {{ .consistencyPolicy.maxStalenessPrefix }}
+					{{ if .consistencyPolicy.boundedStaleness }}
+						,"maxStalenessPrefix": {{ .consistencyPolicy.boundedStaleness.maxStalenessPrefix }}
 					{{ end }}
 					{{ if .consistencyPolicy.maxIntervalInSeconds }}
-						,"maxIntervalInSeconds" : {{ .consistencyPolicy.maxIntervalInSeconds }}
+						,"maxIntervalInSeconds" : {{ .consistencyPolicy.boundedStaleness.maxIntervalInSeconds }}
 					{{ end }}
 				},
 				{{ end }}
