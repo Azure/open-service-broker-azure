@@ -33,11 +33,9 @@ func (s *sqlAccountManager) deployARMTemplate(
 	}
 
 	p := s.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
-	p["capability"] = "EnableTable"
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)
 	}
-	instance.Tags["defaultExperience"] = "Table"
 
 	dt, sdt, err := s.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
 
