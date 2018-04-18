@@ -36,9 +36,9 @@ type cosmosdbSecureInstanceDetails struct {
 // cosmosCredentials encapsulates CosmosDB-specific details for connecting via
 // a variety of APIs. This excludes MongoDB.
 type cosmosCredentials struct {
-	URI                     string `json:"uri,omitempty"`
-	PrimaryConnectionString string `json:"primaryConnectionString,omitempty"`
-	PrimaryKey              string `json:"primaryKey,omitempty"`
+	URI                     string `json:"uri"`
+	PrimaryConnectionString string `json:"primaryConnectionString"`
+	PrimaryKey              string `json:"primaryKey"`
 }
 
 func (c *cosmosAccountManager) SplitProvisioningParameters(
