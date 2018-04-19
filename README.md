@@ -62,7 +62,7 @@ for details on how to install it onto your machine.
 #### Helm Chart
 
 Use [Helm](https://helm.sh) to install Open Service Broker for Azure onto your Kubernetes
-cluster. Refer to the OSBA [Helm chart](https://github.com/Azure/helm-charts/tree/master/open-service-broker-azure)
+cluster. Refer to the OSBA [Helm chart](https://github.com/Azure/open-service-broker-azure/tree/master/contrib/k8s/charts/open-service-broker-azure)
 for details on how to complete the installation.
 
 ### Provisioning
