@@ -120,7 +120,7 @@ func (d *dbmsManager) deployARMTemplate(
 		dt,
 		sdt,
 	)
-	goTemplateParameters := buildGoTemplateParameters(pp)
+	goTemplateParameters := buildGoTemplateParameters(instance.Service, pp)
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,

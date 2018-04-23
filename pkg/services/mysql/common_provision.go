@@ -76,9 +76,11 @@ func validateDBMSProvisionParameters(pp dbmsProvisioningParameters) error {
 }
 
 func buildGoTemplateParameters(
+	svc service.Service,
 	provisioningParameters dbmsProvisioningParameters,
 ) map[string]interface{} {
 	p := map[string]interface{}{}
+	p["version"] = svc.GetProperties().Extended["version"]
 	// Only include these if they are not empty.
 	// ARM Deployer will fail if the values included are not
 	// valid IPV4 addresses (i.e. empty string wil fail)

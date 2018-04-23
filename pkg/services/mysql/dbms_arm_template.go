@@ -34,11 +34,6 @@ var dbmsARMTemplateBytes = []byte(`
 				"minValue": 51200,
 				"maxValue": 128000
 			},
-			"version": {
-				"type": "string",
-				"allowedValues": [ "5.7", "5.6" ],
-				"defaultValue": "5.7"
-			},
 			"sslEnforcement": {
 				"type": "string",
 				"allowedValues": [ "Enabled", "Disabled" ],
@@ -58,7 +53,7 @@ var dbmsARMTemplateBytes = []byte(`
 				"location": "[parameters('location')]",
 				"name": "[parameters('serverName')]",
 				"properties": {
-					"version": "[parameters('version')]",
+					"version": "{{.version}}",
 					"administratorLogin": "azureuser",
 					"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
 					"storageMB": "[parameters('skuSizeMB')]",
