@@ -22,7 +22,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
 				ProvisionParamsSchema: m.allInOneManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
-					"version": "9.6s",
+					"version": "9.6",
 				},
 			},
 			m.allInOneManager,
@@ -86,7 +86,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
 				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
-					"version": "9.6s",
+					"version": "9.6",
 				},
 			},
 			m.dbmsManager,
@@ -150,7 +150,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Tags:     []string{"Azure", "PostgreSQL", "Database"},
 				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
-					"version": "9.6s",
+					"version": "9.6",
 				},
 			},
 			m.databaseManager,
