@@ -229,11 +229,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
     ```
 
    **Note**
-   The helm chart is configured to set the minimum stability level of the broker to `preview`,
-   meaning that only services that are marked `preview` or `stable` will be available from the broker.
-   This is currently Azure Database for MySQL, Azure Database for PostgreSQL and Azure SQL Database.
-   If you would like to use other services, you will need to add an additional flag to your helm install
-   command:
+    Open Service Broker for Azure provides a number of services and each of these services is implemented by a separate module. The module stability is independent of the broker stability level and each module defines it's stability level, ranging from `experimental` to `stable`. The broker can be configured to expose only services above a stability threshold. The helm chart currently configures the broker only load services that are marked `preview` or `stable`. This is currently Azure Database for MySQL, Azure Database for PostgreSQL and Azure SQL Database. If you would like to use other services, you will need to add an additional flag to your helm install command:
 
    ```console
    helm install azure/open-service-broker-azure --name osba --namespace osba \
