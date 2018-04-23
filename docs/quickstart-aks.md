@@ -219,6 +219,18 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
       --set azure.clientSecret=$env:AZURE_CLIENT_SECRET
     ```
 
+    **Note**
+    Open Service Broker for Azure provides a number of services and each of these services is implemented by a separate module. The stability of individual modules is independent of overall broker stability and is ranked on a scale of `experimental`, `preview`, and `stable`. The broker can be configured to only load modules at or above a specified stability threshold. By default, the helm chart configures the broker to only load modules that are marked as `preview` or `stable`. This currently includes Azure Database for MySQL, Azure Database for PostgreSQL and Azure SQL Database. If you would like to use other services, you will need to add an additional flag to your helm install command:
+
+    ```console
+    helm install azure/open-service-broker-azure --name osba --namespace osba \
+      --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
+      --set azure.tenantId=$AZURE_TENANT_ID \
+      --set azure.clientId=$AZURE_CLIENT_ID \
+      --set azure.clientSecret=$AZURE_CLIENT_SECRET \
+      --set modules.minStability=EXPERIMENTAL
+    ```
+
 1. Check on the status of everything that we have installed by running the
     following command and checking that every pod is in the `Running` state.
     You may need to wait a few minutes, rerunning the command until all of the
