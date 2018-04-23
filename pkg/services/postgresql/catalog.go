@@ -9,10 +9,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "b43b4bba-5741-4d98-a10b-17dc5cee0175",
-				Name:        "azure-postgresql",
-				Description: "Azure Database for PostgreSQL-- DBMS and single database (preview)",
+				Name:        "azure-postgresql-9-6",
+				Description: "Azure Database for PostgreSQL 9.6-- DBMS and single database (preview)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL",
+					DisplayName:      "Azure Database for PostgreSQL 9.6 (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
 					LongDescription:  "Azure Database for PostgreSQL-- DBMS and single database (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
@@ -21,6 +21,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
 				ProvisionParamsSchema: m.allInOneManager.getProvisionParametersSchema(),
+				Extended: map[string]interface{}{
+					"version": "9.6s",
+				},
 			},
 			m.allInOneManager,
 			service.NewPlan(&service.PlanProperties{
@@ -69,11 +72,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:             "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
-				Name:           "azure-postgresql-dbms",
-				Description:    "Azure Database for PostgreSQL-- DBMS only (preview)",
+				Name:           "azure-postgresql-9-6-dbms",
+				Description:    "Azure Database for PostgreSQL 9.6-- DBMS only (preview)",
 				ChildServiceID: "25434f16-d762-41c7-bbdd-8045d7f74ca",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL-- DBMS Only",
+					DisplayName:      "Azure Database for PostgreSQL 9.6-- DBMS Only (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
 					LongDescription:  "Azure Database for PostgreSQL-- DBMS only (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
@@ -82,6 +85,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable: false,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
 				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
+				Extended: map[string]interface{}{
+					"version": "9.6s",
+				},
 			},
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
@@ -130,11 +136,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:              "25434f16-d762-41c7-bbdd-8045d7f74ca6",
-				Name:            "azure-postgresql-database",
-				Description:     "Azure Database for PostgreSQL-- database only (preview)",
+				Name:            "azure-postgresql-9-6-database",
+				Description:     "Azure Database for PostgreSQL 9.6-- database only (preview)",
 				ParentServiceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL-- Database Only",
+					DisplayName:      "Azure Database for PostgreSQL 9.6-- Database Only (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
 					LongDescription:  "Azure Database for PostgreSQL-- database only (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
@@ -143,6 +149,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "Database"},
 				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
+				Extended: map[string]interface{}{
+					"version": "9.6s",
+				},
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{

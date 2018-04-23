@@ -35,11 +35,6 @@ var dbmsARMTemplateBytes = []byte(`
 			"maxValue": 102400,
 			"defaultValue": 51200
 		},
-		"version": {
-			"type": "string",
-			"allowedValues": [ "9.5", "9.6" ],
-			"defaultValue": "9.6"
-		},
 		"sslEnforcement": {
 			"type": "string",
 			"allowedValues": [ "Enabled", "Disabled" ],
@@ -59,7 +54,7 @@ var dbmsARMTemplateBytes = []byte(`
 			"location": "[parameters('location')]",
 			"name": "[parameters('serverName')]",
 			"properties": {
-				"version": "[parameters('version')]",
+				"version": "{{.version}}",
 				"administratorLogin": "postgres",
 				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
 				"storageMB": "[parameters('skuSizeMB')]",
