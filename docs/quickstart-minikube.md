@@ -30,7 +30,7 @@ save the connection information in Kubernetes secrets, and then bind them to our
 
 ### Install Minikube
 
-[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer. For this quickstart guide, you'll want to install Minikube v0.26.
+[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer. For this quickstart guide, you'll want to install Minikube v0.26.1.
 
 #### MacOS
 
@@ -179,7 +179,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
     minikube start
     ```
 
-    Note: Service Catalog may not work with Kubernetes versions less than 1.9.x. If you are using a version of Minikube older than 0.26, you will need to upgrade to 0.26 to ensure the cluster is compatible with Service Catalog and OSBA.
+    Note: Service Catalog may not work with Kubernetes versions less than 1.9.x. If you are using a version of Minikube older than 0.26.1, you will need to upgrade to 0.26 to ensure the cluster is compatible with Service Catalog and OSBA. Minikube 0.26.1 will install a Kubernetes 1.10 cluster for you by default.
 
 ### Configure the cluster with Open Service Broker for Azure
 
