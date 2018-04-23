@@ -102,7 +102,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	svc, ok := s.catalog.GetService(serviceID)
-	if !ok {
+	if !ok || svc.IsEndOfLife() {
 		logFields["serviceID"] = serviceID
 		log.WithFields(logFields).Debug(
 			"bad provisioning request: invalid serviceID",
@@ -112,7 +112,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	plan, ok := svc.GetPlan(planID)
-	if !ok {
+	if !ok || plan.IsEndOfLife() {
 		logFields["serviceID"] = serviceID
 		logFields["planID"] = planID
 		log.WithFields(logFields).Debug(

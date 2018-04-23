@@ -64,6 +64,7 @@ type Service interface {
 	GetParentServiceID() string
 	GetChildServiceID() string
 	GetProperties() *ServiceProperties
+	IsEndOfLife() bool
 }
 
 type service struct {
@@ -101,6 +102,7 @@ type Plan interface {
 	GetID() string
 	GetName() string
 	GetProperties() *PlanProperties
+	IsEndOfLife() bool
 }
 
 type plan struct {
@@ -288,6 +290,10 @@ func (s *service) GetProperties() *ServiceProperties {
 	return s.ServiceProperties
 }
 
+func (s *service) IsEndOfLife() bool {
+	return s.EndOfLife
+}
+
 // NewPlan initializes and returns a new Plan
 func NewPlan(planProperties *PlanProperties) Plan {
 	return &plan{
@@ -321,4 +327,8 @@ func (p *plan) GetName() string {
 
 func (p *plan) GetProperties() *PlanProperties {
 	return p.PlanProperties
+}
+
+func (p *plan) IsEndOfLife() bool {
+	return p.EndOfLife
 }
