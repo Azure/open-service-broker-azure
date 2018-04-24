@@ -10,18 +10,21 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "997b8372-8dac-40ac-ae65-758b4a5075a5",
-				Name:        "azure-mysql",
-				Description: "Azure Database for MySQL-- DBMS and single database (preview)",
+				Name:        "azure-mysql-5-7",
+				Description: "Azure Database for MySQL 5.7-- DBMS and single database (preview)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL",
+					DisplayName:      "Azure Database for MySQL 5.7 (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL-- DBMS and single database (preview)",
+					LongDescription:  "Azure Database for MySQL 5.7-- DBMS and single database (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "MySQL", "DBMS", "Server", "Database"},
 				ProvisionParamsSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
+				Extended: map[string]interface{}{
+					"version": "5.7",
+				},
 			},
 			m.allInOneServiceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -137,19 +140,22 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:             "30e7b836-199d-4335-b83d-adc7d23a95c2",
-				Name:           "azure-mysql-dbms",
-				Description:    "Azure Database for MySQL-- DBMS only (preview)",
+				Name:           "azure-mysql-5-7-dbms",
+				Description:    "Azure Database for MySQL 5.7-- DBMS only (preview)",
 				ChildServiceID: "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL-- DBMS Only",
+					DisplayName:      "Azure Database for MySQL 5.7-- DBMS Only (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL-- DBMS only (preview)",
+					LongDescription:  "Azure Database for MySQL 5.7-- DBMS only (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "MySQL", "DBMS", "Server", "Database"},
 				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
+				Extended: map[string]interface{}{
+					"version": "5.7",
+				},
 			},
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
@@ -265,18 +271,21 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:              "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
-				Name:            "azure-mysql-database",
-				Description:     "Azure Database for MySQL-- database Only (preview)",
+				Name:            "azure-mysql-5-7-database",
+				Description:     "Azure Database for MySQL 5.7-- database only (preview)",
 				ParentServiceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL-- Database Only",
+					DisplayName:      "Azure Database for MySQL 5.7-- Database Only (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL-- database Only (preview)",
+					LongDescription:  "Azure Database for MySQL 5.7-- database only (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "MySQL", "Database"},
+				Extended: map[string]interface{}{
+					"version": "5.7",
+				},
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{

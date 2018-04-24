@@ -6,11 +6,6 @@ var databaseARMTemplateBytes = []byte(`
 		"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 		"contentVersion": "1.0.0.0",
 		"parameters": {
-			"version": {
-				"type": "string",
-				"allowedValues": [ "5.7", "5.6" ],
-				"defaultValue": "5.7"
-			},
 			"location": {
 				"type": "string"
 			},

@@ -71,7 +71,7 @@ func (d *dbmsManager) deployARMTemplate(
 		"administratorLogin":         dt.AdministratorLogin,
 		"administratorLoginPassword": sdt.AdministratorLoginPassword,
 	}
-	goTemplateParams := buildGoTemplateParameters(pp)
+	goTemplateParams := buildGoTemplateParameters(instance.Service, pp)
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,

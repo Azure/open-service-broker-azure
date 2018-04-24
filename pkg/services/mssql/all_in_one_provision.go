@@ -82,7 +82,10 @@ func (a *allInOneManager) deployARMTemplate(
 			Extended["requestedServiceObjectiveName"],
 		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
 	}
-	goTemplateParams := buildGoTemplateParameters(pp.dbmsProvisioningParams)
+	goTemplateParams := buildGoTemplateParameters(
+		instance.Service,
+		pp.dbmsProvisioningParams,
+	)
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
