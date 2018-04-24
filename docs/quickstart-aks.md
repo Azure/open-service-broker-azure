@@ -170,7 +170,7 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
     az aks create --resource-group aks-group --name osba-quickstart-cluster --generate-ssh-keys --kubernetes-version 1.9.6
     ```
 
-    Note: Service Catalog may not work with Kubernetes versions less than 1.9.0. If you are attempting to use an older AKS cluster, please upgrade to at least version 1.9.1
+    Note: Service Catalog may not work with Kubernetes versions less than 1.9.0. If you are attempting to use an older AKS cluster, you will need to upgrade. The earliest 1.9.x release available from AKS is 1.9.1, so you will need to upgrade to at least that version.
 
 1. Configure kubectl to use the new cluster
     ```console
