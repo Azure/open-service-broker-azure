@@ -37,6 +37,7 @@ type ServiceProperties struct { // nolint: golint
 	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
 	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
 	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
+	Extended              map[string]interface{}     `json:"-"`
 }
 
 // ServiceMetadata contains metadata about the service classes
@@ -61,6 +62,7 @@ type Service interface {
 	GetPlan(planID string) (Plan, bool)
 	GetParentServiceID() string
 	GetChildServiceID() string
+	GetProperties() *ServiceProperties
 }
 
 type service struct {
@@ -271,6 +273,10 @@ func (s *service) GetParentServiceID() string {
 
 func (s *service) GetChildServiceID() string {
 	return s.ChildServiceID
+}
+
+func (s *service) GetProperties() *ServiceProperties {
+	return s.ServiceProperties
 }
 
 // NewPlan initializes and returns a new Plan
