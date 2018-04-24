@@ -30,7 +30,7 @@ save the connection information in Kubernetes secrets, and then bind them to our
 
 ### Install Minikube
 
-[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer. For this quickstart guide, you'll want to install Minikube v0.26.1.
+[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer. For this quickstart guide, you'll want to install Minikube v0.25.
 
 #### MacOS
 
