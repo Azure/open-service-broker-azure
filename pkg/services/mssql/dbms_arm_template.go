@@ -12,11 +12,6 @@ var dbmsARMTemplateBytes = []byte(`
 		"serverName": {
 			"type": "string"
 		},
-		"version": {
-			"type": "string",
-			"allowedValues": [ "2.0", "12.0" ],
-			"defaultValue": "12.0"
-		},
 		"administratorLogin": {
 			"type": "string"
 		},
@@ -39,7 +34,7 @@ var dbmsARMTemplateBytes = []byte(`
 			"properties": {
 				"administratorLogin": "[parameters('administratorLogin')]",
 				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-				"version": "[parameters('version')]"
+				"version": "{{.version}}"
 			},
 			"tags": "[parameters('tags')]",
 			"resources": [

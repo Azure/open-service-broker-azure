@@ -9,18 +9,21 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
-				Name:        "azure-sql",
-				Description: "Azure SQL-- DBMS and single database (preview)",
+				Name:        "azure-sql-12-0",
+				Description: "Azure SQL Database 12.0-- DBMS and single database (preview)",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure SQL Database",
+					DisplayName:      "Azure SQL Database 12.0 (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL Database-- DBMS and single database (preview)",
+					LongDescription:  "Azure SQL Database 12.0-- DBMS and single database (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
 				ProvisionParamsSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
+				Extended: map[string]interface{}{
+					"version": "12.0",
+				},
 			},
 			m.allInOneServiceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -253,19 +256,22 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:             "a7454e0e-be2c-46ac-b55f-8c4278117525",
-				Name:           "azure-sql-dbms",
-				Description:    "Azure SQL-- DBMS only (preview)",
+				Name:           "azure-sql-12-0-dbms",
+				Description:    "Azure SQL 12.0-- DBMS only (preview)",
 				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure SQL Server (DBMS Only)",
+					DisplayName:      "Azure SQL 12.0-- DBMS Only (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL-- DBMS only (preview)",
+					LongDescription:  "Azure SQL 12.0-- DBMS only (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
 				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
+				Extended: map[string]interface{}{
+					"version": "12.0",
+				},
 			},
 			m.dbmsManager,
 			service.NewPlan(&service.PlanProperties{
@@ -282,18 +288,21 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			&service.ServiceProperties{
 				ID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-				Name:            "azure-sql-database",
-				Description:     "Azure SQL-- database only (preview)",
+				Name:            "azure-sql-12-0-database",
+				Description:     "Azure SQL 12.0-- database only (preview)",
 				Bindable:        true,
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure SQL Server (Database Only)",
+					DisplayName:      "Azure SQL 12.0-- Database Only (preview)",
 					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL-- database only (preview)",
+					LongDescription:  "Azure SQL 12.0-- database only (preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
 				Tags: []string{"Azure", "SQL", "Database"},
+				Extended: map[string]interface{}{
+					"version": "12.0",
+				},
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{

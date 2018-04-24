@@ -126,7 +126,7 @@ func (a *allInOneManager) deployARMTemplate(
 		sdt,
 	)
 	goTemplateParameters :=
-		buildGoTemplateParameters(pp.dbmsProvisioningParameters)
+		buildGoTemplateParameters(instance.Service, pp.dbmsProvisioningParameters)
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
