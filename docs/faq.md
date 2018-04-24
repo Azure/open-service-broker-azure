@@ -42,8 +42,30 @@ helm install azure/open-service-broker-azure --name osba --namespace osba \
 
 ## "osba" is forbidden: not yet ready to handle request
 
-[Service Catalog](https://github.com/kubernetes-incubator/service-catalog) in used to integrate Open Service Broker for Azure. Service Catalog currently works with Kubernetes version 1.9.x and higher. If you are receive this error message when trying to install Open Service Broker For Azure, check the version of your Kubernetes cluster. If you are running a version less than 1.9, please upgrade. If you are making a new cluster with AKS, you can specify the version with the `--kubernetes-version` flag like so:
+[Service Catalog](https://github.com/kubernetes-incubator/service-catalog) is the software component that is used to integrate Open Service Broker for Azure with Kubernetes. Service Catalog currently works with Kubernetes version 1.9.0 and higher, so you will need a Kubernetes cluster that is version 1.9.0 or higher. If you receive this error message when trying to install Open Service Broker For Azure, check the version of your Kubernetes cluster. If you are running a version less than 1.9.0, please upgrade. If you are making a new cluster with AKS, you can specify the version with the `--kubernetes-version` flag like so:
 
 ```console
 az aks create --resource-group osba --name my-aks-cluster --generate-ssh-keys --kubernetes-version 1.9.6
+```
+
+To see available versions, you can use the `az aks get-versions` command:
+
+```console
+$ az aks get-versions -l eastus -o table
+KubernetesVersion    Upgrades
+-------------------  -------------------------------------------------------------------------
+1.9.6                None available
+1.9.2                1.9.6
+1.9.1                1.9.2, 1.9.6
+1.8.11               1.9.1, 1.9.2, 1.9.6
+1.8.10               1.8.11, 1.9.1, 1.9.2, 1.9.6
+1.8.7                1.8.10, 1.8.11, 1.9.1, 1.9.2, 1.9.6
+1.8.6                1.8.7, 1.8.10, 1.8.11, 1.9.1, 1.9.2, 1.9.6
+1.8.2                1.8.6, 1.8.7, 1.8.10, 1.8.11, 1.9.1, 1.9.2, 1.9.6
+1.8.1                1.8.2, 1.8.6, 1.8.7, 1.8.10, 1.8.11, 1.9.1, 1.9.2, 1.9.6
+1.7.16               1.8.1, 1.8.2, 1.8.6, 1.8.7, 1.8.10, 1.8.11
+1.7.15               1.7.16, 1.8.1, 1.8.2, 1.8.6, 1.8.7, 1.8.10, 1.8.11
+1.7.12               1.7.15, 1.7.16, 1.8.1, 1.8.2, 1.8.6, 1.8.7, 1.8.10, 1.8.11
+1.7.9                1.7.12, 1.7.15, 1.7.16, 1.8.1, 1.8.2, 1.8.6, 1.8.7, 1.8.10, 1.8.11
+1.7.7                1.7.9, 1.7.12, 1.7.15, 1.7.16, 1.8.1, 1.8.2, 1.8.6, 1.8.7, 1.8.10, 1.8.11
 ```

@@ -176,10 +176,10 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
 
 1. Create a Minikube Cluster:
     ```console
-    minikube start
+    minikube start --bootstrapper=kubeadm
     ```
 
-    Note: Service Catalog may not work with Kubernetes versions less than 1.9.x. If you are using a version of Minikube older than 0.26.1, you will need to upgrade to 0.26 to ensure the cluster is compatible with Service Catalog and OSBA. Minikube 0.26.1 will install a Kubernetes 1.10 cluster for you by default.
+    Note: Service Catalog may not work with Kubernetes versions less than 1.9.0. If you are using a version of Minikube older than 0.25, you will need to upgrade to at least 0.25 to ensure the cluster is compatible with Service Catalog and OSBA.
 
 ### Configure the cluster with Open Service Broker for Azure
 
