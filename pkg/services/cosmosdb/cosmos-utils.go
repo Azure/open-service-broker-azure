@@ -15,7 +15,8 @@ import (
 )
 
 // This method implements the CosmosDB API authentication token generation
-// scheme.
+// scheme. For reference, please see the CosmosDB REST API at:
+// https://aka.ms/Fyra7j
 func generateAuthToken(verb, resource, id, date, key string) (string, error) {
 	var resourceID string
 	if id != "" {
@@ -47,25 +48,32 @@ func generateAuthToken(verb, resource, id, date, key string) (string, error) {
 func createRequest(
 	accountName string,
 	method string,
-	resourceType string,
 	resourceID string,
 	key string,
 	body interface{},
 ) (*http.Request, error) {
+	resourceType := "dbs" // If we support other types, parameterize this
 	path := fmt.Sprintf("%s/%s", resourceType, resourceID)
 	url := fmt.Sprintf("https://%s.documents.azure.com/%s", accountName, path)
 	var buf *bytes.Buffer
 	var err error
 	var req *http.Request
 	if body != nil {
-		b, err := json.Marshal(body)
+		var b []byte
+		b, err = json.Marshal(body)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf(
+				"error building comsosdb request body: %s",
+				err,
+			)
 		}
 		buf = bytes.NewBuffer(b)
 		req, err = http.NewRequest(method, url, buf)
 	} else {
 		req, err = http.NewRequest(method, url, nil)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("error building comsosdb request: %s", err)
 	}
 
 	dateStr := time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
@@ -95,21 +103,38 @@ func createDatabase(
 	request := &databaseCreationRequest{
 		ID: id,
 	}
-	req, err := createRequest(accountName, "POST", "dbs", "", key, request)
+	databaseName := ""
+	req, err := createRequest(
+		accountName,
+		"POST",
+		databaseName,
+		key,
+		request,
+	)
 	if err != nil {
 		return err
 	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"error making create comsosdb database request: %s",
+			err,
+		)
 	}
-	if resp.StatusCode != 201 {
+	if resp.StatusCode != 201 { // CosmosDB returns a 201 on success
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-
+			return fmt.Errorf(
+				"error creating database %d : unable to get body",
+				resp.StatusCode,
+			)
 		}
-		return fmt.Errorf("error creating database %d : %s", resp.StatusCode, string(body))
+		return fmt.Errorf(
+			"error creating database %d : %s",
+			resp.StatusCode,
+			string(body),
+		)
 	}
 	return nil
 }
@@ -119,21 +144,37 @@ func deleteDatabase(
 	databaseName string,
 	key string,
 ) error {
-	req, err := createRequest(databaseAccount, "DELETE", "dbs", databaseName, key, nil)
+	req, err := createRequest(
+		databaseAccount,
+		"DELETE",
+		databaseName,
+		key,
+		nil, //No Body here
+	)
 	if err != nil {
 		return err
 	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf(
+			"error making delete comsosdb database request: %s",
+			err,
+		)
 	}
-	if resp.StatusCode != 204 {
+	if resp.StatusCode != 204 { // CosmosDB returns a 204 on success
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-
+			return fmt.Errorf(
+				"error deleting database %d : unable to get body",
+				resp.StatusCode,
+			)
 		}
-		return fmt.Errorf("error deleting database %d : %s", resp.StatusCode, string(body))
+		return fmt.Errorf(
+			"error deleting database %d : %s",
+			resp.StatusCode,
+			string(body),
+		)
 	}
 	return nil
 }

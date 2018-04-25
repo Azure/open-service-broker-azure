@@ -46,7 +46,10 @@ func (s *sqlAllInOneManager) deployARMTemplate(
 		return nil, nil, err
 	}
 
-	p, err := s.cosmosAccountManager.buildGoTemplateParams(instance, "GlobalDocumentDB")
+	p, err := s.cosmosAccountManager.buildGoTemplateParams(
+		instance,
+		"GlobalDocumentDB",
+	)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -73,7 +76,7 @@ func (s *sqlAllInOneManager) deployARMTemplate(
 }
 
 func (s *sqlAllInOneManager) createDatabase(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt := &sqlAllInOneInstanceDetails{}

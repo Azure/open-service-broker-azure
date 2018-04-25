@@ -34,6 +34,9 @@ func (g *graphAccountManager) deployARMTemplate(
 	}
 
 	p, err := g.buildGoTemplateParams(instance, "GlobalDocumentDB")
+	if err != nil {
+		return nil, nil, fmt.Errorf("error building arm params: %s", err)
+	}
 	p["capability"] = "EnableGremlin"
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)

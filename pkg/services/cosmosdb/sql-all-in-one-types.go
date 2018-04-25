@@ -26,7 +26,7 @@ type sqlAPICredentials struct {
 	PrimaryConnectionString string `json:"primaryConnectionString,omitempty"`
 	PrimaryKey              string `json:"primaryKey,omitempty"`
 	DatabaseName            string `json:"databaseName"`
-	DatabaseID              string `json:"documentdb_database_id"` //The Azure Spring Library looks for these
+	DatabaseID              string `json:"documentdb_database_id"`
 	Host                    string `json:"documentdb_host_endpoint"`
 	MasterKey               string `json:"documentdb_master_key"`
 }

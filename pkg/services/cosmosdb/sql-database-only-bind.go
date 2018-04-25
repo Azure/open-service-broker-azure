@@ -17,7 +17,10 @@ func (s *sqlDatabaseManager) GetCredentials(
 		return nil, err
 	}
 	psdt := cosmosdbSecureInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Parent.SecureDetails, &psdt); err != nil {
+	if err := service.GetStructFromMap(
+		instance.Parent.SecureDetails,
+		&psdt,
+	); err != nil {
 		return nil, err
 	}
 	return sqlAPICredentials{

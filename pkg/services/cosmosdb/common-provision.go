@@ -309,7 +309,9 @@ func (c *cosmosAccountManager) handleOutput(
 	var ok bool
 	fqdn, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return "", nil, fmt.Errorf("error retrieving fully qualified domain name from deployment")
+		return "", nil, fmt.Errorf(
+			"error retrieving fully qualified domain name from deployment",
+		)
 	}
 
 	primaryKey, ok := outputs["primaryKey"].(string)

@@ -29,7 +29,7 @@ func (s *sqlDatabaseManager) preProvision(
 }
 
 func (s *sqlDatabaseManager) createDatabase(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt := &sqlDatabaseOnlyInstanceDetails{}
