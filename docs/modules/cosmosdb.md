@@ -57,7 +57,7 @@ Does nothing.
   
 ##### Deprovision
 
-Deletes the CosmosDB database.
+Deletes the CosmosDB database account.
 
 ### Service: azure-cosmosdb-mongo-account
 
@@ -114,7 +114,7 @@ Does nothing.
 
 ##### Deprovision
 
-Deletes the CosmosDB database.
+Deletes the CosmosDB database account.
 
 ### Service: azure-cosmosdb-graph-account
 
@@ -169,7 +169,7 @@ Does nothing.
   
 ##### Deprovision
 
-Deletes the CosmosDB database.
+Deletes the CosmosDB database account.
 
 ### Service: azure-cosmosdb-table-account
 
@@ -223,4 +223,4 @@ Does nothing.
   
 ##### Deprovision
 
-Deletes the CosmosDB database.
+Deletes the CosmosDB database account.
