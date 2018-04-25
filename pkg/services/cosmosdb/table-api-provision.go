@@ -32,14 +32,17 @@ func (t *tableAccountManager) deployARMTemplate(
 		return nil, nil, err
 	}
 
-	p := t.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
+	p, err := t.buildGoTemplateParams(instance, "GlobalDocumentDB")
+	if err != nil {
+		return nil, nil, err
+	}
 	p["capability"] = "EnableTable"
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)
 	}
 	instance.Tags["defaultExperience"] = "Table"
 
-	dt, sdt, err := t.cosmosAccountManager.deployARMTemplate(
+	fqdn, sdt, err := t.cosmosAccountManager.deployARMTemplate(
 		ctx,
 		instance,
 		p,
@@ -49,6 +52,7 @@ func (t *tableAccountManager) deployARMTemplate(
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
+	dt.FullyQualifiedDomainName = fqdn
 	sdt.ConnectionString = fmt.Sprintf(
 		"DefaultEndpointsProtocol=https;AccountName=%s;"+
 			"AccountKey=%s;TableEndpoint=%s",

@@ -34,13 +34,17 @@ func (m *mongoAccountManager) deployARMTemplate(
 		return nil, nil, err
 	}
 
-	p := m.buildGoTemplateParams(pp, dt, "MongoDB")
-	dt, sdt, err := m.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
+	p, err := m.buildGoTemplateParams(instance, "MongoDB")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	fqdn, sdt, err := m.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-
+	dt.FullyQualifiedDomainName = fqdn
 	// Allow to remove the https:// and the port 443 on the FQDN
 	// This will allow to adapt the FQDN for Azure Public / Azure Gov ...
 	// Before :

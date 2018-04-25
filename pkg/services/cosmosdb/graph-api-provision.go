@@ -33,24 +33,21 @@ func (g *graphAccountManager) deployARMTemplate(
 		return nil, nil, err
 	}
 
-	p := g.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
+	p, err := g.buildGoTemplateParams(instance, "GlobalDocumentDB")
 	p["capability"] = "EnableGremlin"
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)
 	}
 	instance.Tags["defaultExperience"] = "Graph"
-
-	dt, sdt, err := g.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
-
+	fqdn, sdt, err := g.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-
+	dt.FullyQualifiedDomainName = fqdn
 	sdt.ConnectionString = fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
 		dt.FullyQualifiedDomainName,
 		sdt.PrimaryKey,
 	)
-
 	dtMap, err := service.GetMapFromStruct(dt)
 	if err != nil {
 		return nil, nil, err

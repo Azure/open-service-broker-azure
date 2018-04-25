@@ -32,18 +32,21 @@ func (s *sqlAccountManager) deployARMTemplate(
 		return nil, nil, err
 	}
 
-	p := s.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
+	p, err := s.buildGoTemplateParams(instance, "GlobalDocumentDB")
+	if err != nil {
+		return nil, nil, err
+	}
 	if instance.Tags == nil {
 		instance.Tags = make(map[string]string)
 	}
 	instance.Tags["defaultExperience"] = "DocumentDB"
 
-	dt, sdt, err := s.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
+	fqdn, sdt, err := s.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-
+	dt.FullyQualifiedDomainName = fqdn
 	sdt.ConnectionString = fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
 		dt.FullyQualifiedDomainName,
 		sdt.PrimaryKey,
