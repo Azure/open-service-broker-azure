@@ -179,6 +179,8 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
     minikube start --bootstrapper=kubeadm
     ```
 
+    Note: Service Catalog may not work with Kubernetes versions less than 1.9.0. If you are using a version of Minikube older than 0.25, you will need to upgrade to at least 0.25 to ensure the cluster is compatible with Service Catalog and OSBA.
+
 ### Configure the cluster with Open Service Broker for Azure
 
 1. Before we can use Helm to install applications such as Service Catalog and
