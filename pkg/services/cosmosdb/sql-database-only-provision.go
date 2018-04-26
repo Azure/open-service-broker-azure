@@ -19,7 +19,7 @@ func (s *sqlDatabaseManager) GetProvisioner(
 
 func (s *sqlDatabaseManager) preProvision(
 	_ context.Context,
-	instance service.Instance,
+	_ service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	dt := sqlDatabaseOnlyInstanceDetails{
 		DatabaseName: uuid.NewV4().String(),
