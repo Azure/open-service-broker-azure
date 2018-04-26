@@ -222,7 +222,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
       --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
       --set azure.tenantId=$AZURE_TENANT_ID \
       --set azure.clientId=$AZURE_CLIENT_ID \
-      --set azure.clientSecret=$AZURE_CLIENT_SECRET 
+      --set azure.clientSecret=$AZURE_CLIENT_SECRET \
       --set modules.minStability=PREVIEW
     ```
 
@@ -233,7 +233,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
       --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
       --set azure.tenantId=$env:AZURE_TENANT_ID `
       --set azure.clientId=$env:AZURE_CLIENT_ID `
-      --set azure.clientSecret=$env:AZURE_CLIENT_SECRET
+      --set azure.clientSecret=$env:AZURE_CLIENT_SECRET `
       --set modules.minStability=PREVIEW
     ```
 
