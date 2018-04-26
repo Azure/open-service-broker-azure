@@ -132,6 +132,15 @@ func buildGoTemplateParameters(
 	if schema.isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
+
+	p["serverName"] = dt.ServerName
+	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
+	if dt.EnforceSSL {
+		p["sslEnforcement"] = enabledARMString
+	} else {
+		p["sslEnforcement"] = disabledARMString
+	}
+
 	p["version"] = instance.Service.GetProperties().Extended["version"]
 
 	// Only include these if they are not empty.

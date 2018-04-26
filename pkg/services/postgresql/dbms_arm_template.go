@@ -9,36 +9,24 @@ var dbmsARMTemplateBytes = []byte(`
 		"location": {
 			"type": "string"
 		},
-		"administratorLoginPassword": {
-			"type": "securestring"
-		},
-		"serverName": {
-			"type": "string",
-			"minLength": 2,
-			"maxLength": 63
-		},
-		"sslEnforcement": {
-			"type": "string",
-			"allowedValues": [ "Enabled", "Disabled" ],
-			"defaultValue": "Enabled"
-		},
 		"tags": {
 			"type": "object"
 		}
 	},
 	"variables": {
-		"DBforPostgreSQLapiVersion": "2017-12-01"
+		"DBforPostgreSQLapiVersion": "2017-12-01",
+		"ServerName" : "{{ .serverName }}"
 	},
 	"resources": [
 		{
 			"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
 			"kind": "",
 			"location": "[parameters('location')]",
-			"name": "[parameters('serverName')]",
+			"name": "[variables('ServerName')]",
 			"properties": {
 				"version": "{{.version}}",
 				"administratorLogin": "postgres",
-				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
 				"storageProfile" : {
 					"storageMB": {{.storage}},
 					{{ if .geoRedundantBackup }}
@@ -46,7 +34,7 @@ var dbmsARMTemplateBytes = []byte(`
 					{{ end }}
 					"backupRetentionDays": {{.backupRetention}}
 				},
-				"sslEnforcement": "[parameters('sslEnforcement')]"
+				"sslEnforcement": "{{ .sslEnforcement }}"
 			},
 			"sku": {
 				"name": "{{.sku}}",
@@ -64,7 +52,7 @@ var dbmsARMTemplateBytes = []byte(`
 					"type": "firewallrules",
 					"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
 					"dependsOn": [
-						"[concat('Microsoft.DBforPostgreSQL/servers/', parameters('serverName'))]"
+						"[concat('Microsoft.DBforPostgreSQL/servers/', variables('ServerName'))]"
 					],
 					"location": "[parameters('location')]",
 					"name": "{{$rule.Name}}",
@@ -80,7 +68,7 @@ var dbmsARMTemplateBytes = []byte(`
 	"outputs": {
 		"fullyQualifiedDomainName": {
 			"type": "string",
-			"value": "[reference(parameters('serverName')).fullyQualifiedDomainName]"
+			"value": "[reference(variables('ServerName')).fullyQualifiedDomainName]"
 		}
 	}
 }

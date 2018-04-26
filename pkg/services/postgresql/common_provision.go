@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	enabled          = "enabled"
-	disabled         = "disabled"
-	enabledARMString = "Enabled"
+	enabled           = "enabled"
+	disabled          = "disabled"
+	enabledARMString  = "Enabled"
+	disabledARMString = "Disabled"
 )
 
 func getAvailableServerName(
@@ -270,7 +271,17 @@ func buildGoTemplateParameters(
 	if schema.isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
+
 	p["version"] = instance.Service.GetProperties().Extended["version"]
+
+	p["serverName"] = dt.ServerName
+	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
+	if dt.EnforceSSL {
+		p["sslEnforcement"] = enabledARMString
+	} else {
+		p["sslEnforcement"] = disabledARMString
+	}
+
 	// Only include these if they are not empty.
 	// ARM Deployer will fail if the values included are not
 	// valid IPV4 addresses (i.e. empty string wil fail)

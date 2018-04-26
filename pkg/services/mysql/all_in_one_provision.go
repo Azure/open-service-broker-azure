@@ -85,25 +85,6 @@ func (a *allInOneManager) preProvision(
 	return dtMap, sdtMap, err
 }
 
-func (a *allInOneManager) buildARMTemplateParameters(
-	details allInOneInstanceDetails,
-	secureDetails secureAllInOneInstanceDetails,
-) map[string]interface{} {
-	var sslEnforcement string
-	if details.EnforceSSL {
-		sslEnforcement = enabledARMString
-	} else {
-		sslEnforcement = disabledARMString
-	}
-	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
-		"serverName":                 details.ServerName,
-		"databaseName":               details.DatabaseName,
-		"sslEnforcement":             sslEnforcement,
-	}
-	return p
-}
-
 func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
@@ -127,10 +108,6 @@ func (a *allInOneManager) deployARMTemplate(
 		); err != nil {
 		return nil, nil, err
 	}
-	armTemplateParameters := a.buildARMTemplateParameters(
-		dt,
-		sdt,
-	)
 	goTemplateParameters, err := buildGoTemplateParameters(instance)
 	if err != nil {
 		return nil, nil, fmt.Errorf(
@@ -145,7 +122,7 @@ func (a *allInOneManager) deployARMTemplate(
 		instance.Location,
 		allInOneARMTemplateBytes,
 		goTemplateParameters,
-		armTemplateParameters,
+		map[string]interface{}{},
 		instance.Tags,
 	)
 	if err != nil {

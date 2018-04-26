@@ -169,50 +169,38 @@ func NewService(
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
-	paramSchemas := &planSchemas{}
+
+	serviceParamSchemas := &planSchemas{}
 	if serviceProperties.ProvisionParamsSchema != nil ||
 		serviceProperties.UpdateParamsSchema != nil ||
 		serviceProperties.BindingParamsSchema != nil {
 
-		paramSchemas.addParameterSchemas(
+		serviceParamSchemas.addParameterSchemas(
 			serviceProperties.ProvisionParamsSchema,
 			serviceProperties.UpdateParamsSchema,
 			serviceProperties.BindingParamsSchema,
 		)
 	}
-	if serviceProperties.ParentServiceID == "" {
-		paramSchemas.addParameterSchemas(
-			getCommonProvisionParameters(),
-			nil,
-			nil,
-		)
-		if serviceProperties.ChildServiceID != "" {
-			paramSchemas.addParameterSchemas(
-				getParentServiceParameters(),
-				nil,
-				nil,
-			)
-		}
-	} else {
-		paramSchemas.addParameterSchemas(
-			getChildServiceParameters(),
-			nil,
-			nil,
-		)
-	}
+	serviceParamSchemas.addCommonSchema(serviceProperties)
+
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		// Now handle any plan specific parameters.
+
+		// If the plan has it's own schema, ignore the service schema
 		if p.PlanProperties.ProvisionParamsSchema != nil ||
 			p.PlanProperties.UpdateParamsSchema != nil ||
 			p.PlanProperties.BindingParamsSchema != nil {
-			paramSchemas.addParameterSchemas(
+			pSchemas := &planSchemas{}
+			pSchemas.addParameterSchemas(
 				p.PlanProperties.ProvisionParamsSchema,
 				p.PlanProperties.UpdateParamsSchema,
 				p.PlanProperties.BindingParamsSchema,
 			)
+			pSchemas.addCommonSchema(serviceProperties)
+			p.ParameterSchemas = pSchemas
+		} else {
+			p.ParameterSchemas = serviceParamSchemas
 		}
-		p.ParameterSchemas = paramSchemas
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s

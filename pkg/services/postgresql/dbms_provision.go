@@ -73,24 +73,6 @@ func (d *dbmsManager) preProvision(
 	return dtMap, sdtMap, err
 }
 
-func (d *dbmsManager) buildARMTemplateParameters(
-	details dbmsInstanceDetails,
-	secureDetails secureDBMSInstanceDetails,
-) map[string]interface{} {
-	var sslEnforcement string
-	if details.EnforceSSL {
-		sslEnforcement = "Enabled"
-	} else {
-		sslEnforcement = "Disabled"
-	}
-	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
-		"serverName":                 details.ServerName,
-		"sslEnforcement":             sslEnforcement,
-	}
-	return p
-}
-
 func (d *dbmsManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
@@ -108,10 +90,6 @@ func (d *dbmsManager) deployARMTemplate(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	armTemplateParameters := d.buildARMTemplateParameters(
-		dt,
-		sdt,
-	)
 	goTemplateParameters, err := buildGoTemplateParameters(instance)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to build go template parameters: %s", err)
@@ -122,7 +100,7 @@ func (d *dbmsManager) deployARMTemplate(
 		instance.Location,
 		dbmsARMTemplateBytes,
 		goTemplateParameters,
-		armTemplateParameters,
+		map[string]interface{}{},
 		instance.Tags,
 	)
 	if err != nil {

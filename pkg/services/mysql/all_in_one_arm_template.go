@@ -9,41 +9,24 @@ var allInOneARMTemplateBytes = []byte(`
 		"location": {
 			"type": "string"
 		},
-		"administratorLoginPassword": {
-			"type": "securestring"
-		},
-		"serverName": {
-			"type": "string",
-			"minLength": 2,
-			"maxLength": 63
-		},
-		"databaseName": {
-			"type": "string",
-			"minLength": 2,
-			"maxLength": 63
-		},
-		"sslEnforcement": {
-			"type": "string",
-			"allowedValues": [ "Enabled", "Disabled" ],
-			"defaultValue": "Enabled"
-		},
 		"tags": {
 			"type": "object"
 		}
 	},
 	"variables": {
-		"DBforMySQLapiVersion": "2017-12-01"
+		"DBforMySQLapiVersion": "2017-12-01",
+		"ServerName" : "{{ .serverName }}"
 	},
 	"resources": [
 		{
 			"apiVersion": "[variables('DBforMySQLapiVersion')]",
 			"kind": "",
 			"location": "[parameters('location')]",
-			"name": "[parameters('serverName')]",
+			"name": "[variables('ServerName')]",
 			"properties": {
 				"version": "{{.version}}",
 				"administratorLogin": "azureuser",
-				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
 				"storageProfile" : {
 					"storageMB": {{.storage}},
 					{{ if .geoRedundantBackup }}
@@ -51,7 +34,7 @@ var allInOneARMTemplateBytes = []byte(`
 					{{ end }}
 					"backupRetentionDays": {{.backupRetention}}
 				},
-				"sslEnforcement": "[parameters('sslEnforcement')]"
+				"sslEnforcement": "{{ .sslEnforcement }}"
 			},
 			"sku": {
 				"name": "{{.sku}}",
@@ -68,7 +51,7 @@ var allInOneARMTemplateBytes = []byte(`
 					"type": "firewallrules",
 					"apiVersion": "[variables('DBforMySQLapiVersion')]",
 					"dependsOn": [
-						"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'))]"
+						"[concat('Microsoft.DBforMySQL/servers/', variables('ServerName'))]"
 					],
 					"location": "[parameters('location')]",
 					"name": "{{.Name}}",
@@ -80,14 +63,14 @@ var allInOneARMTemplateBytes = []byte(`
 				{{end}}
 				{
 					"apiVersion": "[variables('DBforMySQLapiVersion')]",
-					"name": "[parameters('databaseName')]",
+					"name": "{{ .databaseName }}",
 					"type": "databases",
 					"location": "[parameters('location')]",
 					"dependsOn": [
 						{{range .firewallRules}}
-						"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'), '/firewallrules/', '{{.Name}}')]",
+						"[concat('Microsoft.DBforMySQL/servers/', variables('ServerName'), '/firewallrules/', '{{.Name}}')]",
 						{{end}}
-							"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'))]"
+							"[concat('Microsoft.DBforMySQL/servers/', variables('ServerName'))]"
 					],
 					"properties": {}
 				}
@@ -97,7 +80,7 @@ var allInOneARMTemplateBytes = []byte(`
 	"outputs": {
 		"fullyQualifiedDomainName": {
 			"type": "string",
-			"value": "[reference(parameters('serverName')).fullyQualifiedDomainName]"
+			"value": "[reference(variables('ServerName')).fullyQualifiedDomainName]"
 		}
 	}
 }

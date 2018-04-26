@@ -286,3 +286,26 @@ func getParentServiceParameters() map[string]ParameterSchema {
 	}
 	return p
 }
+
+func (ps *planSchemas) addCommonSchema(sp *ServiceProperties) {
+	if sp.ParentServiceID == "" {
+		ps.addParameterSchemas(
+			getCommonProvisionParameters(),
+			nil,
+			nil,
+		)
+		if sp.ChildServiceID != "" {
+			ps.addParameterSchemas(
+				getParentServiceParameters(),
+				nil,
+				nil,
+			)
+		}
+	} else {
+		ps.addParameterSchemas(
+			getChildServiceParameters(),
+			nil,
+			nil,
+		)
+	}
+}
