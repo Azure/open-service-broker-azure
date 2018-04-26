@@ -175,7 +175,7 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 		return nil, err
 	}
 
-	dt := &sqlAllInOneInstanceDetails{}
+	dt := &cosmosdbInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, err
 	}

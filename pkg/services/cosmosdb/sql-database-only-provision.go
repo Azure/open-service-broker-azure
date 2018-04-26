@@ -21,7 +21,7 @@ func (s *sqlDatabaseManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := sqlAllInOneInstanceDetails{
+	dt := sqlDatabaseOnlyInstanceDetails{
 		DatabaseName: uuid.NewV4().String(),
 	}
 	dtMap, err := service.GetMapFromStruct(dt)

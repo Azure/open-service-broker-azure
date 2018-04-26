@@ -17,7 +17,8 @@ import (
 // This method implements the CosmosDB API authentication token generation
 // scheme. For reference, please see the CosmosDB REST API at:
 // https://aka.ms/Fyra7j
-func generateAuthToken(verb, resource, id, date, key string) (string, error) {
+func generateAuthToken(verb, id, date, key string) (string, error) {
+	resource := "dbs"
 	var resourceID string
 	if id != "" {
 		resourceID = fmt.Sprintf("%s/%s", strings.ToLower(resource), id)
@@ -79,7 +80,6 @@ func createRequest(
 	dateStr := time.Now().UTC().Format("Mon, 02 Jan 2006 15:04:05 GMT")
 	authHeader, err := generateAuthToken(
 		method,
-		resourceType,
 		resourceID,
 		dateStr,
 		key,
