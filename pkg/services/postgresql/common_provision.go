@@ -20,27 +20,28 @@ const (
 )
 
 func getAvailableServerName(
-	ctx context.Context,
-	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient,
+	_ context.Context,
+	_ postgresSDK.CheckNameAvailabilityClient,
 ) (string, error) {
-	for {
-		serverName := uuid.NewV4().String()
-		nameAvailability, err := checkNameAvailabilityClient.Execute(
-			ctx,
-			postgresSDK.NameAvailabilityRequest{
-				Name: &serverName,
-			},
-		)
-		if err != nil {
-			return "", fmt.Errorf(
-				"error determining server name availability: %s",
-				err,
-			)
-		}
-		if *nameAvailability.NameAvailable {
-			return serverName, nil
-		}
-	}
+	return uuid.NewV4().String(), nil
+	// for {
+	// 	serverName := uuid.NewV4().String()
+	// 	nameAvailability, err := checkNameAvailabilityClient.Execute(
+	// 		ctx,
+	// 		postgresSDK.NameAvailabilityRequest{
+	// 			Name: &serverName,
+	// 		},
+	// 	)
+	// 	if err != nil {
+	// 		return "", fmt.Errorf(
+	// 			"error determining server name availability: %s",
+	// 			err,
+	// 		)
+	// 	}
+	// 	if *nameAvailability.NameAvailable {
+	// 		return serverName, nil
+	// 	}
+	// }
 }
 
 func validateDBMSProvisionParameters(pp dbmsProvisioningParameters) error {

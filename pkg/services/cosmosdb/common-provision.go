@@ -12,6 +12,16 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+var (
+	validValues = map[string]struct{}{
+		"eventual":         {},
+		"session":          {},
+		"boundedstaleness": {},
+		"strong":           {},
+		"consistentprefix": {},
+	}
+)
+
 func generateAccountName(location string) string {
 	databaseAccountName := uuid.NewV4().String()
 	// CosmosDB currently limits database account names to 50 characters,
@@ -83,7 +93,63 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 			}
 		}
 	}
+	if pp.ConsistencyPolicy != nil {
+		cp := strings.ToLower(pp.ConsistencyPolicy.DefaultConsistency)
+		if _, valid := validValues[cp]; !valid {
+			return service.NewValidationError(
+				"consistencyPolicy",
+				fmt.Sprintf(`invalid default consistency level: "%s"`, cp),
+			)
+		}
+		if cp == "boundedstaleness" {
+			if pp.ConsistencyPolicy.BoundedStaleness == nil {
+			} else {
+				if pp.ConsistencyPolicy.BoundedStaleness.MaxInternal == nil {
+					return service.NewValidationError(
+						"consistencyPolicy",
+						"maxIntervalInSeconds must be provided when "+
+							"defaultConsistencyPolicy is set to "+
+							"'BoundedStaleness'.",
+					)
+				}
+				if pp.ConsistencyPolicy.BoundedStaleness.MaxStaleness == nil {
+					return service.NewValidationError(
+						"consistencyPolicy",
+						"maxStalenessPrefix must be provided when "+
+							"defaultConsistencyPolicy is set to "+
+							"'BoundedStaleness'.",
+					)
+				}
+
+				maxIntervalParam :=
+					*pp.ConsistencyPolicy.BoundedStaleness.MaxInternal
+				if maxIntervalParam < 5 || maxIntervalParam > 86400 {
+					return service.NewValidationError(
+						"consistencyPolicy",
+						fmt.Sprintf(
+							`invalid maxIntervalInSeconds: "%d"`,
+							maxIntervalParam,
+						),
+					)
+				}
+
+				maxStalenessParam :=
+					*pp.ConsistencyPolicy.BoundedStaleness.MaxStaleness
+				if maxStalenessParam < 1 || maxStalenessParam > 2147483647 {
+					return service.NewValidationError(
+						"consistencyPolicy",
+						fmt.Sprintf(
+							`invalid maxStalenessPrefix: "%d"`,
+							maxStalenessParam,
+						),
+					)
+				}
+
+			}
+		}
+	}
 	return nil
+
 }
 
 func (c *cosmosAccountManager) preProvision(
@@ -146,6 +212,34 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	}
 	if len(filters) > 0 {
 		p["ipFilters"] = strings.Join(filters, ",")
+	}
+
+	if pp.ConsistencyPolicy != nil {
+		consistencyPolicy := make(map[string]interface{})
+		cp := strings.ToLower(pp.ConsistencyPolicy.DefaultConsistency)
+		switch cp {
+		case "eventual":
+			consistencyPolicy["defaultConsistencyLevel"] = "Eventual"
+		case "session":
+			consistencyPolicy["defaultConsistencyLevel"] = "Session"
+		case "boundedstaleness":
+			consistencyPolicy["defaultConsistencyLevel"] = "BoundedStaleness"
+		case "strong":
+			consistencyPolicy["defaultConsistencyLevel"] = "Strong"
+		case "consistentprefix":
+			consistencyPolicy["defaultConsistencyLevel"] = "ConsistentPrefix"
+		}
+
+		if consistencyPolicy["defaultConsistencyLevel"] == "BoundedStaleness" {
+			boundedStalenessSettings := make(map[string]interface{})
+			boundedStalenessSettings["maxIntervalInSeconds"] =
+				*pp.ConsistencyPolicy.BoundedStaleness.MaxInternal
+
+			boundedStalenessSettings["maxStalenessPrefix"] =
+				*pp.ConsistencyPolicy.BoundedStaleness.MaxStaleness
+		}
+		p["consistencyPolicy"] = consistencyPolicy
+
 	}
 	return p
 }

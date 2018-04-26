@@ -2,6 +2,7 @@
 
 _Note: This module is EXPERIMENTAL and future releases may break the API._
 
+
 ## Services & Plans
 
 ### Service: azure-cosmosdb-sql-account
@@ -27,6 +28,11 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account.Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `consistencyPolicy` | `object` | The consistency policy for the Cosmos DB account. | N | |
+| `consistencyPolicy.defaultConsistencyLevel` | `string` | The default consistency level and configuration settings of the Cosmos DB account. - Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix | Y | |
+| `consistencyPolicy.boundedStaleness` | `object` | Specifies the settings when using BoundedStaleness consistency. | Y - When Using `BoundedStaleness` | |
+| `consistencyPolicy.maxStalenessPrefix` | `integer` | When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range for this value is 1 – 2,147,483,647. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | Y | |
+| `consistencyPolicy.maxIntervalInSeconds` | `integer` | When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated. Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | Y | |
 
 ##### Bind
 
@@ -52,7 +58,7 @@ Does nothing.
   
 ##### Deprovision
 
-Deletes the CosmosDB database.
+Deletes the CosmosDB database account.
 
 ### Service: azure-cosmosdb-mongo-account
 
@@ -77,6 +83,10 @@ Provisions a new CosmosDB database account that can be accessed through the Mong
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account.Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `consistencyPolicy` | `object` | The consistency policy for the Cosmos DB account. | N | |
+| `consistencyPolicy.defaultConsistencyLevel` | `string` | The default consistency level and configuration settings of the Cosmos DB account. - Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix | Y | |
+| `consistencyPolicy.maxStalenessPrefix` | `integer` | When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range for this value is 1 – 2,147,483,647. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
+| `consistencyPolicy.maxIntervalInSeconds` | `integer` | When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated. Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
 
 ##### Bind
 
@@ -97,6 +107,7 @@ Binding returns the following connection details and shared credentials:
 | `username` | `string` | The name of the database user. |
 | `password` | `string` | The password for the database user. |
 | `connectionstring` | `string` | The full connection string, which includes the host, port, username, and password. |
+| `uri` | `string` | URI encoded string that represents the connection information |
 
 ##### Unbind
 
@@ -104,7 +115,7 @@ Does nothing.
 
 ##### Deprovision
 
-Deletes the CosmosDB database.
+Deletes the CosmosDB database account.
 
 ### Service: azure-cosmosdb-graph-account
 
@@ -129,6 +140,11 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account.Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `consistencyPolicy` | `object` | The consistency policy for the Cosmos DB account. | N | |
+| `consistencyPolicy.defaultConsistencyLevel` | `string` | The default consistency level and configuration settings of the Cosmos DB account. - Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix | Y | |
+| `consistencyPolicy.boundedStaleness` | object | Settings for to determine staleness when used with `BoundedStaleness` consistency | Yes - If using `BoundedStaleness` consistency | | 
+| `consistencyPolicy.boundedStaleness.maxStalenessPrefix` | `integer` | When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range for this value is 1 – 2,147,483,647. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
+| `consistencyPolicy.boundedStaleness.maxIntervalInSeconds` | `integer` | When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated. Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
 
 ##### Bind
 
@@ -154,7 +170,7 @@ Does nothing.
   
 ##### Deprovision
 
-Deletes the CosmosDB database.
+Deletes the CosmosDB database account.
 
 ### Service: azure-cosmosdb-table-account
 
@@ -179,6 +195,10 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account.Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `consistencyPolicy` | `object` | The consistency policy for the Cosmos DB account. | N | |
+| `consistencyPolicy.defaultConsistencyLevel` | `string` | The default consistency level and configuration settings of the Cosmos DB account. - Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix | Y | |
+| `consistencyPolicy.maxStalenessPrefix` | `integer` | When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range for this value is 1 – 2,147,483,647. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
+| `consistencyPolicy.maxIntervalInSeconds` | `integer` | When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated. Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
 
 ##### Bind
 
@@ -204,4 +224,4 @@ Does nothing.
   
 ##### Deprovision
 
-Deletes the CosmosDB database.
+Deletes the CosmosDB database account.
