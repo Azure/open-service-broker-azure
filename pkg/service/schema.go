@@ -100,6 +100,19 @@ func (a *ArrayParameterSchema) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// NumericParameterSchema represents a numeric type, either
+// integers or floating point numbers, that can have an upper or lower bound.
+type NumericParameterSchema struct {
+	Type             string      `json:"type"`
+	Description      string      `json:"description,omitempty"`
+	Required         bool        `json:"-"`
+	Default          interface{} `json:"default,omitempty"`
+	Minimum          interface{} `json:"minimum,omitempty"`
+	ExclusiveMinimum bool        `json:"exclusiveMinimum,omitempty"`
+	Maximum          interface{} `json:"maximum,omitempty"`
+	ExclusiveMaximum bool        `json:"exclusiveMaximum,omitempty"`
+}
+
 // ParameterSchema defines an interface representing a given Parameter schema.
 // This could be a provision or binding parameter.
 type ParameterSchema interface {
@@ -115,9 +128,12 @@ func (o *ObjectParameterSchema) isRequired() bool {
 	return o.Required
 }
 
-// IsRequired returns true if the property is required
 func (a *ArrayParameterSchema) isRequired() bool {
 	return a.Required
+}
+
+func (n *NumericParameterSchema) isRequired() bool {
+	return n.Required
 }
 
 func (o *ObjectParameterSchema) setRequiredProperties() {
@@ -134,6 +150,10 @@ func (a *ArrayParameterSchema) setRequiredProperties() {
 
 // NOOP method to implement the interface
 func (s *SimpleParameterSchema) setRequiredProperties() {
+}
+
+// NOOP method to implement the interface
+func (n *NumericParameterSchema) setRequiredProperties() {
 }
 
 func (p *parametersSchema) addProperties(

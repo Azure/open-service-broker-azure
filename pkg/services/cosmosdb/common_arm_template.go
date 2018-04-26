@@ -21,6 +21,17 @@ var armTemplateBytes = []byte(`
 			"name": "{{ .name }}",
 			"location": "[parameters('location')]",
 			"properties": {
+				{{ if .consistencyPolicy }}
+				"consistencyPolicy" : {
+					"defaultConsistencyLevel" : "{{ .consistencyPolicy.defaultConsistencyLevel }}"
+					{{ if .consistencyPolicy.boundedStaleness }}
+						,"maxStalenessPrefix": {{ .consistencyPolicy.boundedStaleness.maxStalenessPrefix }}
+					{{ end }}
+					{{ if .consistencyPolicy.maxIntervalInSeconds }}
+						,"maxIntervalInSeconds" : {{ .consistencyPolicy.boundedStaleness.maxIntervalInSeconds }}
+					{{ end }}
+				},
+				{{ end }}
 				"databaseAccountOfferType": "Standard",
 				{{ if .ipFilters }} 
 				"ipRangeFilter" : "{{ .ipFilters }}",
