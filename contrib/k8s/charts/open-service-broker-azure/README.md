@@ -56,9 +56,8 @@ $ export AZURE_CLIENT_SECRET=<password>
 
 ## Installing the Chart
 
-Installation of this chart is simple. First, ensure that you've [added the
-`azure` repository]. Then, install from the
-`azure` repo:
+Installation of this chart is simple. First, ensure that you've added the
+`azure` repository. Then, install from the `azure` repo:
 
 ```console
  helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
