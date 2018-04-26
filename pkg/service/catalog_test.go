@@ -39,6 +39,32 @@ func init() {
 				Description: description,
 				Free:        free,
 			}),
+			NewPlan(&PlanProperties{
+				ID:          "test-id2",
+				Name:        name,
+				Description: description,
+				Free:        free,
+				EndOfLife:   true,
+			}),
+		),
+		NewService(
+			&ServiceProperties{
+				Name:          name,
+				ID:            "test-id3",
+				Description:   description,
+				Tags:          []string{tag},
+				Bindable:      bindable,
+				PlanUpdatable: planUpdatable,
+				EndOfLife:     true,
+			},
+			nil,
+			NewPlan(&PlanProperties{
+				ID:          "test-id4",
+				Name:        name,
+				Description: description,
+				Free:        free,
+				EndOfLife:   true,
+			}),
 		),
 	})
 
