@@ -82,15 +82,19 @@ func generateDBMSPlanSchema(
 		AllowedValues: schema.validCores,
 		Default:       schema.defaultCores,
 	}
-	p["storage"] = &service.SimpleParameterSchema{
+	p["storage"] = &service.NumericParameterSchema{
 		Type:        "number",
 		Description: "Specifies the storage in GBs",
 		Default:     schema.defaultStorage,
+		Minimum:     schema.minStorage,
+		Maximum:     schema.maxStorage,
 	}
-	p["backupRetention"] = &service.SimpleParameterSchema{
+	p["backupRetention"] = &service.NumericParameterSchema{
 		Type:        "number",
 		Description: "Specifies the number of days for backup retention",
 		Default:     schema.minBackupRetention,
+		Minimum:     schema.minBackupRetention,
+		Maximum:     schema.maxBackupRetention,
 	}
 	p["backupRedundancy"] = &service.SimpleParameterSchema{
 		Type:          "string",
