@@ -100,26 +100,25 @@ func buildGoTemplateParameters(
 }
 
 func getAvailableServerName(
-	_ context.Context,
-	_ mysqlSDK.CheckNameAvailabilityClient,
+	ctx context.Context,
+	checkNameAvailabilityClient mysqlSDK.CheckNameAvailabilityClient,
 ) (string, error) {
-	return uuid.NewV4().String(), nil
-	// for {
-	// 	serverName := uuid.NewV4().String()
-	// 	nameAvailability, err := checkNameAvailabilityClient.Execute(
-	// 		ctx,
-	// 		mysqlSDK.NameAvailabilityRequest{
-	// 			Name: &serverName,
-	// 		},
-	// 	)
-	// 	if err != nil {
-	// 		return "", fmt.Errorf(
-	// 			"error determining server name availability: %s",
-	// 			err,
-	// 		)
-	// 	}
-	// 	if *nameAvailability.NameAvailable {
-	// 		return serverName, nil
-	// 	}
-	// }
+	for {
+		serverName := uuid.NewV4().String()
+		nameAvailability, err := checkNameAvailabilityClient.Execute(
+			ctx,
+			mysqlSDK.NameAvailabilityRequest{
+				Name: &serverName,
+			},
+		)
+		if err != nil {
+			return "", fmt.Errorf(
+				"error determining server name availability: %s",
+				err,
+			)
+		}
+		if *nameAvailability.NameAvailable {
+			return serverName, nil
+		}
+	}
 }
