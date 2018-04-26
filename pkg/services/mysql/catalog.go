@@ -4,6 +4,124 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
+func createBasicPlan(
+	planID string,
+) *service.PlanProperties {
+	provisionSchema := planSchema{
+		allowedHardware:         []string{"", "gen4", "gen5"},
+		defaultHardware:         "gen5",
+		validCores:              []int{1, 2},
+		defaultCores:            1,
+		maxStorage:              1024,
+		minStorage:              5,
+		defaultStorage:          10,
+		allowedBackupRedundancy: []string{"local"},
+		minBackupRetention:      7,
+		maxBackupRetention:      35,
+		defaultBackupRetention:  7,
+		tier: "B",
+	}
+	extendedPlanData := map[string]interface{}{
+		"provisionSchema": provisionSchema,
+		"tier":            "Basic",
+	}
+
+	return &service.PlanProperties{
+		ID:          planID,
+		Name:        "basic",
+		Description: "Basic Tier",
+		Free:        false,
+		Extended:    extendedPlanData,
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Basic Tier",
+			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
+		},
+		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+	}
+}
+
+func createGPPlan(
+	planID string,
+) *service.PlanProperties {
+
+	provisionSchema := planSchema{
+		allowedHardware:         []string{"", "gen4", "gen5"},
+		defaultHardware:         "gen5",
+		validCores:              []int{2, 4, 8, 16, 32},
+		defaultCores:            2,
+		maxStorage:              2048,
+		minStorage:              5,
+		defaultStorage:          10,
+		allowedBackupRedundancy: []string{"local", "geo"},
+		minBackupRetention:      7,
+		maxBackupRetention:      35,
+		defaultBackupRetention:  7,
+		tier: "GP",
+	}
+	extendedPlanData := map[string]interface{}{
+		"provisionSchema": provisionSchema,
+		"tier":            "GeneralPurpose",
+	}
+
+	return &service.PlanProperties{
+		ID:          planID,
+		Name:        "general-purpose",
+		Description: "General Purpose",
+		Free:        false,
+		Extended:    extendedPlanData,
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "General Purpose Tier",
+			Bullets: []string{
+				"Up to 32 vCores",
+				"Predictable I/O Performance",
+				"Local or Geo-Redundant Backups",
+			},
+		},
+		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+	}
+}
+
+func createMemoryOptimizedPlan(
+	planID string,
+) *service.PlanProperties {
+
+	provisionSchema := planSchema{
+		allowedHardware:         []string{"", "gen5"},
+		defaultHardware:         "gen5",
+		validCores:              []int{2, 4, 8, 16},
+		defaultCores:            2,
+		maxStorage:              2048,
+		minStorage:              5,
+		defaultStorage:          10,
+		allowedBackupRedundancy: []string{"local", "geo"},
+		minBackupRetention:      7,
+		maxBackupRetention:      35,
+		defaultBackupRetention:  7,
+		tier: "MO",
+	}
+	extendedPlanData := map[string]interface{}{
+		"provisionSchema": provisionSchema,
+		"tier":            "MemoryOptimized",
+	}
+
+	return &service.PlanProperties{
+		ID:          planID,
+		Name:        "memory-optimized",
+		Description: "Memory Optimized",
+		Free:        false,
+		Extended:    extendedPlanData,
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Memory Optimized Tier",
+			Bullets: []string{
+				"Up to 16 memory optimized vCores",
+				"Predictable I/O Performance",
+				"Local or Geo-Redundant Backups",
+			},
+		},
+		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+	}
+}
+
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
@@ -21,120 +139,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "MySQL", "DBMS", "Server", "Database"},
-				ProvisionParamsSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
 					"version": "5.7",
 				},
 			},
 			m.allInOneServiceManager,
-			service.NewPlan(&service.PlanProperties{
-				ID:          "427559f1-bf2a-45d3-8844-32374a3e58aa",
-				Name:        "basic50",
-				Description: "Basic Tier, 50 DTUs.",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLB50",
-					"skuTier":        "Basic",
-					"skuCapacityDTU": 50,
-					"skuSizeMB":      51200,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets:     []string{"50 DTUs"},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "1a538e06-9bcc-4077-8480-966cbf85bf36",
-				Name:        "basic100",
-				Description: "Basic Tier, 100 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLB100",
-					"skuTier":        "Basic",
-					"skuCapacityDTU": 100,
-					"skuSizeMB":      51200,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets:     []string{"100 DTUs"},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "edc2badc-d93b-4d9c-9d8e-da2f1c8c3e1c",
-				Name:        "standard100",
-				Description: "Standard Tier, 100 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLS100",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 100,
-					"skuSizeMB":      128000,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"100 DTUs",
-						"Additional Storage",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "9995c891-48ba-46cc-8dae-83595c1f443f",
-				Name:        "standard200",
-				Description: "Standard Tier, 200 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLS200",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 200,
-					"skuSizeMB":      128000,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"200 DTUs",
-						"Additional Storage",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "ae3cd3dd-9818-48c0-9cd0-62c3b130944e",
-				Name:        "standard400",
-				Description: "Standard Tier, 400 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLS400",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 400,
-					"skuSizeMB":      128000,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"400 DTUs",
-						"Additional Storage",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "08e4b43a-36bc-447e-a81f-8202b13e339c",
-				Name:        "standard800",
-				Description: "Standard Tier, 800 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLS800",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 800,
-					"skuSizeMB":      128000,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"800 DTUs",
-						"Additional Storage",
-					},
-				},
-			}),
+			service.NewPlan(createBasicPlan("1b093840-8e02-4e28-9aba-fa716757ec38")),
+			service.NewPlan(createGPPlan("eae202c3-521c-46d1-a047-872dacf781fd")),
+			service.NewPlan(createMemoryOptimizedPlan("129f06f6-cbf2-416e-a235-0fa6e081a07a")),
 		),
 		// dbms only service
 		service.NewService(
@@ -152,120 +164,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "MySQL", "DBMS", "Server", "Database"},
-				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
 					"version": "5.7",
 				},
 			},
 			m.dbmsManager,
-			service.NewPlan(&service.PlanProperties{
-				ID:          "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
-				Name:        "basic50",
-				Description: "Basic Tier, 50 DTUs.",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLB50",
-					"skuTier":        "Basic",
-					"skuCapacityDTU": 50,
-					"skuSizeMB":      51200,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets:     []string{"50 DTUs"},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "9f71584c-8e97-46a7-b170-20c4273a64f9",
-				Name:        "basic100",
-				Description: "Basic Tier, 100 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLB100",
-					"skuTier":        "Basic",
-					"skuCapacityDTU": 100,
-					"skuSizeMB":      51200,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets:     []string{"100 DTUs"},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "dac995d8-2618-4aa5-9f2b-0376914ed2f7",
-				Name:        "standard100",
-				Description: "Standard Tier, 100 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLS100",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 100,
-					"skuSizeMB":      128000,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"100 DTUs",
-						"Additional Storage",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "1c7cf479-7dba-4ed4-a855-9ab032c40466",
-				Name:        "standard200",
-				Description: "Standard Tier, 200 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLS200",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 200,
-					"skuSizeMB":      128000,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"200 DTUs",
-						"Additional Storage",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "d8565a53-1db0-4842-9e64-5a5df560b668",
-				Name:        "standard400",
-				Description: "Standard Tier, 400 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLS400",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 400,
-					"skuSizeMB":      128000,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"400 DTUs",
-						"Additional Storage",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "6765fa7b-6b0a-4560-960f-7425dac56d47",
-				Name:        "standard800",
-				Description: "Standard Tier, 800 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "MYSQLS800",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 800,
-					"skuSizeMB":      128000,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"800 DTUs",
-						"Additional Storage",
-					},
-				},
-			}),
+			service.NewPlan(createBasicPlan("20938530-cb42-48b2-93dc-ea0d3003a89f")),
+			service.NewPlan(createGPPlan("3a00b95f-6acf-4bf9-8b01-52fe03a2d607")),
+			service.NewPlan(createMemoryOptimizedPlan("b242a78f-9946-406a-af67-813c56341960")),
 		),
 		// database only service
 		service.NewService(

@@ -12,6 +12,7 @@ type ServiceManager interface { // nolint: golint
 	// ValidateProvisioningParameters validates the provided
 	// provisioningParameters and returns an error if there is any problem
 	ValidateProvisioningParameters(
+		Plan,
 		ProvisioningParameters,
 		SecureProvisioningParameters,
 	) error

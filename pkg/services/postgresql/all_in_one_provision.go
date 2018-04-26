@@ -11,6 +11,7 @@ import (
 )
 
 func (a *allInOneManager) ValidateProvisioningParameters(
+	plan service.Plan,
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
@@ -18,7 +19,7 @@ func (a *allInOneManager) ValidateProvisioningParameters(
 	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
 		return err
 	}
-	return validateDBMSProvisionParameters(pp.dbmsProvisioningParameters)
+	return validateDBMSProvisionParameters(plan, pp.dbmsProvisioningParameters)
 }
 
 func (a *allInOneManager) GetProvisioner(
@@ -80,7 +81,6 @@ func (a *allInOneManager) preProvision(
 }
 
 func (a *allInOneManager) buildARMTemplateParameters(
-	plan service.Plan,
 	details allInOneInstanceDetails,
 	secureDetails secureAllInOneInstanceDetails,
 ) map[string]interface{} {
@@ -94,11 +94,7 @@ func (a *allInOneManager) buildARMTemplateParameters(
 		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
 		"serverName":                 details.ServerName,
 		"databaseName":               details.DatabaseName,
-		"skuName":                    plan.GetProperties().Extended["skuName"],
-		"skuTier":                    plan.GetProperties().Extended["skuTier"],
-		"skuCapacityDTU": plan.GetProperties().
-			Extended["skuCapacityDTU"],
-		"sslEnforcement": sslEnforcement,
+		"sslEnforcement":             sslEnforcement,
 	}
 	return p
 }
@@ -121,12 +117,16 @@ func (a *allInOneManager) deployARMTemplate(
 		return nil, nil, err
 	}
 	armTemplateParameters := a.buildARMTemplateParameters(
-		instance.Plan,
 		dt,
 		sdt,
 	)
-	goTemplateParameters :=
-		buildGoTemplateParameters(instance.Service, pp.dbmsProvisioningParameters)
+	goTemplateParameters, err := buildGoTemplateParameters(instance)
+	if err != nil {
+		return nil, nil, fmt.Errorf(
+			"error building go template parameters :%s",
+			err,
+		)
+	}
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,

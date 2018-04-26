@@ -80,13 +80,16 @@ type service struct {
 // instantiated and passed to the NewPlan() constructor function which will
 // carry out all necessary initialization.
 type PlanProperties struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Free        bool                   `json:"free"`
-	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
-	Extended    map[string]interface{} `json:"-"`
-	EndOfLife   bool                   `json:"-"`
+	ID                    string                     `json:"id"`
+	Name                  string                     `json:"name"`
+	Description           string                     `json:"description"`
+	Free                  bool                       `json:"free"`
+	Metadata              *ServicePlanMetadata       `json:"metadata,omitempty"` // nolint: lll
+	Extended              map[string]interface{}     `json:"-"`
+	EndOfLife             bool                       `json:"-"`
+	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
+	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
+	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans
@@ -199,6 +202,16 @@ func NewService(
 	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
+		// Now handle any plan specific parameters.
+		if p.PlanProperties.ProvisionParamsSchema != nil ||
+			p.PlanProperties.UpdateParamsSchema != nil ||
+			p.PlanProperties.BindingParamsSchema != nil {
+			paramSchemas.addParameterSchemas(
+				p.PlanProperties.ProvisionParamsSchema,
+				p.PlanProperties.UpdateParamsSchema,
+				p.PlanProperties.BindingParamsSchema,
+			)
+		}
 		p.ParameterSchemas = paramSchemas
 		s.indexedPlans[p.GetID()] = p
 	}

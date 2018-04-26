@@ -13,7 +13,28 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func validateDBMSProvisionParameters(pp dbmsProvisioningParameters) error {
+const (
+	enabled           = "enabled"
+	disabled          = "disabled"
+	enabledARMString  = "Enabled"
+	disabledARMString = "Disabled"
+)
+
+func validateDBMSProvisionParameters(
+	plan service.Plan,
+	pp dbmsProvisioningParameters,
+) error {
+	if plan == nil {
+		return fmt.Errorf("plan invalid")
+	}
+	s, ok := plan.GetProperties().Extended["provisionSchema"]
+	if !ok {
+		return fmt.Errorf("invalid plan, schema not found")
+	}
+	schema := s.(planSchema)
+	if err := schema.validateProvisionParameters(pp); err != nil {
+		return err
+	}
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
 	if sslEnforcement != "" && sslEnforcement != enabled &&
 		sslEnforcement != disabled {
@@ -76,16 +97,48 @@ func validateDBMSProvisionParameters(pp dbmsProvisioningParameters) error {
 }
 
 func buildGoTemplateParameters(
-	svc service.Service,
-	provisioningParameters dbmsProvisioningParameters,
-) map[string]interface{} {
+	instance service.Instance,
+) (map[string]interface{}, error) {
+
+	plan := instance.Plan
+
+	dt := dbmsInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
+	}
+	sdt := secureAllInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, err
+	}
+	pp := dbmsProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, err
+	}
+
 	p := map[string]interface{}{}
-	p["version"] = svc.GetProperties().Extended["version"]
+	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
+
+	sku, err := schema.buildSku(pp)
+	if err != nil {
+		return nil, err
+	}
+	p["sku"] = sku
+	p["tier"] = plan.GetProperties().Extended["tier"]
+	p["cores"] = schema.getCores(pp)
+	p["storage"] = schema.getStorage(pp) * 1024 //storage is in MB to arm :/
+	p["backupRetention"] = schema.getBackupRetention(pp)
+	p["hardwareFamily"] = schema.getHardwareFamily(pp)
+	if schema.isGeoRedundentBackup(pp) {
+		p["geoRedundantBackup"] = enabledARMString
+	}
+	p["version"] = instance.Service.GetProperties().Extended["version"]
+
 	// Only include these if they are not empty.
 	// ARM Deployer will fail if the values included are not
 	// valid IPV4 addresses (i.e. empty string wil fail)
-	if len(provisioningParameters.FirewallRules) > 0 {
-		p["firewallRules"] = provisioningParameters.FirewallRules
+	if len(pp.FirewallRules) > 0 {
+		p["firewallRules"] = pp.FirewallRules
 	} else {
 		// Build the azure default
 		p["firewallRules"] = []firewallRule{
@@ -96,7 +149,7 @@ func buildGoTemplateParameters(
 			},
 		}
 	}
-	return p
+	return p, nil
 }
 
 func getAvailableServerName(

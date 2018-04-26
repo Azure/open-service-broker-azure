@@ -10,7 +10,10 @@ import (
 func TestValidateNoFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := service.ProvisioningParameters{}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.Nil(t, err)
 }
 
@@ -25,7 +28,10 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.Nil(t, err)
 }
 
@@ -40,7 +46,10 @@ func TestValidateMissingFirewallRuleNameConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -56,7 +65,10 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -73,7 +85,10 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -91,7 +106,10 @@ func TestValidateInvalidIP(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -109,9 +127,64 @@ func TestValidateIncompleteIP(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, v.Field, "startIPAddress")
+}
+
+func TestValidateHardwareVersionIncompatible(t *testing.T) {
+	provisionSchema := planSchema{
+		allowedHardware:         []string{"", "gen5"},
+		defaultHardware:         "gen5",
+		validCores:              []int{2, 4, 8, 16},
+		defaultCores:            2,
+		maxStorage:              2048,
+		minStorage:              5,
+		defaultStorage:          10,
+		allowedBackupRedundancy: []string{"local", "geo"},
+		minBackupRetention:      7,
+		maxBackupRetention:      35,
+		defaultBackupRetention:  7,
+		tier: "MO",
+	}
+	extendedPlanData := map[string]interface{}{
+		"provisionSchema": provisionSchema,
+		"tier":            "MemoryOptimized",
+	}
+
+	plan := service.NewPlan(&service.PlanProperties{
+		ID:          "73191861-04b3-4d0b-a29b-429eb15a83d4",
+		Name:        "somePlan",
+		Description: "somePlan",
+		Free:        false,
+		Extended:    extendedPlanData,
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "somePlan",
+			Bullets:     []string{"Testable"},
+		},
+		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+	})
+
+	sm := &allInOneManager{}
+	pp := service.ProvisioningParameters{
+		"hardwareFamily": "gen4",
+		"firewallRules": []map[string]string{
+			{
+				"name":           "Bad Rule",
+				"startIPAddress": "192.168.",
+				"endIPAddress":   "255.255.255.0",
+			},
+		},
+	}
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
+	assert.NotNil(t, err)
+	v, ok := err.(*service.ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, v.Field, "hardwareFamily")
+
 }

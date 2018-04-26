@@ -17,23 +17,6 @@ var dbmsARMTemplateBytes = []byte(`
 				"minLength": 2,
 				"maxLength": 63
 			},
-			"skuName": {
-				"type": "string",
-				"allowedValues": [ "MYSQLB50", "MYSQLB100", "MYSQLS100","MYSQLS200", "MYSQLS400", "MYSQLS800" ]
-			},
-			"skuTier": {
-				"type": "string",
-				"allowedValues": [ "Basic", "Standard"]
-			},
-			"skuCapacityDTU": {
-				"type": "int",
-				"allowedValues": [ 50, 100, 200, 400, 800 ]
-			},
-			"skuSizeMB": {
-				"type": "int",
-				"minValue": 51200,
-				"maxValue": 128000
-			},
 			"sslEnforcement": {
 				"type": "string",
 				"allowedValues": [ "Enabled", "Disabled" ],
@@ -44,7 +27,7 @@ var dbmsARMTemplateBytes = []byte(`
 			}
 		},
 		"variables": {
-			"DBforMySQLapiVersion": "2017-04-30-preview"
+			"DBforMySQLapiVersion": "2017-12-01"
 		},
 		"resources": [
 			{
@@ -56,14 +39,21 @@ var dbmsARMTemplateBytes = []byte(`
 					"version": "{{.version}}",
 					"administratorLogin": "azureuser",
 					"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-					"storageMB": "[parameters('skuSizeMB')]",
+					"storageProfile" : {
+						"storageMB": {{.storage}},
+						{{ if .geoRedundantBackup }}
+						"geoRedundantBackup" : "Enabled",
+						{{ end }}
+						"backupRetentionDays": {{.backupRetention}}
+					},
 					"sslEnforcement": "[parameters('sslEnforcement')]"
 				},
 				"sku": {
-					"name": "[parameters('skuName')]",
-					"tier": "[parameters('skuTier')]",
-					"capacity": "[parameters('skuCapacityDTU')]",
-					"size": "[parameters('skuSizeMB')]"
+					"name": "{{.sku}}",
+					"tier": "{{.tier}}",
+					"capacity": "{{.cores}}",
+					"size": "{{.storage}}",
+					"family": "{{.hardwareFamily}}"
 				},
 				"type": "Microsoft.DBforMySQL/servers",
 				"tags": "[parameters('tags')]",

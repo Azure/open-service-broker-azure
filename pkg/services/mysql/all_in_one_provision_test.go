@@ -10,7 +10,10 @@ import (
 func TestValidateNoFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := service.ProvisioningParameters{}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("f7a86f81-0384-4999-a404-537a564abb62"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.Nil(t, err)
 }
 
@@ -25,7 +28,10 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("f7a86f81-0384-4999-a404-537a564abb62"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.Nil(t, err)
 }
 
@@ -45,7 +51,10 @@ func TestValidateMultipleGoodFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("f7a86f81-0384-4999-a404-537a564abb62"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.Nil(t, err)
 }
 
@@ -59,7 +68,10 @@ func TestValidateMissingFirewallRuleName(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("f7a86f81-0384-4999-a404-537a564abb62"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, v.Field, "name")
@@ -75,7 +87,10 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("f7a86f81-0384-4999-a404-537a564abb62"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -92,7 +107,10 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("f7a86f81-0384-4999-a404-537a564abb62"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -110,7 +128,10 @@ func TestValidateInvalidIP(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("f7a86f81-0384-4999-a404-537a564abb62"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -128,7 +149,10 @@ func TestValidateIncompleteIP(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	plan := service.NewPlan(
+		createBasicPlan("f7a86f81-0384-4999-a404-537a564abb62"),
+	)
+	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)

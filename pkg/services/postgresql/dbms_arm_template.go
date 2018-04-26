@@ -17,24 +17,6 @@ var dbmsARMTemplateBytes = []byte(`
 			"minLength": 2,
 			"maxLength": 63
 		},
-		"skuName": {
-			"type": "string",
-			"allowedValues": [ "PGSQLB50", "PGSQLB100" ]
-		},
-		"skuTier": {
-			"type": "string",
-			"allowedValues": [ "Basic" ]
-		},
-		"skuCapacityDTU": {
-			"type": "int",
-			"allowedValues": [ 50, 100 ]
-		},
-		"skuSizeMB": {
-			"type": "int",
-			"minValue": 51200,
-			"maxValue": 102400,
-			"defaultValue": 51200
-		},
 		"sslEnforcement": {
 			"type": "string",
 			"allowedValues": [ "Enabled", "Disabled" ],
@@ -45,7 +27,7 @@ var dbmsARMTemplateBytes = []byte(`
 		}
 	},
 	"variables": {
-		"DBforPostgreSQLapiVersion": "2016-02-01-privatepreview"
+		"DBforPostgreSQLapiVersion": "2017-12-01"
 	},
 	"resources": [
 		{
@@ -57,14 +39,21 @@ var dbmsARMTemplateBytes = []byte(`
 				"version": "{{.version}}",
 				"administratorLogin": "postgres",
 				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-				"storageMB": "[parameters('skuSizeMB')]",
+				"storageProfile" : {
+					"storageMB": {{.storage}},
+					{{ if .geoRedundantBackup }}
+					"geoRedundantBackup" : "Enabled",
+					{{ end }}
+					"backupRetentionDays": {{.backupRetention}}
+				},
 				"sslEnforcement": "[parameters('sslEnforcement')]"
 			},
 			"sku": {
-				"name": "[parameters('skuName')]",
-				"tier": "[parameters('skuTier')]",
-				"capacity": "[parameters('skuCapacityDTU')]",
-				"size": "[parameters('skuSizeMB')]"
+				"name": "{{.sku}}",
+				"tier": "{{.tier}}",
+				"capacity": "{{.cores}}",
+				"size": "{{.storage}}",
+				"family": "{{.hardwareFamily}}"
 			},
 			"type": "Microsoft.DBforPostgreSQL/servers",
 			"tags": "[parameters('tags')]",

@@ -9,6 +9,7 @@ import (
 )
 
 func (s *serviceManager) ValidateProvisioningParameters(
+	_ service.Plan,
 	pp service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
