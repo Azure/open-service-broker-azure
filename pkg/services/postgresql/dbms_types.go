@@ -23,11 +23,6 @@ type dbmsInstanceDetails struct {
 	ServerName               string `json:"server"`
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
 	EnforceSSL               bool   `json:"enforceSSL"`
-	HardwareFamily           string `json:"hardwareFamily"`
-	Cores                    int    `json:"cores"`
-	Storage                  int    `json:"storage"`
-	BackupRetention          int    `json:"backupRetention"`
-	BackupRedundancy         string `json:"backupRedundancy"`
 }
 
 type secureDBMSInstanceDetails struct {
