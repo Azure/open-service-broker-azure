@@ -17,10 +17,7 @@ func (a *allInOneManager) ValidateProvisioningParameters(
 	_ service.SecureProvisioningParameters,
 ) error {
 	pp := allInOneProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		provisioningParameters,
-		&pp,
-	); err != nil {
+	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
 		return err
 	}
 	return validateDBMSProvisionParameters(plan, pp.dbmsProvisioningParameters)
@@ -51,10 +48,7 @@ func (a *allInOneManager) preProvision(
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(
-			instance.ProvisioningParameters,
-			&pp,
-		); err != nil {
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
 	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
@@ -94,18 +88,12 @@ func (a *allInOneManager) deployARMTemplate(
 		return nil, nil, err
 	}
 	sdt := secureAllInOneInstanceDetails{}
-	if err := service.GetStructFromMap(
-		instance.SecureDetails,
-		&sdt,
-	); err != nil {
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(
-			instance.ProvisioningParameters,
-			&pp,
-		); err != nil {
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
 	goTemplateParameters, err := buildGoTemplateParameters(instance)
@@ -130,8 +118,7 @@ func (a *allInOneManager) deployARMTemplate(
 	}
 
 	var ok bool
-	dt.FullyQualifiedDomainName, ok =
-		outputs["fullyQualifiedDomainName"].(string)
+	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
 		return nil, nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
