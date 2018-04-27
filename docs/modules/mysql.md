@@ -10,7 +10,7 @@ Open Service Broker for Azure contains three Azure Database for MySQL services. 
 | `azure-mysql-5-7-dbms` | Provision only an Azure Database for MySQL DBMS with MySQL 5.7. This can be used to provision multiple databases at a later time. |
 | `azure-mysql-5-7-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-mysql-5-7l` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can't provision additional databases onto an instance provisioned through this service. The `azure-mysql-5-7-dbms` and `azure-mysql-5-7-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-mysql-5-7` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can't provision additional databases onto an instance provisioned through this service. The `azure-mysql-5-7-dbms` and `azure-mysql-5-7-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
