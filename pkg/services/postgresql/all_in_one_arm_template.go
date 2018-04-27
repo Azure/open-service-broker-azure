@@ -14,15 +14,14 @@ var allInOneARMTemplateBytes = []byte(`
 		}
 	},
 	"variables": {
-		"DBforPostgreSQLapiVersion": "2017-12-01",
-		"ServerName" : "{{ .serverName }}"
+		"DBforPostgreSQLapiVersion": "2017-12-01"
 	},
 	"resources": [
 		{
 			"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
 			"kind": "",
 			"location": "[parameters('location')]",
-			"name": "[variables('ServerName')]",
+			"name": "{{ .serverName }}",
 			"properties": {
 				"version": "{{.version}}",
 				"administratorLogin": "postgres",
@@ -51,7 +50,7 @@ var allInOneARMTemplateBytes = []byte(`
 					"type": "firewallrules",
 					"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
 					"dependsOn": [
-						"[concat('Microsoft.DBforPostgreSQL/servers/', variables('ServerName'))]"
+						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}"
 					],
 					"location": "[parameters('location')]",
 					"name": "{{.Name}}",
@@ -68,9 +67,9 @@ var allInOneARMTemplateBytes = []byte(`
 					"location": "[parameters('location')]",
 					"dependsOn": [
 						{{range .firewallRules}}
-						"[concat('Microsoft.DBforPostgreSQL/servers/', variables('ServerName'), '/firewallrules/', '{{.Name}}')]",
+						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}/firewallrules/{{.Name}}",
 						{{end}}
-						"[concat('Microsoft.DBforPostgreSQL/servers/', variables('ServerName'))]"
+						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}"
 					],
 					"properties": {}
 				}
@@ -80,7 +79,7 @@ var allInOneARMTemplateBytes = []byte(`
 	"outputs": {
 		"fullyQualifiedDomainName": {
 			"type": "string",
-			"value": "[reference(variables('ServerName')).fullyQualifiedDomainName]"
+			"value": "[reference('{{ .serverName }}').fullyQualifiedDomainName]"
 		}
 	}
 }

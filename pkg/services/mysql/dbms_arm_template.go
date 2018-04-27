@@ -14,15 +14,14 @@ var dbmsARMTemplateBytes = []byte(`
 			}
 		},
 		"variables": {
-			"DBforMySQLapiVersion": "2017-12-01",
-			"ServerName" : "{{ .serverName }}"
+			"DBforMySQLapiVersion": "2017-12-01"
 		},
 		"resources": [
 			{
 				"apiVersion": "[variables('DBforMySQLapiVersion')]",
 				"kind": "",
 				"location": "[parameters('location')]",
-				"name": "[variables('ServerName')]",
+				"name": "{{ .serverName }}",
 				"properties": {
 					"version": "{{.version}}",
 					"administratorLogin": "azureuser",
@@ -52,7 +51,7 @@ var dbmsARMTemplateBytes = []byte(`
 						"type": "firewallrules",
 						"apiVersion": "[variables('DBforMySQLapiVersion')]",
 						"dependsOn": [
-							"[concat('Microsoft.DBforMySQL/servers/', variables('ServerName'))]"
+							"Microsoft.DBforMySQL/servers/{{ $.serverName }}"
 						],
 						"location": "[parameters('location')]",
 						"name": "{{$rule.Name}}",
@@ -68,7 +67,7 @@ var dbmsARMTemplateBytes = []byte(`
 		"outputs": {
 			"fullyQualifiedDomainName": {
 				"type": "string",
-				"value": "[reference(variables('ServerName')).fullyQualifiedDomainName]"
+				"value": "[reference('{{ .serverName }}').fullyQualifiedDomainName]"
 			}
 		}
 	}

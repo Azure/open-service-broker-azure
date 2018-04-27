@@ -14,15 +14,14 @@ var allInOneARMTemplateBytes = []byte(`
 		}
 	},
 	"variables": {
-		"DBforMySQLapiVersion": "2017-12-01",
-		"ServerName" : "{{ .serverName }}"
+		"DBforMySQLapiVersion": "2017-12-01"
 	},
 	"resources": [
 		{
 			"apiVersion": "[variables('DBforMySQLapiVersion')]",
 			"kind": "",
 			"location": "[parameters('location')]",
-			"name": "[variables('ServerName')]",
+			"name": "{{ .serverName }}",
 			"properties": {
 				"version": "{{.version}}",
 				"administratorLogin": "azureuser",
@@ -51,7 +50,7 @@ var allInOneARMTemplateBytes = []byte(`
 					"type": "firewallrules",
 					"apiVersion": "[variables('DBforMySQLapiVersion')]",
 					"dependsOn": [
-						"[concat('Microsoft.DBforMySQL/servers/', variables('ServerName'))]"
+						"Microsoft.DBforMySQL/servers/{{ $.serverName }}"
 					],
 					"location": "[parameters('location')]",
 					"name": "{{.Name}}",
@@ -67,10 +66,10 @@ var allInOneARMTemplateBytes = []byte(`
 					"type": "databases",
 					"location": "[parameters('location')]",
 					"dependsOn": [
-						{{range .firewallRules}}
-						"[concat('Microsoft.DBforMySQL/servers/', variables('ServerName'), '/firewallrules/', '{{.Name}}')]",
+						{{range $.firewallRules}}
+						"Microsoft.DBforMySQL/servers/{{ $.serverName }}/firewallrules/{{.Name}}",
 						{{end}}
-							"[concat('Microsoft.DBforMySQL/servers/', variables('ServerName'))]"
+						"Microsoft.DBforMySQL/servers/{{ $.serverName }}"
 					],
 					"properties": {}
 				}
@@ -80,7 +79,7 @@ var allInOneARMTemplateBytes = []byte(`
 	"outputs": {
 		"fullyQualifiedDomainName": {
 			"type": "string",
-			"value": "[reference(variables('ServerName')).fullyQualifiedDomainName]"
+			"value": "[reference('{{ .serverName }}').fullyQualifiedDomainName]"
 		}
 	}
 }
