@@ -38,6 +38,7 @@ type ServiceProperties struct { // nolint: golint
 	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
 	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
 	Extended              map[string]interface{}     `json:"-"`
+	EndOfLife             bool                       `json:"-"`
 }
 
 // ServiceMetadata contains metadata about the service classes
@@ -63,6 +64,7 @@ type Service interface {
 	GetParentServiceID() string
 	GetChildServiceID() string
 	GetProperties() *ServiceProperties
+	IsEndOfLife() bool
 }
 
 type service struct {
@@ -84,6 +86,7 @@ type PlanProperties struct {
 	Free        bool                   `json:"free"`
 	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
 	Extended    map[string]interface{} `json:"-"`
+	EndOfLife   bool                   `json:"-"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans
@@ -99,6 +102,7 @@ type Plan interface {
 	GetID() string
 	GetName() string
 	GetProperties() *PlanProperties
+	IsEndOfLife() bool
 }
 
 type plan struct {
@@ -131,7 +135,9 @@ func (c *catalog) ToJSON() ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		c.Services = append(c.Services, json.RawMessage(svcJSON))
+		if svcJSON != nil {
+			c.Services = append(c.Services, json.RawMessage(svcJSON))
+		}
 	}
 	return json.Marshal(c)
 }
@@ -222,6 +228,9 @@ func NewServiceFromJSON(jsonBytes []byte) (Service, error) {
 }
 
 func (s *service) ToJSON() ([]byte, error) {
+	if s.EndOfLife {
+		return nil, nil
+	}
 	s.jsonMutex.Lock()
 	defer s.jsonMutex.Unlock()
 	defer func() {
@@ -233,7 +242,9 @@ func (s *service) ToJSON() ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		s.Plans = append(s.Plans, json.RawMessage(planJSON))
+		if planJSON != nil {
+			s.Plans = append(s.Plans, json.RawMessage(planJSON))
+		}
 	}
 	return json.Marshal(s)
 }
@@ -279,6 +290,10 @@ func (s *service) GetProperties() *ServiceProperties {
 	return s.ServiceProperties
 }
 
+func (s *service) IsEndOfLife() bool {
+	return s.EndOfLife
+}
+
 // NewPlan initializes and returns a new Plan
 func NewPlan(planProperties *PlanProperties) Plan {
 	return &plan{
@@ -296,6 +311,9 @@ func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
 }
 
 func (p *plan) ToJSON() ([]byte, error) {
+	if p.EndOfLife {
+		return nil, nil
+	}
 	return json.Marshal(p)
 }
 
@@ -309,4 +327,8 @@ func (p *plan) GetName() string {
 
 func (p *plan) GetProperties() *PlanProperties {
 	return p.PlanProperties
+}
+
+func (p *plan) IsEndOfLife() bool {
+	return p.EndOfLife
 }
