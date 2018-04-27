@@ -21,17 +21,16 @@ func createBasicPlan(
 		defaultBackupRetention:  7,
 		tier: "B",
 	}
-	extendedPlanData := map[string]interface{}{
-		"provisionSchema": provisionSchema,
-		"tier":            "Basic",
-	}
 
 	return &service.PlanProperties{
 		ID:          planID,
 		Name:        "basic",
 		Description: "Basic Tier",
 		Free:        false,
-		Extended:    extendedPlanData,
+		Extended: map[string]interface{}{
+			"provisionSchema": provisionSchema,
+			"tier":            "Basic",
+		},
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Basic Tier",
 			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
