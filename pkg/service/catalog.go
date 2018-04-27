@@ -186,7 +186,7 @@ func NewService(
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
 
-		// If the plan has it's own schema, ignore the service schema
+		// If the plan has its own schema, ignore the service schema
 		if p.PlanProperties.ProvisionParamsSchema != nil ||
 			p.PlanProperties.UpdateParamsSchema != nil ||
 			p.PlanProperties.BindingParamsSchema != nil {
