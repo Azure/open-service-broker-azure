@@ -153,7 +153,7 @@ To deploy Open Service Broker for Azure to Cloud Foundry, please refer to the
 The following will create a Postgres service:
 
 ```console
-cf create-service azure-postgresql basic50 mypostgresdb -c '{
+cf create-service azure-postgresql-9-6 basic50 mypostgresdb -c '{
   "location": "eastus",
   "resourceGroup: "test",
   "firewallRules" : [
