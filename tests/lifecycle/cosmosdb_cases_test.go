@@ -75,7 +75,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		name:            "mongo-api-account-only",
 		serviceID:       "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
 		planID:          "86fdda05-78d7-4026-a443-1325928e7b02",
-		location:        "centralus",
+		location:        "eastus",
 		testCredentials: testMongoDBCreds,
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"ipFilters": map[string]interface{}{
