@@ -26,10 +26,10 @@ var allInOneARMTemplateBytes = []byte(`
 				"version": "{{.version}}",
 				"administratorLogin": "azureuser",
 				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
-				"storageProfile" : {
+				"storageProfile": {
 					"storageMB": {{.storage}},
 					{{ if .geoRedundantBackup }}
-					"geoRedundantBackup" : "Enabled",
+					"geoRedundantBackup": "Enabled",
 					{{ end }}
 					"backupRetentionDays": {{.backupRetention}}
 				},

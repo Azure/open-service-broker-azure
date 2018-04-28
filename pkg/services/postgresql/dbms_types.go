@@ -22,7 +22,6 @@ type dbmsInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	ServerName               string `json:"server"`
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
-	EnforceSSL               bool   `json:"enforceSSL"`
 }
 
 type secureDBMSInstanceDetails struct {

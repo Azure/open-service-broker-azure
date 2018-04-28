@@ -32,9 +32,16 @@ func (d *databaseManager) Bind(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-
+	ppp := dbmsProvisioningParameters{}
+	if err := service.GetStructFromMap(
+		instance.Parent.ProvisioningParameters,
+		&ppp,
+	); err != nil {
+		return nil, nil, err
+	}
+	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	return createBinding(
-		pdt.EnforceSSL,
+		pSchema.isSSLRequired(ppp),
 		d.sqlDatabaseDNSSuffix,
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
@@ -64,9 +71,17 @@ func (d *databaseManager) GetCredentials(
 	if err := service.GetStructFromMap(binding.SecureDetails, &sbd); err != nil {
 		return nil, err
 	}
+	ppp := dbmsProvisioningParameters{}
+	if err := service.GetStructFromMap(
+		instance.Parent.ProvisioningParameters,
+		&ppp,
+	); err != nil {
+		return nil, err
+	}
+	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	creds := createCredential(
 		pdt.FullyQualifiedDomainName,
-		pdt.EnforceSSL,
+		pSchema.isSSLRequired(ppp),
 		pdt.ServerName,
 		dt.DatabaseName,
 		bd,

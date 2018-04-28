@@ -8,14 +8,24 @@ func createBasicPlan(
 	planID string,
 ) *service.PlanProperties {
 	provisionSchema := planSchema{
-		allowedHardware:         []string{"", "gen4", "gen5"},
-		defaultHardware:         "gen5",
+		defaultFirewallRules: []firewallRule{
+			{
+				Name:    "AllowAzure",
+				StartIP: "0.0.0.0",
+				EndIP:   "0.0.0.0",
+			},
+		},
+		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
+		defaultSSLEnforcement:   enabledParamString,
+		allowedHardware:         []string{gen4ParamString, gen5ParamString},
+		defaultHardware:         gen5ParamString,
 		validCores:              []int{1, 2},
 		defaultCores:            1,
 		maxStorage:              1024,
 		minStorage:              5,
 		defaultStorage:          10,
 		allowedBackupRedundancy: []string{"local"},
+		defaultBackupRedundancy: "local",
 		minBackupRetention:      7,
 		maxBackupRetention:      35,
 		defaultBackupRetention:  7,
@@ -44,14 +54,17 @@ func createGPPlan(
 ) *service.PlanProperties {
 
 	provisionSchema := planSchema{
-		allowedHardware:         []string{"", "gen4", "gen5"},
-		defaultHardware:         "gen5",
+		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
+		defaultSSLEnforcement:   enabledParamString,
+		allowedHardware:         []string{gen4ParamString, gen5ParamString},
+		defaultHardware:         gen5ParamString,
 		validCores:              []int{2, 4, 8, 16, 32},
 		defaultCores:            2,
 		maxStorage:              2048,
 		minStorage:              5,
 		defaultStorage:          10,
 		allowedBackupRedundancy: []string{"local", "geo"},
+		defaultBackupRedundancy: "local",
 		minBackupRetention:      7,
 		maxBackupRetention:      35,
 		defaultBackupRetention:  7,
@@ -85,14 +98,17 @@ func createMemoryOptimizedPlan(
 ) *service.PlanProperties {
 
 	provisionSchema := planSchema{
-		allowedHardware:         []string{"", "gen5"},
-		defaultHardware:         "gen5",
+		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
+		defaultSSLEnforcement:   enabledParamString,
+		allowedHardware:         []string{gen5ParamString},
+		defaultHardware:         gen5ParamString,
 		validCores:              []int{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
 		minStorage:              5,
 		defaultStorage:          10,
 		allowedBackupRedundancy: []string{"local", "geo"},
+		defaultBackupRedundancy: "local",
 		minBackupRetention:      7,
 		maxBackupRetention:      35,
 		defaultBackupRetention:  7,

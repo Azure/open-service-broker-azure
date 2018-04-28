@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -51,16 +50,10 @@ func (a *allInOneManager) preProvision(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	var enforceSSL bool
-	if sslEnforcement == "" || sslEnforcement == enabled {
-		enforceSSL = true
-	}
 	dt := allInOneInstanceDetails{
 		dbmsInstanceDetails: dbmsInstanceDetails{
 			ARMDeploymentName: uuid.NewV4().String(),
 			ServerName:        serverName,
-			EnforceSSL:        enforceSSL,
 		},
 		DatabaseName: generate.NewIdentifier(),
 	}

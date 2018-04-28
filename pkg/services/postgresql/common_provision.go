@@ -5,20 +5,20 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"strings"
 
 	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/slice"
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
 )
 
 const (
-	enabled           = "enabled"
-	disabled          = "disabled"
-	enabledARMString  = "Enabled"
-	disabledARMString = "Disabled"
+	enabledParamString  = "enabled"
+	disabledParamString = "disabled"
+	enabledARMString    = "Enabled"
+	disabledARMString   = "Disabled"
 )
 
 func getAvailableServerName(
@@ -57,12 +57,8 @@ func validateDBMSProvisionParameters(
 		return fmt.Errorf("invalid plan, schema not found")
 	}
 	schema := s.(planSchema)
-	if err := schema.validateProvisionParameters(pp); err != nil {
-		return err
-	}
-	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	if sslEnforcement != "" && sslEnforcement != enabled &&
-		sslEnforcement != disabled {
+	if pp.SSLEnforcement != "" &&
+		!slice.ContainsString(schema.allowedSSLEnforcement, pp.SSLEnforcement) {
 		return service.NewValidationError(
 			"sslEnforcement",
 			fmt.Sprintf(`invalid option: "%s"`, pp.SSLEnforcement),
@@ -121,6 +117,50 @@ func validateDBMSProvisionParameters(
 			)
 		}
 	}
+
+	// hardware family
+	if pp.HardwareFamily != "" &&
+		!slice.ContainsString(schema.allowedHardware, pp.HardwareFamily) {
+		return service.NewValidationError(
+			"hardwareFamily",
+			fmt.Sprintf(`invalid value: "%s"`, pp.HardwareFamily))
+	}
+
+	// cores
+	if pp.Cores != nil && !slice.ContainsInt(schema.validCores, *pp.Cores) {
+		return service.NewValidationError(
+			"cores",
+			fmt.Sprintf(`invalid value: "%d"`, *pp.Cores),
+		)
+	}
+
+	// storage
+	if pp.Storage != nil &&
+		(*pp.Storage < schema.minStorage || *pp.Storage > schema.maxStorage) {
+		return service.NewValidationError(
+			"storage",
+			fmt.Sprintf(`invalid value: "%d"`, *pp.Storage),
+		)
+	}
+
+	// backupRetation
+	if pp.BackupRetention != nil &&
+		(*pp.BackupRetention < schema.minBackupRetention ||
+			*pp.BackupRetention > schema.maxBackupRetention) {
+		return service.NewValidationError(
+			"backupRetention",
+			fmt.Sprintf(`invalid value: "%d"`, *pp.BackupRetention),
+		)
+	}
+
+	// backupRedundancy
+	if pp.BackupRedundancy != "" &&
+		!slice.ContainsString(schema.allowedBackupRedundancy, pp.BackupRedundancy) {
+		return service.NewValidationError(
+			"backupRedundancy",
+			fmt.Sprintf(`invalid value: "%s"`, pp.BackupRedundancy))
+	}
+
 	return nil
 }
 
@@ -255,13 +295,14 @@ func buildGoTemplateParameters(
 		return nil, err
 	}
 
-	p := map[string]interface{}{}
 	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
 
 	sku, err := schema.buildSku(pp)
 	if err != nil {
 		return nil, err
 	}
+
+	p := map[string]interface{}{}
 	p["sku"] = sku
 	p["tier"] = plan.GetProperties().Extended["tier"]
 	p["cores"] = schema.getCores(pp)
@@ -271,31 +312,15 @@ func buildGoTemplateParameters(
 	if schema.isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
-
 	p["version"] = instance.Service.GetProperties().Extended["version"]
-
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
-	if dt.EnforceSSL {
+	if schema.isSSLRequired(pp) {
 		p["sslEnforcement"] = enabledARMString
 	} else {
 		p["sslEnforcement"] = disabledARMString
 	}
+	p["firewallRules"] = schema.getFirewallRules(pp)
 
-	// Only include these if they are not empty.
-	// ARM Deployer will fail if the values included are not
-	// valid IPV4 addresses (i.e. empty string wil fail)
-	if len(pp.FirewallRules) > 0 {
-		p["firewallRules"] = pp.FirewallRules
-	} else {
-		// Build the azure default
-		p["firewallRules"] = []firewallRule{
-			{
-				Name:    "AllowAzure",
-				StartIP: "0.0.0.0",
-				EndIP:   "0.0.0.0",
-			},
-		}
-	}
 	return p, nil
 }

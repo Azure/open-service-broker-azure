@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -15,6 +14,9 @@ const (
 )
 
 type planSchema struct {
+	defaultFirewallRules    []firewallRule
+	allowedSSLEnforcement   []string
+	defaultSSLEnforcement   string
 	defaultHardware         string
 	allowedHardware         []string
 	validCores              []int
@@ -55,121 +57,83 @@ func (p *planSchema) generateHardwareFamilyString(
 ) (string, error) {
 	if pp.HardwareFamily == "" {
 		return gen5TemplateString, nil
-	} else if strings.ToLower(pp.HardwareFamily) == gen4ParamString {
+	} else if pp.HardwareFamily == gen4ParamString {
 		return gen4TemplateString, nil
-	} else if strings.ToLower(pp.HardwareFamily) == gen5ParamString {
+	} else if pp.HardwareFamily == gen5ParamString {
 		return gen5TemplateString, nil
 	}
 	return "", fmt.Errorf("unknown hardware family")
-
 }
 
 func generateDBMSPlanSchema(
 	schema planSchema,
 ) map[string]service.ParameterSchema {
-	p := getDBMSCommonProvisionParamSchema()
-	p["hardwareFamily"] = &service.SimpleParameterSchema{
-		Type:          "string",
-		Description:   "Specifies the compute generation to use for the DBMS",
-		AllowedValues: schema.allowedHardware,
-		Default:       schema.defaultHardware,
+	return map[string]service.ParameterSchema{
+		"firewallRules": &service.ArrayParameterSchema{
+			Description: "Firewall rules to apply to instance. " +
+				"If left unspecified, defaults to only Azure IPs",
+			ItemsSchema: &service.ObjectParameterSchema{
+				Description: "Individual Firewall Rule",
+				Properties: map[string]service.ParameterSchema{
+					"name": &service.SimpleParameterSchema{
+						Type:        "string",
+						Description: "Name of firewall rule",
+						Required:    true,
+					},
+					"startIPAddress": &service.SimpleParameterSchema{
+						Type:        "string",
+						Description: "Start of firewall rule range",
+						Required:    true,
+					},
+					"endIPAddress": &service.SimpleParameterSchema{
+						Type:        "string",
+						Description: "End of firewall rule range",
+						Required:    true,
+					},
+				},
+			},
+		},
+		"sslEnforcement": &service.SimpleParameterSchema{
+			Type: "string",
+			Description: "Specifies whether the server requires the use of TLS" +
+				" when connecting. Left unspecified, SSL will be enforced",
+			AllowedValues: schema.allowedSSLEnforcement,
+			Default:       schema.defaultSSLEnforcement,
+		},
+		"hardwareFamily": &service.SimpleParameterSchema{
+			Type:          "string",
+			Description:   "Specifies the compute generation to use for the DBMS",
+			AllowedValues: schema.allowedHardware,
+			Default:       schema.defaultHardware,
+		},
+		"cores": &service.SimpleParameterSchema{
+			Type: "number",
+			Description: "Specifies vCores, which represent the logical " +
+				"CPU of the underlying hardware",
+			AllowedValues: schema.validCores,
+			Default:       schema.defaultCores,
+		},
+		"storage": &service.NumericParameterSchema{
+			Type:        "number",
+			Description: "Specifies the storage in GBs",
+			Default:     schema.defaultStorage,
+			Minimum:     schema.minStorage,
+			Maximum:     schema.maxStorage,
+		},
+		"backupRetention": &service.NumericParameterSchema{
+			Type:        "number",
+			Description: "Specifies the number of days for backup retention",
+			Default:     schema.minBackupRetention,
+			Minimum:     schema.minBackupRetention,
+			Maximum:     schema.maxBackupRetention,
+		},
+		"backupRedundancy": &service.SimpleParameterSchema{
+			Type:          "string",
+			Description:   "Specifies the backup redundancy",
+			AllowedValues: schema.allowedBackupRedundancy,
+			Default:       schema.defaultBackupRedundancy,
+		},
 	}
-
-	p["cores"] = &service.SimpleParameterSchema{
-		Type: "number",
-		Description: "Specifies vCores, which represent the logical " +
-			"CPU of the underlying hardware",
-		AllowedValues: schema.validCores,
-		Default:       schema.defaultCores,
-	}
-	p["storage"] = &service.NumericParameterSchema{
-		Type:        "number",
-		Description: "Specifies the storage in GBs",
-		Default:     schema.defaultStorage,
-		Minimum:     schema.minStorage,
-		Maximum:     schema.maxStorage,
-	}
-	p["backupRetention"] = &service.NumericParameterSchema{
-		Type:        "number",
-		Description: "Specifies the number of days for backup retention",
-		Default:     schema.minBackupRetention,
-		Minimum:     schema.minBackupRetention,
-		Maximum:     schema.maxBackupRetention,
-	}
-	p["backupRedundancy"] = &service.SimpleParameterSchema{
-		Type:          "string",
-		Description:   "Specifies the backup redundancy",
-		AllowedValues: schema.allowedBackupRedundancy,
-		Default:       schema.defaultBackupRedundancy,
-	}
-	return p
-}
-
-func (p *planSchema) validateProvisionParameters(
-	pp dbmsProvisioningParameters,
-) error {
-	//hardware family
-	hardwareValid := false
-	for _, v := range p.allowedHardware {
-		if v == pp.HardwareFamily {
-			hardwareValid = true
-		}
-	}
-	if !hardwareValid {
-		return service.NewValidationError(
-			"hardwareFamily",
-			fmt.Sprintf(`invalid value: "%s"`, pp.HardwareFamily))
-	}
-
-	//cores
-	if pp.Cores != nil {
-		coresValid := false
-		coresParam := *pp.Cores
-		for _, v := range p.validCores {
-			if v == coresParam {
-				coresValid = true
-			}
-		}
-		if !coresValid {
-			return service.NewValidationError(
-				"cores",
-				fmt.Sprintf(`invalid value : "%d"`, coresParam))
-		}
-	}
-	//storage
-	if pp.Storage != nil {
-		storageParam := *pp.Storage
-		if storageParam < p.minStorage || storageParam > p.maxStorage {
-			return service.NewValidationError(
-				"storage",
-				fmt.Sprintf(`invalid value : "%d"`, storageParam))
-		}
-	}
-	//backupRetation
-	if pp.BackupRetention != nil {
-		backupRetentionParam := *pp.BackupRetention
-		if backupRetentionParam < p.minBackupRetention ||
-			backupRetentionParam > p.maxBackupRetention {
-			return service.NewValidationError(
-				"backupRetention",
-				fmt.Sprintf(`invalid value : "%d"`, backupRetentionParam))
-		}
-	}
-	//backupRedundancy
-	if pp.BackupRedundancy != "" {
-		backupRedundancyValid := false
-		for _, v := range p.allowedBackupRedundancy {
-			if v == pp.BackupRedundancy {
-				backupRedundancyValid = true
-			}
-		}
-		if !backupRedundancyValid {
-			return service.NewValidationError(
-				"backupRedundancy",
-				fmt.Sprintf(`invalid value : "%s"`, pp.BackupRedundancy))
-		}
-	}
-	return nil
 }
 
 func (p *planSchema) getCores(pp dbmsProvisioningParameters) int {
@@ -210,4 +174,20 @@ func (p *planSchema) getHardwareFamily(pp dbmsProvisioningParameters) string {
 		return gen4TemplateString
 	}
 	return gen5TemplateString
+}
+
+func (p *planSchema) isSSLRequired(pp dbmsProvisioningParameters) bool {
+	if pp.SSLEnforcement != "" {
+		return pp.SSLEnforcement == enabledParamString
+	}
+	return true
+}
+
+func (p *planSchema) getFirewallRules(
+	pp dbmsProvisioningParameters,
+) []firewallRule {
+	if len(pp.FirewallRules) > 0 {
+		return pp.FirewallRules
+	}
+	return p.defaultFirewallRules
 }

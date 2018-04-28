@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -34,7 +33,7 @@ func (d *dbmsManager) GetProvisioner(
 
 func (d *dbmsManager) preProvision(
 	ctx context.Context,
-	instance service.Instance,
+	_ service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -46,20 +45,10 @@ func (d *dbmsManager) preProvision(
 	if err != nil {
 		return nil, nil, err
 	}
-	pp := dbmsProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	var enforceSSL bool
-	if sslEnforcement == "" || sslEnforcement == enabled {
-		enforceSSL = true
-	}
+
 	dt := dbmsInstanceDetails{
 		ARMDeploymentName: uuid.NewV4().String(),
 		ServerName:        serverName,
-		EnforceSSL:        enforceSSL,
 	}
 
 	sdt := secureDBMSInstanceDetails{

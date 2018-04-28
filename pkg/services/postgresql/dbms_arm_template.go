@@ -26,10 +26,10 @@ var dbmsARMTemplateBytes = []byte(`
 				"version": "{{.version}}",
 				"administratorLogin": "postgres",
 				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
-				"storageProfile" : {
+				"storageProfile": {
 					"storageMB": {{.storage}},
 					{{ if .geoRedundantBackup }}
-					"geoRedundantBackup" : "Enabled",
+					"geoRedundantBackup": "Enabled",
 					{{ end }}
 					"backupRetentionDays": {{.backupRetention}}
 				},

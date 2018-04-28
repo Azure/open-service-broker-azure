@@ -53,7 +53,7 @@ func TestValidateMissingFirewallRuleNameConfig(t *testing.T) {
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "ruleName")
+	assert.Equal(t, "ruleName", v.Field)
 }
 func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
@@ -72,7 +72,7 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "endIPAddress")
+	assert.Equal(t, "endIPAddress", v.Field)
 }
 
 func TestValidateMissingStartFirewallConfig(t *testing.T) {
@@ -92,7 +92,7 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "startIPAddress")
+	assert.Equal(t, "startIPAddress", v.Field)
 }
 
 func TestValidateInvalidIP(t *testing.T) {
@@ -113,7 +113,7 @@ func TestValidateInvalidIP(t *testing.T) {
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "startIPAddress")
+	assert.Equal(t, "startIPAddress", v.Field)
 }
 
 func TestValidateIncompleteIP(t *testing.T) {
@@ -134,12 +134,12 @@ func TestValidateIncompleteIP(t *testing.T) {
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "startIPAddress")
+	assert.Equal(t, "startIPAddress", v.Field)
 }
 
 func TestValidateHardwareVersionIncompatible(t *testing.T) {
 	provisionSchema := planSchema{
-		allowedHardware:         []string{"", "gen5"},
+		allowedHardware:         []string{"gen5"},
 		defaultHardware:         "gen5",
 		validCores:              []int{2, 4, 8, 16},
 		defaultCores:            2,
@@ -175,9 +175,9 @@ func TestValidateHardwareVersionIncompatible(t *testing.T) {
 		"hardwareFamily": "gen4",
 		"firewallRules": []map[string]string{
 			{
-				"name":           "Bad Rule",
-				"startIPAddress": "192.168.",
-				"endIPAddress":   "255.255.255.0",
+				"name":           "Good Rule",
+				"startIPAddress": "192.168.86.1",
+				"endIPAddress":   "192.168.86.100",
 			},
 		},
 	}
@@ -185,6 +185,6 @@ func TestValidateHardwareVersionIncompatible(t *testing.T) {
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
-	assert.Equal(t, v.Field, "hardwareFamily")
+	assert.Equal(t, "hardwareFamily", v.Field)
 
 }
