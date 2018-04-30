@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/contrib/pkg/client"
+	"github.com/Azure/open-service-broker-azure/pkg/client"
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )

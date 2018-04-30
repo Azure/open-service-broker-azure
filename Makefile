@@ -159,15 +159,8 @@ else
 	docker-compose run --rm test $(UNIT_TEST_CMD)
 endif
 
-LIFECYCLE_TEST_CMD := go test \
-	-parallel 10 \
-	-timeout 60m \
-	$(BASE_PACKAGE_NAME)/tests/lifecycle -v
-
-# Executes all or a subset of integration tests that test modules independently
-# from the broker core/framework
-.PHONY: test-service-lifecycles
-test-service-lifecycles: check-azure-env-vars
+.PHONY: test-warn
+test-warn:
 	@echo
 	##############################################################################
 	# WARNING! This creates services in Azure and will cost you real MONEY!      #
@@ -176,10 +169,42 @@ test-service-lifecycles: check-azure-env-vars
 	# subscription!                                                              #
 	##############################################################################
 	@echo
+
+LIFECYCLE_TEST_CMD := go test \
+	-parallel 10 \
+	-timeout 60m \
+	$(BASE_PACKAGE_NAME)/tests/lifecycle -v
+
+# Executes all or a subset of integration tests that test modules independently
+# from the broker core/framework
+.PHONY: test-service-lifecycles
+test-service-lifecycles: check-azure-env-vars test-warn
 ifdef SKIP_DOCKER
 	$(LIFECYCLE_TEST_CMD)
 else
 	$(DOCKER_CMD) $(LIFECYCLE_TEST_CMD)
+endif
+
+E2E_CMD := go test -parallel 10 -timeout 60m $(BASE_PACKAGE_NAME)/tests/e2e -v
+
+# Executes all or a subset of e2e tests
+.PHONY: test-e2e
+test-e2e: check-azure-env-vars test-warn
+ifdef SKIP_DOCKER
+	$(E2E_CMD)
+else
+	@# Force the docker-compose "broker" service to be rebuilt-- this is separate
+	@# from the docker-build task used to produce a correctly tagged Docker image,
+	@# although both builds are based on the same Dockerfile
+	docker-compose build \
+		--build-arg BASE_PACKAGE_NAME='$(BASE_PACKAGE_NAME)' \
+		--build-arg LDFLAGS='$(LDFLAGS)' \
+		broker
+	docker-compose run \
+		--rm \
+		e2e \
+		$(E2E_CMD) \
+		|| (printf "\nDumping Broker Logs\n" && docker-compose logs broker && false)
 endif
 
 # Evaluates broker compliance with the OSB specification
