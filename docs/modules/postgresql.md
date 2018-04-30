@@ -6,20 +6,21 @@ Open Service Broker for Azure contains three Azure Database for PostgreSQL servi
 
 | Service Name | Description |
 |--------------|-------------|
-| `azure-postgresql` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
-| `azure-postgresql-dbms` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
-| `azure-postgresql-database` | Provision a new database only upon a previously provisioned DBMS. |
+| `azure-postgresql-9-6` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
+| `azure-postgresql-9-6-dbms` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
+| `azure-postgresql-9-6-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-postgresql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-dbms` and `azure-postgresql-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-postgresql-9-6` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-9-6-dbms` and `azure-postgresql-9-6-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
-### Service: azure-postgresql
+### Service: azure-postgresql-9-6
 
 | Plan Name | Description |
 |-----------|-------------|
-| `basic50` | Basic Tier, 50 DTUs |
-| `basic100` | Basic Tier, 100 DTUs |
+| `basic` | Basic Tier, Up to 2 vCores, Variable I/O performance |
+| `general-purpose` | General Purporse Tier, Up to 32 vCores, Predictable I/O Performance, Local or Geo-Redundant Backups |
+| `memory-optimized` | Memory Optimized Tier, Up to 16 memory optimized vCores, Predictable I/O Performance, Local or Geo-Redundant Backups |
 
 #### Behaviors
 
@@ -42,6 +43,36 @@ name.
 | `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `extensions` | `string[]` | Specifies a list of PostgreSQL extensions to install | N | |
+
+####### Provisioning Parameters: basic
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `hardwareFamily` | `string` | Specifies the underlying hardware type. Valid values are `gen4` or `gen5` | N | `gen5` | 
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
+
+
+####### Provisioning Parameters: general-purpose
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `hardwareFamily` | `string` | Specifies the underlying hardware type. Valid values are `gen4` or `gen5` | N | `gen5` | 
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
+| `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
+
+####### Provisioning Parameters: memory-optimized
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
+| `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
+
 
 ##### Bind
 
@@ -142,12 +173,13 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-postgresql-dbms
+### Service: azure-postgresql-9-6-dbms
 
 | Plan Name | Description |
 |-----------|-------------|
-| `basic50` | Basic Tier, 50 DTUs |
-| `basic100` | Basic Tier, 100 DTUs |
+| `basic` | Basic Tier, Up to 2 vCores, Variable I/O performance |
+| `general-purpose` | General Purporse Tier, Up to 32 vCores, Predictable I/O Performance, Local or Geo-Redundant Backups |
+| `memory-optimized` | Memory Optimized Tier, Up to 16 memory optimized vCores, Predictable I/O Performance, Local or Geo-Redundant Backups |
 
 #### Behaviors
 
@@ -168,6 +200,36 @@ Provisions an Azure Database for PostgreSQL DBMS instance containing no database
 | `firewallRules[n].startIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
 | `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
+
+####### Provisioning Parameters: basic
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `hardwareFamily` | `string` | Specifies the underlying hardware type. Valid values are `gen4` or `gen5` | N | `gen5` | 
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
+
+
+####### Provisioning Parameters: general-purpose
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `hardwareFamily` | `string` | Specifies the underlying hardware type. Valid values are `gen4` or `gen5` | N | `gen5` | 
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
+| `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
+
+####### Provisioning Parameters: memory-optimized
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
+| `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
+
 
 ##### Bind
 

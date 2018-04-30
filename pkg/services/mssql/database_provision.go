@@ -11,6 +11,7 @@ import (
 
 // TODO: implement db only validation
 func (d *databaseManager) ValidateProvisioningParameters(
+	service.Plan,
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
 ) error {

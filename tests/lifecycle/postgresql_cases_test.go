@@ -15,7 +15,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 		group:           "postgresql",
 		name:            "all-in-one",
 		serviceID:       "b43b4bba-5741-4d98-a10b-17dc5cee0175",
-		planID:          "bd588e32-0514-4421-8ef3-f54039914e61",
+		planID:          "90f27532-0286-42e5-8e23-c3bb37191368",
 		location:        "southcentralus",
 		testCredentials: testPostgreSQLCreds,
 		provisioningParameters: service.CombinedProvisioningParameters{
@@ -42,7 +42,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 		group:     "postgresql",
 		name:      "dbms-only",
 		serviceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
-		planID:    "bf389028-8dcc-433a-ab6f-0ee9b8db142f",
+		planID:    "73191861-04b3-4d0b-a29b-429eb15a83d4",
 		location:  "eastus",
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"firewallRules": []map[string]string{

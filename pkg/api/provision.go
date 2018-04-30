@@ -344,6 +344,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	// Then validate service-specific provisioning parameters
 	err = serviceManager.ValidateProvisioningParameters(
+		plan,
 		provisioningParameters,
 		secureProvisioningParameters,
 	)

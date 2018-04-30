@@ -3,14 +3,13 @@ package postgresql
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type dbmsProvisioningParameters struct {
-	SSLEnforcement string         `json:"sslEnforcement"`
-	FirewallRules  []firewallRule `json:"firewallRules"`
-}
-
-func (
-	d *dbmsManager,
-) getProvisionParametersSchema() map[string]service.ParameterSchema {
-	return getDBMSCommonProvisionParamSchema()
+	SSLEnforcement   string         `json:"sslEnforcement"`
+	FirewallRules    []firewallRule `json:"firewallRules"`
+	Cores            *int           `json:"cores"`
+	Storage          *int           `json:"storage"`
+	HardwareFamily   string         `json:"hardwareFamily"`
+	BackupRetention  *int           `json:"backupRetention"`
+	BackupRedundancy string         `json:"backupRedundancy"`
 }
 
 type firewallRule struct {
@@ -23,7 +22,6 @@ type dbmsInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	ServerName               string `json:"server"`
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
-	EnforceSSL               bool   `json:"enforceSSL"`
 }
 
 type secureDBMSInstanceDetails struct {

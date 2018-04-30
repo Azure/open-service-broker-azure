@@ -24,7 +24,7 @@ var databaseARMTemplateBytes = []byte(`
 		}
 	},
 	"variables": {
-		"DBforPostgreSQLapiVersion": "2016-02-01-privatepreview"
+		"DBforPostgreSQLapiVersion": "2017-12-01"
 	},
 	"resources": [
 		{

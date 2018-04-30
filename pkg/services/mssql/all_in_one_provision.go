@@ -10,6 +10,7 @@ import (
 )
 
 func (a *allInOneManager) ValidateProvisioningParameters(
+	_ service.Plan,
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {

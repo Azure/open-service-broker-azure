@@ -236,6 +236,7 @@ func TestValidatingLocationParameterFails(t *testing.T) {
 	moduleSpecificValidationCalled := false
 	m.ServiceManager.ProvisioningValidationBehavior =
 		func(
+			service.Plan,
 			service.ProvisioningParameters,
 			service.SecureProvisioningParameters,
 		) error {
@@ -279,6 +280,7 @@ func TestModuleSpecificValidationFails(t *testing.T) {
 	moduleSpecificValidationCalled := false
 	m.ServiceManager.ProvisioningValidationBehavior =
 		func(
+			service.Plan,
 			service.ProvisioningParameters,
 			service.SecureProvisioningParameters,
 		) error {
@@ -318,6 +320,7 @@ func TestKickOffNewAsyncProvisioning(t *testing.T) {
 	moduleSpecificValidationCalled := false
 	m.ServiceManager.ProvisioningValidationBehavior =
 		func(
+			service.Plan,
 			service.ProvisioningParameters,
 			service.SecureProvisioningParameters,
 		) error {
