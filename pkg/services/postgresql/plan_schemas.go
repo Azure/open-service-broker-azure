@@ -19,7 +19,7 @@ type planSchema struct {
 	defaultSSLEnforcement   string
 	defaultHardware         string
 	allowedHardware         []string
-	validCores              []int
+	allowedCores            []int
 	defaultCores            int
 	tier                    string
 	minStorage              int
@@ -32,155 +32,165 @@ type planSchema struct {
 	defaultBackupRetention  int
 }
 
-func (p *planSchema) buildSku(
-	pp dbmsProvisioningParameters,
-) (string, error) {
-	hardwareFamily, err := p.generateHardwareFamilyString(pp)
-	if err != nil {
-		return "", fmt.Errorf("error building sku: %s", err)
-	}
-	var cores int
-
-	if pp.Cores == nil {
-		cores = p.defaultCores
-	} else {
-		cores = *pp.Cores
-	}
-	//The name of the sku typically,
+func (p *planSchema) getSku(pp dbmsProvisioningParameters) string {
+	// The name of the sku, typically:
 	// tier + family + cores, e.g. B_Gen4_1, GP_Gen5_8.
-	sku := fmt.Sprintf("%s_%s_%d", p.tier, hardwareFamily, cores)
-	return sku, nil
+	sku := fmt.Sprintf(
+		"%s_%s_%d",
+		p.tier,
+		p.getHardwareFamily(pp),
+		p.getCores(pp),
+	)
+	return sku
 }
 
-func (p *planSchema) generateHardwareFamilyString(
-	pp dbmsProvisioningParameters,
-) (string, error) {
-	if pp.HardwareFamily == "" {
-		return gen5TemplateString, nil
-	} else if pp.HardwareFamily == gen4ParamString {
-		return gen4TemplateString, nil
-	} else if pp.HardwareFamily == gen5ParamString {
-		return gen5TemplateString, nil
-	}
-	return "", fmt.Errorf("unknown hardware family")
-}
-
+// TODO: krancour: I think it's evident from the code below that we could and
+// should generalize this into a framework whereby the schema for provisioning,
+// updating, binding params, etc. is codified in some meaninful way and JSON
+// schema (included in the catalog for each plan), validation, and derivation
+// of default values are ALL driven off of that data.
 func generateDBMSPlanSchema(
 	schema planSchema,
+	includeDBParams bool,
 ) map[string]service.ParameterSchema {
-	return map[string]service.ParameterSchema{
-		"firewallRules": &service.ArrayParameterSchema{
-			Description: "Firewall rules to apply to instance. " +
-				"If left unspecified, defaults to only Azure IPs",
-			ItemsSchema: &service.ObjectParameterSchema{
-				Description: "Individual Firewall Rule",
-				Properties: map[string]service.ParameterSchema{
-					"name": &service.SimpleParameterSchema{
-						Type:        "string",
-						Description: "Name of firewall rule",
-						Required:    true,
-					},
-					"startIPAddress": &service.SimpleParameterSchema{
-						Type:        "string",
-						Description: "Start of firewall rule range",
-						Required:    true,
-					},
-					"endIPAddress": &service.SimpleParameterSchema{
-						Type:        "string",
-						Description: "End of firewall rule range",
-						Required:    true,
-					},
+	ps := map[string]service.ParameterSchema{}
+	ps["firewallRules"] = &service.ArrayParameterSchema{
+		Description: "Firewall rules to apply to instance. " +
+			"If left unspecified, defaults to only Azure IPs",
+		ItemsSchema: &service.ObjectParameterSchema{
+			Description: "Individual Firewall Rule",
+			Properties: map[string]service.ParameterSchema{
+				"name": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "Name of firewall rule",
+					Required:    true,
+				},
+				"startIPAddress": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "Start of firewall rule range",
+					Required:    true,
+				},
+				"endIPAddress": &service.SimpleParameterSchema{
+					Type:        "string",
+					Description: "End of firewall rule range",
+					Required:    true,
 				},
 			},
 		},
-		"sslEnforcement": &service.SimpleParameterSchema{
+	}
+	if len(schema.allowedSSLEnforcement) > 1 {
+		ps["sslEnforcement"] = &service.SimpleParameterSchema{
 			Type: "string",
 			Description: "Specifies whether the server requires the use of TLS" +
 				" when connecting. Left unspecified, SSL will be enforced",
 			AllowedValues: schema.allowedSSLEnforcement,
 			Default:       schema.defaultSSLEnforcement,
-		},
-		"hardwareFamily": &service.SimpleParameterSchema{
+		}
+	}
+	if len(schema.allowedHardware) > 1 {
+		ps["hardwareFamily"] = &service.SimpleParameterSchema{
 			Type:          "string",
 			Description:   "Specifies the compute generation to use for the DBMS",
 			AllowedValues: schema.allowedHardware,
 			Default:       schema.defaultHardware,
-		},
-		"cores": &service.SimpleParameterSchema{
+		}
+	}
+	if len(schema.allowedCores) > 1 {
+		ps["cores"] = &service.SimpleParameterSchema{
 			Type: "number",
 			Description: "Specifies vCores, which represent the logical " +
 				"CPU of the underlying hardware",
-			AllowedValues: schema.validCores,
+			AllowedValues: schema.allowedCores,
 			Default:       schema.defaultCores,
-		},
-		"storage": &service.NumericParameterSchema{
+		}
+	}
+	if schema.maxStorage > schema.minStorage {
+		ps["storage"] = &service.NumericParameterSchema{
 			Type:        "number",
 			Description: "Specifies the storage in GBs",
 			Default:     schema.defaultStorage,
 			Minimum:     schema.minStorage,
 			Maximum:     schema.maxStorage,
-		},
-		"backupRetention": &service.NumericParameterSchema{
+		}
+	}
+	if schema.maxBackupRetention > schema.minBackupRetention {
+		ps["backupRetention"] = &service.NumericParameterSchema{
 			Type:        "number",
 			Description: "Specifies the number of days for backup retention",
 			Default:     schema.minBackupRetention,
 			Minimum:     schema.minBackupRetention,
 			Maximum:     schema.maxBackupRetention,
-		},
-		"backupRedundancy": &service.SimpleParameterSchema{
+		}
+	}
+	if len(schema.allowedBackupRedundancy) > 1 {
+		ps["backupRedundancy"] = &service.SimpleParameterSchema{
 			Type:          "string",
 			Description:   "Specifies the backup redundancy",
 			AllowedValues: schema.allowedBackupRedundancy,
 			Default:       schema.defaultBackupRedundancy,
-		},
+		}
 	}
+	if includeDBParams {
+		ps["extensions"] = dbExtensionsSchema
+	}
+	return ps
 }
 
 func (p *planSchema) getCores(pp dbmsProvisioningParameters) int {
-	if pp.Cores != nil {
+	// If you get a choice and you've made a choice...
+	if len(p.allowedCores) > 1 && pp.Cores != nil {
 		return *pp.Cores
 	}
 	return p.defaultCores
-
 }
 
 func (p *planSchema) getStorage(pp dbmsProvisioningParameters) int {
-	if pp.Storage != nil {
+	// If you get a choice and you've made a choice...
+	if p.maxStorage > p.minStorage && pp.Storage != nil {
 		return *pp.Storage
 	}
 	return p.defaultStorage
-
 }
 
 func (p *planSchema) getBackupRetention(pp dbmsProvisioningParameters) int {
-	if pp.BackupRetention != nil {
+	// If you get a choice and you've made a choice...
+	if p.maxBackupRetention > p.minBackupRetention && pp.BackupRetention != nil {
 		return *pp.BackupRetention
 	}
 	return p.defaultBackupRetention
-
 }
 
 func (p *planSchema) isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {
-	return pp.BackupRedundancy == "geo"
+	// If you get a choice and you've made a choice...
+	if len(p.allowedBackupRedundancy) > 1 && pp.BackupRedundancy != "" {
+		return pp.BackupRedundancy == "geo"
+	}
+	return p.defaultBackupRedundancy == "geo"
 }
 
 func (p *planSchema) getHardwareFamily(pp dbmsProvisioningParameters) string {
-	if pp.HardwareFamily == "" {
-		if p.defaultHardware == gen4ParamString {
-			return gen4TemplateString
-		}
-		return gen5TemplateString
-	} else if pp.HardwareFamily == gen4ParamString {
+	var hardwareSelection string
+	// If you get a choice and you've made a choice...
+	if len(p.allowedHardware) > 1 && hardwareSelection == "" {
+		hardwareSelection = pp.HardwareFamily
+	} else {
+		hardwareSelection = p.defaultHardware
+	}
+	// Translate to a value usable in the ARM templates.
+	// TODO: It might be better for this object not to know so much about how it
+	// is ultimately used-- i.e. ARM-template-awareness.
+	if hardwareSelection == gen4ParamString {
 		return gen4TemplateString
 	}
 	return gen5TemplateString
 }
 
 func (p *planSchema) isSSLRequired(pp dbmsProvisioningParameters) bool {
-	if pp.SSLEnforcement != "" {
+	// If you get a choice and you've made a choice...
+	if len(p.allowedSSLEnforcement) > 1 && pp.SSLEnforcement != "" {
 		return pp.SSLEnforcement == enabledParamString
 	}
-	return true
+	return p.defaultSSLEnforcement == enabledParamString
 }
 
 func (p *planSchema) getFirewallRules(

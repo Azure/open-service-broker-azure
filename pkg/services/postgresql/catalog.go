@@ -4,6 +4,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 func createBasicPlan(
 	planID string,
+	includeDBParams bool,
 ) *service.PlanProperties {
 	provisionSchema := planSchema{
 		defaultFirewallRules: []firewallRule{
@@ -17,7 +18,7 @@ func createBasicPlan(
 		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		defaultHardware:         gen5ParamString,
-		validCores:              []int{1, 2},
+		allowedCores:            []int{1, 2},
 		defaultCores:            1,
 		maxStorage:              1024,
 		minStorage:              5,
@@ -45,12 +46,16 @@ func createBasicPlan(
 			DisplayName: "Basic Tier",
 			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+		ProvisionParamsSchema: generateDBMSPlanSchema(
+			provisionSchema,
+			includeDBParams,
+		),
 	}
 }
 
 func createGPPlan(
 	planID string,
+	includeDBParams bool,
 ) *service.PlanProperties {
 
 	provisionSchema := planSchema{
@@ -58,7 +63,7 @@ func createGPPlan(
 		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		defaultHardware:         gen5ParamString,
-		validCores:              []int{2, 4, 8, 16, 32},
+		allowedCores:            []int{2, 4, 8, 16, 32},
 		defaultCores:            2,
 		maxStorage:              2048,
 		minStorage:              5,
@@ -92,12 +97,16 @@ func createGPPlan(
 				"Local or Geo-Redundant Backups",
 			},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+		ProvisionParamsSchema: generateDBMSPlanSchema(
+			provisionSchema,
+			includeDBParams,
+		),
 	}
 }
 
 func createMemoryOptimizedPlan(
 	planID string,
+	includeDBParams bool,
 ) *service.PlanProperties {
 
 	provisionSchema := planSchema{
@@ -105,7 +114,7 @@ func createMemoryOptimizedPlan(
 		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen5ParamString},
 		defaultHardware:         gen5ParamString,
-		validCores:              []int{2, 4, 8, 16},
+		allowedCores:            []int{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
 		minStorage:              5,
@@ -140,7 +149,10 @@ func createMemoryOptimizedPlan(
 				"Local or Geo-Redundant Backups",
 			},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+		ProvisionParamsSchema: generateDBMSPlanSchema(
+			provisionSchema,
+			includeDBParams,
+		),
 	}
 }
 
@@ -167,9 +179,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			},
 			m.allInOneManager,
-			service.NewPlan(createBasicPlan("09b398f8-f3c1-49ae-b726-459444e22460")),
-			service.NewPlan(createGPPlan("5807fb83-8065-4d91-a1f7-b4437657cd77")),
-			service.NewPlan(createMemoryOptimizedPlan("90f27532-0286-42e5-8e23-c3bb37191368")),
+			service.NewPlan(createBasicPlan("09b398f8-f3c1-49ae-b726-459444e22460", true)),
+			service.NewPlan(createGPPlan("5807fb83-8065-4d91-a1f7-b4437657cd77", true)),
+			service.NewPlan(createMemoryOptimizedPlan("90f27532-0286-42e5-8e23-c3bb37191368", true)),
 		),
 		// dbms only
 		service.NewService(
@@ -192,9 +204,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			},
 			m.dbmsManager,
-			service.NewPlan(createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4")),
-			service.NewPlan(createGPPlan("4c6932e8-30ec-4af9-83d2-6e27286dbab3")),
-			service.NewPlan(createMemoryOptimizedPlan("057e64ea-41b5-4ed7-bf99-4867a332cfb7")),
+			service.NewPlan(createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false)),
+			service.NewPlan(createGPPlan("4c6932e8-30ec-4af9-83d2-6e27286dbab3", false)),
+			service.NewPlan(createMemoryOptimizedPlan("057e64ea-41b5-4ed7-bf99-4867a332cfb7", false)),
 		),
 		// database only
 		service.NewService(
