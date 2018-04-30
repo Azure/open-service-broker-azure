@@ -6,11 +6,45 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 			service.NewService(
 				&service.ServiceProperties{
-					ID:          "6330de6f-a561-43ea-a15e-b99f44d183e6",
-					Name:        "azure-cosmosdb-sql-account",
-					Description: "Azure Cosmos DB Database Account (SQL API)",
+					ID:          "58d9fbbd-7041-4dbe-aabe-6268cd31de84",
+					Name:        "azure-cosmosdb-sql",
+					Description: "Azure Cosmos DB (SQL API Database Account and Database)",
 					Metadata: &service.ServiceMetadata{
-						DisplayName: "Azure Cosmos DB (SQL API)",
+						DisplayName: "Azure Cosmos DB (SQL API Database Account and Database)",
+						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
+							"?width=200",
+						LongDescription: "Globally distributed, multi-model database service" +
+							" (Experimental).",
+						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
+						SupportURL:       "https://azure.microsoft.com/en-us/support/",
+					},
+					Bindable: true,
+					Tags: []string{"Azure",
+						"CosmosDB",
+						"Database",
+						"SQL",
+					},
+					ProvisionParamsSchema: m.sqlAllInOneManager.getProvisionParametersSchema(), // nolint: lll
+				},
+				m.sqlAllInOneManager,
+				service.NewPlan(&service.PlanProperties{
+					ID:          "58d7223d-934e-4fb5-a046-0c67781eb24e",
+					Name:        "sql-api",
+					Description: "Azure CosmosDB With SQL API (Database Account and Database)",
+					Free:        false,
+					Metadata: &service.ServicePlanMetadata{
+						DisplayName: "Azure CosmosDB (SQL API Database Account and Database)",
+					},
+				}),
+			),
+			service.NewService(
+				&service.ServiceProperties{
+					ID:             "6330de6f-a561-43ea-a15e-b99f44d183e6",
+					Name:           "azure-cosmosdb-sql-account",
+					Description:    "Azure Cosmos DB Database Account (SQL API)",
+					ChildServiceID: "87c5132a-6d76-40c6-9621-0c7b7542571b",
+					Metadata: &service.ServiceMetadata{
+						DisplayName: "Azure Cosmos DB (SQL API - Database Account Only)",
 						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
 							"?width=200",
 						LongDescription: "Globally distributed, multi-model database service" +
@@ -33,7 +67,40 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Description: "Database Account with the SQL API",
 					Free:        false,
 					Metadata: &service.ServicePlanMetadata{
-						DisplayName: "Azure CosmosDB (SQL API)",
+						DisplayName: "Azure CosmosDB (SQL API - Database Account Only)",
+					},
+				}),
+			),
+			service.NewService(
+				&service.ServiceProperties{
+					ID:          "87c5132a-6d76-40c6-9621-0c7b7542571b",
+					Name:        "azure-cosmosdb-sql-database",
+					Description: "Azure Cosmos DB Database (SQL API - Database Only)",
+					Metadata: &service.ServiceMetadata{
+						DisplayName: "Azure Cosmos DB (SQL API - Database Only)",
+						ImageURL: "https://azure.microsoft.com/svghandler/cosmos-db/" +
+							"?width=200",
+						LongDescription: "Globally distributed, multi-model database service" +
+							" (Experimental).",
+						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
+						SupportURL:       "https://azure.microsoft.com/en-us/support/",
+					},
+					Bindable: true,
+					Tags: []string{"Azure",
+						"CosmosDB",
+						"Database",
+						"SQL",
+					},
+					ParentServiceID: "6330de6f-a561-43ea-a15e-b99f44d183e6",
+				},
+				m.sqlDatabaseManager,
+				service.NewPlan(&service.PlanProperties{
+					ID:          "c821c68c-c8e0-4176-8cf2-f0ca582a07a3",
+					Name:        "database",
+					Description: "Azure CosmosDB (SQL API - Database only)",
+					Free:        false,
+					Metadata: &service.ServicePlanMetadata{
+						DisplayName: "Azure CosmosDB (SQL API - Database only)",
 					},
 				}),
 			),

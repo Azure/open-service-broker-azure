@@ -22,6 +22,11 @@ var (
 	}
 )
 
+const (
+	disabled = "disabled"
+	enabled  = "enabled"
+)
+
 func generateAccountName(location string) string {
 	databaseAccountName := uuid.NewV4().String()
 	// CosmosDB currently limits database account names to 50 characters,
@@ -64,16 +69,16 @@ func (c *cosmosAccountManager) ValidateProvisioningParameters(
 	}
 	if pp.IPFilterRules != nil {
 		allowAzure := strings.ToLower(pp.IPFilterRules.AllowAzure)
-		if allowAzure != "" && allowAzure != "enabled" &&
-			allowAzure != "disabled" {
+		if allowAzure != "" && allowAzure != enabled &&
+			allowAzure != disabled {
 			return service.NewValidationError(
 				"allowAzure",
 				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowAzure),
 			)
 		}
 		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
-		if allowPortal != "" && allowPortal != "enabled" &&
-			allowPortal != "disabled" {
+		if allowPortal != "" && allowPortal != enabled &&
+			allowPortal != disabled {
 			return service.NewValidationError(
 				"allowPortal",
 				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowPortal),
@@ -161,10 +166,21 @@ func (c *cosmosAccountManager) preProvision(
 }
 
 func (c *cosmosAccountManager) buildGoTemplateParams(
-	pp *provisioningParameters,
-	dt *cosmosdbInstanceDetails,
+	instance service.Instance,
 	kind string,
-) map[string]interface{} {
+) (map[string]interface{}, error) {
+
+	pp := &provisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
+		return nil, err
+	}
+
+	dt := &cosmosdbInstanceDetails{}
+	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
+		return nil, err
+	}
+
 	p := map[string]interface{}{}
 	p["name"] = dt.DatabaseAccountName
 	p["kind"] = kind
@@ -174,9 +190,9 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	if pp.IPFilterRules != nil {
 		allowAzure := strings.ToLower(pp.IPFilterRules.AllowPortal)
 		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
-		if allowAzure != "disable" {
+		if allowAzure != disabled {
 			filters = append(filters, "0.0.0.0")
-		} else if allowPortal != "disable" {
+		} else if allowPortal != disabled {
 			// Azure Portal IP Addresses per:
 			// https://aka.ms/Vwxndo
 			//|| Region            || IP address(es) ||
@@ -242,21 +258,38 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 		p["consistencyPolicy"] = consistencyPolicy
 
 	}
-	return p
+	return p, nil
 }
 
 func (c *cosmosAccountManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 	goParams map[string]interface{},
-) (*cosmosdbInstanceDetails, *cosmosdbSecureInstanceDetails, error) {
-	dt := cosmosdbInstanceDetails{}
+) (string, *cosmosdbSecureInstanceDetails, error) {
+	dt := &cosmosdbInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
+		return "", nil, err
 	}
-
-	outputs, err := c.armDeployer.Deploy(
+	fqdn, sdt, err := c.deployTemplate(
+		instance,
+		goParams,
 		dt.ARMDeploymentName,
+		armTemplateBytes,
+	)
+	if err != nil {
+		return "", nil, fmt.Errorf("error deploying ARM template: %s", err)
+	}
+	return fqdn, sdt, nil
+}
+
+func (c *cosmosAccountManager) deployTemplate(
+	instance service.Instance,
+	goParams map[string]interface{},
+	armDeploymentName string,
+	armTemplateBytes []byte,
+) (string, *cosmosdbSecureInstanceDetails, error) {
+	outputs, err := c.armDeployer.Deploy(
+		armDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		armTemplateBytes,
@@ -265,29 +298,31 @@ func (c *cosmosAccountManager) deployARMTemplate(
 		instance.Tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return "", nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
+	return c.handleOutput(outputs)
+}
+
+func (c *cosmosAccountManager) handleOutput(
+	outputs map[string]interface{},
+) (string, *cosmosdbSecureInstanceDetails, error) {
 
 	var ok bool
-	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
+	fqdn, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error retrieving fully qualified domain name from deployment: %s",
-			err,
+		return "", nil, fmt.Errorf(
+			"error retrieving fully qualified domain name from deployment",
 		)
 	}
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
-		return nil, nil, fmt.Errorf(
-			"error retrieving primary key from deployment: %s",
-			err,
-		)
+		return "", nil, fmt.Errorf("error retrieving primary key from deployment")
 	}
 
 	sdt := cosmosdbSecureInstanceDetails{
 		PrimaryKey: primaryKey,
 	}
 
-	return &dt, &sdt, nil
+	return fqdn, &sdt, nil
 }
