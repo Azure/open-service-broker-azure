@@ -10,6 +10,7 @@ import (
 )
 
 func (d *dbmsManager) ValidateProvisioningParameters(
+	_ service.Plan,
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {

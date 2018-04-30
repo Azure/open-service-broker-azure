@@ -2,6 +2,148 @@ package postgresql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
+func createBasicPlan(
+	planID string,
+) *service.PlanProperties {
+	provisionSchema := planSchema{
+		defaultFirewallRules: []firewallRule{
+			{
+				Name:    "AllowAzure",
+				StartIP: "0.0.0.0",
+				EndIP:   "0.0.0.0",
+			},
+		},
+		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
+		defaultSSLEnforcement:   enabledParamString,
+		allowedHardware:         []string{gen4ParamString, gen5ParamString},
+		defaultHardware:         gen5ParamString,
+		validCores:              []int{1, 2},
+		defaultCores:            1,
+		maxStorage:              1024,
+		minStorage:              5,
+		defaultStorage:          10,
+		allowedBackupRedundancy: []string{"local"},
+		defaultBackupRedundancy: "local",
+		minBackupRetention:      7,
+		maxBackupRetention:      35,
+		defaultBackupRetention:  7,
+		tier: "B",
+	}
+
+	return &service.PlanProperties{
+		ID:   planID,
+		Name: "basic",
+		Description: "Basic Tier-- For workloads that require light compute and " +
+			"I/O performance. Examples include servers used for development or " +
+			"testing or small-scale infrequently used applications.",
+		Free: false,
+		Extended: map[string]interface{}{
+			"provisionSchema": provisionSchema,
+			"tier":            "Basic",
+		},
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Basic Tier",
+			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
+		},
+		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+	}
+}
+
+func createGPPlan(
+	planID string,
+) *service.PlanProperties {
+
+	provisionSchema := planSchema{
+		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
+		defaultSSLEnforcement:   enabledParamString,
+		allowedHardware:         []string{gen4ParamString, gen5ParamString},
+		defaultHardware:         gen5ParamString,
+		validCores:              []int{2, 4, 8, 16, 32},
+		defaultCores:            2,
+		maxStorage:              2048,
+		minStorage:              5,
+		defaultStorage:          10,
+		allowedBackupRedundancy: []string{"local", "geo"},
+		defaultBackupRedundancy: "local",
+		minBackupRetention:      7,
+		maxBackupRetention:      35,
+		defaultBackupRetention:  7,
+		tier: "GP",
+	}
+	extendedPlanData := map[string]interface{}{
+		"provisionSchema": provisionSchema,
+		"tier":            "GeneralPurpose",
+	}
+
+	return &service.PlanProperties{
+		ID:   planID,
+		Name: "general-purpose",
+		Description: "General Purpose Tier-- For most business workloads that " +
+			"require balanced compute and memory with scalable I/O throughput. " +
+			"Examples include servers for hosting web and mobile apps and other " +
+			"enterprise applications.",
+		Free:     false,
+		Extended: extendedPlanData,
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "General Purpose Tier",
+			Bullets: []string{
+				"Up to 32 vCores",
+				"Predictable I/O Performance",
+				"Local or Geo-Redundant Backups",
+			},
+		},
+		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+	}
+}
+
+func createMemoryOptimizedPlan(
+	planID string,
+) *service.PlanProperties {
+
+	provisionSchema := planSchema{
+		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
+		defaultSSLEnforcement:   enabledParamString,
+		allowedHardware:         []string{gen5ParamString},
+		defaultHardware:         gen5ParamString,
+		validCores:              []int{2, 4, 8, 16},
+		defaultCores:            2,
+		maxStorage:              2048,
+		minStorage:              5,
+		defaultStorage:          10,
+		allowedBackupRedundancy: []string{"local", "geo"},
+		defaultBackupRedundancy: "local",
+		minBackupRetention:      7,
+		maxBackupRetention:      35,
+		defaultBackupRetention:  7,
+		tier: "MO",
+	}
+	extendedPlanData := map[string]interface{}{
+		"provisionSchema": provisionSchema,
+		"tier":            "MemoryOptimized",
+	}
+
+	return &service.PlanProperties{
+		ID:   planID,
+		Name: "memory-optimized",
+		Description: "Memory Optimized Tier-- For high-performance database " +
+			"workloads that require in-memory performance for faster transaction " +
+			"processing and higher concurrency. Examples include servers for " +
+			"processing real-time data and high-performance transactional or " +
+			"analytical apps.",
+		Free:     false,
+		Extended: extendedPlanData,
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Memory Optimized Tier",
+			Bullets: []string{
+				"Up to 16 memory optimized vCores",
+				"Predictable I/O Performance",
+				"Local or Geo-Redundant Backups",
+			},
+		},
+		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+	}
+}
+
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
@@ -20,53 +162,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
-				ProvisionParamsSchema: m.allInOneManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
 					"version": "9.6",
 				},
 			},
 			m.allInOneManager,
-			service.NewPlan(&service.PlanProperties{
-				ID:          "b2ed210f-6a10-4593-a6c4-964e6b6fad62",
-				Name:        "basic50",
-				Description: "Basic Tier, 50 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "PGSQLB50",
-					"skuTier":        "Basic",
-					"skuCapacityDTU": 50,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets:     []string{"50 DTUs"},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "843d7d03-9306-447e-8c19-25ccc4ac30d7",
-				Name:        "basic100",
-				Description: "Basic Tier, 100 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "PGSQLB100",
-					"skuTier":        "Basic",
-					"skuCapacityDTU": 100,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets:     []string{"100 DTUs"},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "bd588e32-0514-4421-8ef3-f54039914e61",
-				Name:        "standard100",
-				Description: "Standard Tier, 100 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "PGSQLS100",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 100,
-				},
-			}),
+			service.NewPlan(createBasicPlan("09b398f8-f3c1-49ae-b726-459444e22460")),
+			service.NewPlan(createGPPlan("5807fb83-8065-4d91-a1f7-b4437657cd77")),
+			service.NewPlan(createMemoryOptimizedPlan("90f27532-0286-42e5-8e23-c3bb37191368")),
 		),
 		// dbms only
 		service.NewService(
@@ -84,53 +187,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
-				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
 					"version": "9.6",
 				},
 			},
 			m.dbmsManager,
-			service.NewPlan(&service.PlanProperties{
-				ID:          "bf389028-8dcc-433a-ab6f-0ee9b8db142f",
-				Name:        "basic50",
-				Description: "Basic Tier, 50 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "PGSQLB50",
-					"skuTier":        "Basic",
-					"skuCapacityDTU": 50,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets:     []string{"50 DTUs"},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "58633c61-942c-42cb-b22c-346a4c594b8e",
-				Name:        "basic100",
-				Description: "Basic Tier, 100 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "PGSQLB100",
-					"skuTier":        "Basic",
-					"skuCapacityDTU": 100,
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets:     []string{"100 DTUs"},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "ba653f35-2152-4d76-8641-b21d4636b2e1",
-				Name:        "standard100",
-				Description: "Standard Tier, 100 DTUs",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"skuName":        "PGSQLS100",
-					"skuTier":        "Standard",
-					"skuCapacityDTU": 100,
-				},
-			}),
+			service.NewPlan(createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4")),
+			service.NewPlan(createGPPlan("4c6932e8-30ec-4af9-83d2-6e27286dbab3")),
+			service.NewPlan(createMemoryOptimizedPlan("057e64ea-41b5-4ed7-bf99-4867a332cfb7")),
 		),
 		// database only
 		service.NewService(

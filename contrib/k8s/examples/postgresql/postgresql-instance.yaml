@@ -4,8 +4,8 @@ metadata:
   name: example-postgresql-all-in-one-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-postgresql
-  clusterServicePlanExternalName: basic50
+  clusterServiceClassExternalName: azure-postgresql-9-6
+  clusterServicePlanExternalName: basic
   parameters:
     location: eastus
     resourceGroup: demo

@@ -12,6 +12,7 @@ import (
 )
 
 func (s *serviceManager) ValidateProvisioningParameters(
+	service.Plan,
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
 ) error {

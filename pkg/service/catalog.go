@@ -80,13 +80,16 @@ type service struct {
 // instantiated and passed to the NewPlan() constructor function which will
 // carry out all necessary initialization.
 type PlanProperties struct {
-	ID          string                 `json:"id"`
-	Name        string                 `json:"name"`
-	Description string                 `json:"description"`
-	Free        bool                   `json:"free"`
-	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
-	Extended    map[string]interface{} `json:"-"`
-	EndOfLife   bool                   `json:"-"`
+	ID                    string                     `json:"id"`
+	Name                  string                     `json:"name"`
+	Description           string                     `json:"description"`
+	Free                  bool                       `json:"free"`
+	Metadata              *ServicePlanMetadata       `json:"metadata,omitempty"` // nolint: lll
+	Extended              map[string]interface{}     `json:"-"`
+	EndOfLife             bool                       `json:"-"`
+	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
+	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
+	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans
@@ -166,40 +169,38 @@ func NewService(
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
-	paramSchemas := &planSchemas{}
+
+	serviceParamSchemas := &planSchemas{}
 	if serviceProperties.ProvisionParamsSchema != nil ||
 		serviceProperties.UpdateParamsSchema != nil ||
 		serviceProperties.BindingParamsSchema != nil {
 
-		paramSchemas.addParameterSchemas(
+		serviceParamSchemas.addParameterSchemas(
 			serviceProperties.ProvisionParamsSchema,
 			serviceProperties.UpdateParamsSchema,
 			serviceProperties.BindingParamsSchema,
 		)
 	}
-	if serviceProperties.ParentServiceID == "" {
-		paramSchemas.addParameterSchemas(
-			getCommonProvisionParameters(),
-			nil,
-			nil,
-		)
-		if serviceProperties.ChildServiceID != "" {
-			paramSchemas.addParameterSchemas(
-				getParentServiceParameters(),
-				nil,
-				nil,
-			)
-		}
-	} else {
-		paramSchemas.addParameterSchemas(
-			getChildServiceParameters(),
-			nil,
-			nil,
-		)
-	}
+	serviceParamSchemas.addCommonSchema(serviceProperties)
+
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		p.ParameterSchemas = paramSchemas
+
+		// If the plan has its own schema, ignore the service schema
+		if p.PlanProperties.ProvisionParamsSchema != nil ||
+			p.PlanProperties.UpdateParamsSchema != nil ||
+			p.PlanProperties.BindingParamsSchema != nil {
+			pSchemas := &planSchemas{}
+			pSchemas.addParameterSchemas(
+				p.PlanProperties.ProvisionParamsSchema,
+				p.PlanProperties.UpdateParamsSchema,
+				p.PlanProperties.BindingParamsSchema,
+			)
+			pSchemas.addCommonSchema(serviceProperties)
+			p.ParameterSchemas = pSchemas
+		} else {
+			p.ParameterSchemas = serviceParamSchemas
+		}
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s

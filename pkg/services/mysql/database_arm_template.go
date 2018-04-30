@@ -24,11 +24,11 @@ var databaseARMTemplateBytes = []byte(`
 			}
 		},
 		"variables": {
-			"DBforMySQLapiVersion": "2017-04-30-preview"
+			"DBforMySQLapiVersion": "2017-12-01"
 		},
 		"resources": [
 			{
-				"apiVersion": "2017-04-30-preview",
+				"apiVersion": "[variables('DBforMySQLapiVersion')]",
 				"type": "Microsoft.DBforMySQL/servers/databases",
 				"name": "[concat(parameters('serverName'), '/', parameters('databaseName'))]",
 				"properties": {}

@@ -59,6 +59,7 @@ func preProvision(
 }
 
 func (c *cosmosAccountManager) ValidateProvisioningParameters(
+	_ service.Plan,
 	provisionParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {

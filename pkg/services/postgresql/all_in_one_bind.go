@@ -26,8 +26,15 @@ func (a *allInOneManager) Bind(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
+	pp := allInOneProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, nil, err
+	}
+	schema :=
+		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
 	bd, spd, err := createBinding(
-		dt.EnforceSSL,
+		schema.isSSLRequired(pp.dbmsProvisioningParameters),
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
@@ -52,9 +59,16 @@ func (a *allInOneManager) GetCredentials(
 	if err := service.GetStructFromMap(binding.SecureDetails, &sbd); err != nil {
 		return nil, err
 	}
+	pp := allInOneProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return nil, err
+	}
+	schema :=
+		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
 	cred := createCredential(
 		dt.FullyQualifiedDomainName,
-		dt.EnforceSSL,
+		schema.isSSLRequired(pp.dbmsProvisioningParameters),
 		dt.ServerName,
 		dt.DatabaseName,
 		bd,

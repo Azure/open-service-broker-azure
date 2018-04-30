@@ -3,7 +3,6 @@ package postgresql
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -11,6 +10,7 @@ import (
 )
 
 func (d *dbmsManager) ValidateProvisioningParameters(
+	plan service.Plan,
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
@@ -18,7 +18,7 @@ func (d *dbmsManager) ValidateProvisioningParameters(
 	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
 		return err
 	}
-	return validateDBMSProvisionParameters(pp)
+	return validateDBMSProvisionParameters(plan, pp)
 }
 
 func (d *dbmsManager) GetProvisioner(
@@ -32,7 +32,7 @@ func (d *dbmsManager) GetProvisioner(
 
 func (d *dbmsManager) preProvision(
 	ctx context.Context,
-	instance service.Instance,
+	_ service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -44,20 +44,9 @@ func (d *dbmsManager) preProvision(
 	if err != nil {
 		return nil, nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	var enforceSSL bool
-	if sslEnforcement == "" || sslEnforcement == enabled {
-		enforceSSL = true
-	}
 	dt := dbmsInstanceDetails{
 		ARMDeploymentName: uuid.NewV4().String(),
 		ServerName:        serverName,
-		EnforceSSL:        enforceSSL,
 	}
 
 	sdt := secureDBMSInstanceDetails{
@@ -70,29 +59,6 @@ func (d *dbmsManager) preProvision(
 	}
 	sdtMap, err := service.GetMapFromStruct(sdt)
 	return dtMap, sdtMap, err
-}
-
-func (d *dbmsManager) buildARMTemplateParameters(
-	plan service.Plan,
-	details dbmsInstanceDetails,
-	secureDetails secureDBMSInstanceDetails,
-) map[string]interface{} {
-	var sslEnforcement string
-	if details.EnforceSSL {
-		sslEnforcement = "Enabled"
-	} else {
-		sslEnforcement = "Disabled"
-	}
-	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
-		"serverName":                 details.ServerName,
-		"skuName":                    plan.GetProperties().Extended["skuName"],
-		"skuTier":                    plan.GetProperties().Extended["skuTier"],
-		"skuCapacityDTU": plan.GetProperties().
-			Extended["skuCapacityDTU"],
-		"sslEnforcement": sslEnforcement,
-	}
-	return p
 }
 
 func (d *dbmsManager) deployARMTemplate(
@@ -112,19 +78,17 @@ func (d *dbmsManager) deployARMTemplate(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	armTemplateParameters := d.buildARMTemplateParameters(
-		instance.Plan,
-		dt,
-		sdt,
-	)
-	goTemplateParameters := buildGoTemplateParameters(instance.Service, pp)
+	goTemplateParameters, err := buildGoTemplateParameters(instance)
+	if err != nil {
+		return nil, nil, fmt.Errorf("unable to build go template parameters: %s", err)
+	}
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		dbmsARMTemplateBytes,
 		goTemplateParameters,
-		armTemplateParameters,
+		map[string]interface{}{},
 		instance.Tags,
 	)
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 func TestValidateNoFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := service.ProvisioningParameters{}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	err := sm.ValidateProvisioningParameters(nil, pp, nil)
 	assert.Nil(t, err)
 }
 
@@ -25,7 +25,7 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	err := sm.ValidateProvisioningParameters(nil, pp, nil)
 	assert.Nil(t, err)
 }
 
@@ -45,7 +45,7 @@ func TestValidateMultipleGoodFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	err := sm.ValidateProvisioningParameters(nil, pp, nil)
 	assert.Nil(t, err)
 }
 
@@ -59,7 +59,7 @@ func TestValidateBadFirewallConfigMissingName(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	err := sm.ValidateProvisioningParameters(nil, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -76,7 +76,7 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	err := sm.ValidateProvisioningParameters(nil, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -93,7 +93,7 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	err := sm.ValidateProvisioningParameters(nil, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -111,7 +111,7 @@ func TestValidateInvalidIP(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	err := sm.ValidateProvisioningParameters(nil, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)
@@ -129,7 +129,7 @@ func TestValidateIncompleteIP(t *testing.T) {
 			},
 		},
 	}
-	err := sm.ValidateProvisioningParameters(pp, nil)
+	err := sm.ValidateProvisioningParameters(nil, pp, nil)
 	assert.NotNil(t, err)
 	v, ok := err.(*service.ValidationError)
 	assert.True(t, ok)

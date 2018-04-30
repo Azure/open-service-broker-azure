@@ -73,12 +73,11 @@ func (s serviceLifecycleTestCase) execute(
 	if err != nil {
 		return err
 	}
-	err = serviceManager.ValidateProvisioningParameters(pp, spp)
-	if err != nil {
-		return err
-	}
-
-	if err = serviceManager.ValidateProvisioningParameters(pp, spp); err != nil {
+	if err = serviceManager.ValidateProvisioningParameters(
+		plan,
+		pp,
+		spp,
+	); err != nil {
 		return err
 	}
 
