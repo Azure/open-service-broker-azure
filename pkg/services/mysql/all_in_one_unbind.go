@@ -20,9 +20,15 @@ func (a *allInOneManager) Unbind(
 	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
 		return err
 	}
-
+	pp := allInOneProvisioningParameters{}
+	if err :=
+		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		return err
+	}
+	schema :=
+		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
 	return unbind(
-		dt.EnforceSSL,
+		schema.isSSLRequired(pp.dbmsProvisioningParameters),
 		a.sqlDatabaseDNSSuffix,
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,

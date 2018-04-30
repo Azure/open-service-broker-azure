@@ -15,7 +15,7 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 		group:     "mysql",
 		name:      "all-in-one",
 		serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
-		planID:    "427559f1-bf2a-45d3-8844-32374a3e58aa",
+		planID:    "eae202c3-521c-46d1-a047-872dacf781fd",
 		location:  "southcentralus",
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"sslEnforcement": "disabled",
@@ -38,7 +38,7 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 		group:     "mysql",
 		name:      "dbms-only",
 		serviceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
-		planID:    "3f65ebf9-ac1d-4e77-b9bf-918889a4482b",
+		planID:    "b242a78f-9946-406a-af67-813c56341960",
 		location:  "eastus",
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"firewallRules": []map[string]string{

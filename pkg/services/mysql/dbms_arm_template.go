@@ -9,61 +9,38 @@ var dbmsARMTemplateBytes = []byte(`
 			"location": {
 				"type": "string"
 			},
-			"administratorLoginPassword": {
-				"type": "securestring"
-			},
-			"serverName": {
-				"type": "string",
-				"minLength": 2,
-				"maxLength": 63
-			},
-			"skuName": {
-				"type": "string",
-				"allowedValues": [ "MYSQLB50", "MYSQLB100", "MYSQLS100","MYSQLS200", "MYSQLS400", "MYSQLS800" ]
-			},
-			"skuTier": {
-				"type": "string",
-				"allowedValues": [ "Basic", "Standard"]
-			},
-			"skuCapacityDTU": {
-				"type": "int",
-				"allowedValues": [ 50, 100, 200, 400, 800 ]
-			},
-			"skuSizeMB": {
-				"type": "int",
-				"minValue": 51200,
-				"maxValue": 128000
-			},
-			"sslEnforcement": {
-				"type": "string",
-				"allowedValues": [ "Enabled", "Disabled" ],
-				"defaultValue": "Enabled"
-			},
 			"tags": {
 				"type": "object"
 			}
 		},
 		"variables": {
-			"DBforMySQLapiVersion": "2017-04-30-preview"
+			"DBforMySQLapiVersion": "2017-12-01"
 		},
 		"resources": [
 			{
 				"apiVersion": "[variables('DBforMySQLapiVersion')]",
 				"kind": "",
 				"location": "[parameters('location')]",
-				"name": "[parameters('serverName')]",
+				"name": "{{ .serverName }}",
 				"properties": {
 					"version": "{{.version}}",
 					"administratorLogin": "azureuser",
-					"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
-					"storageMB": "[parameters('skuSizeMB')]",
-					"sslEnforcement": "[parameters('sslEnforcement')]"
+					"administratorLoginPassword": "{{ .administratorLoginPassword }}",
+					"storageProfile": {
+						"storageMB": {{.storage}},
+						{{ if .geoRedundantBackup }}
+						"geoRedundantBackup": "Enabled",
+						{{ end }}
+						"backupRetentionDays": {{.backupRetention}}
+					},
+					"sslEnforcement": "{{ .sslEnforcement }}"
 				},
 				"sku": {
-					"name": "[parameters('skuName')]",
-					"tier": "[parameters('skuTier')]",
-					"capacity": "[parameters('skuCapacityDTU')]",
-					"size": "[parameters('skuSizeMB')]"
+					"name": "{{.sku}}",
+					"tier": "{{.tier}}",
+					"capacity": "{{.cores}}",
+					"size": "{{.storage}}",
+					"family": "{{.hardwareFamily}}"
 				},
 				"type": "Microsoft.DBforMySQL/servers",
 				"tags": "[parameters('tags')]",
@@ -74,7 +51,7 @@ var dbmsARMTemplateBytes = []byte(`
 						"type": "firewallrules",
 						"apiVersion": "[variables('DBforMySQLapiVersion')]",
 						"dependsOn": [
-							"[concat('Microsoft.DBforMySQL/servers/', parameters('serverName'))]"
+							"Microsoft.DBforMySQL/servers/{{ $.serverName }}"
 						],
 						"location": "[parameters('location')]",
 						"name": "{{$rule.Name}}",
@@ -90,7 +67,7 @@ var dbmsARMTemplateBytes = []byte(`
 		"outputs": {
 			"fullyQualifiedDomainName": {
 				"type": "string",
-				"value": "[reference(parameters('serverName')).fullyQualifiedDomainName]"
+				"value": "[reference('{{ .serverName }}').fullyQualifiedDomainName]"
 			}
 		}
 	}

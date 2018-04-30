@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -11,12 +10,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const (
-	enabled  = "enabled"
-	disabled = "disabled"
-)
-
 func (a *allInOneManager) ValidateProvisioningParameters(
+	plan service.Plan,
 	provisioningParameters service.ProvisioningParameters,
 	_ service.SecureProvisioningParameters,
 ) error {
@@ -24,7 +19,7 @@ func (a *allInOneManager) ValidateProvisioningParameters(
 	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
 		return err
 	}
-	return validateDBMSProvisionParameters(pp.dbmsProvisioningParameters)
+	return validateDBMSProvisionParameters(plan, pp.dbmsProvisioningParameters)
 }
 
 func (a *allInOneManager) GetProvisioner(
@@ -55,16 +50,10 @@ func (a *allInOneManager) preProvision(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	sslEnforcement := strings.ToLower(pp.SSLEnforcement)
-	var enforceSSL bool
-	if sslEnforcement == "" || sslEnforcement == enabled {
-		enforceSSL = true
-	}
 	dt := allInOneInstanceDetails{
 		dbmsInstanceDetails: dbmsInstanceDetails{
 			ARMDeploymentName: uuid.NewV4().String(),
 			ServerName:        serverName,
-			EnforceSSL:        enforceSSL,
 		},
 		DatabaseName: generate.NewIdentifier(),
 	}
@@ -81,31 +70,6 @@ func (a *allInOneManager) preProvision(
 	}
 	sdtMap, err := service.GetMapFromStruct(sdt)
 	return dtMap, sdtMap, err
-}
-
-func (a *allInOneManager) buildARMTemplateParameters(
-	plan service.Plan,
-	details allInOneInstanceDetails,
-	secureDetails secureAllInOneInstanceDetails,
-) map[string]interface{} {
-	var sslEnforcement string
-	if details.EnforceSSL {
-		sslEnforcement = "Enabled"
-	} else {
-		sslEnforcement = "Disabled"
-	}
-	p := map[string]interface{}{ // ARM template params
-		"administratorLoginPassword": secureDetails.AdministratorLoginPassword,
-		"serverName":                 details.ServerName,
-		"databaseName":               details.DatabaseName,
-		"skuName":                    plan.GetProperties().Extended["skuName"],
-		"skuTier":                    plan.GetProperties().Extended["skuTier"],
-		"skuCapacityDTU": plan.GetProperties().
-			Extended["skuCapacityDTU"],
-		"skuSizeMB":      plan.GetProperties().Extended["skuSizeMB"],
-		"sslEnforcement": sslEnforcement,
-	}
-	return p
 }
 
 func (a *allInOneManager) deployARMTemplate(
@@ -125,22 +89,21 @@ func (a *allInOneManager) deployARMTemplate(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	armTemplateParameters := a.buildARMTemplateParameters(
-		instance.Plan,
-		dt,
-		sdt,
-	)
-	goTemplateParameters := buildGoTemplateParameters(
-		instance.Service,
-		pp.dbmsProvisioningParameters,
-	)
+	goTemplateParameters, err := buildGoTemplateParameters(instance)
+	if err != nil {
+		return nil, nil, fmt.Errorf(
+			"error building ARM template parameters %s",
+			err,
+		)
+	}
+	goTemplateParameters["databaseName"] = dt.DatabaseName
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		allInOneARMTemplateBytes,
 		goTemplateParameters,
-		armTemplateParameters,
+		map[string]interface{}{},
 		instance.Tags,
 	)
 	if err != nil {

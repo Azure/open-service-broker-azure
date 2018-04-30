@@ -11,8 +11,9 @@ import (
 )
 
 func (d *databaseManager) ValidateProvisioningParameters(
-	provisioningParameters service.ProvisioningParameters,
-	_ service.SecureProvisioningParameters,
+	service.Plan,
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
 ) error {
 	return nil
 }

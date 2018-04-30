@@ -10,8 +10,9 @@ import (
 )
 
 func (d *databaseManager) ValidateProvisioningParameters(
-	provisioningParameters service.ProvisioningParameters,
-	_ service.SecureProvisioningParameters,
+	service.Plan,
+	service.ProvisioningParameters,
+	service.SecureProvisioningParameters,
 ) error {
 	return nil
 }
@@ -89,8 +90,16 @@ func (d *databaseManager) setupDatabase(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
+	ppp := dbmsProvisioningParameters{}
+	if err := service.GetStructFromMap(
+		instance.Parent.ProvisioningParameters,
+		&ppp,
+	); err != nil {
+		return nil, nil, err
+	}
+	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	err := setupDatabase(
-		pdt.EnforceSSL,
+		pSchema.isSSLRequired(ppp),
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
@@ -125,10 +134,17 @@ func (d *databaseManager) createExtensions(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-
+	ppp := dbmsProvisioningParameters{}
+	if err := service.GetStructFromMap(
+		instance.Parent.ProvisioningParameters,
+		&ppp,
+	); err != nil {
+		return nil, nil, err
+	}
+	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	if len(pp.Extensions) > 0 {
 		err := createExtensions(
-			pdt.EnforceSSL,
+			pSchema.isSSLRequired(ppp),
 			pdt.ServerName,
 			spdt.AdministratorLoginPassword,
 			pdt.FullyQualifiedDomainName,

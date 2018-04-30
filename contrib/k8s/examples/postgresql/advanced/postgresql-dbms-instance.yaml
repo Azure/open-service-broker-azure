@@ -4,8 +4,8 @@ metadata:
   name: example-postgresql-dbms-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-postgresql-dbms
-  clusterServicePlanExternalName: basic50
+  clusterServiceClassExternalName: azure-postgresql-9-6-dbms
+  clusterServicePlanExternalName: basic
   parameters:
     location: eastus
     resourceGroup: demo
