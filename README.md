@@ -67,6 +67,29 @@ for details on how to complete the installation.
 
 By default, the Helm chart will install OSBA with the flag `modules.minStability` set to `preview`. This will limit the services exposed by OSBA to Azure SQL, Azure Database for MySQL, and Azure Database for PostgreSQL. If you'd like to use other services, you'll need to provide `experimental` for that setting. This will instruct OSBA to include modules that are marked as `experimental` in the catalog. For more information on module stability, please refer to the [documentation](docs/stability.md). The offical [roadmap](docs/roadmap.md) has more information about the OSAB roadmap and plans to promote modules.
 
+#### OpenShift Project Template
+
+Deploy OSBA using a OpenShift Project Template
+- You must have Service Catalog already installed on OpenShift in order for this to work
+
+Create a new OpenShift project
+
+```console
+oc new-project osba
+```
+
+Process the OpenShift Template
+
+```console
+oc process -f https://raw.githubusercontent.com/Azure/open-service-broker-azure/master/contrib/openshift/osba-os-template.yaml  \
+   -p ENVIRONMENT=AzurePublicCloud \
+   -p AZURE_SUBSCRIPTION_ID=$AZURE_SUBSCRIPTION_ID \
+   -p AZURE_TENANT_ID=$AZURE_TENANT_ID \
+   -p AZURE_CLIENT_ID=$AZURE_CLIENT_ID \
+   -p AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET \
+   -p AZURE_DEFAULT_LOCATION=$AZURE_DEFAULT_LOCATION \
+   | oc create -f -
+```
 ### Provisioning
 
 With the Kubernetes Service Catalog software and Open Service Broker for Azure both
