@@ -30,24 +30,28 @@ save the connection information in Kubernetes secrets, and then bind them to our
 
 ### Install Minikube
 
-[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer. For this quickstart guide, you'll want to install Minikube v0.25.
+[Minikube](https://github.com/kubernetes/minikube) is a tool that makes it easy to run Kubernetes locally. Minikube runs a single-node Kubernetes cluster inside a VM on your computer.
+
+Some older versions of Minikube, as well as some newer ones, suffer from bugs
+that can be worked around, but only with moderate effort. We therefore
+recommend that if you are using Minikube that you use [v0.25.2](https://github.com/kubernetes/minikube/releases/tag/v0.25.2).
 
 #### MacOS
 
 ```console
-brew cask install minikube
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.25.2/minikube-darwin-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 ```
 
 #### Windows
 
-1. Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/latest/minikube-windows-amd64.exe) file.
+1. Download the [minikube-windows-amd64.exe](https://storage.googleapis.com/minikube/releases/v0.25.2/minikube-windows-amd64.exe) file.
 1. Rename it to **minikube.exe**.
 1. Add it to a directory on your PATH.
 
 #### Linux
 
 ```console
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.25.2/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
 ```
 
 ### Install the Azure CLI
