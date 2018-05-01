@@ -11,14 +11,8 @@ type databaseProvisioningParameters struct {
 func (
 	d *databaseManager,
 ) getProvisionParametersSchema() map[string]service.ParameterSchema {
-
-	props := map[string]service.ParameterSchema{}
-	props["extensions"] = &service.ArrayParameterSchema{
-		Description: "Database extensions to install",
-		ItemsSchema: &service.SimpleParameterSchema{
-			Type:        "string",
-			Description: "Extension Name",
-		},
+	props := map[string]service.ParameterSchema{
+		"extensions": dbExtensionsSchema,
 	}
 	return props
 }

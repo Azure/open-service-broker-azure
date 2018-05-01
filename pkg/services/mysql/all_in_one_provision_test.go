@@ -163,7 +163,7 @@ func TestValidateHardwareVersionIncompatible(t *testing.T) {
 	provisionSchema := planSchema{
 		allowedHardware:         []string{"gen5"},
 		defaultHardware:         "gen5",
-		validCores:              []int{2, 4, 8, 16},
+		allowedCores:            []int{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
 		minStorage:              5,

@@ -3,9 +3,19 @@ package postgresql
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 const primaryDB = "postgres"
+
+var dbExtensionsSchema = &service.ArrayParameterSchema{
+	Description: "Database extensions to install",
+	ItemsSchema: &service.SimpleParameterSchema{
+		Type:        "string",
+		Description: "Extension Name",
+	},
+}
 
 func getDBConnection(
 	enforceSSL bool,

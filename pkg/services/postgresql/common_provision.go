@@ -127,7 +127,7 @@ func validateDBMSProvisionParameters(
 	}
 
 	// cores
-	if pp.Cores != nil && !slice.ContainsInt(schema.validCores, *pp.Cores) {
+	if pp.Cores != nil && !slice.ContainsInt(schema.allowedCores, *pp.Cores) {
 		return service.NewValidationError(
 			"cores",
 			fmt.Sprintf(`invalid value: "%d"`, *pp.Cores),
@@ -297,13 +297,8 @@ func buildGoTemplateParameters(
 
 	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
 
-	sku, err := schema.buildSku(pp)
-	if err != nil {
-		return nil, err
-	}
-
 	p := map[string]interface{}{}
-	p["sku"] = sku
+	p["sku"] = schema.getSku(pp)
 	p["tier"] = plan.GetProperties().Extended["tier"]
 	p["cores"] = schema.getCores(pp)
 	p["storage"] = schema.getStorage(pp) * 1024 //storage is in MB to arm :/

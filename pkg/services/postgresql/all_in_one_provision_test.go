@@ -11,7 +11,7 @@ func TestValidateNoFirewallConfig(t *testing.T) {
 	sm := &allInOneManager{}
 	pp := service.ProvisioningParameters{}
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
 	)
 	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.Nil(t, err)
@@ -29,7 +29,7 @@ func TestValidateGoodFirewallConfig(t *testing.T) {
 		},
 	}
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
 	)
 	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.Nil(t, err)
@@ -47,7 +47,7 @@ func TestValidateMissingFirewallRuleNameConfig(t *testing.T) {
 		},
 	}
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
 	)
 	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
@@ -66,7 +66,7 @@ func TestValidateMissingEndFirewallConfig(t *testing.T) {
 		},
 	}
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
 	)
 	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
@@ -86,7 +86,7 @@ func TestValidateMissingStartFirewallConfig(t *testing.T) {
 		},
 	}
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
 	)
 	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
@@ -107,7 +107,7 @@ func TestValidateInvalidIP(t *testing.T) {
 		},
 	}
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
 	)
 	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
@@ -128,7 +128,7 @@ func TestValidateIncompleteIP(t *testing.T) {
 		},
 	}
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4"),
+		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
 	)
 	err := sm.ValidateProvisioningParameters(plan, pp, nil)
 	assert.NotNil(t, err)
@@ -141,7 +141,7 @@ func TestValidateHardwareVersionIncompatible(t *testing.T) {
 	provisionSchema := planSchema{
 		allowedHardware:         []string{"gen5"},
 		defaultHardware:         "gen5",
-		validCores:              []int{2, 4, 8, 16},
+		allowedCores:            []int{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
 		minStorage:              5,
@@ -167,7 +167,7 @@ func TestValidateHardwareVersionIncompatible(t *testing.T) {
 			DisplayName: "somePlan",
 			Bullets:     []string{"Testable"},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema, false),
 	})
 
 	sm := &allInOneManager{}
