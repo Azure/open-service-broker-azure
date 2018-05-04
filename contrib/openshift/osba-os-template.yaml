@@ -1,0 +1,238 @@
+kind: Template
+apiVersion: v1
+objects:
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: osba-redis
+    labels:
+      app: osba-redis
+      release: "osba"
+  type: Opaque
+  data:
+    redis-password: "cGFzc3dvcmQ="
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: osba-open-service-broker-azure-auth
+    labels:
+      app: osba-open-service-broker-azure
+      release: "osba"
+  type: Opaque
+  data:
+    username: dXNlcm5hbWU=
+    password: cGFzc3dvcmQ=
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: osba-open-service-broker-azure
+    labels:
+      app: osba-open-service-broker-azure
+      release: "osba"
+  stringData:
+    azure-client-secret: ${AZURE_CLIENT_SECRET}
+    encryption-key: This is a key that is 256 bits!!
+    redis-password: "password"
+    basic-auth-password: "password"
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: osba-redis
+    labels:
+      app: osba-redis
+      release: "osba"
+  spec:
+    ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
+    selector:
+      app: osba-redis
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: osba-open-service-broker-azure
+    labels:
+      app: osba-open-service-broker-azure
+      release: "osba"
+  spec:
+    type: ClusterIP
+    selector:
+      app: osba-open-service-broker-azure
+    ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: osba-redis-pv-claim
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: osba-redis
+    labels:
+      app: osba-redis
+      release: "osba"
+  spec:
+    template:
+      metadata:
+        labels:
+          app: osba-redis
+      spec:
+        containers:
+        - name: osba-redis
+          image: "bitnami/redis:4.0.9"
+          imagePullPolicy: "IfNotPresent"
+          env:
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: osba-redis
+                key: redis-password
+          ports:
+          - name: redis
+            containerPort: 6379
+          livenessProbe:
+            exec:
+              command:
+              - redis-cli
+              - ping
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+              - redis-cli
+              - ping
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          volumeMounts:
+          - name: redis-data
+            mountPath: /bitnami/redis
+        volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: osba-redis-pv-claim
+
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: osba-open-service-broker-azure
+    labels:
+      app: osba-open-service-broker-azure
+      release: "osba"
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: osba-open-service-broker-azure
+    template:
+      metadata:
+        labels:
+          app: osba-open-service-broker-azure
+          release: "osba"
+      spec:
+        containers:
+          - name: open-service-broker-azure
+            image: microsoft/azure-service-broker:v0.10.0
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: ENVIRONMENT
+              value: ${ENVIRONMENT}
+            - name: AZURE_SUBSCRIPTION_ID
+              value: ${AZURE_SUBSCRIPTION_ID}
+            - name: AZURE_TENANT_ID
+              value: ${AZURE_TENANT_ID}
+            - name: AZURE_CLIENT_ID
+              value: ${AZURE_CLIENT_ID}
+            - name: AZURE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: osba-open-service-broker-azure
+                  key: azure-client-secret
+            - name: AZURE_DEFAULT_LOCATION
+              value: ${AZURE_DEFAULT_LOCATION}
+            - name: REDIS_HOST
+              value: osba-redis
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: osba-open-service-broker-azure
+                  key: redis-password
+            - name: AES256_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: osba-open-service-broker-azure
+                  key: encryption-key
+            - name: BASIC_AUTH_USERNAME
+              value: username
+            - name: BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: osba-open-service-broker-azure
+                  key: basic-auth-password
+            - name: MIN_STABILITY
+              value: EXPERIMENTAL
+            ports:
+            - containerPort: 8080
+            readinessProbe:
+              tcpSocket:
+                port: 8080
+              failureThreshold: 1
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 2
+            livenessProbe:
+              tcpSocket:
+                port: 8080
+              failureThreshold: 3
+              initialDelaySeconds: 30
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 2
+- apiVersion: servicecatalog.k8s.io/v1beta1
+  kind: ClusterServiceBroker
+  metadata:
+    name: osba
+  spec:
+    url: http://osba-open-service-broker-azure.osba.svc.cluster.local
+    authInfo:
+      basic:
+        secretRef:
+          name: "osba-open-service-broker-azure-auth"
+          namespace: "osba"
+
+parameters:
+- name: ENVIRONMENT
+  value: AzurePublicCloud
+  required: true
+- name: AZURE_SUBSCRIPTION_ID
+  value: 
+  required: true
+- name: AZURE_TENANT_ID
+  value: 
+  required: true
+- name: AZURE_CLIENT_ID
+  value: 
+  required: true
+- name: AZURE_DEFAULT_LOCATION
+  value: 
+  required: true
+- name: AZURE_CLIENT_SECRET
+  value: 
+  required: true
