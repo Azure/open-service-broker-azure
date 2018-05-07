@@ -21,7 +21,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "Container", "Instance"},
-				ProvisionParamsSchema: m.serviceManager.getProvisionParametersSchema(),
 			},
 			m.serviceManager,
 			service.NewPlan(&service.PlanProperties{
@@ -32,6 +31,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Container Instances",
 				},
+				ProvisionParamsSchema: m.serviceManager.getProvisionParametersSchema(),
 			}),
 		),
 	}), nil

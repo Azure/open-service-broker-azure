@@ -224,7 +224,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "Database"},
-				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
 					"version": "9.6",
 				},
@@ -238,6 +237,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for PostgreSQL-- Database Only",
 				},
+				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 			}),
 		),
 	}), nil

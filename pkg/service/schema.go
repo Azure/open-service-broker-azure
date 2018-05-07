@@ -216,8 +216,8 @@ func (ps *planSchemas) addParameterSchemas(
 		err := ups.Parameters.addProperties(instanceUpdateParameters)
 		log.Errorf("error building instance update param schema %s", err)
 	}
-	if bindingCreateParameters != nil {
 
+	if bindingCreateParameters != nil {
 		sbps := ps.ServiceBindings
 		if sbps == nil {
 			sbps = &bindingSchemas{}

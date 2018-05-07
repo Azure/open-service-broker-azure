@@ -32,13 +32,10 @@ type ServiceProperties struct { // nolint: golint
 	Bindable      bool             `json:"bindable"`
 	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
 	// deliberate to match the spec
-	ParentServiceID       string                     `json:"-"`
-	ChildServiceID        string                     `json:"-"`
-	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
-	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
-	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
-	Extended              map[string]interface{}     `json:"-"`
-	EndOfLife             bool                       `json:"-"`
+	ParentServiceID string                 `json:"-"`
+	ChildServiceID  string                 `json:"-"`
+	Extended        map[string]interface{} `json:"-"`
+	EndOfLife       bool                   `json:"-"`
 }
 
 // ServiceMetadata contains metadata about the service classes
@@ -169,38 +166,16 @@ func NewService(
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
-
-	serviceParamSchemas := &planSchemas{}
-	if serviceProperties.ProvisionParamsSchema != nil ||
-		serviceProperties.UpdateParamsSchema != nil ||
-		serviceProperties.BindingParamsSchema != nil {
-
-		serviceParamSchemas.addParameterSchemas(
-			serviceProperties.ProvisionParamsSchema,
-			serviceProperties.UpdateParamsSchema,
-			serviceProperties.BindingParamsSchema,
-		)
-	}
-	serviceParamSchemas.addCommonSchema(serviceProperties)
-
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-
-		// If the plan has its own schema, ignore the service schema
-		if p.PlanProperties.ProvisionParamsSchema != nil ||
-			p.PlanProperties.UpdateParamsSchema != nil ||
-			p.PlanProperties.BindingParamsSchema != nil {
-			pSchemas := &planSchemas{}
-			pSchemas.addParameterSchemas(
-				p.PlanProperties.ProvisionParamsSchema,
-				p.PlanProperties.UpdateParamsSchema,
-				p.PlanProperties.BindingParamsSchema,
-			)
-			pSchemas.addCommonSchema(serviceProperties)
-			p.ParameterSchemas = pSchemas
-		} else {
-			p.ParameterSchemas = serviceParamSchemas
-		}
+		pSchemas := &planSchemas{}
+		pSchemas.addParameterSchemas(
+			p.PlanProperties.ProvisionParamsSchema,
+			p.PlanProperties.UpdateParamsSchema,
+			p.PlanProperties.BindingParamsSchema,
+		)
+		pSchemas.addCommonSchema(serviceProperties)
+		p.ParameterSchemas = pSchemas
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
