@@ -12,23 +12,12 @@ type planSchemas struct {
 }
 
 type instanceSchemas struct {
-	ProvisioningParametersSchema *provisioningParametersSchema `json:"create,omitempty"` // nolint: lll
-	UpdatingParametersSchema     *updatingParametersSchema     `json:"update,omitempty"` // nolint: lll
+	ProvisioningParametersSchema *parametersSchema `json:"create,omitempty"` // nolint: lll
+	UpdatingParametersSchema     *parametersSchema `json:"update,omitempty"` // nolint: lll
 }
 
-type provisioningParametersSchema struct {
-	Parameters *parametersSchema `json:"parameters,omitempty"`
-}
-
-type updatingParametersSchema struct {
-	Parameters *parametersSchema `json:"parameters,omitempty"`
-}
 type bindingSchemas struct {
-	BindingParametersSchema *bindingSchema `json:"create,omitempty"`
-}
-
-type bindingSchema struct {
-	Parameters *parametersSchema `json:"parameters,omitempty"`
+	BindingParametersSchema *parametersSchema `json:"create,omitempty"`
 }
 
 type parametersSchema struct {
@@ -39,6 +28,17 @@ type parametersSchema struct {
 	RequiredProperties []string                   `json:"required,omitempty"`
 	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
 	Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
+}
+
+func (p parametersSchema) MarshalJSON() ([]byte, error) {
+	type ps parametersSchema
+	return json.Marshal(
+		struct {
+			Parameters ps `json:"parameters"`
+		}{
+			Parameters: ps(p),
+		},
+	)
 }
 
 // SimpleParameterSchema represents the attributes of a simple schema type
@@ -189,12 +189,10 @@ func (ps *planSchemas) addParameterSchemas(
 		}
 		pps := sips.ProvisioningParametersSchema
 		if pps == nil {
-			pps = &provisioningParametersSchema{
-				Parameters: createEmptyParameterSchema(),
-			}
+			pps = createEmptyParameterSchema()
 			sips.ProvisioningParametersSchema = pps
 		}
-		err := pps.Parameters.addProperties(instanceCreateParameters)
+		err := pps.addProperties(instanceCreateParameters)
 		if err != nil {
 			log.Errorf("error building instance creation param schema %s", err)
 		}
@@ -208,12 +206,10 @@ func (ps *planSchemas) addParameterSchemas(
 		}
 		ups := sips.UpdatingParametersSchema
 		if ups == nil {
-			ups = &updatingParametersSchema{
-				Parameters: createEmptyParameterSchema(),
-			}
+			ups = createEmptyParameterSchema()
 			sips.UpdatingParametersSchema = ups
 		}
-		err := ups.Parameters.addProperties(instanceUpdateParameters)
+		err := ups.addProperties(instanceUpdateParameters)
 		log.Errorf("error building instance update param schema %s", err)
 	}
 
@@ -225,12 +221,10 @@ func (ps *planSchemas) addParameterSchemas(
 		}
 		bcps := sbps.BindingParametersSchema
 		if bcps == nil {
-			bcps = &bindingSchema{
-				Parameters: createEmptyParameterSchema(),
-			}
+			bcps = createEmptyParameterSchema()
 			sbps.BindingParametersSchema = bcps
 		}
-		err := bcps.Parameters.addProperties(bindingCreateParameters)
+		err := bcps.addProperties(bindingCreateParameters)
 		log.Errorf("error building binding creation param schema %s", err)
 	}
 }
