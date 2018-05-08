@@ -84,7 +84,7 @@ type PlanProperties struct {
 	Metadata              *ServicePlanMetadata       `json:"metadata,omitempty"` // nolint: lll
 	Extended              map[string]interface{}     `json:"-"`
 	EndOfLife             bool                       `json:"-"`
-	Schemas               *PlanSchemas               `json:"schemas,omitempty"`
+	Schemas               PlanSchemas                `json:"schemas,omitempty"`
 	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
 	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
 	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
@@ -168,7 +168,7 @@ func NewService(
 	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		pSchemas := &PlanSchemas{}
+		pSchemas := PlanSchemas{}
 		pSchemas.addParameterSchemas(
 			p.PlanProperties.ProvisionParamsSchema,
 			p.PlanProperties.UpdateParamsSchema,
