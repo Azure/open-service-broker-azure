@@ -107,7 +107,7 @@ type Plan interface {
 
 type plan struct {
 	*PlanProperties
-	ParameterSchemas *planSchemas `json:"schemas,omitempty"`
+	ParameterSchemas *PlanSchemas `json:"schemas,omitempty"`
 }
 
 // NewCatalog initializes and returns a new Catalog
@@ -168,7 +168,7 @@ func NewService(
 	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		pSchemas := &planSchemas{}
+		pSchemas := &PlanSchemas{}
 		pSchemas.addParameterSchemas(
 			p.PlanProperties.ProvisionParamsSchema,
 			p.PlanProperties.UpdateParamsSchema,

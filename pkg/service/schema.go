@@ -6,21 +6,30 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-type planSchemas struct {
-	ServiceInstances *instanceSchemas `json:"service_instance,omitempty"`
-	ServiceBindings  *bindingSchemas  `json:"service_binding,omitempty"`
+// PlanSchemas is the root of a tree that encapsulates all plan-related schemas
+// for validating input parameters to all service instance and service binding
+// operations.
+type PlanSchemas struct {
+	ServiceInstances *InstanceSchemas `json:"service_instance,omitempty"`
+	ServiceBindings  *BindingSchemas  `json:"service_binding,omitempty"`
 }
 
-type instanceSchemas struct {
-	ProvisioningParametersSchema *parametersSchema `json:"create,omitempty"` // nolint: lll
-	UpdatingParametersSchema     *parametersSchema `json:"update,omitempty"` // nolint: lll
+// InstanceSchemas encapsulates all plan-related schemas for validating input
+// paramters to all service instance operations.
+type InstanceSchemas struct {
+	ProvisioningParametersSchema *InputParametersSchema `json:"create,omitempty"`
+	UpdatingParametersSchema     *InputParametersSchema `json:"update,omitempty"`
 }
 
-type bindingSchemas struct {
-	BindingParametersSchema *parametersSchema `json:"create,omitempty"`
+// BindingSchemas encapsulates all plan-related schemas for validating input
+// parameters to all service binding operations.
+type BindingSchemas struct {
+	BindingParametersSchema *InputParametersSchema `json:"create,omitempty"`
 }
 
-type parametersSchema struct {
+// InputParametersSchema encapsulates schema for validating input paramaters
+// to any single operation.
+type InputParametersSchema struct {
 	Schema             string                     `json:"$schema"`
 	Type               string                     `json:"type"`
 	Description        string                     `json:"description,omitempty"`
@@ -30,13 +39,16 @@ type parametersSchema struct {
 	Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
 }
 
-func (p parametersSchema) MarshalJSON() ([]byte, error) {
-	type ps parametersSchema
+// MarshalJSON defines custom JSON marshaling for InputParametersSchema and
+// introduces an intermediate "parameters" property which is required by the
+// OSB spec.
+func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
+	type inputParametersSchema InputParametersSchema
 	return json.Marshal(
 		struct {
-			Parameters ps `json:"parameters"`
+			Parameters inputParametersSchema `json:"parameters"`
 		}{
-			Parameters: ps(p),
+			Parameters: inputParametersSchema(i),
 		},
 	)
 }
@@ -156,27 +168,27 @@ func (s *SimpleParameterSchema) setRequiredProperties() {
 func (n *NumericParameterSchema) setRequiredProperties() {
 }
 
-func (p *parametersSchema) addProperties(
+func (i *InputParametersSchema) addProperties(
 	newProperties map[string]ParameterSchema,
 ) error {
 	if newProperties == nil {
 		return nil
 	}
-	if p.Properties == nil {
-		p.Properties = make(map[string]ParameterSchema)
+	if i.Properties == nil {
+		i.Properties = make(map[string]ParameterSchema)
 	}
 	for key, param := range newProperties {
 		param.setRequiredProperties()
 		if param.isRequired() {
-			p.RequiredProperties =
-				append(p.RequiredProperties, key)
+			i.RequiredProperties =
+				append(i.RequiredProperties, key)
 		}
-		p.Properties[key] = param
+		i.Properties[key] = param
 	}
 	return nil
 }
 
-func (ps *planSchemas) addParameterSchemas(
+func (ps *PlanSchemas) addParameterSchemas(
 	instanceCreateParameters map[string]ParameterSchema,
 	instanceUpdateParameters map[string]ParameterSchema,
 	bindingCreateParameters map[string]ParameterSchema,
@@ -184,7 +196,7 @@ func (ps *planSchemas) addParameterSchemas(
 	if instanceCreateParameters != nil {
 		sips := ps.ServiceInstances
 		if sips == nil {
-			sips = &instanceSchemas{}
+			sips = &InstanceSchemas{}
 			ps.ServiceInstances = sips
 		}
 		pps := sips.ProvisioningParametersSchema
@@ -201,7 +213,7 @@ func (ps *planSchemas) addParameterSchemas(
 	if instanceUpdateParameters != nil {
 		sips := ps.ServiceInstances
 		if sips == nil {
-			sips = &instanceSchemas{}
+			sips = &InstanceSchemas{}
 			ps.ServiceInstances = sips
 		}
 		ups := sips.UpdatingParametersSchema
@@ -216,7 +228,7 @@ func (ps *planSchemas) addParameterSchemas(
 	if bindingCreateParameters != nil {
 		sbps := ps.ServiceBindings
 		if sbps == nil {
-			sbps = &bindingSchemas{}
+			sbps = &BindingSchemas{}
 			ps.ServiceBindings = sbps
 		}
 		bcps := sbps.BindingParametersSchema
@@ -229,12 +241,11 @@ func (ps *planSchemas) addParameterSchemas(
 	}
 }
 
-func createEmptyParameterSchema() *parametersSchema {
-	p := &parametersSchema{
+func createEmptyParameterSchema() *InputParametersSchema {
+	return &InputParametersSchema{
 		Schema: "http://json-schema.org/draft-04/schema#",
 		Type:   "object",
 	}
-	return p
 }
 
 func getCommonProvisionParameters() map[string]ParameterSchema {
@@ -281,7 +292,7 @@ func getParentServiceParameters() map[string]ParameterSchema {
 	return p
 }
 
-func (ps *planSchemas) addCommonSchema(sp *ServiceProperties) {
+func (ps *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 	if sp.ParentServiceID == "" {
 		ps.addParameterSchemas(
 			getCommonProvisionParameters(),
