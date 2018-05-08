@@ -30,9 +30,9 @@ type BindingSchemas struct {
 // InputParametersSchema encapsulates schema for validating input paramaters
 // to any single operation.
 type InputParametersSchema struct {
-	RequiredProperties []string                   `json:"required,omitempty"`
-	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
-	Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
+	RequiredProperties []string                  `json:"required,omitempty"`
+	Properties         map[string]PropertySchema `json:"properties,omitempty"`
+	Additional         PropertySchema            `json:"additionalProperties,omitempty"` // nolint: lll
 }
 
 // MarshalJSON defines custom JSON marshaling for InputParametersSchema and
@@ -58,59 +58,58 @@ func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 	)
 }
 
-// SimpleParameterSchema represents the attributes of a simple schema type
+// SimplePropertySchema represents the attributes of a simple schema type
 // such as a string or integer
-type SimpleParameterSchema struct {
+type SimplePropertySchema struct {
 	Type          string      `json:"type"`
 	Description   string      `json:"description,omitempty"`
 	Default       interface{} `json:"default,omitempty"`
 	AllowedValues interface{} `json:"enum,omitempty"`
 }
 
-// ObjectParameterSchema represents the attributes of a complicated schema type
+// ObjectPropertySchema represents the attributes of a complicated schema type
 // that can have nested properties
-type ObjectParameterSchema struct {
-	Description        string                     `json:"description,omitempty"`
-	RequiredProperties []string                   `json:"required,omitempty"`
-	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
-	Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
+type ObjectPropertySchema struct {
+	Description        string                    `json:"description,omitempty"`
+	RequiredProperties []string                  `json:"required,omitempty"`
+	Properties         map[string]PropertySchema `json:"properties,omitempty"`
+	Additional         PropertySchema            `json:"additionalProperties,omitempty"` // nolint: lll
 }
 
-// MarshalJSON provides functionality to marshal an
-// ObjectParameterSchema to JSON
-func (o ObjectParameterSchema) MarshalJSON() ([]byte, error) {
-	type objectParameterSchema ObjectParameterSchema
+// MarshalJSON provides functionality to marshal an ObjectPropertySchema to JSON
+func (o ObjectPropertySchema) MarshalJSON() ([]byte, error) {
+	type objectPropertySchema ObjectPropertySchema
 	return json.Marshal(struct {
 		Type string `json:"type"`
-		objectParameterSchema
+		objectPropertySchema
 	}{
-		Type: "object",
-		objectParameterSchema: objectParameterSchema(o),
+		Type:                 "object",
+		objectPropertySchema: objectPropertySchema(o),
 	})
 }
 
-// ArrayParameterSchema represents the attributes of an array type
-type ArrayParameterSchema struct {
-	Description string          `json:"description,omitempty"`
-	ItemsSchema ParameterSchema `json:"items,omitempty"`
+// ArrayPropertySchema represents the attributes of an array type
+type ArrayPropertySchema struct {
+	Description string         `json:"description,omitempty"`
+	ItemsSchema PropertySchema `json:"items,omitempty"`
 }
 
 // MarshalJSON provides functionality to marshal an
-// ArrayParameterSchema to JSON
-func (a ArrayParameterSchema) MarshalJSON() ([]byte, error) {
-	type arrayParameterSchema ArrayParameterSchema
+// ArrayPropertySchema to JSON
+func (a ArrayPropertySchema) MarshalJSON() ([]byte, error) {
+	type arrayPropertySchema ArrayPropertySchema
 	return json.Marshal(struct {
 		Type string `json:"type"`
-		arrayParameterSchema
+		arrayPropertySchema
 	}{
-		Type:                 "array",
-		arrayParameterSchema: arrayParameterSchema(a),
+		Type:                "array",
+		arrayPropertySchema: arrayPropertySchema(a),
 	})
 }
 
-// NumericParameterSchema represents a numeric type, either
+// NumericPropertySchema represents a numeric type, either
 // integers or floating point numbers, that can have an upper or lower bound.
-type NumericParameterSchema struct {
+type NumericPropertySchema struct {
 	Type             string      `json:"type"`
 	Description      string      `json:"description,omitempty"`
 	Default          interface{} `json:"default,omitempty"`
@@ -120,36 +119,35 @@ type NumericParameterSchema struct {
 	ExclusiveMaximum bool        `json:"exclusiveMaximum,omitempty"`
 }
 
-// ParameterSchema defines an interface representing a given Parameter schema.
-// This could be a provision or binding parameter.
-type ParameterSchema interface{}
+// PropertySchema is an interface for the schema of any kind of property.
+type PropertySchema interface{}
 
 func (ps *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 	if ps.ServiceInstances.ProvisioningParametersSchema.Properties == nil {
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties = map[string]ParameterSchema{}
+		ps.ServiceInstances.ProvisioningParametersSchema.Properties = map[string]PropertySchema{}
 	}
 	if sp.ParentServiceID == "" {
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["location"] = &SimpleParameterSchema{
+		ps.ServiceInstances.ProvisioningParametersSchema.Properties["location"] = &SimplePropertySchema{
 			Type: "string",
 			Description: "The Azure region in which to provision" +
 				" applicable resources.",
 		}
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["resourceGroup"] = &SimpleParameterSchema{
+		ps.ServiceInstances.ProvisioningParametersSchema.Properties["resourceGroup"] = &SimplePropertySchema{
 			Type: "string",
 			Description: "The (new or existing) resource group with which" +
 				" to associate new resources.",
 		}
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["tags"] = &ObjectParameterSchema{
+		ps.ServiceInstances.ProvisioningParametersSchema.Properties["tags"] = &ObjectPropertySchema{
 			Description: "Tags to be applied to new resources," +
 				" specified as key/value pairs.",
-			Additional: &SimpleParameterSchema{
+			Additional: &SimplePropertySchema{
 				Type: "string",
 			},
 		}
 		if sp.ChildServiceID != "" {
 			ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
 				append(ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties, "alias")
-			ps.ServiceInstances.ProvisioningParametersSchema.Properties["alias"] = &SimpleParameterSchema{
+			ps.ServiceInstances.ProvisioningParametersSchema.Properties["alias"] = &SimplePropertySchema{
 				Type:        "string",
 				Description: "Alias to use when provisioning databases on this DBMS",
 			}
@@ -157,7 +155,7 @@ func (ps *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 	} else {
 		ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
 			append(ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties, "parentAlias")
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["parentAlias"] = &SimpleParameterSchema{
+		ps.ServiceInstances.ProvisioningParametersSchema.Properties["parentAlias"] = &SimplePropertySchema{
 			Type: "string",
 			Description: "Specifies the alias of the DBMS upon which the database " +
 				"should be provisioned.",

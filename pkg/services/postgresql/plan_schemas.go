@@ -53,27 +53,27 @@ func generateDBMSPlanSchema(
 	schema planSchema,
 	includeDBParams bool,
 ) service.InputParametersSchema {
-	ps := map[string]service.ParameterSchema{}
-	ps["firewallRules"] = &service.ArrayParameterSchema{
+	ps := map[string]service.PropertySchema{}
+	ps["firewallRules"] = &service.ArrayPropertySchema{
 		Description: "Firewall rules to apply to instance. " +
 			"If left unspecified, defaults to only Azure IPs",
-		ItemsSchema: &service.ObjectParameterSchema{
+		ItemsSchema: &service.ObjectPropertySchema{
 			Description: "Individual Firewall Rule",
 			RequiredProperties: []string{
 				"name",
 				"startIPAddress",
 				"endIPAddress",
 			},
-			Properties: map[string]service.ParameterSchema{
-				"name": &service.SimpleParameterSchema{
+			Properties: map[string]service.PropertySchema{
+				"name": &service.SimplePropertySchema{
 					Type:        "string",
 					Description: "Name of firewall rule",
 				},
-				"startIPAddress": &service.SimpleParameterSchema{
+				"startIPAddress": &service.SimplePropertySchema{
 					Type:        "string",
 					Description: "Start of firewall rule range",
 				},
-				"endIPAddress": &service.SimpleParameterSchema{
+				"endIPAddress": &service.SimplePropertySchema{
 					Type:        "string",
 					Description: "End of firewall rule range",
 				},
@@ -81,7 +81,7 @@ func generateDBMSPlanSchema(
 		},
 	}
 	if len(schema.allowedSSLEnforcement) > 1 {
-		ps["sslEnforcement"] = &service.SimpleParameterSchema{
+		ps["sslEnforcement"] = &service.SimplePropertySchema{
 			Type: "string",
 			Description: "Specifies whether the server requires the use of TLS" +
 				" when connecting. Left unspecified, SSL will be enforced",
@@ -90,7 +90,7 @@ func generateDBMSPlanSchema(
 		}
 	}
 	if len(schema.allowedHardware) > 1 {
-		ps["hardwareFamily"] = &service.SimpleParameterSchema{
+		ps["hardwareFamily"] = &service.SimplePropertySchema{
 			Type:          "string",
 			Description:   "Specifies the compute generation to use for the DBMS",
 			AllowedValues: schema.allowedHardware,
@@ -98,7 +98,7 @@ func generateDBMSPlanSchema(
 		}
 	}
 	if len(schema.allowedCores) > 1 {
-		ps["cores"] = &service.SimpleParameterSchema{
+		ps["cores"] = &service.SimplePropertySchema{
 			Type: "number",
 			Description: "Specifies vCores, which represent the logical " +
 				"CPU of the underlying hardware",
@@ -107,7 +107,7 @@ func generateDBMSPlanSchema(
 		}
 	}
 	if schema.maxStorage > schema.minStorage {
-		ps["storage"] = &service.NumericParameterSchema{
+		ps["storage"] = &service.NumericPropertySchema{
 			Type:        "number",
 			Description: "Specifies the storage in GBs",
 			Default:     schema.defaultStorage,
@@ -116,7 +116,7 @@ func generateDBMSPlanSchema(
 		}
 	}
 	if schema.maxBackupRetention > schema.minBackupRetention {
-		ps["backupRetention"] = &service.NumericParameterSchema{
+		ps["backupRetention"] = &service.NumericPropertySchema{
 			Type:        "number",
 			Description: "Specifies the number of days for backup retention",
 			Default:     schema.minBackupRetention,
@@ -125,7 +125,7 @@ func generateDBMSPlanSchema(
 		}
 	}
 	if len(schema.allowedBackupRedundancy) > 1 {
-		ps["backupRedundancy"] = &service.SimpleParameterSchema{
+		ps["backupRedundancy"] = &service.SimplePropertySchema{
 			Type:          "string",
 			Description:   "Specifies the backup redundancy",
 			AllowedValues: schema.allowedBackupRedundancy,

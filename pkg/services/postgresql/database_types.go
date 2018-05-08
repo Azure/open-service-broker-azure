@@ -12,7 +12,7 @@ func (
 	d *databaseManager,
 ) getProvisionParametersSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
-		Properties: map[string]service.ParameterSchema{
+		Properties: map[string]service.PropertySchema{
 			"extensions": dbExtensionsSchema,
 		},
 	}

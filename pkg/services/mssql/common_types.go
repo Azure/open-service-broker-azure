@@ -27,34 +27,34 @@ type credentials struct {
 
 func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
-		Properties: map[string]service.ParameterSchema{
-			"firewallRules": &service.ArrayParameterSchema{
+		Properties: map[string]service.PropertySchema{
+			"firewallRules": &service.ArrayPropertySchema{
 				Description: "Firewall rules to apply to instance. " +
 					"If left unspecified, defaults to only Azure IPs",
-				ItemsSchema: &service.ObjectParameterSchema{
+				ItemsSchema: &service.ObjectPropertySchema{
 					Description: "Individual Firewall Rule",
 					RequiredProperties: []string{
 						"name",
 						"startIPAddress",
 						"endIPAddress",
 					},
-					Properties: map[string]service.ParameterSchema{
-						"name": &service.SimpleParameterSchema{
+					Properties: map[string]service.PropertySchema{
+						"name": &service.SimplePropertySchema{
 							Type:        "string",
 							Description: "Name of firewall rule",
 						},
-						"startIPAddress": &service.SimpleParameterSchema{
+						"startIPAddress": &service.SimplePropertySchema{
 							Type:        "string",
 							Description: "Start of firewall rule range",
 						},
-						"endIPAddress": &service.SimpleParameterSchema{
+						"endIPAddress": &service.SimplePropertySchema{
 							Type:        "string",
 							Description: "End of firewall rule range",
 						},
 					},
 				},
 			},
-			"sslEnforcement": &service.SimpleParameterSchema{
+			"sslEnforcement": &service.SimplePropertySchema{
 				Type: "string",
 				Description: "Specifies whether the server requires the use of TLS" +
 					" when connecting. Left unspecified, SSL will be enforced",
