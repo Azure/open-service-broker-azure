@@ -17,7 +17,7 @@ func (
 ) getProvisionParametersSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
 		RequiredProperties: []string{"image"},
-		Properties: map[string]service.PropertySchema{
+		PropertySchemas: map[string]service.PropertySchema{
 			"image": &service.StringPropertySchema{
 				Description: "The Docker image on which to base the container.",
 			},

@@ -2,6 +2,8 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
+	"math"
 	"regexp"
 )
 
@@ -32,7 +34,7 @@ type BindingSchemas struct {
 // to any single operation.
 type InputParametersSchema struct {
 	RequiredProperties []string                  `json:"required,omitempty"`
-	Properties         map[string]PropertySchema `json:"properties,omitempty"`
+	PropertySchemas    map[string]PropertySchema `json:"properties,omitempty"`
 	Additional         PropertySchema            `json:"additionalProperties,omitempty"` // nolint: lll
 }
 
@@ -57,6 +59,29 @@ func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 			},
 		},
 	)
+}
+
+func (i InputParametersSchema) Validate(valMap map[string]interface{}) error {
+	for _, requiredProperty := range i.RequiredProperties {
+		_, ok := valMap[requiredProperty]
+		if !ok {
+			return NewValidationError(requiredProperty, "field is required")
+		}
+	}
+	for k, v := range valMap {
+		propertySchema, ok := i.PropertySchemas[k]
+		if ok {
+			if err := propertySchema.validate(k, v); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// PropertySchema is an interface for the schema of any kind of property.
+type PropertySchema interface {
+	validate(context string, value interface{}) error
 }
 
 type CustomPropertyValidator func(value interface{}) error
@@ -86,6 +111,43 @@ func (s StringPropertySchema) MarshalJSON() ([]byte, error) {
 	)
 }
 
+func (s StringPropertySchema) validate(context string, value interface{}) error {
+	val, ok := value.(string)
+	if !ok {
+		return NewValidationError(context, "field value is not of type string")
+	}
+	if s.MinLength != nil && len(val) < *s.MinLength {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field length is less than minimum %d", *s.MinLength),
+		)
+	}
+	if s.MaxLength != nil && len(val) > *s.MaxLength {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field length is greater than maximum %d", *s.MaxLength),
+		)
+	}
+	if len(s.AllowedValues) > 0 {
+		var found bool
+		for _, allowedValue := range s.AllowedValues {
+			if val == allowedValue {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return NewValidationError(context, "field value is invalid")
+		}
+	}
+	if s.AllowedPattern != nil {
+		if !s.AllowedPattern.MatchString(val) {
+			return NewValidationError(context, "field value is invalid")
+		}
+	}
+	return nil
+}
+
 // IntPropertySchema represents schema for a single integer property
 type IntPropertySchema struct {
 	Description             string                  `json:"description,omitempty"`
@@ -109,6 +171,48 @@ func (i IntPropertySchema) MarshalJSON() ([]byte, error) {
 			intPropertySchema: intPropertySchema(i),
 		},
 	)
+}
+
+func (i IntPropertySchema) validate(context string, value interface{}) error {
+	floatVal, ok := value.(float64)
+	if !ok {
+		return NewValidationError(context, "field value is not of type int64")
+	}
+	val := int64(floatVal)
+	if floatVal != float64(val) {
+		return NewValidationError(context, "field value is not of type int64")
+	}
+	if i.MinValue != nil && val < *i.MinValue {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field value is less than minimum %d", *i.MinValue),
+		)
+	}
+	if i.MaxValue != nil && val > *i.MaxValue {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field value is greater than maximum %d", *i.MaxValue),
+		)
+	}
+	if len(i.AllowedValues) > 0 {
+		var found bool
+		for _, allowedValue := range i.AllowedValues {
+			if val == allowedValue {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return NewValidationError(context, "field value is invalid")
+		}
+	}
+	if i.AllowedIncrement != nil && val%*i.AllowedIncrement != 0 {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field value is not a multiple of %d", *i.AllowedIncrement),
+		)
+	}
+	return nil
 }
 
 // FloatPropertySchema represents schema for a single floating point property
@@ -136,12 +240,50 @@ func (f FloatPropertySchema) MarshalJSON() ([]byte, error) {
 	)
 }
 
+func (f FloatPropertySchema) validate(context string, value interface{}) error {
+	val, ok := value.(float64)
+	if !ok {
+		return NewValidationError(context, "field value is not of type float64")
+	}
+	if f.MinValue != nil && val < *f.MinValue {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field value is less than minimum %f", *f.MinValue),
+		)
+	}
+	if f.MaxValue != nil && val > *f.MaxValue {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field value is greater than maximum %f", *f.MaxValue),
+		)
+	}
+	if len(f.AllowedValues) > 0 {
+		var found bool
+		for _, allowedValue := range f.AllowedValues {
+			if val == allowedValue {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return NewValidationError(context, "field value is invalid")
+		}
+	}
+	if f.AllowedIncrement != nil && math.Mod(val, *f.AllowedIncrement) != 0 {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field value is not a multiple of %f", *f.AllowedIncrement),
+		)
+	}
+	return nil
+}
+
 // ObjectPropertySchema represents the attributes of a complicated schema type
 // that can have nested properties
 type ObjectPropertySchema struct {
 	Description        string                    `json:"description,omitempty"`
 	RequiredProperties []string                  `json:"required,omitempty"`
-	Properties         map[string]PropertySchema `json:"properties,omitempty"`
+	PropertySchemas    map[string]PropertySchema `json:"properties,omitempty"`
 	Additional         PropertySchema            `json:"additionalProperties,omitempty"` // nolint: lll
 }
 
@@ -157,9 +299,35 @@ func (o ObjectPropertySchema) MarshalJSON() ([]byte, error) {
 	})
 }
 
+func (o ObjectPropertySchema) validate(context string, value interface{}) error {
+	valMap, ok := value.(map[string]interface{})
+	if !ok {
+		return NewValidationError(context, "field value is not of type object")
+	}
+	for _, requiredProperty := range o.RequiredProperties {
+		_, ok := valMap[requiredProperty]
+		if !ok {
+			propetyContext := fmt.Sprintf("%s.%s", context, requiredProperty)
+			return NewValidationError(propetyContext, "field is required")
+		}
+	}
+	for k, v := range valMap {
+		propertySchema, ok := o.PropertySchemas[k]
+		if ok {
+			propetyContext := fmt.Sprintf("%s.%s", context, k)
+			if err := propertySchema.validate(propetyContext, v); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // ArrayPropertySchema represents the attributes of an array type
 type ArrayPropertySchema struct {
 	Description string         `json:"description,omitempty"`
+	MinItems    *int           `json:"minItems,omitempty"`
+	MaxItems    *int           `json:"maxItems,omitempty"`
 	ItemsSchema PropertySchema `json:"items,omitempty"`
 }
 
@@ -176,23 +344,51 @@ func (a ArrayPropertySchema) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// PropertySchema is an interface for the schema of any kind of property.
-type PropertySchema interface{}
+func (a ArrayPropertySchema) validate(context string, value interface{}) error {
+	valArray, ok := value.([]interface{})
+	if !ok {
+		return NewValidationError(context, "field value is not of type array")
+	}
+	if a.MinItems != nil && len(valArray) < *a.MinItems {
+		return NewValidationError(
+			context,
+			fmt.Sprintf("field contains fewer than minimum elements %d", *a.MinItems),
+		)
+	}
+	if a.MaxItems != nil && len(valArray) > *a.MaxItems {
+		return NewValidationError(
+			context,
+			fmt.Sprintf(
+				"field contains greater than maximum elements %d",
+				*a.MaxItems,
+			),
+		)
+	}
+	if a.ItemsSchema != nil {
+		for i, val := range valArray {
+			itemContext := fmt.Sprintf("%s[%d]", context, i)
+			if err := a.ItemsSchema.validate(itemContext, val); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
 
 func (ps *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
-	if ps.ServiceInstances.ProvisioningParametersSchema.Properties == nil {
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties = map[string]PropertySchema{}
+	if ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas == nil {
+		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas = map[string]PropertySchema{}
 	}
 	if sp.ParentServiceID == "" {
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["location"] = &StringPropertySchema{
+		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["location"] = &StringPropertySchema{
 			Description: "The Azure region in which to provision" +
 				" applicable resources.",
 		}
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["resourceGroup"] = &StringPropertySchema{
+		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["resourceGroup"] = &StringPropertySchema{
 			Description: "The (new or existing) resource group with which" +
 				" to associate new resources.",
 		}
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["tags"] = &ObjectPropertySchema{
+		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["tags"] = &ObjectPropertySchema{
 			Description: "Tags to be applied to new resources," +
 				" specified as key/value pairs.",
 			Additional: &StringPropertySchema{},
@@ -200,14 +396,14 @@ func (ps *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 		if sp.ChildServiceID != "" {
 			ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
 				append(ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties, "alias")
-			ps.ServiceInstances.ProvisioningParametersSchema.Properties["alias"] = &StringPropertySchema{
+			ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["alias"] = &StringPropertySchema{
 				Description: "Alias to use when provisioning databases on this DBMS",
 			}
 		}
 	} else {
 		ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
 			append(ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties, "parentAlias")
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["parentAlias"] = &StringPropertySchema{
+		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["parentAlias"] = &StringPropertySchema{
 			Description: "Specifies the alias of the DBMS upon which the database " +
 				"should be provisioned.",
 		}

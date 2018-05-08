@@ -27,7 +27,7 @@ type credentials struct {
 
 func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
-		Properties: map[string]service.PropertySchema{
+		PropertySchemas: map[string]service.PropertySchema{
 			"firewallRules": &service.ArrayPropertySchema{
 				Description: "Firewall rules to apply to instance. " +
 					"If left unspecified, defaults to only Azure IPs",
@@ -38,7 +38,7 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 						"startIPAddress",
 						"endIPAddress",
 					},
-					Properties: map[string]service.PropertySchema{
+					PropertySchemas: map[string]service.PropertySchema{
 						"name": &service.StringPropertySchema{
 							Description: "Name of firewall rule",
 						},

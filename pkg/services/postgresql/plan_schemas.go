@@ -66,7 +66,7 @@ func generateDBMSPlanSchema(
 				"startIPAddress",
 				"endIPAddress",
 			},
-			Properties: map[string]service.PropertySchema{
+			PropertySchemas: map[string]service.PropertySchema{
 				"name": &service.StringPropertySchema{
 					Description: "Name of firewall rule",
 				},
@@ -129,7 +129,7 @@ func generateDBMSPlanSchema(
 		ps["extensions"] = dbExtensionsSchema
 	}
 	return service.InputParametersSchema{
-		Properties: ps,
+		PropertySchemas: ps,
 	}
 }
 

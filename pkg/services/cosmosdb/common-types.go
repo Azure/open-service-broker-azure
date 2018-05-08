@@ -76,10 +76,10 @@ func (
 	const maxIntervalInSecondsMin = 5
 	const maxIntervalInSecondsMax = 86400
 	return service.InputParametersSchema{
-		Properties: map[string]service.PropertySchema{
+		PropertySchemas: map[string]service.PropertySchema{
 			"ipFilters": &service.ObjectPropertySchema{
 				Description: "IP Range Filter to be applied to new CosmosDB account",
-				Properties: map[string]service.PropertySchema{
+				PropertySchemas: map[string]service.PropertySchema{
 					"allowAccessFromAzure": &service.StringPropertySchema{
 						Description: "Specifies if Azure Services should be able to access" +
 							" the CosmosDB account.",
@@ -107,7 +107,7 @@ func (
 				RequiredProperties: []string{
 					"defaultConsistencyLevel",
 				},
-				Properties: map[string]service.PropertySchema{
+				PropertySchemas: map[string]service.PropertySchema{
 					"defaultConsistencyLevel": &service.StringPropertySchema{
 						Description: "The default consistency level and" +
 							" configuration settings of the Cosmos DB account.",
@@ -123,7 +123,7 @@ func (
 						Description: "The staleness settings when using " +
 							"BoundedStaleness consistency.  Required when " +
 							"using BoundedStaleness",
-						Properties: map[string]service.PropertySchema{
+						PropertySchemas: map[string]service.PropertySchema{
 							"maxStalenessPrefix": &service.IntPropertySchema{
 								Description: "When used with the Bounded Staleness " +
 									"consistency level, this value represents the number of " +

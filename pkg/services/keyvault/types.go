@@ -16,7 +16,7 @@ func (
 			"clientId",
 			"clientSecret",
 		},
-		Properties: map[string]service.PropertySchema{
+		PropertySchemas: map[string]service.PropertySchema{
 			"objectId": &service.StringPropertySchema{
 				Description: "Object ID for an existing service principal, " +
 					"which will be granted access to the new vault.",
