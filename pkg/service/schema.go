@@ -66,49 +66,43 @@ type SimpleParameterSchema struct {
 // ObjectParameterSchema represents the attributes of a complicated schema type
 // that can have nested properties
 type ObjectParameterSchema struct {
-	Description        string
-	Required           bool
-	RequiredProperties []string
-	Properties         map[string]ParameterSchema
-	Additional         ParameterSchema
+	Description        string                     `json:"description,omitempty"`
+	Required           bool                       `json:"-"`
+	RequiredProperties []string                   `json:"required,omitempty"`
+	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
+	Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
 }
 
 // MarshalJSON provides functionality to marshal an
 // ObjectParameterSchema to JSON
-func (o *ObjectParameterSchema) MarshalJSON() ([]byte, error) {
+func (o ObjectParameterSchema) MarshalJSON() ([]byte, error) {
+	type objectParameterSchema ObjectParameterSchema
 	return json.Marshal(struct {
-		Type               string                     `json:"type"`
-		Description        string                     `json:"description,omitempty"`
-		RequiredProperties []string                   `json:"required,omitempty"`
-		Properties         map[string]ParameterSchema `json:"properties,omitempty"`
-		Additional         ParameterSchema            `json:"additionalProperties,omitempty"` // nolint: lll
+		Type string `json:"type"`
+		objectParameterSchema
 	}{
-		Type:               "object",
-		Description:        o.Description,
-		RequiredProperties: o.RequiredProperties,
-		Properties:         o.Properties,
-		Additional:         o.Additional,
+		Type: "object",
+		objectParameterSchema: objectParameterSchema(o),
 	})
 }
 
 // ArrayParameterSchema represents the attributes of an array type
 type ArrayParameterSchema struct {
-	Description string
-	Required    bool
-	ItemsSchema ParameterSchema
+	Description string          `json:"description,omitempty"`
+	Required    bool            `json:"-"`
+	ItemsSchema ParameterSchema `json:"items,omitempty"`
 }
 
 // MarshalJSON provides functionality to marshal an
 // ArrayParameterSchema to JSON
-func (a *ArrayParameterSchema) MarshalJSON() ([]byte, error) {
+func (a ArrayParameterSchema) MarshalJSON() ([]byte, error) {
+	type arrayParameterSchema ArrayParameterSchema
 	return json.Marshal(struct {
-		Type        string          `json:"type"`
-		Description string          `json:"description,omitempty"`
-		ItemsSchema ParameterSchema `json:"items,omitempty"`
+		Type string `json:"type"`
+		arrayParameterSchema
 	}{
-		Type:        "array",
-		Description: a.Description,
-		ItemsSchema: a.ItemsSchema,
+		Type:                 "array",
+		arrayParameterSchema: arrayParameterSchema(a),
 	})
 }
 
