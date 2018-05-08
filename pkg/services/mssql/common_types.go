@@ -39,27 +39,23 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 						"endIPAddress",
 					},
 					Properties: map[string]service.PropertySchema{
-						"name": &service.SimplePropertySchema{
-							Type:        "string",
+						"name": &service.StringPropertySchema{
 							Description: "Name of firewall rule",
 						},
-						"startIPAddress": &service.SimplePropertySchema{
-							Type:        "string",
+						"startIPAddress": &service.StringPropertySchema{
 							Description: "Start of firewall rule range",
 						},
-						"endIPAddress": &service.SimplePropertySchema{
-							Type:        "string",
+						"endIPAddress": &service.StringPropertySchema{
 							Description: "End of firewall rule range",
 						},
 					},
 				},
 			},
-			"sslEnforcement": &service.SimplePropertySchema{
-				Type: "string",
+			"sslEnforcement": &service.StringPropertySchema{
 				Description: "Specifies whether the server requires the use of TLS" +
 					" when connecting. Left unspecified, SSL will be enforced",
-				AllowedValues: []string{"", "enabled", "disabled"},
-				Default:       "",
+				AllowedValues: []string{"enabled", "disabled"},
+				DefaultValue:  "enabled",
 			},
 		},
 	}

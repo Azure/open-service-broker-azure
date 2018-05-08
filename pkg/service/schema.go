@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"regexp"
 )
 
 const jsonSchemaVersion = "http://json-schema.org/draft-04/schema#"
@@ -58,13 +59,81 @@ func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 	)
 }
 
-// SimplePropertySchema represents the attributes of a simple schema type
-// such as a string or integer
-type SimplePropertySchema struct {
-	Type          string      `json:"type"`
-	Description   string      `json:"description,omitempty"`
-	Default       interface{} `json:"default,omitempty"`
-	AllowedValues interface{} `json:"enum,omitempty"`
+type CustomPropertyValidator func(value interface{}) error
+
+// StringPropertySchema represents schema for a single string property
+type StringPropertySchema struct {
+	Description             string                  `json:"description,omitempty"`
+	MinLength               *int                    `json:"minLength,omitempty"`
+	MaxLength               *int                    `json:"maxLength,omitempty"`
+	AllowedValues           []string                `json:"enum,omitempty"`
+	AllowedPattern          *regexp.Regexp          `json:"pattern,omitempty"`
+	CustomPropertyValidator CustomPropertyValidator `json:"-"`
+	DefaultValue            string                  `json:"default,omitempty"`
+}
+
+// MarshalJSON provides functionality to marshal a StringPropertySchema to JSON
+func (s StringPropertySchema) MarshalJSON() ([]byte, error) {
+	type stringPropertySchema StringPropertySchema
+	return json.Marshal(
+		struct {
+			Type string `json:"type"`
+			stringPropertySchema
+		}{
+			Type:                 "string",
+			stringPropertySchema: stringPropertySchema(s),
+		},
+	)
+}
+
+// IntPropertySchema represents schema for a single integer property
+type IntPropertySchema struct {
+	Description             string                  `json:"description,omitempty"`
+	MinValue                *int64                  `json:"minimum,omitempty"`
+	MaxValue                *int64                  `json:"maximum,omitempty"`
+	AllowedValues           []int64                 `json:"enum,omitempty"`
+	AllowedIncrement        *int64                  `json:"multipleOf,omitempty"`
+	CustomPropertyValidator CustomPropertyValidator `json:"-"`
+	DefaultValue            *int64                  `json:"default,omitempty"`
+}
+
+// MarshalJSON provides functionality to marshal an IntPropertySchema to JSON
+func (i IntPropertySchema) MarshalJSON() ([]byte, error) {
+	type intPropertySchema IntPropertySchema
+	return json.Marshal(
+		struct {
+			Type string `json:"type"`
+			intPropertySchema
+		}{
+			Type:              "integer",
+			intPropertySchema: intPropertySchema(i),
+		},
+	)
+}
+
+// FloatPropertySchema represents schema for a single floating point property
+type FloatPropertySchema struct {
+	Description             string                  `json:"description,omitempty"`
+	MinValue                *float64                `json:"minimum,omitempty"`
+	MaxValue                *float64                `json:"maximum,omitempty"`
+	AllowedValues           []float64               `json:"enum,omitempty"`
+	AllowedIncrement        *float64                `json:"multipleOf,omitempty"`
+	CustomPropertyValidator CustomPropertyValidator `json:"-"`
+	DefaultValue            *float64                `json:"default,omitempty"`
+}
+
+// MarshalJSON provides functionality to marshal a FloatPropertySchema to JSON
+func (f FloatPropertySchema) MarshalJSON() ([]byte, error) {
+	type floatPropertySchema FloatPropertySchema
+	return json.Marshal(
+		struct {
+			Type string `json:"type"`
+			floatPropertySchema
+		}{
+			Type:                "number",
+			floatPropertySchema: floatPropertySchema(f),
+		},
+	)
 }
 
 // ObjectPropertySchema represents the attributes of a complicated schema type
@@ -107,18 +176,6 @@ func (a ArrayPropertySchema) MarshalJSON() ([]byte, error) {
 	})
 }
 
-// NumericPropertySchema represents a numeric type, either
-// integers or floating point numbers, that can have an upper or lower bound.
-type NumericPropertySchema struct {
-	Type             string      `json:"type"`
-	Description      string      `json:"description,omitempty"`
-	Default          interface{} `json:"default,omitempty"`
-	Minimum          interface{} `json:"minimum,omitempty"`
-	ExclusiveMinimum bool        `json:"exclusiveMinimum,omitempty"`
-	Maximum          interface{} `json:"maximum,omitempty"`
-	ExclusiveMaximum bool        `json:"exclusiveMaximum,omitempty"`
-}
-
 // PropertySchema is an interface for the schema of any kind of property.
 type PropertySchema interface{}
 
@@ -127,36 +184,30 @@ func (ps *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 		ps.ServiceInstances.ProvisioningParametersSchema.Properties = map[string]PropertySchema{}
 	}
 	if sp.ParentServiceID == "" {
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["location"] = &SimplePropertySchema{
-			Type: "string",
+		ps.ServiceInstances.ProvisioningParametersSchema.Properties["location"] = &StringPropertySchema{
 			Description: "The Azure region in which to provision" +
 				" applicable resources.",
 		}
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["resourceGroup"] = &SimplePropertySchema{
-			Type: "string",
+		ps.ServiceInstances.ProvisioningParametersSchema.Properties["resourceGroup"] = &StringPropertySchema{
 			Description: "The (new or existing) resource group with which" +
 				" to associate new resources.",
 		}
 		ps.ServiceInstances.ProvisioningParametersSchema.Properties["tags"] = &ObjectPropertySchema{
 			Description: "Tags to be applied to new resources," +
 				" specified as key/value pairs.",
-			Additional: &SimplePropertySchema{
-				Type: "string",
-			},
+			Additional: &StringPropertySchema{},
 		}
 		if sp.ChildServiceID != "" {
 			ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
 				append(ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties, "alias")
-			ps.ServiceInstances.ProvisioningParametersSchema.Properties["alias"] = &SimplePropertySchema{
-				Type:        "string",
+			ps.ServiceInstances.ProvisioningParametersSchema.Properties["alias"] = &StringPropertySchema{
 				Description: "Alias to use when provisioning databases on this DBMS",
 			}
 		}
 	} else {
 		ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
 			append(ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties, "parentAlias")
-		ps.ServiceInstances.ProvisioningParametersSchema.Properties["parentAlias"] = &SimplePropertySchema{
-			Type: "string",
+		ps.ServiceInstances.ProvisioningParametersSchema.Properties["parentAlias"] = &StringPropertySchema{
 			Description: "Specifies the alias of the DBMS upon which the database " +
 				"should be provisioned.",
 		}

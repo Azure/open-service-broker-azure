@@ -17,18 +17,15 @@ func (
 			"clientSecret",
 		},
 		Properties: map[string]service.PropertySchema{
-			"objectId": &service.SimplePropertySchema{
-				Type: "string",
+			"objectId": &service.StringPropertySchema{
 				Description: "Object ID for an existing service principal, " +
 					"which will be granted access to the new vault.",
 			},
-			"clientId": &service.SimplePropertySchema{
-				Type: "string",
+			"clientId": &service.StringPropertySchema{
 				Description: "Client ID (username) for an existing service principal," +
 					"which will be granted access to the new vault.",
 			},
-			"clientSecret": &service.SimplePropertySchema{
-				Type: "string",
+			"clientSecret": &service.StringPropertySchema{
 				Description: "Client secret (password) for an existing service " +
 					"principal, which will be granted access to the new vault.",
 			},

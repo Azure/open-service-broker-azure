@@ -3,6 +3,8 @@ package mysql
 import (
 	"fmt"
 
+	"github.com/Azure/open-service-broker-azure/pkg/ptr"
+
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -19,17 +21,17 @@ type planSchema struct {
 	defaultSSLEnforcement   string
 	defaultHardware         string
 	allowedHardware         []string
-	allowedCores            []int
-	defaultCores            int
+	allowedCores            []int64
+	defaultCores            int64
 	tier                    string
-	minStorage              int
-	maxStorage              int
-	defaultStorage          int
+	minStorage              int64
+	maxStorage              int64
+	defaultStorage          int64
 	allowedBackupRedundancy []string
 	defaultBackupRedundancy string
-	minBackupRetention      int
-	maxBackupRetention      int
-	defaultBackupRetention  int
+	minBackupRetention      int64
+	maxBackupRetention      int64
+	defaultBackupRetention  int64
 }
 
 func (p *planSchema) getSku(pp dbmsProvisioningParameters) string {
@@ -64,71 +66,62 @@ func generateDBMSPlanSchema(
 				"endIPAddress",
 			},
 			Properties: map[string]service.PropertySchema{
-				"name": &service.SimplePropertySchema{
-					Type:        "string",
+				"name": &service.StringPropertySchema{
 					Description: "Name of firewall rule",
 				},
-				"startIPAddress": &service.SimplePropertySchema{
-					Type:        "string",
+				"startIPAddress": &service.StringPropertySchema{
 					Description: "Start of firewall rule range",
 				},
-				"endIPAddress": &service.SimplePropertySchema{
-					Type:        "string",
+				"endIPAddress": &service.StringPropertySchema{
 					Description: "End of firewall rule range",
 				},
 			},
 		},
 	}
 	if len(schema.allowedSSLEnforcement) > 1 {
-		ps["sslEnforcement"] = &service.SimplePropertySchema{
-			Type: "string",
+		ps["sslEnforcement"] = &service.StringPropertySchema{
 			Description: "Specifies whether the server requires the use of TLS" +
 				" when connecting. Left unspecified, SSL will be enforced",
 			AllowedValues: schema.allowedSSLEnforcement,
-			Default:       schema.defaultSSLEnforcement,
+			DefaultValue:  schema.defaultSSLEnforcement,
 		}
 	}
 	if len(schema.allowedHardware) > 1 {
-		ps["hardwareFamily"] = &service.SimplePropertySchema{
-			Type:          "string",
+		ps["hardwareFamily"] = &service.StringPropertySchema{
 			Description:   "Specifies the compute generation to use for the DBMS",
 			AllowedValues: schema.allowedHardware,
-			Default:       schema.defaultHardware,
+			DefaultValue:  schema.defaultHardware,
 		}
 	}
 	if len(schema.allowedCores) > 1 {
-		ps["cores"] = &service.SimplePropertySchema{
-			Type: "number",
+		ps["cores"] = &service.IntPropertySchema{
 			Description: "Specifies vCores, which represent the logical " +
 				"CPU of the underlying hardware",
 			AllowedValues: schema.allowedCores,
-			Default:       schema.defaultCores,
+			DefaultValue:  ptr.ToInt64(schema.defaultCores),
 		}
 	}
 	if schema.maxStorage > schema.minStorage {
-		ps["storage"] = &service.NumericPropertySchema{
-			Type:        "number",
-			Description: "Specifies the storage in GBs",
-			Default:     schema.defaultStorage,
-			Minimum:     schema.minStorage,
-			Maximum:     schema.maxStorage,
+		ps["storage"] = &service.IntPropertySchema{
+			Description:  "Specifies the storage in GBs",
+			DefaultValue: ptr.ToInt64(schema.defaultStorage),
+			MinValue:     ptr.ToInt64(schema.minStorage),
+			MaxValue:     ptr.ToInt64(schema.maxStorage),
 		}
 	}
 	if schema.maxBackupRetention > schema.minBackupRetention {
-		ps["backupRetention"] = &service.NumericPropertySchema{
-			Type:        "number",
-			Description: "Specifies the number of days for backup retention",
-			Default:     schema.minBackupRetention,
-			Minimum:     schema.minBackupRetention,
-			Maximum:     schema.maxBackupRetention,
+		ps["backupRetention"] = &service.IntPropertySchema{
+			Description:  "Specifies the number of days for backup retention",
+			DefaultValue: ptr.ToInt64(schema.minBackupRetention),
+			MinValue:     ptr.ToInt64(schema.minBackupRetention),
+			MaxValue:     ptr.ToInt64(schema.maxBackupRetention),
 		}
 	}
 	if len(schema.allowedBackupRedundancy) > 1 {
-		ps["backupRedundancy"] = &service.SimplePropertySchema{
-			Type:          "string",
+		ps["backupRedundancy"] = &service.StringPropertySchema{
 			Description:   "Specifies the backup redundancy",
 			AllowedValues: schema.allowedBackupRedundancy,
-			Default:       schema.defaultBackupRedundancy,
+			DefaultValue:  schema.defaultBackupRedundancy,
 		}
 	}
 	return service.InputParametersSchema{
@@ -136,7 +129,7 @@ func generateDBMSPlanSchema(
 	}
 }
 
-func (p *planSchema) getCores(pp dbmsProvisioningParameters) int {
+func (p *planSchema) getCores(pp dbmsProvisioningParameters) int64 {
 	// If you get a choice and you've made a choice...
 	if len(p.allowedCores) > 1 && pp.Cores != nil {
 		return *pp.Cores
@@ -144,7 +137,7 @@ func (p *planSchema) getCores(pp dbmsProvisioningParameters) int {
 	return p.defaultCores
 }
 
-func (p *planSchema) getStorage(pp dbmsProvisioningParameters) int {
+func (p *planSchema) getStorage(pp dbmsProvisioningParameters) int64 {
 	// If you get a choice and you've made a choice...
 	if p.maxStorage > p.minStorage && pp.Storage != nil {
 		return *pp.Storage
@@ -152,7 +145,7 @@ func (p *planSchema) getStorage(pp dbmsProvisioningParameters) int {
 	return p.defaultStorage
 }
 
-func (p *planSchema) getBackupRetention(pp dbmsProvisioningParameters) int {
+func (p *planSchema) getBackupRetention(pp dbmsProvisioningParameters) int64 {
 	// If you get a choice and you've made a choice...
 	if p.maxBackupRetention > p.minBackupRetention && pp.BackupRetention != nil {
 		return *pp.BackupRetention

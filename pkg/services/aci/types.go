@@ -1,6 +1,7 @@
 package aci
 
 import (
+	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -17,28 +18,25 @@ func (
 	return service.InputParametersSchema{
 		RequiredProperties: []string{"image"},
 		Properties: map[string]service.PropertySchema{
-			"image": &service.SimplePropertySchema{
-				Type:        "string",
+			"image": &service.StringPropertySchema{
 				Description: "The Docker image on which to base the container.",
 			},
-			"cpuCores": &service.SimplePropertySchema{
-				Type: "integer",
+			"cpuCores": &service.IntPropertySchema{
 				Description: "The number of virtual CPU cores requested " +
 					"for the container.",
-				Default: 1,
+				DefaultValue: ptr.ToInt64(1),
 			},
-			"memoryInGb": &service.SimplePropertySchema{
-				Type: "integer",
+			"memoryInGb": &service.FloatPropertySchema{
 				Description: "Gigabytes of memory requested for the container. " +
 					"Must be specified in increments of 0.10 GB.",
-				Default: 1.5,
+				DefaultValue:     ptr.ToFloat64(1.5),
+				AllowedIncrement: ptr.ToFloat64(0.10),
 			},
 			"ports": &service.ArrayPropertySchema{
 				Description: "The port(s) to open on the container." +
 					"The container will be assigned a public IP (v4) address if" +
 					" and only if one or more ports are opened.",
-				ItemsSchema: &service.SimplePropertySchema{
-					Type:        "integer",
+				ItemsSchema: &service.IntPropertySchema{
 					Description: "Port to open on container",
 				},
 			},

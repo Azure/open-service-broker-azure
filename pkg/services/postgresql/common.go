@@ -11,8 +11,7 @@ const primaryDB = "postgres"
 
 var dbExtensionsSchema = &service.ArrayPropertySchema{
 	Description: "Database extensions to install",
-	ItemsSchema: &service.SimplePropertySchema{
-		Type:        "string",
+	ItemsSchema: &service.StringPropertySchema{
 		Description: "Extension Name",
 	},
 }
