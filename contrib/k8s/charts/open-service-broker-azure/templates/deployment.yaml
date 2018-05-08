@@ -25,6 +25,8 @@ spec:
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+          - name: LOG_LEVEL
+            value: {{ .Values.logLevel }}
           - name: ENVIRONMENT
             value: {{ .Values.azure.environment }}
           - name: AZURE_SUBSCRIPTION_ID
