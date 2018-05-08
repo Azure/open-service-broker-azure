@@ -18,7 +18,7 @@ type PlanSchemas struct {
 }
 
 // InstanceSchemas encapsulates all plan-related schemas for validating input
-// paramters to all service instance operations.
+// parameters to all service instance operations.
 type InstanceSchemas struct {
 	ProvisioningParametersSchema InputParametersSchema  `json:"create,omitempty"`
 	UpdatingParametersSchema     *InputParametersSchema `json:"update,omitempty"`
@@ -30,7 +30,7 @@ type BindingSchemas struct {
 	BindingParametersSchema *InputParametersSchema `json:"create,omitempty"`
 }
 
-// InputParametersSchema encapsulates schema for validating input paramaters
+// InputParametersSchema encapsulates schema for validating input parameters
 // to any single operation.
 type InputParametersSchema struct {
 	RequiredProperties []string                  `json:"required,omitempty"`
@@ -61,6 +61,7 @@ func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 	)
 }
 
+// Validate validates the given map[string]interface{} again this schema
 func (i InputParametersSchema) Validate(valMap map[string]interface{}) error {
 	for _, requiredProperty := range i.RequiredProperties {
 		_, ok := valMap[requiredProperty]
@@ -84,6 +85,8 @@ type PropertySchema interface {
 	validate(context string, value interface{}) error
 }
 
+// CustomPropertyValidator is a function type that describes the signature
+// for functions that provide custom validation logic for property schemas.
 type CustomPropertyValidator func(value interface{}) error
 
 // StringPropertySchema represents schema for a single string property
@@ -111,7 +114,10 @@ func (s StringPropertySchema) MarshalJSON() ([]byte, error) {
 	)
 }
 
-func (s StringPropertySchema) validate(context string, value interface{}) error {
+func (s StringPropertySchema) validate(
+	context string,
+	value interface{},
+) error {
 	val, ok := value.(string)
 	if !ok {
 		return NewValidationError(context, "field value is not of type string")
@@ -300,7 +306,10 @@ func (o ObjectPropertySchema) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (o ObjectPropertySchema) validate(context string, value interface{}) error {
+func (o ObjectPropertySchema) validate(
+	context string,
+	value interface{},
+) error {
 	valMap, ok := value.(map[string]interface{})
 	if !ok {
 		return NewValidationError(context, "field value is not of type object")
@@ -377,35 +386,43 @@ func (a ArrayPropertySchema) validate(context string, value interface{}) error {
 	return nil
 }
 
-func (ps *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
-	if ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas == nil {
-		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas = map[string]PropertySchema{}
+func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
+	if p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas == nil {
+		p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas =
+			map[string]PropertySchema{}
 	}
+	ps := p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas
 	if sp.ParentServiceID == "" {
-		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["location"] = &StringPropertySchema{
+		ps["location"] = &StringPropertySchema{
 			Description: "The Azure region in which to provision" +
 				" applicable resources.",
 		}
-		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["resourceGroup"] = &StringPropertySchema{
+		ps["resourceGroup"] = &StringPropertySchema{
 			Description: "The (new or existing) resource group with which" +
 				" to associate new resources.",
 		}
-		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["tags"] = &ObjectPropertySchema{
+		ps["tags"] = &ObjectPropertySchema{
 			Description: "Tags to be applied to new resources," +
 				" specified as key/value pairs.",
 			Additional: &StringPropertySchema{},
 		}
 		if sp.ChildServiceID != "" {
-			ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
-				append(ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties, "alias")
-			ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["alias"] = &StringPropertySchema{
+			p.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
+				append(
+					p.ServiceInstances.ProvisioningParametersSchema.RequiredProperties,
+					"alias",
+				)
+			ps["alias"] = &StringPropertySchema{
 				Description: "Alias to use when provisioning databases on this DBMS",
 			}
 		}
 	} else {
-		ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
-			append(ps.ServiceInstances.ProvisioningParametersSchema.RequiredProperties, "parentAlias")
-		ps.ServiceInstances.ProvisioningParametersSchema.PropertySchemas["parentAlias"] = &StringPropertySchema{
+		p.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
+			append(
+				p.ServiceInstances.ProvisioningParametersSchema.RequiredProperties,
+				"parentAlias",
+			)
+		ps["parentAlias"] = &StringPropertySchema{
 			Description: "Specifies the alias of the DBMS upon which the database " +
 				"should be provisioned.",
 		}

@@ -252,7 +252,11 @@ func TestFloatPropertySchemaToJSON(t *testing.T) {
 	assert.True(t, ok)
 	incrementFloat, ok := incrementIface.(float64)
 	assert.True(t, ok)
-	assert.Equal(t, *smallIntsAndHalvesFps.AllowedIncrement, float64(incrementFloat))
+	assert.Equal(
+		t,
+		*smallIntsAndHalvesFps.AllowedIncrement,
+		float64(incrementFloat),
+	)
 }
 
 func TestValidateFloatProperty(t *testing.T) {

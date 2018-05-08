@@ -33,7 +33,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.serviceManager.getProvisionParametersSchema(),
+						ProvisioningParametersSchema: m.serviceManager.getProvisionParametersSchema(), // nolint: lll
 					},
 				},
 			}),
