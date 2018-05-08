@@ -68,7 +68,7 @@ type SimpleParameterSchema struct {
 type ObjectParameterSchema struct {
 	Description        string
 	Required           bool
-	requiredProperties []string
+	RequiredProperties []string
 	Properties         map[string]ParameterSchema
 	Additional         ParameterSchema
 }
@@ -85,7 +85,7 @@ func (o *ObjectParameterSchema) MarshalJSON() ([]byte, error) {
 	}{
 		Type:               "object",
 		Description:        o.Description,
-		RequiredProperties: o.requiredProperties,
+		RequiredProperties: o.RequiredProperties,
 		Properties:         o.Properties,
 		Additional:         o.Additional,
 	})
@@ -151,7 +151,7 @@ func (n *NumericParameterSchema) isRequired() bool {
 func (o *ObjectParameterSchema) setRequiredProperties() {
 	for key, param := range o.Properties {
 		if param.isRequired() {
-			o.requiredProperties = append(o.requiredProperties, key)
+			o.RequiredProperties = append(o.RequiredProperties, key)
 		}
 	}
 }
