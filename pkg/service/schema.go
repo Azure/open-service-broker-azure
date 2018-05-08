@@ -32,7 +32,6 @@ type BindingSchemas struct {
 type InputParametersSchema struct {
 	Schema             string                     `json:"$schema"`
 	Type               string                     `json:"type"`
-	Description        string                     `json:"description,omitempty"`
 	Required           bool                       `json:"-"`
 	RequiredProperties []string                   `json:"required,omitempty"`
 	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
