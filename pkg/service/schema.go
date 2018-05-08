@@ -30,8 +30,6 @@ type BindingSchemas struct {
 // InputParametersSchema encapsulates schema for validating input paramaters
 // to any single operation.
 type InputParametersSchema struct {
-	Schema             string                     `json:"$schema"`
-	Type               string                     `json:"type"`
 	Required           bool                       `json:"-"`
 	RequiredProperties []string                   `json:"required,omitempty"`
 	Properties         map[string]ParameterSchema `json:"properties,omitempty"`
@@ -43,11 +41,20 @@ type InputParametersSchema struct {
 // OSB spec.
 func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 	type inputParametersSchema InputParametersSchema
+	type inputParametersSchemaWrapper struct {
+		Schema string `json:"$schema"`
+		Type   string `json:"type"`
+		inputParametersSchema
+	}
 	return json.Marshal(
 		struct {
-			Parameters inputParametersSchema `json:"parameters"`
+			Parameters inputParametersSchemaWrapper `json:"parameters"`
 		}{
-			Parameters: inputParametersSchema(i),
+			Parameters: inputParametersSchemaWrapper{
+				Schema: "http://json-schema.org/draft-04/schema#",
+				Type:   "object",
+				inputParametersSchema: inputParametersSchema(i),
+			},
 		},
 	)
 }
@@ -194,7 +201,7 @@ func (ps *PlanSchemas) addParameterSchemas(
 		}
 		pps := sips.ProvisioningParametersSchema
 		if pps == nil {
-			pps = createEmptyParameterSchema()
+			pps = &InputParametersSchema{}
 			sips.ProvisioningParametersSchema = pps
 		}
 		err := pps.addProperties(instanceCreateParameters)
@@ -211,7 +218,7 @@ func (ps *PlanSchemas) addParameterSchemas(
 		}
 		ups := sips.UpdatingParametersSchema
 		if ups == nil {
-			ups = createEmptyParameterSchema()
+			ups = &InputParametersSchema{}
 			sips.UpdatingParametersSchema = ups
 		}
 		err := ups.addProperties(instanceUpdateParameters)
@@ -226,18 +233,11 @@ func (ps *PlanSchemas) addParameterSchemas(
 		}
 		bcps := sbps.BindingParametersSchema
 		if bcps == nil {
-			bcps = createEmptyParameterSchema()
+			bcps = &InputParametersSchema{}
 			sbps.BindingParametersSchema = bcps
 		}
 		err := bcps.addProperties(bindingCreateParameters)
 		log.Errorf("error building binding creation param schema %s", err)
-	}
-}
-
-func createEmptyParameterSchema() *InputParametersSchema {
-	return &InputParametersSchema{
-		Schema: "http://json-schema.org/draft-04/schema#",
-		Type:   "object",
 	}
 }
 
