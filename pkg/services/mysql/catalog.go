@@ -47,7 +47,11 @@ func createBasicPlan(
 			DisplayName: "Basic Tier",
 			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: generateDBMSPlanSchema(provisionSchema),
+			},
+		},
 	}
 }
 
@@ -94,7 +98,11 @@ func createGPPlan(
 				"Local or Geo-Redundant Backups",
 			},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: generateDBMSPlanSchema(provisionSchema),
+			},
+		},
 	}
 }
 
@@ -142,7 +150,11 @@ func createMemoryOptimizedPlan(
 				"Local or Geo-Redundant Backups",
 			},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: generateDBMSPlanSchema(provisionSchema),
+			},
+		},
 	}
 }
 

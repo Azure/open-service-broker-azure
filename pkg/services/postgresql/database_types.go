@@ -10,11 +10,12 @@ type databaseProvisioningParameters struct {
 
 func (
 	d *databaseManager,
-) getProvisionParametersSchema() map[string]service.ParameterSchema {
-	props := map[string]service.ParameterSchema{
-		"extensions": dbExtensionsSchema,
+) getProvisionParametersSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		Properties: map[string]service.ParameterSchema{
+			"extensions": dbExtensionsSchema,
+		},
 	}
-	return props
 }
 
 type databaseInstanceDetails struct {

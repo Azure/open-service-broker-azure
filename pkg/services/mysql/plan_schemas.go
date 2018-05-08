@@ -51,28 +51,30 @@ func (p *planSchema) getSku(pp dbmsProvisioningParameters) string {
 // of default values are ALL driven off of that data.
 func generateDBMSPlanSchema(
 	schema planSchema,
-) map[string]service.ParameterSchema {
+) service.InputParametersSchema {
 	ps := map[string]service.ParameterSchema{}
 	ps["firewallRules"] = &service.ArrayParameterSchema{
 		Description: "Firewall rules to apply to instance. " +
 			"If left unspecified, defaults to only Azure IPs",
 		ItemsSchema: &service.ObjectParameterSchema{
 			Description: "Individual Firewall Rule",
+			RequiredProperties: []string{
+				"name",
+				"startIPAddress",
+				"endIPAddress",
+			},
 			Properties: map[string]service.ParameterSchema{
 				"name": &service.SimpleParameterSchema{
 					Type:        "string",
 					Description: "Name of firewall rule",
-					Required:    true,
 				},
 				"startIPAddress": &service.SimpleParameterSchema{
 					Type:        "string",
 					Description: "Start of firewall rule range",
-					Required:    true,
 				},
 				"endIPAddress": &service.SimpleParameterSchema{
 					Type:        "string",
 					Description: "End of firewall rule range",
-					Required:    true,
 				},
 			},
 		},
@@ -129,7 +131,9 @@ func generateDBMSPlanSchema(
 			Default:       schema.defaultBackupRedundancy,
 		}
 	}
-	return ps
+	return service.InputParametersSchema{
+		Properties: ps,
+	}
 }
 
 func (p *planSchema) getCores(pp dbmsProvisioningParameters) int {

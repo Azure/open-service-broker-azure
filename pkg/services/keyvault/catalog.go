@@ -33,7 +33,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
 				},
-				ProvisionParamsSchema: m.serviceManager.getProvisionParametersSchema(),
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.serviceManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "6893b1de-0a7b-42bb-b28d-1636c4b81f75",
@@ -46,7 +50,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Premium Tier",
 				},
-				ProvisionParamsSchema: m.serviceManager.getProvisionParametersSchema(),
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.serviceManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 		),
 	}), nil

@@ -9,7 +9,7 @@ type dbmsProvisioningParams struct {
 
 func (
 	d *dbmsManager,
-) getProvisionParametersSchema() map[string]service.ParameterSchema {
+) getProvisionParametersSchema() service.InputParametersSchema {
 	return getDBMSCommonProvisionParamSchema()
 }
 

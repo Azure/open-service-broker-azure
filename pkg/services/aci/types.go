@@ -13,42 +13,37 @@ type provisioningParameters struct {
 
 func (
 	s *serviceManager,
-) getProvisionParametersSchema() map[string]service.ParameterSchema {
-
-	p := map[string]service.ParameterSchema{}
-
-	p["image"] = &service.SimpleParameterSchema{
-		Type:        "string",
-		Description: "The Docker image on which to base the container.",
-		Required:    true,
-	}
-
-	p["cpuCores"] = &service.SimpleParameterSchema{
-		Type: "integer",
-		Description: "The number of virtual CPU cores requested " +
-			"for the container.",
-		Default: 1,
-	}
-
-	p["memoryInGb"] = &service.SimpleParameterSchema{
-
-		Type: "integer",
-		Description: "Gigabytes of memory requested for the container. " +
-			"Must be specified in increments of 0.10 GB.",
-		Default: 1.5,
-	}
-
-	p["ports"] = &service.ArrayParameterSchema{
-		Description: "The port(s) to open on the container." +
-			"The container will be assigned a public IP (v4) address if" +
-			" and only if one or more ports are opened.",
-		ItemsSchema: &service.SimpleParameterSchema{
-			Type:        "integer",
-			Description: "Port to open on container",
+) getProvisionParametersSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		RequiredProperties: []string{"image"},
+		Properties: map[string]service.ParameterSchema{
+			"image": &service.SimpleParameterSchema{
+				Type:        "string",
+				Description: "The Docker image on which to base the container.",
+			},
+			"cpuCores": &service.SimpleParameterSchema{
+				Type: "integer",
+				Description: "The number of virtual CPU cores requested " +
+					"for the container.",
+				Default: 1,
+			},
+			"memoryInGb": &service.SimpleParameterSchema{
+				Type: "integer",
+				Description: "Gigabytes of memory requested for the container. " +
+					"Must be specified in increments of 0.10 GB.",
+				Default: 1.5,
+			},
+			"ports": &service.ArrayParameterSchema{
+				Description: "The port(s) to open on the container." +
+					"The container will be assigned a public IP (v4) address if" +
+					" and only if one or more ports are opened.",
+				ItemsSchema: &service.SimpleParameterSchema{
+					Type:        "integer",
+					Description: "Port to open on container",
+				},
+			},
 		},
-		Required: true,
 	}
-	return p
 }
 
 type instanceDetails struct {

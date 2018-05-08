@@ -46,10 +46,14 @@ func createBasicPlan(
 			DisplayName: "Basic Tier",
 			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(
-			provisionSchema,
-			includeDBParams,
-		),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: generateDBMSPlanSchema(
+					provisionSchema,
+					includeDBParams,
+				),
+			},
+		},
 	}
 }
 
@@ -97,10 +101,14 @@ func createGPPlan(
 				"Local or Geo-Redundant Backups",
 			},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(
-			provisionSchema,
-			includeDBParams,
-		),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: generateDBMSPlanSchema(
+					provisionSchema,
+					includeDBParams,
+				),
+			},
+		},
 	}
 }
 
@@ -149,10 +157,14 @@ func createMemoryOptimizedPlan(
 				"Local or Geo-Redundant Backups",
 			},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(
-			provisionSchema,
-			includeDBParams,
-		),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: generateDBMSPlanSchema(
+					provisionSchema,
+					includeDBParams,
+				),
+			},
+		},
 	}
 }
 
@@ -237,7 +249,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for PostgreSQL-- Database Only",
 				},
-				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.databaseManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 		),
 	}), nil

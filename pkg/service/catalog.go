@@ -77,17 +77,14 @@ type service struct {
 // instantiated and passed to the NewPlan() constructor function which will
 // carry out all necessary initialization.
 type PlanProperties struct {
-	ID                    string                     `json:"id"`
-	Name                  string                     `json:"name"`
-	Description           string                     `json:"description"`
-	Free                  bool                       `json:"free"`
-	Metadata              *ServicePlanMetadata       `json:"metadata,omitempty"` // nolint: lll
-	Extended              map[string]interface{}     `json:"-"`
-	EndOfLife             bool                       `json:"-"`
-	Schemas               PlanSchemas                `json:"schemas,omitempty"`
-	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
-	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
-	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Free        bool                   `json:"free"`
+	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
+	Extended    map[string]interface{} `json:"-"`
+	EndOfLife   bool                   `json:"-"`
+	Schemas     PlanSchemas            `json:"schemas,omitempty"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans
@@ -168,14 +165,7 @@ func NewService(
 	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		pSchemas := PlanSchemas{}
-		pSchemas.addParameterSchemas(
-			p.PlanProperties.ProvisionParamsSchema,
-			p.PlanProperties.UpdateParamsSchema,
-			p.PlanProperties.BindingParamsSchema,
-		)
-		pSchemas.addCommonSchema(serviceProperties)
-		p.Schemas = pSchemas
+		p.Schemas.addCommonSchema(serviceProperties)
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s

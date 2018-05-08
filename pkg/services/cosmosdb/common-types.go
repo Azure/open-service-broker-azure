@@ -69,88 +69,88 @@ func (c *cosmosAccountManager) SplitBindingParameters(
 
 func (
 	c *cosmosAccountManager,
-) getProvisionParametersSchema() map[string]service.ParameterSchema {
-	p := map[string]service.ParameterSchema{}
-
-	p["ipFilters"] = &service.ObjectParameterSchema{
-		Description: "IP Range Filter to be applied to new CosmosDB account",
+) getProvisionParametersSchema() service.InputParametersSchema {
+	const maxStalenessPrefixMin = 1
+	const maxStalenessPrefixMax = 2147483647
+	const maxIntervalInSecondsMin = 5
+	const maxIntervalInSecondsMax = 86400
+	return service.InputParametersSchema{
 		Properties: map[string]service.ParameterSchema{
-			"allowAccessFromAzure": &service.SimpleParameterSchema{
-				Type: "string",
-				Description: "Specifies if Azure Services should be able to access" +
-					" the CosmosDB account.",
-				AllowedValues: []string{"", "enabled", "disabled"},
-				Default:       "",
-			},
-			"allowAccessFromPortal": &service.SimpleParameterSchema{
-				Type: "string",
-				Description: "Specifies if the Azure Portal should be able to" +
-					" access the CosmosDB account. If `allowAccessFromAzure` is" +
-					" set to enabled, this value is ignored.",
-				AllowedValues: []string{"", "enabled", "disabled"},
-				Default:       "",
-			},
-			"allowedIPRanges": &service.ArrayParameterSchema{
-				Description: "Values to include in IP Filter. " +
-					"Can be an IP Address or CIDR range.",
-				ItemsSchema: &service.SimpleParameterSchema{
-					Type:        "string",
-					Description: "Must be a valid IP address or CIDR",
-				},
-			},
-		},
-	}
-	maxStalenessPrefixMin := 1
-	maxStalenessPrefixMax := 2147483647
-	maxIntervalInSecondsMin := 5
-	maxIntervalInSecondsMax := 86400
-
-	p["consistencyPolicy"] = &service.ObjectParameterSchema{
-		Description: "The consistency policy for the Cosmos DB account.",
-		Properties: map[string]service.ParameterSchema{
-			"defaultConsistencyLevel": &service.SimpleParameterSchema{
-				Type: "string",
-				Description: "The default consistency level and" +
-					" configuration settings of the Cosmos DB account.",
-				Required: true,
-				AllowedValues: []string{
-					"Eventual",
-					"Session",
-					"BoundedStaleness",
-					"Strong",
-					"ConsistentPrefix",
-				},
-			},
-			"boundedStaleness": &service.ObjectParameterSchema{
-				Description: "The staleness settings when using " +
-					"BoundedStaleness consistency.  Required when " +
-					"using BoundedStaleness",
+			"ipFilters": &service.ObjectParameterSchema{
+				Description: "IP Range Filter to be applied to new CosmosDB account",
 				Properties: map[string]service.ParameterSchema{
-					"maxStalenessPrefix": &service.NumericParameterSchema{
-						Type: "integer",
-						Description: "When used with the Bounded Staleness " +
-							"consistency level, this value represents the number of " +
-							"stale requests tolerated" +
-							"Required when defaultConsistencyPolicy is set to " +
-							" 'BoundedStaleness'.",
-						Minimum: maxStalenessPrefixMin,
-						Maximum: maxStalenessPrefixMax,
+					"allowAccessFromAzure": &service.SimpleParameterSchema{
+						Type: "string",
+						Description: "Specifies if Azure Services should be able to access" +
+							" the CosmosDB account.",
+						AllowedValues: []string{"", "enabled", "disabled"},
+						Default:       "",
 					},
-					"maxIntervalInSeconds": &service.NumericParameterSchema{
-						Type: "integer",
-						Description: "When used with the Bounded Staleness " +
-							"consistency level, this value represents the time " +
-							"amount of staleness (in seconds) tolerated. " +
-							"Required when defaultConsistencyPolicy is set to " +
-							" 'BoundedStaleness'.",
-						Minimum: maxIntervalInSecondsMin,
-						Maximum: maxIntervalInSecondsMax,
+					"allowAccessFromPortal": &service.SimpleParameterSchema{
+						Type: "string",
+						Description: "Specifies if the Azure Portal should be able to" +
+							" access the CosmosDB account. If `allowAccessFromAzure` is" +
+							" set to enabled, this value is ignored.",
+						AllowedValues: []string{"", "enabled", "disabled"},
+						Default:       "",
+					},
+					"allowedIPRanges": &service.ArrayParameterSchema{
+						Description: "Values to include in IP Filter. " +
+							"Can be an IP Address or CIDR range.",
+						ItemsSchema: &service.SimpleParameterSchema{
+							Type:        "string",
+							Description: "Must be a valid IP address or CIDR",
+						},
+					},
+				},
+			},
+			"consistencyPolicy": &service.ObjectParameterSchema{
+				Description: "The consistency policy for the Cosmos DB account.",
+				RequiredProperties: []string{
+					"defaultConsistencyLevel",
+				},
+				Properties: map[string]service.ParameterSchema{
+					"defaultConsistencyLevel": &service.SimpleParameterSchema{
+						Type: "string",
+						Description: "The default consistency level and" +
+							" configuration settings of the Cosmos DB account.",
+						AllowedValues: []string{
+							"Eventual",
+							"Session",
+							"BoundedStaleness",
+							"Strong",
+							"ConsistentPrefix",
+						},
+					},
+					"boundedStaleness": &service.ObjectParameterSchema{
+						Description: "The staleness settings when using " +
+							"BoundedStaleness consistency.  Required when " +
+							"using BoundedStaleness",
+						Properties: map[string]service.ParameterSchema{
+							"maxStalenessPrefix": &service.NumericParameterSchema{
+								Type: "integer",
+								Description: "When used with the Bounded Staleness " +
+									"consistency level, this value represents the number of " +
+									"stale requests tolerated" +
+									"Required when defaultConsistencyPolicy is set to " +
+									" 'BoundedStaleness'.",
+								Minimum: maxStalenessPrefixMin,
+								Maximum: maxStalenessPrefixMax,
+							},
+							"maxIntervalInSeconds": &service.NumericParameterSchema{
+								Type: "integer",
+								Description: "When used with the Bounded Staleness " +
+									"consistency level, this value represents the time " +
+									"amount of staleness (in seconds) tolerated. " +
+									"Required when defaultConsistencyPolicy is set to " +
+									" 'BoundedStaleness'.",
+								Minimum: maxIntervalInSecondsMin,
+								Maximum: maxIntervalInSecondsMax,
+							},
+						},
 					},
 				},
 			},
 		},
 	}
-
-	return p
-
 }

@@ -34,7 +34,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Metadata: &service.ServicePlanMetadata{
 						DisplayName: "Azure CosmosDB (SQL API Database Account and Database)",
 					},
-					ProvisionParamsSchema: m.sqlAllInOneManager.getProvisionParametersSchema(), // nolint: lll
+					Schemas: service.PlanSchemas{
+						ServiceInstances: service.InstanceSchemas{
+							ProvisioningParametersSchema: m.sqlAllInOneManager.getProvisionParametersSchema(), // nolint: lll
+						},
+					},
 				}),
 			),
 			service.NewService(
@@ -68,7 +72,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Metadata: &service.ServicePlanMetadata{
 						DisplayName: "Azure CosmosDB (SQL API - Database Account Only)",
 					},
-					ProvisionParamsSchema: m.sqlAccountManager.getProvisionParametersSchema(), // nolint: lll
+					Schemas: service.PlanSchemas{
+						ServiceInstances: service.InstanceSchemas{
+							ProvisioningParametersSchema: m.sqlAccountManager.getProvisionParametersSchema(), // nolint: lll
+						},
+					},
 				}),
 			),
 			service.NewService(
@@ -134,7 +142,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Metadata: &service.ServicePlanMetadata{
 						DisplayName: "Azure Cosmos DB (MongoDB API)",
 					},
-					ProvisionParamsSchema: m.mongoAccountManager.getProvisionParametersSchema(), // nolint: lll
+					Schemas: service.PlanSchemas{
+						ServiceInstances: service.InstanceSchemas{
+							ProvisioningParametersSchema: m.mongoAccountManager.getProvisionParametersSchema(), // nolint: lll
+						},
+					},
 				}),
 			),
 			service.NewService(
@@ -168,7 +180,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Metadata: &service.ServicePlanMetadata{
 						DisplayName: "Azure Cosmos DB (Graph API)",
 					},
-					ProvisionParamsSchema: m.graphAccountManager.getProvisionParametersSchema(), // nolint: lll
+					Schemas: service.PlanSchemas{
+						ServiceInstances: service.InstanceSchemas{
+							ProvisioningParametersSchema: m.graphAccountManager.getProvisionParametersSchema(), // nolint: lll
+						},
+					},
 				}),
 			),
 			service.NewService(
@@ -201,7 +217,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Metadata: &service.ServicePlanMetadata{
 						DisplayName: "Azure Cosmos DB (Table API)",
 					},
-					ProvisionParamsSchema: m.tableAccountManager.getProvisionParametersSchema(), // nolint: lll
+					Schemas: service.PlanSchemas{
+						ServiceInstances: service.InstanceSchemas{
+							ProvisioningParametersSchema: m.tableAccountManager.getProvisionParametersSchema(), // nolint: lll
+						},
+					},
 				}),
 			),
 		}),

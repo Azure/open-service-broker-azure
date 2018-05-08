@@ -167,7 +167,11 @@ func TestValidateHardwareVersionIncompatible(t *testing.T) {
 			DisplayName: "somePlan",
 			Bullets:     []string{"Testable"},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(provisionSchema, false),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: generateDBMSPlanSchema(provisionSchema, false),
+			},
+		},
 	})
 
 	sm := &allInOneManager{}
