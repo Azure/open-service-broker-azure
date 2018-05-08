@@ -84,6 +84,7 @@ type PlanProperties struct {
 	Metadata              *ServicePlanMetadata       `json:"metadata,omitempty"` // nolint: lll
 	Extended              map[string]interface{}     `json:"-"`
 	EndOfLife             bool                       `json:"-"`
+	Schemas               *PlanSchemas               `json:"schemas,omitempty"`
 	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
 	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
 	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
@@ -107,7 +108,6 @@ type Plan interface {
 
 type plan struct {
 	*PlanProperties
-	ParameterSchemas *PlanSchemas `json:"schemas,omitempty"`
 }
 
 // NewCatalog initializes and returns a new Catalog
@@ -175,7 +175,7 @@ func NewService(
 			p.PlanProperties.BindingParamsSchema,
 		)
 		pSchemas.addCommonSchema(serviceProperties)
-		p.ParameterSchemas = pSchemas
+		p.Schemas = pSchemas
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
