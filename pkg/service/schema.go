@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 )
 
+const jsonSchemaVersion = "http://json-schema.org/draft-04/schema#"
+
 // PlanSchemas is the root of a tree that encapsulates all plan-related schemas
 // for validating input parameters to all service instance and service binding
 // operations.
@@ -48,7 +50,7 @@ func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 			Parameters inputParametersSchemaWrapper `json:"parameters"`
 		}{
 			Parameters: inputParametersSchemaWrapper{
-				Schema: "http://json-schema.org/draft-04/schema#",
+				Schema: jsonSchemaVersion,
 				Type:   "object",
 				inputParametersSchema: inputParametersSchema(i),
 			},
