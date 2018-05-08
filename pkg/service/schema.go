@@ -285,6 +285,7 @@ type ObjectPropertySchema struct {
 	RequiredProperties []string                  `json:"required,omitempty"`
 	PropertySchemas    map[string]PropertySchema `json:"properties,omitempty"`
 	Additional         PropertySchema            `json:"additionalProperties,omitempty"` // nolint: lll
+	DefaultValue       map[string]interface{}    `json:"-"`
 }
 
 // MarshalJSON provides functionality to marshal an ObjectPropertySchema to JSON
@@ -325,10 +326,11 @@ func (o ObjectPropertySchema) validate(context string, value interface{}) error 
 
 // ArrayPropertySchema represents the attributes of an array type
 type ArrayPropertySchema struct {
-	Description string         `json:"description,omitempty"`
-	MinItems    *int           `json:"minItems,omitempty"`
-	MaxItems    *int           `json:"maxItems,omitempty"`
-	ItemsSchema PropertySchema `json:"items,omitempty"`
+	Description  string         `json:"description,omitempty"`
+	MinItems     *int           `json:"minItems,omitempty"`
+	MaxItems     *int           `json:"maxItems,omitempty"`
+	ItemsSchema  PropertySchema `json:"items,omitempty"`
+	DefaultValue []interface{}  `json:"-"`
 }
 
 // MarshalJSON provides functionality to marshal an
