@@ -50,6 +50,13 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 						},
 					},
 				},
+				DefaultValue: []interface{}{
+					map[string]interface{}{
+						"name":           "AllowAzure",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "0.0.0.0",
+					},
+				},
 			},
 			"sslEnforcement": &service.StringPropertySchema{
 				Description: "Specifies whether the server requires the use of TLS" +

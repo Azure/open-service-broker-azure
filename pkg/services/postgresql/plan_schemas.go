@@ -78,6 +78,13 @@ func generateDBMSPlanSchema(
 				},
 			},
 		},
+		DefaultValue: []interface{}{
+			map[string]interface{}{
+				"name":           "AllowAzure",
+				"startIPAddress": "0.0.0.0",
+				"endIPAddress":   "0.0.0.0",
+			},
+		},
 	}
 	if len(schema.allowedSSLEnforcement) > 1 {
 		ps["sslEnforcement"] = &service.StringPropertySchema{

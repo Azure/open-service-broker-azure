@@ -101,6 +101,9 @@ func (
 						},
 					},
 				},
+				DefaultValue: map[string]interface{}{
+					"allowAccessFromAzure": "enabled",
+				},
 			},
 			"consistencyPolicy": &service.ObjectPropertySchema{
 				Description: "The consistency policy for the Cosmos DB account.",
