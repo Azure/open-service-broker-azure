@@ -151,6 +151,9 @@ func (s StringPropertySchema) validate(
 			return NewValidationError(context, "field value is invalid")
 		}
 	}
+	if s.CustomPropertyValidator != nil {
+		return s.CustomPropertyValidator(context, val)
+	}
 	return nil
 }
 
@@ -222,6 +225,9 @@ func (i IntPropertySchema) validate(context string, value interface{}) error {
 			fmt.Sprintf("field value is not a multiple of %d", *i.AllowedIncrement),
 		)
 	}
+	if i.CustomPropertyValidator != nil {
+		return i.CustomPropertyValidator(context, val)
+	}
 	return nil
 }
 
@@ -289,6 +295,9 @@ func (f FloatPropertySchema) validate(context string, value interface{}) error {
 			fmt.Sprintf("field value is not a multiple of %f", *f.AllowedIncrement),
 		)
 	}
+	if f.CustomPropertyValidator != nil {
+		return f.CustomPropertyValidator(context, val)
+	}
 	return nil
 }
 
@@ -345,6 +354,9 @@ func (o ObjectPropertySchema) validate(
 				return err
 			}
 		}
+	}
+	if o.CustomPropertyValidator != nil {
+		return o.CustomPropertyValidator(context, valMap)
 	}
 	return nil
 }
@@ -406,6 +418,9 @@ func (a ArrayPropertySchema) validate(context string, value interface{}) error {
 				return err
 			}
 		}
+	}
+	if a.CustomPropertyValidator != nil {
+		return a.CustomPropertyValidator(context, valArray)
 	}
 	return nil
 }
