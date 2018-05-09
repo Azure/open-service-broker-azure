@@ -274,12 +274,6 @@ func TestBindingWithExistingFailedBindingWithSameAttributes(
 func TestBrandNewBinding(t *testing.T) {
 	s, m, err := getTestServer("", "")
 	assert.Nil(t, err)
-	validationCalled := false
-	m.ServiceManager.BindingValidationBehavior =
-		func(service.BindingParameters, service.SecureBindingParameters) error {
-			validationCalled = true
-			return nil
-		}
 	bindCalled := false
 	m.ServiceManager.BindBehavior = func(
 		service.Instance,
@@ -305,7 +299,6 @@ func TestBrandNewBinding(t *testing.T) {
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusCreated, rr.Code)
-	assert.True(t, validationCalled)
 	assert.True(t, bindCalled)
 	// TODO: Test the response body
 }

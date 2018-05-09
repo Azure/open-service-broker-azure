@@ -99,9 +99,36 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Start by carrying out plan-specific binding request parameters validation
+	if instance.Plan.GetSchemas().ServiceBindings != nil &&
+		instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema != nil {
+		if err =
+			instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema.Validate(
+				bindingRequest.Parameters,
+			); err != nil {
+			var validationErr *service.ValidationError
+			validationErr, ok = err.(*service.ValidationError)
+			if ok {
+				logFields["field"] = validationErr.Field
+				logFields["issue"] = validationErr.Issue
+				log.WithFields(logFields).Debug(
+					"bad binding request: validation error",
+				)
+				s.writeResponse(
+					w,
+					http.StatusBadRequest,
+					generateValidationFailedResponse(validationErr),
+				)
+				return
+			}
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+	}
+
 	serviceManager := instance.Service.GetServiceManager()
 
-	// Now service-specific parameters...
+	// Split the parameters into those that are sensitive and those that are not
 	bindingParameters, secureBindingParameters, err :=
 		serviceManager.SplitBindingParameters(bindingRequest.Parameters)
 	if err != nil {
@@ -199,30 +226,6 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If we get to here, we need to create a new binding.
-	// Start by carrying out service-specific request validation
-	err = serviceManager.ValidateBindingParameters(
-		bindingParameters,
-		secureBindingParameters,
-	)
-	if err != nil {
-		validationErr, ok := err.(*service.ValidationError)
-		if ok {
-			logFields["field"] = validationErr.Field
-			logFields["issue"] = validationErr.Issue
-			log.WithFields(logFields).Debug(
-				"bad binding request: validation error",
-			)
-			// TODO: Send the correct response body-- this is a placeholder
-			s.writeResponse(
-				w,
-				http.StatusBadRequest,
-				generateValidationFailedResponse(validationErr),
-			)
-			return
-		}
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
 
 	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in

@@ -4,15 +4,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (a *allInOneManager) ValidateBindingParameters(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error {
-	// There are no parameters for binding to MySQL, so there is nothing
-	// to validate
-	return nil
-}
-
 func (a *allInOneManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,

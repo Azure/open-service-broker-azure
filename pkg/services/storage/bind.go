@@ -4,13 +4,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) ValidateBindingParameters(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error {
-	return nil
-}
-
 func (s *serviceManager) Bind(
 	service.Instance,
 	service.BindingParameters,

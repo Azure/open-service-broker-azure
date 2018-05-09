@@ -6,15 +6,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *dbmsManager) ValidateBindingParameters(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error {
-	// There are no parameters for binding to PostgreSQL, so there is nothing
-	// to validate
-	return nil
-}
-
 func (d *dbmsManager) Bind(
 	service.Instance,
 	service.BindingParameters,

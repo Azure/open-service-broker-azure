@@ -32,9 +32,6 @@ type ServiceManager interface { // nolint: golint
 	SplitBindingParameters(
 		CombinedBindingParameters,
 	) (BindingParameters, SecureBindingParameters, error)
-	// ValidateBindingParameters validates the provided bindingParameters and
-	// returns an error if there is any problem
-	ValidateBindingParameters(BindingParameters, SecureBindingParameters) error
 	// Bind synchronously binds to a service
 	Bind(
 		Instance,

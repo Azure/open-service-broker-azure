@@ -101,6 +101,7 @@ type Plan interface {
 	GetName() string
 	GetProperties() *PlanProperties
 	IsEndOfLife() bool
+	GetSchemas() PlanSchemas
 }
 
 type plan struct {
@@ -297,4 +298,8 @@ func (p *plan) GetProperties() *PlanProperties {
 
 func (p *plan) IsEndOfLife() bool {
 	return p.EndOfLife
+}
+
+func (p *plan) GetSchemas() PlanSchemas {
+	return p.Schemas
 }
