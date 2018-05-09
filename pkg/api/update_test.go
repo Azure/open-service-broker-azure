@@ -174,14 +174,8 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 }
 
 func TestKickOffNewAsyncUpdating(t *testing.T) {
-	s, m, err := getTestServer("", "")
+	s, _, err := getTestServer("", "")
 	assert.Nil(t, err)
-	validationCalled := false
-	m.ServiceManager.UpdatingValidationBehavior =
-		func(service.Instance) error {
-			validationCalled = true
-			return nil
-		}
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
@@ -210,7 +204,6 @@ func TestKickOffNewAsyncUpdating(t *testing.T) {
 	rr := httptest.NewRecorder()
 	s.router.ServeHTTP(rr, req)
 	assert.Equal(t, http.StatusAccepted, rr.Code)
-	assert.True(t, validationCalled)
 	assert.Equal(t, 1, len(e.SubmittedTasks))
 	assert.Equal(t, responseUpdatingAccepted, rr.Body.Bytes())
 }

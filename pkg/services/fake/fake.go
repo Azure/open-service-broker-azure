@@ -15,11 +15,6 @@ type ProvisioningValidationFunction func(
 	service.SecureProvisioningParameters,
 ) error
 
-// UpdatingValidationFunction describes a function used to provide pluggable
-// updating validation behavior to the fake implementation of the
-// service.Module interface
-type UpdatingValidationFunction func(service.Instance) error
-
 // BindFunction describes a function used to provide pluggable binding behavior
 // to the fake implementation of the service.Module interface
 type BindFunction func(
@@ -44,7 +39,6 @@ type Module struct {
 // interface used to facilitate testing.
 type ServiceManager struct {
 	ProvisioningValidationBehavior ProvisioningValidationFunction
-	UpdatingValidationBehavior     UpdatingValidationFunction
 	BindBehavior                   BindFunction
 	UnbindBehavior                 UnbindFunction
 }
@@ -55,7 +49,6 @@ func New() (*Module, error) {
 	return &Module{
 		ServiceManager: &ServiceManager{
 			ProvisioningValidationBehavior: defaultProvisioningValidationBehavior,
-			UpdatingValidationBehavior:     defaultUpdatingValidationBehavior,
 			BindBehavior:                   defaultBindBehavior,
 			UnbindBehavior:                 defaultUnbindBehavior,
 		},
@@ -101,14 +94,6 @@ func (s *ServiceManager) provision(
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	return instance.Details, instance.SecureDetails, nil
-}
-
-// ValidateUpdatingParameters validates the provided updating parameters
-// and returns an error if there is any problem
-func (s *ServiceManager) ValidateUpdatingParameters(
-	instance service.Instance,
-) error {
-	return s.UpdatingValidationBehavior(instance)
 }
 
 // GetUpdater returns a updater that defines the steps a module must
@@ -174,10 +159,6 @@ func defaultProvisioningValidationBehavior(
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
 ) error {
-	return nil
-}
-
-func defaultUpdatingValidationBehavior(service.Instance) error {
 	return nil
 }
 

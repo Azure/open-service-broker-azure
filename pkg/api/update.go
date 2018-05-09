@@ -109,15 +109,6 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	serviceManager := svc.GetServiceManager()
-
-	updatingParameters, secureUpdatingParameters, err :=
-		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
-	if err != nil {
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-
 	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
 		logFields["error"] = err
@@ -135,6 +126,38 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		// krancour: Choosing to interpret this scenario as a bad request
 		// TODO: Write a more detailed response
 		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+		return
+	}
+
+	// Start by carrying out plan-specific updating request parameters validation
+	if instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema != nil { // nolint: lll
+		if err :=
+			instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema.Validate( // nolint: lll
+				updatingRequest.Parameters,
+			); err != nil {
+			var validationErr *service.ValidationError
+			validationErr, ok = err.(*service.ValidationError)
+			if ok {
+				logFields["field"] = validationErr.Field
+				logFields["issue"] = validationErr.Issue
+				log.WithFields(logFields).Debug(
+					"bad updating request: validation error",
+				)
+				// TODO: Send the correct response body-- this is a placeholder
+				s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+				return
+			}
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+	}
+
+	serviceManager := svc.GetServiceManager()
+
+	updatingParameters, secureUpdatingParameters, err :=
+		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
+	if err != nil {
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -198,25 +221,6 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// If we get to here, we need to update the instance.
-	// Start by carrying out serviceManager-specific request validation
-	instance.UpdatingParameters = updatingParameters
-	instance.SecureUpdatingParameters = secureUpdatingParameters
-	err = serviceManager.ValidateUpdatingParameters(instance)
-	if err != nil {
-		validationErr, ok := err.(*service.ValidationError)
-		if ok {
-			logFields["field"] = validationErr.Field
-			logFields["issue"] = validationErr.Issue
-			log.WithFields(logFields).Debug(
-				"bad updating request: validation error",
-			)
-			// TODO: Send the correct response body-- this is a placeholder
-			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-			return
-		}
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
 
 	if plan == nil {
 		plan, ok = svc.GetPlan(instance.PlanID)
