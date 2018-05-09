@@ -85,19 +85,19 @@ type PropertySchema interface {
 	validate(context string, value interface{}) error
 }
 
-// CustomPropertyValidator is a function type that describes the signature
-// for functions that provide custom validation logic for property schemas.
-type CustomPropertyValidator func(value interface{}) error
+// CustomStringPropertyValidator is a function type that describes the signature
+// for functions that provide custom validation logic for string properties.
+type CustomStringPropertyValidator func(context, value string) error
 
 // StringPropertySchema represents schema for a single string property
 type StringPropertySchema struct {
-	Description             string                  `json:"description,omitempty"`
-	MinLength               *int                    `json:"minLength,omitempty"`
-	MaxLength               *int                    `json:"maxLength,omitempty"`
-	AllowedValues           []string                `json:"enum,omitempty"`
-	AllowedPattern          *regexp.Regexp          `json:"pattern,omitempty"`
-	CustomPropertyValidator CustomPropertyValidator `json:"-"`
-	DefaultValue            string                  `json:"default,omitempty"`
+	Description             string                        `json:"description,omitempty"` // nolint: lll
+	MinLength               *int                          `json:"minLength,omitempty"`   // nolint: lll
+	MaxLength               *int                          `json:"maxLength,omitempty"`   // nolint: lll
+	AllowedValues           []string                      `json:"enum,omitempty"`
+	AllowedPattern          *regexp.Regexp                `json:"pattern,omitempty"` // nolint: lll
+	CustomPropertyValidator CustomStringPropertyValidator `json:"-"`
+	DefaultValue            string                        `json:"default,omitempty"` // nolint: lll
 }
 
 // MarshalJSON provides functionality to marshal a StringPropertySchema to JSON
@@ -154,15 +154,19 @@ func (s StringPropertySchema) validate(
 	return nil
 }
 
+// CustomIntPropertyValidator is a function type that describes the signature
+// for functions that provide custom validation logic for integer properties.
+type CustomIntPropertyValidator func(context string, value int64) error
+
 // IntPropertySchema represents schema for a single integer property
 type IntPropertySchema struct {
-	Description             string                  `json:"description,omitempty"`
-	MinValue                *int64                  `json:"minimum,omitempty"`
-	MaxValue                *int64                  `json:"maximum,omitempty"`
-	AllowedValues           []int64                 `json:"enum,omitempty"`
-	AllowedIncrement        *int64                  `json:"multipleOf,omitempty"`
-	CustomPropertyValidator CustomPropertyValidator `json:"-"`
-	DefaultValue            *int64                  `json:"default,omitempty"`
+	Description             string                     `json:"description,omitempty"` // nolint: lll
+	MinValue                *int64                     `json:"minimum,omitempty"`
+	MaxValue                *int64                     `json:"maximum,omitempty"`
+	AllowedValues           []int64                    `json:"enum,omitempty"`
+	AllowedIncrement        *int64                     `json:"multipleOf,omitempty"` // nolint: lll
+	CustomPropertyValidator CustomIntPropertyValidator `json:"-"`
+	DefaultValue            *int64                     `json:"default,omitempty"`
 }
 
 // MarshalJSON provides functionality to marshal an IntPropertySchema to JSON
@@ -221,15 +225,19 @@ func (i IntPropertySchema) validate(context string, value interface{}) error {
 	return nil
 }
 
+// CustomFloatPropertyValidator is a function type that describes the signature
+// for functions that provide custom validation logic for float properties.
+type CustomFloatPropertyValidator func(context string, value float64) error
+
 // FloatPropertySchema represents schema for a single floating point property
 type FloatPropertySchema struct {
-	Description             string                  `json:"description,omitempty"`
-	MinValue                *float64                `json:"minimum,omitempty"`
-	MaxValue                *float64                `json:"maximum,omitempty"`
-	AllowedValues           []float64               `json:"enum,omitempty"`
-	AllowedIncrement        *float64                `json:"multipleOf,omitempty"`
-	CustomPropertyValidator CustomPropertyValidator `json:"-"`
-	DefaultValue            *float64                `json:"default,omitempty"`
+	Description             string                       `json:"description,omitempty"` // nolint: lll
+	MinValue                *float64                     `json:"minimum,omitempty"`     // nolint: lll
+	MaxValue                *float64                     `json:"maximum,omitempty"`     // nolint: lll
+	AllowedValues           []float64                    `json:"enum,omitempty"`
+	AllowedIncrement        *float64                     `json:"multipleOf,omitempty"` // nolint: lll
+	CustomPropertyValidator CustomFloatPropertyValidator `json:"-"`
+	DefaultValue            *float64                     `json:"default,omitempty"` // nolint: lll
 }
 
 // MarshalJSON provides functionality to marshal a FloatPropertySchema to JSON
@@ -284,14 +292,22 @@ func (f FloatPropertySchema) validate(context string, value interface{}) error {
 	return nil
 }
 
+// CustomObjectPropertyValidator is a function type that describes the signature
+// for functions that provide custom validation logic for object properties.
+type CustomObjectPropertyValidator func(
+	context string,
+	value map[string]interface{},
+) error
+
 // ObjectPropertySchema represents the attributes of a complicated schema type
 // that can have nested properties
 type ObjectPropertySchema struct {
-	Description        string                    `json:"description,omitempty"`
-	RequiredProperties []string                  `json:"required,omitempty"`
-	PropertySchemas    map[string]PropertySchema `json:"properties,omitempty"`
-	Additional         PropertySchema            `json:"additionalProperties,omitempty"` // nolint: lll
-	DefaultValue       map[string]interface{}    `json:"-"`
+	Description             string                        `json:"description,omitempty"`          // nolint: lll
+	RequiredProperties      []string                      `json:"required,omitempty"`             // nolint: lll
+	PropertySchemas         map[string]PropertySchema     `json:"properties,omitempty"`           // nolint: lll
+	Additional              PropertySchema                `json:"additionalProperties,omitempty"` // nolint: lll
+	CustomPropertyValidator CustomObjectPropertyValidator `json:"-"`
+	DefaultValue            map[string]interface{}        `json:"-"`
 }
 
 // MarshalJSON provides functionality to marshal an ObjectPropertySchema to JSON
@@ -333,13 +349,21 @@ func (o ObjectPropertySchema) validate(
 	return nil
 }
 
+// CustomArrayPropertyValidator is a function type that describes the signature
+// for functions that provide custom validation logic for array properties.
+type CustomArrayPropertyValidator func(
+	context string,
+	value []interface{},
+) error
+
 // ArrayPropertySchema represents the attributes of an array type
 type ArrayPropertySchema struct {
-	Description  string         `json:"description,omitempty"`
-	MinItems     *int           `json:"minItems,omitempty"`
-	MaxItems     *int           `json:"maxItems,omitempty"`
-	ItemsSchema  PropertySchema `json:"items,omitempty"`
-	DefaultValue []interface{}  `json:"-"`
+	Description             string                       `json:"description,omitempty"` // nolint: lll
+	MinItems                *int                         `json:"minItems,omitempty"`    // nolint: lll
+	MaxItems                *int                         `json:"maxItems,omitempty"`    // nolint: lll
+	ItemsSchema             PropertySchema               `json:"items,omitempty"`
+	CustomPropertyValidator CustomArrayPropertyValidator `json:"-"`
+	DefaultValue            []interface{}                `json:"-"`
 }
 
 // MarshalJSON provides functionality to marshal an
