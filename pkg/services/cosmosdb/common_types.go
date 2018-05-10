@@ -1,6 +1,9 @@
 package cosmosdb
 
 import (
+	"fmt"
+	"net"
+
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -97,7 +100,8 @@ func (
 						Description: "Values to include in IP Filter. " +
 							"Can be an IP Address or CIDR range.",
 						ItemsSchema: &service.StringPropertySchema{
-							Description: "Must be a valid IP address or CIDR",
+							Description:             "Must be a valid IP address or CIDR",
+							CustomPropertyValidator: ipRangeValidator,
 						},
 					},
 				},
@@ -126,6 +130,10 @@ func (
 						Description: "The staleness settings when using " +
 							"BoundedStaleness consistency.  Required when " +
 							"using BoundedStaleness",
+						RequiredProperties: []string{
+							"maxStalenessPrefix",
+							"maxIntervalInSeconds",
+						},
 						PropertySchemas: map[string]service.PropertySchema{
 							"maxStalenessPrefix": &service.IntPropertySchema{
 								Description: "When used with the Bounded Staleness " +
@@ -148,7 +156,44 @@ func (
 						},
 					},
 				},
+				CustomPropertyValidator: consistencyPolicyValidator,
 			},
 		},
 	}
+}
+
+func ipRangeValidator(context, value string) error {
+	ip := net.ParseIP(value)
+	if ip == nil {
+		cidr, _, _ := net.ParseCIDR(value)
+		if cidr == nil {
+			return service.NewValidationError(
+				context,
+				fmt.Sprintf(`"%s" is neither a valid IP address or CIDR range`, value),
+			)
+		}
+	}
+	return nil
+}
+
+// consistencyPolicyValidator is used to validate that the boundedStaleness
+// object has been included in the parameters if "BoundedStaleness" was the
+// selected default consistency policy. No further validation of the
+// boundedStaleness (other than checking that it exists) is carried out here
+// because the schema-based validations have all the rest of that covered.
+func consistencyPolicyValidator(
+	context string,
+	valMap map[string]interface{},
+) error {
+	defaultConsistencyLevel := valMap["defaultConsistencyLevel"].(string)
+	if defaultConsistencyLevel == "BoundedStaleness" {
+		_, ok := valMap["boundedStaleness"].(map[string]interface{})
+		if !ok {
+			return service.NewValidationError(
+				fmt.Sprintf("%s.boundedStaleness", context),
+				"field is required",
+			)
+		}
+	}
+	return nil
 }

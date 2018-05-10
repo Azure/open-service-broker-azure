@@ -1,6 +1,10 @@
 package mssql
 
 import (
+	"bytes"
+	"fmt"
+	"net"
+
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -43,12 +47,15 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 							Description: "Name of firewall rule",
 						},
 						"startIPAddress": &service.StringPropertySchema{
-							Description: "Start of firewall rule range",
+							Description:             "Start of firewall rule range",
+							CustomPropertyValidator: ipValidator,
 						},
 						"endIPAddress": &service.StringPropertySchema{
-							Description: "End of firewall rule range",
+							Description:             "End of firewall rule range",
+							CustomPropertyValidator: ipValidator,
 						},
 					},
+					CustomPropertyValidator: firewallRuleValidator,
 				},
 				DefaultValue: []interface{}{
 					map[string]interface{}{
@@ -66,4 +73,40 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 			},
 		},
 	}
+}
+
+func ipValidator(context, value string) error {
+	ip := net.ParseIP(value)
+	if ip == nil {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf(`"%s" is not a valid IP address`, value),
+		)
+	}
+	return nil
+}
+
+func firewallRuleValidator(
+	context string,
+	valMap map[string]interface{},
+) error {
+	startIP := net.ParseIP(valMap["startIPAddress"].(string))
+	endIP := net.ParseIP(valMap["endIPAddress"].(string))
+	// The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
+	// Once converted,comparing two IP addresses can be done by using the
+	// bytes. Compare function. Per the ARM template documentation,
+	// startIP must be <= endIP.
+	startBytes := startIP.To4()
+	endBytes := endIP.To4()
+	if bytes.Compare(startBytes, endBytes) > 0 {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf(
+				`endIPAddress "%s" is not greater than or equal to startIPAddress "%s"`,
+				endIP,
+				startIP,
+			),
+		)
+	}
+	return nil
 }

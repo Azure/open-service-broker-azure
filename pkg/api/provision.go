@@ -122,9 +122,31 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	serviceManager := svc.GetServiceManager()
+	// Start by carrying out plan-specific provisioning request parameters
+	// validation
+	if err :=
+		plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema.Validate(
+			provisioningRequest.Parameters,
+		); err != nil {
+		var validationErr *service.ValidationError
+		validationErr, ok = err.(*service.ValidationError)
+		if ok {
+			logFields["field"] = validationErr.Field
+			logFields["issue"] = validationErr.Issue
+			log.WithFields(logFields).Debug(
+				"bad provisioning request: validation error",
+			)
+			s.writeResponse(
+				w,
+				http.StatusBadRequest,
+				generateValidationFailedResponse(validationErr),
+			)
+		}
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
 
-	// Unpack the parameter map...
+	// Unpack the generic bits of the parameter map...
 
 	// Location...
 	location := ""
@@ -242,6 +264,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	serviceManager := svc.GetServiceManager()
+
 	// Now service-specific parameters...
 	provisioningParameters, secureProvisioningParameters, err :=
 		serviceManager.SplitProvisioningParameters(provisioningRequest.Parameters)
@@ -321,33 +345,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	// If we get to here, we need to provision a new instance.
 
-	// Start by validating the location
+	// Perform additional validations on location
 	err = s.validateLocation(svc, location)
-	if err != nil {
-		s.handlePossibleValidationError(err, w, logFields)
-		return
-	}
-
-	// Validate alias (only applies if this service type has children)
-	err = s.validateAlias(svc, alias)
-	if err != nil {
-		s.handlePossibleValidationError(err, w, logFields)
-		return
-	}
-
-	// Validate parent alias (only applies if this service type has a parent)
-	err = s.validateParentAlias(svc, parentAlias)
-	if err != nil {
-		s.handlePossibleValidationError(err, w, logFields)
-		return
-	}
-
-	// Then validate service-specific provisioning parameters
-	err = serviceManager.ValidateProvisioningParameters(
-		plan,
-		provisioningParameters,
-		secureProvisioningParameters,
-	)
 	if err != nil {
 		s.handlePossibleValidationError(err, w, logFields)
 		return
@@ -517,29 +516,6 @@ func (s *server) validateLocation(svc service.Service, location string) error {
 				fmt.Sprintf(`invalid location: "%s"`, location),
 			)
 		}
-	}
-	return nil
-}
-
-func (s *server) validateAlias(svc service.Service, alias string) error {
-	if svc.GetChildServiceID() != "" && alias == "" {
-		return service.NewValidationError(
-			"alias",
-			fmt.Sprintf(`invalid alias: "%s"`, alias),
-		)
-	}
-	return nil
-}
-
-func (s *server) validateParentAlias(
-	svc service.Service,
-	parentAlias string,
-) error {
-	if svc.GetParentServiceID() != "" && parentAlias == "" {
-		return service.NewValidationError(
-			"parentAlias",
-			fmt.Sprintf(`invalid parentAlias: "%s"`, parentAlias),
-		)
 	}
 	return nil
 }

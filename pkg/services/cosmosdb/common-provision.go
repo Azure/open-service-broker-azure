@@ -3,7 +3,6 @@ package cosmosdb
 import (
 	"context"
 	"fmt"
-	"net"
 	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
@@ -12,20 +11,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-var (
-	validValues = map[string]struct{}{
-		"eventual":         {},
-		"session":          {},
-		"boundedstaleness": {},
-		"strong":           {},
-		"consistentprefix": {},
-	}
-)
-
-const (
-	disabled = "disabled"
-	enabled  = "enabled"
-)
+const disabled = "disabled"
 
 func generateAccountName(location string) string {
 	databaseAccountName := uuid.NewV4().String()
@@ -58,106 +44,6 @@ func preProvision(
 	return dtMap, nil, err
 }
 
-func (c *cosmosAccountManager) ValidateProvisioningParameters(
-	_ service.Plan,
-	provisionParameters service.ProvisioningParameters,
-	_ service.SecureProvisioningParameters,
-) error {
-	pp := provisioningParameters{}
-	if err := service.GetStructFromMap(provisionParameters, &pp); err != nil {
-		return err
-	}
-	if pp.IPFilterRules != nil {
-		allowAzure := strings.ToLower(pp.IPFilterRules.AllowAzure)
-		if allowAzure != "" && allowAzure != enabled &&
-			allowAzure != disabled {
-			return service.NewValidationError(
-				"allowAzure",
-				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowAzure),
-			)
-		}
-		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
-		if allowPortal != "" && allowPortal != enabled &&
-			allowPortal != disabled {
-			return service.NewValidationError(
-				"allowPortal",
-				fmt.Sprintf(`invalid option: "%s"`, pp.IPFilterRules.AllowPortal),
-			)
-		}
-		for _, filter := range pp.IPFilterRules.Filters {
-			// First check if it is a valid IP
-			ip := net.ParseIP(filter)
-			if ip == nil {
-				// Check to see if it is a valid CIDR
-				ip, _, _ = net.ParseCIDR(filter)
-				if ip == nil {
-					return service.NewValidationError(
-						"IP Filter",
-						fmt.Sprintf(`invalid value: "%s"`, filter),
-					)
-				}
-			}
-		}
-	}
-	if pp.ConsistencyPolicy != nil {
-		cp := strings.ToLower(pp.ConsistencyPolicy.DefaultConsistency)
-		if _, valid := validValues[cp]; !valid {
-			return service.NewValidationError(
-				"consistencyPolicy",
-				fmt.Sprintf(`invalid default consistency level: "%s"`, cp),
-			)
-		}
-		if cp == "boundedstaleness" {
-			if pp.ConsistencyPolicy.BoundedStaleness == nil {
-			} else {
-				if pp.ConsistencyPolicy.BoundedStaleness.MaxInternal == nil {
-					return service.NewValidationError(
-						"consistencyPolicy",
-						"maxIntervalInSeconds must be provided when "+
-							"defaultConsistencyPolicy is set to "+
-							"'BoundedStaleness'.",
-					)
-				}
-				if pp.ConsistencyPolicy.BoundedStaleness.MaxStaleness == nil {
-					return service.NewValidationError(
-						"consistencyPolicy",
-						"maxStalenessPrefix must be provided when "+
-							"defaultConsistencyPolicy is set to "+
-							"'BoundedStaleness'.",
-					)
-				}
-
-				maxIntervalParam :=
-					*pp.ConsistencyPolicy.BoundedStaleness.MaxInternal
-				if maxIntervalParam < 5 || maxIntervalParam > 86400 {
-					return service.NewValidationError(
-						"consistencyPolicy",
-						fmt.Sprintf(
-							`invalid maxIntervalInSeconds: "%d"`,
-							maxIntervalParam,
-						),
-					)
-				}
-
-				maxStalenessParam :=
-					*pp.ConsistencyPolicy.BoundedStaleness.MaxStaleness
-				if maxStalenessParam < 1 || maxStalenessParam > 2147483647 {
-					return service.NewValidationError(
-						"consistencyPolicy",
-						fmt.Sprintf(
-							`invalid maxStalenessPrefix: "%d"`,
-							maxStalenessParam,
-						),
-					)
-				}
-
-			}
-		}
-	}
-	return nil
-
-}
-
 func (c *cosmosAccountManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
@@ -188,11 +74,9 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	filters := []string{}
 
 	if pp.IPFilterRules != nil {
-		allowAzure := strings.ToLower(pp.IPFilterRules.AllowPortal)
-		allowPortal := strings.ToLower(pp.IPFilterRules.AllowPortal)
-		if allowAzure != disabled {
+		if pp.IPFilterRules.AllowAzure != disabled {
 			filters = append(filters, "0.0.0.0")
-		} else if allowPortal != disabled {
+		} else if pp.IPFilterRules.AllowPortal != disabled {
 			// Azure Portal IP Addresses per:
 			// https://aka.ms/Vwxndo
 			//|| Region            || IP address(es) ||
@@ -232,31 +116,17 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	}
 
 	if pp.ConsistencyPolicy != nil {
-		consistencyPolicy := make(map[string]interface{})
-		cp := strings.ToLower(pp.ConsistencyPolicy.DefaultConsistency)
-		switch cp {
-		case "eventual":
-			consistencyPolicy["defaultConsistencyLevel"] = "Eventual"
-		case "session":
-			consistencyPolicy["defaultConsistencyLevel"] = "Session"
-		case "boundedstaleness":
-			consistencyPolicy["defaultConsistencyLevel"] = "BoundedStaleness"
-		case "strong":
-			consistencyPolicy["defaultConsistencyLevel"] = "Strong"
-		case "consistentprefix":
-			consistencyPolicy["defaultConsistencyLevel"] = "ConsistentPrefix"
+		consistencyPolicy := map[string]interface{}{
+			"defaultConsistencyLevel": pp.ConsistencyPolicy.DefaultConsistency,
 		}
-
-		if consistencyPolicy["defaultConsistencyLevel"] == "BoundedStaleness" {
+		if pp.ConsistencyPolicy.DefaultConsistency == "BoundedStaleness" {
 			boundedStalenessSettings := make(map[string]interface{})
 			boundedStalenessSettings["maxIntervalInSeconds"] =
 				*pp.ConsistencyPolicy.BoundedStaleness.MaxInternal
-
 			boundedStalenessSettings["maxStalenessPrefix"] =
 				*pp.ConsistencyPolicy.BoundedStaleness.MaxStaleness
 		}
 		p["consistencyPolicy"] = consistencyPolicy
-
 	}
 	return p, nil
 }

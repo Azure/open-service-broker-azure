@@ -1,7 +1,9 @@
 package mysql
 
 import (
+	"bytes"
 	"fmt"
+	"net"
 
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 
@@ -46,11 +48,6 @@ func (p *planSchema) getSku(pp dbmsProvisioningParameters) string {
 	return sku
 }
 
-// TODO: krancour: I think it's evident from the code below that we could and
-// should generalize this into a framework whereby the schema for provisioning,
-// updating, binding params, etc. is codified in some meaninful way and JSON
-// schema (included in the catalog for each plan), validation, and derivation
-// of default values are ALL driven off of that data.
 func generateDBMSPlanSchema(
 	schema planSchema,
 ) service.InputParametersSchema {
@@ -70,12 +67,15 @@ func generateDBMSPlanSchema(
 					Description: "Name of firewall rule",
 				},
 				"startIPAddress": &service.StringPropertySchema{
-					Description: "Start of firewall rule range",
+					Description:             "Start of firewall rule range",
+					CustomPropertyValidator: ipValidator,
 				},
 				"endIPAddress": &service.StringPropertySchema{
-					Description: "End of firewall rule range",
+					Description:             "End of firewall rule range",
+					CustomPropertyValidator: ipValidator,
 				},
 			},
+			CustomPropertyValidator: firewallRuleValidator,
 		},
 		DefaultValue: []interface{}{
 			map[string]interface{}{
@@ -200,4 +200,40 @@ func (p *planSchema) getFirewallRules(
 		return pp.FirewallRules
 	}
 	return p.defaultFirewallRules
+}
+
+func ipValidator(context, value string) error {
+	ip := net.ParseIP(value)
+	if ip == nil {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf(`"%s" is not a valid IP address`, value),
+		)
+	}
+	return nil
+}
+
+func firewallRuleValidator(
+	context string,
+	valMap map[string]interface{},
+) error {
+	startIP := net.ParseIP(valMap["startIPAddress"].(string))
+	endIP := net.ParseIP(valMap["endIPAddress"].(string))
+	// The net.IP.To4 method returns a 4 byte representation of an IPv4 address.
+	// Once converted,comparing two IP addresses can be done by using the
+	// bytes. Compare function. Per the ARM template documentation,
+	// startIP must be <= endIP.
+	startBytes := startIP.To4()
+	endBytes := endIP.To4()
+	if bytes.Compare(startBytes, endBytes) > 0 {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf(
+				`endIPAddress "%s" is not greater than or equal to startIPAddress "%s"`,
+				endIP,
+				startIP,
+			),
+		)
+	}
+	return nil
 }

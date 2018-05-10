@@ -38,9 +38,8 @@ type Module struct {
 // ServiceManager is a fake implementation of the service.ServiceManager
 // interface used to facilitate testing.
 type ServiceManager struct {
-	ProvisioningValidationBehavior ProvisioningValidationFunction
-	BindBehavior                   BindFunction
-	UnbindBehavior                 UnbindFunction
+	BindBehavior   BindFunction
+	UnbindBehavior UnbindFunction
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -48,9 +47,8 @@ type ServiceManager struct {
 func New() (*Module, error) {
 	return &Module{
 		ServiceManager: &ServiceManager{
-			ProvisioningValidationBehavior: defaultProvisioningValidationBehavior,
-			BindBehavior:                   defaultBindBehavior,
-			UnbindBehavior:                 defaultUnbindBehavior,
+			BindBehavior:   defaultBindBehavior,
+			UnbindBehavior: defaultUnbindBehavior,
 		},
 	}, nil
 }
@@ -63,20 +61,6 @@ func (m *Module) GetName() string {
 // GetStability returns this module's relative stability
 func (m *Module) GetStability() service.Stability {
 	return service.StabilityStable
-}
-
-// ValidateProvisioningParameters validates the provided provisioningParameters
-// and returns an error if there is any problem
-func (s *ServiceManager) ValidateProvisioningParameters(
-	plan service.Plan,
-	provisioningParameters service.ProvisioningParameters,
-	secureProvisioningParameters service.SecureProvisioningParameters,
-) error {
-	return s.ProvisioningValidationBehavior(
-		plan,
-		provisioningParameters,
-		secureProvisioningParameters,
-	)
 }
 
 // GetProvisioner returns a provisioner that defines the steps a module must
@@ -152,14 +136,6 @@ func (s *ServiceManager) deprovision(
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	return instance.Details, instance.SecureDetails, nil
-}
-
-func defaultProvisioningValidationBehavior(
-	service.Plan,
-	service.ProvisioningParameters,
-	service.SecureProvisioningParameters,
-) error {
-	return nil
 }
 
 func defaultBindBehavior(

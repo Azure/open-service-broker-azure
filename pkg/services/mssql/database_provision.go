@@ -9,15 +9,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// TODO: implement db only validation
-func (d *databaseManager) ValidateProvisioningParameters(
-	service.Plan,
-	service.ProvisioningParameters,
-	service.SecureProvisioningParameters,
-) error {
-	return nil
-}
-
 func (d *databaseManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
