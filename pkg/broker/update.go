@@ -123,7 +123,7 @@ func (b *broker) executeUpdatingStep(
 	instanceCopy.Status = service.InstanceStateUpdated
 	// Merge the non-zero update parameters into the provision parameters
 	for key, value := range instanceCopy.UpdatingParameters {
-		if !types.IsZero(value) {
+		if !types.IsEmpty(value) {
 			instanceCopy.ProvisioningParameters[key] = value
 		}
 	}
