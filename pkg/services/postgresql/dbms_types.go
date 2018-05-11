@@ -12,6 +12,14 @@ type dbmsProvisioningParameters struct {
 	BackupRedundancy string         `json:"backupRedundancy"`
 }
 
+type dbmsUpdatingParameters struct {
+	SSLEnforcement  string         `json:"sslEnforcement"`
+	FirewallRules   []firewallRule `json:"firewallRules"`
+	Cores           *int           `json:"cores"`
+	Storage         *int           `json:"storage"`
+	BackupRetention *int           `json:"backupRetention"`
+}
+
 type firewallRule struct {
 	Name    string `json:"name"`
 	StartIP string `json:"startIPAddress"`

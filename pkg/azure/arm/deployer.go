@@ -205,7 +205,7 @@ func (d *deployer) Update(
 	switch ds {
 	case deploymentStatusNotFound:
 		log.WithFields(logFields).Debug(
-			"deployment does not already exist; fail",
+			"deployment does not already exist so it cannot be updated; fail",
 		)
 		return nil, fmt.Errorf(
 			`error updating "%s" in resource group "%s": %s`,
@@ -233,9 +233,9 @@ func (d *deployer) Update(
 		}
 	case deploymentStatusSucceeded:
 		log.WithFields(logFields).Debug(
-			"deployment exists, we can begin the update",
+			"deployment exists and is completed, we can begin the update",
 		)
-		//doNewDeployment will call deploymentsClient.CreateOrUpdate
+
 		if deployment, err = d.doDeployment(
 			deploymentName,
 			resourceGroupName,

@@ -154,7 +154,8 @@ func (p *planSchema) getStorage(pp dbmsProvisioningParameters) int {
 
 func (p *planSchema) getBackupRetention(pp dbmsProvisioningParameters) int {
 	// If you get a choice and you've made a choice...
-	if p.maxBackupRetention > p.minBackupRetention && pp.BackupRetention != nil {
+	if p.maxBackupRetention > p.minBackupRetention &&
+		pp.BackupRetention != nil {
 		return *pp.BackupRetention
 	}
 	return p.defaultBackupRetention
