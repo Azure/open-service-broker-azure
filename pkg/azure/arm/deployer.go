@@ -36,6 +36,15 @@ type Deployer interface {
 		armParams map[string]interface{},
 		tags map[string]string,
 	) (map[string]interface{}, error)
+	Update(
+		deploymentName string,
+		resourceGroupName string,
+		location string,
+		template []byte,
+		goParams interface{},
+		armParams map[string]interface{},
+		tags map[string]string,
+	) (map[string]interface{}, error)
 	Delete(deploymentName string, resourceGroupName string) error
 }
 
@@ -96,7 +105,7 @@ func (d *deployer) Deploy(
 		log.WithFields(logFields).Debug(
 			"deployment does not already exist; beginning new deployment",
 		)
-		if deployment, err = d.doNewDeployment(
+		if deployment, err = d.doDeployment(
 			deploymentName,
 			resourceGroupName,
 			location,
@@ -137,6 +146,112 @@ func (d *deployer) Deploy(
 		log.WithFields(logFields).Debug(
 			"deployment exists and has already succeeded",
 		)
+	case deploymentStatusFailed:
+		// The deployment exists and has failed already.
+		return nil, fmt.Errorf(
+			`error deploying "%s" in resource group "%s": deployment is in failed `+
+				`state`,
+			deploymentName,
+			resourceGroupName,
+		)
+	case deploymentStatusUnknown:
+		fallthrough
+	default:
+		// Unrecognized state
+		return nil, fmt.Errorf(
+			`error deploying "%s" in resource group "%s": deployment is in an `+
+				`unrecognized state`,
+			deploymentName,
+			resourceGroupName,
+		)
+	}
+
+	return getOutputs(deployment)
+}
+
+// Update idempotently handles ARM deployments. To do this, it checks for the
+// existence and status of a deployment before choosing to update one,
+// poll until success or failure, or return an error.
+func (d *deployer) Update(
+	deploymentName string,
+	resourceGroupName string,
+	location string,
+	template []byte,
+	goParams interface{},
+	armParams map[string]interface{},
+	tags map[string]string,
+) (map[string]interface{}, error) {
+	logFields := log.Fields{
+		"resourceGroup": resourceGroupName,
+		"deployment":    deploymentName,
+	}
+
+	// Get the deployment and its current status
+	deployment, ds, err := d.getDeploymentAndStatus(
+		deploymentName,
+		resourceGroupName,
+	)
+	if err != nil {
+		return nil, fmt.Errorf(
+			`error deploying "%s" in resource group "%s": error getting `+
+				`deployment: %s`,
+			deploymentName,
+			resourceGroupName,
+			err,
+		)
+	}
+
+	// Handle according to status...
+	switch ds {
+	case deploymentStatusNotFound:
+		log.WithFields(logFields).Debug(
+			"deployment does not already exist; fail",
+		)
+		return nil, fmt.Errorf(
+			`error updating "%s" in resource group "%s": %s`,
+			deploymentName,
+			resourceGroupName,
+			err,
+		)
+	case deploymentStatusRunning:
+		// The deployment exists and is currently running, which means we'll poll
+		// until it completes. The return at the end of the function will return the
+		// deployment's outputs.
+		log.WithFields(logFields).Debug(
+			"deployment exists and is in-progress; polling until complete",
+		)
+		if deployment, err = d.pollUntilComplete(
+			deploymentName,
+			resourceGroupName,
+		); err != nil {
+			return nil, fmt.Errorf(
+				`error deploying "%s" in resource group "%s": %s`,
+				deploymentName,
+				resourceGroupName,
+				err,
+			)
+		}
+	case deploymentStatusSucceeded:
+		log.WithFields(logFields).Debug(
+			"deployment exists, we can begin the update",
+		)
+		//doNewDeployment will call deploymentsClient.CreateOrUpdate
+		if deployment, err = d.doDeployment(
+			deploymentName,
+			resourceGroupName,
+			location,
+			template,
+			goParams,
+			armParams,
+			tags,
+		); err != nil {
+			return nil, fmt.Errorf(
+				`error deploying "%s" in resource group "%s": %s`,
+				deploymentName,
+				resourceGroupName,
+				err,
+			)
+		}
 	case deploymentStatusFailed:
 		// The deployment exists and has failed already.
 		return nil, fmt.Errorf(
@@ -228,7 +343,7 @@ func (d *deployer) getDeploymentAndStatus(
 	}
 }
 
-func (d *deployer) doNewDeployment(
+func (d *deployer) doDeployment(
 	deploymentName string,
 	resourceGroupName string,
 	location string,
@@ -268,6 +383,7 @@ func (d *deployer) doNewDeployment(
 	// template, so deal with that possibility first.
 	if goParams != nil {
 		finalArmTemplate, err = template.Render(armTemplate, goParams)
+		fmt.Printf("=====Template=====\n%s", string(finalArmTemplate))
 		if err != nil {
 			return nil, err
 		}

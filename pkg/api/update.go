@@ -185,16 +185,23 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 			return
 		}
-	} else if instance.Status != service.InstanceStateProvisioned {
-		log.WithFields(logFields).Debug(
-			"bad updating request: the instance to update to is not in a " +
-				"provisioned state",
-		)
-		// The instance to update is not in a provisioned state
-		// krancour: Choosing to interpret this scenario as unprocessable
-		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusUnprocessableEntity, generateEmptyResponse())
-		return
+	} else {
+		switch instance.Status {
+		case service.InstanceStateProvisioned:
+		case service.InstanceStateUpdatingFailed:
+		default:
+			log.WithFields(logFields).Debug(
+				"bad updating request: the instance to update to is not in a " +
+					"provisioned state",
+			)
+			// The instance to update is not in a provisioned state
+			// This could be from a previously failed update, which means
+			// we will never allow a subsequent update to go through.
+			// krancour: Choosing to interpret this scenario as unprocessable
+			// TODO: Write a more detailed response
+			s.writeResponse(w, http.StatusUnprocessableEntity, generateEmptyResponse())
+			return
+		}
 	}
 
 	// If we get to here, we need to update the instance.
