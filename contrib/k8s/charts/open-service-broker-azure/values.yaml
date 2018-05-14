@@ -1,4 +1,5 @@
 replicaCount: 1
+logLevel: "INFO"
 
 image:
   ## Image location, NOT including the tag
