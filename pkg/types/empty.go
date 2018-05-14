@@ -16,7 +16,6 @@ func IsEmpty(value interface{}) bool {
 			v := value.(string)
 			if v != "" {
 				return false
-
 			}
 		case reflect.Slice:
 			return v.Len() <= 0
@@ -24,6 +23,8 @@ func IsEmpty(value interface{}) bool {
 			return v.Len() <= 0
 		case reflect.Map:
 			return v.Len() <= 0
+		case reflect.Ptr:
+			return v.IsNil()
 		default:
 			return false
 		}
