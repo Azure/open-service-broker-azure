@@ -204,6 +204,8 @@ func (d *deployer) Update(
 	// Handle according to status...
 	switch ds {
 	case deploymentStatusNotFound:
+		// Update operations should be working against an existing deployment.
+		// If we get here, that is a bad thing so we should error.
 		log.WithFields(logFields).Debug(
 			"deployment does not already exist; fail",
 		)
