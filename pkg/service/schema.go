@@ -74,6 +74,10 @@ func (i InputParametersSchema) Validate(valMap map[string]interface{}) error {
 			if err := propertySchema.validate(k, v); err != nil {
 				return err
 			}
+		} else if i.Additional != nil {
+			if err := i.Additional.validate(k, v); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -358,6 +362,10 @@ func (o ObjectPropertySchema) validate(
 		if ok {
 			propetyContext := fmt.Sprintf("%s.%s", context, k)
 			if err := propertySchema.validate(propetyContext, v); err != nil {
+				return err
+			}
+		} else if o.Additional != nil {
+			if err := o.Additional.validate(k, v); err != nil {
 				return err
 			}
 		}
