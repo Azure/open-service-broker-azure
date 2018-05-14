@@ -29,8 +29,11 @@ func (
 			"memoryInGb": &service.FloatPropertySchema{
 				Description: "Gigabytes of memory requested for the container. " +
 					"Must be specified in increments of 0.10 GB.",
-				DefaultValue:     ptr.ToFloat64(1.5),
-				AllowedIncrement: ptr.ToFloat64(0.10),
+				DefaultValue: ptr.ToFloat64(1.5),
+				// krancour: Currently not supported because of floating point division
+				// errors.
+				// AllowedIncrement: ptr.ToFloat64(0.10),
+				CustomPropertyValidator: memoryValidator,
 			},
 			"ports": &service.ArrayPropertySchema{
 				Description: "The port(s) to open on the container." +
@@ -84,4 +87,15 @@ func (s *serviceManager) SplitBindingParameters(
 	error,
 ) {
 	return nil, nil, nil
+}
+
+func memoryValidator(context string, value float64) error {
+	value *= 10
+	if float64(int64(value)) != value {
+		return service.NewValidationError(
+			context,
+			"memory must be specified in increments of 0.10 GB",
+		)
+	}
+	return nil
 }

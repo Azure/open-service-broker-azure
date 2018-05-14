@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"regexp"
 )
 
@@ -237,10 +236,15 @@ type CustomFloatPropertyValidator func(context string, value float64) error
 
 // FloatPropertySchema represents schema for a single floating point property
 type FloatPropertySchema struct {
-	Description             string                       `json:"description,omitempty"` // nolint: lll
-	MinValue                *float64                     `json:"minimum,omitempty"`     // nolint: lll
-	MaxValue                *float64                     `json:"maximum,omitempty"`     // nolint: lll
-	AllowedValues           []float64                    `json:"enum,omitempty"`
+	Description   string    `json:"description,omitempty"`
+	MinValue      *float64  `json:"minimum,omitempty"`
+	MaxValue      *float64  `json:"maximum,omitempty"`
+	AllowedValues []float64 `json:"enum,omitempty"`
+	// krancour: AllowedIncrement is for the schema consumer's benefit only.
+	// Validation vis-a-vis AllowedIncrement is not currently supported because of
+	// floating point division errors. If you need this, write a custom property
+	// validator instead, test it well, and avoid floating-point division if you
+	// can.
 	AllowedIncrement        *float64                     `json:"multipleOf,omitempty"` // nolint: lll
 	CustomPropertyValidator CustomFloatPropertyValidator `json:"-"`
 	DefaultValue            *float64                     `json:"default,omitempty"` // nolint: lll
@@ -289,12 +293,15 @@ func (f FloatPropertySchema) validate(context string, value interface{}) error {
 			return NewValidationError(context, "field value is invalid")
 		}
 	}
-	if f.AllowedIncrement != nil && math.Mod(val, *f.AllowedIncrement) != 0 {
-		return NewValidationError(
-			context,
-			fmt.Sprintf("field value is not a multiple of %f", *f.AllowedIncrement),
-		)
-	}
+	// krancour: Currently not supported because of floating point division
+	// errors. If you need this, write a custom property validator instead, test
+	// it well, and avoid floating-point division if you can.
+	// if f.AllowedIncrement != nil && math.Mod(val, *f.AllowedIncrement) != 0 {
+	// 	return NewValidationError(
+	// 		context,
+	// 		fmt.Sprintf("field value is not a multiple of %f", *f.AllowedIncrement),
+	// 	)
+	// }
 	if f.CustomPropertyValidator != nil {
 		return f.CustomPropertyValidator(context, val)
 	}

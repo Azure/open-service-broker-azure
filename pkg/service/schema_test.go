@@ -218,10 +218,10 @@ func TestValidateIntProperty(t *testing.T) {
 
 func TestFloatPropertySchemaToJSON(t *testing.T) {
 	smallIntsAndHalvesFps := FloatPropertySchema{
-		Description:      "small, integers and halves",
-		MinValue:         ptr.ToFloat64(0),
-		MaxValue:         ptr.ToFloat64(8),
-		AllowedIncrement: ptr.ToFloat64(0.5),
+		Description: "small, integers and halves",
+		MinValue:    ptr.ToFloat64(0),
+		MaxValue:    ptr.ToFloat64(8),
+		// AllowedIncrement: ptr.ToFloat64(0.5),
 	}
 	jsonBytes, err := json.Marshal(smallIntsAndHalvesFps)
 	assert.Nil(t, err)
@@ -231,7 +231,7 @@ func TestFloatPropertySchemaToJSON(t *testing.T) {
 	smallEvenIpsMap := map[string]interface{}{}
 	err = json.Unmarshal(jsonBytes, &smallEvenIpsMap)
 	assert.Nil(t, err)
-	assert.Equal(t, 5, len(smallEvenIpsMap))
+	assert.Equal(t, 4, len(smallEvenIpsMap))
 	schemaType, ok := smallEvenIpsMap["type"]
 	assert.True(t, ok)
 	assert.Equal(t, "number", schemaType)
@@ -248,15 +248,15 @@ func TestFloatPropertySchemaToJSON(t *testing.T) {
 	maxValueFloat, ok := maxValueIface.(float64)
 	assert.True(t, ok)
 	assert.Equal(t, *smallIntsAndHalvesFps.MaxValue, float64(maxValueFloat))
-	incrementIface, ok := smallEvenIpsMap["multipleOf"]
-	assert.True(t, ok)
-	incrementFloat, ok := incrementIface.(float64)
-	assert.True(t, ok)
-	assert.Equal(
-		t,
-		*smallIntsAndHalvesFps.AllowedIncrement,
-		float64(incrementFloat),
-	)
+	// incrementIface, ok := smallEvenIpsMap["multipleOf"]
+	// assert.True(t, ok)
+	// incrementFloat, ok := incrementIface.(float64)
+	// assert.True(t, ok)
+	// assert.Equal(
+	// 	t,
+	// 	*smallIntsAndHalvesFps.AllowedIncrement,
+	// 	float64(incrementFloat),
+	// )
 }
 
 func TestValidateFloatProperty(t *testing.T) {
@@ -309,13 +309,13 @@ func TestValidateFloatProperty(t *testing.T) {
 	assert.Nil(t, err)
 
 	fps = FloatPropertySchema{
-		AllowedIncrement: ptr.ToFloat64(0.5),
+		// AllowedIncrement: ptr.ToFloat64(0.5),
 	}
-	err = fps.validate(fieldName, 4.25)
-	assert.NotNil(t, err)
-	validationError, ok = err.(*ValidationError)
-	assert.True(t, ok)
-	assert.Equal(t, fieldName, validationError.Field)
+	// err = fps.validate(fieldName, 4.25)
+	// assert.NotNil(t, err)
+	// validationError, ok = err.(*ValidationError)
+	// assert.True(t, ok)
+	// assert.Equal(t, fieldName, validationError.Field)
 	err = fps.validate(fieldName, 0.0)
 	assert.Nil(t, err)
 	err = fps.validate(fieldName, 8.5)
