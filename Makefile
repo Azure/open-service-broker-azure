@@ -195,6 +195,7 @@ else
 endif
 	
 LINT_CMD := gometalinter ./... \
+	--concurrency=1 \
 	--disable-all \
 	--enable gofmt \
 	--enable vet \
