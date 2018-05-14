@@ -186,8 +186,8 @@ func (d *deployer) Update(
 		"deployment":    deploymentName,
 	}
 
-	// Get the deployment and its current status
-	deployment, ds, err := d.getDeploymentAndStatus(
+	// Get the deployment's current status
+	_, ds, err := d.getDeploymentAndStatus(
 		deploymentName,
 		resourceGroupName,
 	)
@@ -222,10 +222,11 @@ func (d *deployer) Update(
 		log.WithFields(logFields).Debug(
 			"deployment exists and is in-progress; polling until complete",
 		)
-		if deployment, err = d.pollUntilComplete(
+		deployment, err := d.pollUntilComplete(
 			deploymentName,
 			resourceGroupName,
-		); err != nil {
+		)
+		if err != nil {
 			return nil, fmt.Errorf(
 				`error deploying "%s" in resource group "%s": %s`,
 				deploymentName,
@@ -233,12 +234,14 @@ func (d *deployer) Update(
 				err,
 			)
 		}
+		return getOutputs(deployment)
+
 	case deploymentStatusSucceeded:
 		log.WithFields(logFields).Debug(
 			"deployment exists, we can begin the update",
 		)
 		//doDeployment will call deploymentsClient.CreateOrUpdate
-		if deployment, err = d.doDeployment(
+		deployment, err := d.doDeployment(
 			deploymentName,
 			resourceGroupName,
 			location,
@@ -246,7 +249,8 @@ func (d *deployer) Update(
 			goParams,
 			armParams,
 			tags,
-		); err != nil {
+		)
+		if err != nil {
 			return nil, fmt.Errorf(
 				`error deploying "%s" in resource group "%s": %s`,
 				deploymentName,
@@ -254,6 +258,7 @@ func (d *deployer) Update(
 				err,
 			)
 		}
+		return getOutputs(deployment)
 	case deploymentStatusFailed:
 		// The deployment exists and has failed already.
 		return nil, fmt.Errorf(
@@ -273,8 +278,6 @@ func (d *deployer) Update(
 			resourceGroupName,
 		)
 	}
-
-	return getOutputs(deployment)
 }
 
 func (d *deployer) Delete(
