@@ -22,7 +22,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"alias": "cosmos-account",
 			"ipFilters": map[string]interface{}{
-				"allowedIPRanges": []string{"0.0.0.0/0"},
+				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
 		},
 		location: "eastus",
@@ -47,13 +47,13 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		location:  "eastus",
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"ipFilters": map[string]interface{}{
-				"allowedIPRanges": []string{"0.0.0.0/0"},
+				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
 			"consistencyPolicy": map[string]interface{}{
 				"defaultConsistencyLevel": "BoundedStaleness",
 				"boundedStaleness": map[string]interface{}{
-					"maxStalenessPrefix":   10,
-					"maxIntervalInSeconds": 500,
+					"maxStalenessPrefix":   float64(10),
+					"maxIntervalInSeconds": float64(500),
 				},
 			},
 		},
@@ -66,7 +66,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		location:  "southcentralus",
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"ipFilters": map[string]interface{}{
-				"allowedIPRanges": []string{"0.0.0.0/0"},
+				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
 		},
 	},
@@ -79,7 +79,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		testCredentials: testMongoDBCreds,
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"ipFilters": map[string]interface{}{
-				"allowedIPRanges": []string{"0.0.0.0/0"},
+				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
 		},
 	},
@@ -90,7 +90,7 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		planID:    "58d7223d-934e-4fb5-a046-0c67781eb24e",
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"ipFilters": map[string]interface{}{
-				"allowedIPRanges": []string{"0.0.0.0/0"},
+				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
 		},
 		location: "eastus",

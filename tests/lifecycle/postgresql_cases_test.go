@@ -8,7 +8,10 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/lib/pq" // Postgres SQL driver
+	uuid "github.com/satori/go.uuid"
 )
+
+var postgresqlDBMSAlias = uuid.NewV4().String()
 
 var postgresqlTestCases = []serviceLifecycleTestCase{
 	{
@@ -19,20 +22,20 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 		location:        "southcentralus",
 		testCredentials: testPostgreSQLCreds,
 		provisioningParameters: service.CombinedProvisioningParameters{
-			"firewallRules": []map[string]string{
-				{
+			"firewallRules": []interface{}{
+				map[string]interface{}{
 					"name":           "AllowSome",
 					"startIPAddress": "0.0.0.0",
 					"endIPAddress":   "35.0.0.0",
 				},
-				{
+				map[string]interface{}{
 					"name":           "AllowMore",
 					"startIPAddress": "35.0.0.1",
 					"endIPAddress":   "255.255.255.255",
 				},
 			},
 			"sslEnforcement": "disabled",
-			"extensions": []string{
+			"extensions": []interface{}{
 				"uuid-ossp",
 				"postgis",
 			},
@@ -45,8 +48,9 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 		planID:    "73191861-04b3-4d0b-a29b-429eb15a83d4",
 		location:  "eastus",
 		provisioningParameters: service.CombinedProvisioningParameters{
-			"firewallRules": []map[string]string{
-				{
+			"alias": postgresqlDBMSAlias,
+			"firewallRules": []interface{}{
+				map[string]interface{}{
 					"name":           "AllowAll",
 					"startIPAddress": "0.0.0.0",
 					"endIPAddress":   "255.255.255.255",
@@ -62,7 +66,8 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 				location:        "", // This is actually irrelevant for this test
 				testCredentials: testPostgreSQLCreds,
 				provisioningParameters: service.CombinedProvisioningParameters{
-					"extensions": []string{
+					"parentAlias": postgresqlDBMSAlias,
+					"extensions": []interface{}{
 						"uuid-ossp",
 						"postgis",
 					},
