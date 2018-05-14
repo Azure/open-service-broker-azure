@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func memoryValidatorTest(t *testing.T) {
+func TestMemoryValidator(t *testing.T) {
 	// Some invalid cases
 	err := memoryValidator("", 0.05)
 	assert.NotNil(t, err)
