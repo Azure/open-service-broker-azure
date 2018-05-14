@@ -100,6 +100,7 @@ Broker chart and their default values.
 
 | Parameter | Description | Default |
 | --------- | ----------- | ------- |
+| `logLevel` | Log level (options: PANIC, FATAL, ERROR, WARN, INFO, DEBUG). | `"INFO"` |
 | `image.repository` | Docker image location, _without_ the tag. | `"microsoft/azure-service-broker"` |
 | `image.tag` | Tag / version of the Docker image. | OSBA release matching chart version |
 | `image.pullPolicy` | `"IfNotPresent"`, `"Always"`, or `"Never"`; When launching a pod, this option indicates when to pull the OSBA Docker image. | `"IfNotPresent"` |
