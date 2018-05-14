@@ -383,7 +383,6 @@ func (d *deployer) doDeployment(
 	// template, so deal with that possibility first.
 	if goParams != nil {
 		finalArmTemplate, err = template.Render(armTemplate, goParams)
-		fmt.Printf("=====Template=====\n%s", string(finalArmTemplate))
 		if err != nil {
 			return nil, err
 		}

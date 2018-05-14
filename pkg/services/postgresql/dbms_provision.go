@@ -78,7 +78,16 @@ func (d *dbmsManager) deployARMTemplate(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	goTemplateParameters, err := buildGoTemplateParameters(instance)
+	version := instance.Service.GetProperties().Extended["version"].(string)
+
+	goTemplateParameters, err := buildGoTemplateParameters(
+		instance.Plan,
+		version,
+		dt,
+		sdt,
+		pp,
+	)
+
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to build go template parameters: %s", err)
 	}

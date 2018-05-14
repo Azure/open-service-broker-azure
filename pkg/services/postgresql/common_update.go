@@ -101,15 +101,6 @@ func validateDBMSUpdateParameters(
 				fmt.Sprintf(`invalid value: "%d"`, *up.Storage),
 			)
 		}
-		// This is the only real domain specific thing here that needs to be
-		// validated against the provisioned instance
-		if oldPP.Storage != nil && *up.Storage < *oldPP.Storage {
-			return service.NewValidationError(
-				"storage",
-				fmt.Sprintf(`invalid value: "%d". cannot reduce storage`, *up.Storage),
-			)
-		}
-
 	}
 
 	// backupRetation
@@ -122,22 +113,31 @@ func validateDBMSUpdateParameters(
 		)
 	}
 
+	// This is the only real domain specific thing here that needs to be
+	// validated against the provisioned instance. It is encapsulated in a function
+	// so it can be easily refactored once we move to the common validation
+	err := validateStorageUpdate(oldPP, up)
+	return err
+}
+
+func validateStorageUpdate(
+	pp dbmsProvisioningParameters,
+	up dbmsUpdatingParameters,
+) error {
+	if up.Storage != nil {
+		if pp.Storage != nil && *up.Storage < *pp.Storage {
+			return service.NewValidationError(
+				"storage",
+				fmt.Sprintf(`invalid value: "%d". cannot reduce storage`, *up.Storage),
+			)
+		}
+	}
 	return nil
 }
 
-func buildGoUpdateTemplateParameters(
+func mergeUpdateParameters(
 	instance service.Instance,
-) (map[string]interface{}, error) {
-
-	plan := instance.Plan
-	dt := dbmsInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, err
-	}
-	sdt := secureAllInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, err
-	}
+) (*dbmsProvisioningParameters, error) {
 	pp := dbmsProvisioningParameters{}
 	mergedParams := instance.ProvisioningParameters
 	// create a copy of the provision parameters merged with updating parameters
@@ -152,28 +152,5 @@ func buildGoUpdateTemplateParameters(
 	if err := service.GetStructFromMap(mergedParams, &pp); err != nil {
 		return nil, err
 	}
-
-	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
-
-	p := map[string]interface{}{}
-	p["sku"] = schema.getSku(pp)
-	p["tier"] = plan.GetProperties().Extended["tier"]
-	p["cores"] = schema.getCores(pp)
-	p["storage"] = schema.getStorage(pp) * 1024 //storage is in MB to arm :/
-	p["backupRetention"] = schema.getBackupRetention(pp)
-	p["hardwareFamily"] = schema.getHardwareFamily(pp)
-	if schema.isGeoRedundentBackup(pp) {
-		p["geoRedundantBackup"] = enabledARMString
-	}
-	p["version"] = instance.Service.GetProperties().Extended["version"]
-	p["serverName"] = dt.ServerName
-	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
-	if schema.isSSLRequired(pp) {
-		p["sslEnforcement"] = enabledARMString
-	} else {
-		p["sslEnforcement"] = disabledARMString
-	}
-	p["firewallRules"] = schema.getFirewallRules(pp)
-
-	return p, nil
+	return &pp, nil
 }

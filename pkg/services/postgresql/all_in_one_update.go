@@ -42,7 +42,26 @@ func (a *allInOneManager) updateARMTemplate(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	goTemplateParameters, err := buildGoUpdateTemplateParameters(instance)
+
+	sdt := secureAllInOneInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
+	}
+
+	pp, err := mergeUpdateParameters(instance)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	version := instance.Service.GetProperties().Extended["version"].(string)
+	goTemplateParameters, err := buildGoTemplateParameters(
+		instance.Plan,
+		version,
+		dt.dbmsInstanceDetails,
+		sdt.secureDBMSInstanceDetails,
+		*pp,
+	)
+
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to build go template parameters: %s", err)
 	}

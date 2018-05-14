@@ -28,6 +28,7 @@ func (d *dbmsManager) ValidateUpdatingParameters(
 }
 
 func (d *dbmsManager) GetUpdater(service.Plan) (service.Updater, error) {
+	// There isn't a need to do any "pre-provision here. just the update step"
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateARMTemplate", d.updateARMTemplate),
 	)
@@ -41,7 +42,26 @@ func (d *dbmsManager) updateARMTemplate(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	goTemplateParameters, err := buildGoUpdateTemplateParameters(instance)
+
+	sdt := secureDBMSInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
+	}
+
+	pp, err := mergeUpdateParameters(instance)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	version := instance.Service.GetProperties().Extended["version"].(string)
+	goTemplateParameters, err := buildGoTemplateParameters(
+		instance.Plan,
+		version,
+		dt,
+		sdt,
+		*pp,
+	)
+
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to build go template parameters: %s", err)
 	}
