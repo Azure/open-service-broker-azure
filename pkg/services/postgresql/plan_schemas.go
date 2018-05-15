@@ -51,7 +51,7 @@ func (p *planSchema) getSku(pp dbmsProvisioningParameters) string {
 func generateDBMSPlanSchema(
 	schema planSchema,
 	includeDBParams bool,
-) service.InputParametersSchema {
+) *service.InputParametersSchema {
 	ps := map[string]service.PropertySchema{}
 	ps["firewallRules"] = &service.ArrayPropertySchema{
 		Description: "Firewall rules to apply to instance. " +
@@ -135,7 +135,7 @@ func generateDBMSPlanSchema(
 	if includeDBParams {
 		ps["extensions"] = dbExtensionsSchema
 	}
-	return service.InputParametersSchema{
+	return &service.InputParametersSchema{
 		PropertySchemas: ps,
 	}
 }
@@ -158,7 +158,8 @@ func (p *planSchema) getStorage(pp dbmsProvisioningParameters) int64 {
 
 func (p *planSchema) getBackupRetention(pp dbmsProvisioningParameters) int64 {
 	// If you get a choice and you've made a choice...
-	if p.maxBackupRetention > p.minBackupRetention && pp.BackupRetention != nil {
+	if p.maxBackupRetention > p.minBackupRetention &&
+		pp.BackupRetention != nil {
 		return *pp.BackupRetention
 	}
 	return p.defaultBackupRetention

@@ -129,38 +129,6 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Start by carrying out plan-specific updating request parameters validation
-	if instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema != nil { // nolint: lll
-		if err :=
-			instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema.Validate( // nolint: lll
-				updatingRequest.Parameters,
-			); err != nil {
-			var validationErr *service.ValidationError
-			validationErr, ok = err.(*service.ValidationError)
-			if ok {
-				logFields["field"] = validationErr.Field
-				logFields["issue"] = validationErr.Issue
-				log.WithFields(logFields).Debug(
-					"bad updating request: validation error",
-				)
-				// TODO: Send the correct response body-- this is a placeholder
-				s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
-				return
-			}
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
-		}
-	}
-
-	serviceManager := svc.GetServiceManager()
-
-	updatingParameters, secureUpdatingParameters, err :=
-		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
-	if err != nil {
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-
 	// Our broker doesn't actually require the serviceID and previousValues that,
 	// per spec, are passed to us in the request body (since this broker is
 	// stateful, we can get these details from the instance we already
@@ -180,6 +148,69 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		)
 		// TODO: Write a more detailed response
 		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
+		return
+	}
+
+	// Start by carrying out plan-specific updating request parameters validation
+	// This is the first of two validation stages. This one is schema-driven.
+	if instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema != nil { // nolint: lll
+		if err :=
+			instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema.Validate( // nolint: lll
+				updatingRequest.Parameters,
+			); err != nil {
+			var validationErr *service.ValidationError
+			validationErr, ok = err.(*service.ValidationError)
+			if ok {
+				logFields["field"] = validationErr.Field
+				logFields["issue"] = validationErr.Issue
+				log.WithFields(logFields).Debug(
+					"bad updating request: validation error",
+				)
+				s.writeResponse(
+					w,
+					http.StatusBadRequest,
+					generateValidationFailedResponse(validationErr),
+				)
+				return
+			}
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+	}
+
+	serviceManager := svc.GetServiceManager()
+
+	updatingParameters, secureUpdatingParameters, err :=
+		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
+	if err != nil {
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+
+	// This is the second of two validation stages. This weighs updating
+	// parameters against current instance state. Service/plan-specific logic can
+	// determine if a requested update isn't valid for some reason. Examples of
+	// invalid updates might include, for instance, REDUCING the storage allocated
+	// to a database.
+	instance.UpdatingParameters = updatingParameters
+	instance.SecureUpdatingParameters = secureUpdatingParameters
+	if err := serviceManager.ValidateUpdatingParameters(instance); err != nil {
+		var validationErr *service.ValidationError
+		validationErr, ok = err.(*service.ValidationError)
+		if ok {
+			logFields["field"] = validationErr.Field
+			logFields["issue"] = validationErr.Issue
+			log.WithFields(logFields).Debug(
+				"bad updating request: validation error",
+			)
+			s.writeResponse(
+				w,
+				http.StatusBadRequest,
+				generateValidationFailedResponse(validationErr),
+			)
+			return
+		}
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
 
@@ -208,16 +239,23 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 			return
 		}
-	} else if instance.Status != service.InstanceStateProvisioned {
-		log.WithFields(logFields).Debug(
-			"bad updating request: the instance to update to is not in a " +
-				"provisioned state",
-		)
-		// The instance to update is not in a provisioned state
-		// krancour: Choosing to interpret this scenario as unprocessable
-		// TODO: Write a more detailed response
-		s.writeResponse(w, http.StatusUnprocessableEntity, generateEmptyResponse())
-		return
+	} else {
+		switch instance.Status {
+		case service.InstanceStateProvisioned:
+		case service.InstanceStateUpdatingFailed:
+		default:
+			log.WithFields(logFields).Debug(
+				"bad updating request: the instance to update to is not in a " +
+					"provisioned state",
+			)
+			// The instance to update is not in a provisioned state
+			// This could be from a previously failed update, which means
+			// we will never allow a subsequent update to go through.
+			// krancour: Choosing to interpret this scenario as unprocessable
+			// TODO: Write a more detailed response
+			s.writeResponse(w, http.StatusUnprocessableEntity, generateEmptyResponse())
+			return
+		}
 	}
 
 	// If we get to here, we need to update the instance.

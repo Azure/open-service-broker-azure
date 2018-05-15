@@ -36,6 +36,15 @@ type Deployer interface {
 		armParams map[string]interface{},
 		tags map[string]string,
 	) (map[string]interface{}, error)
+	Update(
+		deploymentName string,
+		resourceGroupName string,
+		location string,
+		template []byte,
+		goParams interface{},
+		armParams map[string]interface{},
+		tags map[string]string,
+	) (map[string]interface{}, error)
 	Delete(deploymentName string, resourceGroupName string) error
 }
 
@@ -96,7 +105,7 @@ func (d *deployer) Deploy(
 		log.WithFields(logFields).Debug(
 			"deployment does not already exist; beginning new deployment",
 		)
-		if deployment, err = d.doNewDeployment(
+		if deployment, err = d.doDeployment(
 			deploymentName,
 			resourceGroupName,
 			location,
@@ -158,6 +167,119 @@ func (d *deployer) Deploy(
 	}
 
 	return getOutputs(deployment)
+}
+
+// Update idempotently handles ARM deployments. To do this, it checks for the
+// existence and status of a deployment before choosing to update one,
+// poll until success or failure, or return an error.
+func (d *deployer) Update(
+	deploymentName string,
+	resourceGroupName string,
+	location string,
+	template []byte,
+	goParams interface{},
+	armParams map[string]interface{},
+	tags map[string]string,
+) (map[string]interface{}, error) {
+	logFields := log.Fields{
+		"resourceGroup": resourceGroupName,
+		"deployment":    deploymentName,
+	}
+
+	// Get the deployment's current status
+	_, ds, err := d.getDeploymentAndStatus(
+		deploymentName,
+		resourceGroupName,
+	)
+	if err != nil {
+		return nil, fmt.Errorf(
+			`error deploying "%s" in resource group "%s": error getting `+
+				`deployment: %s`,
+			deploymentName,
+			resourceGroupName,
+			err,
+		)
+	}
+
+	// Handle according to status...
+	switch ds {
+	case deploymentStatusNotFound:
+		// Update operations should be working against an existing deployment.
+		// If we get here, that is a bad thing so we should error.
+		log.WithFields(logFields).Debug(
+			"deployment does not already exist; fail",
+		)
+		return nil, fmt.Errorf(
+			`error updating "%s" in resource group "%s": %s`,
+			deploymentName,
+			resourceGroupName,
+			err,
+		)
+	case deploymentStatusRunning:
+		// The deployment exists and is currently running, which means we'll poll
+		// until it completes. The return at the end of the function will return the
+		// deployment's outputs.
+		log.WithFields(logFields).Debug(
+			"deployment exists and is in-progress; polling until complete",
+		)
+
+		deployment, err := d.pollUntilComplete(
+			deploymentName,
+			resourceGroupName,
+		)
+		if err != nil {
+			return nil, fmt.Errorf(
+				`error deploying "%s" in resource group "%s": %s`,
+				deploymentName,
+				resourceGroupName,
+				err,
+			)
+		}
+		return getOutputs(deployment)
+
+	case deploymentStatusSucceeded:
+		log.WithFields(logFields).Debug(
+			"deployment exists, we can begin the update",
+		)
+		// doDeployment will call deploymentsClient.CreateOrUpdate
+		// and update an existing deployment.
+		deployment, err := d.doDeployment(
+			deploymentName,
+			resourceGroupName,
+			location,
+			template,
+			goParams,
+			armParams,
+			tags,
+		)
+		if err != nil {
+			return nil, fmt.Errorf(
+				`error deploying "%s" in resource group "%s": %s`,
+				deploymentName,
+				resourceGroupName,
+				err,
+			)
+		}
+		return getOutputs(deployment)
+	case deploymentStatusFailed:
+		// The deployment exists and has failed already.
+		return nil, fmt.Errorf(
+			`error deploying "%s" in resource group "%s": deployment is in failed `+
+				`state`,
+			deploymentName,
+			resourceGroupName,
+		)
+	case deploymentStatusUnknown:
+		fallthrough
+	default:
+		// Unrecognized state
+		return nil, fmt.Errorf(
+			`error deploying "%s" in resource group "%s": deployment is in an `+
+				`unrecognized state`,
+			deploymentName,
+			resourceGroupName,
+		)
+	}
 }
 
 func (d *deployer) Delete(
@@ -228,7 +350,7 @@ func (d *deployer) getDeploymentAndStatus(
 	}
 }
 
-func (d *deployer) doNewDeployment(
+func (d *deployer) doDeployment(
 	deploymentName string,
 	resourceGroupName string,
 	location string,

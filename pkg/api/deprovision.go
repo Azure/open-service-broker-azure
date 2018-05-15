@@ -77,6 +77,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		return
 	case service.InstanceStateProvisioned:
 	case service.InstanceStateProvisioningFailed:
+	case service.InstanceStateUpdatingFailed:
 	default:
 		// This is going to handle the case where we cannot deprovision because
 		// the instance isn't in a terminal state-- i.e. it's still provisioning
