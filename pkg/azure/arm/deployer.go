@@ -186,7 +186,6 @@ func (d *deployer) Update(
 		"deployment":    deploymentName,
 	}
 
-
 	// Get the deployment's current status
 	_, ds, err := d.getDeploymentAndStatus(
 		deploymentName,
