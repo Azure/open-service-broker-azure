@@ -222,6 +222,7 @@ func (d *deployer) Update(
 		log.WithFields(logFields).Debug(
 			"deployment exists and is in-progress; polling until complete",
 		)
+
 		deployment, err := d.pollUntilComplete(
 			deploymentName,
 			resourceGroupName,

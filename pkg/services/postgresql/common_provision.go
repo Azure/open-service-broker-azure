@@ -277,23 +277,12 @@ func createExtensions(
 }
 
 func buildGoTemplateParameters(
-	instance service.Instance,
+	plan service.Plan,
+	version string,
+	dt dbmsInstanceDetails,
+	sdt secureDBMSInstanceDetails,
+	pp dbmsProvisioningParameters,
 ) (map[string]interface{}, error) {
-
-	plan := instance.Plan
-	dt := dbmsInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, err
-	}
-	sdt := secureAllInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, err
-	}
-	pp := dbmsProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, err
-	}
 
 	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
 
@@ -307,7 +296,7 @@ func buildGoTemplateParameters(
 	if schema.isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
-	p["version"] = instance.Service.GetProperties().Extended["version"]
+	p["version"] = version
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
 	if schema.isSSLRequired(pp) {
