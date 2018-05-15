@@ -214,7 +214,9 @@ func (ps *planSchemas) addParameterSchemas(
 			sips.UpdatingParametersSchema = ups
 		}
 		err := ups.Parameters.addProperties(instanceUpdateParameters)
-		log.Errorf("error building instance update param schema %s", err)
+		if err != nil {
+			log.Errorf("error building instance update param schema %s", err)
+		}
 	}
 	if bindingCreateParameters != nil {
 
@@ -231,7 +233,9 @@ func (ps *planSchemas) addParameterSchemas(
 			sbps.BindingParametersSchema = bcps
 		}
 		err := bcps.Parameters.addProperties(bindingCreateParameters)
-		log.Errorf("error building binding creation param schema %s", err)
+		if err != nil {
+			log.Errorf("error building binding creation param schema %s", err)
+		}
 	}
 }
 
