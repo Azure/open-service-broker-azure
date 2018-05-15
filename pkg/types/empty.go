@@ -7,7 +7,7 @@ import (
 // IsEmpty determines if the given value is empty or not.
 // Uses reflection to check for empty on strings, slice, ptr, etc
 // We don't want to actually check for zero values on everything
-// because that could be a valid case. 
+// because that could be a valid case.
 func IsEmpty(value interface{}) bool {
 	if value != nil {
 		v := reflect.ValueOf(value)
