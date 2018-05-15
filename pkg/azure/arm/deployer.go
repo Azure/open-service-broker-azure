@@ -240,7 +240,8 @@ func (d *deployer) Update(
 		log.WithFields(logFields).Debug(
 			"deployment exists, we can begin the update",
 		)
-		//doDeployment will call deploymentsClient.CreateOrUpdate
+		// doDeployment will call deploymentsClient.CreateOrUpdate
+		// and update an existing deployment.
 		deployment, err := d.doDeployment(
 			deploymentName,
 			resourceGroupName,
