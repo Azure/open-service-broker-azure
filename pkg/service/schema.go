@@ -121,6 +121,9 @@ func (s StringPropertySchema) validate(
 	context string,
 	value interface{},
 ) error {
+	if value == nil {
+		return nil
+	}
 	val, ok := value.(string)
 	if !ok {
 		return NewValidationError(context, "field value is not of type string")
@@ -190,6 +193,9 @@ func (i IntPropertySchema) MarshalJSON() ([]byte, error) {
 }
 
 func (i IntPropertySchema) validate(context string, value interface{}) error {
+	if value == nil {
+		return nil
+	}
 	floatVal, ok := value.(float64)
 	if !ok {
 		return NewValidationError(context, "field value is not of type int64")
@@ -269,6 +275,9 @@ func (f FloatPropertySchema) MarshalJSON() ([]byte, error) {
 }
 
 func (f FloatPropertySchema) validate(context string, value interface{}) error {
+	if value == nil {
+		return nil
+	}
 	val, ok := value.(float64)
 	if !ok {
 		return NewValidationError(context, "field value is not of type float64")
@@ -346,6 +355,9 @@ func (o ObjectPropertySchema) validate(
 	context string,
 	value interface{},
 ) error {
+	if value == nil {
+		return nil
+	}
 	valMap, ok := value.(map[string]interface{})
 	if !ok {
 		return NewValidationError(context, "field value is not of type object")
@@ -407,6 +419,9 @@ func (a ArrayPropertySchema) MarshalJSON() ([]byte, error) {
 }
 
 func (a ArrayPropertySchema) validate(context string, value interface{}) error {
+	if value == nil {
+		return nil
+	}
 	valArray, ok := value.([]interface{})
 	if !ok {
 		return NewValidationError(context, "field value is not of type array")

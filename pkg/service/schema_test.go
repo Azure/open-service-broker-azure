@@ -155,13 +155,13 @@ func TestValidateIntProperty(t *testing.T) {
 	validationError, ok := err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
-
-	ips = IntPropertySchema{}
 	err = ips.validate(fieldName, 3.14)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	err = ips.validate(fieldName, nil)
+	assert.Nil(t, err)
 
 	ips = IntPropertySchema{
 		MinValue: ptr.ToInt64(3),
@@ -268,6 +268,8 @@ func TestValidateFloatProperty(t *testing.T) {
 	validationError, ok := err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	err = fps.validate(fieldName, nil)
+	assert.Nil(t, err)
 
 	fps = FloatPropertySchema{
 		MinValue: ptr.ToFloat64(3.14),
@@ -360,6 +362,8 @@ func TestValidateArrayProperty(t *testing.T) {
 	validationError, ok := err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	err = aps.validate(fieldName, nil)
+	assert.Nil(t, err)
 
 	aps = ArrayPropertySchema{
 		MinItems: ptr.ToInt(3),
@@ -450,6 +454,8 @@ func TestValidateObjectProperty(t *testing.T) {
 	validationError, ok := err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	err = ops.validate(fieldName, nil)
+	assert.Nil(t, err)
 
 	ops = ObjectPropertySchema{
 		RequiredProperties: []string{"foo", "bat"},
