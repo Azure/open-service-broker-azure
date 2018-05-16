@@ -151,8 +151,68 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Start by carrying out plan-specific updating request parameters validation
-	// This is the first of two validation stages. This one is schema-driven.
+	serviceManager := svc.GetServiceManager()
+
+	updatingParameters, secureUpdatingParameters, err :=
+		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
+	if err != nil {
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+
+	// This determines whether the parameters of the update request are already
+	// reflected in the provisioning parameters of a fully provisioned (or fully
+	// updated) instance OR the parameters of the update request are already
+	// reflected in the existing updating paramters of an in-progress update.
+	var existingParams map[string]interface{}
+	var existingSecureParams map[string]interface{}
+	switch instance.Status {
+	case service.InstanceStateProvisioned:
+		existingParams = instance.ProvisioningParameters
+		existingSecureParams = instance.SecureProvisioningParameters
+	case service.InstanceStateUpdating:
+		existingParams = instance.UpdatingParameters
+		existingSecureParams = instance.SecureUpdatingParameters
+	default:
+		// If instance isn't fully provisioned (or updated) and there isn't an
+		// update in-progress, we cannot handle this request. It's a conflict.
+		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
+		return
+	}
+	var needsUpdate bool
+	for reqParamKey, reqParamVal := range updatingParameters {
+		existingVal, ok := existingParams[reqParamKey]
+		if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
+			needsUpdate = true
+			break
+		}
+	}
+	for reqParamKey, reqParamVal := range secureUpdatingParameters {
+		existingVal, ok := existingSecureParams[reqParamKey]
+		if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
+			needsUpdate = true
+			break
+		}
+	}
+	if needsUpdate {
+		if instance.Status == service.InstanceStateUpdating {
+			// We cannot handle two updates at once. This is a conflict.
+			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
+		}
+	} else {
+		if instance.Status == service.InstanceStateProvisioned {
+			// In this case, the requested update is already completed
+			s.writeResponse(w, http.StatusOK, generateEmptyResponse())
+		}
+		// In this case, the requested update is already in-progress
+		s.writeResponse(w, http.StatusAccepted, generateUpdateAcceptedResponse())
+	}
+
+	// Only one scenario gets us to this point-- the instance is fully provisioned
+	// (or fully updated) and the parameters of the update request indicate the
+	// need for a new update.
+
+	// Carry out schema-driven update request parameters validation.
 	if instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema != nil { // nolint: lll
 		if err :=
 			instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema.Validate( // nolint: lll
@@ -178,20 +238,9 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	serviceManager := svc.GetServiceManager()
-
-	updatingParameters, secureUpdatingParameters, err :=
-		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
-	if err != nil {
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-
-	// This is the second of two validation stages. This weighs updating
-	// parameters against current instance state. Service/plan-specific logic can
-	// determine if a requested update isn't valid for some reason. Examples of
-	// invalid updates might include, for instance, REDUCING the storage allocated
-	// to a database.
+	// This uses module-specific logic to weigh update parameters against current
+	// instance state to detect any invalid state changes. An example of this
+	// might be reducing the amound of storage allocated to a database.
 	instance.UpdatingParameters = updatingParameters
 	instance.SecureUpdatingParameters = secureUpdatingParameters
 	if err := serviceManager.ValidateUpdatingParameters(instance); err != nil {
@@ -212,50 +261,6 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		}
 		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
-	}
-
-	if instance.ServiceID == updatingRequest.ServiceID &&
-		instance.PlanID == updatingRequest.PlanID &&
-		reflect.DeepEqual(
-			instance.UpdatingParameters,
-			updatingParameters,
-		) &&
-		reflect.DeepEqual(
-			instance.SecureUpdatingParameters,
-			secureUpdatingParameters,
-		) {
-		// Per the spec, if fully provisioned, respond with a 200, else a 202.
-		// Filling in a gap in the spec-- if the status is anything else, we'll
-		// choose to respond with a 409
-		switch instance.Status {
-		case service.InstanceStateUpdating:
-			s.writeResponse(w, http.StatusAccepted, generateUpdateAcceptedResponse())
-			return
-		case service.InstanceStateUpdated:
-			s.writeResponse(w, http.StatusOK, generateEmptyResponse())
-			return
-		default:
-			// TODO: Write a more detailed response
-			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
-			return
-		}
-	} else {
-		switch instance.Status {
-		case service.InstanceStateProvisioned:
-		case service.InstanceStateUpdatingFailed:
-		default:
-			log.WithFields(logFields).Debug(
-				"bad updating request: the instance to update to is not in a " +
-					"provisioned state",
-			)
-			// The instance to update is not in a provisioned state
-			// This could be from a previously failed update, which means
-			// we will never allow a subsequent update to go through.
-			// krancour: Choosing to interpret this scenario as unprocessable
-			// TODO: Write a more detailed response
-			s.writeResponse(w, http.StatusUnprocessableEntity, generateEmptyResponse())
-			return
-		}
 	}
 
 	// If we get to here, we need to update the instance.
