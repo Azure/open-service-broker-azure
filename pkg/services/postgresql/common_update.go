@@ -7,7 +7,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/slice"
-	"github.com/Azure/open-service-broker-azure/pkg/types"
 	_ "github.com/lib/pq" // Postgres SQL driver
 )
 
@@ -133,24 +132,4 @@ func validateStorageUpdate(
 		}
 	}
 	return nil
-}
-
-func mergeUpdateParameters(
-	instance service.Instance,
-) (*dbmsProvisioningParameters, error) {
-	pp := dbmsProvisioningParameters{}
-	mergedParams := instance.ProvisioningParameters
-	// create a copy of the provision parameters merged with updating parameters
-	// and use this to generate the values that follow via the schema. Only
-	// overwrite the provision params that have values in the update params
-	for key, value := range instance.UpdatingParameters {
-		if !types.IsEmpty(value) {
-			mergedParams[key] = value
-		}
-
-	}
-	if err := service.GetStructFromMap(mergedParams, &pp); err != nil {
-		return nil, err
-	}
-	return &pp, nil
 }

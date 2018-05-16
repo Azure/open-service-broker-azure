@@ -48,9 +48,9 @@ func (a *allInOneManager) updateARMTemplate(
 		return nil, nil, err
 	}
 
-	pp, err := mergeUpdateParameters(instance)
-	if err != nil {
-		return nil, nil, err
+	up := dbmsProvisioningParameters{}
+	if err := service.GetStructFromMap(instance.UpdatingParameters, &up); err != nil {
+
 	}
 
 	version := instance.Service.GetProperties().Extended["version"].(string)
@@ -59,7 +59,7 @@ func (a *allInOneManager) updateARMTemplate(
 		version,
 		dt.dbmsInstanceDetails,
 		sdt.secureDBMSInstanceDetails,
-		*pp,
+		up,
 	)
 
 	if err != nil {
