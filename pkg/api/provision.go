@@ -186,17 +186,19 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 	resourceGroup := s.getResourceGroup(svc, requestedResourceGroup)
 
+	fmt.Printf("----------> parameters: %#v\n", provisioningRequest.Parameters)
+
 	// Tags...
 	var tags map[string]string
 	tagsIface, ok := provisioningRequest.Parameters["tags"]
-	if ok {
+	if tagsIface != nil && ok {
 		var mapTagsIfaces map[string]interface{}
 		mapTagsIfaces, ok = tagsIface.(map[string]interface{})
 		if !ok {
 			s.handlePossibleValidationError(
 				service.NewValidationError(
 					"tags",
-					fmt.Sprintf(`"%v" is not a map[string]string`, tagsIface),
+					fmt.Sprintf(`"%v" is not a map[string]interface{}`, tagsIface),
 				),
 				w,
 				logFields,
