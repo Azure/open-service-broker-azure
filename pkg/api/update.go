@@ -176,7 +176,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	// This determines whether the parameters of the update request are already
 	// reflected in the provisioning parameters of a fully provisioned (or fully
 	// updated) instance OR the parameters of the update request are already
-	// reflected in the existing updating paramters of an in-progress update.
+	// reflected in the existing updating parameters of an in-progress update.
 	var existingParams map[string]interface{}
 	var existingSecureParams map[string]interface{}
 	switch instance.Status {
