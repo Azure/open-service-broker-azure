@@ -8,6 +8,7 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/types"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
@@ -137,6 +138,18 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
 		return
 	}
+
+	// Merge both sets of update parameters with the instance's provision
+	// params to build the desired update state.
+	updatingParameters = mergeUpdateParameters(
+		instance.ProvisioningParameters,
+		updatingParameters,
+	)
+
+	secureUpdatingParameters = mergeUpdateParameters(
+		instance.SecureProvisioningParameters,
+		secureUpdatingParameters,
+	)
 
 	// Our broker doesn't actually require the serviceID and previousValues that,
 	// per spec, are passed to us in the request body (since this broker is
@@ -295,4 +308,29 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	s.writeResponse(w, http.StatusAccepted, generateUpdateAcceptedResponse())
 
 	log.WithFields(logFields).Debug("asynchronous updating initiated")
+}
+
+func mergeUpdateParameters(
+	pp map[string]interface{},
+	up map[string]interface{},
+) map[string]interface{} {
+	// If there are no provisioning parameters, the merged
+	// set is the updating parameters
+	if pp == nil {
+		return up
+	}
+	// The OSB spec states that if the request doesn't include a
+	// previously specified parameter value, it should remain unchanged.
+	// This iterates through the updating params and replace the
+	// corresponding provision params if the value in updating
+	// params is not empty. This will result in a merged copy
+	// of the two that reflects the actual requested instance state
+	// using both the previously specificed parameters and the new
+	// parameters.
+	for key, value := range up {
+		if !types.IsEmpty(value) {
+			pp[key] = value
+		}
+	}
+	return pp
 }
