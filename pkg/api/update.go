@@ -325,7 +325,7 @@ func mergeUpdateParameters(
 	// corresponding provision params if the value in updating
 	// params is not empty. This will result in a merged copy
 	// of the two that reflects the actual requested instance state
-	// using both the previously specificed paramaters and the new
+	// using both the previously specificed parameters and the new
 	// parameters.
 	for key, value := range up {
 		if !types.IsEmpty(value) {

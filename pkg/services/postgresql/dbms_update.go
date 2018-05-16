@@ -49,8 +49,11 @@ func (d *dbmsManager) updateARMTemplate(
 	}
 
 	up := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(instance.UpdatingParameters, &up); err != nil {
-
+	if err := service.GetStructFromMap(
+		instance.UpdatingParameters,
+		&up,
+	); err != nil {
+		return nil, nil, err
 	}
 
 	version := instance.Service.GetProperties().Extended["version"].(string)
