@@ -7,7 +7,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/types"
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -121,12 +120,12 @@ func (b *broker) executeUpdatingStep(
 	}
 	// No next step-- we're done updating!
 	instanceCopy.Status = service.InstanceStateProvisioned
-	// Merge the non-zero update parameters into the provision parameters
-	for key, value := range instanceCopy.UpdatingParameters {
-		if !types.IsEmpty(value) {
-			instanceCopy.ProvisioningParameters[key] = value
-		}
-	}
+	// Set the two Provision Parameters to the values of Update.
+	// No need to merge here, as it was done in the API surface before
+	// the update kicked off
+	instanceCopy.ProvisioningParameters = instanceCopy.UpdatingParameters
+	instanceCopy.SecureProvisioningParameters =
+		instanceCopy.SecureUpdatingParameters
 	if err = b.store.WriteInstance(instanceCopy); err != nil {
 		return nil, b.handleUpdatingError(
 			instanceCopy,
