@@ -111,7 +111,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		UpdatingParameters: service.ProvisioningParameters{
+		ProvisioningParameters: service.ProvisioningParameters{
 			"someParameter": "foo",
 		},
 		Status: service.InstanceStateProvisioned,
