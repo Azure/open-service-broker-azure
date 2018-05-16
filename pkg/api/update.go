@@ -211,14 +211,17 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		if instance.Status == service.InstanceStateUpdating {
 			// We cannot handle two updates at once. This is a conflict.
 			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
+			return
 		}
 	} else {
 		if instance.Status == service.InstanceStateProvisioned {
 			// In this case, the requested update is already completed
 			s.writeResponse(w, http.StatusOK, generateEmptyResponse())
+			return
 		}
 		// In this case, the requested update is already in-progress
 		s.writeResponse(w, http.StatusAccepted, generateUpdateAcceptedResponse())
+		return
 	}
 
 	// Only one scenario gets us to this point-- the instance is fully provisioned
