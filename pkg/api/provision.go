@@ -186,8 +186,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 	resourceGroup := s.getResourceGroup(svc, requestedResourceGroup)
 
-	fmt.Printf("----------> parameters: %#v\n", provisioningRequest.Parameters)
-
 	// Tags...
 	var tags map[string]string
 	tagsIface, ok := provisioningRequest.Parameters["tags"]
