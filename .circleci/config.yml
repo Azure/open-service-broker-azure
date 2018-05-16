@@ -2,7 +2,7 @@ version: 2
 
 go-image: &go-image quay.io/deis/lightweight-docker-go:v0.2.0
 docker-image: &docker-image docker:18.03.0-dind
-chart-image: &chart-image quay.io/deis/helm-chart-publishing-tools:v0.1.0
+chart-image: &chart-image quay.io/deis/helm-chart-publishing-tools:v0.1.1
 redis-image: &redis-image redis:3.2.4
 
 base-go-job: &base-go-job
