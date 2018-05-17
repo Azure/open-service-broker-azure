@@ -32,13 +32,10 @@ type ServiceProperties struct { // nolint: golint
 	Bindable      bool             `json:"bindable"`
 	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
 	// deliberate to match the spec
-	ParentServiceID       string                     `json:"-"`
-	ChildServiceID        string                     `json:"-"`
-	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
-	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
-	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
-	Extended              map[string]interface{}     `json:"-"`
-	EndOfLife             bool                       `json:"-"`
+	ParentServiceID string                 `json:"-"`
+	ChildServiceID  string                 `json:"-"`
+	Extended        map[string]interface{} `json:"-"`
+	EndOfLife       bool                   `json:"-"`
 }
 
 // ServiceMetadata contains metadata about the service classes
@@ -80,16 +77,14 @@ type service struct {
 // instantiated and passed to the NewPlan() constructor function which will
 // carry out all necessary initialization.
 type PlanProperties struct {
-	ID                    string                     `json:"id"`
-	Name                  string                     `json:"name"`
-	Description           string                     `json:"description"`
-	Free                  bool                       `json:"free"`
-	Metadata              *ServicePlanMetadata       `json:"metadata,omitempty"` // nolint: lll
-	Extended              map[string]interface{}     `json:"-"`
-	EndOfLife             bool                       `json:"-"`
-	ProvisionParamsSchema map[string]ParameterSchema `json:"-"`
-	UpdateParamsSchema    map[string]ParameterSchema `json:"-"`
-	BindingParamsSchema   map[string]ParameterSchema `json:"-"`
+	ID          string                 `json:"id"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Free        bool                   `json:"free"`
+	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
+	Extended    map[string]interface{} `json:"-"`
+	EndOfLife   bool                   `json:"-"`
+	Schemas     PlanSchemas            `json:"schemas,omitempty"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans
@@ -106,11 +101,11 @@ type Plan interface {
 	GetName() string
 	GetProperties() *PlanProperties
 	IsEndOfLife() bool
+	GetSchemas() PlanSchemas
 }
 
 type plan struct {
 	*PlanProperties
-	ParameterSchemas *planSchemas `json:"schemas,omitempty"`
 }
 
 // NewCatalog initializes and returns a new Catalog
@@ -169,38 +164,9 @@ func NewService(
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
-
-	serviceParamSchemas := &planSchemas{}
-	if serviceProperties.ProvisionParamsSchema != nil ||
-		serviceProperties.UpdateParamsSchema != nil ||
-		serviceProperties.BindingParamsSchema != nil {
-
-		serviceParamSchemas.addParameterSchemas(
-			serviceProperties.ProvisionParamsSchema,
-			serviceProperties.UpdateParamsSchema,
-			serviceProperties.BindingParamsSchema,
-		)
-	}
-	serviceParamSchemas.addCommonSchema(serviceProperties)
-
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-
-		// If the plan has its own schema, ignore the service schema
-		if p.PlanProperties.ProvisionParamsSchema != nil ||
-			p.PlanProperties.UpdateParamsSchema != nil ||
-			p.PlanProperties.BindingParamsSchema != nil {
-			pSchemas := &planSchemas{}
-			pSchemas.addParameterSchemas(
-				p.PlanProperties.ProvisionParamsSchema,
-				p.PlanProperties.UpdateParamsSchema,
-				p.PlanProperties.BindingParamsSchema,
-			)
-			pSchemas.addCommonSchema(serviceProperties)
-			p.ParameterSchemas = pSchemas
-		} else {
-			p.ParameterSchemas = serviceParamSchemas
-		}
+		p.Schemas.addCommonSchema(serviceProperties)
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
@@ -332,4 +298,8 @@ func (p *plan) GetProperties() *PlanProperties {
 
 func (p *plan) IsEndOfLife() bool {
 	return p.EndOfLife
+}
+
+func (p *plan) GetSchemas() PlanSchemas {
+	return p.Schemas
 }

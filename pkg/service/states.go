@@ -17,11 +17,6 @@ const (
 	// InstanceStateUpdating represents the state where service instance
 	// updating is in progress
 	InstanceStateUpdating = "UPDATING"
-	// InstanceStateUpdated represents the state where service instance
-	// updating has completed successfully
-	// It redirects to InstanceStateProvisioned because it means the same thing
-	// to any other operations besides updating
-	InstanceStateUpdated = InstanceStateProvisioned
 	// InstanceStateUpdatingFailed represents the state where service instance
 	// updating has failed
 	InstanceStateUpdatingFailed = "UPDATING_FAILED"

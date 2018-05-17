@@ -110,15 +110,6 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	serviceManager := svc.GetServiceManager()
-
-	updatingParameters, secureUpdatingParameters, err :=
-		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
-	if err != nil {
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-
 	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
 		logFields["error"] = err
@@ -138,18 +129,6 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
 		return
 	}
-
-	// Merge both sets of update parameters with the instance's provision
-	// params to build the desired update state.
-	updatingParameters = mergeUpdateParameters(
-		instance.ProvisioningParameters,
-		updatingParameters,
-	)
-
-	secureUpdatingParameters = mergeUpdateParameters(
-		instance.SecureProvisioningParameters,
-		secureUpdatingParameters,
-	)
 
 	// Our broker doesn't actually require the serviceID and previousValues that,
 	// per spec, are passed to us in the request body (since this broker is
@@ -173,70 +152,138 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if instance.ServiceID == updatingRequest.ServiceID &&
-		instance.PlanID == updatingRequest.PlanID &&
-		reflect.DeepEqual(
-			instance.UpdatingParameters,
-			updatingParameters,
-		) &&
-		reflect.DeepEqual(
-			instance.SecureUpdatingParameters,
-			secureUpdatingParameters,
-		) {
-		// Per the spec, if fully provisioned, respond with a 200, else a 202.
-		// Filling in a gap in the spec-- if the status is anything else, we'll
-		// choose to respond with a 409
-		switch instance.Status {
-		case service.InstanceStateUpdating:
-			s.writeResponse(w, http.StatusAccepted, generateUpdateAcceptedResponse())
-			return
-		case service.InstanceStateUpdated:
-			s.writeResponse(w, http.StatusOK, generateEmptyResponse())
-			return
-		default:
-			// TODO: Write a more detailed response
+	serviceManager := svc.GetServiceManager()
+
+	updatingParameters, secureUpdatingParameters, err :=
+		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
+	if err != nil {
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+
+	// Merge both sets of update parameters with the instance's provision
+	// params to build the desired update state.
+	updatingParameters = mergeUpdateParameters(
+		instance.ProvisioningParameters,
+		updatingParameters,
+	)
+
+	secureUpdatingParameters = mergeUpdateParameters(
+		instance.SecureProvisioningParameters,
+		secureUpdatingParameters,
+	)
+
+	// This determines whether the parameters of the update request are already
+	// reflected in the provisioning parameters of a fully provisioned (or fully
+	// updated) instance OR the parameters of the update request are already
+	// reflected in the existing updating parameters of an in-progress update.
+	var existingParams map[string]interface{}
+	var existingSecureParams map[string]interface{}
+	switch instance.Status {
+	case service.InstanceStateProvisioned:
+		existingParams = instance.ProvisioningParameters
+		existingSecureParams = instance.SecureProvisioningParameters
+	case service.InstanceStateUpdating:
+		existingParams = instance.UpdatingParameters
+		existingSecureParams = instance.SecureUpdatingParameters
+	default:
+		// If instance isn't fully provisioned (or updated) and there isn't an
+		// update in-progress, we cannot handle this request. It's a conflict.
+		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
+		return
+	}
+	var needsUpdate bool
+	for reqParamKey, reqParamVal := range updatingParameters {
+		existingVal, ok := existingParams[reqParamKey]
+		if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
+			needsUpdate = true
+			break
+		}
+	}
+	// Don't bother continuing to look if we already established that an update
+	// is needed.
+	if !needsUpdate {
+		for reqParamKey, reqParamVal := range secureUpdatingParameters {
+			existingVal, ok := existingSecureParams[reqParamKey]
+			if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
+				needsUpdate = true
+				break
+			}
+		}
+	}
+	if needsUpdate {
+		if instance.Status == service.InstanceStateUpdating {
+			// We cannot handle two updates at once. This is a conflict.
 			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 			return
 		}
 	} else {
-		switch instance.Status {
-		case service.InstanceStateProvisioned:
-		case service.InstanceStateUpdatingFailed:
-		default:
-			log.WithFields(logFields).Debug(
-				"bad updating request: the instance to update to is not in a " +
-					"provisioned state",
-			)
-			// The instance to update is not in a provisioned state
-			// This could be from a previously failed update, which means
-			// we will never allow a subsequent update to go through.
-			// krancour: Choosing to interpret this scenario as unprocessable
-			// TODO: Write a more detailed response
-			s.writeResponse(w, http.StatusUnprocessableEntity, generateEmptyResponse())
+		if instance.Status == service.InstanceStateProvisioned {
+			// In this case, the requested update is already completed
+			s.writeResponse(w, http.StatusOK, generateEmptyResponse())
+			return
+		}
+		// In this case, the requested update is already in-progress
+		s.writeResponse(w, http.StatusAccepted, generateUpdateAcceptedResponse())
+		return
+	}
+
+	// Only one scenario gets us to this point-- the instance is fully provisioned
+	// (or fully updated) and the parameters of the update request indicate the
+	// need for a new update.
+
+	// Carry out schema-driven update request parameters validation.
+	if instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema != nil { // nolint: lll
+		if err :=
+			instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema.Validate( // nolint: lll
+				updatingRequest.Parameters,
+			); err != nil {
+			var validationErr *service.ValidationError
+			validationErr, ok = err.(*service.ValidationError)
+			if ok {
+				logFields["field"] = validationErr.Field
+				logFields["issue"] = validationErr.Issue
+				log.WithFields(logFields).Debug(
+					"bad updating request: validation error",
+				)
+				s.writeResponse(
+					w,
+					http.StatusBadRequest,
+					generateValidationFailedResponse(validationErr),
+				)
+				return
+			}
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 			return
 		}
 	}
 
-	// If we get to here, we need to update the instance.
-	// Start by carrying out serviceManager-specific request validation
+	// This uses module-specific logic to weigh update parameters against current
+	// instance state to detect any invalid state changes. An example of this
+	// might be reducing the amound of storage allocated to a database.
 	instance.UpdatingParameters = updatingParameters
 	instance.SecureUpdatingParameters = secureUpdatingParameters
-	err = serviceManager.ValidateUpdatingParameters(instance)
-	if err != nil {
-		validationErr, ok := err.(*service.ValidationError)
+	if err := serviceManager.ValidateUpdatingParameters(instance); err != nil {
+		var validationErr *service.ValidationError
+		validationErr, ok = err.(*service.ValidationError)
 		if ok {
 			logFields["field"] = validationErr.Field
 			logFields["issue"] = validationErr.Issue
 			log.WithFields(logFields).Debug(
 				"bad updating request: validation error",
 			)
-			// TODO: Send the correct response body-- this is a placeholder
-			s.writeResponse(w, http.StatusBadRequest, generateEmptyResponse())
+			s.writeResponse(
+				w,
+				http.StatusBadRequest,
+				generateValidationFailedResponse(validationErr),
+			)
 			return
 		}
 		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
 	}
+
+	// If we get to here, we need to update the instance.
 
 	if plan == nil {
 		plan, ok = svc.GetPlan(instance.PlanID)
@@ -319,6 +366,10 @@ func mergeUpdateParameters(
 	if pp == nil {
 		return up
 	}
+	ppCopy := map[string]interface{}{}
+	for key, value := range pp {
+		ppCopy[key] = value
+	}
 	// The OSB spec states that if the request doesn't include a
 	// previously specified parameter value, it should remain unchanged.
 	// This iterates through the updating params and replace the
@@ -329,8 +380,8 @@ func mergeUpdateParameters(
 	// parameters.
 	for key, value := range up {
 		if !types.IsEmpty(value) {
-			pp[key] = value
+			ppCopy[key] = value
 		}
 	}
-	return pp
+	return ppCopy
 }

@@ -9,18 +9,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (a *allInOneManager) ValidateProvisioningParameters(
-	_ service.Plan,
-	provisioningParameters service.ProvisioningParameters,
-	_ service.SecureProvisioningParameters,
-) error {
-	pp := allInOneProvisioningParameters{}
-	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
-		return err
-	}
-	return validateDBMSProvisionParameters(pp.dbmsProvisioningParams)
-}
-
 func (a *allInOneManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {

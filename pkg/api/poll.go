@@ -109,7 +109,7 @@ func (s *server) poll(
 				"updating is in progress",
 			)
 			s.writeResponse(w, http.StatusOK, generateOperationInProgressResponse())
-		case service.InstanceStateUpdated:
+		case service.InstanceStateProvisioned:
 			log.WithFields(logFields).Debug(
 				"updating is complete",
 			)

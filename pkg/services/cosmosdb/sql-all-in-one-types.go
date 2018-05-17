@@ -6,9 +6,8 @@ import (
 
 func (
 	s *sqlAllInOneManager,
-) getProvisionParametersSchema() map[string]service.ParameterSchema {
-	p := s.cosmosAccountManager.getProvisionParametersSchema()
-	return p
+) getProvisionParametersSchema() service.InputParametersSchema {
+	return s.cosmosAccountManager.getProvisionParametersSchema()
 }
 
 type sqlAllInOneInstanceDetails struct {

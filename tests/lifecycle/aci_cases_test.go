@@ -14,8 +14,8 @@ var aciTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"image":      "nginx",
 			"memoryInGb": 1.5,
-			"cpuCores":   1,
-			"ports":      []int{80, 443},
+			"cpuCores":   float64(1),
+			"ports":      []interface{}{float64(80), float64(443)},
 		},
 	},
 }

@@ -8,24 +8,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s *serviceManager) ValidateProvisioningParameters(
-	_ service.Plan,
-	pp service.ProvisioningParameters,
-	_ service.SecureProvisioningParameters,
-) error {
-	aciPP := provisioningParameters{}
-	if err := service.GetStructFromMap(pp, &aciPP); err != nil {
-		return err
-	}
-	if aciPP.ImageName == "" {
-		return service.NewValidationError(
-			"image",
-			fmt.Sprintf(`invalid image: "%s"`, aciPP.ImageName),
-		)
-	}
-	return nil
-}
-
 func (s *serviceManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {

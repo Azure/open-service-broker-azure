@@ -8,7 +8,10 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/go-sql-driver/mysql" // MySQL SQL driver
+	uuid "github.com/satori/go.uuid"
 )
+
+var mysqlDBMSAlias = uuid.NewV4().String()
 
 var mysqlTestCases = []serviceLifecycleTestCase{
 	{
@@ -19,13 +22,13 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 		location:  "southcentralus",
 		provisioningParameters: service.CombinedProvisioningParameters{
 			"sslEnforcement": "disabled",
-			"firewallRules": []map[string]string{
-				{
+			"firewallRules": []interface{}{
+				map[string]interface{}{
 					"name":           "AllowSome",
 					"startIPAddress": "0.0.0.0",
 					"endIPAddress":   "35.0.0.0",
 				},
-				{
+				map[string]interface{}{
 					"name":           "AllowMore",
 					"startIPAddress": "35.0.0.1",
 					"endIPAddress":   "255.255.255.255",
@@ -41,8 +44,9 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 		planID:    "b242a78f-9946-406a-af67-813c56341960",
 		location:  "eastus",
 		provisioningParameters: service.CombinedProvisioningParameters{
-			"firewallRules": []map[string]string{
-				{
+			"alias": mysqlDBMSAlias,
+			"firewallRules": []interface{}{
+				map[string]interface{}{
 					"name":           "AllowAll",
 					"startIPAddress": "0.0.0.0",
 					"endIPAddress":   "255.255.255.255",
@@ -57,6 +61,9 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 				planID:          "ec77bd04-2107-408e-8fde-8100c1ce1f46",
 				location:        "", // This is actually irrelevant for this test
 				testCredentials: testMySQLCreds,
+				provisioningParameters: service.CombinedProvisioningParameters{
+					"parentAlias": mysqlDBMSAlias,
+				},
 			},
 		},
 	},

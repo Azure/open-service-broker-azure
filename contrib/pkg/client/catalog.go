@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// GetCatalog retrieves the catalog from the broker specoified by host name
+// GetCatalog retrieves the catalog from the broker specified by host name
 // and port number
 func GetCatalog(
 	host string,

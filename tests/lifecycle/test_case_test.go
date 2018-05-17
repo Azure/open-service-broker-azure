@@ -66,18 +66,18 @@ func (s serviceLifecycleTestCase) execute(
 		)
 	}
 
+	if err :=
+		plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema.Validate(
+			s.provisioningParameters,
+		); err != nil {
+		return err
+	}
+
 	serviceManager := svc.GetServiceManager()
 
 	pp, spp, err :=
 		serviceManager.SplitProvisioningParameters(s.provisioningParameters)
 	if err != nil {
-		return err
-	}
-	if err = serviceManager.ValidateProvisioningParameters(
-		plan,
-		pp,
-		spp,
-	); err != nil {
 		return err
 	}
 

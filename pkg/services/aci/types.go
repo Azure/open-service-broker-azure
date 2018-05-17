@@ -1,6 +1,7 @@
 package aci
 
 import (
+	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -13,42 +14,37 @@ type provisioningParameters struct {
 
 func (
 	s *serviceManager,
-) getProvisionParametersSchema() map[string]service.ParameterSchema {
-
-	p := map[string]service.ParameterSchema{}
-
-	p["image"] = &service.SimpleParameterSchema{
-		Type:        "string",
-		Description: "The Docker image on which to base the container.",
-		Required:    true,
-	}
-
-	p["cpuCores"] = &service.SimpleParameterSchema{
-		Type: "integer",
-		Description: "The number of virtual CPU cores requested " +
-			"for the container.",
-		Default: 1,
-	}
-
-	p["memoryInGb"] = &service.SimpleParameterSchema{
-
-		Type: "integer",
-		Description: "Gigabytes of memory requested for the container. " +
-			"Must be specified in increments of 0.10 GB.",
-		Default: 1.5,
-	}
-
-	p["ports"] = &service.ArrayParameterSchema{
-		Description: "The port(s) to open on the container." +
-			"The container will be assigned a public IP (v4) address if" +
-			" and only if one or more ports are opened.",
-		ItemsSchema: &service.SimpleParameterSchema{
-			Type:        "integer",
-			Description: "Port to open on container",
+) getProvisionParametersSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		RequiredProperties: []string{"image"},
+		PropertySchemas: map[string]service.PropertySchema{
+			"image": &service.StringPropertySchema{
+				Description: "The Docker image on which to base the container.",
+			},
+			"cpuCores": &service.IntPropertySchema{
+				Description: "The number of virtual CPU cores requested " +
+					"for the container.",
+				DefaultValue: ptr.ToInt64(1),
+			},
+			"memoryInGb": &service.FloatPropertySchema{
+				Description: "Gigabytes of memory requested for the container. " +
+					"Must be specified in increments of 0.10 GB.",
+				DefaultValue: ptr.ToFloat64(1.5),
+				// krancour: Currently not supported because of floating point division
+				// errors.
+				// AllowedIncrement: ptr.ToFloat64(0.10),
+				CustomPropertyValidator: memoryValidator,
+			},
+			"ports": &service.ArrayPropertySchema{
+				Description: "The port(s) to open on the container." +
+					"The container will be assigned a public IP (v4) address if" +
+					" and only if one or more ports are opened.",
+				ItemsSchema: &service.IntPropertySchema{
+					Description: "Port to open on container",
+				},
+			},
 		},
-		Required: true,
 	}
-	return p
 }
 
 type instanceDetails struct {
@@ -91,4 +87,15 @@ func (s *serviceManager) SplitBindingParameters(
 	error,
 ) {
 	return nil, nil, nil
+}
+
+func memoryValidator(context string, value float64) error {
+	value *= 10
+	if float64(int64(value)) != value {
+		return service.NewValidationError(
+			context,
+			"memory must be specified in increments of 0.10 GB",
+		)
+	}
+	return nil
 }

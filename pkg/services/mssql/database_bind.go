@@ -4,15 +4,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (d *databaseManager) ValidateBindingParameters(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error {
-	// There are no parameters for binding to MSSQL, so there is nothing
-	// to validate
-	return nil
-}
-
 func (d *databaseManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,

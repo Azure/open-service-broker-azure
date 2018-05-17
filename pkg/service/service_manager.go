@@ -9,18 +9,11 @@ type ServiceManager interface { // nolint: golint
 	SplitProvisioningParameters(
 		CombinedProvisioningParameters,
 	) (ProvisioningParameters, SecureProvisioningParameters, error)
-	// ValidateProvisioningParameters validates the provided
-	// provisioningParameters and returns an error if there is any problem
-	ValidateProvisioningParameters(
-		Plan,
-		ProvisioningParameters,
-		SecureProvisioningParameters,
-	) error
 	// GetProvisioner returns a provisioner that defines the steps a module must
 	// execute asynchronously to provision a service.
 	GetProvisioner(Plan) (Provisioner, error)
 	// ValidateUpdatingParameters validates the provided
-	// updating parameters against allowed values and current instance state
+	// updating parameters against against current instance state
 	// and returns an error if there is any problem
 	ValidateUpdatingParameters(Instance) error
 	// GetUpdater returns a updater that defines the steps a module must
@@ -32,9 +25,6 @@ type ServiceManager interface { // nolint: golint
 	SplitBindingParameters(
 		CombinedBindingParameters,
 	) (BindingParameters, SecureBindingParameters, error)
-	// ValidateBindingParameters validates the provided bindingParameters and
-	// returns an error if there is any problem
-	ValidateBindingParameters(BindingParameters, SecureBindingParameters) error
 	// Bind synchronously binds to a service
 	Bind(
 		Instance,

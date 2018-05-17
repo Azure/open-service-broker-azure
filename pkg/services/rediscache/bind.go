@@ -7,15 +7,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) ValidateBindingParameters(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error {
-	// There are no parameters for binding to Redis, so there is nothing
-	// to validate
-	return nil
-}
-
 func (s *serviceManager) Bind(
 	service.Instance,
 	service.BindingParameters,

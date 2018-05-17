@@ -20,7 +20,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
-				ProvisionParamsSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
 					"version": "12.0",
 				},
@@ -44,6 +43,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"7 days point-in-time restore",
 					},
 				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "2497b7f3-341b-4ac6-82fb-d4a48c005e19",
@@ -61,6 +65,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"10 DTUs",
 						"250GB",
 						"35 days point-in-time restore",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 					},
 				},
 			}),
@@ -82,6 +91,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "a5537f8e-d816-4b0e-9546-a13811944bdd",
@@ -99,6 +113,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"50 DTUs",
 						"250GB",
 						"35 days point-in-time restore",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 					},
 				},
 			}),
@@ -120,6 +139,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "f9a3cc8e-a6e2-474d-b032-9837ea3dfcaa",
@@ -137,6 +161,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"125 DTUs",
 						"500GB",
 						"35 days point-in-time restore",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 					},
 				},
 			}),
@@ -158,6 +187,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "85d54d69-55ee-4fe8-a207-66bc96ecf9e7",
@@ -175,6 +209,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"500 DTUs",
 						"500GB",
 						"35 days point-in-time restore",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 					},
 				},
 			}),
@@ -196,6 +235,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"35 days point-in-time restore",
 					},
 				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "408f5f35-5f5e-48f3-98cf-9e10c1abc4e5",
@@ -212,6 +256,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Bullets: []string{
 						"1024GB",
 						"35 days point-in-time restore",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 					},
 				},
 			}),
@@ -232,6 +281,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"100 DWUs",
 					},
 				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
+					},
+				},
 			}),
 			service.NewPlan(&service.PlanProperties{
 				ID:          "470a869b-1b02-474b-b5e5-10ca0ea488df",
@@ -248,6 +302,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Bullets: []string{
 						"1024GB",
 						"1200 DWUs",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
 					},
 				},
 			}),
@@ -268,7 +327,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
-				ProvisionParamsSchema: m.dbmsManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
 					"version": "12.0",
 				},
@@ -281,6 +339,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure SQL Server-- DBMS Only",
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.dbmsManager.getProvisionParametersSchema(),
+					},
 				},
 			}),
 		),

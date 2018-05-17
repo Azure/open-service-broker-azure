@@ -10,18 +10,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (d *dbmsManager) ValidateProvisioningParameters(
-	plan service.Plan,
-	provisioningParameters service.ProvisioningParameters,
-	_ service.SecureProvisioningParameters,
-) error {
-	pp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(provisioningParameters, &pp); err != nil {
-		return err
-	}
-	return validateDBMSProvisionParameters(plan, pp)
-}
-
 func (d *dbmsManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {

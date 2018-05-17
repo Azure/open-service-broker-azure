@@ -8,15 +8,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s *serviceManager) ValidateProvisioningParameters(
-	service.Plan,
-	service.ProvisioningParameters,
-	service.SecureProvisioningParameters,
-) error {
-	// Nothing to validate
-	return nil
-}
-
 func (s *serviceManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {

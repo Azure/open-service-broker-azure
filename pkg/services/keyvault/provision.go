@@ -8,43 +8,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s *serviceManager) ValidateProvisioningParameters(
-	_ service.Plan,
-	pp service.ProvisioningParameters,
-	spp service.SecureProvisioningParameters,
-) error {
-	kvPP := provisioningParameters{}
-	if err := service.GetStructFromMap(pp, &kvPP); err != nil {
-		return err
-	}
-	kvSPP := secureProvisioningParameters{}
-	if err := service.GetStructFromMap(spp, &kvSPP); err != nil {
-		return err
-	}
-	if kvPP.ObjectID == "" {
-		return service.NewValidationError(
-			"objectid",
-			fmt.Sprintf(`invalid service principal objectid: "%s"`, kvPP.ObjectID),
-		)
-	}
-	if kvPP.ClientID == "" {
-		return service.NewValidationError(
-			"clientId",
-			fmt.Sprintf(`invalid service principal clientId: "%s"`, kvPP.ClientID),
-		)
-	}
-	if kvSPP.ClientSecret == "" {
-		return service.NewValidationError(
-			"clientSecret",
-			fmt.Sprintf(
-				`invalid service principal clientSecret: "%s"`,
-				kvSPP.ClientSecret,
-			),
-		)
-	}
-	return nil
-}
-
 func (s *serviceManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {

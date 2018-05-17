@@ -9,10 +9,9 @@ import (
 
 const primaryDB = "postgres"
 
-var dbExtensionsSchema = &service.ArrayParameterSchema{
+var dbExtensionsSchema = &service.ArrayPropertySchema{
 	Description: "Database extensions to install",
-	ItemsSchema: &service.SimpleParameterSchema{
-		Type:        "string",
+	ItemsSchema: &service.StringPropertySchema{
 		Description: "Extension Name",
 	},
 }

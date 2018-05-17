@@ -18,7 +18,7 @@ func createBasicPlan(
 		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		defaultHardware:         gen5ParamString,
-		allowedCores:            []int{1, 2},
+		allowedCores:            []int64{1, 2},
 		defaultCores:            1,
 		maxStorage:              1024,
 		minStorage:              5,
@@ -41,7 +41,7 @@ func createBasicPlan(
 		},
 		allowedSSLEnforcement:  []string{enabledParamString, disabledParamString},
 		defaultSSLEnforcement:  enabledParamString,
-		allowedCores:           []int{1, 2},
+		allowedCores:           []int64{1, 2},
 		defaultCores:           1,
 		maxStorage:             1024,
 		minStorage:             5,
@@ -68,14 +68,18 @@ func createBasicPlan(
 			DisplayName: "Basic Tier",
 			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(
-			provisionSchema,
-			includeDBParams,
-		),
-		UpdateParamsSchema: generateDBMSPlanSchema(
-			updateSchema,
-			includeDBParams,
-		),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: *generateDBMSPlanSchema(
+					provisionSchema,
+					includeDBParams,
+				),
+				UpdatingParametersSchema: generateDBMSPlanSchema(
+					updateSchema,
+					includeDBParams,
+				),
+			},
+		},
 	}
 }
 
@@ -89,7 +93,7 @@ func createGPPlan(
 		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		defaultHardware:         gen5ParamString,
-		allowedCores:            []int{2, 4, 8, 16, 32},
+		allowedCores:            []int64{2, 4, 8, 16, 32},
 		defaultCores:            2,
 		maxStorage:              2048,
 		minStorage:              5,
@@ -105,7 +109,7 @@ func createGPPlan(
 	updateSchema := planSchema{
 		allowedSSLEnforcement:  []string{enabledParamString, disabledParamString},
 		defaultSSLEnforcement:  enabledParamString,
-		allowedCores:           []int{2, 4, 8, 16, 32},
+		allowedCores:           []int64{2, 4, 8, 16, 32},
 		defaultCores:           2,
 		maxStorage:             2048,
 		minStorage:             5,
@@ -139,14 +143,18 @@ func createGPPlan(
 				"Local or Geo-Redundant Backups",
 			},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(
-			provisionSchema,
-			includeDBParams,
-		),
-		UpdateParamsSchema: generateDBMSPlanSchema(
-			updateSchema,
-			includeDBParams,
-		),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: *generateDBMSPlanSchema(
+					provisionSchema,
+					includeDBParams,
+				),
+				UpdatingParametersSchema: generateDBMSPlanSchema(
+					updateSchema,
+					includeDBParams,
+				),
+			},
+		},
 	}
 }
 
@@ -160,7 +168,7 @@ func createMemoryOptimizedPlan(
 		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen5ParamString},
 		defaultHardware:         gen5ParamString,
-		allowedCores:            []int{2, 4, 8, 16},
+		allowedCores:            []int64{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
 		minStorage:              5,
@@ -176,7 +184,7 @@ func createMemoryOptimizedPlan(
 	updateSchema := planSchema{
 		allowedSSLEnforcement:  []string{enabledParamString, disabledParamString},
 		defaultSSLEnforcement:  enabledParamString,
-		allowedCores:           []int{2, 4, 8, 16},
+		allowedCores:           []int64{2, 4, 8, 16},
 		defaultCores:           2,
 		maxStorage:             2048,
 		minStorage:             5,
@@ -211,14 +219,18 @@ func createMemoryOptimizedPlan(
 				"Local or Geo-Redundant Backups",
 			},
 		},
-		ProvisionParamsSchema: generateDBMSPlanSchema(
-			provisionSchema,
-			includeDBParams,
-		),
-		UpdateParamsSchema: generateDBMSPlanSchema(
-			updateSchema,
-			includeDBParams,
-		),
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: *generateDBMSPlanSchema(
+					provisionSchema,
+					includeDBParams,
+				),
+				UpdatingParametersSchema: generateDBMSPlanSchema(
+					updateSchema,
+					includeDBParams,
+				),
+			},
+		},
 	}
 }
 
@@ -290,7 +302,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "Database"},
-				ProvisionParamsSchema: m.databaseManager.getProvisionParametersSchema(),
 				Extended: map[string]interface{}{
 					"version": "9.6",
 				},
@@ -303,6 +314,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for PostgreSQL-- Database Only",
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.databaseManager.getProvisionParametersSchema(),
+					},
 				},
 			}),
 		),

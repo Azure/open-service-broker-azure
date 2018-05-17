@@ -4,15 +4,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (c *cosmosAccountManager) ValidateBindingParameters(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error {
-	// There are no parameters for binding to CosmosDB, so there is nothing
-	// to validate
-	return nil
-}
-
 func (c *cosmosAccountManager) Bind(
 	service.Instance,
 	service.BindingParameters,

@@ -20,14 +20,6 @@ type ProvisioningValidationFunction func(
 // service.Module interface
 type UpdatingValidationFunction func(service.Instance) error
 
-// BindingValidationFunction describes a function used to provide pluggable
-// binding validation behavior to the fake implementation of the service.Module
-// interface
-type BindingValidationFunction func(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error
-
 // BindFunction describes a function used to provide pluggable binding behavior
 // to the fake implementation of the service.Module interface
 type BindFunction func(
@@ -51,11 +43,9 @@ type Module struct {
 // ServiceManager is a fake implementation of the service.ServiceManager
 // interface used to facilitate testing.
 type ServiceManager struct {
-	ProvisioningValidationBehavior ProvisioningValidationFunction
-	UpdatingValidationBehavior     UpdatingValidationFunction
-	BindingValidationBehavior      BindingValidationFunction
-	BindBehavior                   BindFunction
-	UnbindBehavior                 UnbindFunction
+	UpdatingValidationBehavior UpdatingValidationFunction
+	BindBehavior               BindFunction
+	UnbindBehavior             UnbindFunction
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -63,11 +53,10 @@ type ServiceManager struct {
 func New() (*Module, error) {
 	return &Module{
 		ServiceManager: &ServiceManager{
-			ProvisioningValidationBehavior: defaultProvisioningValidationBehavior,
-			UpdatingValidationBehavior:     defaultUpdatingValidationBehavior,
-			BindingValidationBehavior:      defaultBindingValidationBehavior,
-			BindBehavior:                   defaultBindBehavior,
-			UnbindBehavior:                 defaultUnbindBehavior,
+
+			UpdatingValidationBehavior: defaultUpdatingValidationBehavior,
+			BindBehavior:               defaultBindBehavior,
+			UnbindBehavior:             defaultUnbindBehavior,
 		},
 	}, nil
 }
@@ -80,20 +69,6 @@ func (m *Module) GetName() string {
 // GetStability returns this module's relative stability
 func (m *Module) GetStability() service.Stability {
 	return service.StabilityStable
-}
-
-// ValidateProvisioningParameters validates the provided provisioningParameters
-// and returns an error if there is any problem
-func (s *ServiceManager) ValidateProvisioningParameters(
-	plan service.Plan,
-	provisioningParameters service.ProvisioningParameters,
-	secureProvisioningParameters service.SecureProvisioningParameters,
-) error {
-	return s.ProvisioningValidationBehavior(
-		plan,
-		provisioningParameters,
-		secureProvisioningParameters,
-	)
 }
 
 // GetProvisioner returns a provisioner that defines the steps a module must
@@ -134,15 +109,6 @@ func (s *ServiceManager) update(
 	instance service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	return instance.Details, instance.SecureDetails, nil
-}
-
-// ValidateBindingParameters validates the provided bindingParameters and
-// returns an error if there is any problem
-func (s *ServiceManager) ValidateBindingParameters(
-	bindingParameters service.BindingParameters,
-	secureBindingParameters service.SecureBindingParameters,
-) error {
-	return s.BindingValidationBehavior(bindingParameters, secureBindingParameters)
 }
 
 // Bind synchronously binds to a service
@@ -188,22 +154,7 @@ func (s *ServiceManager) deprovision(
 	return instance.Details, instance.SecureDetails, nil
 }
 
-func defaultProvisioningValidationBehavior(
-	service.Plan,
-	service.ProvisioningParameters,
-	service.SecureProvisioningParameters,
-) error {
-	return nil
-}
-
 func defaultUpdatingValidationBehavior(service.Instance) error {
-	return nil
-}
-
-func defaultBindingValidationBehavior(
-	service.BindingParameters,
-	service.SecureBindingParameters,
-) error {
 	return nil
 }
 

@@ -85,7 +85,7 @@ func validateDBMSUpdateParameters(
 	}
 
 	// cores
-	if up.Cores != nil && !slice.ContainsInt(schema.allowedCores, *up.Cores) {
+	if up.Cores != nil && !slice.ContainsInt64(schema.allowedCores, *up.Cores) {
 		return service.NewValidationError(
 			"cores",
 			fmt.Sprintf(`invalid value: "%d"`, *up.Cores),

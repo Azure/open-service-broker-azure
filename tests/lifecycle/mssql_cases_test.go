@@ -9,7 +9,10 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
+	uuid "github.com/satori/go.uuid"
 )
+
+var mssqlDBMSAlias = uuid.NewV4().String()
 
 var mssqlTestCases = []serviceLifecycleTestCase{
 	{ // all-in-one scenario
@@ -19,13 +22,13 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 		planID:    "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 		location:  "southcentralus",
 		provisioningParameters: service.CombinedProvisioningParameters{
-			"firewallRules": []map[string]string{
-				{
+			"firewallRules": []interface{}{
+				map[string]interface{}{
 					"name":           "AllowSome",
 					"startIPAddress": "0.0.0.0",
 					"endIPAddress":   "35.0.0.0",
 				},
-				{
+				map[string]interface{}{
 					"name":           "AllowMore",
 					"startIPAddress": "35.0.0.1",
 					"endIPAddress":   "255.255.255.255",
@@ -41,8 +44,9 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 		planID:    "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 		location:  "southcentralus",
 		provisioningParameters: service.CombinedProvisioningParameters{
-			"firewallRules": []map[string]string{
-				{
+			"alias": mssqlDBMSAlias,
+			"firewallRules": []interface{}{
+				map[string]interface{}{
 					"name":           "AllowAll",
 					"startIPAddress": "0.0.0.0",
 					"endIPAddress":   "255.255.255.255",
@@ -51,13 +55,15 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // db only scenario
-				group: "mssql",
-				name:  "database-only",
-
+				group:           "mssql",
+				name:            "database-only",
 				serviceID:       "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				planID:          "8fa8d759-c142-45dd-ae38-b93482ddc04a",
 				location:        "", // This is actually irrelevant for this test
 				testCredentials: testMsSQLCreds,
+				provisioningParameters: service.CombinedProvisioningParameters{
+					"parentAlias": mssqlDBMSAlias,
+				},
 			},
 		},
 	},

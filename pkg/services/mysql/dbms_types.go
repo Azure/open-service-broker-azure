@@ -5,10 +5,10 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 type dbmsProvisioningParameters struct {
 	SSLEnforcement   string         `json:"sslEnforcement"`
 	FirewallRules    []firewallRule `json:"firewallRules"`
-	Cores            *int           `json:"cores"`
-	Storage          *int           `json:"storage"`
+	Cores            *int64         `json:"cores"`
+	Storage          *int64         `json:"storage"`
 	HardwareFamily   string         `json:"hardwareFamily"`
-	BackupRetention  *int           `json:"backupRetention"`
+	BackupRetention  *int64         `json:"backupRetention"`
 	BackupRedundancy string         `json:"backupRedundancy"`
 }
 

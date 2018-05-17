@@ -9,30 +9,28 @@ type provisioningParameters struct {
 
 func (
 	s *serviceManager,
-) getProvisionParametersSchema() map[string]service.ParameterSchema {
-
-	p := map[string]service.ParameterSchema{}
-	p["objectId"] = &service.SimpleParameterSchema{
-		Type: "string",
-		Description: "Object ID for an existing service principal, " +
-			"which will be granted access to the new vault.",
-		Required: true,
+) getProvisionParametersSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		RequiredProperties: []string{
+			"objectId",
+			"clientId",
+			"clientSecret",
+		},
+		PropertySchemas: map[string]service.PropertySchema{
+			"objectId": &service.StringPropertySchema{
+				Description: "Object ID for an existing service principal, " +
+					"which will be granted access to the new vault.",
+			},
+			"clientId": &service.StringPropertySchema{
+				Description: "Client ID (username) for an existing service principal," +
+					"which will be granted access to the new vault.",
+			},
+			"clientSecret": &service.StringPropertySchema{
+				Description: "Client secret (password) for an existing service " +
+					"principal, which will be granted access to the new vault.",
+			},
+		},
 	}
-
-	p["clientId"] = &service.SimpleParameterSchema{
-		Type: "string",
-		Description: "Client ID (username) for an existing service principal," +
-			"which will be granted access to the new vault.",
-		Required: true,
-	}
-
-	p["clientSecret"] = &service.SimpleParameterSchema{
-		Type: "string",
-		Description: "Client secret (password) for an existing service " +
-			"principal, which will be granted access to the new vault.",
-	}
-
-	return p
 }
 
 type secureProvisioningParameters struct {
