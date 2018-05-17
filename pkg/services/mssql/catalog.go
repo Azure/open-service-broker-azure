@@ -264,52 +264,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					},
 				},
 			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "b69af389-7af5-47bd-9ccf-c1ffdc2620d9",
-				Name:        "data-warehouse-100",
-				Description: "DataWarehouse100 Tier, 100 DWUs, 1024GB",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "DataWarehouse",
-					"requestedServiceObjectiveName": "DW100",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "DataWarehouse100 Tier",
-					Bullets: []string{
-						"1024GB",
-						"100 DWUs",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "470a869b-1b02-474b-b5e5-10ca0ea488df",
-				Name:        "data-warehouse-1200",
-				Description: "DataWarehouse1200 Tier, 1200 DWUs, 1024GB",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "DataWarehouse",
-					"requestedServiceObjectiveName": "DW1200",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "DataWarehouse1200 Tier",
-					Bullets: []string{
-						"1024GB",
-						"1200 DWUs",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
 		),
 		// dbms only service
 		service.NewService(
@@ -554,42 +508,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Bullets: []string{
 						"1024GB",
 						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "7a466f47-f137-4b9c-a63d-c5cbe724b874",
-				Name:        "data-warehouse-100",
-				Description: "DataWarehouse100 Tier, 100 DWUs, 1024GB",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "DataWarehouse",
-					"requestedServiceObjectiveName": "DW100",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "DataWarehouse100 Tier",
-					Bullets: []string{
-						"1024GB",
-						"100 DWUs",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "2717d839-be32-4225-8685-47adf0e6ff15",
-				Name:        "data-warehouse-1200",
-				Description: "DataWarehouse1200 Tier, 1200 DWUs, 1024GB",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "DataWarehouse",
-					"requestedServiceObjectiveName": "DW1200",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "DataWarehouse1200 Tier",
-					Bullets: []string{
-						"1024GB",
-						"1200 DWUs",
 					},
 				},
 			}),
