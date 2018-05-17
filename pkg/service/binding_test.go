@@ -23,7 +23,9 @@ func init() {
 	instanceID := "test-instance-id"
 	serviceID := "test-service-id"
 	bindingParameters := Parameters{
-		"foo": "bar",
+		Data: map[string]interface{}{
+			"foo": "bar",
+		},
 	}
 	bindingParametersJSONStr := []byte(`{"foo":"bar"}`)
 	statusReason := "in-progress"

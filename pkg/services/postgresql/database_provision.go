@@ -84,7 +84,7 @@ func (d *databaseManager) setupDatabase(
 	}
 	ppp := dbmsProvisioningParameters{}
 	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
+		instance.Parent.ProvisioningParameters.Data,
 		&ppp,
 	); err != nil {
 		return nil, nil, err
@@ -123,12 +123,15 @@ func (d *databaseManager) createExtensions(
 	}
 	pp := databaseProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return nil, nil, err
 	}
 	ppp := dbmsProvisioningParameters{}
 	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
+		instance.Parent.ProvisioningParameters.Data,
 		&ppp,
 	); err != nil {
 		return nil, nil, err

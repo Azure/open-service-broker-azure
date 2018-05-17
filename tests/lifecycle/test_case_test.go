@@ -23,9 +23,9 @@ type serviceLifecycleTestCase struct {
 	serviceID              string
 	planID                 string
 	location               string
-	provisioningParameters service.Parameters
+	provisioningParameters map[string]interface{}
 	parentServiceInstance  *service.Instance
-	bindingParameters      service.Parameters
+	bindingParameters      map[string]interface{}
 	testCredentials        func(credentials map[string]interface{}) error
 	childTestCases         []*serviceLifecycleTestCase
 }
@@ -84,9 +84,11 @@ func (s serviceLifecycleTestCase) execute(
 		Location:  s.location,
 		// Force the resource group to be something known to this test executor
 		// to ensure good cleanup
-		ResourceGroup:          resourceGroup,
-		ProvisioningParameters: s.provisioningParameters,
-		Parent:                 s.parentServiceInstance,
+		ResourceGroup: resourceGroup,
+		ProvisioningParameters: service.Parameters{
+			Data: s.provisioningParameters,
+		},
+		Parent: s.parentServiceInstance,
 	}
 
 	// Provision...
@@ -126,7 +128,12 @@ func (s serviceLifecycleTestCase) execute(
 		// Bind
 		var bd service.BindingDetails
 		var sbd service.SecureBindingDetails
-		bd, sbd, err = serviceManager.Bind(instance, s.bindingParameters)
+		bd, sbd, err = serviceManager.Bind(
+			instance,
+			service.Parameters{
+				Data: s.bindingParameters,
+			},
+		)
 		if err != nil {
 			return err
 		}

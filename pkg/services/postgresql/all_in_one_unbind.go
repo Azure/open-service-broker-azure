@@ -22,7 +22,10 @@ func (a *allInOneManager) Unbind(
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return err
 	}
 	schema :=

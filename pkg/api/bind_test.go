@@ -177,7 +177,9 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
 		BindingParameters: service.Parameters{
-			"someParameter": "foo",
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 	}
 	err = s.store.WriteBinding(existingBinding)
@@ -217,7 +219,9 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
 		BindingParameters: service.Parameters{
-			"someParameter": "foo",
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 		Status: service.BindingStateBound,
 	})
@@ -226,7 +230,7 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		instanceID,
 		bindingID,
 		&BindingRequest{
-			Parameters: service.Parameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},

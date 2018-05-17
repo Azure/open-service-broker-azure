@@ -29,11 +29,15 @@ func init() {
 	tagKey := "foo"
 	tagVal := "bar"
 	provisioningParameters := Parameters{
-		"foo": "bar",
+		Data: map[string]interface{}{
+			"foo": "bar",
+		},
 	}
 	provisioningParametersJSONStr := []byte(`{"foo":"bar"}`)
 	updatingParameters := Parameters{
-		"foo": "bat",
+		Data: map[string]interface{}{
+			"foo": "bat",
+		},
 	}
 	updatingParametersJSONStr := []byte(`{"foo":"bat"}`)
 	statusReason := "in-progress"

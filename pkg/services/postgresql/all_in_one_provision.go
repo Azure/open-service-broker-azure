@@ -36,7 +36,10 @@ func (a *allInOneManager) preProvision(
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return nil, nil, err
 	}
 	dt := allInOneInstanceDetails{
@@ -75,7 +78,10 @@ func (a *allInOneManager) deployARMTemplate(
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return nil, nil, err
 	}
 
@@ -136,7 +142,10 @@ func (a *allInOneManager) setupDatabase(
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return nil, nil, err
 	}
 	schema :=
@@ -168,7 +177,10 @@ func (a *allInOneManager) createExtensions(
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return nil, nil, err
 	}
 	schema :=

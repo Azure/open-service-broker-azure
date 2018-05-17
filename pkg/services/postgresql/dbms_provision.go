@@ -63,7 +63,10 @@ func (d *dbmsManager) deployARMTemplate(
 	}
 	pp := dbmsProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return nil, nil, err
 	}
 	version := instance.Service.GetProperties().Extended["version"].(string)

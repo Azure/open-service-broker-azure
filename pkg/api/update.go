@@ -157,7 +157,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	// Merge both sets of update parameters with the instance's provision
 	// params to build the desired update state.
 	updatingParameters := mergeUpdateParameters(
-		instance.ProvisioningParameters,
+		instance.ProvisioningParameters.Data,
 		updatingRequest.Parameters,
 	)
 
@@ -168,9 +168,9 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	var existingParams map[string]interface{}
 	switch instance.Status {
 	case service.InstanceStateProvisioned:
-		existingParams = instance.ProvisioningParameters
+		existingParams = instance.ProvisioningParameters.Data
 	case service.InstanceStateUpdating:
-		existingParams = instance.UpdatingParameters
+		existingParams = instance.UpdatingParameters.Data
 	default:
 		// If instance isn't fully provisioned (or updated) and there isn't an
 		// update in-progress, we cannot handle this request. It's a conflict.
@@ -235,7 +235,9 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	// This uses module-specific logic to weigh update parameters against current
 	// instance state to detect any invalid state changes. An example of this
 	// might be reducing the amound of storage allocated to a database.
-	instance.UpdatingParameters = updatingParameters
+	instance.UpdatingParameters = service.Parameters{
+		Data: updatingParameters,
+	}
 	if err := serviceManager.ValidateUpdatingParameters(instance); err != nil {
 		var validationErr *service.ValidationError
 		validationErr, ok = err.(*service.ValidationError)

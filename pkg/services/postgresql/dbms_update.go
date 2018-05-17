@@ -12,14 +12,14 @@ func (d *dbmsManager) ValidateUpdatingParameters(
 ) error {
 	pp := dbmsProvisioningParameters{}
 	if err := service.GetStructFromMap(
-		instance.ProvisioningParameters,
+		instance.ProvisioningParameters.Data,
 		&pp,
 	); err != nil {
 		return err
 	}
 	up := dbmsUpdatingParameters{}
 	if err := service.GetStructFromMap(
-		instance.UpdatingParameters,
+		instance.UpdatingParameters.Data,
 		&up,
 	); err != nil {
 		return err
@@ -50,7 +50,7 @@ func (d *dbmsManager) updateARMTemplate(
 
 	up := dbmsProvisioningParameters{}
 	if err := service.GetStructFromMap(
-		instance.UpdatingParameters,
+		instance.UpdatingParameters.Data,
 		&up,
 	); err != nil {
 		return nil, nil, err

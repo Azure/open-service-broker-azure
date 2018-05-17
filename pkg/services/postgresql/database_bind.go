@@ -24,7 +24,7 @@ func (d *databaseManager) Bind(
 	}
 	ppp := dbmsProvisioningParameters{}
 	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
+		instance.Parent.ProvisioningParameters.Data,
 		&ppp,
 	); err != nil {
 		return nil, nil, err
@@ -63,7 +63,7 @@ func (d *databaseManager) GetCredentials(
 	}
 	ppp := dbmsProvisioningParameters{}
 	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
+		instance.Parent.ProvisioningParameters.Data,
 		&ppp,
 	); err != nil {
 		return nil, err

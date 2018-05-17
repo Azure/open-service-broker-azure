@@ -112,7 +112,9 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		ProvisioningParameters: service.Parameters{
-			"someParameter": "foo",
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 		Status: service.InstanceStateProvisioned,
 	})
@@ -125,7 +127,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		&UpdatingRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.Parameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},
@@ -148,7 +150,9 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		UpdatingParameters: service.Parameters{
-			"someParameter": "foo",
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 		Status: service.InstanceStateUpdating,
 	})
@@ -161,7 +165,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 		&UpdatingRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.Parameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},

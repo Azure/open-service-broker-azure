@@ -24,7 +24,7 @@ func (d *databaseManager) Unbind(
 	}
 	ppp := dbmsProvisioningParameters{}
 	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
+		instance.Parent.ProvisioningParameters.Data,
 		&ppp,
 	); err != nil {
 		return err

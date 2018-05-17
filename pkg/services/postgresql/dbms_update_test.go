@@ -10,11 +10,15 @@ import (
 func TestValidateStorageIncreases(t *testing.T) {
 	sm := &dbmsManager{}
 	pp := service.Parameters{
-		"storage": 10,
+		Data: map[string]interface{}{
+			"storage": 10,
+		},
 	}
 
 	up := service.Parameters{
-		"storage": 20,
+		Data: map[string]interface{}{
+			"storage": 20,
+		},
 	}
 
 	plan := service.NewPlan(
@@ -34,11 +38,15 @@ func TestValidateStorageIncreases(t *testing.T) {
 func TestValidateStorageDecreaseFails(t *testing.T) {
 	sm := &dbmsManager{}
 	pp := service.Parameters{
-		"storage": 20,
+		Data: map[string]interface{}{
+			"storage": 20,
+		},
 	}
 
 	up := service.Parameters{
-		"storage": 10,
+		Data: map[string]interface{}{
+			"storage": 10,
+		},
 	}
 
 	plan := service.NewPlan(

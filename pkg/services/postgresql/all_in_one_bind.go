@@ -18,7 +18,10 @@ func (a *allInOneManager) Bind(
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return nil, nil, err
 	}
 	schema :=
@@ -51,7 +54,10 @@ func (a *allInOneManager) GetCredentials(
 	}
 	pp := allInOneProvisioningParameters{}
 	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
+		service.GetStructFromMap(
+			instance.ProvisioningParameters.Data,
+			&pp,
+		); err != nil {
 		return nil, err
 	}
 	schema :=

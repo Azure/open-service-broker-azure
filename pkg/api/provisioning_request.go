@@ -2,15 +2,13 @@ package api
 
 import (
 	"encoding/json"
-
-	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 // ProvisioningRequest represents a request to provision a service
 type ProvisioningRequest struct {
-	ServiceID  string             `json:"service_id"`
-	PlanID     string             `json:"plan_id"`
-	Parameters service.Parameters `json:"parameters"`
+	ServiceID  string                 `json:"service_id"`
+	PlanID     string                 `json:"plan_id"`
+	Parameters map[string]interface{} `json:"parameters"`
 }
 
 // NewProvisioningRequestFromJSON returns a new ProvisioningRequest unmarshaled

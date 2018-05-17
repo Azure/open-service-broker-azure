@@ -157,7 +157,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 
 		if reflect.DeepEqual(
 			bindingRequest.Parameters,
-			binding.BindingParameters,
+			binding.BindingParameters.Data,
 		) {
 			// Per the spec, if bound, respond with a 200
 			// Filling in a gap in the spec-- if the status is anything else, we'll
@@ -211,12 +211,16 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 
 	// If we get to here, we need to create a new binding.
 
+	bindingParams := service.Parameters{
+		Data: bindingRequest.Parameters,
+	}
+
 	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
 	bindingDetails, secureBindingDetails, err := serviceManager.Bind(
 		instance,
-		bindingRequest.Parameters,
+		bindingParams,
 	)
 	if err != nil {
 		s.handleBindingError(
@@ -235,7 +239,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// binding somehow gets orphaned and we can no longer find the instance.
 		ServiceID:         instance.ServiceID,
 		BindingID:         bindingID,
-		BindingParameters: bindingRequest.Parameters,
+		BindingParameters: bindingParams,
 		Details:           bindingDetails,
 		SecureDetails:     secureBindingDetails,
 		Created:           time.Now(),

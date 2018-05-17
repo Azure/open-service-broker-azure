@@ -133,7 +133,9 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		ProvisioningParameters: service.Parameters{
-			"someParameter": "foo",
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 	}
 	err = s.store.WriteInstance(existingInstance)
@@ -169,7 +171,9 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		ProvisioningParameters: service.Parameters{
-			"someParameter": "foo",
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 		Status: service.InstanceStateProvisioned,
 	})
@@ -182,7 +186,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.Parameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},
@@ -205,7 +209,9 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		ProvisioningParameters: service.Parameters{
-			"someParameter": "foo",
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 		Status: service.InstanceStateProvisioning,
 	})
@@ -218,7 +224,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.Parameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},

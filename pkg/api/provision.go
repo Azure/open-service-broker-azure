@@ -297,7 +297,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 				instance.ResourceGroup == resourceGroup) &&
 			reflect.DeepEqual(instance.Tags, tags) &&
 			reflect.DeepEqual(
-				instance.ProvisioningParameters,
+				instance.ProvisioningParameters.Data,
 				provisioningRequest.Parameters,
 			) {
 			// Per the spec, if fully provisioned, respond with a 200, else a 202.
@@ -359,17 +359,19 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	instance = service.Instance{
-		InstanceID:             instanceID,
-		Alias:                  alias,
-		ServiceID:              provisioningRequest.ServiceID,
-		PlanID:                 provisioningRequest.PlanID,
-		ProvisioningParameters: provisioningRequest.Parameters,
-		Status:                 service.InstanceStateProvisioning,
-		Location:               location,
-		ResourceGroup:          resourceGroup,
-		ParentAlias:            parentAlias,
-		Tags:                   tags,
-		Created:                time.Now(),
+		InstanceID: instanceID,
+		Alias:      alias,
+		ServiceID:  provisioningRequest.ServiceID,
+		PlanID:     provisioningRequest.PlanID,
+		ProvisioningParameters: service.Parameters{
+			Data: provisioningRequest.Parameters,
+		},
+		Status:        service.InstanceStateProvisioning,
+		Location:      location,
+		ResourceGroup: resourceGroup,
+		ParentAlias:   parentAlias,
+		Tags:          tags,
+		Created:       time.Now(),
 	}
 
 	var task async.Task
