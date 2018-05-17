@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
-// GetCatalog retrieves the catalog from the broker specoified by host name
+// GetCatalog retrieves the catalog from the broker specified by host name
 // and port number
 func GetCatalog(
 	host string,
@@ -38,8 +37,6 @@ func GetCatalog(
 	if err != nil {
 		return catalog, fmt.Errorf("error reading response body: %s", err)
 	}
-	fmt.Println(string(bodyBytes))
-	os.Exit(0)
 	if err := json.Unmarshal(bodyBytes, &catalog); err != nil {
 		return catalog, fmt.Errorf("error decoding catalog: %s", err)
 	}
