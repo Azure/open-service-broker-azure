@@ -17,14 +17,6 @@ const (
 	StabilityStable
 )
 
-// Parameters ...
-// TODO: krancour: Document this
-type Parameters map[string]interface{}
-
-// ProvisioningParameters ...
-// TODO: krancour: Document this
-type ProvisioningParameters Parameters
-
 // InstanceDetails is an alias for maps intended to contain non-sensitive
 // details of a service instance. It exists only to improve the clarity of
 // function signatures and documentation.
@@ -34,10 +26,6 @@ type InstanceDetails map[string]interface{}
 // details of a service instance. It exists only to improve the clarity of
 // function signatures and documentation.
 type SecureInstanceDetails map[string]interface{}
-
-// BindingParameters ...
-// TODO: krancour: Document this
-type BindingParameters Parameters
 
 // BindingDetails is an alias for maps intended to contain non-sensitive
 // details of a service binding. It exists only to improve the clarity of
