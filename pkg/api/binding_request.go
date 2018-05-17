@@ -2,13 +2,15 @@ package api
 
 import (
 	"encoding/json"
+
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 // BindingRequest represents a request to bind to a service
 type BindingRequest struct {
-	ServiceID  string                 `json:"service_id"`
-	PlanID     string                 `json:"plan_id"`
-	Parameters map[string]interface{} `json:"parameters"`
+	ServiceID  string                    `json:"service_id"`
+	PlanID     string                    `json:"plan_id"`
+	Parameters service.BindingParameters `json:"parameters"`
 }
 
 // NewBindingRequestFromJSON returns a new BindingRequest unmarshaled from the

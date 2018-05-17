@@ -3,12 +3,6 @@ package service
 // ServiceManager is an interface to be implemented by module components
 // responsible for managing the lifecycle of services and plans thereof
 type ServiceManager interface { // nolint: golint
-	// SplitProvisioningParameters splits a map of provisioning parameters into
-	// two separate maps, with one containing non-sensitive provisioning
-	// parameters and the other containing sensitive provisioning parameters.
-	SplitProvisioningParameters(
-		CombinedProvisioningParameters,
-	) (ProvisioningParameters, SecureProvisioningParameters, error)
 	// GetProvisioner returns a provisioner that defines the steps a module must
 	// execute asynchronously to provision a service.
 	GetProvisioner(Plan) (Provisioner, error)
@@ -19,17 +13,10 @@ type ServiceManager interface { // nolint: golint
 	// GetUpdater returns a updater that defines the steps a module must
 	// execute asynchronously to update a service.
 	GetUpdater(Plan) (Updater, error)
-	// SplitBindingParameters splits a map of binding parameters into two separate
-	// maps, with one containing non-sensitive binding parameters and the other
-	// containing sensitive binding parameters.
-	SplitBindingParameters(
-		CombinedBindingParameters,
-	) (BindingParameters, SecureBindingParameters, error)
 	// Bind synchronously binds to a service
 	Bind(
 		Instance,
 		BindingParameters,
-		SecureBindingParameters,
 	) (BindingDetails, SecureBindingDetails, error)
 	// GetCredentials returns service-specific credentials populated from instance
 	// and binding details

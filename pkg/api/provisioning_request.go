@@ -8,9 +8,9 @@ import (
 
 // ProvisioningRequest represents a request to provision a service
 type ProvisioningRequest struct {
-	ServiceID  string                                 `json:"service_id"`
-	PlanID     string                                 `json:"plan_id"`
-	Parameters service.CombinedProvisioningParameters `json:"parameters"`
+	ServiceID  string                         `json:"service_id"`
+	PlanID     string                         `json:"plan_id"`
+	Parameters service.ProvisioningParameters `json:"parameters"`
 }
 
 // NewProvisioningRequestFromJSON returns a new ProvisioningRequest unmarshaled

@@ -23,9 +23,9 @@ type serviceLifecycleTestCase struct {
 	serviceID              string
 	planID                 string
 	location               string
-	provisioningParameters service.CombinedProvisioningParameters
+	provisioningParameters service.ProvisioningParameters
 	parentServiceInstance  *service.Instance
-	bindingParameters      service.CombinedBindingParameters
+	bindingParameters      service.BindingParameters
 	testCredentials        func(credentials map[string]interface{}) error
 	childTestCases         []*serviceLifecycleTestCase
 }
@@ -75,12 +75,6 @@ func (s serviceLifecycleTestCase) execute(
 
 	serviceManager := svc.GetServiceManager()
 
-	pp, spp, err :=
-		serviceManager.SplitProvisioningParameters(s.provisioningParameters)
-	if err != nil {
-		return err
-	}
-
 	// Build an instance from test case details
 	instance := service.Instance{
 		ServiceID: s.serviceID,
@@ -90,10 +84,9 @@ func (s serviceLifecycleTestCase) execute(
 		Location:  s.location,
 		// Force the resource group to be something known to this test executor
 		// to ensure good cleanup
-		ResourceGroup:                resourceGroup,
-		ProvisioningParameters:       pp,
-		SecureProvisioningParameters: spp,
-		Parent: s.parentServiceInstance,
+		ResourceGroup:          resourceGroup,
+		ProvisioningParameters: s.provisioningParameters,
+		Parent:                 s.parentServiceInstance,
 	}
 
 	// Provision...
@@ -130,17 +123,10 @@ func (s serviceLifecycleTestCase) execute(
 
 	//Only test the binding operations if the service is bindable
 	if svc.IsBindable() {
-		var bp service.BindingParameters
-		var sbp service.SecureBindingParameters
-		bp, sbp, err = serviceManager.SplitBindingParameters(s.bindingParameters)
-		if err != nil {
-			return err
-		}
-
 		// Bind
 		var bd service.BindingDetails
 		var sbd service.SecureBindingDetails
-		bd, sbd, err = serviceManager.Bind(instance, bp, sbp)
+		bd, sbd, err = serviceManager.Bind(instance, s.bindingParameters)
 		if err != nil {
 			return err
 		}

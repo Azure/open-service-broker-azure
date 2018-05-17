@@ -266,21 +266,6 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	serviceManager := svc.GetServiceManager()
 
-	// Now service-specific parameters...
-	provisioningParameters, secureProvisioningParameters, err :=
-		serviceManager.SplitProvisioningParameters(provisioningRequest.Parameters)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Debug(
-			"bad provisioning request: error decoding parameter map into " +
-				"service-specific parameters",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
-		return
-	}
-
 	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
 		logFields["error"] = err
@@ -313,11 +298,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 			reflect.DeepEqual(instance.Tags, tags) &&
 			reflect.DeepEqual(
 				instance.ProvisioningParameters,
-				provisioningParameters,
-			) &&
-			reflect.DeepEqual(
-				instance.SecureProvisioningParameters,
-				secureProvisioningParameters,
+				provisioningRequest.Parameters,
 			) {
 			// Per the spec, if fully provisioned, respond with a 200, else a 202.
 			// Filling in a gap in the spec-- if the status is anything else, we'll
@@ -378,18 +359,17 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	instance = service.Instance{
-		InstanceID:                   instanceID,
-		Alias:                        alias,
-		ServiceID:                    provisioningRequest.ServiceID,
-		PlanID:                       provisioningRequest.PlanID,
-		ProvisioningParameters:       provisioningParameters,
-		SecureProvisioningParameters: secureProvisioningParameters,
-		Status:        service.InstanceStateProvisioning,
-		Location:      location,
-		ResourceGroup: resourceGroup,
-		ParentAlias:   parentAlias,
-		Tags:          tags,
-		Created:       time.Now(),
+		InstanceID:             instanceID,
+		Alias:                  alias,
+		ServiceID:              provisioningRequest.ServiceID,
+		PlanID:                 provisioningRequest.PlanID,
+		ProvisioningParameters: provisioningRequest.Parameters,
+		Status:                 service.InstanceStateProvisioning,
+		Location:               location,
+		ResourceGroup:          resourceGroup,
+		ParentAlias:            parentAlias,
+		Tags:                   tags,
+		Created:                time.Now(),
 	}
 
 	var task async.Task
