@@ -9,11 +9,11 @@ import (
 
 func TestValidateStorageIncreases(t *testing.T) {
 	sm := &dbmsManager{}
-	pp := service.ProvisioningParameters{
+	pp := service.Parameters{
 		"storage": 10,
 	}
 
-	up := service.ProvisioningParameters{
+	up := service.Parameters{
 		"storage": 20,
 	}
 
@@ -33,11 +33,11 @@ func TestValidateStorageIncreases(t *testing.T) {
 
 func TestValidateStorageDecreaseFails(t *testing.T) {
 	sm := &dbmsManager{}
-	pp := service.ProvisioningParameters{
+	pp := service.Parameters{
 		"storage": 20,
 	}
 
-	up := service.ProvisioningParameters{
+	up := service.Parameters{
 		"storage": 10,
 	}
 

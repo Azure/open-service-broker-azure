@@ -12,7 +12,7 @@ type Binding struct {
 	BindingID              string               `json:"bindingId"`
 	InstanceID             string               `json:"instanceId"`
 	ServiceID              string               `json:"serviceId"`
-	BindingParameters      BindingParameters    `json:"bindingParameters"`
+	BindingParameters      Parameters           `json:"bindingParameters"`
 	Status                 string               `json:"status"`
 	StatusReason           string               `json:"statusReason"`
 	Details                BindingDetails       `json:"details"`

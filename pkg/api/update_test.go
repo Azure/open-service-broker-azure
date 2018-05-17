@@ -111,7 +111,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: service.ProvisioningParameters{
+		ProvisioningParameters: service.Parameters{
 			"someParameter": "foo",
 		},
 		Status: service.InstanceStateProvisioned,
@@ -125,7 +125,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		&UpdatingRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.ProvisioningParameters{
+			Parameters: service.Parameters{
 				"someParameter": "foo",
 			},
 		},
@@ -147,7 +147,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		UpdatingParameters: service.ProvisioningParameters{
+		UpdatingParameters: service.Parameters{
 			"someParameter": "foo",
 		},
 		Status: service.InstanceStateUpdating,
@@ -161,7 +161,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 		&UpdatingRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.ProvisioningParameters{
+			Parameters: service.Parameters{
 				"someParameter": "foo",
 			},
 		},

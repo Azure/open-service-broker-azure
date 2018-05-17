@@ -16,7 +16,7 @@ type ServiceManager interface { // nolint: golint
 	// Bind synchronously binds to a service
 	Bind(
 		Instance,
-		BindingParameters,
+		Parameters,
 	) (BindingDetails, SecureBindingDetails, error)
 	// GetCredentials returns service-specific credentials populated from instance
 	// and binding details

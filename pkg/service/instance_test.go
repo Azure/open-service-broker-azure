@@ -28,11 +28,11 @@ func init() {
 	parentAlias := "test-parent-alias"
 	tagKey := "foo"
 	tagVal := "bar"
-	provisioningParameters := ProvisioningParameters{
+	provisioningParameters := Parameters{
 		"foo": "bar",
 	}
 	provisioningParametersJSONStr := []byte(`{"foo":"bar"}`)
-	updatingParameters := ProvisioningParameters{
+	updatingParameters := Parameters{
 		"foo": "bat",
 	}
 	updatingParametersJSONStr := []byte(`{"foo":"bat"}`)

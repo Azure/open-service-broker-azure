@@ -6,7 +6,7 @@ import (
 
 func (d *databaseManager) Bind(
 	instance service.Instance,
-	_ service.BindingParameters,
+	_ service.Parameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	pdt := dbmsInstanceDetails{}
 	if err :=

@@ -132,7 +132,7 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: service.ProvisioningParameters{
+		ProvisioningParameters: service.Parameters{
 			"someParameter": "foo",
 		},
 	}
@@ -168,7 +168,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: service.ProvisioningParameters{
+		ProvisioningParameters: service.Parameters{
 			"someParameter": "foo",
 		},
 		Status: service.InstanceStateProvisioned,
@@ -182,7 +182,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.ProvisioningParameters{
+			Parameters: service.Parameters{
 				"someParameter": "foo",
 			},
 		},
@@ -204,7 +204,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: service.ProvisioningParameters{
+		ProvisioningParameters: service.Parameters{
 			"someParameter": "foo",
 		},
 		Status: service.InstanceStateProvisioning,
@@ -218,7 +218,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.ProvisioningParameters{
+			Parameters: service.Parameters{
 				"someParameter": "foo",
 			},
 		},
@@ -271,7 +271,7 @@ func TestValidatingLocationParameterFails(t *testing.T) {
 // 	m.ServiceManager.ProvisioningValidationBehavior =
 // 		func(
 // 			service.Plan,
-// 			service.ProvisioningParameters,
+// 			service.Parameters,
 // 			service.SecureProvisioningParameters,
 // 		) error {
 // 			moduleSpecificValidationCalled = true

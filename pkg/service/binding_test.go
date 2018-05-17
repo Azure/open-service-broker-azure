@@ -22,7 +22,7 @@ func init() {
 	bindingID := "test-binding-id"
 	instanceID := "test-instance-id"
 	serviceID := "test-service-id"
-	bindingParameters := BindingParameters{
+	bindingParameters := Parameters{
 		"foo": "bar",
 	}
 	bindingParametersJSONStr := []byte(`{"foo":"bar"}`)

@@ -6,7 +6,7 @@ import (
 
 func (a *allInOneManager) Bind(
 	instance service.Instance,
-	_ service.BindingParameters,
+	_ service.Parameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	dt := allInOneInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {

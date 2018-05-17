@@ -176,7 +176,7 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
-		BindingParameters: service.BindingParameters{
+		BindingParameters: service.Parameters{
 			"someParameter": "foo",
 		},
 	}
@@ -216,7 +216,7 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
-		BindingParameters: service.BindingParameters{
+		BindingParameters: service.Parameters{
 			"someParameter": "foo",
 		},
 		Status: service.BindingStateBound,
@@ -226,7 +226,7 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		instanceID,
 		bindingID,
 		&BindingRequest{
-			Parameters: service.BindingParameters{
+			Parameters: service.Parameters{
 				"someParameter": "foo",
 			},
 		},
@@ -277,7 +277,7 @@ func TestBrandNewBinding(t *testing.T) {
 	bindCalled := false
 	m.ServiceManager.BindBehavior = func(
 		service.Instance,
-		service.BindingParameters,
+		service.Parameters,
 	) (service.BindingDetails, service.SecureBindingDetails, error) {
 		bindCalled = true
 		return nil, nil, nil

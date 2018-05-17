@@ -8,9 +8,9 @@ import (
 
 // BindingRequest represents a request to bind to a service
 type BindingRequest struct {
-	ServiceID  string                    `json:"service_id"`
-	PlanID     string                    `json:"plan_id"`
-	Parameters service.BindingParameters `json:"parameters"`
+	ServiceID  string             `json:"service_id"`
+	PlanID     string             `json:"plan_id"`
+	Parameters service.Parameters `json:"parameters"`
 }
 
 // NewBindingRequestFromJSON returns a new BindingRequest unmarshaled from the

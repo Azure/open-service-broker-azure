@@ -23,9 +23,9 @@ type serviceLifecycleTestCase struct {
 	serviceID              string
 	planID                 string
 	location               string
-	provisioningParameters service.ProvisioningParameters
+	provisioningParameters service.Parameters
 	parentServiceInstance  *service.Instance
-	bindingParameters      service.BindingParameters
+	bindingParameters      service.Parameters
 	testCredentials        func(credentials map[string]interface{}) error
 	childTestCases         []*serviceLifecycleTestCase
 }

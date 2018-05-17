@@ -9,25 +9,25 @@ import (
 
 // Instance represents an instance of a service
 type Instance struct {
-	InstanceID             string                 `json:"instanceId"`
-	Alias                  string                 `json:"alias"`
-	ServiceID              string                 `json:"serviceId"`
-	Service                Service                `json:"-"`
-	PlanID                 string                 `json:"planId"`
-	Plan                   Plan                   `json:"-"`
-	ProvisioningParameters ProvisioningParameters `json:"provisioningParameters"`
-	UpdatingParameters     ProvisioningParameters `json:"updatingParameters"`
-	Status                 string                 `json:"status"`
-	StatusReason           string                 `json:"statusReason"`
-	Location               string                 `json:"location"`
-	ResourceGroup          string                 `json:"resourceGroup"`
-	Parent                 *Instance              `json:"-"`
-	ParentAlias            string                 `json:"parentAlias"`
-	Tags                   map[string]string      `json:"tags"`
-	Details                InstanceDetails        `json:"details"`
-	EncryptedSecureDetails []byte                 `json:"secureDetails"`
-	SecureDetails          SecureInstanceDetails  `json:"-"`
-	Created                time.Time              `json:"created"`
+	InstanceID             string                `json:"instanceId"`
+	Alias                  string                `json:"alias"`
+	ServiceID              string                `json:"serviceId"`
+	Service                Service               `json:"-"`
+	PlanID                 string                `json:"planId"`
+	Plan                   Plan                  `json:"-"`
+	ProvisioningParameters Parameters            `json:"provisioningParameters"`
+	UpdatingParameters     Parameters            `json:"updatingParameters"`
+	Status                 string                `json:"status"`
+	StatusReason           string                `json:"statusReason"`
+	Location               string                `json:"location"`
+	ResourceGroup          string                `json:"resourceGroup"`
+	Parent                 *Instance             `json:"-"`
+	ParentAlias            string                `json:"parentAlias"`
+	Tags                   map[string]string     `json:"tags"`
+	Details                InstanceDetails       `json:"details"`
+	EncryptedSecureDetails []byte                `json:"secureDetails"`
+	SecureDetails          SecureInstanceDetails `json:"-"`
+	Created                time.Time             `json:"created"`
 }
 
 // NewInstanceFromJSON returns a new Instance unmarshalled from the provided
