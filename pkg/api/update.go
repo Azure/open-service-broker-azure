@@ -362,6 +362,10 @@ func mergeUpdateParameters(
 	if pp == nil {
 		return up
 	}
+	ppCopy := map[string]interface{}{}
+	for key, value := range pp {
+		ppCopy[key] = value
+	}
 	// The OSB spec states that if the request doesn't include a
 	// previously specified parameter value, it should remain unchanged.
 	// This iterates through the updating params and replace the
@@ -372,8 +376,8 @@ func mergeUpdateParameters(
 	// parameters.
 	for key, value := range up {
 		if !types.IsEmpty(value) {
-			pp[key] = value
+			ppCopy[key] = value
 		}
 	}
-	return pp
+	return ppCopy
 }
