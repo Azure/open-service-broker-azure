@@ -200,11 +200,15 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	for reqParamKey, reqParamVal := range secureUpdatingParameters {
-		existingVal, ok := existingSecureParams[reqParamKey]
-		if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
-			needsUpdate = true
-			break
+	// Don't bother continuing to look if we already established that an update
+	// is needed.
+	if !needsUpdate {
+		for reqParamKey, reqParamVal := range secureUpdatingParameters {
+			existingVal, ok := existingSecureParams[reqParamKey]
+			if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
+				needsUpdate = true
+				break
+			}
 		}
 	}
 	if needsUpdate {
