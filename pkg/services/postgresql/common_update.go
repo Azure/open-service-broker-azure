@@ -18,7 +18,7 @@ func validateDBMSUpdateParameters(
 	if plan == nil {
 		return fmt.Errorf("plan invalid")
 	}
-	s, ok := plan.GetProperties().Extended["updateSchema"]
+	s, ok := plan.GetProperties().Extended["tierDetails"]
 	if !ok {
 		return fmt.Errorf("invalid plan, schema not found")
 	}

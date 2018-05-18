@@ -15,13 +15,6 @@ func createBasicPlan(
 		tier: "B",
 	}
 
-	updateSchema := tierDetails{
-		allowedCores: []int64{1, 2},
-		defaultCores: 1,
-		maxStorage:   1024,
-		tier:         "B",
-	}
-
 	return &service.PlanProperties{
 		ID:   planID,
 		Name: "basic",
@@ -30,9 +23,8 @@ func createBasicPlan(
 			"testing or small-scale infrequently used applications.",
 		Free: false,
 		Extended: map[string]interface{}{
-			"tierDetails":  td,
-			"updateSchema": updateSchema,
-			"tier":         "Basic",
+			"tierDetails": td,
+			"tier":        "Basic",
 		},
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Basic Tier",
@@ -45,7 +37,7 @@ func createBasicPlan(
 					includeDBParams,
 				),
 				UpdatingParametersSchema: generateDBMSPlanSchema(
-					updateSchema,
+					td,
 					includeDBParams,
 				),
 			},
@@ -67,17 +59,9 @@ func createGPPlan(
 		tier: "GP",
 	}
 
-	updateSchema := tierDetails{
-		allowedCores: []int64{2, 4, 8, 16, 32},
-		defaultCores: 2,
-		maxStorage:   2048,
-		tier:         "GP",
-	}
-
 	extendedPlanData := map[string]interface{}{
-		"tierDetails":  td,
-		"updateSchema": updateSchema,
-		"tier":         "GeneralPurpose",
+		"tierDetails": td,
+		"tier":        "GeneralPurpose",
 	}
 
 	return &service.PlanProperties{
@@ -104,7 +88,7 @@ func createGPPlan(
 					includeDBParams,
 				),
 				UpdatingParametersSchema: generateDBMSPlanSchema(
-					updateSchema,
+					td,
 					includeDBParams,
 				),
 			},
@@ -126,17 +110,9 @@ func createMemoryOptimizedPlan(
 		tier: "MO",
 	}
 
-	updateSchema := tierDetails{
-		allowedCores: []int64{2, 4, 8, 16},
-		defaultCores: 2,
-		maxStorage:   2048,
-		tier:         "MO",
-	}
-
 	extendedPlanData := map[string]interface{}{
-		"tierDetails":  td,
-		"updateSchema": updateSchema,
-		"tier":         "MemoryOptimized",
+		"tierDetails": td,
+		"tier":        "MemoryOptimized",
 	}
 
 	return &service.PlanProperties{
@@ -164,7 +140,7 @@ func createMemoryOptimizedPlan(
 					includeDBParams,
 				),
 				UpdatingParametersSchema: generateDBMSPlanSchema(
-					updateSchema,
+					td,
 					includeDBParams,
 				),
 			},
