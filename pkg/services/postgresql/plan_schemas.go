@@ -44,6 +44,40 @@ func generateDBMSPlanSchema(
 	includeDBParams bool,
 ) *service.InputParametersSchema {
 	ps := map[string]service.PropertySchema{}
+	ps["hardwareFamily"] = &service.StringPropertySchema{
+		Description:   "Specifies the compute generation to use for the DBMS",
+		AllowedValues: td.allowedHardware,
+		DefaultValue:  gen5ParamString,
+	}
+	ps["cores"] = &service.IntPropertySchema{
+		Description: "Specifies vCores, which represent the logical " +
+			"CPU of the underlying hardware",
+		AllowedValues: td.allowedCores,
+		DefaultValue:  ptr.ToInt64(td.defaultCores),
+	}
+	ps["storage"] = &service.IntPropertySchema{
+		Description:  "Specifies the storage in GBs",
+		DefaultValue: ptr.ToInt64(10),
+		MinValue:     ptr.ToInt64(5),
+		MaxValue:     ptr.ToInt64(td.maxStorage),
+	}
+	ps["backupRetention"] = &service.IntPropertySchema{
+		Description:  "Specifies the number of days for backup retention",
+		DefaultValue: ptr.ToInt64(7),
+		MinValue:     ptr.ToInt64(7),
+		MaxValue:     ptr.ToInt64(35),
+	}
+	ps["backupRedundancy"] = &service.StringPropertySchema{
+		Description:   "Specifies the backup redundancy",
+		AllowedValues: td.allowedBackupRedundancy,
+		DefaultValue:  "local",
+	}
+	ps["sslEnforcement"] = &service.StringPropertySchema{
+		Description: "Specifies whether the server requires the use of TLS" +
+			" when connecting. Left unspecified, SSL will be enforced",
+		AllowedValues: []string{enabledParamString, disabledParamString},
+		DefaultValue:  enabledParamString,
+	}
 	ps["firewallRules"] = &service.ArrayPropertySchema{
 		Description: "Firewall rules to apply to instance. " +
 			"If left unspecified, defaults to only Azure IPs",
@@ -76,40 +110,6 @@ func generateDBMSPlanSchema(
 				"endIPAddress":   "0.0.0.0",
 			},
 		},
-	}
-	ps["sslEnforcement"] = &service.StringPropertySchema{
-		Description: "Specifies whether the server requires the use of TLS" +
-			" when connecting. Left unspecified, SSL will be enforced",
-		AllowedValues: []string{enabledParamString, disabledParamString},
-		DefaultValue:  enabledParamString,
-	}
-	ps["hardwareFamily"] = &service.StringPropertySchema{
-		Description:   "Specifies the compute generation to use for the DBMS",
-		AllowedValues: td.allowedHardware,
-		DefaultValue:  gen5ParamString,
-	}
-	ps["cores"] = &service.IntPropertySchema{
-		Description: "Specifies vCores, which represent the logical " +
-			"CPU of the underlying hardware",
-		AllowedValues: td.allowedCores,
-		DefaultValue:  ptr.ToInt64(td.defaultCores),
-	}
-	ps["storage"] = &service.IntPropertySchema{
-		Description:  "Specifies the storage in GBs",
-		DefaultValue: ptr.ToInt64(10),
-		MinValue:     ptr.ToInt64(5),
-		MaxValue:     ptr.ToInt64(td.maxStorage),
-	}
-	ps["backupRetention"] = &service.IntPropertySchema{
-		Description:  "Specifies the number of days for backup retention",
-		DefaultValue: ptr.ToInt64(7),
-		MinValue:     ptr.ToInt64(7),
-		MaxValue:     ptr.ToInt64(35),
-	}
-	ps["backupRedundancy"] = &service.StringPropertySchema{
-		Description:   "Specifies the backup redundancy",
-		AllowedValues: td.allowedBackupRedundancy,
-		DefaultValue:  "local",
 	}
 	if includeDBParams {
 		ps["extensions"] = dbExtensionsSchema
