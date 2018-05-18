@@ -75,6 +75,8 @@ func (s serviceLifecycleTestCase) execute(
 
 	serviceManager := svc.GetServiceManager()
 
+	ppSchema := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema
+
 	// Build an instance from test case details
 	instance := service.Instance{
 		ServiceID: s.serviceID,
@@ -86,7 +88,8 @@ func (s serviceLifecycleTestCase) execute(
 		// to ensure good cleanup
 		ResourceGroup: resourceGroup,
 		ProvisioningParameters: service.Parameters{
-			Data: s.provisioningParameters,
+			Schema: &ppSchema,
+			Data:   s.provisioningParameters,
 		},
 		Parent: s.parentServiceInstance,
 	}
