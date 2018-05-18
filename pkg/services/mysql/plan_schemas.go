@@ -24,7 +24,6 @@ type tierDetails struct {
 	tier                    string
 	maxStorage              int64
 	allowedBackupRedundancy []string
-	defaultBackupRedundancy string
 	minBackupRetention      int64
 	maxBackupRetention      int64
 	defaultBackupRetention  int64
@@ -114,12 +113,10 @@ func generateDBMSPlanSchema(
 			MaxValue:     ptr.ToInt64(td.maxBackupRetention),
 		}
 	}
-	if len(td.allowedBackupRedundancy) > 1 {
-		ps["backupRedundancy"] = &service.StringPropertySchema{
-			Description:   "Specifies the backup redundancy",
-			AllowedValues: td.allowedBackupRedundancy,
-			DefaultValue:  td.defaultBackupRedundancy,
-		}
+	ps["backupRedundancy"] = &service.StringPropertySchema{
+		Description:   "Specifies the backup redundancy",
+		AllowedValues: td.allowedBackupRedundancy,
+		DefaultValue:  "local",
 	}
 	return service.InputParametersSchema{
 		PropertySchemas: ps,
@@ -149,12 +146,8 @@ func (t *tierDetails) getBackupRetention(pp dbmsProvisioningParameters) int64 {
 	return t.defaultBackupRetention
 }
 
-func (t *tierDetails) isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {
-	// If you get a choice and you've made a choice...
-	if len(t.allowedBackupRedundancy) > 1 && pp.BackupRedundancy != "" {
-		return pp.BackupRedundancy == "geo"
-	}
-	return t.defaultBackupRedundancy == "geo"
+func isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {
+	return pp.BackupRedundancy == "geo"
 }
 
 func getHardwareFamily(pp dbmsProvisioningParameters) string {
