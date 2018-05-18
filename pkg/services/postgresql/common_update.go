@@ -97,7 +97,7 @@ func validateDBMSUpdateParameters(
 
 	// storage
 	if up.Storage != nil {
-		if *up.Storage < td.minStorage || *up.Storage > td.maxStorage {
+		if *up.Storage < 5 || *up.Storage > td.maxStorage {
 			return service.NewValidationError(
 				"storage",
 				fmt.Sprintf(`invalid value: "%d"`, *up.Storage),

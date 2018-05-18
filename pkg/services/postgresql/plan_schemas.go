@@ -22,7 +22,6 @@ type tierDetails struct {
 	allowedCores            []int64
 	defaultCores            int64
 	tier                    string
-	minStorage              int64
 	maxStorage              int64
 	defaultStorage          int64
 	allowedBackupRedundancy []string
@@ -103,13 +102,11 @@ func generateDBMSPlanSchema(
 			DefaultValue:  ptr.ToInt64(td.defaultCores),
 		}
 	}
-	if td.maxStorage > td.minStorage {
-		ps["storage"] = &service.IntPropertySchema{
-			Description:  "Specifies the storage in GBs",
-			DefaultValue: ptr.ToInt64(td.defaultStorage),
-			MinValue:     ptr.ToInt64(td.minStorage),
-			MaxValue:     ptr.ToInt64(td.maxStorage),
-		}
+	ps["storage"] = &service.IntPropertySchema{
+		Description:  "Specifies the storage in GBs",
+		DefaultValue: ptr.ToInt64(td.defaultStorage),
+		MinValue:     ptr.ToInt64(5),
+		MaxValue:     ptr.ToInt64(td.maxStorage),
 	}
 	if td.maxBackupRetention > td.minBackupRetention {
 		ps["backupRetention"] = &service.IntPropertySchema{
@@ -142,12 +139,11 @@ func (t *tierDetails) getCores(pp dbmsProvisioningParameters) int64 {
 	return t.defaultCores
 }
 
-func (t *tierDetails) getStorage(pp dbmsProvisioningParameters) int64 {
-	// If you get a choice and you've made a choice...
-	if t.maxStorage > t.minStorage && pp.Storage != nil {
-		return *pp.Storage
+func getStorage(pp dbmsProvisioningParameters) int64 {
+	if pp.Storage == nil {
+		return 10
 	}
-	return t.defaultStorage
+	return *pp.Storage
 }
 
 func (t *tierDetails) getBackupRetention(pp dbmsProvisioningParameters) int64 {

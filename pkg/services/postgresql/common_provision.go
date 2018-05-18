@@ -168,7 +168,7 @@ func buildGoTemplateParameters(
 	p["sku"] = td.getSku(pp)
 	p["tier"] = plan.GetProperties().Extended["tier"]
 	p["cores"] = td.getCores(pp)
-	p["storage"] = td.getStorage(pp) * 1024 //storage is in MB to arm :/
+	p["storage"] = getStorage(pp) * 1024 //storage is in MB to arm :/
 	p["backupRetention"] = td.getBackupRetention(pp)
 	p["hardwareFamily"] = getHardwareFamily(pp)
 	if td.isGeoRedundentBackup(pp) {
