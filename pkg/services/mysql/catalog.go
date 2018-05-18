@@ -13,7 +13,6 @@ func createBasicPlan(
 		defaultCores:            1,
 		maxStorage:              1024,
 		allowedBackupRedundancy: []string{"local"},
-		defaultBackupRetention:  7,
 		tier: "B",
 	}
 
@@ -50,7 +49,6 @@ func createGPPlan(
 		defaultCores:            2,
 		maxStorage:              2048,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		defaultBackupRetention:  7,
 		tier: "GP",
 	}
 	extendedPlanData := map[string]interface{}{
@@ -93,7 +91,6 @@ func createMemoryOptimizedPlan(
 		defaultCores:            2,
 		maxStorage:              2048,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		defaultBackupRetention:  7,
 		tier: "MO",
 	}
 	extendedPlanData := map[string]interface{}{

@@ -24,7 +24,6 @@ type tierDetails struct {
 	tier                    string
 	maxStorage              int64
 	allowedBackupRedundancy []string
-	defaultBackupRetention  int64
 }
 
 func (t *tierDetails) getSku(pp dbmsProvisioningParameters) string {
