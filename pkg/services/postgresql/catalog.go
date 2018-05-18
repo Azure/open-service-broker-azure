@@ -12,16 +12,14 @@ func createBasicPlan(
 		defaultCores:            1,
 		maxStorage:              1024,
 		allowedBackupRedundancy: []string{"local"},
-		defaultBackupRetention:  7,
 		tier: "B",
 	}
 
 	updateSchema := tierDetails{
-		allowedCores:           []int64{1, 2},
-		defaultCores:           1,
-		maxStorage:             1024,
-		defaultBackupRetention: 7,
-		tier: "B",
+		allowedCores: []int64{1, 2},
+		defaultCores: 1,
+		maxStorage:   1024,
+		tier:         "B",
 	}
 
 	return &service.PlanProperties{
@@ -66,16 +64,14 @@ func createGPPlan(
 		defaultCores:            2,
 		maxStorage:              2048,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		defaultBackupRetention:  7,
 		tier: "GP",
 	}
 
 	updateSchema := tierDetails{
-		allowedCores:           []int64{2, 4, 8, 16, 32},
-		defaultCores:           2,
-		maxStorage:             2048,
-		defaultBackupRetention: 7,
-		tier: "GP",
+		allowedCores: []int64{2, 4, 8, 16, 32},
+		defaultCores: 2,
+		maxStorage:   2048,
+		tier:         "GP",
 	}
 
 	extendedPlanData := map[string]interface{}{
@@ -127,16 +123,14 @@ func createMemoryOptimizedPlan(
 		defaultCores:            2,
 		maxStorage:              2048,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		defaultBackupRetention:  7,
 		tier: "MO",
 	}
 
 	updateSchema := tierDetails{
-		allowedCores:           []int64{2, 4, 8, 16},
-		defaultCores:           2,
-		maxStorage:             2048,
-		defaultBackupRetention: 7,
-		tier: "MO",
+		allowedCores: []int64{2, 4, 8, 16},
+		defaultCores: 2,
+		maxStorage:   2048,
+		tier:         "MO",
 	}
 
 	extendedPlanData := map[string]interface{}{
