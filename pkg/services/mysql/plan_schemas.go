@@ -18,7 +18,6 @@ const (
 )
 
 type tierDetails struct {
-	defaultHardware         string
 	allowedHardware         []string
 	allowedCores            []int64
 	defaultCores            int64
@@ -39,7 +38,7 @@ func (t *tierDetails) getSku(pp dbmsProvisioningParameters) string {
 	sku := fmt.Sprintf(
 		"%s_%s_%d",
 		t.tier,
-		t.getHardwareFamily(pp),
+		getHardwareFamily(pp),
 		t.getCores(pp),
 	)
 	return sku
@@ -92,7 +91,7 @@ func generateDBMSPlanSchema(
 		ps["hardwareFamily"] = &service.StringPropertySchema{
 			Description:   "Specifies the compute generation to use for the DBMS",
 			AllowedValues: td.allowedHardware,
-			DefaultValue:  td.defaultHardware,
+			DefaultValue:  gen5ParamString,
 		}
 	}
 	if len(td.allowedCores) > 1 {
@@ -163,18 +162,11 @@ func (t *tierDetails) isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {
 	return t.defaultBackupRedundancy == "geo"
 }
 
-func (t *tierDetails) getHardwareFamily(pp dbmsProvisioningParameters) string {
-	var hardwareSelection string
-	// If you get a choice and you've made a choice...
-	if len(t.allowedHardware) > 1 && hardwareSelection == "" {
-		hardwareSelection = pp.HardwareFamily
-	} else {
-		hardwareSelection = t.defaultHardware
+func getHardwareFamily(pp dbmsProvisioningParameters) string {
+	if pp.HardwareFamily == "" {
+		return gen5TemplateString
 	}
-	// Translate to a value usable in the ARM templates.
-	// TODO: It might be better for this object not to know so much about how it
-	// is ultimately used-- i.e. ARM-template-awareness.
-	if hardwareSelection == gen4ParamString {
+	if pp.HardwareFamily == gen4ParamString {
 		return gen4TemplateString
 	}
 	return gen5TemplateString

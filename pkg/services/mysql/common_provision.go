@@ -45,7 +45,7 @@ func buildGoTemplateParameters(
 	p["cores"] = td.getCores(pp)
 	p["storage"] = td.getStorage(pp) * 1024 //storage is in MB to arm :/
 	p["backupRetention"] = td.getBackupRetention(pp)
-	p["hardwareFamily"] = td.getHardwareFamily(pp)
+	p["hardwareFamily"] = getHardwareFamily(pp)
 	if td.isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
