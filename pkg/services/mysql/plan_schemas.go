@@ -17,7 +17,7 @@ const (
 	gen5ParamString    = "gen5"
 )
 
-type planSchema struct {
+type tierDetails struct {
 	defaultFirewallRules    []firewallRule
 	allowedSSLEnforcement   []string
 	defaultSSLEnforcement   string
@@ -36,20 +36,20 @@ type planSchema struct {
 	defaultBackupRetention  int64
 }
 
-func (p *planSchema) getSku(pp dbmsProvisioningParameters) string {
+func (t *tierDetails) getSku(pp dbmsProvisioningParameters) string {
 	// The name of the sku, typically:
 	// tier + family + cores, e.g. B_Gen4_1, GP_Gen5_8.
 	sku := fmt.Sprintf(
 		"%s_%s_%d",
-		p.tier,
-		p.getHardwareFamily(pp),
-		p.getCores(pp),
+		t.tier,
+		t.getHardwareFamily(pp),
+		t.getCores(pp),
 	)
 	return sku
 }
 
 func generateDBMSPlanSchema(
-	schema planSchema,
+	td tierDetails,
 ) service.InputParametersSchema {
 	ps := map[string]service.PropertySchema{}
 	ps["firewallRules"] = &service.ArrayPropertySchema{
@@ -85,50 +85,50 @@ func generateDBMSPlanSchema(
 			},
 		},
 	}
-	if len(schema.allowedSSLEnforcement) > 1 {
+	if len(td.allowedSSLEnforcement) > 1 {
 		ps["sslEnforcement"] = &service.StringPropertySchema{
 			Description: "Specifies whether the server requires the use of TLS" +
 				" when connecting. Left unspecified, SSL will be enforced",
-			AllowedValues: schema.allowedSSLEnforcement,
-			DefaultValue:  schema.defaultSSLEnforcement,
+			AllowedValues: td.allowedSSLEnforcement,
+			DefaultValue:  td.defaultSSLEnforcement,
 		}
 	}
-	if len(schema.allowedHardware) > 1 {
+	if len(td.allowedHardware) > 1 {
 		ps["hardwareFamily"] = &service.StringPropertySchema{
 			Description:   "Specifies the compute generation to use for the DBMS",
-			AllowedValues: schema.allowedHardware,
-			DefaultValue:  schema.defaultHardware,
+			AllowedValues: td.allowedHardware,
+			DefaultValue:  td.defaultHardware,
 		}
 	}
-	if len(schema.allowedCores) > 1 {
+	if len(td.allowedCores) > 1 {
 		ps["cores"] = &service.IntPropertySchema{
 			Description: "Specifies vCores, which represent the logical " +
 				"CPU of the underlying hardware",
-			AllowedValues: schema.allowedCores,
-			DefaultValue:  ptr.ToInt64(schema.defaultCores),
+			AllowedValues: td.allowedCores,
+			DefaultValue:  ptr.ToInt64(td.defaultCores),
 		}
 	}
-	if schema.maxStorage > schema.minStorage {
+	if td.maxStorage > td.minStorage {
 		ps["storage"] = &service.IntPropertySchema{
 			Description:  "Specifies the storage in GBs",
-			DefaultValue: ptr.ToInt64(schema.defaultStorage),
-			MinValue:     ptr.ToInt64(schema.minStorage),
-			MaxValue:     ptr.ToInt64(schema.maxStorage),
+			DefaultValue: ptr.ToInt64(td.defaultStorage),
+			MinValue:     ptr.ToInt64(td.minStorage),
+			MaxValue:     ptr.ToInt64(td.maxStorage),
 		}
 	}
-	if schema.maxBackupRetention > schema.minBackupRetention {
+	if td.maxBackupRetention > td.minBackupRetention {
 		ps["backupRetention"] = &service.IntPropertySchema{
 			Description:  "Specifies the number of days for backup retention",
-			DefaultValue: ptr.ToInt64(schema.minBackupRetention),
-			MinValue:     ptr.ToInt64(schema.minBackupRetention),
-			MaxValue:     ptr.ToInt64(schema.maxBackupRetention),
+			DefaultValue: ptr.ToInt64(td.minBackupRetention),
+			MinValue:     ptr.ToInt64(td.minBackupRetention),
+			MaxValue:     ptr.ToInt64(td.maxBackupRetention),
 		}
 	}
-	if len(schema.allowedBackupRedundancy) > 1 {
+	if len(td.allowedBackupRedundancy) > 1 {
 		ps["backupRedundancy"] = &service.StringPropertySchema{
 			Description:   "Specifies the backup redundancy",
-			AllowedValues: schema.allowedBackupRedundancy,
-			DefaultValue:  schema.defaultBackupRedundancy,
+			AllowedValues: td.allowedBackupRedundancy,
+			DefaultValue:  td.defaultBackupRedundancy,
 		}
 	}
 	return service.InputParametersSchema{
@@ -136,45 +136,45 @@ func generateDBMSPlanSchema(
 	}
 }
 
-func (p *planSchema) getCores(pp dbmsProvisioningParameters) int64 {
+func (t *tierDetails) getCores(pp dbmsProvisioningParameters) int64 {
 	// If you get a choice and you've made a choice...
-	if len(p.allowedCores) > 1 && pp.Cores != nil {
+	if len(t.allowedCores) > 1 && pp.Cores != nil {
 		return *pp.Cores
 	}
-	return p.defaultCores
+	return t.defaultCores
 }
 
-func (p *planSchema) getStorage(pp dbmsProvisioningParameters) int64 {
+func (t *tierDetails) getStorage(pp dbmsProvisioningParameters) int64 {
 	// If you get a choice and you've made a choice...
-	if p.maxStorage > p.minStorage && pp.Storage != nil {
+	if t.maxStorage > t.minStorage && pp.Storage != nil {
 		return *pp.Storage
 	}
-	return p.defaultStorage
+	return t.defaultStorage
 }
 
-func (p *planSchema) getBackupRetention(pp dbmsProvisioningParameters) int64 {
+func (t *tierDetails) getBackupRetention(pp dbmsProvisioningParameters) int64 {
 	// If you get a choice and you've made a choice...
-	if p.maxBackupRetention > p.minBackupRetention && pp.BackupRetention != nil {
+	if t.maxBackupRetention > t.minBackupRetention && pp.BackupRetention != nil {
 		return *pp.BackupRetention
 	}
-	return p.defaultBackupRetention
+	return t.defaultBackupRetention
 }
 
-func (p *planSchema) isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {
+func (t *tierDetails) isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {
 	// If you get a choice and you've made a choice...
-	if len(p.allowedBackupRedundancy) > 1 && pp.BackupRedundancy != "" {
+	if len(t.allowedBackupRedundancy) > 1 && pp.BackupRedundancy != "" {
 		return pp.BackupRedundancy == "geo"
 	}
-	return p.defaultBackupRedundancy == "geo"
+	return t.defaultBackupRedundancy == "geo"
 }
 
-func (p *planSchema) getHardwareFamily(pp dbmsProvisioningParameters) string {
+func (t *tierDetails) getHardwareFamily(pp dbmsProvisioningParameters) string {
 	var hardwareSelection string
 	// If you get a choice and you've made a choice...
-	if len(p.allowedHardware) > 1 && hardwareSelection == "" {
+	if len(t.allowedHardware) > 1 && hardwareSelection == "" {
 		hardwareSelection = pp.HardwareFamily
 	} else {
-		hardwareSelection = p.defaultHardware
+		hardwareSelection = t.defaultHardware
 	}
 	// Translate to a value usable in the ARM templates.
 	// TODO: It might be better for this object not to know so much about how it
@@ -185,21 +185,21 @@ func (p *planSchema) getHardwareFamily(pp dbmsProvisioningParameters) string {
 	return gen5TemplateString
 }
 
-func (p *planSchema) isSSLRequired(pp dbmsProvisioningParameters) bool {
+func (t *tierDetails) isSSLRequired(pp dbmsProvisioningParameters) bool {
 	// If you get a choice and you've made a choice...
-	if len(p.allowedSSLEnforcement) > 1 && pp.SSLEnforcement != "" {
+	if len(t.allowedSSLEnforcement) > 1 && pp.SSLEnforcement != "" {
 		return pp.SSLEnforcement == enabledParamString
 	}
-	return p.defaultSSLEnforcement == enabledParamString
+	return t.defaultSSLEnforcement == enabledParamString
 }
 
-func (p *planSchema) getFirewallRules(
+func (t *tierDetails) getFirewallRules(
 	pp dbmsProvisioningParameters,
 ) []firewallRule {
 	if len(pp.FirewallRules) > 0 {
 		return pp.FirewallRules
 	}
-	return p.defaultFirewallRules
+	return t.defaultFirewallRules
 }
 
 func ipValidator(context, value string) error {
