@@ -24,7 +24,6 @@ type tierDetails struct {
 	tier                    string
 	maxStorage              int64
 	allowedBackupRedundancy []string
-	maxBackupRetention      int64
 	defaultBackupRetention  int64
 }
 
@@ -109,7 +108,7 @@ func generateDBMSPlanSchema(
 		Description:  "Specifies the number of days for backup retention",
 		DefaultValue: ptr.ToInt64(7),
 		MinValue:     ptr.ToInt64(7),
-		MaxValue:     ptr.ToInt64(td.maxBackupRetention),
+		MaxValue:     ptr.ToInt64(35),
 	}
 	if len(td.allowedBackupRedundancy) > 1 {
 		ps["backupRedundancy"] = &service.StringPropertySchema{
