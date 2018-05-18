@@ -57,7 +57,7 @@ func buildGoTemplateParameters(
 		p["sslEnforcement"] = disabledARMString
 	}
 	p["version"] = instance.Service.GetProperties().Extended["version"]
-	p["firewallRules"] = td.getFirewallRules(pp)
+	p["firewallRules"] = getFirewallRules(pp)
 
 	return p, nil
 }

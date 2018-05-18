@@ -18,7 +18,6 @@ const (
 )
 
 type tierDetails struct {
-	defaultFirewallRules    []firewallRule
 	allowedSSLEnforcement   []string
 	defaultSSLEnforcement   string
 	defaultHardware         string
@@ -193,13 +192,19 @@ func (t *tierDetails) isSSLRequired(pp dbmsProvisioningParameters) bool {
 	return t.defaultSSLEnforcement == enabledParamString
 }
 
-func (t *tierDetails) getFirewallRules(
+func getFirewallRules(
 	pp dbmsProvisioningParameters,
 ) []firewallRule {
 	if len(pp.FirewallRules) > 0 {
 		return pp.FirewallRules
 	}
-	return t.defaultFirewallRules
+	return []firewallRule{
+		{
+			Name:    "AllowAzure",
+			StartIP: "0.0.0.0",
+			EndIP:   "0.0.0.0",
+		},
+	}
 }
 
 func ipValidator(context, value string) error {

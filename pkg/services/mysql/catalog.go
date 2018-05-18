@@ -8,13 +8,6 @@ func createBasicPlan(
 	planID string,
 ) *service.PlanProperties {
 	td := tierDetails{
-		defaultFirewallRules: []firewallRule{
-			{
-				Name:    "AllowAzure",
-				StartIP: "0.0.0.0",
-				EndIP:   "0.0.0.0",
-			},
-		},
 		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
 		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
