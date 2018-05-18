@@ -24,7 +24,7 @@ func (d *dbmsManager) ValidateUpdatingParameters(
 	); err != nil {
 		return err
 	}
-	return validateDBMSUpdateParameters(instance.Plan, pp, up)
+	return validateStorageUpdate(pp, up)
 }
 
 func (d *dbmsManager) GetUpdater(service.Plan) (service.Updater, error) {
