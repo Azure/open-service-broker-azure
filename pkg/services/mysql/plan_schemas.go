@@ -24,7 +24,6 @@ type tierDetails struct {
 	tier                    string
 	maxStorage              int64
 	allowedBackupRedundancy []string
-	minBackupRetention      int64
 	maxBackupRetention      int64
 	defaultBackupRetention  int64
 }
@@ -105,13 +104,11 @@ func generateDBMSPlanSchema(
 		MinValue:     ptr.ToInt64(5),
 		MaxValue:     ptr.ToInt64(td.maxStorage),
 	}
-	if td.maxBackupRetention > td.minBackupRetention {
-		ps["backupRetention"] = &service.IntPropertySchema{
-			Description:  "Specifies the number of days for backup retention",
-			DefaultValue: ptr.ToInt64(td.minBackupRetention),
-			MinValue:     ptr.ToInt64(td.minBackupRetention),
-			MaxValue:     ptr.ToInt64(td.maxBackupRetention),
-		}
+	ps["backupRetention"] = &service.IntPropertySchema{
+		Description:  "Specifies the number of days for backup retention",
+		DefaultValue: ptr.ToInt64(7),
+		MinValue:     ptr.ToInt64(7),
+		MaxValue:     ptr.ToInt64(td.maxBackupRetention),
 	}
 	ps["backupRedundancy"] = &service.StringPropertySchema{
 		Description:   "Specifies the backup redundancy",
@@ -138,12 +135,11 @@ func getStorage(pp dbmsProvisioningParameters) int64 {
 	return *pp.Storage
 }
 
-func (t *tierDetails) getBackupRetention(pp dbmsProvisioningParameters) int64 {
-	// If you get a choice and you've made a choice...
-	if t.maxBackupRetention > t.minBackupRetention && pp.BackupRetention != nil {
-		return *pp.BackupRetention
+func getBackupRetention(pp dbmsProvisioningParameters) int64 {
+	if pp.BackupRetention == nil {
+		return 7
 	}
-	return t.defaultBackupRetention
+	return *pp.BackupRetention
 }
 
 func isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {

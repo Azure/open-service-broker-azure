@@ -44,7 +44,7 @@ func buildGoTemplateParameters(
 	p["tier"] = plan.GetProperties().Extended["tier"]
 	p["cores"] = td.getCores(pp)
 	p["storage"] = getStorage(pp) * 1024 //storage is in MB to arm :/
-	p["backupRetention"] = td.getBackupRetention(pp)
+	p["backupRetention"] = getBackupRetention(pp)
 	p["hardwareFamily"] = getHardwareFamily(pp)
 	if isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
