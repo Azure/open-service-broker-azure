@@ -9,43 +9,19 @@ var allInOneARMTemplateBytes = []byte(`
 		"location": {
 			"type": "string"
 		},
-		"serverName": {
-			"type": "string"
-		},
-		"administratorLogin": {
-			"type": "string"
-		},
-		"administratorLoginPassword": {
-			"type": "securestring"
-		},
-		"databaseName": {
-			"type": "string"
-		},
-		"edition": {
-			"type": "string"
-		},
-		"requestedServiceObjectiveName": {
-			"type": "string"
-		},
-		"maxSizeBytes": {
-			"type": "string"
-		},
 		"tags": {
 			"type": "object"
 		}
 	},
-	"variables": {
-		"SQLapiVersion": "2014-04-01"
-	},
 	"resources": [
 		{
 			"type": "Microsoft.Sql/servers",
-			"name": "[parameters('serverName')]",
-			"apiVersion": "[variables('SQLapiVersion')]",
+			"name": "{{ .serverName }}",
+			"apiVersion": "2015-05-01-preview",
 			"location": "[parameters('location')]",
 			"properties": {
-				"administratorLogin": "[parameters('administratorLogin')]",
-				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+				"administratorLogin": "{{ .administratorLogin }}",
+				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
 				"version": "{{.version}}"
 			},
 			"tags": "[parameters('tags')]",
@@ -54,33 +30,35 @@ var allInOneARMTemplateBytes = []byte(`
 				{
 					"type": "firewallrules",
 					"name": "{{.Name}}",
-					"apiVersion": "[variables('SQLapiVersion')]",
+					"apiVersion": "2014-04-01-preview",
 					"location": "[parameters('location')]",
 					"properties": {
 						"startIpAddress": "{{.StartIP}}",
 						"endIpAddress": "{{.EndIP}}"
 					},
 					"dependsOn": [
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+						"Microsoft.Sql/servers/{{ $.serverName }}"
 					]
 				},
 				{{end}}
 				{
 					"type": "databases",
-					"name": "[parameters('databaseName')]",
-					"apiVersion": "[variables('SQLapiVersion')]",
+					"name": "{{ .databaseName }}",
+					"apiVersion": "2017-10-01-preview",
 					"location": "[parameters('location')]",
 					"properties": {
 						"collation": "SQL_Latin1_General_CP1_CI_AS",
-						"edition": "[parameters('edition')]",
-						"requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]",
-						"maxSizeBytes": "[parameters('maxSizeBytes')]"
+						"maxSizeBytes": "{{ .maxSizeBytes }}"
+					},
+					"sku" : {
+						"name" : "{{ .sku }}",
+						"tier" : "{{ .tier }}"
 					},
 					"dependsOn": [
 						{{range .firewallRules}}
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'), '/firewallrules/', '{{.Name}}')]",
+						"Microsoft.Sql/servers/{{ $.serverName }}/firewallrules/{{.Name}}",
 						{{end}}
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+						"Microsoft.Sql/servers/{{ $.serverName }}"
 						
 					],
 					"tags": "[parameters('tags')]"
@@ -91,7 +69,7 @@ var allInOneARMTemplateBytes = []byte(`
 	"outputs": {
 		"fullyQualifiedDomainName": {
 			"type": "string",
-			"value": "[reference(parameters('serverName')).fullyQualifiedDomainName]"
+			"value": "[reference('{{ .serverName}}').fullyQualifiedDomainName]"
 		}
 	}
 }

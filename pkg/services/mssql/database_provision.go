@@ -43,22 +43,19 @@ func (d *databaseManager) deployARMTemplate(
 		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
 		return nil, nil, err
 	}
-	p := map[string]interface{}{ // ARM template params
-		"serverName":   pdt.ServerName,
-		"databaseName": dt.DatabaseName,
-		"edition":      instance.Plan.GetProperties().Extended["edition"],
-		"requestedServiceObjectiveName": instance.Plan.GetProperties().
-			Extended["requestedServiceObjectiveName"],
-		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
+	goTemplateParams, err := buildDatabaseGoTemplateParameters(instance)
+	if err != nil {
+		return nil, nil, err
 	}
+	goTemplateParams["serverName"] = pdt.ServerName
 	// No output, so ignore the output
-	_, err := d.armDeployer.Deploy(
+	_, err = d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.Parent.ResourceGroup,
 		instance.Parent.Location,
 		databaseARMTemplateBytes,
-		nil, // Go template params
-		p,
+		goTemplateParams,
+		map[string]interface{}{}, // empty arm params
 		instance.Tags,
 	)
 	if err != nil {

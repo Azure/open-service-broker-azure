@@ -31,9 +31,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Basic Tier, 5 DTUs, 2GB, 7 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Basic",
-					"requestedServiceObjectiveName": "Basic",
-					"maxSizeBytes":                  "2147483648",
+					"tier":         "Basic",
+					"sku":          "Basic",
+					"maxSizeBytes": "2147483648",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Basic Tier",
@@ -55,9 +55,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Standard Tier, 10 DTUs, 250GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S0",
-					"maxSizeBytes":                  "268435456000",
+					"tier":         "Standard",
+					"sku":          "S0",
+					"maxSizeBytes": "268435456000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
@@ -79,9 +79,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "StandardS1 Tier, 20 DTUs, 250GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S1",
-					"maxSizeBytes":                  "268435456000",
+					"tier":         "Standard",
+					"sku":          "S1",
+					"maxSizeBytes": "268435456000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS1 Tier",
@@ -103,9 +103,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "StandardS2 Tier, 50 DTUs, 250GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S2",
-					"maxSizeBytes":                  "268435456000",
+					"tier":         "Standard",
+					"sku":          "S2",
+					"maxSizeBytes": "268435456000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS2 Tier",
@@ -127,9 +127,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "StandardS3 Tier, 100 DTUs, 250GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S3",
-					"maxSizeBytes":                  "268435456000",
+					"tier":         "Standard",
+					"sku":          "S3",
+					"maxSizeBytes": "268435456000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS3 Tier",
@@ -151,9 +151,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP1 Tier, 125 DTUs, 500GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P1",
-					"maxSizeBytes":                  "536870912000",
+					"tier":         "Premium",
+					"sku":          "P1",
+					"maxSizeBytes": "536870912000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP1 Tier",
@@ -175,9 +175,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP2 Tier, 250 DTUs, 500GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P2",
-					"maxSizeBytes":                  "536870912000",
+					"tier":         "Premium",
+					"sku":          "P2",
+					"maxSizeBytes": "536870912000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP2 Tier",
@@ -199,9 +199,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP4 Tier, 500 DTUs, 500GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P4",
-					"maxSizeBytes":                  "536870912000",
+					"tier":         "Premium",
+					"sku":          "P4",
+					"maxSizeBytes": "536870912000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP4 Tier",
@@ -223,9 +223,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP6 Tier, 1000 DTUs, 500GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P6",
-					"maxSizeBytes":                  "536870912000",
+					"tier":         "Premium",
+					"sku":          "P6",
+					"maxSizeBytes": "536870912000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP6 Tier",
@@ -247,9 +247,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP11 Tier, 1750 DTUs, 1024GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P11",
-					"maxSizeBytes":                  "1099511627776",
+					"tier":         "Premium",
+					"sku":          "P11",
+					"maxSizeBytes": "1099511627776",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP11 Tier",
@@ -328,9 +328,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Basic Tier, 5 DTUs, 2GB, 7 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Basic",
-					"requestedServiceObjectiveName": "Basic",
-					"maxSizeBytes":                  "2147483648",
+					"tier":         "Basic",
+					"sku":          "Basic",
+					"maxSizeBytes": "2147483648",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Basic Tier",
@@ -347,9 +347,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Standard Tier, 10 DTUs, 250GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S0",
-					"maxSizeBytes":                  "268435456000",
+					"tier":         "Standard",
+					"sku":          "S0",
+					"maxSizeBytes": "268435456000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
@@ -366,9 +366,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "StandardS1 Tier, 20 DTUs, 250GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S1",
-					"maxSizeBytes":                  "268435456000",
+					"tier":         "Standard",
+					"sku":          "S1",
+					"maxSizeBytes": "268435456000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS1 Tier",
@@ -385,9 +385,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "StandardS2 Tier, 50 DTUs, 250GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S2",
-					"maxSizeBytes":                  "268435456000",
+					"tier":         "Standard",
+					"sku":          "S2",
+					"maxSizeBytes": "268435456000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS2 Tier",
@@ -404,9 +404,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "StandardS3 Tier, 100 DTUs, 250GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S3",
-					"maxSizeBytes":                  "268435456000",
+					"tier":         "Standard",
+					"sku":          "S3",
+					"maxSizeBytes": "268435456000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "StandardS3 Tier",
@@ -423,9 +423,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP1 Tier, 125 DTUs, 500GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P1",
-					"maxSizeBytes":                  "536870912000",
+					"tier":         "Premium",
+					"sku":          "P1",
+					"maxSizeBytes": "536870912000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP1 Tier",
@@ -442,9 +442,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP2 Tier, 250 DTUs, 500GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P2",
-					"maxSizeBytes":                  "536870912000",
+					"tier":         "Premium",
+					"sku":          "P2",
+					"maxSizeBytes": "536870912000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP2 Tier",
@@ -461,9 +461,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP4 Tier, 500 DTUs, 500GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P4",
-					"maxSizeBytes":                  "536870912000",
+					"tier":         "Premium",
+					"sku":          "P4",
+					"maxSizeBytes": "536870912000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP4 Tier",
@@ -480,9 +480,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP6 Tier, 1000 DTUs, 500GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P6",
-					"maxSizeBytes":                  "536870912000",
+					"tier":         "Premium",
+					"sku":          "P6",
+					"maxSizeBytes": "536870912000",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP6 Tier",
@@ -499,9 +499,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "PremiumP11 Tier, 1750 DTUs, 1024GB, 35 days point-in-time restore",
 				Free:        false,
 				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P11",
-					"maxSizeBytes":                  "1099511627776",
+					"tier":         "Premium",
+					"sku":          "P11",
+					"maxSizeBytes": "1099511627776",
 				},
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "PremiumP11 Tier",

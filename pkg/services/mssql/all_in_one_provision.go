@@ -60,28 +60,24 @@ func (a *allInOneManager) deployARMTemplate(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	p := map[string]interface{}{ // ARM template params
-		"serverName":                 dt.ServerName,
-		"administratorLogin":         dt.AdministratorLogin,
-		"administratorLoginPassword": sdt.AdministratorLoginPassword,
-		"databaseName":               dt.DatabaseName,
-		"edition": instance.Plan.GetProperties().
-			Extended["edition"],
-		"requestedServiceObjectiveName": instance.Plan.GetProperties().
-			Extended["requestedServiceObjectiveName"],
-		"maxSizeBytes": instance.Plan.GetProperties().Extended["maxSizeBytes"],
+	goTemplateParams, err := buildDBMSGoTemplateParameters(instance)
+	if err != nil {
+		return nil, nil, err
 	}
-	goTemplateParams := buildGoTemplateParameters(
-		instance.Service,
-		pp.dbmsProvisioningParams,
-	)
+	dbParams, err := buildDatabaseGoTemplateParameters(instance)
+	if err != nil {
+		return nil, nil, err
+	}
+	for key, value := range dbParams {
+		goTemplateParams[key] = value
+	}
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		allInOneARMTemplateBytes,
 		goTemplateParams,
-		p,
+		map[string]interface{}{}, // empty arm template params
 		instance.Tags,
 	)
 	if err != nil {

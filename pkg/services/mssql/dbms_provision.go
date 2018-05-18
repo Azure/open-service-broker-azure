@@ -46,28 +46,17 @@ func (d *dbmsManager) deployARMTemplate(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	sdt := secureDBMSInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+	goTemplateParams, err := buildDBMSGoTemplateParameters(instance)
+	if err != nil {
 		return nil, nil, err
 	}
-	pp := dbmsProvisioningParams{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-	p := map[string]interface{}{ // ARM template params
-		"serverName":                 dt.ServerName,
-		"administratorLogin":         dt.AdministratorLogin,
-		"administratorLoginPassword": sdt.AdministratorLoginPassword,
-	}
-	goTemplateParams := buildGoTemplateParameters(instance.Service, pp)
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ResourceGroup,
 		instance.Location,
 		dbmsARMTemplateBytes,
 		goTemplateParams,
-		p,
+		map[string]interface{}{},
 		instance.Tags,
 	)
 	if err != nil {
