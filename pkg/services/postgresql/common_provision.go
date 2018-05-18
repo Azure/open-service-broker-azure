@@ -182,7 +182,7 @@ func buildGoTemplateParameters(
 	} else {
 		p["sslEnforcement"] = disabledARMString
 	}
-	p["firewallRules"] = schema.getFirewallRules(pp)
+	p["firewallRules"] = getFirewallRules(pp)
 
 	return p, nil
 }
