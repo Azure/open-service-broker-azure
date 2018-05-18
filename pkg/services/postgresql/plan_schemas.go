@@ -42,80 +42,87 @@ func (t *tierDetails) getSku(pp dbmsProvisioningParameters) string {
 func generateProvisioningParamsSchema(
 	td tierDetails,
 	includeDBParams bool,
-) *service.InputParametersSchema {
-	ps := map[string]service.PropertySchema{}
-	ps["hardwareFamily"] = &service.StringPropertySchema{
+) service.InputParametersSchema {
+	ips := generateUpdatingParamsSchema(td)
+	ips.PropertySchemas["hardwareFamily"] = &service.StringPropertySchema{
 		Description:   "Specifies the compute generation to use for the DBMS",
 		AllowedValues: td.allowedHardware,
 		DefaultValue:  gen5ParamString,
 	}
-	ps["cores"] = &service.IntPropertySchema{
-		Description: "Specifies vCores, which represent the logical " +
-			"CPU of the underlying hardware",
-		AllowedValues: td.allowedCores,
-		DefaultValue:  ptr.ToInt64(td.defaultCores),
-	}
-	ps["storage"] = &service.IntPropertySchema{
-		Description:  "Specifies the storage in GBs",
-		DefaultValue: ptr.ToInt64(10),
-		MinValue:     ptr.ToInt64(5),
-		MaxValue:     ptr.ToInt64(td.maxStorage),
-	}
-	ps["backupRetention"] = &service.IntPropertySchema{
-		Description:  "Specifies the number of days for backup retention",
-		DefaultValue: ptr.ToInt64(7),
-		MinValue:     ptr.ToInt64(7),
-		MaxValue:     ptr.ToInt64(35),
-	}
-	ps["backupRedundancy"] = &service.StringPropertySchema{
+	ips.PropertySchemas["backupRedundancy"] = &service.StringPropertySchema{
 		Description:   "Specifies the backup redundancy",
 		AllowedValues: td.allowedBackupRedundancy,
 		DefaultValue:  "local",
 	}
-	ps["sslEnforcement"] = &service.StringPropertySchema{
-		Description: "Specifies whether the server requires the use of TLS" +
-			" when connecting. Left unspecified, SSL will be enforced",
-		AllowedValues: []string{enabledParamString, disabledParamString},
-		DefaultValue:  enabledParamString,
-	}
-	ps["firewallRules"] = &service.ArrayPropertySchema{
-		Description: "Firewall rules to apply to instance. " +
-			"If left unspecified, defaults to only Azure IPs",
-		ItemsSchema: &service.ObjectPropertySchema{
-			Description: "Individual Firewall Rule",
-			RequiredProperties: []string{
-				"name",
-				"startIPAddress",
-				"endIPAddress",
-			},
-			PropertySchemas: map[string]service.PropertySchema{
-				"name": &service.StringPropertySchema{
-					Description: "Name of firewall rule",
-				},
-				"startIPAddress": &service.StringPropertySchema{
-					Description:             "Start of firewall rule range",
-					CustomPropertyValidator: ipValidator,
-				},
-				"endIPAddress": &service.StringPropertySchema{
-					Description:             "End of firewall rule range",
-					CustomPropertyValidator: ipValidator,
-				},
-			},
-			CustomPropertyValidator: firewallRuleValidator,
-		},
-		DefaultValue: []interface{}{
-			map[string]interface{}{
-				"name":           "AllowAzure",
-				"startIPAddress": "0.0.0.0",
-				"endIPAddress":   "0.0.0.0",
-			},
-		},
-	}
 	if includeDBParams {
-		ps["extensions"] = dbExtensionsSchema
+		ips.PropertySchemas["extensions"] = dbExtensionsSchema
 	}
+	return *ips
+}
+
+func generateUpdatingParamsSchema(
+	td tierDetails,
+) *service.InputParametersSchema {
 	return &service.InputParametersSchema{
-		PropertySchemas: ps,
+		PropertySchemas: map[string]service.PropertySchema{
+			"cores": &service.IntPropertySchema{
+				Description: "Specifies vCores, which represent the logical " +
+					"CPU of the underlying hardware",
+				AllowedValues: td.allowedCores,
+				DefaultValue:  ptr.ToInt64(td.defaultCores),
+			},
+			"storage": &service.IntPropertySchema{
+				Description:  "Specifies the storage in GBs",
+				DefaultValue: ptr.ToInt64(10),
+				MinValue:     ptr.ToInt64(5),
+				MaxValue:     ptr.ToInt64(td.maxStorage),
+			},
+			"backupRetention": &service.IntPropertySchema{
+				Description:  "Specifies the number of days for backup retention",
+				DefaultValue: ptr.ToInt64(7),
+				MinValue:     ptr.ToInt64(7),
+				MaxValue:     ptr.ToInt64(35),
+			},
+			"sslEnforcement": &service.StringPropertySchema{
+				Description: "Specifies whether the server requires the use of TLS" +
+					" when connecting. Left unspecified, SSL will be enforced",
+				AllowedValues: []string{enabledParamString, disabledParamString},
+				DefaultValue:  enabledParamString,
+			},
+			"firewallRules": &service.ArrayPropertySchema{
+				Description: "Firewall rules to apply to instance. " +
+					"If left unspecified, defaults to only Azure IPs",
+				ItemsSchema: &service.ObjectPropertySchema{
+					Description: "Individual Firewall Rule",
+					RequiredProperties: []string{
+						"name",
+						"startIPAddress",
+						"endIPAddress",
+					},
+					PropertySchemas: map[string]service.PropertySchema{
+						"name": &service.StringPropertySchema{
+							Description: "Name of firewall rule",
+						},
+						"startIPAddress": &service.StringPropertySchema{
+							Description:             "Start of firewall rule range",
+							CustomPropertyValidator: ipValidator,
+						},
+						"endIPAddress": &service.StringPropertySchema{
+							Description:             "End of firewall rule range",
+							CustomPropertyValidator: ipValidator,
+						},
+					},
+					CustomPropertyValidator: firewallRuleValidator,
+				},
+				DefaultValue: []interface{}{
+					map[string]interface{}{
+						"name":           "AllowAzure",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "0.0.0.0",
+					},
+				},
+			},
+		},
 	}
 }
 

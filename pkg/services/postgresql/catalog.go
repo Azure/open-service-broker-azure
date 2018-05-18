@@ -32,14 +32,11 @@ func createBasicPlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: *generateProvisioningParamsSchema(
+				ProvisioningParametersSchema: generateProvisioningParamsSchema(
 					td,
 					includeDBParams,
 				),
-				UpdatingParametersSchema: generateProvisioningParamsSchema(
-					td,
-					includeDBParams,
-				),
+				UpdatingParametersSchema: generateUpdatingParamsSchema(td),
 			},
 		},
 	}
@@ -83,14 +80,11 @@ func createGPPlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: *generateProvisioningParamsSchema(
+				ProvisioningParametersSchema: generateProvisioningParamsSchema(
 					td,
 					includeDBParams,
 				),
-				UpdatingParametersSchema: generateProvisioningParamsSchema(
-					td,
-					includeDBParams,
-				),
+				UpdatingParametersSchema: generateUpdatingParamsSchema(td),
 			},
 		},
 	}
@@ -135,14 +129,11 @@ func createMemoryOptimizedPlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: *generateProvisioningParamsSchema(
+				ProvisioningParametersSchema: generateProvisioningParamsSchema(
 					td,
 					includeDBParams,
 				),
-				UpdatingParametersSchema: generateProvisioningParamsSchema(
-					td,
-					includeDBParams,
-				),
+				UpdatingParametersSchema: generateUpdatingParamsSchema(td),
 			},
 		},
 	}
