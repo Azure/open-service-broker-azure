@@ -4,10 +4,26 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (v *dbmsManager) ValidateUpdatingParameters(service.Instance) error {
-	return nil
+func (d *dbmsManager) ValidateUpdatingParameters(
+	instance service.Instance,
+) error {
+	pp := dbmsProvisioningParameters{}
+	if err := service.GetStructFromMap(
+		instance.ProvisioningParameters,
+		&pp,
+	); err != nil {
+		return err
+	}
+	up := dbmsUpdatingParameters{}
+	if err := service.GetStructFromMap(
+		instance.UpdatingParameters,
+		&up,
+	); err != nil {
+		return err
+	}
+	return validateStorageUpdate(pp, up)
 }
 
-func (v *dbmsManager) GetUpdater(service.Plan) (service.Updater, error) {
+func (d *dbmsManager) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater()
 }

@@ -39,92 +39,94 @@ func (t *tierDetails) getSku(pp dbmsProvisioningParameters) string {
 	return sku
 }
 
-func generateDBMSPlanSchema(
+func generateProvisioningParamsSchema(
 	td tierDetails,
 ) service.InputParametersSchema {
-	ps := map[string]service.PropertySchema{}
-	ps["firewallRules"] = &service.ArrayPropertySchema{
-		Description: "Firewall rules to apply to instance. " +
-			"If left unspecified, defaults to only Azure IPs",
-		ItemsSchema: &service.ObjectPropertySchema{
-			Description: "Individual Firewall Rule",
-			RequiredProperties: []string{
-				"name",
-				"startIPAddress",
-				"endIPAddress",
-			},
-			PropertySchemas: map[string]service.PropertySchema{
-				"name": &service.StringPropertySchema{
-					Description: "Name of firewall rule",
-				},
-				"startIPAddress": &service.StringPropertySchema{
-					Description:             "Start of firewall rule range",
-					CustomPropertyValidator: ipValidator,
-				},
-				"endIPAddress": &service.StringPropertySchema{
-					Description:             "End of firewall rule range",
-					CustomPropertyValidator: ipValidator,
-				},
-			},
-			CustomPropertyValidator: firewallRuleValidator,
-		},
-		DefaultValue: []interface{}{
-			map[string]interface{}{
-				"name":           "AllowAzure",
-				"startIPAddress": "0.0.0.0",
-				"endIPAddress":   "0.0.0.0",
-			},
-		},
+	ips := generateUpdatingParamsSchema(td)
+	ips.PropertySchemas["hardwareFamily"] = &service.StringPropertySchema{
+		Description:   "Specifies the compute generation to use for the DBMS",
+		AllowedValues: td.allowedHardware,
+		DefaultValue:  gen5ParamString,
 	}
-	ps["sslEnforcement"] = &service.StringPropertySchema{
-		Description: "Specifies whether the server requires the use of TLS" +
-			" when connecting. Left unspecified, SSL will be enforced",
-		AllowedValues: []string{enabledParamString, disabledParamString},
-		DefaultValue:  enabledParamString,
-	}
-	if len(td.allowedHardware) > 1 {
-		ps["hardwareFamily"] = &service.StringPropertySchema{
-			Description:   "Specifies the compute generation to use for the DBMS",
-			AllowedValues: td.allowedHardware,
-			DefaultValue:  gen5ParamString,
-		}
-	}
-	if len(td.allowedCores) > 1 {
-		ps["cores"] = &service.IntPropertySchema{
-			Description: "Specifies vCores, which represent the logical " +
-				"CPU of the underlying hardware",
-			AllowedValues: td.allowedCores,
-			DefaultValue:  ptr.ToInt64(td.defaultCores),
-		}
-	}
-	ps["storage"] = &service.IntPropertySchema{
-		Description:  "Specifies the storage in GBs",
-		DefaultValue: ptr.ToInt64(10),
-		MinValue:     ptr.ToInt64(5),
-		MaxValue:     ptr.ToInt64(td.maxStorage),
-	}
-	ps["backupRetention"] = &service.IntPropertySchema{
-		Description:  "Specifies the number of days for backup retention",
-		DefaultValue: ptr.ToInt64(7),
-		MinValue:     ptr.ToInt64(7),
-		MaxValue:     ptr.ToInt64(35),
-	}
-	ps["backupRedundancy"] = &service.StringPropertySchema{
+	ips.PropertySchemas["backupRedundancy"] = &service.StringPropertySchema{
 		Description:   "Specifies the backup redundancy",
 		AllowedValues: td.allowedBackupRedundancy,
 		DefaultValue:  "local",
 	}
-	return service.InputParametersSchema{
-		PropertySchemas: ps,
+	return *ips
+}
+
+func generateUpdatingParamsSchema(
+	td tierDetails,
+) *service.InputParametersSchema {
+	return &service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"cores": &service.IntPropertySchema{
+				Description: "Specifies vCores, which represent the logical " +
+					"CPU of the underlying hardware",
+				AllowedValues: td.allowedCores,
+				DefaultValue:  ptr.ToInt64(td.defaultCores),
+			},
+			"storage": &service.IntPropertySchema{
+				Description:  "Specifies the storage in GBs",
+				DefaultValue: ptr.ToInt64(10),
+				MinValue:     ptr.ToInt64(5),
+				MaxValue:     ptr.ToInt64(td.maxStorage),
+			},
+			"backupRetention": &service.IntPropertySchema{
+				Description:  "Specifies the number of days for backup retention",
+				DefaultValue: ptr.ToInt64(7),
+				MinValue:     ptr.ToInt64(7),
+				MaxValue:     ptr.ToInt64(35),
+			},
+			"sslEnforcement": &service.StringPropertySchema{
+				Description: "Specifies whether the server requires the use of TLS" +
+					" when connecting. Left unspecified, SSL will be enforced",
+				AllowedValues: []string{enabledParamString, disabledParamString},
+				DefaultValue:  enabledParamString,
+			},
+			"firewallRules": &service.ArrayPropertySchema{
+				Description: "Firewall rules to apply to instance. " +
+					"If left unspecified, defaults to only Azure IPs",
+				ItemsSchema: &service.ObjectPropertySchema{
+					Description: "Individual Firewall Rule",
+					RequiredProperties: []string{
+						"name",
+						"startIPAddress",
+						"endIPAddress",
+					},
+					PropertySchemas: map[string]service.PropertySchema{
+						"name": &service.StringPropertySchema{
+							Description: "Name of firewall rule",
+						},
+						"startIPAddress": &service.StringPropertySchema{
+							Description:             "Start of firewall rule range",
+							CustomPropertyValidator: ipValidator,
+						},
+						"endIPAddress": &service.StringPropertySchema{
+							Description:             "End of firewall rule range",
+							CustomPropertyValidator: ipValidator,
+						},
+					},
+					CustomPropertyValidator: firewallRuleValidator,
+				},
+				DefaultValue: []interface{}{
+					map[string]interface{}{
+						"name":           "AllowAzure",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "0.0.0.0",
+					},
+				},
+			},
+		},
 	}
 }
 
 func (t *tierDetails) getCores(pp dbmsProvisioningParameters) int64 {
-	// If you get a choice and you've made a choice...
-	if len(t.allowedCores) > 1 && pp.Cores != nil {
-		return *pp.Cores
+	if pp.Cores == nil {
+		return t.defaultCores
 	}
-	return t.defaultCores
+	return *pp.Cores
 }
 
 func getStorage(pp dbmsProvisioningParameters) int64 {
