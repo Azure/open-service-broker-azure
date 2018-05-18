@@ -23,7 +23,6 @@ type tierDetails struct {
 	defaultCores            int64
 	tier                    string
 	maxStorage              int64
-	defaultStorage          int64
 	allowedBackupRedundancy []string
 	defaultBackupRedundancy string
 	minBackupRetention      int64
@@ -104,7 +103,7 @@ func generateDBMSPlanSchema(
 	}
 	ps["storage"] = &service.IntPropertySchema{
 		Description:  "Specifies the storage in GBs",
-		DefaultValue: ptr.ToInt64(td.defaultStorage),
+		DefaultValue: ptr.ToInt64(10),
 		MinValue:     ptr.ToInt64(5),
 		MaxValue:     ptr.ToInt64(td.maxStorage),
 	}
