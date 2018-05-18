@@ -41,7 +41,7 @@ func buildGoTemplateParameters(
 
 	p := map[string]interface{}{}
 	p["sku"] = td.getSku(pp)
-	p["tier"] = plan.GetProperties().Extended["tier"]
+	p["tier"] = td.tierName
 	p["cores"] = td.getCores(pp)
 	p["storage"] = getStorage(pp) * 1024 //storage is in MB to arm :/
 	p["backupRetention"] = getBackupRetention(pp)

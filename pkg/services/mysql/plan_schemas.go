@@ -18,10 +18,11 @@ const (
 )
 
 type tierDetails struct {
+	tierName                string
+	tierShortName           string
 	allowedHardware         []string
 	allowedCores            []int64
 	defaultCores            int64
-	tier                    string
 	maxStorage              int64
 	allowedBackupRedundancy []string
 }
@@ -31,7 +32,7 @@ func (t *tierDetails) getSku(pp dbmsProvisioningParameters) string {
 	// tier + family + cores, e.g. B_Gen4_1, GP_Gen5_8.
 	sku := fmt.Sprintf(
 		"%s_%s_%d",
-		t.tier,
+		t.tierShortName,
 		getHardwareFamily(pp),
 		t.getCores(pp),
 	)
