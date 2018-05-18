@@ -139,10 +139,8 @@ func (a *allInOneManager) setupDatabase(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	schema :=
-		instance.Plan.GetProperties().Extended["tierDetails"].(tierDetails)
 	err := setupDatabase(
-		schema.isSSLRequired(pp.dbmsProvisioningParameters),
+		isSSLRequired(pp.dbmsProvisioningParameters),
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
@@ -171,11 +169,9 @@ func (a *allInOneManager) createExtensions(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
-	schema :=
-		instance.Plan.GetProperties().Extended["tierDetails"].(tierDetails)
 	if len(pp.Extensions) > 0 {
 		err := createExtensions(
-			schema.isSSLRequired(pp.dbmsProvisioningParameters),
+			isSSLRequired(pp.dbmsProvisioningParameters),
 			dt.ServerName,
 			sdt.AdministratorLoginPassword,
 			dt.FullyQualifiedDomainName,

@@ -177,7 +177,7 @@ func buildGoTemplateParameters(
 	p["version"] = version
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
-	if schema.isSSLRequired(pp) {
+	if isSSLRequired(pp) {
 		p["sslEnforcement"] = enabledARMString
 	} else {
 		p["sslEnforcement"] = disabledARMString

@@ -24,7 +24,10 @@ func validateDBMSUpdateParameters(
 	}
 	schema := s.(tierDetails)
 	if up.SSLEnforcement != "" &&
-		!slice.ContainsString(schema.allowedSSLEnforcement, up.SSLEnforcement) {
+		!slice.ContainsString(
+			[]string{enabledParamString, disabledParamString},
+			up.SSLEnforcement,
+		) {
 		return service.NewValidationError(
 			"sslEnforcement",
 			fmt.Sprintf(`invalid option: "%s"`, up.SSLEnforcement),
