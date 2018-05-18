@@ -40,6 +40,15 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 						"Fake 2",
 					},
 				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: service.InputParametersSchema{
+							PropertySchemas: map[string]service.PropertySchema{
+								"someParameter": &service.StringPropertySchema{},
+							},
+						},
+					},
+				},
 			}),
 		),
 	}), nil
