@@ -22,16 +22,9 @@ func (d *databaseManager) Unbind(
 	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
 		return err
 	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters.Data,
-		&ppp,
-	); err != nil {
-		return err
-	}
-	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	return unbind(
-		pSchema.isSSLRequired(ppp),
+		instance.Parent.ProvisioningParameters.GetString("sslEnforcement") ==
+			"enabled",
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,

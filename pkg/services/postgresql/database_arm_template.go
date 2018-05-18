@@ -9,16 +9,6 @@ var databaseARMTemplateBytes = []byte(`
 		"location": {
 			"type": "string"
 		},
-		"serverName": {
-			"type": "string",
-			"minLength": 2,
-			"maxLength": 63
-		},
-		"databaseName": {
-			"type": "string",
-			"minLength": 2,
-			"maxLength": 63
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -30,7 +20,7 @@ var databaseARMTemplateBytes = []byte(`
 		{
 			"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
 			"type": "Microsoft.DBforPostgreSQL/servers/databases",
-			"name": "[concat(parameters('serverName'), '/', parameters('databaseName'))]",
+			"name": "{{.serverName}}/{{.databaseName}}",
 			"properties": {}
 		}
 	],

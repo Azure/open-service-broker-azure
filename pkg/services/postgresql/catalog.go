@@ -7,17 +7,17 @@ func createBasicPlan(
 	includeDBParams bool,
 ) *service.PlanProperties {
 	provisionSchema := planSchema{
-		defaultFirewallRules: []firewallRule{
-			{
-				Name:    "AllowAzure",
-				StartIP: "0.0.0.0",
-				EndIP:   "0.0.0.0",
+		defaultFirewallRules: []interface{}{
+			map[string]interface{}{
+				"name":           "AllowAzure",
+				"startIPAddress": "0.0.0.0",
+				"endIPAddress":   "0.0.0.0",
 			},
 		},
 		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
 		defaultSSLEnforcement:   enabledParamString,
-		allowedHardware:         []string{gen4ParamString, gen5ParamString},
-		defaultHardware:         gen5ParamString,
+		allowedHardware:         []string{"Gen4", "Gen5"},
+		defaultHardware:         "Gen5",
 		allowedCores:            []int64{1, 2},
 		defaultCores:            1,
 		maxStorage:              1024,
@@ -28,15 +28,15 @@ func createBasicPlan(
 		minBackupRetention:      7,
 		maxBackupRetention:      35,
 		defaultBackupRetention:  7,
-		tier: "B",
+		tier: "Basic",
 	}
 
 	updateSchema := planSchema{
-		defaultFirewallRules: []firewallRule{
-			{
-				Name:    "AllowAzure",
-				StartIP: "0.0.0.0",
-				EndIP:   "0.0.0.0",
+		defaultFirewallRules: []interface{}{
+			map[string]interface{}{
+				"name":           "AllowAzure",
+				"startIPAddress": "0.0.0.0",
+				"endIPAddress":   "0.0.0.0",
 			},
 		},
 		allowedSSLEnforcement:  []string{enabledParamString, disabledParamString},
@@ -49,7 +49,7 @@ func createBasicPlan(
 		minBackupRetention:     7,
 		maxBackupRetention:     35,
 		defaultBackupRetention: 7,
-		tier: "B",
+		tier: "Basic",
 	}
 
 	return &service.PlanProperties{
@@ -59,11 +59,6 @@ func createBasicPlan(
 			"I/O performance. Examples include servers used for development or " +
 			"testing or small-scale infrequently used applications.",
 		Free: false,
-		Extended: map[string]interface{}{
-			"provisionSchema": provisionSchema,
-			"updateSchema":    updateSchema,
-			"tier":            "Basic",
-		},
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Basic Tier",
 			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
@@ -91,8 +86,8 @@ func createGPPlan(
 	provisionSchema := planSchema{
 		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
 		defaultSSLEnforcement:   enabledParamString,
-		allowedHardware:         []string{gen4ParamString, gen5ParamString},
-		defaultHardware:         gen5ParamString,
+		allowedHardware:         []string{"Gen4", "Gen5"},
+		defaultHardware:         "Gen5",
 		allowedCores:            []int64{2, 4, 8, 16, 32},
 		defaultCores:            2,
 		maxStorage:              2048,
@@ -103,7 +98,7 @@ func createGPPlan(
 		minBackupRetention:      7,
 		maxBackupRetention:      35,
 		defaultBackupRetention:  7,
-		tier: "GP",
+		tier: "GeneralPurpose",
 	}
 
 	updateSchema := planSchema{
@@ -117,13 +112,7 @@ func createGPPlan(
 		minBackupRetention:     7,
 		maxBackupRetention:     35,
 		defaultBackupRetention: 7,
-		tier: "GP",
-	}
-
-	extendedPlanData := map[string]interface{}{
-		"provisionSchema": provisionSchema,
-		"updateSchema":    updateSchema,
-		"tier":            "GeneralPurpose",
+		tier: "GeneralPurpose",
 	}
 
 	return &service.PlanProperties{
@@ -133,8 +122,7 @@ func createGPPlan(
 			"require balanced compute and memory with scalable I/O throughput. " +
 			"Examples include servers for hosting web and mobile apps and other " +
 			"enterprise applications.",
-		Free:     false,
-		Extended: extendedPlanData,
+		Free: false,
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "General Purpose Tier",
 			Bullets: []string{
@@ -166,8 +154,8 @@ func createMemoryOptimizedPlan(
 	provisionSchema := planSchema{
 		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
 		defaultSSLEnforcement:   enabledParamString,
-		allowedHardware:         []string{gen5ParamString},
-		defaultHardware:         gen5ParamString,
+		allowedHardware:         []string{"Gen5"},
+		defaultHardware:         "Gen5",
 		allowedCores:            []int64{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
@@ -178,7 +166,7 @@ func createMemoryOptimizedPlan(
 		minBackupRetention:      7,
 		maxBackupRetention:      35,
 		defaultBackupRetention:  7,
-		tier: "MO",
+		tier: "MemoryOptimized",
 	}
 
 	updateSchema := planSchema{
@@ -192,13 +180,7 @@ func createMemoryOptimizedPlan(
 		minBackupRetention:     7,
 		maxBackupRetention:     35,
 		defaultBackupRetention: 7,
-		tier: "MO",
-	}
-
-	extendedPlanData := map[string]interface{}{
-		"provisionSchema": provisionSchema,
-		"updateSchema":    updateSchema,
-		"tier":            "MemoryOptimized",
+		tier: "MemoryOptimized",
 	}
 
 	return &service.PlanProperties{
@@ -209,8 +191,7 @@ func createMemoryOptimizedPlan(
 			"processing and higher concurrency. Examples include servers for " +
 			"processing real-time data and high-performance transactional or " +
 			"analytical apps.",
-		Free:     false,
-		Extended: extendedPlanData,
+		Free: false,
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Memory Optimized Tier",
 			Bullets: []string{
@@ -252,9 +233,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
-				Extended: map[string]interface{}{
-					"version": "9.6",
-				},
 			},
 			m.allInOneManager,
 			service.NewPlan(createBasicPlan("09b398f8-f3c1-49ae-b726-459444e22460", true)),
@@ -277,9 +255,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
-				Extended: map[string]interface{}{
-					"version": "9.6",
-				},
 			},
 			m.dbmsManager,
 			service.NewPlan(createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false)),
@@ -302,9 +277,6 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: true,
 				Tags:     []string{"Azure", "PostgreSQL", "Database"},
-				Extended: map[string]interface{}{
-					"version": "9.6",
-				},
 			},
 			m.databaseManager,
 			service.NewPlan(&service.PlanProperties{

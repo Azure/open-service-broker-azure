@@ -7,7 +7,6 @@ import (
 	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
-	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -156,33 +155,49 @@ func createExtensions(
 
 func buildGoTemplateParameters(
 	plan service.Plan,
-	version string,
 	dt dbmsInstanceDetails,
 	sdt secureDBMSInstanceDetails,
-	pp dbmsProvisioningParameters,
+	pp service.Parameters,
 ) (map[string]interface{}, error) {
-
-	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
-
 	p := map[string]interface{}{}
-	p["sku"] = schema.getSku(pp)
-	p["tier"] = plan.GetProperties().Extended["tier"]
-	p["cores"] = schema.getCores(pp)
-	p["storage"] = schema.getStorage(pp) * 1024 //storage is in MB to arm :/
-	p["backupRetention"] = schema.getBackupRetention(pp)
-	p["hardwareFamily"] = schema.getHardwareFamily(pp)
-	if schema.isGeoRedundentBackup(pp) {
+	p["sku"] = getSku(pp)
+	p["tier"] = pp.GetString("tier")
+	p["cores"] = pp.GetInt64("cores")
+	p["storage"] = pp.GetInt64("storage") * 1024 // storage is in MB to arm :/
+	p["backupRetention"] = pp.GetInt64("backupRetention")
+	p["hardwareFamily"] = pp.GetString("hardwareFamily")
+	if pp.GetString("geoRedundantBackup") == "enabled" {
 		p["geoRedundantBackup"] = enabledARMString
 	}
-	p["version"] = version
+	p["version"] = pp.GetString("version")
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
-	if schema.isSSLRequired(pp) {
+	if pp.GetString("sslEnforcement") == "enabled" {
 		p["sslEnforcement"] = enabledARMString
 	} else {
 		p["sslEnforcement"] = disabledARMString
 	}
-	p["firewallRules"] = schema.getFirewallRules(pp)
-
+	p["firewallRules"] = pp.GetArray("firewallRules")
 	return p, nil
+}
+
+func getSku(pp service.Parameters) string {
+	// The name of the sku, typically:
+	// tier + family + cores, e.g. B_Gen4_1, GP_Gen5_8.
+	var tier string
+	switch pp.GetString("tier") {
+	case "Basic":
+		tier = "B"
+	case "GeneralPurpose":
+		tier = "GP"
+	case "MemoryOptimized":
+		tier = "MO"
+	}
+	sku := fmt.Sprintf(
+		"%s_%s_%d",
+		tier,
+		pp.GetString("hardwareFamily"),
+		pp.GetInt64("cores"),
+	)
+	return sku
 }

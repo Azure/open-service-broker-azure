@@ -9,26 +9,25 @@ import (
 
 func TestValidateStorageIncreases(t *testing.T) {
 	sm := &dbmsManager{}
-	pp := service.Parameters{
-		Data: map[string]interface{}{
-			"storage": 10,
+
+	schema := &service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"storage": &service.IntPropertySchema{},
 		},
 	}
-
-	up := service.Parameters{
-		Data: map[string]interface{}{
-			"storage": 20,
-		},
-	}
-
-	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
-	)
-
 	instance := service.Instance{
-		Plan: plan,
-		ProvisioningParameters: pp,
-		UpdatingParameters:     up,
+		ProvisioningParameters: service.Parameters{
+			Schema: schema,
+			Data: map[string]interface{}{
+				"storage": 10,
+			},
+		},
+		UpdatingParameters: service.Parameters{
+			Schema: schema,
+			Data: map[string]interface{}{
+				"storage": 20,
+			},
+		},
 	}
 
 	err := sm.ValidateUpdatingParameters(instance)
@@ -37,26 +36,25 @@ func TestValidateStorageIncreases(t *testing.T) {
 
 func TestValidateStorageDecreaseFails(t *testing.T) {
 	sm := &dbmsManager{}
-	pp := service.Parameters{
-		Data: map[string]interface{}{
-			"storage": 20,
+
+	schema := &service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"storage": &service.IntPropertySchema{},
 		},
 	}
-
-	up := service.Parameters{
-		Data: map[string]interface{}{
-			"storage": 10,
-		},
-	}
-
-	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
-	)
-
 	instance := service.Instance{
-		Plan: plan,
-		ProvisioningParameters: pp,
-		UpdatingParameters:     up,
+		ProvisioningParameters: service.Parameters{
+			Schema: schema,
+			Data: map[string]interface{}{
+				"storage": 20,
+			},
+		},
+		UpdatingParameters: service.Parameters{
+			Schema: schema,
+			Data: map[string]interface{}{
+				"storage": 10,
+			},
+		},
 	}
 
 	err := sm.ValidateUpdatingParameters(instance)

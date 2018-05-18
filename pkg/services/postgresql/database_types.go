@@ -4,10 +4,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-type databaseProvisioningParameters struct {
-	Extensions []string `json:"extensions"`
-}
-
 func (
 	d *databaseManager,
 ) getProvisionParametersSchema() service.InputParametersSchema {

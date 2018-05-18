@@ -6,19 +6,11 @@ import (
 	"net"
 
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-const (
-	gen4TemplateString = "Gen4"
-	gen5TemplateString = "Gen5"
-	gen4ParamString    = "gen4"
-	gen5ParamString    = "gen5"
-)
-
 type planSchema struct {
-	defaultFirewallRules    []firewallRule
+	defaultFirewallRules    []interface{}
 	allowedSSLEnforcement   []string
 	defaultSSLEnforcement   string
 	defaultHardware         string
@@ -36,101 +28,87 @@ type planSchema struct {
 	defaultBackupRetention  int64
 }
 
-func (p *planSchema) getSku(pp dbmsProvisioningParameters) string {
-	// The name of the sku, typically:
-	// tier + family + cores, e.g. B_Gen4_1, GP_Gen5_8.
-	sku := fmt.Sprintf(
-		"%s_%s_%d",
-		p.tier,
-		p.getHardwareFamily(pp),
-		p.getCores(pp),
-	)
-	return sku
-}
-
 func generateDBMSPlanSchema(
 	schema planSchema,
 	includeDBParams bool,
 ) *service.InputParametersSchema {
-	ps := map[string]service.PropertySchema{}
-	ps["firewallRules"] = &service.ArrayPropertySchema{
-		Description: "Firewall rules to apply to instance. " +
-			"If left unspecified, defaults to only Azure IPs",
-		ItemsSchema: &service.ObjectPropertySchema{
-			Description: "Individual Firewall Rule",
-			RequiredProperties: []string{
-				"name",
-				"startIPAddress",
-				"endIPAddress",
-			},
-			PropertySchemas: map[string]service.PropertySchema{
-				"name": &service.StringPropertySchema{
-					Description: "Name of firewall rule",
-				},
-				"startIPAddress": &service.StringPropertySchema{
-					Description:             "Start of firewall rule range",
-					CustomPropertyValidator: ipValidator,
-				},
-				"endIPAddress": &service.StringPropertySchema{
-					Description:             "End of firewall rule range",
-					CustomPropertyValidator: ipValidator,
-				},
-			},
-			CustomPropertyValidator: firewallRuleValidator,
+	ps := map[string]service.PropertySchema{
+		"version": &service.StringPropertySchema{
+			AllowedValues: []string{"9.6"},
+			DefaultValue:  "9.6",
 		},
-		DefaultValue: []interface{}{
-			map[string]interface{}{
-				"name":           "AllowAzure",
-				"startIPAddress": "0.0.0.0",
-				"endIPAddress":   "0.0.0.0",
-			},
+		"tier": &service.StringPropertySchema{
+			Description:   "Specifies the service tier",
+			AllowedValues: []string{schema.tier},
+			DefaultValue:  schema.tier,
 		},
-	}
-	if len(schema.allowedSSLEnforcement) > 1 {
-		ps["sslEnforcement"] = &service.StringPropertySchema{
-			Description: "Specifies whether the server requires the use of TLS" +
-				" when connecting. Left unspecified, SSL will be enforced",
-			AllowedValues: schema.allowedSSLEnforcement,
-			DefaultValue:  schema.defaultSSLEnforcement,
-		}
-	}
-	if len(schema.allowedHardware) > 1 {
-		ps["hardwareFamily"] = &service.StringPropertySchema{
+		"hardwareFamily": &service.StringPropertySchema{
 			Description:   "Specifies the compute generation to use for the DBMS",
 			AllowedValues: schema.allowedHardware,
 			DefaultValue:  schema.defaultHardware,
-		}
-	}
-	if len(schema.allowedCores) > 1 {
-		ps["cores"] = &service.IntPropertySchema{
+		},
+		"cores": &service.IntPropertySchema{
 			Description: "Specifies vCores, which represent the logical " +
 				"CPU of the underlying hardware",
 			AllowedValues: schema.allowedCores,
 			DefaultValue:  ptr.ToInt64(schema.defaultCores),
-		}
-	}
-	if schema.maxStorage > schema.minStorage {
-		ps["storage"] = &service.IntPropertySchema{
+		},
+		"storage": &service.IntPropertySchema{
 			Description:  "Specifies the storage in GBs",
 			DefaultValue: ptr.ToInt64(schema.defaultStorage),
 			MinValue:     ptr.ToInt64(schema.minStorage),
 			MaxValue:     ptr.ToInt64(schema.maxStorage),
-		}
-	}
-	if schema.maxBackupRetention > schema.minBackupRetention {
-		ps["backupRetention"] = &service.IntPropertySchema{
+		},
+		"backupRetention": &service.IntPropertySchema{
 			Description:  "Specifies the number of days for backup retention",
 			DefaultValue: ptr.ToInt64(schema.minBackupRetention),
 			MinValue:     ptr.ToInt64(schema.minBackupRetention),
 			MaxValue:     ptr.ToInt64(schema.maxBackupRetention),
-		}
-	}
-	if len(schema.allowedBackupRedundancy) > 1 {
-		ps["backupRedundancy"] = &service.StringPropertySchema{
+		},
+		"backupRedundancy": &service.StringPropertySchema{
 			Description:   "Specifies the backup redundancy",
 			AllowedValues: schema.allowedBackupRedundancy,
 			DefaultValue:  schema.defaultBackupRedundancy,
-		}
+		},
+		"sslEnforcement": &service.StringPropertySchema{
+			Description: "Specifies whether the server requires the use of TLS" +
+				" when connecting. Left unspecified, SSL will be enforced",
+			AllowedValues: schema.allowedSSLEnforcement,
+			DefaultValue:  schema.defaultSSLEnforcement,
+		},
+		"firewallRules": &service.ArrayPropertySchema{
+			Description: "Firewall rules to apply to instance. " +
+				"If left unspecified, defaults to only Azure IPs",
+			ItemsSchema: &service.ObjectPropertySchema{
+				Description: "Individual Firewall Rule",
+				RequiredProperties: []string{
+					"name",
+					"startIPAddress",
+					"endIPAddress",
+				},
+				PropertySchemas: map[string]service.PropertySchema{
+					"name": &service.StringPropertySchema{
+						Description: "Name of firewall rule",
+					},
+					"startIPAddress": &service.StringPropertySchema{
+						Description:             "Start of firewall rule range",
+						CustomPropertyValidator: ipValidator,
+					},
+					"endIPAddress": &service.StringPropertySchema{
+						Description:             "End of firewall rule range",
+						CustomPropertyValidator: ipValidator,
+					},
+				},
+				CustomPropertyValidator: firewallRuleValidator,
+			},
+			DefaultValue: []interface{}{
+				map[string]interface{}{
+					"name":           "AllowAzure",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "0.0.0.0",
+				},
+			},
+		},
 	}
 	if includeDBParams {
 		ps["extensions"] = dbExtensionsSchema
@@ -138,73 +116,6 @@ func generateDBMSPlanSchema(
 	return &service.InputParametersSchema{
 		PropertySchemas: ps,
 	}
-}
-
-func (p *planSchema) getCores(pp dbmsProvisioningParameters) int64 {
-	// If you get a choice and you've made a choice...
-	if len(p.allowedCores) > 1 && pp.Cores != nil {
-		return *pp.Cores
-	}
-	return p.defaultCores
-}
-
-func (p *planSchema) getStorage(pp dbmsProvisioningParameters) int64 {
-	// If you get a choice and you've made a choice...
-	if p.maxStorage > p.minStorage && pp.Storage != nil {
-		return *pp.Storage
-	}
-	return p.defaultStorage
-}
-
-func (p *planSchema) getBackupRetention(pp dbmsProvisioningParameters) int64 {
-	// If you get a choice and you've made a choice...
-	if p.maxBackupRetention > p.minBackupRetention &&
-		pp.BackupRetention != nil {
-		return *pp.BackupRetention
-	}
-	return p.defaultBackupRetention
-}
-
-func (p *planSchema) isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {
-	// If you get a choice and you've made a choice...
-	if len(p.allowedBackupRedundancy) > 1 && pp.BackupRedundancy != "" {
-		return pp.BackupRedundancy == "geo"
-	}
-	return p.defaultBackupRedundancy == "geo"
-}
-
-func (p *planSchema) getHardwareFamily(pp dbmsProvisioningParameters) string {
-	var hardwareSelection string
-	// If you get a choice and you've made a choice...
-	if len(p.allowedHardware) > 1 && hardwareSelection == "" {
-		hardwareSelection = pp.HardwareFamily
-	} else {
-		hardwareSelection = p.defaultHardware
-	}
-	// Translate to a value usable in the ARM templates.
-	// TODO: It might be better for this object not to know so much about how it
-	// is ultimately used-- i.e. ARM-template-awareness.
-	if hardwareSelection == gen4ParamString {
-		return gen4TemplateString
-	}
-	return gen5TemplateString
-}
-
-func (p *planSchema) isSSLRequired(pp dbmsProvisioningParameters) bool {
-	// If you get a choice and you've made a choice...
-	if len(p.allowedSSLEnforcement) > 1 && pp.SSLEnforcement != "" {
-		return pp.SSLEnforcement == enabledParamString
-	}
-	return p.defaultSSLEnforcement == enabledParamString
-}
-
-func (p *planSchema) getFirewallRules(
-	pp dbmsProvisioningParameters,
-) []firewallRule {
-	if len(pp.FirewallRules) > 0 {
-		return pp.FirewallRules
-	}
-	return p.defaultFirewallRules
 }
 
 func ipValidator(context, value string) error {
