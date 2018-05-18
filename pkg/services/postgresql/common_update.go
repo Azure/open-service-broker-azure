@@ -22,7 +22,7 @@ func validateDBMSUpdateParameters(
 	if !ok {
 		return fmt.Errorf("invalid plan, schema not found")
 	}
-	schema := s.(planSchema)
+	schema := s.(tierDetails)
 	if up.SSLEnforcement != "" &&
 		!slice.ContainsString(schema.allowedSSLEnforcement, up.SSLEnforcement) {
 		return service.NewValidationError(

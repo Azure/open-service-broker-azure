@@ -140,7 +140,7 @@ func (a *allInOneManager) setupDatabase(
 		return nil, nil, err
 	}
 	schema :=
-		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
+		instance.Plan.GetProperties().Extended["tierDetails"].(tierDetails)
 	err := setupDatabase(
 		schema.isSSLRequired(pp.dbmsProvisioningParameters),
 		dt.ServerName,
@@ -172,7 +172,7 @@ func (a *allInOneManager) createExtensions(
 		return nil, nil, err
 	}
 	schema :=
-		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
+		instance.Plan.GetProperties().Extended["tierDetails"].(tierDetails)
 	if len(pp.Extensions) > 0 {
 		err := createExtensions(
 			schema.isSSLRequired(pp.dbmsProvisioningParameters),

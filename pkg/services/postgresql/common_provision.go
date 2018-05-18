@@ -162,7 +162,7 @@ func buildGoTemplateParameters(
 	pp dbmsProvisioningParameters,
 ) (map[string]interface{}, error) {
 
-	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
+	schema := plan.GetProperties().Extended["tierDetails"].(tierDetails)
 
 	p := map[string]interface{}{}
 	p["sku"] = schema.getSku(pp)

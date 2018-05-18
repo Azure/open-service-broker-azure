@@ -29,7 +29,7 @@ func (d *databaseManager) Unbind(
 	); err != nil {
 		return err
 	}
-	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
+	pSchema := instance.Parent.Plan.GetProperties().Extended["tierDetails"].(tierDetails) // nolint: lll
 	return unbind(
 		pSchema.isSSLRequired(ppp),
 		pdt.ServerName,

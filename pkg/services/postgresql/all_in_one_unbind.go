@@ -26,7 +26,7 @@ func (a *allInOneManager) Unbind(
 		return err
 	}
 	schema :=
-		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
+		instance.Plan.GetProperties().Extended["tierDetails"].(tierDetails)
 	return unbind(
 		schema.isSSLRequired(pp.dbmsProvisioningParameters),
 		dt.ServerName,
