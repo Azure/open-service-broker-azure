@@ -124,8 +124,6 @@ func (b *broker) executeUpdatingStep(
 	// No need to merge here, as it was done in the API surface before
 	// the update kicked off
 	instanceCopy.ProvisioningParameters = instanceCopy.UpdatingParameters
-	instanceCopy.SecureProvisioningParameters =
-		instanceCopy.SecureUpdatingParameters
 	if err = b.store.WriteInstance(instanceCopy); err != nil {
 		return nil, b.handleUpdatingError(
 			instanceCopy,

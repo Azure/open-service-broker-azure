@@ -154,23 +154,11 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 
 	serviceManager := svc.GetServiceManager()
 
-	updatingParameters, secureUpdatingParameters, err :=
-		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
-	if err != nil {
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
-	}
-
 	// Merge both sets of update parameters with the instance's provision
 	// params to build the desired update state.
-	updatingParameters = mergeUpdateParameters(
-		instance.ProvisioningParameters,
-		updatingParameters,
-	)
-
-	secureUpdatingParameters = mergeUpdateParameters(
-		instance.SecureProvisioningParameters,
-		secureUpdatingParameters,
+	updatingParameters := mergeUpdateParameters(
+		instance.ProvisioningParameters.Data,
+		updatingRequest.Parameters,
 	)
 
 	// This determines whether the parameters of the update request are already
@@ -178,14 +166,11 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	// updated) instance OR the parameters of the update request are already
 	// reflected in the existing updating parameters of an in-progress update.
 	var existingParams map[string]interface{}
-	var existingSecureParams map[string]interface{}
 	switch instance.Status {
 	case service.InstanceStateProvisioned:
-		existingParams = instance.ProvisioningParameters
-		existingSecureParams = instance.SecureProvisioningParameters
+		existingParams = instance.ProvisioningParameters.Data
 	case service.InstanceStateUpdating:
-		existingParams = instance.UpdatingParameters
-		existingSecureParams = instance.SecureUpdatingParameters
+		existingParams = instance.UpdatingParameters.Data
 	default:
 		// If instance isn't fully provisioned (or updated) and there isn't an
 		// update in-progress, we cannot handle this request. It's a conflict.
@@ -198,17 +183,6 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 		if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
 			needsUpdate = true
 			break
-		}
-	}
-	// Don't bother continuing to look if we already established that an update
-	// is needed.
-	if !needsUpdate {
-		for reqParamKey, reqParamVal := range secureUpdatingParameters {
-			existingVal, ok := existingSecureParams[reqParamKey]
-			if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
-				needsUpdate = true
-				break
-			}
 		}
 	}
 	if needsUpdate {
@@ -261,8 +235,9 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	// This uses module-specific logic to weigh update parameters against current
 	// instance state to detect any invalid state changes. An example of this
 	// might be reducing the amound of storage allocated to a database.
-	instance.UpdatingParameters = updatingParameters
-	instance.SecureUpdatingParameters = secureUpdatingParameters
+	instance.UpdatingParameters = service.Parameters{
+		Data: updatingParameters,
+	}
 	if err := serviceManager.ValidateUpdatingParameters(instance); err != nil {
 		var validationErr *service.ValidationError
 		validationErr, ok = err.(*service.ValidationError)

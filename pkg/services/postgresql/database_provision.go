@@ -45,7 +45,7 @@ func (d *databaseManager) deployARMTemplate(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	armTemplateParameters := map[string]interface{}{
+	goTemplateParameters := map[string]interface{}{
 		"serverName":   pdt.ServerName,
 		"databaseName": dt.DatabaseName,
 	}
@@ -54,8 +54,8 @@ func (d *databaseManager) deployARMTemplate(
 		instance.Parent.ResourceGroup,
 		instance.Parent.Location,
 		databaseARMTemplateBytes,
-		nil, // Go template params
-		armTemplateParameters,
+		goTemplateParameters,
+		map[string]interface{}{}, // ARM template params
 		instance.Tags,
 	)
 	if err != nil {
@@ -82,16 +82,9 @@ func (d *databaseManager) setupDatabase(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return nil, nil, err
-	}
-	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	err := setupDatabase(
-		pSchema.isSSLRequired(ppp),
+		instance.Parent.ProvisioningParameters.GetString("sslEnforcement") ==
+			"enabled",
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
@@ -121,27 +114,20 @@ func (d *databaseManager) createExtensions(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	pp := databaseProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return nil, nil, err
-	}
-	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
-	if len(pp.Extensions) > 0 {
+	extensions := instance.ProvisioningParameters.GetArray("extensions")
+	if len(extensions) > 0 {
+		extensionStrs := make([]string, len(extensions))
+		for i, extension := range extensions {
+			extensionStrs[i], _ = extension.(string)
+		}
 		err := createExtensions(
-			pSchema.isSSLRequired(ppp),
+			instance.Parent.ProvisioningParameters.GetString("sslEnforcement") ==
+				"enabled",
 			pdt.ServerName,
 			spdt.AdministratorLoginPassword,
 			pdt.FullyQualifiedDomainName,
 			dt.DatabaseName,
-			pp.Extensions,
+			extensionStrs,
 		)
 		if err != nil {
 			return nil, nil, err

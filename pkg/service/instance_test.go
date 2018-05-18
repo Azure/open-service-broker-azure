@@ -11,9 +11,6 @@ import (
 )
 
 var (
-	testSecureProvisioningParameters = SecureProvisioningParameters{
-		"foo": fooValue,
-	}
 	testSecureInstanceDetails = SecureInstanceDetails{
 		"foo": fooValue,
 	}
@@ -31,22 +28,18 @@ func init() {
 	parentAlias := "test-parent-alias"
 	tagKey := "foo"
 	tagVal := "bar"
-	provisioningParameters := ProvisioningParameters{
-		"foo": "bar",
+	provisioningParameters := Parameters{
+		Data: map[string]interface{}{
+			"foo": "bar",
+		},
 	}
 	provisioningParametersJSONStr := []byte(`{"foo":"bar"}`)
-	secureProvisioningParameters := SecureProvisioningParameters{
-		"foo": "bar",
-	}
-	encryptedSecureProvisiongingParameters := []byte(`{"foo":"bar"}`)
-	updatingParameters := ProvisioningParameters{
-		"foo": "bat",
+	updatingParameters := Parameters{
+		Data: map[string]interface{}{
+			"foo": "bat",
+		},
 	}
 	updatingParametersJSONStr := []byte(`{"foo":"bat"}`)
-	secureUpdatingParameters := SecureProvisioningParameters{
-		"foo": "bat",
-	}
-	encryptedSecureUpdatingParameters := []byte(`{"foo":"bat"}`)
 	statusReason := "in-progress"
 	details := InstanceDetails{
 		"foo": "baz",
@@ -62,16 +55,12 @@ func init() {
 	}
 
 	testInstance = Instance{
-		InstanceID:                            instanceID,
-		Alias:                                 alias,
-		ServiceID:                             serviceID,
-		PlanID:                                planID,
-		ProvisioningParameters:                provisioningParameters,
-		EncryptedSecureProvisioningParameters: encryptedSecureProvisiongingParameters, // nolint: lll
-		SecureProvisioningParameters:          secureProvisioningParameters,
-		UpdatingParameters:                    updatingParameters,
-		EncryptedSecureUpdatingParameters:     encryptedSecureUpdatingParameters,
-		SecureUpdatingParameters:              secureUpdatingParameters,
+		InstanceID:             instanceID,
+		Alias:                  alias,
+		ServiceID:              serviceID,
+		PlanID:                 planID,
+		ProvisioningParameters: provisioningParameters,
+		UpdatingParameters:     updatingParameters,
 		Status:                 InstanceStateProvisioning,
 		StatusReason:           statusReason,
 		Location:               location,
@@ -84,12 +73,6 @@ func init() {
 		Created:                created,
 	}
 
-	b64EncryptedSecureProvisioningParameters := base64.StdEncoding.EncodeToString(
-		encryptedSecureProvisiongingParameters,
-	)
-	b64EncryptedSecureUpdatingParameters := base64.StdEncoding.EncodeToString(
-		encryptedSecureUpdatingParameters,
-	)
 	b64EncryptedSecureDetails := base64.StdEncoding.EncodeToString(
 		encryptedSecureDetails,
 	)
@@ -101,9 +84,7 @@ func init() {
 			"serviceId":"%s",
 			"planId":"%s",
 			"provisioningParameters":%s,
-			"secureProvisioningParameters":"%s",
 			"updatingParameters":%s,
-			"secureUpdatingParameters":"%s",
 			"status":"%s",
 			"statusReason":"%s",
 			"location":"%s",
@@ -119,9 +100,7 @@ func init() {
 		serviceID,
 		planID,
 		provisioningParametersJSONStr,
-		b64EncryptedSecureProvisioningParameters,
 		updatingParametersJSONStr,
-		b64EncryptedSecureUpdatingParameters,
 		InstanceStateProvisioning,
 		statusReason,
 		location,
@@ -151,34 +130,6 @@ func TestInstanceToJSON(t *testing.T) {
 	assert.Equal(t, testInstanceJSON, json)
 }
 
-func TestEncryptSecureProvisioningParameters(t *testing.T) {
-	instance := Instance{
-		SecureProvisioningParameters: testSecureProvisioningParameters,
-	}
-	var err error
-	instance, err = instance.encryptSecureProvisioningParameters(noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(
-		t,
-		testArbitraryObjectJSON,
-		instance.EncryptedSecureProvisioningParameters,
-	)
-}
-
-func TestEncryptSecureUpdatingParameters(t *testing.T) {
-	instance := Instance{
-		SecureUpdatingParameters: testSecureProvisioningParameters,
-	}
-	var err error
-	instance, err = instance.encryptSecureUpdatingParameters(noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(
-		t,
-		testArbitraryObjectJSON,
-		instance.EncryptedSecureUpdatingParameters,
-	)
-}
-
 func TestEncryptSecureDetails(t *testing.T) {
 	instance := Instance{
 		SecureDetails: testSecureInstanceDetails,
@@ -190,36 +141,6 @@ func TestEncryptSecureDetails(t *testing.T) {
 		t,
 		testArbitraryObjectJSON,
 		instance.EncryptedSecureDetails,
-	)
-}
-
-func TestDecryptSecureProvisioningParameters(t *testing.T) {
-	instance := Instance{
-		EncryptedSecureProvisioningParameters: testArbitraryObjectJSON,
-		SecureProvisioningParameters:          SecureProvisioningParameters{},
-	}
-	var err error
-	instance, err = instance.decryptSecureProvisioningParameters(noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(
-		t,
-		testSecureProvisioningParameters,
-		instance.SecureProvisioningParameters,
-	)
-}
-
-func TestDecryptUpdatingParameters(t *testing.T) {
-	instance := Instance{
-		EncryptedSecureUpdatingParameters: testArbitraryObjectJSON,
-		SecureUpdatingParameters:          SecureProvisioningParameters{},
-	}
-	var err error
-	instance, err = instance.decryptSecureUpdatingParameters(noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(
-		t,
-		testSecureProvisioningParameters,
-		instance.SecureUpdatingParameters,
 	)
 }
 

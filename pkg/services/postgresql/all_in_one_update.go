@@ -10,21 +10,7 @@ import (
 func (a *allInOneManager) ValidateUpdatingParameters(
 	instance service.Instance,
 ) error {
-	pp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.ProvisioningParameters,
-		&pp,
-	); err != nil {
-		return err
-	}
-	up := dbmsUpdatingParameters{}
-	if err := service.GetStructFromMap(
-		instance.UpdatingParameters,
-		&up,
-	); err != nil {
-		return err
-	}
-	return validateDBMSUpdateParameters(instance.Plan, pp, up)
+	return validateStorageUpdate(instance)
 }
 
 func (a *allInOneManager) GetUpdater(service.Plan) (service.Updater, error) {
@@ -48,21 +34,11 @@ func (a *allInOneManager) updateARMTemplate(
 		return nil, nil, err
 	}
 
-	up := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.UpdatingParameters,
-		&up,
-	); err != nil {
-		return nil, nil, err
-	}
-
-	version := instance.Service.GetProperties().Extended["version"].(string)
 	goTemplateParameters, err := buildGoTemplateParameters(
 		instance.Plan,
-		version,
 		dt.dbmsInstanceDetails,
 		sdt.secureDBMSInstanceDetails,
-		up,
+		instance.UpdatingParameters,
 	)
 
 	if err != nil {

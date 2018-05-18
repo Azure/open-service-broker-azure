@@ -176,8 +176,10 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
-		BindingParameters: service.BindingParameters{
-			"someParameter": "foo",
+		BindingParameters: service.Parameters{
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 	}
 	err = s.store.WriteBinding(existingBinding)
@@ -216,8 +218,10 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
-		BindingParameters: service.BindingParameters{
-			"someParameter": "foo",
+		BindingParameters: service.Parameters{
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 		Status: service.BindingStateBound,
 	})
@@ -226,7 +230,7 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		instanceID,
 		bindingID,
 		&BindingRequest{
-			Parameters: service.CombinedBindingParameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},
@@ -277,7 +281,7 @@ func TestBrandNewBinding(t *testing.T) {
 	bindCalled := false
 	m.ServiceManager.BindBehavior = func(
 		service.Instance,
-		service.BindingParameters,
+		service.Parameters,
 	) (service.BindingDetails, service.SecureBindingDetails, error) {
 		bindCalled = true
 		return nil, nil, nil

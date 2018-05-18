@@ -128,21 +128,6 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 
 	serviceManager := instance.Service.GetServiceManager()
 
-	// Split the parameters into those that are sensitive and those that are not
-	bindingParameters, secureBindingParameters, err :=
-		serviceManager.SplitBindingParameters(bindingRequest.Parameters)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Debug(
-			"bad binding request: error decoding parameter map into " +
-				"service-specific parameters",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
-		return
-	}
-
 	binding, ok, err := s.store.GetBinding(bindingID)
 	if err != nil {
 		logFields["error"] = err
@@ -171,11 +156,8 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if reflect.DeepEqual(
-			bindingParameters,
-			binding.BindingParameters,
-		) && reflect.DeepEqual(
-			secureBindingParameters,
-			binding.SecureBindingParameters,
+			bindingRequest.Parameters,
+			binding.BindingParameters.Data,
 		) {
 			// Per the spec, if bound, respond with a 200
 			// Filling in a gap in the spec-- if the status is anything else, we'll
@@ -213,6 +195,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 				return
 			default:
 				// TODO: Write a more detailed response
+				fmt.Println("----> 3")
 				s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 				return
 			}
@@ -221,19 +204,23 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// We land in here if an existing binding was found, but its atrributes
 		// vary from what was requested. The spec requires us to respond with a
 		// 409
+		fmt.Println("----> 4")
 		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 		return
 	}
 
 	// If we get to here, we need to create a new binding.
 
+	bindingParams := service.Parameters{
+		Data: bindingRequest.Parameters,
+	}
+
 	// Starting here, if something goes wrong, we don't know what state service-
 	// specific code has left us in, so we'll attempt to record the error in
 	// the datastore.
 	bindingDetails, secureBindingDetails, err := serviceManager.Bind(
 		instance,
-		bindingParameters,
-		secureBindingParameters,
+		bindingParams,
 	)
 	if err != nil {
 		s.handleBindingError(
@@ -250,13 +237,12 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// Storing the serviceID on the binding gives us a shortcut to finding
 		// the service and therefore the serviceManager later on-- even if the
 		// binding somehow gets orphaned and we can no longer find the instance.
-		ServiceID:               instance.ServiceID,
-		BindingID:               bindingID,
-		BindingParameters:       bindingParameters,
-		SecureBindingParameters: secureBindingParameters,
-		Details:                 bindingDetails,
-		SecureDetails:           secureBindingDetails,
-		Created:                 time.Now(),
+		ServiceID:         instance.ServiceID,
+		BindingID:         bindingID,
+		BindingParameters: bindingParams,
+		Details:           bindingDetails,
+		SecureDetails:     secureBindingDetails,
+		Created:           time.Now(),
 	}
 
 	binding.Status = service.BindingStateBound

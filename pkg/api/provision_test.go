@@ -132,8 +132,10 @@ func TestProvisioningWithExistingInstanceWithDifferentAttributes(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: service.ProvisioningParameters{
-			"someParameter": "foo",
+		ProvisioningParameters: service.Parameters{
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 	}
 	err = s.store.WriteInstance(existingInstance)
@@ -168,8 +170,10 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: service.ProvisioningParameters{
-			"someParameter": "foo",
+		ProvisioningParameters: service.Parameters{
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 		Status: service.InstanceStateProvisioned,
 	})
@@ -182,7 +186,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.CombinedProvisioningParameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},
@@ -204,8 +208,10 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: service.ProvisioningParameters{
-			"someParameter": "foo",
+		ProvisioningParameters: service.Parameters{
+			Data: map[string]interface{}{
+				"someParameter": "foo",
+			},
 		},
 		Status: service.InstanceStateProvisioning,
 	})
@@ -218,7 +224,7 @@ func TestProvisioningWithExistingInstanceWithSameAttributesAndNotFullyProvisione
 		&ProvisioningRequest{
 			ServiceID: fake.ServiceID,
 			PlanID:    fake.StandardPlanID,
-			Parameters: service.CombinedProvisioningParameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},
@@ -271,7 +277,7 @@ func TestValidatingLocationParameterFails(t *testing.T) {
 // 	m.ServiceManager.ProvisioningValidationBehavior =
 // 		func(
 // 			service.Plan,
-// 			service.ProvisioningParameters,
+// 			service.Parameters,
 // 			service.SecureProvisioningParameters,
 // 		) error {
 // 			moduleSpecificValidationCalled = true

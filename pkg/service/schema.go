@@ -101,6 +101,7 @@ type StringPropertySchema struct {
 	AllowedPattern          *regexp.Regexp                `json:"pattern,omitempty"` // nolint: lll
 	CustomPropertyValidator CustomStringPropertyValidator `json:"-"`
 	DefaultValue            string                        `json:"default,omitempty"` // nolint: lll
+	Secure                  bool                          `json:"-"`
 }
 
 // MarshalJSON provides functionality to marshal a StringPropertySchema to JSON

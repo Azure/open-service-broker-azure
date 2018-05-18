@@ -54,10 +54,10 @@ var dbmsARMTemplateBytes = []byte(`
 						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}"
 					],
 					"location": "[parameters('location')]",
-					"name": "{{$rule.Name}}",
+					"name": "{{$rule.name}}",
 					"properties": {
-						"startIpAddress": "{{$rule.StartIP}}",
-						"endIpAddress": "{{$rule.EndIP}}"
+						"startIpAddress": "{{$rule.startIPAddress}}",
+						"endIpAddress": "{{$rule.endIPAddress}}"
 					}
 				}{{if lt $i $count}},{{end}}
 				{{end}}

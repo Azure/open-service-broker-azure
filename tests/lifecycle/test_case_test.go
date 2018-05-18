@@ -23,9 +23,9 @@ type serviceLifecycleTestCase struct {
 	serviceID              string
 	planID                 string
 	location               string
-	provisioningParameters service.CombinedProvisioningParameters
+	provisioningParameters map[string]interface{}
 	parentServiceInstance  *service.Instance
-	bindingParameters      service.CombinedBindingParameters
+	bindingParameters      map[string]interface{}
 	testCredentials        func(credentials map[string]interface{}) error
 	childTestCases         []*serviceLifecycleTestCase
 }
@@ -75,11 +75,7 @@ func (s serviceLifecycleTestCase) execute(
 
 	serviceManager := svc.GetServiceManager()
 
-	pp, spp, err :=
-		serviceManager.SplitProvisioningParameters(s.provisioningParameters)
-	if err != nil {
-		return err
-	}
+	ppSchema := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema
 
 	// Build an instance from test case details
 	instance := service.Instance{
@@ -90,9 +86,11 @@ func (s serviceLifecycleTestCase) execute(
 		Location:  s.location,
 		// Force the resource group to be something known to this test executor
 		// to ensure good cleanup
-		ResourceGroup:                resourceGroup,
-		ProvisioningParameters:       pp,
-		SecureProvisioningParameters: spp,
+		ResourceGroup: resourceGroup,
+		ProvisioningParameters: service.Parameters{
+			Schema: &ppSchema,
+			Data:   s.provisioningParameters,
+		},
 		Parent: s.parentServiceInstance,
 	}
 
@@ -130,17 +128,15 @@ func (s serviceLifecycleTestCase) execute(
 
 	//Only test the binding operations if the service is bindable
 	if svc.IsBindable() {
-		var bp service.BindingParameters
-		var sbp service.SecureBindingParameters
-		bp, sbp, err = serviceManager.SplitBindingParameters(s.bindingParameters)
-		if err != nil {
-			return err
-		}
-
 		// Bind
 		var bd service.BindingDetails
 		var sbd service.SecureBindingDetails
-		bd, sbd, err = serviceManager.Bind(instance, bp, sbp)
+		bd, sbd, err = serviceManager.Bind(
+			instance,
+			service.Parameters{
+				Data: s.bindingParameters,
+			},
+		)
 		if err != nil {
 			return err
 		}

@@ -6,8 +6,7 @@ import (
 
 func (d *databaseManager) Bind(
 	instance service.Instance,
-	_ service.BindingParameters,
-	_ service.SecureBindingParameters,
+	_ service.Parameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	pdt := dbmsInstanceDetails{}
 	if err :=
@@ -23,16 +22,9 @@ func (d *databaseManager) Bind(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return nil, nil, err
-	}
-	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	bd, spd, err := createBinding(
-		pSchema.isSSLRequired(ppp),
+		instance.Parent.ProvisioningParameters.GetString("sslEnforcement") ==
+			"enabled",
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
@@ -62,17 +54,10 @@ func (d *databaseManager) GetCredentials(
 	if err := service.GetStructFromMap(binding.SecureDetails, &sbd); err != nil {
 		return nil, err
 	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return nil, err
-	}
-	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	cred := createCredential(
 		pdt.FullyQualifiedDomainName,
-		pSchema.isSSLRequired(ppp),
+		instance.Parent.ProvisioningParameters.GetString("sslEnforcement") ==
+			"enabled",
 		pdt.ServerName,
 		dt.DatabaseName,
 		bd,

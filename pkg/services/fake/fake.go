@@ -6,15 +6,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-// ProvisioningValidationFunction describes a function used to provide pluggable
-// provisioning validation behavior to the fake implementation of the
-// service.Module interface
-type ProvisioningValidationFunction func(
-	service.Plan,
-	service.ProvisioningParameters,
-	service.SecureProvisioningParameters,
-) error
-
 // UpdatingValidationFunction describes a function used to provide pluggable
 // updating validation behavior to the fake implementation of the
 // service.Module interface
@@ -24,7 +15,7 @@ type UpdatingValidationFunction func(service.Instance) error
 // to the fake implementation of the service.Module interface
 type BindFunction func(
 	service.Instance,
-	service.BindingParameters,
+	service.Parameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error)
 
 // UnbindFunction describes a function used to provide pluggable unbinding
@@ -114,8 +105,7 @@ func (s *ServiceManager) update(
 // Bind synchronously binds to a service
 func (s *ServiceManager) Bind(
 	instance service.Instance,
-	bindingParameters service.BindingParameters,
-	_ service.SecureBindingParameters,
+	bindingParameters service.Parameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	return s.BindBehavior(instance, bindingParameters)
 }
@@ -160,7 +150,7 @@ func defaultUpdatingValidationBehavior(service.Instance) error {
 
 func defaultBindBehavior(
 	service.Instance,
-	service.BindingParameters,
+	service.Parameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	return nil, nil, nil
 }

@@ -34,11 +34,6 @@ func (a *allInOneManager) preProvision(
 	if err != nil {
 		return nil, nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
 	dt := allInOneInstanceDetails{
 		dbmsInstanceDetails: dbmsInstanceDetails{
 			ARMDeploymentName: uuid.NewV4().String(),
@@ -73,20 +68,12 @@ func (a *allInOneManager) deployARMTemplate(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-
-	version := instance.Service.GetProperties().Extended["version"].(string)
 
 	goTemplateParameters, err := buildGoTemplateParameters(
 		instance.Plan,
-		version,
 		dt.dbmsInstanceDetails,
 		sdt.secureDBMSInstanceDetails,
-		pp.dbmsProvisioningParameters,
+		instance.ProvisioningParameters,
 	)
 
 	if err != nil {
@@ -134,15 +121,8 @@ func (a *allInOneManager) setupDatabase(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-	schema :=
-		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
 	err := setupDatabase(
-		schema.isSSLRequired(pp.dbmsProvisioningParameters),
+		instance.ProvisioningParameters.GetString("sslEnforcement") == "enabled",
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,
@@ -166,21 +146,19 @@ func (a *allInOneManager) createExtensions(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-	schema :=
-		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
-	if len(pp.Extensions) > 0 {
+	extensions := instance.ProvisioningParameters.GetArray("extensions")
+	if len(extensions) > 0 {
+		extensionStrs := make([]string, len(extensions))
+		for i, extension := range extensions {
+			extensionStrs[i], _ = extension.(string)
+		}
 		err := createExtensions(
-			schema.isSSLRequired(pp.dbmsProvisioningParameters),
+			instance.ProvisioningParameters.GetString("sslEnforcement") == "enabled",
 			dt.ServerName,
 			sdt.AdministratorLoginPassword,
 			dt.FullyQualifiedDomainName,
 			dt.DatabaseName,
-			pp.Extensions,
+			extensionStrs,
 		)
 		if err != nil {
 			return nil, nil, err

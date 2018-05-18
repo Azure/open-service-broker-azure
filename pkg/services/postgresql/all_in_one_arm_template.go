@@ -53,10 +53,10 @@ var allInOneARMTemplateBytes = []byte(`
 						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}"
 					],
 					"location": "[parameters('location')]",
-					"name": "{{.Name}}",
+					"name": "{{.name}}",
 					"properties": {
-						"startIpAddress": "{{.StartIP}}",
-						"endIpAddress": "{{.EndIP}}"
+						"startIpAddress": "{{.startIPAddress}}",
+						"endIpAddress": "{{.endIPAddress}}"
 					}
 				},
 				{{end}}
@@ -67,7 +67,7 @@ var allInOneARMTemplateBytes = []byte(`
 					"location": "[parameters('location')]",
 					"dependsOn": [
 						{{range .firewallRules}}
-						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}/firewallrules/{{.Name}}",
+						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}/firewallrules/{{.name}}",
 						{{end}}
 						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}"
 					],
