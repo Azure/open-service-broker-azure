@@ -7,12 +7,13 @@ func createBasicPlan(
 	includeDBParams bool,
 ) *service.PlanProperties {
 	td := tierDetails{
+		tierName:                "Basic",
+		tierShortName:           "B",
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		allowedCores:            []int64{1, 2},
 		defaultCores:            1,
 		maxStorage:              1024,
 		allowedBackupRedundancy: []string{"local"},
-		tier: "B",
 	}
 
 	return &service.PlanProperties{
@@ -24,7 +25,6 @@ func createBasicPlan(
 		Free: false,
 		Extended: map[string]interface{}{
 			"tierDetails": td,
-			"tier":        "Basic",
 		},
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Basic Tier",
@@ -51,17 +51,17 @@ func createGPPlan(
 ) *service.PlanProperties {
 
 	td := tierDetails{
+		tierName:                "GeneralPurpose",
+		tierShortName:           "GP",
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		allowedCores:            []int64{2, 4, 8, 16, 32},
 		defaultCores:            2,
 		maxStorage:              2048,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		tier: "GP",
 	}
 
 	extendedPlanData := map[string]interface{}{
 		"tierDetails": td,
-		"tier":        "GeneralPurpose",
 	}
 
 	return &service.PlanProperties{
@@ -102,17 +102,17 @@ func createMemoryOptimizedPlan(
 ) *service.PlanProperties {
 
 	td := tierDetails{
+		tierName:                "MemoryOptimized",
+		tierShortName:           "MO",
 		allowedHardware:         []string{gen5ParamString},
 		allowedCores:            []int64{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		tier: "MO",
 	}
 
 	extendedPlanData := map[string]interface{}{
 		"tierDetails": td,
-		"tier":        "MemoryOptimized",
 	}
 
 	return &service.PlanProperties{
