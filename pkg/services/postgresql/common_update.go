@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	_ "github.com/lib/pq" // Postgres SQL driver
 )
 
 func validateStorageUpdate(
