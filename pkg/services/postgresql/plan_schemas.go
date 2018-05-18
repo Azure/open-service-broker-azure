@@ -83,20 +83,16 @@ func generateDBMSPlanSchema(
 		AllowedValues: []string{enabledParamString, disabledParamString},
 		DefaultValue:  enabledParamString,
 	}
-	if len(td.allowedHardware) > 1 {
-		ps["hardwareFamily"] = &service.StringPropertySchema{
-			Description:   "Specifies the compute generation to use for the DBMS",
-			AllowedValues: td.allowedHardware,
-			DefaultValue:  gen5ParamString,
-		}
+	ps["hardwareFamily"] = &service.StringPropertySchema{
+		Description:   "Specifies the compute generation to use for the DBMS",
+		AllowedValues: td.allowedHardware,
+		DefaultValue:  gen5ParamString,
 	}
-	if len(td.allowedCores) > 1 {
-		ps["cores"] = &service.IntPropertySchema{
-			Description: "Specifies vCores, which represent the logical " +
-				"CPU of the underlying hardware",
-			AllowedValues: td.allowedCores,
-			DefaultValue:  ptr.ToInt64(td.defaultCores),
-		}
+	ps["cores"] = &service.IntPropertySchema{
+		Description: "Specifies vCores, which represent the logical " +
+			"CPU of the underlying hardware",
+		AllowedValues: td.allowedCores,
+		DefaultValue:  ptr.ToInt64(td.defaultCores),
 	}
 	ps["storage"] = &service.IntPropertySchema{
 		Description:  "Specifies the storage in GBs",
@@ -110,12 +106,10 @@ func generateDBMSPlanSchema(
 		MinValue:     ptr.ToInt64(7),
 		MaxValue:     ptr.ToInt64(35),
 	}
-	if len(td.allowedBackupRedundancy) > 1 {
-		ps["backupRedundancy"] = &service.StringPropertySchema{
-			Description:   "Specifies the backup redundancy",
-			AllowedValues: td.allowedBackupRedundancy,
-			DefaultValue:  "local",
-		}
+	ps["backupRedundancy"] = &service.StringPropertySchema{
+		Description:   "Specifies the backup redundancy",
+		AllowedValues: td.allowedBackupRedundancy,
+		DefaultValue:  "local",
 	}
 	if includeDBParams {
 		ps["extensions"] = dbExtensionsSchema
