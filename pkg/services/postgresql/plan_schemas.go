@@ -127,11 +127,10 @@ func generateUpdatingParamsSchema(
 }
 
 func (t *tierDetails) getCores(pp dbmsProvisioningParameters) int64 {
-	// If you get a choice and you've made a choice...
-	if len(t.allowedCores) > 1 && pp.Cores != nil {
-		return *pp.Cores
+	if pp.Cores == nil {
+		return t.defaultCores
 	}
-	return t.defaultCores
+	return *pp.Cores
 }
 
 func getStorage(pp dbmsProvisioningParameters) int64 {
