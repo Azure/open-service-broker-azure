@@ -162,16 +162,16 @@ func buildGoTemplateParameters(
 	pp dbmsProvisioningParameters,
 ) (map[string]interface{}, error) {
 
-	schema := plan.GetProperties().Extended["tierDetails"].(tierDetails)
+	td := plan.GetProperties().Extended["tierDetails"].(tierDetails)
 
 	p := map[string]interface{}{}
-	p["sku"] = schema.getSku(pp)
+	p["sku"] = td.getSku(pp)
 	p["tier"] = plan.GetProperties().Extended["tier"]
-	p["cores"] = schema.getCores(pp)
-	p["storage"] = schema.getStorage(pp) * 1024 //storage is in MB to arm :/
-	p["backupRetention"] = schema.getBackupRetention(pp)
-	p["hardwareFamily"] = schema.getHardwareFamily(pp)
-	if schema.isGeoRedundentBackup(pp) {
+	p["cores"] = td.getCores(pp)
+	p["storage"] = td.getStorage(pp) * 1024 //storage is in MB to arm :/
+	p["backupRetention"] = td.getBackupRetention(pp)
+	p["hardwareFamily"] = td.getHardwareFamily(pp)
+	if td.isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
 	p["version"] = version

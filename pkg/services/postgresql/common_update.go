@@ -22,7 +22,7 @@ func validateDBMSUpdateParameters(
 	if !ok {
 		return fmt.Errorf("invalid plan, schema not found")
 	}
-	schema := s.(tierDetails)
+	td := s.(tierDetails)
 	if up.SSLEnforcement != "" &&
 		!slice.ContainsString(
 			[]string{enabledParamString, disabledParamString},
@@ -88,7 +88,7 @@ func validateDBMSUpdateParameters(
 	}
 
 	// cores
-	if up.Cores != nil && !slice.ContainsInt64(schema.allowedCores, *up.Cores) {
+	if up.Cores != nil && !slice.ContainsInt64(td.allowedCores, *up.Cores) {
 		return service.NewValidationError(
 			"cores",
 			fmt.Sprintf(`invalid value: "%d"`, *up.Cores),
@@ -97,7 +97,7 @@ func validateDBMSUpdateParameters(
 
 	// storage
 	if up.Storage != nil {
-		if *up.Storage < schema.minStorage || *up.Storage > schema.maxStorage {
+		if *up.Storage < td.minStorage || *up.Storage > td.maxStorage {
 			return service.NewValidationError(
 				"storage",
 				fmt.Sprintf(`invalid value: "%d"`, *up.Storage),
@@ -107,8 +107,8 @@ func validateDBMSUpdateParameters(
 
 	// backupRetation
 	if up.BackupRetention != nil &&
-		(*up.BackupRetention < schema.minBackupRetention ||
-			*up.BackupRetention > schema.maxBackupRetention) {
+		(*up.BackupRetention < td.minBackupRetention ||
+			*up.BackupRetention > td.maxBackupRetention) {
 		return service.NewValidationError(
 			"backupRetention",
 			fmt.Sprintf(`invalid value: "%d"`, *up.BackupRetention),
