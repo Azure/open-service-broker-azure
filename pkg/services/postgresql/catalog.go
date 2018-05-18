@@ -6,52 +6,14 @@ func createBasicPlan(
 	planID string,
 	includeDBParams bool,
 ) *service.PlanProperties {
-	provisionSchema := planSchema{
-		defaultFirewallRules: []interface{}{
-			map[string]interface{}{
-				"name":           "AllowAzure",
-				"startIPAddress": "0.0.0.0",
-				"endIPAddress":   "0.0.0.0",
-			},
-		},
-		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:   enabledParamString,
+	td := tierDetails{
 		allowedHardware:         []string{"Gen4", "Gen5"},
-		defaultHardware:         "Gen5",
 		allowedCores:            []int64{1, 2},
 		defaultCores:            1,
 		maxStorage:              1024,
-		minStorage:              5,
-		defaultStorage:          10,
 		allowedBackupRedundancy: []string{"local"},
-		defaultBackupRedundancy: "local",
-		minBackupRetention:      7,
-		maxBackupRetention:      35,
-		defaultBackupRetention:  7,
 		tier: "Basic",
 	}
-
-	updateSchema := planSchema{
-		defaultFirewallRules: []interface{}{
-			map[string]interface{}{
-				"name":           "AllowAzure",
-				"startIPAddress": "0.0.0.0",
-				"endIPAddress":   "0.0.0.0",
-			},
-		},
-		allowedSSLEnforcement:  []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:  enabledParamString,
-		allowedCores:           []int64{1, 2},
-		defaultCores:           1,
-		maxStorage:             1024,
-		minStorage:             5,
-		defaultStorage:         10,
-		minBackupRetention:     7,
-		maxBackupRetention:     35,
-		defaultBackupRetention: 7,
-		tier: "Basic",
-	}
-
 	return &service.PlanProperties{
 		ID:   planID,
 		Name: "basic",
@@ -65,14 +27,11 @@ func createBasicPlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: *generateDBMSPlanSchema(
-					provisionSchema,
+				ProvisioningParametersSchema: generateProvisioningParamsSchema(
+					td,
 					includeDBParams,
 				),
-				UpdatingParametersSchema: generateDBMSPlanSchema(
-					updateSchema,
-					includeDBParams,
-				),
+				UpdatingParametersSchema: generateUpdatingParamsSchema(td),
 			},
 		},
 	}
@@ -82,39 +41,14 @@ func createGPPlan(
 	planID string,
 	includeDBParams bool,
 ) *service.PlanProperties {
-
-	provisionSchema := planSchema{
-		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:   enabledParamString,
+	td := tierDetails{
 		allowedHardware:         []string{"Gen4", "Gen5"},
-		defaultHardware:         "Gen5",
 		allowedCores:            []int64{2, 4, 8, 16, 32},
 		defaultCores:            2,
 		maxStorage:              2048,
-		minStorage:              5,
-		defaultStorage:          10,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		defaultBackupRedundancy: "local",
-		minBackupRetention:      7,
-		maxBackupRetention:      35,
-		defaultBackupRetention:  7,
 		tier: "GeneralPurpose",
 	}
-
-	updateSchema := planSchema{
-		allowedSSLEnforcement:  []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:  enabledParamString,
-		allowedCores:           []int64{2, 4, 8, 16, 32},
-		defaultCores:           2,
-		maxStorage:             2048,
-		minStorage:             5,
-		defaultStorage:         10,
-		minBackupRetention:     7,
-		maxBackupRetention:     35,
-		defaultBackupRetention: 7,
-		tier: "GeneralPurpose",
-	}
-
 	return &service.PlanProperties{
 		ID:   planID,
 		Name: "general-purpose",
@@ -133,14 +67,11 @@ func createGPPlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: *generateDBMSPlanSchema(
-					provisionSchema,
+				ProvisioningParametersSchema: generateProvisioningParamsSchema(
+					td,
 					includeDBParams,
 				),
-				UpdatingParametersSchema: generateDBMSPlanSchema(
-					updateSchema,
-					includeDBParams,
-				),
+				UpdatingParametersSchema: generateUpdatingParamsSchema(td),
 			},
 		},
 	}
@@ -150,39 +81,14 @@ func createMemoryOptimizedPlan(
 	planID string,
 	includeDBParams bool,
 ) *service.PlanProperties {
-
-	provisionSchema := planSchema{
-		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:   enabledParamString,
+	td := tierDetails{
 		allowedHardware:         []string{"Gen5"},
-		defaultHardware:         "Gen5",
 		allowedCores:            []int64{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
-		minStorage:              5,
-		defaultStorage:          10,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		defaultBackupRedundancy: "local",
-		minBackupRetention:      7,
-		maxBackupRetention:      35,
-		defaultBackupRetention:  7,
 		tier: "MemoryOptimized",
 	}
-
-	updateSchema := planSchema{
-		allowedSSLEnforcement:  []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:  enabledParamString,
-		allowedCores:           []int64{2, 4, 8, 16},
-		defaultCores:           2,
-		maxStorage:             2048,
-		minStorage:             5,
-		defaultStorage:         10,
-		minBackupRetention:     7,
-		maxBackupRetention:     35,
-		defaultBackupRetention: 7,
-		tier: "MemoryOptimized",
-	}
-
 	return &service.PlanProperties{
 		ID:   planID,
 		Name: "memory-optimized",
@@ -202,14 +108,11 @@ func createMemoryOptimizedPlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: *generateDBMSPlanSchema(
-					provisionSchema,
+				ProvisioningParametersSchema: generateProvisioningParamsSchema(
+					td,
 					includeDBParams,
 				),
-				UpdatingParametersSchema: generateDBMSPlanSchema(
-					updateSchema,
-					includeDBParams,
-				),
+				UpdatingParametersSchema: generateUpdatingParamsSchema(td),
 			},
 		},
 	}

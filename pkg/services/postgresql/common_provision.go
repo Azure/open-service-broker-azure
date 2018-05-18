@@ -10,13 +10,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const (
-	enabledParamString  = "enabled"
-	disabledParamString = "disabled"
-	enabledARMString    = "Enabled"
-	disabledARMString   = "Disabled"
-)
-
 func getAvailableServerName(
 	ctx context.Context,
 	checkNameAvailabilityClient postgresSDK.CheckNameAvailabilityClient,
@@ -167,15 +160,15 @@ func buildGoTemplateParameters(
 	p["backupRetention"] = pp.GetInt64("backupRetention")
 	p["hardwareFamily"] = pp.GetString("hardwareFamily")
 	if pp.GetString("geoRedundantBackup") == "enabled" {
-		p["geoRedundantBackup"] = enabledARMString
+		p["geoRedundantBackup"] = "Enabled"
 	}
 	p["version"] = pp.GetString("version")
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
 	if pp.GetString("sslEnforcement") == "enabled" {
-		p["sslEnforcement"] = enabledARMString
+		p["sslEnforcement"] = "Enabled"
 	} else {
-		p["sslEnforcement"] = disabledARMString
+		p["sslEnforcement"] = "Disabled"
 	}
 	p["firewallRules"] = pp.GetArray("firewallRules")
 	return p, nil
