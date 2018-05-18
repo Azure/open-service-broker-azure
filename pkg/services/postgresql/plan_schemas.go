@@ -39,7 +39,7 @@ func (t *tierDetails) getSku(pp dbmsProvisioningParameters) string {
 	return sku
 }
 
-func generateDBMSPlanSchema(
+func generateProvisioningParamsSchema(
 	td tierDetails,
 	includeDBParams bool,
 ) *service.InputParametersSchema {
