@@ -51,7 +51,7 @@ func buildGoTemplateParameters(
 	}
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
-	if td.isSSLRequired(pp) {
+	if isSSLRequired(pp) {
 		p["sslEnforcement"] = enabledARMString
 	} else {
 		p["sslEnforcement"] = disabledARMString

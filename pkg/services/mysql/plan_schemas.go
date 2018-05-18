@@ -18,8 +18,6 @@ const (
 )
 
 type tierDetails struct {
-	allowedSSLEnforcement   []string
-	defaultSSLEnforcement   string
 	defaultHardware         string
 	allowedHardware         []string
 	allowedCores            []int64
@@ -84,13 +82,11 @@ func generateDBMSPlanSchema(
 			},
 		},
 	}
-	if len(td.allowedSSLEnforcement) > 1 {
-		ps["sslEnforcement"] = &service.StringPropertySchema{
-			Description: "Specifies whether the server requires the use of TLS" +
-				" when connecting. Left unspecified, SSL will be enforced",
-			AllowedValues: td.allowedSSLEnforcement,
-			DefaultValue:  td.defaultSSLEnforcement,
-		}
+	ps["sslEnforcement"] = &service.StringPropertySchema{
+		Description: "Specifies whether the server requires the use of TLS" +
+			" when connecting. Left unspecified, SSL will be enforced",
+		AllowedValues: []string{enabledParamString, disabledParamString},
+		DefaultValue:  enabledParamString,
 	}
 	if len(td.allowedHardware) > 1 {
 		ps["hardwareFamily"] = &service.StringPropertySchema{
@@ -184,12 +180,8 @@ func (t *tierDetails) getHardwareFamily(pp dbmsProvisioningParameters) string {
 	return gen5TemplateString
 }
 
-func (t *tierDetails) isSSLRequired(pp dbmsProvisioningParameters) bool {
-	// If you get a choice and you've made a choice...
-	if len(t.allowedSSLEnforcement) > 1 && pp.SSLEnforcement != "" {
-		return pp.SSLEnforcement == enabledParamString
-	}
-	return t.defaultSSLEnforcement == enabledParamString
+func isSSLRequired(pp dbmsProvisioningParameters) bool {
+	return pp.SSLEnforcement != disabledParamString
 }
 
 func getFirewallRules(

@@ -8,8 +8,6 @@ func createBasicPlan(
 	planID string,
 ) *service.PlanProperties {
 	td := tierDetails{
-		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		defaultHardware:         gen5ParamString,
 		allowedCores:            []int64{1, 2},
@@ -53,8 +51,6 @@ func createGPPlan(
 ) *service.PlanProperties {
 
 	td := tierDetails{
-		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		defaultHardware:         gen5ParamString,
 		allowedCores:            []int64{2, 4, 8, 16, 32},
@@ -104,8 +100,6 @@ func createMemoryOptimizedPlan(
 ) *service.PlanProperties {
 
 	td := tierDetails{
-		allowedSSLEnforcement:   []string{enabledParamString, disabledParamString},
-		defaultSSLEnforcement:   enabledParamString,
 		allowedHardware:         []string{gen5ParamString},
 		defaultHardware:         gen5ParamString,
 		allowedCores:            []int64{2, 4, 8, 16},

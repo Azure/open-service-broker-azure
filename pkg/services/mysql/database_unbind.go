@@ -33,9 +33,8 @@ func (d *databaseManager) Unbind(
 	); err != nil {
 		return err
 	}
-	td := instance.Parent.Plan.GetProperties().Extended["tierDetails"].(tierDetails) // nolint: lll
 	return unbind(
-		td.isSSLRequired(ppp),
+		isSSLRequired(ppp),
 		d.sqlDatabaseDNSSuffix,
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,

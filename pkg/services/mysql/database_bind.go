@@ -30,9 +30,8 @@ func (d *databaseManager) Bind(
 	); err != nil {
 		return nil, nil, err
 	}
-	td := instance.Parent.Plan.GetProperties().Extended["tierDetails"].(tierDetails) // nolint: lll
 	return createBinding(
-		td.isSSLRequired(ppp),
+		isSSLRequired(ppp),
 		d.sqlDatabaseDNSSuffix,
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
@@ -69,10 +68,9 @@ func (d *databaseManager) GetCredentials(
 	); err != nil {
 		return nil, err
 	}
-	td := instance.Parent.Plan.GetProperties().Extended["tierDetails"].(tierDetails) // nolint: lll
 	creds := createCredential(
 		pdt.FullyQualifiedDomainName,
-		td.isSSLRequired(ppp),
+		isSSLRequired(ppp),
 		pdt.ServerName,
 		dt.DatabaseName,
 		bd,
