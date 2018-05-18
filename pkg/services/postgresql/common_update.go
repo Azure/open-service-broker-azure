@@ -107,7 +107,7 @@ func validateDBMSUpdateParameters(
 
 	// backupRetation
 	if up.BackupRetention != nil &&
-		(*up.BackupRetention < td.minBackupRetention ||
+		(*up.BackupRetention < 7 ||
 			*up.BackupRetention > td.maxBackupRetention) {
 		return service.NewValidationError(
 			"backupRetention",
