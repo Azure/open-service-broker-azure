@@ -7,7 +7,6 @@ import (
 	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
-	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -162,27 +161,27 @@ func buildGoTemplateParameters(
 	pp dbmsProvisioningParameters,
 ) (map[string]interface{}, error) {
 
-	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
+	td := plan.GetProperties().Extended["tierDetails"].(tierDetails)
 
 	p := map[string]interface{}{}
-	p["sku"] = schema.getSku(pp)
-	p["tier"] = plan.GetProperties().Extended["tier"]
-	p["cores"] = schema.getCores(pp)
-	p["storage"] = schema.getStorage(pp) * 1024 //storage is in MB to arm :/
-	p["backupRetention"] = schema.getBackupRetention(pp)
-	p["hardwareFamily"] = schema.getHardwareFamily(pp)
-	if schema.isGeoRedundentBackup(pp) {
+	p["sku"] = td.getSku(pp)
+	p["tier"] = td.tierName
+	p["cores"] = td.getCores(pp)
+	p["storage"] = getStorage(pp) * 1024 //storage is in MB to arm :/
+	p["backupRetention"] = getBackupRetention(pp)
+	p["hardwareFamily"] = getHardwareFamily(pp)
+	if isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
 	p["version"] = version
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
-	if schema.isSSLRequired(pp) {
+	if isSSLRequired(pp) {
 		p["sslEnforcement"] = enabledARMString
 	} else {
 		p["sslEnforcement"] = disabledARMString
 	}
-	p["firewallRules"] = schema.getFirewallRules(pp)
+	p["firewallRules"] = getFirewallRules(pp)
 
 	return p, nil
 }

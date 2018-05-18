@@ -24,7 +24,7 @@ func (a *allInOneManager) ValidateUpdatingParameters(
 	); err != nil {
 		return err
 	}
-	return validateDBMSUpdateParameters(instance.Plan, pp, up)
+	return validateStorageUpdate(pp, up)
 }
 
 func (a *allInOneManager) GetUpdater(service.Plan) (service.Updater, error) {
