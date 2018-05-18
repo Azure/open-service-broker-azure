@@ -13,7 +13,6 @@ func createBasicPlan(
 		defaultCores:            1,
 		maxStorage:              1024,
 		allowedBackupRedundancy: []string{"local"},
-		maxBackupRetention:      35,
 		defaultBackupRetention:  7,
 		tier: "B",
 	}
@@ -51,7 +50,6 @@ func createGPPlan(
 		defaultCores:            2,
 		maxStorage:              2048,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		maxBackupRetention:      35,
 		defaultBackupRetention:  7,
 		tier: "GP",
 	}
@@ -95,7 +93,6 @@ func createMemoryOptimizedPlan(
 		defaultCores:            2,
 		maxStorage:              2048,
 		allowedBackupRedundancy: []string{"local", "geo"},
-		maxBackupRetention:      35,
 		defaultBackupRetention:  7,
 		tier: "MO",
 	}
