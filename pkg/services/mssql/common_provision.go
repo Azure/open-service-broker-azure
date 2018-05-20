@@ -70,7 +70,7 @@ func buildTierDetailsGoTemplateParameters(
 	dt, ok := instance.Plan.GetProperties().Extended["tierDetails"]
 	if ok {
 		details := dt.(planDetails)
-		p, err = details.getProvisionParameters(instance)
+		p, err = details.getTierProvisionParameters(instance)
 		if err != nil {
 			return nil, err
 		}

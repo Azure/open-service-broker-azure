@@ -2,8 +2,79 @@ package mssql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
+func buildGeneralPurposePlan(
+	id string,
+	includesDBMS bool,
+) *service.PlanProperties {
+	gpDetails := vCorePlanDetails{
+		tier:          "GeneralPurpose",
+		tierShortName: "GP",
+		includesDBMS:  includesDBMS,
+	}
+	return &service.PlanProperties{
+		ID:          id,
+		Name:        "general-purpose",
+		Description: "Scalable compute and storage options for budget-oriented applications",
+		Free:        false,
+		Extended: map[string]interface{}{
+			"tierDetails": gpDetails,
+		},
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "General Purpose",
+			Bullets: []string{
+				"Up to 80 vCores",
+				"Up to 440 GB memory",
+				"$187.62 / vCore",
+				"7 days point-in-time restore",
+				"Currently In Preview",
+			},
+		},
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: gpDetails.getProvisionSchema(),
+			},
+		},
+	}
+}
+
+func buildBusinessCriticalPlan(
+	id string,
+	includesDBMS bool,
+) *service.PlanProperties {
+	bcDetails := vCorePlanDetails{
+		tier:          "BusinessCritical",
+		tierShortName: "BC",
+		includesDBMS:  includesDBMS,
+	}
+	return &service.PlanProperties{
+		ID:          id,
+		Name:        "business-critical",
+		Description: "For applications with high transaction rate and highly resilient to failure",
+		Free:        false,
+		Extended: map[string]interface{}{
+			"tierDetails": bcDetails,
+		},
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Basic Tier",
+			Bullets: []string{
+				"Up to 80 vCores",
+				"Up to 440 GB memory",
+				"$505.50 / vCore",
+				"7 days point-in-time restore",
+				"Currently In Preview",
+			},
+		},
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: bcDetails.getProvisionSchema(),
+			},
+		},
+	}
+}
+
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
+
 	return service.NewCatalog([]service.Service{
 		// all-in-one (dbms and database) service
 		service.NewService(
@@ -284,6 +355,18 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					},
 				},
 			}),
+			service.NewPlan(
+				buildGeneralPurposePlan(
+					"c77e86af-f050-4457-a2ff-2b48451888f3",
+					true,
+				),
+			),
+			service.NewPlan(
+				buildBusinessCriticalPlan(
+					"ebc3ae35-91bc-480c-807b-e798c1ca8c4e",
+					true,
+				),
+			),
 		),
 		// dbms only service
 		service.NewService(
@@ -551,6 +634,18 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					},
 				},
 			}),
+			service.NewPlan(
+				buildGeneralPurposePlan(
+					"da591616-77a1-4df8-a493-6c119649bc6b",
+					false,
+				),
+			),
+			service.NewPlan(
+				buildBusinessCriticalPlan(
+					"b05c25d2-1d63-4d09-a50a-e68c2710a069",
+					false,
+				),
+			),
 		),
 	}), nil
 }

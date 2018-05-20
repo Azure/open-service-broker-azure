@@ -7,6 +7,11 @@ type databaseInstanceDetails struct {
 	DatabaseName      string `json:"database"`
 }
 
+type databaseProvisionParams struct {
+	Cores   *int64 `json:"cores"`
+	Storage *int64 `json:"storage"`
+}
+
 func (d *databaseManager) SplitProvisioningParameters(
 	cpp service.CombinedProvisioningParameters,
 ) (
@@ -14,7 +19,12 @@ func (d *databaseManager) SplitProvisioningParameters(
 	service.SecureProvisioningParameters,
 	error,
 ) {
-	return nil, nil, nil
+	pp := databaseProvisionParams{}
+	if err := service.GetStructFromMap(cpp, &pp); err != nil {
+		return nil, nil, err
+	}
+	ppMap, err := service.GetMapFromStruct(pp)
+	return ppMap, nil, err
 }
 
 func (d *databaseManager) SplitBindingParameters(

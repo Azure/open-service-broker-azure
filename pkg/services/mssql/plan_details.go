@@ -5,12 +5,25 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+)
+
+const (
+	defaultCores          = 2
+	defaultStorageInGB    = 5
+	defaultStorageInBytes = 5368709120
+	maxStorageInBytes     = 1099511627776
+	maxStorageInGB        = 1024
+
+	gen5Hardware = "Gen5"
 )
 
 type planDetails interface {
 	getProvisionSchema() service.InputParametersSchema
-	getProvisionParameters(service.Instance) (map[string]interface{}, error)
+	getTierProvisionParameters(
+		service.Instance,
+	) (map[string]interface{}, error)
 }
 
 type legacyPlanDetails struct {
@@ -23,7 +36,7 @@ func (l legacyPlanDetails) getProvisionSchema() service.InputParametersSchema {
 	return getDBMSCommonProvisionParamSchema()
 }
 
-func (l legacyPlanDetails) getProvisionParameters(
+func (l legacyPlanDetails) getTierProvisionParameters(
 	instance service.Instance,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
@@ -31,6 +44,87 @@ func (l legacyPlanDetails) getProvisionParameters(
 	p["tier"] = l.tier
 	p["maxSizeBytes"] = l.maxStorage
 	return p, nil
+}
+
+type vCorePlanDetails struct {
+	tier          string
+	tierShortName string
+	includesDBMS  bool
+}
+
+func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
+	schema := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"cores": service.IntPropertySchema{
+				AllowedValues: []int64{2, 4, 8, 16, 24, 32, 48, 80},
+				DefaultValue:  ptr.ToInt64(defaultCores),
+				Description:   "A virtual core represents the logical CPU",
+			},
+			"storage": service.FloatPropertySchema{
+				MinValue:     ptr.ToFloat64(defaultStorageInGB),
+				MaxValue:     ptr.ToFloat64(maxStorageInGB),
+				DefaultValue: ptr.ToFloat64(defaultStorageInGB),
+				Description:  "The maximum data storage capacity",
+			},
+			"hardwareFamily": service.StringPropertySchema{
+				AllowedValues: []string{"gen4", "gen5"},
+				DefaultValue:  "gen5",
+				Description: "Specifies the compute generation to use for " +
+					"new instance",
+			},
+		},
+	}
+
+	// Include the DBMS params here if the plan details call for it
+	if v.includesDBMS {
+		dbmsSchema := getDBMSCommonProvisionParamSchema().PropertySchemas
+		for key, value := range dbmsSchema {
+			schema.PropertySchemas[key] = value
+		}
+	}
+	return schema
+}
+
+func (v vCorePlanDetails) getTierProvisionParameters(
+	instance service.Instance,
+) (map[string]interface{}, error) {
+	pp := databaseProvisionParams{}
+	if err := service.GetStructFromMap(
+		instance.ProvisioningParameters,
+		&pp,
+	); err != nil {
+		return nil, err
+	}
+	p := map[string]interface{}{}
+	p["sku"] = v.getSKU(pp)
+	p["tier"] = v.tier
+	p["maxSizeBytes"] = getStorageInBytes(pp)
+	return p, nil
+}
+
+func (v vCorePlanDetails) getSKU(pp databaseProvisionParams) string {
+	return fmt.Sprintf(
+		"%s_%s_%d",
+		v.tierShortName,
+		gen5Hardware,
+		getCores(pp),
+	)
+}
+
+func getCores(pp databaseProvisionParams) int64 {
+	if pp.Cores != nil {
+		return *pp.Cores
+	}
+	return defaultCores
+}
+
+func getStorageInBytes(pp databaseProvisionParams) int64 {
+	if pp.Storage != nil {
+		storageGB := *pp.Storage
+		return storageGB * 1024 * 1024 * 1024
+	}
+	return defaultStorageInBytes
+
 }
 
 func ipValidator(context, value string) error {
