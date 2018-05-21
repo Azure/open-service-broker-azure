@@ -141,6 +141,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 				http.StatusBadRequest,
 				generateValidationFailedResponse(validationErr),
 			)
+			return
 		}
 		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 		return
