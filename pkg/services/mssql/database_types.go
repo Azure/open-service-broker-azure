@@ -9,6 +9,7 @@ type databaseInstanceDetails struct {
 
 type databaseProvisionParams struct {
 	Cores   *int64 `json:"cores"`
+	DTUs    *int64 `json:"dtu"`
 	Storage *int64 `json:"storage"`
 }
 

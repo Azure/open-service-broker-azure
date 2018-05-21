@@ -10,11 +10,10 @@ import (
 )
 
 const (
-	defaultCores          = 2
-	defaultStorageInGB    = 5
-	defaultStorageInBytes = 5368709120
-	maxStorageInBytes     = 1099511627776
-	maxStorageInGB        = 1024
+	defaultCores            = 2
+	defaultVCoreStorageInGB = 5
+	maxStorageInBytes       = 1099511627776
+	maxStorageInGB          = 1024
 
 	gen5Hardware = "Gen5"
 )
@@ -26,24 +25,63 @@ type planDetails interface {
 	) (map[string]interface{}, error)
 }
 
-type legacyPlanDetails struct {
-	sku        string
-	tier       string
-	maxStorage int64
+type dtuPlanDetails struct {
+	//sku        string
+	tier        string
+	skuMap      map[int64]string
+	allowedDTUs []int64
+	defaultDTUs int64
+	storageInGB int64
+	includeDBMS bool
 }
 
-func (l legacyPlanDetails) getProvisionSchema() service.InputParametersSchema {
-	return getDBMSCommonProvisionParamSchema()
+func addDBMSParameters(schema map[string]service.PropertySchema) {
+	dbmsSchema := getDBMSCommonProvisionParamSchema().PropertySchemas
+	for key, value := range dbmsSchema {
+		schema[key] = value
+	}
 }
 
-func (l legacyPlanDetails) getTierProvisionParameters(
+func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
+	schema := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{},
+	}
+	if len(d.allowedDTUs) > 0 { //basic doesn't have DTUs, so don't add if not set
+		schema.PropertySchemas["dtu"] = service.IntPropertySchema{
+			AllowedValues: d.allowedDTUs,
+			DefaultValue:  ptr.ToInt64(d.defaultDTUs),
+			Description: "DTUs are a bundled measure of compute, " +
+				"storage, and IO resources.",
+		}
+	}
+	if d.includeDBMS {
+		addDBMSParameters(schema.PropertySchemas)
+	}
+	return schema
+}
+
+func (d dtuPlanDetails) getTierProvisionParameters(
 	instance service.Instance,
 ) (map[string]interface{}, error) {
+	pp := databaseProvisionParams{}
+	if err := service.GetStructFromMap(
+		instance.ProvisioningParameters,
+		&pp,
+	); err != nil {
+		return nil, err
+	}
 	p := map[string]interface{}{}
-	p["sku"] = l.sku
-	p["tier"] = l.tier
-	p["maxSizeBytes"] = l.maxStorage
+	p["sku"] = d.getSKU(pp)
+	p["tier"] = d.tier
+	p["maxSizeBytes"] = convertBytesToGB(d.storageInGB)
 	return p, nil
+}
+
+func (d dtuPlanDetails) getSKU(pp databaseProvisionParams) string {
+	if pp.Cores != nil {
+		return d.skuMap[*pp.Cores]
+	}
+	return d.skuMap[d.defaultDTUs]
 }
 
 type vCorePlanDetails struct {
@@ -61,26 +99,17 @@ func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
 				Description:   "A virtual core represents the logical CPU",
 			},
 			"storage": service.FloatPropertySchema{
-				MinValue:     ptr.ToFloat64(defaultStorageInGB),
+				MinValue:     ptr.ToFloat64(defaultVCoreStorageInGB),
 				MaxValue:     ptr.ToFloat64(maxStorageInGB),
-				DefaultValue: ptr.ToFloat64(defaultStorageInGB),
-				Description:  "The maximum data storage capacity",
-			},
-			"hardwareFamily": service.StringPropertySchema{
-				AllowedValues: []string{"gen4", "gen5"},
-				DefaultValue:  "gen5",
-				Description: "Specifies the compute generation to use for " +
-					"new instance",
+				DefaultValue: ptr.ToFloat64(defaultVCoreStorageInGB),
+				Description:  "The maximum data storage capacity (in GB)",
 			},
 		},
 	}
 
 	// Include the DBMS params here if the plan details call for it
 	if v.includesDBMS {
-		dbmsSchema := getDBMSCommonProvisionParamSchema().PropertySchemas
-		for key, value := range dbmsSchema {
-			schema.PropertySchemas[key] = value
-		}
+		addDBMSParameters(schema.PropertySchemas)
 	}
 	return schema
 }
@@ -98,7 +127,7 @@ func (v vCorePlanDetails) getTierProvisionParameters(
 	p := map[string]interface{}{}
 	p["sku"] = v.getSKU(pp)
 	p["tier"] = v.tier
-	p["maxSizeBytes"] = getStorageInBytes(pp)
+	p["maxSizeBytes"] = getStorageInBytes(defaultVCoreStorageInGB, pp)
 	return p, nil
 }
 
@@ -118,12 +147,19 @@ func getCores(pp databaseProvisionParams) int64 {
 	return defaultCores
 }
 
-func getStorageInBytes(pp databaseProvisionParams) int64 {
+func convertBytesToGB(gb int64) int64 {
+	return gb * 1024 * 1024 * 1024
+}
+
+func getStorageInBytes(
+	defaultStorage int64,
+	pp databaseProvisionParams,
+) int64 {
 	if pp.Storage != nil {
 		storageGB := *pp.Storage
-		return storageGB * 1024 * 1024 * 1024
+		return convertBytesToGB(storageGB)
 	}
-	return defaultStorageInBytes
+	return convertBytesToGB(defaultStorage)
 
 }
 

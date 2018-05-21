@@ -19,9 +19,10 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 		group:     "mssql",
 		name:      "all-in-one",
 		serviceID: "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
-		planID:    "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
+		planID:    "2497b7f3-341b-4ac6-82fb-d4a48c005e19",
 		location:  "southcentralus",
 		provisioningParameters: service.CombinedProvisioningParameters{
+			"dtu": int64(200),
 			"firewallRules": []interface{}{
 				map[string]interface{}{
 					"name":           "AllowSome",
@@ -74,14 +75,13 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 		planID:    "c77e86af-f050-4457-a2ff-2b48451888f3",
 		location:  "eastus",
 		provisioningParameters: service.CombinedProvisioningParameters{
-			"alias": mssqlDBMSAlias,
+			"cores":   int64(4),
+			"storage": int64(25),
 			"firewallRules": []interface{}{
 				map[string]interface{}{
 					"name":           "AllowAll",
 					"startIPAddress": "0.0.0.0",
 					"endIPAddress":   "255.255.255.255",
-					"cores":          4,
-					"storage":        25,
 				},
 			},
 		},
