@@ -50,7 +50,7 @@ type cosmosCredentials struct {
 }
 
 func (c *cosmosAccountManager) SplitProvisioningParameters(
-	cpp service.CombinedProvisioningParameters,
+	cpp map[string]interface{},
 ) (
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,

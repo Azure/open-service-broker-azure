@@ -27,7 +27,7 @@ type credentials struct {
 }
 
 func (s *serviceManager) SplitProvisioningParameters(
-	service.CombinedProvisioningParameters,
+	map[string]interface{},
 ) (
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,

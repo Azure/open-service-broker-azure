@@ -17,12 +17,6 @@ const (
 	StabilityStable
 )
 
-// CombinedProvisioningParameters is an alias for maps intended to contain
-// inbound provisioning parameters-- which may contain both sensitive and
-// non-sensitive values. It exists only to improve the clarity of function
-// signatures and documentation.
-type CombinedProvisioningParameters map[string]interface{}
-
 // ProvisioningParameters is an alias for maps intended to contain non-sensitive
 // provisioning parameters. It exists only to improve the clarity of function
 // signatures and documentation.

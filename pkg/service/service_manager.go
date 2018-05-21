@@ -7,7 +7,7 @@ type ServiceManager interface { // nolint: golint
 	// two separate maps, with one containing non-sensitive provisioning
 	// parameters and the other containing sensitive provisioning parameters.
 	SplitProvisioningParameters(
-		CombinedProvisioningParameters,
+		map[string]interface{},
 	) (ProvisioningParameters, SecureProvisioningParameters, error)
 	// GetProvisioner returns a provisioner that defines the steps a module must
 	// execute asynchronously to provision a service.

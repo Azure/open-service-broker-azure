@@ -24,7 +24,7 @@ type databaseInstanceDetails struct {
 }
 
 func (d *databaseManager) SplitProvisioningParameters(
-	cpp service.CombinedProvisioningParameters,
+	cpp map[string]interface{},
 ) (
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
