@@ -97,10 +97,10 @@ func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
 				DefaultValue:  ptr.ToInt64(defaultCores),
 				Description:   "A virtual core represents the logical CPU",
 			},
-			"storage": service.FloatPropertySchema{
-				MinValue:     ptr.ToFloat64(defaultVCoreStorageInGB),
-				MaxValue:     ptr.ToFloat64(maxStorageInGB),
-				DefaultValue: ptr.ToFloat64(defaultVCoreStorageInGB),
+			"storage": service.IntPropertySchema{
+				MinValue:     ptr.ToInt64(defaultVCoreStorageInGB),
+				MaxValue:     ptr.ToInt64(maxStorageInGB),
+				DefaultValue: ptr.ToInt64(defaultVCoreStorageInGB),
 				Description:  "The maximum data storage capacity (in GB)",
 			},
 		},
