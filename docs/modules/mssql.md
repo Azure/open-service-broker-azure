@@ -65,6 +65,7 @@ Additional Provision Parameters for: general-purpose
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 5 |
 
 Additional Provision Parameters for: business-critical
+
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 24, 32, 48, 80 | N | 2 |
@@ -307,6 +308,7 @@ Additional Provision Parameters for: general-purpose
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 5 |
 
 Additional Provision Parameters for: business-critical
+
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 24, 32, 48, 80 | N | 2 |
