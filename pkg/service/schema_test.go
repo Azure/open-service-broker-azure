@@ -10,6 +10,97 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestValidateInputParametersSchema(t *testing.T) {
+	ips := InputParametersSchema{
+		RequiredProperties: []string{"foo", "bat"},
+		PropertySchemas: map[string]PropertySchema{
+			"foo": &StringPropertySchema{},
+			"bat": &StringPropertySchema{},
+		},
+	}
+	// This should fail validation because a required property is missing
+	err := ips.Validate(
+		map[string]interface{}{
+			"foo": "bar",
+		},
+	)
+	assert.NotNil(t, err)
+	validationError, ok := err.(*ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, "bat", validationError.Field)
+	// This should fail validation because a required property is missing
+	err = ips.Validate(
+		map[string]interface{}{
+			"bat": "baz",
+		},
+	)
+	assert.NotNil(t, err)
+	validationError, ok = err.(*ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, "foo", validationError.Field)
+	// This should fail validation because an unrecognized property is included
+	err = ips.Validate(
+		map[string]interface{}{
+			"foo":   "bar",
+			"bat":   "baz",
+			"bogus": "value",
+		},
+	)
+	assert.NotNil(t, err)
+	validationError, ok = err.(*ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, "bogus", validationError.Field)
+	// This should pass validation
+	err = ips.Validate(
+		map[string]interface{}{
+			"foo": "bar",
+			"bat": "baz",
+		},
+	)
+	assert.Nil(t, err)
+
+	ips = InputParametersSchema{
+		PropertySchemas: map[string]PropertySchema{
+			"foo": StringPropertySchema{
+				AllowedValues: []string{"bar", "bat", "baz"},
+			},
+			"bar": IntPropertySchema{
+				AllowedIncrement: ptr.ToInt64(2),
+			},
+		},
+	}
+	// This should fail validation because the value of foo is not allowed
+	err = ips.Validate(
+		map[string]interface{}{
+			"foo": "bogus",
+			"bar": 4,
+		},
+	)
+	assert.NotNil(t, err)
+	validationError, ok = err.(*ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, "foo", validationError.Field)
+	err = ips.Validate(
+		map[string]interface{}{
+			"foo": "bar",
+			"bar": 5,
+		},
+	)
+	assert.NotNil(t, err)
+	// This should fail validation because the value of bar is not a multiple of 2
+	validationError, ok = err.(*ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, "bar", validationError.Field)
+	// This should pass validation
+	err = ips.Validate(
+		map[string]interface{}{
+			"foo": "bar",
+			"bar": 4.0,
+		},
+	)
+	assert.Nil(t, err)
+}
+
 func TestStringPropertySchemaToJSON(t *testing.T) {
 	fooSps := StringPropertySchema{
 		Description:   "foo",
@@ -48,6 +139,7 @@ func TestValidateStringProperty(t *testing.T) {
 	const fieldName = "xyz"
 
 	sps := StringPropertySchema{}
+	// This should fail validation because the value is of the wrong type
 	err := sps.validate(fieldName, 5)
 	assert.NotNil(t, err)
 	validationError, ok := err.(*ValidationError)
@@ -57,52 +149,64 @@ func TestValidateStringProperty(t *testing.T) {
 	sps = StringPropertySchema{
 		MinLength: ptr.ToInt(3),
 	}
+	// This should fail validation because the value is too short
 	err = sps.validate(fieldName, "fo")
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = sps.validate(fieldName, "foo")
 	assert.Nil(t, err)
+	// This should pass validation
 	err = sps.validate(fieldName, "foobar")
 	assert.Nil(t, err)
 
 	sps = StringPropertySchema{
 		MaxLength: ptr.ToInt(6),
 	}
+	// This should fail validation because the value is too long
 	err = sps.validate(fieldName, "foobarr")
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = sps.validate(fieldName, "foobar")
 	assert.Nil(t, err)
+	// This should pass validation
 	err = sps.validate(fieldName, "foo")
 	assert.Nil(t, err)
 
 	sps = StringPropertySchema{
 		AllowedValues: []string{"foo", "bar"},
 	}
+	// This should fail validation because the value isn't allowed
 	err = sps.validate(fieldName, "foobar")
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = sps.validate(fieldName, "foo")
 	assert.Nil(t, err)
+	// This should pass validation
 	err = sps.validate(fieldName, "bar")
 	assert.Nil(t, err)
 
 	sps = StringPropertySchema{
 		AllowedPattern: regexp.MustCompile(`^\w{3}$`),
 	}
+	// This should fail validation because the value does not match the regex
 	err = sps.validate(fieldName, "foobar")
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = sps.validate(fieldName, "foo")
 	assert.Nil(t, err)
+	// This should pass validation
 	err = sps.validate(fieldName, "bar")
 	assert.Nil(t, err)
 }
@@ -150,69 +254,84 @@ func TestValidateIntProperty(t *testing.T) {
 	const fieldName = "xyz"
 
 	ips := IntPropertySchema{}
+	// This should fail validation because the value is of the wrong type
 	err := ips.validate(fieldName, "foobar")
 	assert.NotNil(t, err)
 	validationError, ok := err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should fail validation because the value is of the wrong type
 	err = ips.validate(fieldName, 3.14)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation-- nil == no value == valid
 	err = ips.validate(fieldName, nil)
 	assert.Nil(t, err)
 
 	ips = IntPropertySchema{
 		MinValue: ptr.ToInt64(3),
 	}
-	err = ips.validate(fieldName, 2.0)
+	// This should fail validation because the value is too small
+	err = ips.validate(fieldName, 2)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
-	err = ips.validate(fieldName, 3.0)
+	// This should pass validation
+	err = ips.validate(fieldName, 3)
 	assert.Nil(t, err)
-	err = ips.validate(fieldName, 6.0)
+	// This should pass validation
+	err = ips.validate(fieldName, 6)
 	assert.Nil(t, err)
 
 	ips = IntPropertySchema{
 		MaxValue: ptr.ToInt64(6),
 	}
-	err = ips.validate(fieldName, 7.0)
+	// This should fail validation because the value is too large
+	err = ips.validate(fieldName, 7)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
-	err = ips.validate(fieldName, 6.0)
+	// This should pass validation
+	err = ips.validate(fieldName, 6)
 	assert.Nil(t, err)
-	err = ips.validate(fieldName, 3.0)
+	// This should pass validation
+	err = ips.validate(fieldName, 3)
 	assert.Nil(t, err)
 
 	ips = IntPropertySchema{
 		AllowedValues: []int64{3, 4},
 	}
-	err = ips.validate(fieldName, 5.0)
+	// This should fail validation because the value isn't allowed
+	err = ips.validate(fieldName, 5)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
-	err = ips.validate(fieldName, 3.0)
+	// This should pass validation
+	err = ips.validate(fieldName, 3)
 	assert.Nil(t, err)
-	err = ips.validate(fieldName, 4.0)
+	// This should pass validation
+	err = ips.validate(fieldName, 4)
 	assert.Nil(t, err)
 
 	ips = IntPropertySchema{
 		AllowedIncrement: ptr.ToInt64(2),
 	}
-	err = ips.validate(fieldName, 5.0)
+	// This should fail validation because the value is not a multiple of 2
+	err = ips.validate(fieldName, 5)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
-	err = ips.validate(fieldName, 0.0)
+	// This should pass validation
+	err = ips.validate(fieldName, 0)
 	assert.Nil(t, err)
-	err = ips.validate(fieldName, 8.0)
+	// This should pass validation
+	err = ips.validate(fieldName, 8)
 	assert.Nil(t, err)
 }
 
@@ -221,7 +340,6 @@ func TestFloatPropertySchemaToJSON(t *testing.T) {
 		Description: "small, integers and halves",
 		MinValue:    ptr.ToFloat64(0),
 		MaxValue:    ptr.ToFloat64(8),
-		// AllowedIncrement: ptr.ToFloat64(0.5),
 	}
 	jsonBytes, err := json.Marshal(smallIntsAndHalvesFps)
 	assert.Nil(t, err)
@@ -248,79 +366,68 @@ func TestFloatPropertySchemaToJSON(t *testing.T) {
 	maxValueFloat, ok := maxValueIface.(float64)
 	assert.True(t, ok)
 	assert.Equal(t, *smallIntsAndHalvesFps.MaxValue, float64(maxValueFloat))
-	// incrementIface, ok := smallEvenIpsMap["multipleOf"]
-	// assert.True(t, ok)
-	// incrementFloat, ok := incrementIface.(float64)
-	// assert.True(t, ok)
-	// assert.Equal(
-	// 	t,
-	// 	*smallIntsAndHalvesFps.AllowedIncrement,
-	// 	float64(incrementFloat),
-	// )
 }
 
 func TestValidateFloatProperty(t *testing.T) {
 	const fieldName = "xyz"
 
 	fps := FloatPropertySchema{}
+	// This should fail validation because the value is of the wrong type
 	err := fps.validate(fieldName, "foobar")
 	assert.NotNil(t, err)
 	validationError, ok := err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation-- nil == no value == valid
 	err = fps.validate(fieldName, nil)
 	assert.Nil(t, err)
 
 	fps = FloatPropertySchema{
 		MinValue: ptr.ToFloat64(3.14),
 	}
+	// This should fail validation because the value is too small
 	err = fps.validate(fieldName, 2.5)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = fps.validate(fieldName, 3.5)
 	assert.Nil(t, err)
+	// This should pass validation
 	err = fps.validate(fieldName, 4.5)
 	assert.Nil(t, err)
 
 	fps = FloatPropertySchema{
 		MaxValue: ptr.ToFloat64(3.14),
 	}
+	// This should fail validation because the value is too large
 	err = fps.validate(fieldName, 3.5)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = fps.validate(fieldName, 3.0)
 	assert.Nil(t, err)
+	// This should pass validation
 	err = fps.validate(fieldName, 2.5)
 	assert.Nil(t, err)
 
 	fps = FloatPropertySchema{
 		AllowedValues: []float64{3.14, 4.5},
 	}
+	// This should fail validation because the value isn't allowed
 	err = fps.validate(fieldName, 5.0)
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = fps.validate(fieldName, 3.14)
 	assert.Nil(t, err)
+	// This should pass validation
 	err = fps.validate(fieldName, 4.5)
-	assert.Nil(t, err)
-
-	fps = FloatPropertySchema{
-		// AllowedIncrement: ptr.ToFloat64(0.5),
-	}
-	// err = fps.validate(fieldName, 4.25)
-	// assert.NotNil(t, err)
-	// validationError, ok = err.(*ValidationError)
-	// assert.True(t, ok)
-	// assert.Equal(t, fieldName, validationError.Field)
-	err = fps.validate(fieldName, 0.0)
-	assert.Nil(t, err)
-	err = fps.validate(fieldName, 8.5)
 	assert.Nil(t, err)
 }
 
@@ -357,37 +464,45 @@ func TestValidateArrayProperty(t *testing.T) {
 	const fieldName = "xyz"
 
 	aps := ArrayPropertySchema{}
+	// This should fail validation because the value is of the wrong type
 	err := aps.validate(fieldName, "foobar")
 	assert.NotNil(t, err)
 	validationError, ok := err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation-- nil == no value == valid
 	err = aps.validate(fieldName, nil)
 	assert.Nil(t, err)
 
 	aps = ArrayPropertySchema{
 		MinItems: ptr.ToInt(3),
 	}
+	// This should fail validation because the value contains too few elements
 	err = aps.validate(fieldName, []interface{}{1, 2})
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = aps.validate(fieldName, []interface{}{1, 2, 3})
 	assert.Nil(t, err)
+	// This should pass validation
 	err = aps.validate(fieldName, []interface{}{1, 2, 3, 4})
 	assert.Nil(t, err)
 
 	aps = ArrayPropertySchema{
 		MaxItems: ptr.ToInt(6),
 	}
+	// This should fail validation because the value contains too many elements
 	err = aps.validate(fieldName, []interface{}{1, 2, 3, 4, 5, 6, 7})
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation
 	err = aps.validate(fieldName, []interface{}{1, 2, 3, 4, 5, 6})
 	assert.Nil(t, err)
+	// This should pass validation
 	err = aps.validate(fieldName, []interface{}{1, 2, 3})
 	assert.Nil(t, err)
 
@@ -396,11 +511,13 @@ func TestValidateArrayProperty(t *testing.T) {
 			MinValue: ptr.ToInt64(3),
 		},
 	}
+	// This should fail validation because the value contains elements < 3
 	err = aps.validate(fieldName, []interface{}{3.0, 2.0, 1.0})
 	assert.NotNil(t, err)
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fmt.Sprintf("%s[1]", fieldName), validationError.Field)
+	// This should pass validation
 	err = aps.validate(fieldName, []interface{}{3.0, 4.0, 5.0})
 	assert.Nil(t, err)
 }
@@ -429,7 +546,7 @@ func TestObjectPropertySchemaToJSON(t *testing.T) {
 	myOpsMap := map[string]interface{}{}
 	err = json.Unmarshal(jsonBytes, &myOpsMap)
 	assert.Nil(t, err)
-	assert.Equal(t, 3, len(myOpsMap))
+	assert.Equal(t, 4, len(myOpsMap))
 	schemaType, ok := myOpsMap["type"]
 	assert.True(t, ok)
 	assert.Equal(t, "object", schemaType)
@@ -441,6 +558,9 @@ func TestObjectPropertySchemaToJSON(t *testing.T) {
 	propertiesMap, ok := propertiesIface.(map[string]interface{})
 	assert.True(t, ok)
 	assert.Equal(t, len(myOps.PropertySchemas), len(propertiesMap))
+	additionalProperties, ok := myOpsMap["additionalProperties"]
+	assert.True(t, ok)
+	assert.Equal(t, false, additionalProperties)
 	// We've separately tested StringPropertySchemas and IntPropertySchemas, so we
 	// won't bother making assertions on individual "properties"
 }
@@ -449,17 +569,24 @@ func TestValidateObjectProperty(t *testing.T) {
 	const fieldName = "xyz"
 
 	ops := ObjectPropertySchema{}
+	// This should fail validation because the value is of the wrong type
 	err := ops.validate(fieldName, "foobar")
 	assert.NotNil(t, err)
 	validationError, ok := err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fieldName, validationError.Field)
+	// This should pass validation-- nil == no value == valid
 	err = ops.validate(fieldName, nil)
 	assert.Nil(t, err)
 
 	ops = ObjectPropertySchema{
 		RequiredProperties: []string{"foo", "bat"},
+		PropertySchemas: map[string]PropertySchema{
+			"foo": &StringPropertySchema{},
+			"bat": &StringPropertySchema{},
+		},
 	}
+	// This should fail validation because a required property is missing
 	err = ops.validate(
 		fieldName,
 		map[string]interface{}{
@@ -470,6 +597,7 @@ func TestValidateObjectProperty(t *testing.T) {
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fmt.Sprintf("%s.bat", fieldName), validationError.Field)
+	// This should fail validation because a required property is missing
 	err = ops.validate(
 		fieldName,
 		map[string]interface{}{
@@ -480,6 +608,20 @@ func TestValidateObjectProperty(t *testing.T) {
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fmt.Sprintf("%s.foo", fieldName), validationError.Field)
+	// This should fail validation because an unrecognized property is included
+	err = ops.validate(
+		fieldName,
+		map[string]interface{}{
+			"foo":   "bar",
+			"bat":   "baz",
+			"bogus": "value",
+		},
+	)
+	assert.NotNil(t, err)
+	validationError, ok = err.(*ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, fmt.Sprintf("%s.bogus", fieldName), validationError.Field)
+	// This should pass validation
 	err = ops.validate(
 		fieldName,
 		map[string]interface{}{
@@ -499,11 +641,12 @@ func TestValidateObjectProperty(t *testing.T) {
 			},
 		},
 	}
+	// This should fail validation because the value of foo is not allowed
 	err = ops.validate(
 		fieldName,
 		map[string]interface{}{
 			"foo": "bogus",
-			"bar": 4.0,
+			"bar": 4,
 		},
 	)
 	assert.NotNil(t, err)
@@ -514,18 +657,44 @@ func TestValidateObjectProperty(t *testing.T) {
 		fieldName,
 		map[string]interface{}{
 			"foo": "bar",
-			"bar": 5.0,
+			"bar": 5,
 		},
 	)
 	assert.NotNil(t, err)
+	// This should fail validation because the value of bar is not a multiple of 2
 	validationError, ok = err.(*ValidationError)
 	assert.True(t, ok)
 	assert.Equal(t, fmt.Sprintf("%s.bar", fieldName), validationError.Field)
+	// This should pass validation
 	err = ops.validate(
 		fieldName,
 		map[string]interface{}{
 			"foo": "bar",
 			"bar": 4.0,
+		},
+	)
+	assert.Nil(t, err)
+
+	ops = ObjectPropertySchema{
+		Additional: &StringPropertySchema{},
+	}
+	// This should fail validation because the value of the additional property
+	// is the wrong type
+	err = ops.validate(
+		fieldName,
+		map[string]interface{}{
+			"foo": 5,
+		},
+	)
+	assert.NotNil(t, err)
+	validationError, ok = err.(*ValidationError)
+	assert.True(t, ok)
+	assert.Equal(t, fmt.Sprintf("%s.foo", fieldName), validationError.Field)
+	// This should pass validation
+	err = ops.validate(
+		fieldName,
+		map[string]interface{}{
+			"foo": "bar",
 		},
 	)
 	assert.Nil(t, err)

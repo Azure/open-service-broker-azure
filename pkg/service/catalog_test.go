@@ -69,53 +69,56 @@ func init() {
 	})
 
 	//nolint: lll
-	testCatalogTemplate := `{
-            "services":[
-                {
-                    "name":"%s",
-                    "id":"%s",
-                    "description":"%s",
-                    "tags":["%s"],
-                    "bindable":%t,
-                    "plan_updateable":%t,
-                    "plans":[
-                        {
-                            "id":"%s",
-                            "name":"%s",
-                            "description":"%s",
-                            "free":%t,
-                            "schemas": {
-                              	"service_instance": {
-                                	"create": {
-                                		"parameters": {
-                                			"$schema": "http://json-schema.org/draft-04/schema#",
-                                			"type": "object",
-                                			"properties": {
-                                				"location": {
-                                					"type": "string",
-                                					"description": "%s"
-                                				},
-                                				"resourceGroup": {
-                                					"type": "string",
-                                					"description": "%s"
-                                                },
-                                                "tags": {
-                                                    "type": "object",
-                                                    "description": "%s",
-                                                    "additionalProperties" : {
-                                                        "type" : "string"
-                                                    }
-                                                }
-                                			}
-                                		}
-                                	}
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
-        }`
+	testCatalogTemplate := `
+	{
+		"services":[
+			{
+				"name":"%s",
+				"id":"%s",
+				"description":"%s",
+				"tags":["%s"],
+				"bindable":%t,
+				"plan_updateable":%t,
+				"plans":[
+					{
+						"id":"%s",
+						"name":"%s",
+						"description":"%s",
+						"free":%t,
+						"schemas": {
+							"service_instance": {
+								"create": {
+									"parameters": {
+										"$schema": "http://json-schema.org/draft-04/schema#",
+										"type": "object",
+										"properties": {
+											"location": {
+												"type": "string",
+												"description": "%s"
+											},
+											"resourceGroup": {
+												"type": "string",
+												"description": "%s"
+											},
+											"tags": {
+												"type": "object",
+												"description": "%s",
+												"additionalProperties" : {
+													"type" : "string"
+												}
+											}
+										},
+										"additionalProperties": false
+									}
+								}
+							}
+						}
+					}
+        ]
+			}
+		]
+	}
+	`
 
 	testCatalogTemplate = strings.Replace(testCatalogTemplate, " ", "", -1)
 	testCatalogTemplate = strings.Replace(testCatalogTemplate, "\n", "", -1)
