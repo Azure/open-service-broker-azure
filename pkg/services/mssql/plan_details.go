@@ -77,8 +77,8 @@ func (d dtuPlanDetails) getTierProvisionParameters(
 }
 
 func (d dtuPlanDetails) getSKU(pp databaseProvisionParams) string {
-	if pp.Cores != nil {
-		return d.skuMap[*pp.Cores]
+	if pp.DTUs != nil {
+		return d.skuMap[*pp.DTUs]
 	}
 	return d.skuMap[d.defaultDTUs]
 }

@@ -103,12 +103,12 @@ func buildPremiumPlan(
 		defaultDTUs: 125,
 		tier:        "Premium",
 		skuMap: map[int64]string{
-			125:  "S0",
-			250:  "S1",
-			500:  "S2",
-			1000: "S3",
-			1750: "S4",
-			4000: "S6",
+			125:  "P1",
+			250:  "P2",
+			500:  "P4",
+			1000: "P6",
+			1750: "P11",
+			4000: "P15",
 		},
 		includeDBMS: includesDBMS,
 	}
