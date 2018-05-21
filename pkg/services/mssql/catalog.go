@@ -14,6 +14,7 @@ func buildBasicPlan(
 		skuMap: map[int64]string{
 			5: "Basic",
 		},
+		includeDBMS: includesDBMS,
 	}
 
 	return &service.PlanProperties{
@@ -62,13 +63,15 @@ func buildStandardPlan(
 			1600: "S9",
 			3000: "S12",
 		},
+		includeDBMS: includesDBMS,
 	}
 
 	return &service.PlanProperties{
-		ID:          id,
-		Name:        "standard",
-		Description: "Standard Tier, Up to 3000 DTUs, 250GB Storage, 35 days point-in-time restore",
-		Free:        false,
+		ID:   id,
+		Name: "standard",
+		Description: "Standard Tier, Up to 3000 DTUs, 250GB Storage, " +
+			"35 days point-in-time restore",
+		Free: false,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -107,13 +110,15 @@ func buildPremiumPlan(
 			1750: "S4",
 			4000: "S6",
 		},
+		includeDBMS: includesDBMS,
 	}
 
 	return &service.PlanProperties{
-		ID:          id,
-		Name:        "premium",
-		Description: "Premium Tier, Up to 4000 DTUs, 500GB Storage, 35 days point-in-time restore",
-		Free:        false,
+		ID:   id,
+		Name: "premium",
+		Description: "Premium Tier, Up to 4000 DTUs, 500GB Storage, " +
+			"35 days point-in-time restore",
+		Free: false,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -140,7 +145,7 @@ func buildGeneralPurposePlan(
 	gpDetails := vCorePlanDetails{
 		tier:          "GeneralPurpose",
 		tierShortName: "GP",
-		includesDBMS:  includesDBMS,
+		includeDBMS:   includesDBMS,
 	}
 	return &service.PlanProperties{
 		ID:          id,
@@ -176,13 +181,14 @@ func buildBusinessCriticalPlan(
 	bcDetails := vCorePlanDetails{
 		tier:          "BusinessCritical",
 		tierShortName: "BC",
-		includesDBMS:  includesDBMS,
+		includeDBMS:   includesDBMS,
 	}
 	return &service.PlanProperties{
-		ID:          id,
-		Name:        "business-critical",
-		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage. Local SSD, highest resilience to failures.",
-		Free:        false,
+		ID:   id,
+		Name: "business-critical",
+		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage. " +
+			"Local SSD, highest resilience to failures.",
+		Free: false,
 		Extended: map[string]interface{}{
 			"tierDetails": bcDetails,
 		},

@@ -55,11 +55,6 @@ func (a *allInOneManager) deployARMTemplate(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
 	goTemplateParams, err := buildDBMSGoTemplateParameters(instance)
 	if err != nil {
 		return nil, nil, err

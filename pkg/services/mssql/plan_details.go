@@ -12,7 +12,6 @@ import (
 const (
 	defaultCores            = 2
 	defaultVCoreStorageInGB = 5
-	maxStorageInBytes       = 1099511627776
 	maxStorageInGB          = 1024
 
 	gen5Hardware = "Gen5"
@@ -87,7 +86,7 @@ func (d dtuPlanDetails) getSKU(pp databaseProvisionParams) string {
 type vCorePlanDetails struct {
 	tier          string
 	tierShortName string
-	includesDBMS  bool
+	includeDBMS   bool
 }
 
 func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
@@ -108,7 +107,7 @@ func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
 	}
 
 	// Include the DBMS params here if the plan details call for it
-	if v.includesDBMS {
+	if v.includeDBMS {
 		addDBMSParameters(schema.PropertySchemas)
 	}
 	return schema
@@ -127,7 +126,7 @@ func (v vCorePlanDetails) getTierProvisionParameters(
 	p := map[string]interface{}{}
 	p["sku"] = v.getSKU(pp)
 	p["tier"] = v.tier
-	p["maxSizeBytes"] = getStorageInBytes(defaultVCoreStorageInGB, pp)
+	p["maxSizeBytes"] = getStorageInBytes(pp)
 	return p, nil
 }
 
@@ -152,14 +151,13 @@ func convertBytesToGB(gb int64) int64 {
 }
 
 func getStorageInBytes(
-	defaultStorage int64,
 	pp databaseProvisionParams,
 ) int64 {
 	if pp.Storage != nil {
 		storageGB := *pp.Storage
 		return convertBytesToGB(storageGB)
 	}
-	return convertBytesToGB(defaultStorage)
+	return convertBytesToGB(defaultVCoreStorageInGB)
 
 }
 
