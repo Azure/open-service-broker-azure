@@ -34,7 +34,6 @@ type BindingSchemas struct {
 type InputParametersSchema struct {
 	RequiredProperties []string                  `json:"required,omitempty"`
 	PropertySchemas    map[string]PropertySchema `json:"properties,omitempty"`
-	Additional         PropertySchema            `json:"additionalProperties,omitempty"` // nolint: lll
 }
 
 // MarshalJSON defines custom JSON marshaling for InputParametersSchema and
@@ -46,6 +45,7 @@ func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 		Schema string `json:"$schema"`
 		Type   string `json:"type"`
 		inputParametersSchema
+		Additional bool `json:"additionalProperties"`
 	}
 	return json.Marshal(
 		struct {
@@ -55,6 +55,7 @@ func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 				Schema: jsonSchemaVersion,
 				Type:   "object",
 				inputParametersSchema: inputParametersSchema(i),
+				Additional:            false,
 			},
 		},
 	)
@@ -70,14 +71,11 @@ func (i InputParametersSchema) Validate(valMap map[string]interface{}) error {
 	}
 	for k, v := range valMap {
 		propertySchema, ok := i.PropertySchemas[k]
-		if ok {
-			if err := propertySchema.validate(k, v); err != nil {
-				return err
-			}
-		} else if i.Additional != nil {
-			if err := i.Additional.validate(k, v); err != nil {
-				return err
-			}
+		if !ok {
+			return NewValidationError(k, "unrecognized field")
+		}
+		if err := propertySchema.validate(k, v); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -101,7 +99,6 @@ type StringPropertySchema struct {
 	AllowedPattern          *regexp.Regexp                `json:"pattern,omitempty"` // nolint: lll
 	CustomPropertyValidator CustomStringPropertyValidator `json:"-"`
 	DefaultValue            string                        `json:"default,omitempty"` // nolint: lll
-	Secure                  bool                          `json:"-"`
 }
 
 // MarshalJSON provides functionality to marshal a StringPropertySchema to JSON
@@ -197,13 +194,41 @@ func (i IntPropertySchema) validate(context string, value interface{}) error {
 	if value == nil {
 		return nil
 	}
-	floatVal, ok := value.(float64)
-	if !ok {
-		return NewValidationError(context, "field value is not of type int64")
-	}
-	val := int64(floatVal)
-	if floatVal != float64(val) {
-		return NewValidationError(context, "field value is not of type int64")
+	var val int64
+	if floatVal, ok := value.(float64); ok {
+		val = int64(floatVal)
+		if floatVal != float64(val) {
+			return NewValidationError(context, "field value is not of type integer")
+		}
+	} else if floatVal, ok := value.(*float64); ok {
+		val = int64(*floatVal)
+		if *floatVal != float64(val) {
+			return NewValidationError(context, "field value is not of type integer")
+		}
+	} else if floatVal, ok := value.(float32); ok {
+		val = int64(floatVal)
+		if floatVal != float32(val) {
+			return NewValidationError(context, "field value is not of type integer")
+		}
+	} else if floatVal, ok := value.(*float32); ok {
+		val = int64(*floatVal)
+		if *floatVal != float32(val) {
+			return NewValidationError(context, "field value is not of type integer")
+		}
+	} else if intVal, ok := value.(int64); ok {
+		val = intVal
+	} else if intVal, ok := value.(*int64); ok {
+		val = *intVal
+	} else if intVal, ok := value.(int32); ok {
+		val = int64(intVal)
+	} else if intVal, ok := value.(*int32); ok {
+		val = int64(*intVal)
+	} else if intVal, ok := value.(int); ok {
+		val = int64(intVal)
+	} else if intVal, ok := value.(*int); ok {
+		val = int64(*intVal)
+	} else {
+		return NewValidationError(context, "field value is not of type integer")
 	}
 	if i.MinValue != nil && val < *i.MinValue {
 		return NewValidationError(
@@ -279,9 +304,17 @@ func (f FloatPropertySchema) validate(context string, value interface{}) error {
 	if value == nil {
 		return nil
 	}
-	val, ok := value.(float64)
-	if !ok {
-		return NewValidationError(context, "field value is not of type float64")
+	var val float64
+	if floatVal, ok := value.(float64); ok {
+		val = floatVal
+	} else if floatVal, ok := value.(*float64); ok {
+		val = *floatVal
+	} else if floatVal, ok := value.(float32); ok {
+		val = float64(floatVal)
+	} else if floatVal, ok := value.(*float32); ok {
+		val = float64(*floatVal)
+	} else {
+		return NewValidationError(context, "field value is not of type float")
 	}
 	if f.MinValue != nil && val < *f.MinValue {
 		return NewValidationError(
@@ -343,12 +376,16 @@ type ObjectPropertySchema struct {
 // MarshalJSON provides functionality to marshal an ObjectPropertySchema to JSON
 func (o ObjectPropertySchema) MarshalJSON() ([]byte, error) {
 	type objectPropertySchema ObjectPropertySchema
+	ops := objectPropertySchema(o)
+	if ops.Additional == nil {
+		ops.Additional = &falsePropertySchema{}
+	}
 	return json.Marshal(struct {
 		Type string `json:"type"`
 		objectPropertySchema
 	}{
 		Type:                 "object",
-		objectPropertySchema: objectPropertySchema(o),
+		objectPropertySchema: ops,
 	})
 }
 
@@ -366,19 +403,21 @@ func (o ObjectPropertySchema) validate(
 	for _, requiredProperty := range o.RequiredProperties {
 		_, ok := valMap[requiredProperty]
 		if !ok {
-			propetyContext := fmt.Sprintf("%s.%s", context, requiredProperty)
-			return NewValidationError(propetyContext, "field is required")
+			propertyContext := fmt.Sprintf("%s.%s", context, requiredProperty)
+			return NewValidationError(propertyContext, "field is required")
 		}
 	}
 	for k, v := range valMap {
 		propertySchema, ok := o.PropertySchemas[k]
+		propertyContext := fmt.Sprintf("%s.%s", context, k)
 		if ok {
-			propetyContext := fmt.Sprintf("%s.%s", context, k)
-			if err := propertySchema.validate(propetyContext, v); err != nil {
+			if err := propertySchema.validate(propertyContext, v); err != nil {
 				return err
 			}
-		} else if o.Additional != nil {
-			if err := o.Additional.validate(k, v); err != nil {
+		} else if o.Additional == nil {
+			return NewValidationError(propertyContext, "unrecognized field")
+		} else {
+			if err := o.Additional.validate(propertyContext, v); err != nil {
 				return err
 			}
 		}
@@ -497,4 +536,19 @@ func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 				"should be provisioned.",
 		}
 	}
+}
+
+// falsePropertySchema is used internally to deal with the fact that in JSON
+// schema, additionalProperties can be a schema or it can be the bool value
+// false.
+type falsePropertySchema struct{}
+
+// MarshalJSON provides functionality to marshal an ObjectPropertySchema to JSON
+func (falsePropertySchema) MarshalJSON() ([]byte, error) {
+	return []byte("false"), nil
+}
+
+// No-op
+func (falsePropertySchema) validate(string, interface{}) error {
+	return nil
 }
