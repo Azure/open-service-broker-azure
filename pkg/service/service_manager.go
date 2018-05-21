@@ -23,7 +23,7 @@ type ServiceManager interface { // nolint: golint
 	// maps, with one containing non-sensitive binding parameters and the other
 	// containing sensitive binding parameters.
 	SplitBindingParameters(
-		CombinedBindingParameters,
+		map[string]interface{},
 	) (BindingParameters, SecureBindingParameters, error)
 	// Bind synchronously binds to a service
 	Bind(

@@ -35,7 +35,7 @@ func (s *ServiceManager) SplitProvisioningParameters(
 // maps, with one containing non-sensitive binding parameters and the other
 // containing sensitive binding parameters.
 func (s *ServiceManager) SplitBindingParameters(
-	cbp service.CombinedBindingParameters,
+	cbp map[string]interface{},
 ) (
 	service.BindingParameters,
 	service.SecureBindingParameters,

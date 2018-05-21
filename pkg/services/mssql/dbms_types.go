@@ -46,7 +46,7 @@ func (d *dbmsManager) SplitProvisioningParameters(
 }
 
 func (d *dbmsManager) SplitBindingParameters(
-	params service.CombinedBindingParameters,
+	params map[string]interface{},
 ) (service.BindingParameters, service.SecureBindingParameters, error) {
 	return nil, nil, nil
 }

@@ -37,12 +37,6 @@ type InstanceDetails map[string]interface{}
 // function signatures and documentation.
 type SecureInstanceDetails map[string]interface{}
 
-// CombinedBindingParameters is an alias for maps intended to contain inbound
-// binding parameters-- which may contain both sensitive and non-sensitive
-// values. It exists only to improve the clarity of function signatures and
-// documentation.
-type CombinedBindingParameters map[string]interface{}
-
 // BindingParameters is an alias for maps intended to contain non-sensitive
 // binding parameters. It exists only to improve the clarity of function
 // signatures and documentation.

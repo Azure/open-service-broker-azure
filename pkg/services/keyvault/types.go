@@ -74,7 +74,7 @@ func (s *serviceManager) SplitProvisioningParameters(
 }
 
 func (s *serviceManager) SplitBindingParameters(
-	params service.CombinedBindingParameters,
+	params map[string]interface{},
 ) (service.BindingParameters, service.SecureBindingParameters, error) {
 	return nil, nil, nil
 }
