@@ -2,10 +2,6 @@ package mssql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-type allInOneProvisioningParameters struct {
-	dbmsProvisioningParams `json:",squash"`
-}
-
 type allInOneInstanceDetails struct {
 	dbmsInstanceDetails `json:",squash"`
 	DatabaseName        string `json:"database"`
@@ -15,12 +11,6 @@ type secureAllInOneInstanceDetails struct {
 	secureDBMSInstanceDetails `json:",squash"`
 }
 
-func (
-	a *allInOneManager,
-) getProvisionParametersSchema() service.InputParametersSchema {
-	return getDBMSCommonProvisionParamSchema()
-}
-
 func (a *allInOneManager) SplitProvisioningParameters(
 	cpp map[string]interface{},
 ) (
@@ -28,7 +18,12 @@ func (a *allInOneManager) SplitProvisioningParameters(
 	service.SecureProvisioningParameters,
 	error,
 ) {
-	pp := allInOneProvisioningParameters{}
+	// nolint: megacheck
+	pp := struct {
+		dbmsProvisioningParams  `json:",squash"`
+		databaseProvisionParams `json:",squash"`
+	}{}
+
 	if err := service.GetStructFromMap(cpp, &pp); err != nil {
 		return nil, nil, err
 	}
