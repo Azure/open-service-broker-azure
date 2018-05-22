@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/go-sql-driver/mysql" // MySQL SQL driver
 	uuid "github.com/satori/go.uuid"
 )
@@ -20,7 +19,7 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 		serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
 		planID:    "eae202c3-521c-46d1-a047-872dacf781fd",
 		location:  "southcentralus",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"sslEnforcement": "disabled",
 			"firewallRules": []interface{}{
 				map[string]interface{}{
@@ -43,7 +42,7 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 		serviceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
 		planID:    "b242a78f-9946-406a-af67-813c56341960",
 		location:  "eastus",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"alias": mysqlDBMSAlias,
 			"firewallRules": []interface{}{
 				map[string]interface{}{
@@ -61,7 +60,7 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 				planID:          "ec77bd04-2107-408e-8fde-8100c1ce1f46",
 				location:        "", // This is actually irrelevant for this test
 				testCredentials: testMySQLCreds,
-				provisioningParameters: service.CombinedProvisioningParameters{
+				provisioningParameters: map[string]interface{}{
 					"parentAlias": mysqlDBMSAlias,
 				},
 			},
