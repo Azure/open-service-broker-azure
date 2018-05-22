@@ -56,8 +56,7 @@ func createBasicPlan(
 		ID:   planID,
 		Name: "basic",
 		Description: "Basic Tier-- For workloads that require light compute and " +
-			"I/O performance. Examples include servers used for development or " +
-			"testing or small-scale infrequently used applications.",
+			"I/O performance.",
 		Free: false,
 		Extended: map[string]interface{}{
 			"provisionSchema": provisionSchema,
@@ -130,9 +129,7 @@ func createGPPlan(
 		ID:   planID,
 		Name: "general-purpose",
 		Description: "General Purpose Tier-- For most business workloads that " +
-			"require balanced compute and memory with scalable I/O throughput. " +
-			"Examples include servers for hosting web and mobile apps and other " +
-			"enterprise applications.",
+			"require balanced compute and memory with scalable I/O throughput.",
 		Free:     false,
 		Extended: extendedPlanData,
 		Metadata: &service.ServicePlanMetadata{
@@ -206,9 +203,7 @@ func createMemoryOptimizedPlan(
 		Name: "memory-optimized",
 		Description: "Memory Optimized Tier-- For high-performance database " +
 			"workloads that require in-memory performance for faster transaction " +
-			"processing and higher concurrency. Examples include servers for " +
-			"processing real-time data and high-performance transactional or " +
-			"analytical apps.",
+			"processing and higher concurrency.",
 		Free:     false,
 		Extended: extendedPlanData,
 		Metadata: &service.ServicePlanMetadata{
