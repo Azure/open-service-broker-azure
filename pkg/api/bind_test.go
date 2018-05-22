@@ -226,7 +226,7 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		instanceID,
 		bindingID,
 		&BindingRequest{
-			Parameters: service.CombinedBindingParameters{
+			Parameters: map[string]interface{}{
 				"someParameter": "foo",
 			},
 		},

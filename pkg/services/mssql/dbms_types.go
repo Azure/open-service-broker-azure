@@ -31,7 +31,7 @@ type secureDBMSInstanceDetails struct {
 }
 
 func (d *dbmsManager) SplitProvisioningParameters(
-	cpp service.CombinedProvisioningParameters,
+	cpp map[string]interface{},
 ) (
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
@@ -46,7 +46,7 @@ func (d *dbmsManager) SplitProvisioningParameters(
 }
 
 func (d *dbmsManager) SplitBindingParameters(
-	params service.CombinedBindingParameters,
+	params map[string]interface{},
 ) (service.BindingParameters, service.SecureBindingParameters, error) {
 	return nil, nil, nil
 }
