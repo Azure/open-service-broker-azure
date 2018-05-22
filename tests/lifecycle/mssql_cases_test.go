@@ -72,7 +72,7 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 				planID:          "da591616-77a1-4df8-a493-6c119649bc6b",
 				location:        "", // This is actually irrelevant for this test
 				testCredentials: testMsSQLCreds,
-				provisioningParameters: service.CombinedProvisioningParameters{
+				provisioningParameters: map[string]interface{}{
 					"parentAlias": mssqlDBMSAlias,
 					"cores":       int64(2),
 					"storage":     int64(10),
@@ -86,7 +86,7 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 		serviceID: "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 		planID:    "c77e86af-f050-4457-a2ff-2b48451888f3",
 		location:  "eastus",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"cores":   int64(4),
 			"storage": int64(25),
 			"firewallRules": []interface{}{
