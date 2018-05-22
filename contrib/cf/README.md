@@ -13,7 +13,7 @@ What you will need:
 
 ## Create an Azure Redis Cache
 
-Open Service Broker for Azure uses Redis as a backing store for its state. We recommend using a managed Redis service, such as Azure Redis Cache. You can use the Azure CLI To determine if Azure Redis Cache is enabled for your subscription:
+Open Service Broker for Azure uses Redis as a backing store for its state. We recommend using a managed Redis service, such as Azure Redis Cache. You can use the Azure CLI to determine if Azure Redis Cache is enabled for your subscription:
 
 ```console
 $ az provider show -n Microsoft.Cache -o table
