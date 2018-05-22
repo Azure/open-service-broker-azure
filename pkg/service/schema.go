@@ -33,6 +33,7 @@ type BindingSchemas struct {
 // to any single operation.
 type InputParametersSchema struct {
 	RequiredProperties []string                  `json:"required,omitempty"`
+	SecureProperties   []string                  `json:"-"`
 	PropertySchemas    map[string]PropertySchema `json:"properties,omitempty"`
 }
 

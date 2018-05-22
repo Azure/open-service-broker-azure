@@ -2,26 +2,120 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
+
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/slice"
 )
 
 // Parameters ...
 // TODO: krancour: Document this
 type Parameters struct {
-	Data   map[string]interface{}
+	Codec  crypto.Codec
 	Schema *InputParametersSchema
+	Data   map[string]interface{}
 }
 
 // MarshalJSON ...
 // TODO: krancour: Document this
 func (p Parameters) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.Data)
+	// TODO: krancour: Ideally, if we constrain how Params are created using some
+	// constructor-like function, perhaps we can forgo this check.
+	if p.Schema == nil {
+		return nil, errors.New(
+			`error marshaling parameters: cannot marshal without a schema`,
+		)
+	}
+	// TODO: krancour: Ideally, if we constrain how Params are created using some
+	// constructor-like function, perhaps we can forgo this check.
+	if p.Codec == nil {
+		return nil, errors.New(
+			`error marshaling parameters: cannot marshal without a codec`,
+		)
+	}
+	data := map[string]interface{}{}
+	for k, schema := range p.Schema.PropertySchemas {
+		if v, ok := p.Data[k]; ok {
+			if slice.ContainsString(p.Schema.SecureProperties, k) {
+				if _, ok := schema.(*StringPropertySchema); !ok {
+					return nil, fmt.Errorf(
+						`error marshaling parameters: cannot encrypt non-string field "%s"`,
+						k,
+					)
+				}
+				vStr, ok := v.(string)
+				if !ok {
+					return nil, fmt.Errorf(
+						`error marshaling parameters: cannot encrypt non-string value of `+
+							`string field "%s"`,
+						k,
+					)
+				}
+				vBytes := []byte(vStr)
+				vBytes, err := p.Codec.Encrypt(vBytes)
+				if err != nil {
+					return nil, err
+				}
+				v = string(vBytes)
+			}
+			data[k] = v
+		}
+	}
+	return json.Marshal(data)
 }
 
 // UnmarshalJSON ...
 // TODO: krancour: Document this
 func (p *Parameters) UnmarshalJSON(bytes []byte) error {
+	// TODO: krancour: Ideally, if we constrain how Params are created using some
+	// constructor-like function, perhaps we can forgo this check.
+	if p.Schema == nil {
+		return errors.New(
+			`error marshaling parameters: cannot unmarshal without a schema`,
+		)
+	}
+	// TODO: krancour: Ideally, if we constrain how Params are created using some
+	// constructor-like function, perhaps we can forgo this check.
+	if p.Codec == nil {
+		return errors.New(
+			`error marshaling parameters: cannot unmarshal without a codec`,
+		)
+	}
 	p.Data = map[string]interface{}{}
-	return json.Unmarshal(bytes, &p.Data)
+	data := map[string]interface{}{}
+	if err := json.Unmarshal(bytes, &data); err != nil {
+		return err
+	}
+	for k, schema := range p.Schema.PropertySchemas {
+		if v, ok := data[k]; ok {
+			if slice.ContainsString(p.Schema.SecureProperties, k) {
+				if _, ok := schema.(*StringPropertySchema); !ok {
+					return fmt.Errorf(
+						`error unmarshaling parameters: cannot decrypt non-string field `+
+							`"%s"`,
+						k,
+					)
+				}
+				vStr, ok := v.(string)
+				if !ok {
+					return fmt.Errorf(
+						`error marshaling parameters: cannot decrypt non-string value of `+
+							`string field "%s"`,
+						k,
+					)
+				}
+				vBytes := []byte(vStr)
+				vBytes, err := p.Codec.Decrypt(vBytes)
+				if err != nil {
+					return err
+				}
+				v = string(vBytes)
+			}
+			p.Data[k] = v
+		}
+	}
+	return nil
 }
 
 // GetString ...
