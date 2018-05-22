@@ -25,8 +25,7 @@ type planDetails interface {
 }
 
 type dtuPlanDetails struct {
-	//sku        string
-	tier        string
+	tierName    string
 	skuMap      map[int64]string
 	allowedDTUs []int64
 	defaultDTUs int64
@@ -45,7 +44,8 @@ func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
 	schema := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
-	if len(d.allowedDTUs) > 0 { //basic doesn't have DTUs, so don't add if not set
+	// nolint: lll
+	if len(d.allowedDTUs) > 0 { // basic is constrained to just 5 DTUs, so don't present this as an option
 		schema.PropertySchemas["dtu"] = service.IntPropertySchema{
 			AllowedValues: d.allowedDTUs,
 			DefaultValue:  ptr.ToInt64(d.defaultDTUs),
@@ -71,7 +71,7 @@ func (d dtuPlanDetails) getTierProvisionParameters(
 	}
 	p := map[string]interface{}{}
 	p["sku"] = d.getSKU(pp)
-	p["tier"] = d.tier
+	p["tier"] = d.tierName
 	p["maxSizeBytes"] = convertBytesToGB(d.storageInGB)
 	return p, nil
 }
@@ -84,7 +84,7 @@ func (d dtuPlanDetails) getSKU(pp databaseProvisionParams) string {
 }
 
 type vCorePlanDetails struct {
-	tier          string
+	tierName      string
 	tierShortName string
 	includeDBMS   bool
 }
@@ -125,7 +125,7 @@ func (v vCorePlanDetails) getTierProvisionParameters(
 	}
 	p := map[string]interface{}{}
 	p["sku"] = v.getSKU(pp)
-	p["tier"] = v.tier
+	p["tier"] = v.tierName
 	p["maxSizeBytes"] = getStorageInBytes(pp)
 	return p, nil
 }

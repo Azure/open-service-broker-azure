@@ -10,7 +10,7 @@ func buildBasicPlan(
 	planDetails := dtuPlanDetails{
 		storageInGB: 2,
 		defaultDTUs: 5,
-		tier:        "Basic",
+		tierName:    "Basic",
 		skuMap: map[int64]string{
 			5: "Basic",
 		},
@@ -51,7 +51,7 @@ func buildStandardPlan(
 			10, 20, 50, 100, 200, 400, 800, 1600, 3000,
 		},
 		defaultDTUs: 10,
-		tier:        "Standard",
+		tierName:    "Standard",
 		skuMap: map[int64]string{
 			10:   "S0",
 			20:   "S1",
@@ -101,7 +101,7 @@ func buildPremiumPlan(
 			125, 250, 500, 1000, 1750, 4000,
 		},
 		defaultDTUs: 125,
-		tier:        "Premium",
+		tierName:    "Premium",
 		skuMap: map[int64]string{
 			125:  "P1",
 			250:  "P2",
@@ -143,7 +143,7 @@ func buildGeneralPurposePlan(
 	includesDBMS bool,
 ) *service.PlanProperties {
 	gpDetails := vCorePlanDetails{
-		tier:          "GeneralPurpose",
+		tierName:      "GeneralPurpose",
 		tierShortName: "GP",
 		includeDBMS:   includesDBMS,
 	}
@@ -179,7 +179,7 @@ func buildBusinessCriticalPlan(
 	includesDBMS bool,
 ) *service.PlanProperties {
 	bcDetails := vCorePlanDetails{
-		tier:          "BusinessCritical",
+		tierName:      "BusinessCritical",
 		tierShortName: "BC",
 		includeDBMS:   includesDBMS,
 	}

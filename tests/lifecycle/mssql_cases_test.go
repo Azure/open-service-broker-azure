@@ -17,7 +17,7 @@ var mssqlDBMSAlias = uuid.NewV4().String()
 var mssqlTestCases = []serviceLifecycleTestCase{
 	{ // all-in-one scenario
 		group:     "mssql",
-		name:      "all-in-one",
+		name:      "all-in-one (DTU)",
 		serviceID: "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 		planID:    "2497b7f3-341b-4ac6-82fb-d4a48c005e19",
 		location:  "southcentralus",
@@ -55,9 +55,9 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 			},
 		},
 		childTestCases: []*serviceLifecycleTestCase{
-			{ // db only scenario
+			{ // dtu db only scenario
 				group:           "mssql",
-				name:            "database-only",
+				name:            "database-only (DTU)",
 				serviceID:       "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				planID:          "8fa8d759-c142-45dd-ae38-b93482ddc04a",
 				location:        "", // This is actually irrelevant for this test
@@ -66,11 +66,24 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 					"parentAlias": mssqlDBMSAlias,
 				},
 			},
+			{ // vcore db only scenario
+				group:           "mssql",
+				name:            "database-only (vCore)",
+				serviceID:       "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
+				planID:          "da591616-77a1-4df8-a493-6c119649bc6b",
+				location:        "", // This is actually irrelevant for this test
+				testCredentials: testMsSQLCreds,
+				provisioningParameters: service.CombinedProvisioningParameters{
+					"parentAlias": mssqlDBMSAlias,
+					"cores":       int64(2),
+					"storage":     int64(10),
+				},
+			},
 		},
 	},
 	{ // vcore plan, all-in-one
 		group:     "mssql",
-		name:      "vcore-all-in-one",
+		name:      "all-in-one (vCore)",
 		serviceID: "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 		planID:    "c77e86af-f050-4457-a2ff-2b48451888f3",
 		location:  "eastus",
