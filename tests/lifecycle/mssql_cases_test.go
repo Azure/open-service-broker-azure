@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/denisenkom/go-mssqldb" // MS SQL Driver
 	uuid "github.com/satori/go.uuid"
 )
@@ -21,7 +20,7 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 		serviceID: "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 		planID:    "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 		location:  "southcentralus",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"firewallRules": []interface{}{
 				map[string]interface{}{
 					"name":           "AllowSome",
@@ -43,7 +42,7 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 		serviceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",
 		planID:    "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 		location:  "southcentralus",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"alias": mssqlDBMSAlias,
 			"firewallRules": []interface{}{
 				map[string]interface{}{
@@ -61,7 +60,7 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 				planID:          "8fa8d759-c142-45dd-ae38-b93482ddc04a",
 				location:        "", // This is actually irrelevant for this test
 				testCredentials: testMsSQLCreds,
-				provisioningParameters: service.CombinedProvisioningParameters{
+				provisioningParameters: map[string]interface{}{
 					"parentAlias": mssqlDBMSAlias,
 				},
 			},
