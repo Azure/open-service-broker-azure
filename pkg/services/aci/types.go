@@ -58,7 +58,7 @@ type credentials struct {
 }
 
 func (s *serviceManager) SplitProvisioningParameters(
-	cpp service.CombinedProvisioningParameters,
+	cpp map[string]interface{},
 ) (
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
@@ -80,7 +80,7 @@ func (s *serviceManager) SplitProvisioningParameters(
 }
 
 func (s *serviceManager) SplitBindingParameters(
-	params service.CombinedBindingParameters,
+	params map[string]interface{},
 ) (
 	service.BindingParameters,
 	service.SecureBindingParameters,

@@ -13,7 +13,7 @@ type secureInstanceDetails struct {
 }
 
 func (s *serviceManager) SplitProvisioningParameters(
-	service.CombinedProvisioningParameters,
+	map[string]interface{},
 ) (
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
@@ -23,7 +23,7 @@ func (s *serviceManager) SplitProvisioningParameters(
 }
 
 func (s *serviceManager) SplitBindingParameters(
-	service.CombinedBindingParameters,
+	map[string]interface{},
 ) (service.BindingParameters, service.SecureBindingParameters, error) {
 	return nil, nil, nil
 }

@@ -14,7 +14,7 @@ type bindingParameters struct {
 // two separate maps, with one containing non-sensitive provisioning parameters
 // and the other containing sensitive provisioning parameters.
 func (s *ServiceManager) SplitProvisioningParameters(
-	cpp service.CombinedProvisioningParameters,
+	cpp map[string]interface{},
 ) (
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
@@ -35,7 +35,7 @@ func (s *ServiceManager) SplitProvisioningParameters(
 // maps, with one containing non-sensitive binding parameters and the other
 // containing sensitive binding parameters.
 func (s *ServiceManager) SplitBindingParameters(
-	cbp service.CombinedBindingParameters,
+	cbp map[string]interface{},
 ) (
 	service.BindingParameters,
 	service.SecureBindingParameters,
