@@ -18,46 +18,33 @@ const (
 )
 
 func buildGoTemplateParameters(
-	instance service.Instance,
+	plan service.Plan,
+	version string,
+	dt dbmsInstanceDetails,
+	sdt secureDBMSInstanceDetails,
+	pp dbmsProvisioningParameters,
 ) (map[string]interface{}, error) {
-
-	plan := instance.Plan
-
-	dt := dbmsInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, err
-	}
-	sdt := secureAllInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, err
-	}
-	pp := dbmsProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, err
-	}
-
-	schema := plan.GetProperties().Extended["provisionSchema"].(planSchema)
+	td := plan.GetProperties().Extended["tierDetails"].(tierDetails)
 
 	p := map[string]interface{}{}
-	p["sku"] = schema.getSku(pp)
-	p["tier"] = plan.GetProperties().Extended["tier"]
-	p["cores"] = schema.getCores(pp)
-	p["storage"] = schema.getStorage(pp) * 1024 //storage is in MB to arm :/
-	p["backupRetention"] = schema.getBackupRetention(pp)
-	p["hardwareFamily"] = schema.getHardwareFamily(pp)
-	if schema.isGeoRedundentBackup(pp) {
+	p["sku"] = td.getSku(pp)
+	p["tier"] = td.tierName
+	p["cores"] = td.getCores(pp)
+	p["storage"] = getStorage(pp) * 1024 //storage is in MB to arm :/
+	p["backupRetention"] = getBackupRetention(pp)
+	p["hardwareFamily"] = getHardwareFamily(pp)
+	if isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
-	if schema.isSSLRequired(pp) {
+	if isSSLRequired(pp) {
 		p["sslEnforcement"] = enabledARMString
 	} else {
 		p["sslEnforcement"] = disabledARMString
 	}
-	p["version"] = instance.Service.GetProperties().Extended["version"]
-	p["firewallRules"] = schema.getFirewallRules(pp)
+	p["version"] = version
+	p["firewallRules"] = getFirewallRules(pp)
 
 	return p, nil
 }

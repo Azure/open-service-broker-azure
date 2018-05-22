@@ -25,10 +25,8 @@ func (a *allInOneManager) Unbind(
 		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return err
 	}
-	schema :=
-		instance.Plan.GetProperties().Extended["provisionSchema"].(planSchema)
 	return unbind(
-		schema.isSSLRequired(pp.dbmsProvisioningParameters),
+		isSSLRequired(pp.dbmsProvisioningParameters),
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,
 		dt.FullyQualifiedDomainName,

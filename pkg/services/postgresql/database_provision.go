@@ -89,9 +89,8 @@ func (d *databaseManager) setupDatabase(
 	); err != nil {
 		return nil, nil, err
 	}
-	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	err := setupDatabase(
-		pSchema.isSSLRequired(ppp),
+		isSSLRequired(ppp),
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
@@ -133,10 +132,9 @@ func (d *databaseManager) createExtensions(
 	); err != nil {
 		return nil, nil, err
 	}
-	pSchema := instance.Parent.Plan.GetProperties().Extended["provisionSchema"].(planSchema) // nolint: lll
 	if len(pp.Extensions) > 0 {
 		err := createExtensions(
-			pSchema.isSSLRequired(ppp),
+			isSSLRequired(ppp),
 			pdt.ServerName,
 			spdt.AdministratorLoginPassword,
 			pdt.FullyQualifiedDomainName,
