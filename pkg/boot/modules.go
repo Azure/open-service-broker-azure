@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	cognitiveSDK "github.com/Azure/azure-sdk-for-go/services/cognitiveservices/mgmt/2017-04-18/cognitiveservices"   // nolint: lll
 	aciSDK "github.com/Azure/azure-sdk-for-go/services/containerinstance/mgmt/2017-08-01-preview/containerinstance" // nolint: lll
 	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"                     // nolint: lll
 	eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub"                      // nolint: lll
@@ -21,6 +22,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/aci"
+	"github.com/Azure/open-service-broker-azure/pkg/services/cognitive"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
@@ -75,6 +77,13 @@ func getModules(
 	)
 	aciClient.Authorizer = authorizer
 	aciClient.UserAgent = getUserAgent(aciClient.Client)
+
+	cognitiveClient := cognitiveSDK.NewAccountsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	cognitiveClient.Authorizer = authorizer
+	cognitiveClient.UserAgent = getUserAgent(cognitiveClient.Client)
 
 	cosmosdbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,
@@ -210,6 +219,7 @@ func getModules(
 		storage.New(armDeployer, storageAccountsClient),
 		search.New(armDeployer, searchServicesClient),
 		aci.New(armDeployer, aciClient),
+		cognitive.New(armDeployer, cognitiveClient),
 	}
 
 	// Filter modules based on stability
