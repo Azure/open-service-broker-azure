@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
 )
@@ -21,7 +20,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 		planID:          "90f27532-0286-42e5-8e23-c3bb37191368",
 		location:        "southcentralus",
 		testCredentials: testPostgreSQLCreds,
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"firewallRules": []interface{}{
 				map[string]interface{}{
 					"name":           "AllowSome",
@@ -47,7 +46,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 		serviceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
 		planID:    "73191861-04b3-4d0b-a29b-429eb15a83d4",
 		location:  "eastus",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"alias": postgresqlDBMSAlias,
 			"firewallRules": []interface{}{
 				map[string]interface{}{
@@ -65,7 +64,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 				planID:          "df6f5ef1-e602-406b-ba73-09c107d1e31b",
 				location:        "", // This is actually irrelevant for this test
 				testCredentials: testPostgreSQLCreds,
-				provisioningParameters: service.CombinedProvisioningParameters{
+				provisioningParameters: map[string]interface{}{
 					"parentAlias": postgresqlDBMSAlias,
 					"extensions": []interface{}{
 						"uuid-ossp",

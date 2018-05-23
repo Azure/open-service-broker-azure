@@ -13,7 +13,22 @@ What you will need:
 
 ## Create an Azure Redis Cache
 
-Open Service Broker for Azure uses Redis as a backing store for its state. Create a cache using the Azure CLI:
+Open Service Broker for Azure uses Redis as a backing store for its state. We recommend using a managed Redis service, such as Azure Redis Cache. You can use the Azure CLI to determine if Azure Redis Cache is enabled for your subscription:
+
+```console
+$ az provider show -n Microsoft.Cache -o table
+Namespace        RegistrationState
+---------------  -------------------
+Microsoft.Cache  Registered
+```
+
+If the service is not enabled for your subscription, you can enable it with the Azure CLI:
+
+```console
+az provider register --namespace Microsoft.Cache
+```
+
+After executing this command, you can monitor it with the `az provider show -n Microsoft.Cache -o table` command. When the provider is listed as `Registered`, you can create a cache using the Azure CLI:
 
 ```console
 az redis create -n osba-cache -g myresourcegroup -l <location> --sku Basic --vm-size C1

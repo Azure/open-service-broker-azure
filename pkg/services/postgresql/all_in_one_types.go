@@ -17,7 +17,7 @@ type secureAllInOneInstanceDetails struct {
 }
 
 func (a *allInOneManager) SplitProvisioningParameters(
-	cpp service.CombinedProvisioningParameters,
+	cpp map[string]interface{},
 ) (
 	service.ProvisioningParameters,
 	service.SecureProvisioningParameters,
@@ -32,7 +32,7 @@ func (a *allInOneManager) SplitProvisioningParameters(
 }
 
 func (a *allInOneManager) SplitBindingParameters(
-	params service.CombinedBindingParameters,
+	params map[string]interface{},
 ) (service.BindingParameters, service.SecureBindingParameters, error) {
 	return nil, nil, nil
 }
