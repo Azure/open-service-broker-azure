@@ -8,6 +8,13 @@ func (
 	return getDBMSCommonProvisionParamSchema()
 }
 
+func (
+	d *dbmsManager,
+) getUpdatingParametersSchema() service.InputParametersSchema {
+	schema := getDBMSCommonProvisionParamSchema()
+	return schema
+}
+
 type dbmsInstanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`

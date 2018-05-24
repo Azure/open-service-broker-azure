@@ -15,6 +15,11 @@ type planDetails interface {
 	getTierProvisionParameters(
 		service.Instance,
 	) (map[string]interface{}, error)
+	getTierUpdateParameters(
+		service.Instance,
+	) (map[string]interface{}, error)
+	getUpgradeSchema() service.InputParametersSchema
+	validateUpdateParameters(service.Instance) error
 }
 
 type dtuPlanDetails struct {
@@ -26,7 +31,18 @@ type dtuPlanDetails struct {
 	includeDBMS bool
 }
 
-func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
+func addDBMSParameters(schema map[string]service.PropertySchema) {
+	dbmsSchema := getDBMSCommonProvisionParamSchema().PropertySchemas
+	for key, value := range dbmsSchema {
+		schema[key] = value
+	}
+}
+
+func (d dtuPlanDetails) validateUpdateParameters(service.Instance) error {
+	return nil // no op
+}
+
+func (d dtuPlanDetails) getUpgradeSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
@@ -46,16 +62,27 @@ func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
 	return ips
 }
 
+func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
+	return d.getUpgradeSchema()
+}
+
 func (d dtuPlanDetails) getTierProvisionParameters(
 	instance service.Instance,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
 	p["sku"] = d.getSKU(*instance.ProvisioningParameters)
+	fmt.Printf("Sku : %s", p["sku"])
 	p["tier"] = d.tierName
 	// ARM template needs bytes
 	p["maxSizeBytes"] =
 		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
+}
+
+func (d dtuPlanDetails) getTierUpdateParameters(
+	instance service.Instance,
+) (map[string]interface{}, error) {
+	return nil, nil
 }
 
 func (d dtuPlanDetails) getSKU(pp service.ProvisioningParameters) string {
@@ -74,7 +101,16 @@ type vCorePlanDetails struct {
 	includeDBMS   bool
 }
 
-func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
+func (v vCorePlanDetails) validateUpdateParameters(
+	instance service.Instance,
+) error {
+	return validateStorageUpdate(
+		*instance.ProvisioningParameters,
+		*instance.UpdatingParameters,
+	)
+}
+
+func (v vCorePlanDetails) getUpgradeSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
@@ -95,6 +131,10 @@ func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
 	return ips
 }
 
+func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
+	return v.getUpgradeSchema()
+}
+
 func (v vCorePlanDetails) getTierProvisionParameters(
 	instance service.Instance,
 ) (map[string]interface{}, error) {
@@ -104,6 +144,17 @@ func (v vCorePlanDetails) getTierProvisionParameters(
 	// ARM template needs bytes
 	p["maxSizeBytes"] =
 		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
+	return p, nil
+}
+
+func (v vCorePlanDetails) getTierUpdateParameters(
+	instance service.Instance,
+) (map[string]interface{}, error) {
+	p := map[string]interface{}{}
+	p["sku"] = v.getSKU(*instance.UpdatingParameters)
+	p["tier"] = v.tierName
+	p["maxSizeBytes"] =
+		instance.UpdatingParameters.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
