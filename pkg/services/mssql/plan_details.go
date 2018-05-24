@@ -82,7 +82,12 @@ func (d dtuPlanDetails) getTierProvisionParameters(
 func (d dtuPlanDetails) getTierUpdateParameters(
 	instance service.Instance,
 ) (map[string]interface{}, error) {
-	return nil, nil
+	p := map[string]interface{}{}
+	p["sku"] = d.getSKU(*instance.ProvisioningParameters)
+	p["tier"] = d.tierName
+	p["maxSizeBytes"] =
+		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
+	return p, nil
 }
 
 func (d dtuPlanDetails) getSKU(pp service.ProvisioningParameters) string {
