@@ -253,12 +253,6 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 					},
 				},
 			},
-			"sslEnforcement": &service.StringPropertySchema{
-				Description: "Specifies whether the server requires the use of TLS" +
-					" when connecting. Left unspecified, SSL will be enforced",
-				AllowedValues: []string{"enabled", "disabled"},
-				DefaultValue:  "enabled",
-			},
 			"tags": &service.ObjectPropertySchema{
 				Description: "Tags to be applied to new resources," +
 					" specified as key/value pairs.",
