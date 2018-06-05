@@ -18,7 +18,7 @@ type planDetails interface {
 	getTierUpdateParameters(
 		service.Instance,
 	) (map[string]interface{}, error)
-	getUpgradeSchema() service.InputParametersSchema
+	getUpdateSchema() service.InputParametersSchema
 	validateUpdateParameters(service.Instance) error
 }
 
@@ -42,7 +42,7 @@ func (d dtuPlanDetails) validateUpdateParameters(service.Instance) error {
 	return nil // no op
 }
 
-func (d dtuPlanDetails) getUpgradeSchema() service.InputParametersSchema {
+func (d dtuPlanDetails) getUpdateSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
@@ -63,7 +63,7 @@ func (d dtuPlanDetails) getUpgradeSchema() service.InputParametersSchema {
 }
 
 func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
-	return d.getUpgradeSchema()
+	return d.getUpdateSchema()
 }
 
 func (d dtuPlanDetails) getTierProvisionParameters(
@@ -115,7 +115,7 @@ func (v vCorePlanDetails) validateUpdateParameters(
 	)
 }
 
-func (v vCorePlanDetails) getUpgradeSchema() service.InputParametersSchema {
+func (v vCorePlanDetails) getUpdateSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
@@ -137,7 +137,7 @@ func (v vCorePlanDetails) getUpgradeSchema() service.InputParametersSchema {
 }
 
 func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
-	return v.getUpgradeSchema()
+	return v.getUpdateSchema()
 }
 
 func (v vCorePlanDetails) getTierProvisionParameters(
