@@ -21,13 +21,22 @@ As services are developed, the plans available and features of the service may c
 
 Please see [stability documentation](stability.md) for information on each of these tiers.
 
-Here are our timelines for service stabilities:
+Currently, the following services are in 'preview':
 
-- SQL Server: `preview` by the end of February 2018
-- MySQL: `preview` by the end of February 2018
-- PostgreSQL: `preview` by the end of February 2018
+- [Azure SQL Database](https://azure.microsoft.com/services/sql-database/)
+- [Azure Database for MySQL](https://azure.microsoft.com/services/mysql/)
+- [Azure Database for PostgreSQL](https://azure.microsoft.com/services/postgresql/)
 
-We aren't yet setting timelines on other service stabilities, but will continue to mature additional services once we promote the service modules above to preview. Promotion from preview to stable will depend on the maturity of the underlying service. For example, the [Azure Database for PostgreSQL](https://azure.microsoft.com/en-us/services/postgresql/) service offering is currently in `Preview`. We will not promote the OSBA PostgreSQL offering to `stable` until the service itself is promoted out of `Preview` status.
+We expect to declare these services 'stable' by July 2018.
+
+In the 2nd half of 2018, we intend to move the following services into 'preview' and ultimately to a 'stable' state:
+
+- [Azure CosmosDB](https://azure.microsoft.com/services/cosmos-db/)
+- [Azure Redis Cache](https://azure.microsoft.com/services/cache/)
+- [Azure Service Bus](https://azure.microsoft.com/services/service-bus/)
+- [Azure Event Hubs](https://azure.microsoft.com/services/event-hubs/)
+
+Other services, including the remainder currently listed as 'experimental' will follow these.
 
 # Database Schemas
 
