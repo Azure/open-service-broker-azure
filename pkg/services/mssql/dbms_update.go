@@ -32,7 +32,13 @@ func (d *dbmsManager) updateARMTemplate(
 		service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	goTemplateParams, err := buildDBMSGoTemplateParameters(instance)
+	version := instance.Service.GetProperties().Extended["version"].(string)
+	goTemplateParams, err := buildDBMSGoTemplateParameters(
+		dt,
+		sdt,
+		*instance.UpdatingParameters,
+		version,
+	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}

@@ -37,7 +37,16 @@ func (d *databaseManager) updateARMTemplate(
 		return nil, nil, err
 	}
 
-	goTemplateParams, err := buildDatabaseUpdateGoTemplateParameters(instance)
+	pd, ok := instance.Plan.GetProperties().Extended["tierDetails"]
+	if !ok {
+		return nil, nil, fmt.Errorf("unable to access plan details")
+	}
+	planDetails, _ := pd.(planDetails)
+	goTemplateParams, err := buildDatabaseGoTemplateParameters(
+		dt.DatabaseName,
+		*instance.UpdatingParameters,
+		planDetails,
+	)
 	if err != nil {
 		return nil, nil, err
 	}

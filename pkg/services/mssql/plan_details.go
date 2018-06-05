@@ -13,10 +13,7 @@ import (
 type planDetails interface {
 	getProvisionSchema() service.InputParametersSchema
 	getTierProvisionParameters(
-		service.Instance,
-	) (map[string]interface{}, error)
-	getTierUpdateParameters(
-		service.Instance,
+		pp service.ProvisioningParameters,
 	) (map[string]interface{}, error)
 	getUpdateSchema() service.InputParametersSchema
 	validateUpdateParameters(service.Instance) error
@@ -67,26 +64,13 @@ func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
 }
 
 func (d dtuPlanDetails) getTierProvisionParameters(
-	instance service.Instance,
+	pp service.ProvisioningParameters,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
-	p["sku"] = d.getSKU(*instance.ProvisioningParameters)
-	fmt.Printf("Sku : %s", p["sku"])
+	p["sku"] = d.getSKU(pp)
 	p["tier"] = d.tierName
 	// ARM template needs bytes
-	p["maxSizeBytes"] =
-		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
-	return p, nil
-}
-
-func (d dtuPlanDetails) getTierUpdateParameters(
-	instance service.Instance,
-) (map[string]interface{}, error) {
-	p := map[string]interface{}{}
-	p["sku"] = d.getSKU(*instance.ProvisioningParameters)
-	p["tier"] = d.tierName
-	p["maxSizeBytes"] =
-		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
+	p["maxSizeBytes"] = pp.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
@@ -141,14 +125,13 @@ func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
 }
 
 func (v vCorePlanDetails) getTierProvisionParameters(
-	instance service.Instance,
+	pp service.ProvisioningParameters,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
-	p["sku"] = v.getSKU(*instance.ProvisioningParameters)
+	p["sku"] = v.getSKU(pp)
 	p["tier"] = v.tierName
 	// ARM template needs bytes
-	p["maxSizeBytes"] =
-		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
+	p["maxSizeBytes"] = pp.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
@@ -260,4 +243,23 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 			},
 		},
 	}
+}
+
+func validateStorageUpdate(
+	pp service.ProvisioningParameters,
+	up service.ProvisioningParameters,
+) error {
+	existingStorage := pp.GetInt64("storage")
+	newStorge := up.GetInt64("storage")
+	if newStorge < existingStorage {
+		return service.NewValidationError(
+			"storage",
+			fmt.Sprintf(
+				`invalid value: cannot reduce storage from %d to %d`,
+				existingStorage,
+				newStorge,
+			),
+		)
+	}
+	return nil
 }

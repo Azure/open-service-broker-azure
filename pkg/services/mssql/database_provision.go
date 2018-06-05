@@ -43,7 +43,8 @@ func (d *databaseManager) deployARMTemplate(
 		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
 		return nil, nil, err
 	}
-	goTemplateParams, err := buildDatabaseGoTemplateParameters(instance)
+	pd := instance.Plan.GetProperties().Extended["tierDetails"].(planDetails)
+	goTemplateParams, err := buildDatabaseGoTemplateParameters(dt.DatabaseName, *instance.ProvisioningParameters, pd)
 	if err != nil {
 		return nil, nil, err
 	}
