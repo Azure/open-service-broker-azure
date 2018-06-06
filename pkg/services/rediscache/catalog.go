@@ -27,6 +27,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "basic",
 				Description: "Basic Tier, 250MB Cache",
 				Free:        false,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"redisCacheSKU":      "Basic",
 					"redisCacheFamily":   "C",
@@ -42,6 +43,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "standard",
 				Description: "Standard Tier, 1GB Cache",
 				Free:        false,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"redisCacheSKU":      "Standard",
 					"redisCacheFamily":   "C",
@@ -57,6 +59,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "premium",
 				Description: "Premium Tier, 6GB Cache",
 				Free:        false,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"redisCacheSKU":      "Premium",
 					"redisCacheFamily":   "P",

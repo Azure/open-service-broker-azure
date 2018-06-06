@@ -27,6 +27,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "basic",
 				Description: "Basic Tier, Shared Capacity",
 				Free:        false,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Basic",
 				},
@@ -40,7 +41,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name: "standard",
 				Description: "Standard Tier, Shared Capacity, Topics, 12.5M " +
 					"Messaging Operations/Month, Variable Pricing",
-				Free: false,
+				Free:      false,
+				Stability: service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Standard",
 				},
@@ -59,7 +61,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name: "premium",
 				Description: "Premium Tier, Dedicated Capacity, Recommended " +
 					"For Production Workloads, Fixed Pricing",
-				Free: false,
+				Free:      false,
+				Stability: service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"serviceBusSku": "Premium",
 				},

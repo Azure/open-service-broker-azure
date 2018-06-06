@@ -27,6 +27,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "standard",
 				Description: "Standard Tier",
 				Free:        false,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"vaultSku": "Standard",
 				},
@@ -44,6 +45,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "premium",
 				Description: "Premium Tier",
 				Free:        false,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"vaultSku": "Premium",
 				},

@@ -42,8 +42,18 @@ func GetCatalog(
 					serviceID,
 				)
 			}
-			services = append(services, svc)
-			usedServiceIDs[serviceID] = moduleName
+
+			filteredPlans := []service.Plan{}
+			for _, plan := range svc.GetPlans() {
+				if plan.GetStability() >= catalogConfig.MinStability {
+					filteredPlans = append(filteredPlans, plan)
+				}
+			}
+			if len(filteredPlans) > 0 {
+				svc.SetPlans(filteredPlans)
+				services = append(services, svc)
+				usedServiceIDs[serviceID] = moduleName
+			}
 		}
 	}
 	catalog := service.NewCatalog(services)
