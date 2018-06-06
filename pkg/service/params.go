@@ -159,6 +159,9 @@ func (p *Parameters) GetInt64(key string) int64 {
 	}
 	valIface, ok := p.Data[key]
 	if !ok {
+		if intSchema.DefaultValue == nil {
+			return 0
+		}
 		return *intSchema.DefaultValue
 	}
 	if val, ok := valIface.(*int64); ok {
@@ -179,6 +182,9 @@ func (p *Parameters) GetInt64(key string) int64 {
 	if val, ok := valIface.(int); ok {
 		return int64(val)
 	}
+	if intSchema.DefaultValue == nil {
+		return 0
+	}
 	return *intSchema.DefaultValue
 }
 
@@ -198,6 +204,9 @@ func (p *Parameters) GetFloat64(key string) float64 {
 	}
 	valIface, ok := p.Data[key]
 	if !ok {
+		if floatSchema.DefaultValue == nil {
+			return 0
+		}
 		return *floatSchema.DefaultValue
 	}
 	if val, ok := valIface.(*float64); ok {
@@ -230,6 +239,9 @@ func (p *Parameters) GetFloat64(key string) float64 {
 	if val, ok := valIface.(int); ok {
 		return float64(val)
 	}
+	if floatSchema.DefaultValue == nil {
+		return 0
+	}
 	return *floatSchema.DefaultValue
 }
 
@@ -237,22 +249,28 @@ func (p *Parameters) GetFloat64(key string) float64 {
 // TODO: krancour: Document this
 func (p *Parameters) GetObject(key string) map[string]interface{} {
 	if p.Schema == nil {
-		return nil
+		return map[string]interface{}{}
 	}
 	schema, ok := p.Schema.PropertySchemas[key]
 	if !ok {
-		return nil
+		return map[string]interface{}{}
 	}
 	objectSchema, ok := schema.(*ObjectPropertySchema)
 	if !ok {
-		return nil
+		return map[string]interface{}{}
 	}
 	valIface, ok := p.Data[key]
 	if !ok {
+		if objectSchema.DefaultValue == nil {
+			return map[string]interface{}{}
+		}
 		return objectSchema.DefaultValue
 	}
 	val, ok := valIface.(map[string]interface{})
 	if !ok {
+		if objectSchema.DefaultValue == nil {
+			return map[string]interface{}{}
+		}
 		return objectSchema.DefaultValue
 	}
 	return val
