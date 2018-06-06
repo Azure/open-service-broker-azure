@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 )
 
 const jsonSchemaVersion = "http://json-schema.org/draft-04/schema#"
@@ -495,7 +497,10 @@ func (a ArrayPropertySchema) validate(context string, value interface{}) error {
 	return nil
 }
 
-func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
+func (p *PlanSchemas) addCommonSchema(
+	sp *ServiceProperties,
+	azureConfig azure.Config,
+) {
 	if p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas == nil {
 		p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas =
 			map[string]PropertySchema{}
@@ -505,6 +510,13 @@ func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 		ps["location"] = &StringPropertySchema{
 			Description: "The Azure region in which to provision" +
 				" applicable resources.",
+		}
+		if azureConfig.DefaultLocation == "" {
+			p.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
+				append(
+					p.ServiceInstances.ProvisioningParametersSchema.RequiredProperties,
+					"location",
+				)
 		}
 		ps["resourceGroup"] = &StringPropertySchema{
 			Description: "The (new or existing) resource group with which" +

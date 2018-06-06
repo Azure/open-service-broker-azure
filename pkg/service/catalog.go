@@ -3,6 +3,8 @@ package service
 import (
 	"encoding/json"
 	"sync"
+
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 )
 
 // Catalog is an interface to be implemented by types that represents the
@@ -109,7 +111,9 @@ type plan struct {
 }
 
 // NewCatalog initializes and returns a new Catalog
-func NewCatalog(services []Service) Catalog {
+func NewCatalog(
+	services []Service,
+) Catalog {
 	c := &catalog{
 		services:        services,
 		indexedServices: make(map[string]Service),
@@ -158,6 +162,7 @@ func NewService(
 	serviceManager ServiceManager,
 	plans ...Plan,
 ) Service {
+	azureConfig, _ := azure.GetConfigFromEnvironment()
 	s := &service{
 		ServiceProperties: serviceProperties,
 		serviceManager:    serviceManager,
@@ -166,7 +171,10 @@ func NewService(
 	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		p.Schemas.addCommonSchema(serviceProperties)
+		p.Schemas.addCommonSchema(
+			serviceProperties,
+			azureConfig,
+		)
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
