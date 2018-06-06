@@ -388,6 +388,88 @@ func TestGetString(t *testing.T) {
 
 // -----------------------------------------------------------------------------
 
+func TestGetStringArrayWithNoSchema(t *testing.T) {
+	p := Parameters{
+		Data: map[string]interface{}{
+			"foo": []interface{}{"bat", "baz"},
+		},
+	}
+	val := p.GetStringArray("foo")
+	assert.Nil(t, val)
+}
+
+func TestGetStringArrayWithNoMap(t *testing.T) {
+	p := Parameters{
+		Schema: &InputParametersSchema{
+			PropertySchemas: map[string]PropertySchema{
+				"foo": &ArrayPropertySchema{},
+			},
+		},
+	}
+	val := p.GetStringArray("foo")
+	assert.Nil(t, val)
+}
+
+func TestGetStringArrayNotInMapWithNoDefault(t *testing.T) {
+	p := Parameters{
+		Schema: &InputParametersSchema{
+			PropertySchemas: map[string]PropertySchema{
+				"foo": &ArrayPropertySchema{},
+			},
+		},
+		Data: map[string]interface{}{},
+	}
+	val := p.GetStringArray("foo")
+	assert.Nil(t, val)
+}
+
+func TestGetStringArrayNotInMapWithDefault(t *testing.T) {
+	p := Parameters{
+		Schema: &InputParametersSchema{
+			PropertySchemas: map[string]PropertySchema{
+				"foo": &ArrayPropertySchema{
+					DefaultValue: []interface{}{"bar", "bat"},
+				},
+			},
+		},
+		Data: map[string]interface{}{},
+	}
+	val := p.GetStringArray("foo")
+	assert.Equal(t, []string{"bar", "bat"}, val)
+}
+
+func TestGetStringArrayValueIsNotStringArray(t *testing.T) {
+	p := Parameters{
+		Schema: &InputParametersSchema{
+			PropertySchemas: map[string]PropertySchema{
+				"foo": &ArrayPropertySchema{},
+			},
+		},
+		Data: map[string]interface{}{
+			"foo": 42,
+		},
+	}
+	val := p.GetStringArray("foo")
+	assert.Nil(t, val)
+}
+
+func TestGetStringArray(t *testing.T) {
+	p := Parameters{
+		Schema: &InputParametersSchema{
+			PropertySchemas: map[string]PropertySchema{
+				"foo": &ArrayPropertySchema{},
+			},
+		},
+		Data: map[string]interface{}{
+			"foo": []interface{}{"bar", "bat"},
+		},
+	}
+	val := p.GetStringArray("foo")
+	assert.Equal(t, []string{"bar", "bat"}, val)
+}
+
+// -----------------------------------------------------------------------------
+
 func TestGetInt64WithNoSchema(t *testing.T) {
 	p := Parameters{
 		Data: map[string]interface{}{
@@ -623,7 +705,7 @@ func TestGetObjectWithNoSchema(t *testing.T) {
 		},
 	}
 	val := p.GetObject("foo")
-	assert.Equal(t, map[string]interface{}{}, val)
+	assert.Equal(t, Parameters{}, val)
 }
 
 func TestGetObjectWithNoMap(t *testing.T) {
@@ -635,7 +717,7 @@ func TestGetObjectWithNoMap(t *testing.T) {
 		},
 	}
 	val := p.GetObject("foo")
-	assert.Equal(t, map[string]interface{}{}, val)
+	assert.Equal(t, Parameters{}, val)
 }
 
 func TestGetObjectNotInMapWithNoDefault(t *testing.T) {
@@ -648,32 +730,41 @@ func TestGetObjectNotInMapWithNoDefault(t *testing.T) {
 		Data: map[string]interface{}{},
 	}
 	val := p.GetObject("foo")
-	assert.Equal(t, map[string]interface{}{}, val)
+	assert.Equal(t, Parameters{}, val)
 }
 
 func TestGetObjectNotInMapWithDefault(t *testing.T) {
 	defaultVal := map[string]interface{}{
 		"bar": "bat",
 	}
+	fooSchema := &ObjectPropertySchema{
+		DefaultValue: defaultVal,
+	}
 	p := Parameters{
 		Schema: &InputParametersSchema{
 			PropertySchemas: map[string]PropertySchema{
-				"foo": &ObjectPropertySchema{
-					DefaultValue: defaultVal,
-				},
+				"foo": fooSchema,
 			},
 		},
 		Data: map[string]interface{}{},
 	}
 	val := p.GetObject("foo")
-	assert.Equal(t, defaultVal, val)
+	assert.Equal(
+		t,
+		Parameters{
+			Schema: fooSchema,
+			Data:   defaultVal,
+		},
+		val,
+	)
 }
 
 func TestGetObjectValueIsNotMap(t *testing.T) {
+	fooSchema := &ObjectPropertySchema{}
 	p := Parameters{
 		Schema: &InputParametersSchema{
 			PropertySchemas: map[string]PropertySchema{
-				"foo": &ObjectPropertySchema{},
+				"foo": fooSchema,
 			},
 		},
 		Data: map[string]interface{}{
@@ -681,17 +772,24 @@ func TestGetObjectValueIsNotMap(t *testing.T) {
 		},
 	}
 	val := p.GetObject("foo")
-	assert.Equal(t, map[string]interface{}{}, val)
+	assert.Equal(
+		t,
+		Parameters{
+			Schema: fooSchema,
+		},
+		val,
+	)
 }
 
 func TestGetObject(t *testing.T) {
 	expectedVal := map[string]interface{}{
 		"bar": "bat",
 	}
+	fooSchema := &ObjectPropertySchema{}
 	p := Parameters{
 		Schema: &InputParametersSchema{
 			PropertySchemas: map[string]PropertySchema{
-				"foo": &ObjectPropertySchema{},
+				"foo": fooSchema,
 			},
 		},
 		Data: map[string]interface{}{
@@ -699,5 +797,14 @@ func TestGetObject(t *testing.T) {
 		},
 	}
 	val := p.GetObject("foo")
-	assert.Equal(t, expectedVal, val)
+	assert.Equal(
+		t,
+		Parameters{
+			Schema: fooSchema,
+			Data:   expectedVal,
+		},
+		val,
+	)
 }
+
+// -----------------------------------------------------------------------------

@@ -37,6 +37,11 @@ type InputParametersSchema struct {
 	PropertySchemas    map[string]PropertySchema `json:"properties,omitempty"`
 }
 
+// GetPropertySchemas returns a map of subordinate property schemas
+func (i InputParametersSchema) GetPropertySchemas() map[string]PropertySchema {
+	return i.PropertySchemas
+}
+
 // MarshalJSON defines custom JSON marshaling for InputParametersSchema and
 // introduces an intermediate "parameters" property which is required by the
 // OSB spec.
@@ -363,6 +368,15 @@ type CustomObjectPropertyValidator func(
 	value map[string]interface{},
 ) error
 
+// KeyedPropertySchemaContainer is an interface for any PropertySchema that
+// contains an map of subordinate PropertySchemas. The existence of this
+// interface alllows Params to treat InputParametersSchema and
+// ObjectPropertySchema the same even though there are some differences between
+// the two that are unimportant from Params' perspective.
+type KeyedPropertySchemaContainer interface {
+	GetPropertySchemas() map[string]PropertySchema
+}
+
 // ObjectPropertySchema represents the attributes of a complicated schema type
 // that can have nested properties
 type ObjectPropertySchema struct {
@@ -372,6 +386,11 @@ type ObjectPropertySchema struct {
 	Additional              PropertySchema                `json:"additionalProperties,omitempty"` // nolint: lll
 	CustomPropertyValidator CustomObjectPropertyValidator `json:"-"`
 	DefaultValue            map[string]interface{}        `json:"-"`
+}
+
+// GetPropertySchemas returns a map of subordinate property schemas
+func (o ObjectPropertySchema) GetPropertySchemas() map[string]PropertySchema {
+	return o.PropertySchemas
 }
 
 // MarshalJSON provides functionality to marshal an ObjectPropertySchema to JSON

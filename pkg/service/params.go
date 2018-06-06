@@ -13,7 +13,7 @@ import (
 // TODO: krancour: Document this
 type Parameters struct {
 	Codec  crypto.Codec
-	Schema *InputParametersSchema
+	Schema KeyedPropertySchemaContainer
 	Data   map[string]interface{}
 }
 
@@ -34,10 +34,17 @@ func (p Parameters) MarshalJSON() ([]byte, error) {
 			`error marshaling parameters: cannot marshal without a codec`,
 		)
 	}
+	ips, ok := p.Schema.(*InputParametersSchema)
+	if !ok {
+		return nil, errors.New(
+			`error marshaling parameters: cannot marshal with a schema that is ` +
+				`not and *InputParametersSchema`,
+		)
+	}
 	data := map[string]interface{}{}
-	for k, schema := range p.Schema.PropertySchemas {
+	for k, schema := range ips.PropertySchemas {
 		if v, ok := p.Data[k]; ok {
-			if slice.ContainsString(p.Schema.SecureProperties, k) {
+			if slice.ContainsString(ips.SecureProperties, k) {
 				if _, ok := schema.(*StringPropertySchema); !ok {
 					return nil, fmt.Errorf(
 						`error marshaling parameters: cannot encrypt non-string field "%s"`,
@@ -72,14 +79,21 @@ func (p *Parameters) UnmarshalJSON(bytes []byte) error {
 	// constructor-like function, perhaps we can forgo this check.
 	if p.Schema == nil {
 		return errors.New(
-			`error marshaling parameters: cannot unmarshal without a schema`,
+			`error unmarshaling parameters: cannot unmarshal without a schema`,
 		)
 	}
 	// TODO: krancour: Ideally, if we constrain how Params are created using some
 	// constructor-like function, perhaps we can forgo this check.
 	if p.Codec == nil {
 		return errors.New(
-			`error marshaling parameters: cannot unmarshal without a codec`,
+			`error unmarshaling parameters: cannot unmarshal without a codec`,
+		)
+	}
+	ips, ok := p.Schema.(*InputParametersSchema)
+	if !ok {
+		return errors.New(
+			`error unmarshaling parameters: cannot unmarshal with a schema that is ` +
+				`not and *InputParametersSchema`,
 		)
 	}
 	p.Data = map[string]interface{}{}
@@ -87,9 +101,9 @@ func (p *Parameters) UnmarshalJSON(bytes []byte) error {
 	if err := json.Unmarshal(bytes, &data); err != nil {
 		return err
 	}
-	for k, schema := range p.Schema.PropertySchemas {
+	for k, schema := range ips.PropertySchemas {
 		if v, ok := data[k]; ok {
-			if slice.ContainsString(p.Schema.SecureProperties, k) {
+			if slice.ContainsString(ips.SecureProperties, k) {
 				if _, ok := schema.(*StringPropertySchema); !ok {
 					return fmt.Errorf(
 						`error unmarshaling parameters: cannot decrypt non-string field `+
@@ -124,7 +138,7 @@ func (p *Parameters) GetString(key string) string {
 	if p.Schema == nil {
 		return ""
 	}
-	schema, ok := p.Schema.PropertySchemas[key]
+	schema, ok := p.Schema.GetPropertySchemas()[key]
 	if !ok {
 		return ""
 	}
@@ -143,13 +157,56 @@ func (p *Parameters) GetString(key string) string {
 	return val
 }
 
+// GetStringArray ...
+// TODO: krancour: Document this
+func (p *Parameters) GetStringArray(key string) []string {
+	if p.Schema == nil {
+		return nil
+	}
+	schema, ok := p.Schema.GetPropertySchemas()[key]
+	if !ok {
+		return nil
+	}
+	arrSchema, ok := schema.(*ArrayPropertySchema)
+	if !ok {
+		return nil
+	}
+	valIface, ok := p.Data[key]
+	if !ok {
+		return ifaceArrayToStringArray(arrSchema.DefaultValue, nil)
+	}
+	val, ok := valIface.([]interface{})
+	if !ok {
+		return ifaceArrayToStringArray(arrSchema.DefaultValue, nil)
+	}
+	return ifaceArrayToStringArray(val, arrSchema.DefaultValue)
+}
+
+func ifaceArrayToStringArray(arr, defaultArr []interface{}) []string {
+	if arr == nil {
+		return nil
+	}
+	retArr := make([]string, len(arr))
+	for i, item := range arr {
+		str, ok := item.(string)
+		if !ok {
+			if defaultArr == nil {
+				return nil
+			}
+			return ifaceArrayToStringArray(defaultArr, nil)
+		}
+		retArr[i] = str
+	}
+	return retArr
+}
+
 // GetInt64 ...
 // TODO: krancour: Document this
 func (p *Parameters) GetInt64(key string) int64 {
 	if p.Schema == nil {
 		return 0
 	}
-	schema, ok := p.Schema.PropertySchemas[key]
+	schema, ok := p.Schema.GetPropertySchemas()[key]
 	if !ok {
 		return 0
 	}
@@ -194,7 +251,7 @@ func (p *Parameters) GetFloat64(key string) float64 {
 	if p.Schema == nil {
 		return 0
 	}
-	schema, ok := p.Schema.PropertySchemas[key]
+	schema, ok := p.Schema.GetPropertySchemas()[key]
 	if !ok {
 		return 0
 	}
@@ -247,33 +304,40 @@ func (p *Parameters) GetFloat64(key string) float64 {
 
 // GetObject ...
 // TODO: krancour: Document this
-func (p *Parameters) GetObject(key string) map[string]interface{} {
-	if p.Schema == nil {
-		return map[string]interface{}{}
+func (p *Parameters) GetObject(key string) Parameters {
+	params := Parameters{
+		Codec: p.Codec,
 	}
-	schema, ok := p.Schema.PropertySchemas[key]
+	if p.Schema == nil {
+		return params
+	}
+	schema, ok := p.Schema.GetPropertySchemas()[key]
 	if !ok {
-		return map[string]interface{}{}
+		return params
 	}
 	objectSchema, ok := schema.(*ObjectPropertySchema)
 	if !ok {
-		return map[string]interface{}{}
+		return params
 	}
+	params.Schema = objectSchema
 	valIface, ok := p.Data[key]
 	if !ok {
 		if objectSchema.DefaultValue == nil {
-			return map[string]interface{}{}
+			return params
 		}
-		return objectSchema.DefaultValue
+		params.Data = objectSchema.DefaultValue
+		return params
 	}
 	val, ok := valIface.(map[string]interface{})
 	if !ok {
 		if objectSchema.DefaultValue == nil {
-			return map[string]interface{}{}
+			return params
 		}
-		return objectSchema.DefaultValue
+		params.Data = objectSchema.DefaultValue
+		return params
 	}
-	return val
+	params.Data = val
+	return params
 }
 
 // GetArray ...
@@ -282,7 +346,7 @@ func (p *Parameters) GetArray(key string) []interface{} {
 	if p.Schema == nil {
 		return nil
 	}
-	schema, ok := p.Schema.PropertySchemas[key]
+	schema, ok := p.Schema.GetPropertySchemas()[key]
 	if !ok {
 		return nil
 	}
