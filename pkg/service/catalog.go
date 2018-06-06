@@ -172,28 +172,6 @@ func NewService(
 	return s
 }
 
-// NewServiceFromJSON returns a new Service unmarshalled from the provided
-// JSON []byte
-func NewServiceFromJSON(jsonBytes []byte) (Service, error) {
-	s := &service{
-		plans:        []Plan{},
-		indexedPlans: make(map[string]Plan),
-	}
-	if err := json.Unmarshal(jsonBytes, s); err != nil {
-		return nil, err
-	}
-	for _, planRawJSON := range s.Plans {
-		plan, err := NewPlanFromJSON(planRawJSON)
-		if err != nil {
-			return nil, err
-		}
-		s.plans = append(s.plans, plan)
-		s.indexedPlans[plan.GetID()] = plan
-	}
-	s.Plans = nil
-	return s, nil
-}
-
 func (s *service) ToJSON() ([]byte, error) {
 	if s.EndOfLife {
 		return nil, nil
@@ -266,15 +244,6 @@ func NewPlan(planProperties *PlanProperties) Plan {
 	return &plan{
 		PlanProperties: planProperties,
 	}
-}
-
-// NewPlanFromJSON returns a new Plan unmarshalled from the provided JSON []byte
-func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
-	p := &plan{}
-	if err := json.Unmarshal(jsonBytes, p); err != nil {
-		return nil, err
-	}
-	return p, nil
 }
 
 func (p *plan) ToJSON() ([]byte, error) {
