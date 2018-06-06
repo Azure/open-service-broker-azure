@@ -111,9 +111,7 @@ type plan struct {
 }
 
 // NewCatalog initializes and returns a new Catalog
-func NewCatalog(
-	services []Service,
-) Catalog {
+func NewCatalog(services []Service) Catalog {
 	c := &catalog{
 		services:        services,
 		indexedServices: make(map[string]Service),
