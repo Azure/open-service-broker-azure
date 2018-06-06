@@ -9,31 +9,19 @@ var dbmsARMTemplateBytes = []byte(`
 		"location": {
 			"type": "string"
 		},
-		"serverName": {
-			"type": "string"
-		},
-		"administratorLogin": {
-			"type": "string"
-		},
-		"administratorLoginPassword": {
-			"type": "securestring"
-		},
 		"tags": {
 			"type": "object"
 		}
 	},
-	"variables": {
-		"SQLapiVersion": "2014-04-01"
-	},
 	"resources": [
 		{
 			"type": "Microsoft.Sql/servers",
-			"name": "[parameters('serverName')]",
-			"apiVersion": "[variables('SQLapiVersion')]",
+			"name": "{{ .serverName }}",
+			"apiVersion": "2015-05-01-preview",
 			"location": "[parameters('location')]",
 			"properties": {
-				"administratorLogin": "[parameters('administratorLogin')]",
-				"administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+				"administratorLogin": "{{ .administratorLogin }}",
+				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
 				"version": "{{.version}}"
 			},
 			"tags": "[parameters('tags')]",
@@ -43,14 +31,14 @@ var dbmsARMTemplateBytes = []byte(`
 				{
 					"type": "firewallrules",
 					"name": "{{$rule.Name}}",
-					"apiVersion": "[variables('SQLapiVersion')]",
+					"apiVersion": "2014-04-01-preview",
 					"location": "[parameters('location')]",
 					"properties": {
 						"startIpAddress": "{{$rule.StartIP}}",
 						"endIpAddress": "{{$rule.EndIP}}"
 					},
 					"dependsOn": [
-						"[concat('Microsoft.Sql/servers/', parameters('serverName'))]"
+						"Microsoft.Sql/servers/{{$.serverName}}"
 					]
 				}{{if lt $i $count}},{{end}}
 				{{end}}
@@ -60,7 +48,7 @@ var dbmsARMTemplateBytes = []byte(`
 	"outputs": {
 		"fullyQualifiedDomainName": {
 			"type": "string",
-			"value": "[reference(parameters('serverName')).fullyQualifiedDomainName]"
+			"value": "[reference('{{ .serverName}}').fullyQualifiedDomainName]"
 		}
 	}
 }

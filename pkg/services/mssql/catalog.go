@@ -2,8 +2,217 @@ package mssql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
+func buildBasicPlan(
+	id string,
+	includesDBMS bool,
+) *service.PlanProperties {
+
+	planDetails := dtuPlanDetails{
+		storageInGB: 2,
+		defaultDTUs: 5,
+		tierName:    "Basic",
+		skuMap: map[int64]string{
+			5: "Basic",
+		},
+		includeDBMS: includesDBMS,
+	}
+
+	return &service.PlanProperties{
+		ID:          id,
+		Name:        "basic",
+		Description: "Basic Tier, 5 DTUs, 2GB Storage, 7 days point-in-time restore",
+		Free:        false,
+		Extended: map[string]interface{}{
+			"tierDetails": planDetails,
+		},
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Basic Tier",
+			Bullets: []string{
+				"5 DTUs",
+				"Includes 2GB Storage",
+				"7 days point-in-time restore",
+			},
+		},
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
+			},
+		},
+	}
+}
+
+func buildStandardPlan(
+	id string,
+	includesDBMS bool,
+) *service.PlanProperties {
+	planDetails := dtuPlanDetails{
+		storageInGB: 250,
+		allowedDTUs: []int64{
+			10, 20, 50, 100, 200, 400, 800, 1600, 3000,
+		},
+		defaultDTUs: 10,
+		tierName:    "Standard",
+		skuMap: map[int64]string{
+			10:   "S0",
+			20:   "S1",
+			50:   "S2",
+			100:  "S3",
+			200:  "S4",
+			400:  "S6",
+			800:  "S7",
+			1600: "S9",
+			3000: "S12",
+		},
+		includeDBMS: includesDBMS,
+	}
+
+	return &service.PlanProperties{
+		ID:   id,
+		Name: "standard",
+		Description: "Standard Tier, Up to 3000 DTUs, 250GB Storage, " +
+			"35 days point-in-time restore",
+		Free: false,
+		Extended: map[string]interface{}{
+			"tierDetails": planDetails,
+		},
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Standard Tier",
+			Bullets: []string{
+				"10-3000 DTUs",
+				"250GB",
+				"35 days point-in-time restore",
+			},
+		},
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
+			},
+		},
+	}
+}
+
+func buildPremiumPlan(
+	id string,
+	includesDBMS bool,
+) *service.PlanProperties {
+	planDetails := dtuPlanDetails{
+		storageInGB: 500,
+		allowedDTUs: []int64{
+			125, 250, 500, 1000, 1750, 4000,
+		},
+		defaultDTUs: 125,
+		tierName:    "Premium",
+		skuMap: map[int64]string{
+			125:  "P1",
+			250:  "P2",
+			500:  "P4",
+			1000: "P6",
+			1750: "P11",
+			4000: "P15",
+		},
+		includeDBMS: includesDBMS,
+	}
+
+	return &service.PlanProperties{
+		ID:   id,
+		Name: "premium",
+		Description: "Premium Tier, Up to 4000 DTUs, 500GB Storage, " +
+			"35 days point-in-time restore",
+		Free: false,
+		Extended: map[string]interface{}{
+			"tierDetails": planDetails,
+		},
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Premium Tier",
+			Bullets: []string{
+				"Up to 4000 DTUs",
+				"Includes 500GB Storage",
+				"35 days point-in-time restore",
+			},
+		},
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
+			},
+		},
+	}
+}
+
+func buildGeneralPurposePlan(
+	id string,
+	includesDBMS bool,
+) *service.PlanProperties {
+	gpDetails := vCorePlanDetails{
+		tierName:      "GeneralPurpose",
+		tierShortName: "GP",
+		includeDBMS:   includesDBMS,
+	}
+	return &service.PlanProperties{
+		ID:          id,
+		Name:        "general-purpose",
+		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage",
+		Free:        false,
+		Extended: map[string]interface{}{
+			"tierDetails": gpDetails,
+		},
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "General Purpose",
+			Bullets: []string{
+				"Scalable compute and storage options for budget-oriented applications",
+				"Up to 80 vCores",
+				"Up to 440 GB memory",
+				"$187.62 / vCore",
+				"7 days point-in-time restore",
+				"Currently In Preview",
+			},
+		},
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: gpDetails.getProvisionSchema(),
+			},
+		},
+	}
+}
+
+func buildBusinessCriticalPlan(
+	id string,
+	includesDBMS bool,
+) *service.PlanProperties {
+	bcDetails := vCorePlanDetails{
+		tierName:      "BusinessCritical",
+		tierShortName: "BC",
+		includeDBMS:   includesDBMS,
+	}
+	return &service.PlanProperties{
+		ID:   id,
+		Name: "business-critical",
+		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage. " +
+			"Local SSD, highest resilience to failures.",
+		Free: false,
+		Extended: map[string]interface{}{
+			"tierDetails": bcDetails,
+		},
+		Metadata: &service.ServicePlanMetadata{
+			DisplayName: "Basic Tier",
+			Bullets: []string{
+				"Up to 80 vCores",
+				"Up to 440 GB memory",
+				"$505.50 / vCore",
+				"7 days point-in-time restore",
+				"Currently In Preview",
+			},
+		},
+		Schemas: service.PlanSchemas{
+			ServiceInstances: service.InstanceSchemas{
+				ProvisioningParametersSchema: bcDetails.getProvisionSchema(),
+			},
+		},
+	}
+}
+
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
+
 	return service.NewCatalog([]service.Service{
 		// all-in-one (dbms and database) service
 		service.NewService(
@@ -25,291 +234,36 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			},
 			m.allInOneServiceManager,
-			service.NewPlan(&service.PlanProperties{
-				ID:          "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
-				Name:        "basic",
-				Description: "Basic Tier, 5 DTUs, 2GB, 7 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Basic",
-					"requestedServiceObjectiveName": "Basic",
-					"maxSizeBytes":                  "2147483648",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets: []string{
-						"5 DTUs",
-						"2GB",
-						"7 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "2497b7f3-341b-4ac6-82fb-d4a48c005e19",
-				Name:        "standard-s0",
-				Description: "Standard Tier, 10 DTUs, 250GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S0",
-					"maxSizeBytes":                  "268435456000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"10 DTUs",
-						"250GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "17725188-76a2-4d6c-8e86-49f146766eeb",
-				Name:        "standard-s1",
-				Description: "StandardS1 Tier, 20 DTUs, 250GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S1",
-					"maxSizeBytes":                  "268435456000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "StandardS1 Tier",
-					Bullets: []string{
-						"20 DTUs",
-						"250GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "a5537f8e-d816-4b0e-9546-a13811944bdd",
-				Name:        "standard-s2",
-				Description: "StandardS2 Tier, 50 DTUs, 250GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S2",
-					"maxSizeBytes":                  "268435456000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "StandardS2 Tier",
-					Bullets: []string{
-						"50 DTUs",
-						"250GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "26cf84bf-f700-4e65-8048-cbfa9c319d5f",
-				Name:        "standard-s3",
-				Description: "StandardS3 Tier, 100 DTUs, 250GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S3",
-					"maxSizeBytes":                  "268435456000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "StandardS3 Tier",
-					Bullets: []string{
-						"100 DTUs",
-						"250GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "f9a3cc8e-a6e2-474d-b032-9837ea3dfcaa",
-				Name:        "premium-p1",
-				Description: "PremiumP1 Tier, 125 DTUs, 500GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P1",
-					"maxSizeBytes":                  "536870912000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP1 Tier",
-					Bullets: []string{
-						"125 DTUs",
-						"500GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "2bbbcc59-a0e0-4153-841b-2833cb417d43",
-				Name:        "premium-p2",
-				Description: "PremiumP2 Tier, 250 DTUs, 500GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P2",
-					"maxSizeBytes":                  "536870912000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP2 Tier",
-					Bullets: []string{
-						"250 DTUs",
-						"500GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "85d54d69-55ee-4fe8-a207-66bc96ecf9e7",
-				Name:        "premium-p4",
-				Description: "PremiumP4 Tier, 500 DTUs, 500GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P4",
-					"maxSizeBytes":                  "536870912000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP4 Tier",
-					Bullets: []string{
-						"500 DTUs",
-						"500GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "af3dc76f-5b31-4cad-8adc-a9e756640a57",
-				Name:        "premium-p6",
-				Description: "PremiumP6 Tier, 1000 DTUs, 500GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P6",
-					"maxSizeBytes":                  "536870912000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP6 Tier",
-					Bullets: []string{
-						"1000 DTUs",
-						"500GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "408f5f35-5f5e-48f3-98cf-9e10c1abc4e5",
-				Name:        "premium-p11",
-				Description: "PremiumP11 Tier, 1750 DTUs, 1024GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P11",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP11 Tier",
-					Bullets: []string{
-						"1024GB",
-						"35 days point-in-time restore",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "b69af389-7af5-47bd-9ccf-c1ffdc2620d9",
-				Name:        "data-warehouse-100",
-				Description: "DataWarehouse100 Tier, 100 DWUs, 1024GB",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "DataWarehouse",
-					"requestedServiceObjectiveName": "DW100",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "DataWarehouse100 Tier",
-					Bullets: []string{
-						"1024GB",
-						"100 DWUs",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "470a869b-1b02-474b-b5e5-10ca0ea488df",
-				Name:        "data-warehouse-1200",
-				Description: "DataWarehouse1200 Tier, 1200 DWUs, 1024GB",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "DataWarehouse",
-					"requestedServiceObjectiveName": "DW1200",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "DataWarehouse1200 Tier",
-					Bullets: []string{
-						"1024GB",
-						"1200 DWUs",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: m.allInOneServiceManager.getProvisionParametersSchema(),
-					},
-				},
-			}),
+			service.NewPlan(
+				buildBasicPlan(
+					"3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
+					true,
+				),
+			),
+			service.NewPlan(
+				buildStandardPlan(
+					"2497b7f3-341b-4ac6-82fb-d4a48c005e19",
+					true,
+				),
+			),
+			service.NewPlan(
+				buildPremiumPlan(
+					"f9a3cc8e-a6e2-474d-b032-9837ea3dfcaa",
+					true,
+				),
+			),
+			service.NewPlan(
+				buildGeneralPurposePlan(
+					"c77e86af-f050-4457-a2ff-2b48451888f3",
+					true,
+				),
+			),
+			service.NewPlan(
+				buildBusinessCriticalPlan(
+					"ebc3ae35-91bc-480c-807b-e798c1ca8c4e",
+					true,
+				),
+			),
 		),
 		// dbms only service
 		service.NewService(
@@ -368,231 +322,36 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			},
 			m.databaseManager,
-			service.NewPlan(&service.PlanProperties{
-				ID:          "8fa8d759-c142-45dd-ae38-b93482ddc04a",
-				Name:        "basic",
-				Description: "Basic Tier, 5 DTUs, 2GB, 7 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Basic",
-					"requestedServiceObjectiveName": "Basic",
-					"maxSizeBytes":                  "2147483648",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Basic Tier",
-					Bullets: []string{
-						"5 DTUs",
-						"2GB",
-						"7 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "9d36b6b3-b5f3-4907-a713-5cc13b785409",
-				Name:        "standard-s0",
-				Description: "Standard Tier, 10 DTUs, 250GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S0",
-					"maxSizeBytes":                  "268435456000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "Standard Tier",
-					Bullets: []string{
-						"10 DTUs",
-						"250GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "01c397f8-c999-4e86-bcc2-654cd8cae5fd",
-				Name:        "standard-s1",
-				Description: "StandardS1 Tier, 20 DTUs, 250GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S1",
-					"maxSizeBytes":                  "268435456000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "StandardS1 Tier",
-					Bullets: []string{
-						"20 DTUs",
-						"250GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "9cd114a0-8356-4247-9b71-2e685e5a29f3",
-				Name:        "standard-s2",
-				Description: "StandardS2 Tier, 50 DTUs, 250GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S2",
-					"maxSizeBytes":                  "268435456000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "StandardS2 Tier",
-					Bullets: []string{
-						"50 DTUs",
-						"250GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "624828a9-c73c-4d35-bc9d-ea41cfc75853",
-				Name:        "standard-s3",
-				Description: "StandardS3 Tier, 100 DTUs, 250GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Standard",
-					"requestedServiceObjectiveName": "S3",
-					"maxSizeBytes":                  "268435456000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "StandardS3 Tier",
-					Bullets: []string{
-						"100 DTUs",
-						"250GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "220e922a-a5b2-43e4-9388-fe45a32bbf31",
-				Name:        "premium-p1",
-				Description: "PremiumP1 Tier, 125 DTUs, 500GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P1",
-					"maxSizeBytes":                  "536870912000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP1 Tier",
-					Bullets: []string{
-						"125 DTUs",
-						"500GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "e7eb13df-1fda-4492-b218-00dd0db1c85d",
-				Name:        "premium-p2",
-				Description: "PremiumP2 Tier, 250 DTUs, 500GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P2",
-					"maxSizeBytes":                  "536870912000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP2 Tier",
-					Bullets: []string{
-						"250 DTUs",
-						"500GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "feb25d68-2b52-41b5-a249-28a747bc2c2e",
-				Name:        "premium-p4",
-				Description: "PremiumP4 Tier, 500 DTUs, 500GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P4",
-					"maxSizeBytes":                  "536870912000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP4 Tier",
-					Bullets: []string{
-						"500 DTUs",
-						"500GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "19487202-dc8a-4930-bbad-7bbf1486dbca",
-				Name:        "premium-p6",
-				Description: "PremiumP6 Tier, 1000 DTUs, 500GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P6",
-					"maxSizeBytes":                  "536870912000",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP6 Tier",
-					Bullets: []string{
-						"1000 DTUs",
-						"500GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "a561c45a-33c8-412e-9315-411c1d7035da",
-				Name:        "premium-p11",
-				Description: "PremiumP11 Tier, 1750 DTUs, 1024GB, 35 days point-in-time restore",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "Premium",
-					"requestedServiceObjectiveName": "P11",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "PremiumP11 Tier",
-					Bullets: []string{
-						"1024GB",
-						"35 days point-in-time restore",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "7a466f47-f137-4b9c-a63d-c5cbe724b874",
-				Name:        "data-warehouse-100",
-				Description: "DataWarehouse100 Tier, 100 DWUs, 1024GB",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "DataWarehouse",
-					"requestedServiceObjectiveName": "DW100",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "DataWarehouse100 Tier",
-					Bullets: []string{
-						"1024GB",
-						"100 DWUs",
-					},
-				},
-			}),
-			service.NewPlan(&service.PlanProperties{
-				ID:          "2717d839-be32-4225-8685-47adf0e6ff15",
-				Name:        "data-warehouse-1200",
-				Description: "DataWarehouse1200 Tier, 1200 DWUs, 1024GB",
-				Free:        false,
-				Extended: map[string]interface{}{
-					"edition":                       "DataWarehouse",
-					"requestedServiceObjectiveName": "DW1200",
-					"maxSizeBytes":                  "1099511627776",
-				},
-				Metadata: &service.ServicePlanMetadata{
-					DisplayName: "DataWarehouse1200 Tier",
-					Bullets: []string{
-						"1024GB",
-						"1200 DWUs",
-					},
-				},
-			}),
+			service.NewPlan(
+				buildBasicPlan(
+					"8fa8d759-c142-45dd-ae38-b93482ddc04a",
+					false,
+				),
+			),
+			service.NewPlan(
+				buildStandardPlan(
+					"9d36b6b3-b5f3-4907-a713-5cc13b785409",
+					false,
+				),
+			),
+			service.NewPlan(
+				buildPremiumPlan(
+					"220e922a-a5b2-43e4-9388-fe45a32bbf31",
+					false,
+				),
+			),
+			service.NewPlan(
+				buildGeneralPurposePlan(
+					"da591616-77a1-4df8-a493-6c119649bc6b",
+					false,
+				),
+			),
+			service.NewPlan(
+				buildBusinessCriticalPlan(
+					"b05c25d2-1d63-4d09-a50a-e68c2710a069",
+					false,
+				),
+			),
 		),
 	}), nil
 }
