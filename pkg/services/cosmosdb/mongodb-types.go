@@ -1,3 +1,5 @@
+// +build experimental
+
 package cosmosdb
 
 // mongoCredentials encapsulates CosmosDB-specific connection details and

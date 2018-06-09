@@ -1,3 +1,5 @@
+// +build experimental
+
 package mysql
 
 import (

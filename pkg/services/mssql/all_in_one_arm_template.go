@@ -1,3 +1,5 @@
+// +build experimental
+
 package mssql
 
 // nolint: lll

@@ -1,3 +1,5 @@
+// +build experimental
+
 package cosmosdb
 
 type sqlDatabaseOnlyInstanceDetails struct {
