@@ -27,10 +27,11 @@ func (a *allInOneManager) deleteARMDeployment(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	if err := a.armDeployer.Delete(
-		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-	); err != nil {
+	if err :=
+		a.armDeployer.Delete(
+			dt.ARMDeploymentName,
+			instance.ProvisioningParameters.GetString("resourceGroup"),
+		); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
 	return instance.Details, instance.SecureDetails, nil
@@ -48,7 +49,7 @@ func (a *allInOneManager) deletePostgreSQLServer(
 	}
 	result, err := a.serversClient.Delete(
 		ctx,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.ServerName,
 	)
 	if err != nil {

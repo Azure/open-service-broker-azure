@@ -48,7 +48,6 @@ name.
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `hardwareFamily` | `string` | Specifies the underlying hardware type. Valid values are `gen4` or `gen5` | N | `gen5` | 
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
@@ -58,7 +57,6 @@ name.
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `hardwareFamily` | `string` | Specifies the underlying hardware type. Valid values are `gen4` or `gen5` | N | `gen5` | 
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 32 | N | 2 |
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
@@ -244,7 +242,6 @@ Provisions an Azure Database for PostgreSQL DBMS instance containing no database
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `hardwareFamily` | `string` | Specifies the underlying hardware type. Valid values are `gen4` or `gen5` | N | `gen5` | 
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
@@ -254,7 +251,6 @@ Provisions an Azure Database for PostgreSQL DBMS instance containing no database
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `hardwareFamily` | `string` | Specifies the underlying hardware type. Valid values are `gen4` or `gen5` | N | `gen5` | 
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 32 | N | 2 |
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |

@@ -9,12 +9,26 @@ import (
 
 func TestValidateStorageIncreases(t *testing.T) {
 	sm := &dbmsManager{}
-	pp := service.ProvisioningParameters{
-		"storage": 10,
+	schema := &service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"storage": &service.IntPropertySchema{},
+		},
 	}
-
-	up := service.ProvisioningParameters{
-		"storage": 20,
+	pp := &service.ProvisioningParameters{
+		Parameters: service.Parameters{
+			Schema: schema,
+			Data: map[string]interface{}{
+				"storage": 10,
+			},
+		},
+	}
+	up := &service.ProvisioningParameters{
+		Parameters: service.Parameters{
+			Schema: schema,
+			Data: map[string]interface{}{
+				"storage": 20,
+			},
+		},
 	}
 
 	plan := service.NewPlan(
@@ -33,12 +47,26 @@ func TestValidateStorageIncreases(t *testing.T) {
 
 func TestValidateStorageDecreaseFails(t *testing.T) {
 	sm := &dbmsManager{}
-	pp := service.ProvisioningParameters{
-		"storage": 20,
+	schema := &service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"storage": &service.IntPropertySchema{},
+		},
 	}
-
-	up := service.ProvisioningParameters{
-		"storage": 10,
+	pp := &service.ProvisioningParameters{
+		Parameters: service.Parameters{
+			Schema: schema,
+			Data: map[string]interface{}{
+				"storage": 20,
+			},
+		},
+	}
+	up := &service.ProvisioningParameters{
+		Parameters: service.Parameters{
+			Schema: schema,
+			Data: map[string]interface{}{
+				"storage": 10,
+			},
+		},
 	}
 
 	plan := service.NewPlan(
