@@ -1,5 +1,11 @@
 package azure
 
+import (
+	"fmt"
+
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+)
+
 var locations = []string{
 	"australiaeast",
 	"australiasoutheast",
@@ -38,4 +44,16 @@ func IsValidLocation(location string) bool {
 		}
 	}
 	return false
+}
+
+// LocationValidator is a custom schema validator that validates a specified
+// location is a real Azure region.
+func LocationValidator(context, val string) error {
+	if !IsValidLocation(val) {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf(`invalid location: "%s"`, val),
+		)
+	}
+	return nil
 }

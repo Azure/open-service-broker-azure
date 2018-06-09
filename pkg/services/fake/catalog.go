@@ -47,6 +47,18 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 								"someParameter": &service.StringPropertySchema{},
 							},
 						},
+						UpdatingParametersSchema: service.InputParametersSchema{
+							PropertySchemas: map[string]service.PropertySchema{
+								"someParameter": &service.StringPropertySchema{},
+							},
+						},
+					},
+					ServiceBindings: service.BindingSchemas{
+						BindingParametersSchema: service.InputParametersSchema{
+							PropertySchemas: map[string]service.PropertySchema{
+								"someParameter": &service.StringPropertySchema{},
+							},
+						},
 					},
 				},
 			}),

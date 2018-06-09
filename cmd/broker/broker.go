@@ -107,7 +107,6 @@ func main() {
 		asyncEngine,
 		filterChain,
 		catalog,
-		azureConfig,
 	)
 	if err != nil {
 		log.Fatal(err)

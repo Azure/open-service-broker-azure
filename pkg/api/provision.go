@@ -9,12 +9,9 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
-	"github.com/mitchellh/mapstructure"
-	"github.com/satori/uuid"
 )
 
 func (s *server) provision(w http.ResponseWriter, r *http.Request) {
@@ -26,6 +23,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	log.WithFields(logFields).Debug("received provisioning request")
 
+	// TODO: krancour: Move all the accepts incomplete stuff into a filter.
 	// This broker provisions everything asynchronously. If a client doesn't
 	// explicitly indicate that they will accept an incomplete result, the
 	// spec says to respond with a 422
@@ -122,8 +120,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Start by carrying out plan-specific provisioning request parameters
-	// validation
+	// Validate the provisioning parameters
 	if err :=
 		plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema.Validate(
 			provisioningRequest.Parameters,
@@ -147,140 +144,21 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Wrap the provisioning parameters with a "params" object that guides access
+	// to the parameters using schema
+	pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema
+	provisioningParameters := &service.ProvisioningParameters{
+		Parameters: service.Parameters{
+			Schema: &pps,
+			Data:   provisioningRequest.Parameters,
+		},
+	}
+
 	// Unpack the generic bits of the parameter map...
-
-	// Location...
-	location := ""
-	locIface, ok := provisioningRequest.Parameters["location"]
-	if ok {
-		location, ok = locIface.(string)
-		if !ok {
-			s.handlePossibleValidationError(
-				service.NewValidationError(
-					"location",
-					fmt.Sprintf(`"%v" is not a string`, locIface),
-				),
-				w,
-				logFields,
-			)
-			return
-		}
-	}
-	location = s.getLocation(svc, location)
-
-	// Resource group...
-	requestedResourceGroup := ""
-	rgIface, ok := provisioningRequest.Parameters["resourceGroup"]
-	if ok {
-		requestedResourceGroup, ok = rgIface.(string)
-		if !ok {
-			s.handlePossibleValidationError(
-				service.NewValidationError(
-					"resourceGroup",
-					fmt.Sprintf(`"%v" is not a string`, rgIface),
-				),
-				w,
-				logFields,
-			)
-			return
-		}
-	}
-	resourceGroup := s.getResourceGroup(svc, requestedResourceGroup)
-
-	// Tags...
-	var tags map[string]string
-	tagsIface, ok := provisioningRequest.Parameters["tags"]
-	if tagsIface != nil && ok {
-		var mapTagsIfaces map[string]interface{}
-		mapTagsIfaces, ok = tagsIface.(map[string]interface{})
-		if !ok {
-			s.handlePossibleValidationError(
-				service.NewValidationError(
-					"tags",
-					fmt.Sprintf(`"%v" is not a map[string]interface{}`, tagsIface),
-				),
-				w,
-				logFields,
-			)
-			return
-		}
-		decoderConfig := &mapstructure.DecoderConfig{
-			Result: &tags,
-		}
-		decoder, err := mapstructure.NewDecoder(decoderConfig)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"error building tag map decoder",
-			)
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
-		}
-		err = decoder.Decode(mapTagsIfaces)
-		if err != nil {
-			logFields["error"] = err
-			log.WithFields(logFields).Debug(
-				"bad provisioning request: error decoding tags into map[string]string",
-			)
-			// This scenario is bad request because it means the tags weren't
-			// a map[string]string, as we expected.
-			s.writeResponse(w, http.StatusBadRequest, generateMalformedTagsResponse())
-			return
-		}
-	}
-
 	// Alias
-	alias := ""
-	aliasIface, ok := provisioningRequest.Parameters["alias"]
-	if ok {
-		alias, ok = aliasIface.(string)
-		if !ok {
-			s.handlePossibleValidationError(
-				service.NewValidationError(
-					"alias",
-					fmt.Sprintf(`"%v" is not a string`, locIface),
-				),
-				w,
-				logFields,
-			)
-			return
-		}
-	}
-
+	alias := provisioningParameters.GetString("alias")
 	// Parent alias
-	parentAlias := ""
-	parentAliasIface, ok := provisioningRequest.Parameters["parentAlias"]
-	if ok {
-		parentAlias, ok = parentAliasIface.(string)
-		if !ok {
-			s.handlePossibleValidationError(
-				service.NewValidationError(
-					"parentAlias",
-					fmt.Sprintf(`"%v" is not a string`, parentAlias),
-				),
-				w,
-				logFields,
-			)
-			return
-		}
-	}
-
-	serviceManager := svc.GetServiceManager()
-
-	// Now service-specific parameters...
-	provisioningParameters, secureProvisioningParameters, err :=
-		serviceManager.SplitProvisioningParameters(provisioningRequest.Parameters)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Debug(
-			"bad provisioning request: error decoding parameter map into " +
-				"service-specific parameters",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
-		return
-	}
+	parentAlias := provisioningParameters.GetString("parentAlias")
 
 	instance, ok, err := s.store.GetInstance(instanceID)
 	if err != nil {
@@ -304,22 +182,8 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 		// planID, and all other relevant fields are equal.
 		if instance.ServiceID == serviceID &&
 			instance.PlanID == planID &&
-			instance.Location == location &&
-			// If resourceGroup wasn't specified, we know one would be generated, so
-			// we're going to not take the equality of the requested resourceGroup
-			// and the existing resourceGroup into account if the requested
-			// resourceGroup is the empty string...
-			(requestedResourceGroup == "" ||
-				instance.ResourceGroup == resourceGroup) &&
-			reflect.DeepEqual(instance.Tags, tags) &&
-			reflect.DeepEqual(
-				instance.ProvisioningParameters,
-				provisioningParameters,
-			) &&
-			reflect.DeepEqual(
-				instance.SecureProvisioningParameters,
-				secureProvisioningParameters,
-			) {
+			((instance.ProvisioningParameters == nil && len(provisioningRequest.Parameters) == 0) || // nolint: lll
+				(instance.ProvisioningParameters != nil && reflect.DeepEqual(instance.ProvisioningParameters.Data, provisioningRequest.Parameters))) { // nolint: lll
 			// Per the spec, if fully provisioned, respond with a 200, else a 202.
 			// Filling in a gap in the spec-- if the status is anything else, we'll
 			// choose to respond with a 409
@@ -346,12 +210,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 
 	// If we get to here, we need to provision a new instance.
 
-	// Perform additional validations on location
-	err = s.validateLocation(svc, location)
-	if err != nil {
-		s.handlePossibleValidationError(err, w, logFields)
-		return
-	}
+	serviceManager := svc.GetServiceManager()
 
 	provisioner, err := serviceManager.GetProvisioner(plan)
 	if err != nil {
@@ -379,18 +238,14 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	instance = service.Instance{
-		InstanceID:                   instanceID,
-		Alias:                        alias,
-		ServiceID:                    provisioningRequest.ServiceID,
-		PlanID:                       provisioningRequest.PlanID,
-		ProvisioningParameters:       provisioningParameters,
-		SecureProvisioningParameters: secureProvisioningParameters,
-		Status:        service.InstanceStateProvisioning,
-		Location:      location,
-		ResourceGroup: resourceGroup,
-		ParentAlias:   parentAlias,
-		Tags:          tags,
-		Created:       time.Now(),
+		InstanceID:             instanceID,
+		Alias:                  alias,
+		ServiceID:              provisioningRequest.ServiceID,
+		PlanID:                 provisioningRequest.PlanID,
+		ProvisioningParameters: provisioningParameters,
+		Status:                 service.InstanceStateProvisioning,
+		ParentAlias:            parentAlias,
+		Created:                time.Now(),
 	}
 
 	var task async.Task
@@ -504,68 +359,4 @@ func (s *server) isParentProvisioning(instance service.Instance) (bool, error) {
 	}
 
 	return true, nil
-}
-
-func (s *server) validateLocation(svc service.Service, location string) error {
-	// Validate location only if this is a "root" service type (i.e. has no
-	// parent)
-	if svc.GetParentServiceID() == "" {
-		if (location == "" && s.defaultAzureLocation == "") ||
-			(location != "" && !azure.IsValidLocation(location)) {
-			return service.NewValidationError(
-				"location",
-				fmt.Sprintf(`invalid location: "%s"`, location),
-			)
-		}
-	}
-	return nil
-}
-
-func (s *server) handlePossibleValidationError(
-	err error,
-	w http.ResponseWriter,
-	logFields log.Fields,
-) {
-	validationErr, ok := err.(*service.ValidationError)
-	if ok {
-		logFields["field"] = validationErr.Field
-		logFields["issue"] = validationErr.Issue
-		log.WithFields(logFields).Debug(
-			"bad provisioning request: validation error",
-		)
-		response := generateValidationFailedResponse(validationErr)
-		s.writeResponse(w, http.StatusBadRequest, response)
-		return
-	}
-	s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-}
-
-func (s *server) getLocation(svc service.Service, location string) string {
-	// Return an empty location only if this is NOT a "root" service type
-	// (i.e. has a parent)
-	if svc.GetParentServiceID() != "" {
-		return ""
-	}
-	if location != "" {
-		return location
-	}
-	return s.defaultAzureLocation
-}
-
-func (s *server) getResourceGroup(
-	svc service.Service,
-	resourceGroup string,
-) string {
-	// Return an empty resource group only if this is NOT a "root" service type
-	// (i.e. has a parent)
-	if svc.GetParentServiceID() != "" {
-		return ""
-	}
-	if resourceGroup != "" {
-		return resourceGroup
-	}
-	if s.defaultAzureResourceGroup != "" {
-		return s.defaultAzureResourceGroup
-	}
-	return uuid.NewV4().String()
 }

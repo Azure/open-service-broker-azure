@@ -17,15 +17,10 @@ const (
 	StabilityStable
 )
 
-// ProvisioningParameters is an alias for maps intended to contain non-sensitive
-// provisioning parameters. It exists only to improve the clarity of function
-// signatures and documentation.
-type ProvisioningParameters map[string]interface{}
-
-// SecureProvisioningParameters is an alias for maps intended to contain
-// sensitive provisioning parameters. It exists only to improve the clarity of
-// function signatures and documentation.
-type SecureProvisioningParameters map[string]interface{}
+// ProvisioningParameters wraps a map containing provisioning parameters.
+type ProvisioningParameters struct {
+	Parameters
+}
 
 // InstanceDetails is an alias for maps intended to contain non-sensitive
 // details of a service instance. It exists only to improve the clarity of
@@ -37,15 +32,10 @@ type InstanceDetails map[string]interface{}
 // function signatures and documentation.
 type SecureInstanceDetails map[string]interface{}
 
-// BindingParameters is an alias for maps intended to contain non-sensitive
-// binding parameters. It exists only to improve the clarity of function
-// signatures and documentation.
-type BindingParameters map[string]interface{}
-
-// SecureBindingParameters is an alias for maps intended to contain sensitive
-// binding parameters. It exists only to improve the clarity of function
-// signatures and documentation.
-type SecureBindingParameters map[string]interface{}
+// BindingParameters wraps a map containing binding parameters.
+type BindingParameters struct {
+	Parameters
+}
 
 // BindingDetails is an alias for maps intended to contain non-sensitive
 // details of a service binding. It exists only to improve the clarity of

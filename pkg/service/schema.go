@@ -13,20 +13,20 @@ const jsonSchemaVersion = "http://json-schema.org/draft-04/schema#"
 // operations.
 type PlanSchemas struct {
 	ServiceInstances InstanceSchemas `json:"service_instance,omitempty"`
-	ServiceBindings  *BindingSchemas `json:"service_binding,omitempty"`
+	ServiceBindings  BindingSchemas  `json:"service_binding,omitempty"`
 }
 
 // InstanceSchemas encapsulates all plan-related schemas for validating input
 // parameters to all service instance operations.
 type InstanceSchemas struct {
-	ProvisioningParametersSchema InputParametersSchema  `json:"create,omitempty"`
-	UpdatingParametersSchema     *InputParametersSchema `json:"update,omitempty"`
+	ProvisioningParametersSchema InputParametersSchema `json:"create,omitempty"`
+	UpdatingParametersSchema     InputParametersSchema `json:"update,omitempty"`
 }
 
 // BindingSchemas encapsulates all plan-related schemas for validating input
 // parameters to all service binding operations.
 type BindingSchemas struct {
-	BindingParametersSchema *InputParametersSchema `json:"create,omitempty"`
+	BindingParametersSchema InputParametersSchema `json:"create,omitempty"`
 }
 
 // InputParametersSchema encapsulates schema for validating input parameters
@@ -535,19 +535,6 @@ func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 	}
 	ps := p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas
 	if sp.ParentServiceID == "" {
-		ps["location"] = &StringPropertySchema{
-			Description: "The Azure region in which to provision" +
-				" applicable resources.",
-		}
-		ps["resourceGroup"] = &StringPropertySchema{
-			Description: "The (new or existing) resource group with which" +
-				" to associate new resources.",
-		}
-		ps["tags"] = &ObjectPropertySchema{
-			Description: "Tags to be applied to new resources," +
-				" specified as key/value pairs.",
-			Additional: &StringPropertySchema{},
-		}
 		if sp.ChildServiceID != "" {
 			p.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
 				append(
@@ -555,7 +542,8 @@ func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 					"alias",
 				)
 			ps["alias"] = &StringPropertySchema{
-				Description: "Alias to use when provisioning databases on this DBMS",
+				Description: "Alias to by which child services instances may " +
+					"reference this instance",
 			}
 		}
 	} else {
@@ -565,8 +553,7 @@ func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 				"parentAlias",
 			)
 		ps["parentAlias"] = &StringPropertySchema{
-			Description: "Specifies the alias of the DBMS upon which the database " +
-				"should be provisioned.",
+			Description: "Alias of the parent service instance",
 		}
 	}
 }

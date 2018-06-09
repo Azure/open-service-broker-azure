@@ -13,7 +13,7 @@ import (
 )
 
 func TestUnbindingBindingThatIsNotFound(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getUnbindingRequest(
 		getDisposableInstanceID(),
@@ -27,11 +27,19 @@ func TestUnbindingBindingThatIsNotFound(t *testing.T) {
 }
 
 func TestUnbindingWithInstanceIDDifferentFromBindingInstanceID(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	bindingID := getDisposableBindingID()
+	instanceID := getDisposableInstanceID()
+	err = s.store.WriteInstance(service.Instance{
+		InstanceID: instanceID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
+		Status:     service.InstanceStateProvisioned,
+	})
+	assert.Nil(t, err)
 	err = s.store.WriteBinding(service.Binding{
-		InstanceID: getDisposableInstanceID(),
+		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
 	})
@@ -48,7 +56,7 @@ func TestUnbindingWithInstanceIDDifferentFromBindingInstanceID(t *testing.T) {
 }
 
 func TestUnbindingFromInstanceThatDoesNotExist(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	bindingID := getDisposableBindingID()
@@ -73,7 +81,7 @@ func TestUnbindingFromInstanceThatDoesNotExist(t *testing.T) {
 }
 
 func TestUnbindingFromInstanceThatExists(t *testing.T) {
-	s, m, err := getTestServer("", "")
+	s, m, err := getTestServer()
 	assert.Nil(t, err)
 	unbindCalled := false
 	m.ServiceManager.UnbindBehavior = func(
