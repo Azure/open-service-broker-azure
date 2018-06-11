@@ -1,6 +1,6 @@
 # [Azure CosmosDB](https://azure.microsoft.com/en-us/services/cosmos-db/)
 
-_Note: This module is EXPERIMENTAL and future releases may break the API._
+_Note: This module is EXPERIMENTAL and is not included in the General Availability release of Open Service Broker for Azure. It will be added in a future OSBA release._
 
 ## Services & Plans
 

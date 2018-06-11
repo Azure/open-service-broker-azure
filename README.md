@@ -15,17 +15,9 @@ _Note: This software is alpha quality. Releases use [semantic versioning](https:
 
 ## Supported Services
 
-* [Azure Container Instances](docs/modules/aci.md)
-* [Azure CosmosDB](docs/modules/cosmosdb.md)
 * [Azure Database for MySQL](docs/modules/mysql.md)
 * [Azure Database for PostgreSQL](docs/modules/postgresql.md)
-* [Azure Event Hubs](docs/modules/eventhubs.md)
-* [Azure Key Vault](docs/modules/keyvault.md)
-* [Azure Redis Cache](docs/modules/rediscache.md)
 * [Azure SQL Database](docs/modules/mssql.md)
-* [Azure Search](docs/modules/search.md)
-* [Azure Service Bus](docs/modules/servicebus.md)
-* [Azure Storage](docs/modules/storage.md)
 
 ## Quickstarts
 
@@ -64,8 +56,6 @@ for details on how to install it onto your machine.
 Use [Helm](https://helm.sh) to install Open Service Broker for Azure onto your Kubernetes
 cluster. Refer to the OSBA [Helm chart](https://github.com/Azure/open-service-broker-azure/tree/master/contrib/k8s/charts/open-service-broker-azure)
 for details on how to complete the installation.
-
-By default, the Helm chart will install OSBA with the flag `modules.minStability` set to `preview`. This will limit the services exposed by OSBA to Azure SQL, Azure Database for MySQL, and Azure Database for PostgreSQL. If you'd like to use other services, you'll need to provide `experimental` for that setting. This will instruct OSBA to include modules that are marked as `experimental` in the catalog. For more information on module stability, please refer to the [documentation](docs/stability.md). The offical [roadmap](docs/roadmap.md) has more information about the OSAB roadmap and plans to promote modules.
 
 #### OpenShift Project Template
 
