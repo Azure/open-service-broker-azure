@@ -1,5 +1,3 @@
-// +build experimental
-
 package mysql
 
 import (
@@ -9,7 +7,6 @@ import (
 func (d *databaseManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	pdt := dbmsInstanceDetails{}
 	if err :=
@@ -25,15 +22,8 @@ func (d *databaseManager) Bind(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return nil, nil, err
-	}
 	return createBinding(
-		isSSLRequired(ppp),
+		isSSLRequired(*instance.Parent.ProvisioningParameters),
 		d.sqlDatabaseDNSSuffix,
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
@@ -63,16 +53,9 @@ func (d *databaseManager) GetCredentials(
 	if err := service.GetStructFromMap(binding.SecureDetails, &sbd); err != nil {
 		return nil, err
 	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return nil, err
-	}
 	creds := createCredential(
 		pdt.FullyQualifiedDomainName,
-		isSSLRequired(ppp),
+		isSSLRequired(*instance.Parent.ProvisioningParameters),
 		pdt.ServerName,
 		dt.DatabaseName,
 		bd,

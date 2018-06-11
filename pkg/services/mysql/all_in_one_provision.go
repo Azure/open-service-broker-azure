@@ -1,5 +1,3 @@
-// +build experimental
-
 package mysql
 
 import (
@@ -23,7 +21,7 @@ func (a *allInOneManager) GetProvisioner(
 
 func (a *allInOneManager) preProvision(
 	ctx context.Context,
-	instance service.Instance,
+	_ service.Instance,
 ) (service.InstanceDetails, service.SecureInstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -33,11 +31,6 @@ func (a *allInOneManager) preProvision(
 		a.checkNameAvailabilityClient,
 	)
 	if err != nil {
-		return nil, nil, err
-	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
 		return nil, nil, err
 	}
 	dt := allInOneInstanceDetails{
@@ -74,11 +67,6 @@ func (a *allInOneManager) deployARMTemplate(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
 
 	version := instance.Service.GetProperties().Extended["version"].(string)
 
@@ -87,7 +75,7 @@ func (a *allInOneManager) deployARMTemplate(
 		version,
 		dt.dbmsInstanceDetails,
 		sdt.secureDBMSInstanceDetails,
-		pp.dbmsProvisioningParameters,
+		*instance.ProvisioningParameters,
 	)
 
 	if err != nil {
@@ -97,14 +85,19 @@ func (a *allInOneManager) deployARMTemplate(
 		)
 	}
 	goTemplateParameters["databaseName"] = dt.DatabaseName
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
+	}
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
+		instance.ProvisioningParameters.GetString("location"),
 		allInOneARMTemplateBytes,
 		goTemplateParameters,
 		map[string]interface{}{},
-		instance.Tags,
+		tags,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)

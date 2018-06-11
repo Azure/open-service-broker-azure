@@ -1,5 +1,3 @@
-// +build experimental
-
 package mysql
 
 import (
@@ -50,14 +48,19 @@ func (d *databaseManager) deployARMTemplate(
 		"serverName":   pdt.ServerName,
 		"databaseName": dt.DatabaseName,
 	}
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
+	}
 	_, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.Parent.ResourceGroup,
-		instance.Parent.Location,
+		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
+		instance.Parent.ProvisioningParameters.GetString("location"),
 		databaseARMTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
-		instance.Tags,
+		tags,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)

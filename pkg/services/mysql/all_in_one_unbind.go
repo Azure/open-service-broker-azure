@@ -1,5 +1,3 @@
-// +build experimental
-
 package mysql
 
 import (
@@ -22,13 +20,8 @@ func (a *allInOneManager) Unbind(
 	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
 		return err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return err
-	}
 	return unbind(
-		isSSLRequired(pp.dbmsProvisioningParameters),
+		isSSLRequired(*instance.ProvisioningParameters),
 		a.sqlDatabaseDNSSuffix,
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,

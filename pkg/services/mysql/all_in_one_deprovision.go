@@ -1,5 +1,3 @@
-// +build experimental
-
 package mysql
 
 import (
@@ -28,7 +26,7 @@ func (a *allInOneManager) deleteARMDeployment(
 	}
 	if err := a.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -47,7 +45,7 @@ func (a *allInOneManager) deleteMySQLServer(
 	}
 	result, err := a.serversClient.Delete(
 		ctx,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.ServerName,
 	)
 	if err != nil {

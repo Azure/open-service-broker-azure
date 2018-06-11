@@ -1,5 +1,3 @@
-// +build experimental
-
 package mysql
 
 // nolint: lll
@@ -8,9 +6,6 @@ var dbmsARMTemplateBytes = []byte(`
 		"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 		"contentVersion": "1.0.0.0",
 		"parameters": {
-			"location": {
-				"type": "string"
-			},
 			"tags": {
 				"type": "object"
 			}
@@ -22,7 +17,7 @@ var dbmsARMTemplateBytes = []byte(`
 			{
 				"apiVersion": "[variables('DBforMySQLapiVersion')]",
 				"kind": "",
-				"location": "[parameters('location')]",
+				"location": "{{.location}}",
 				"name": "{{ .serverName }}",
 				"properties": {
 					"version": "{{.version}}",
@@ -42,11 +37,12 @@ var dbmsARMTemplateBytes = []byte(`
 					"tier": "{{.tier}}",
 					"capacity": "{{.cores}}",
 					"size": "{{.storage}}",
-					"family": "{{.hardwareFamily}}"
+					"family": "Gen5"
 				},
 				"type": "Microsoft.DBforMySQL/servers",
 				"tags": "[parameters('tags')]",
 				"resources": [
+					{{ $root := . }}
 					{{$count:= sub (len .firewallRules)  1}}
 					{{range $i, $rule := .firewallRules}}
 					{
@@ -55,11 +51,11 @@ var dbmsARMTemplateBytes = []byte(`
 						"dependsOn": [
 							"Microsoft.DBforMySQL/servers/{{ $.serverName }}"
 						],
-						"location": "[parameters('location')]",
-						"name": "{{$rule.Name}}",
+						"location": "{{$root.location}}",
+						"name": "{{$rule.name}}",
 						"properties": {
-							"startIpAddress": "{{$rule.StartIP}}",
-							"endIpAddress": "{{$rule.EndIP}}"
+							"startIpAddress": "{{$rule.startIPAddress}}",
+							"endIpAddress": "{{$rule.endIPAddress}}"
 						}
 					}{{if lt $i $count}},{{end}}
 					{{end}}

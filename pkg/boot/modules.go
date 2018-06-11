@@ -9,7 +9,7 @@ import (
 	// cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"
 	// eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub"
 	// keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault"
-	// mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql"
+	mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql"
 	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql"
 	// redisSDK "github.com/Azure/azure-sdk-for-go/services/redis/mgmt/2017-10-01/redis"
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources"
@@ -21,6 +21,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
@@ -90,26 +91,26 @@ func getModules(
 	// keyVaultsClient.Authorizer = authorizer
 	// keyVaultsClient.UserAgent = getUserAgent(keyVaultsClient.Client)
 
-	// mysqlCheckNameAvailabilityClient :=
-	// 	mysqlSDK.NewCheckNameAvailabilityClientWithBaseURI(
-	// 		azureConfig.Environment.ResourceManagerEndpoint,
-	// 		azureSubscriptionID,
-	// 	)
-	// mysqlCheckNameAvailabilityClient.Authorizer = authorizer
-	// mysqlCheckNameAvailabilityClient.UserAgent =
-	// 	getUserAgent(mysqlCheckNameAvailabilityClient.Client)
-	// mysqlServersClient := mysqlSDK.NewServersClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// mysqlServersClient.Authorizer = authorizer
-	// mysqlServersClient.UserAgent = getUserAgent(mysqlServersClient.Client)
-	// mysqlDatabasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// mysqlDatabasesClient.Authorizer = authorizer
-	// mysqlDatabasesClient.UserAgent = getUserAgent(mysqlDatabasesClient.Client)
+	mysqlCheckNameAvailabilityClient :=
+		mysqlSDK.NewCheckNameAvailabilityClientWithBaseURI(
+			azureConfig.Environment.ResourceManagerEndpoint,
+			azureSubscriptionID,
+		)
+	mysqlCheckNameAvailabilityClient.Authorizer = authorizer
+	mysqlCheckNameAvailabilityClient.UserAgent =
+		getUserAgent(mysqlCheckNameAvailabilityClient.Client)
+	mysqlServersClient := mysqlSDK.NewServersClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	mysqlServersClient.Authorizer = authorizer
+	mysqlServersClient.UserAgent = getUserAgent(mysqlServersClient.Client)
+	mysqlDatabasesClient := mysqlSDK.NewDatabasesClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	mysqlDatabasesClient.Authorizer = authorizer
+	mysqlDatabasesClient.UserAgent = getUserAgent(mysqlDatabasesClient.Client)
 
 	postgresCheckNameAvailabilityClient :=
 		postgresSDK.NewCheckNameAvailabilityClientWithBaseURI(
@@ -182,13 +183,13 @@ func getModules(
 			postgresDatabasesClient,
 		),
 		// rediscache.New(armDeployer, redisClient),
-		// mysql.New(
-		// 	azureConfig.Environment,
-		// 	armDeployer,
-		// 	mysqlCheckNameAvailabilityClient,
-		// 	mysqlServersClient,
-		// 	mysqlDatabasesClient,
-		// ),
+		mysql.New(
+			azureConfig.Environment,
+			armDeployer,
+			mysqlCheckNameAvailabilityClient,
+			mysqlServersClient,
+			mysqlDatabasesClient,
+		),
 		// servicebus.New(armDeployer, serviceBusNamespacesClient),
 		// eventhubs.New(armDeployer, eventHubNamespacesClient),
 		// keyvault.New(azureConfig.TenantID, armDeployer, keyVaultsClient),
