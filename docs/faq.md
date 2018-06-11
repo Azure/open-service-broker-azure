@@ -27,19 +27,6 @@ After checking on the health of the kube-system pods, kube-dns was not working. 
 to be unable to connect to its Redis instance. The problem was resolved by deleting the
 kube-dns pods, so that Kubernetes would recreate them.
 
-### I don't see all the services
-
-Open Service Broker for Azure provides a number of services and each of these services is implemented by a separate module. The stability of individual modules is independent of overall broker stability and is ranked on a scale of `experimental`, `preview`, and `stable`. The broker can be configured to only load modules at or above a specified stability threshold. By default, the helm chart configures the broker to only load modules that are marked as `preview` or `stable`. This currently includes Azure Database for MySQL, Azure Database for PostgreSQL and Azure SQL Database. If you would like to use other services, you will need to add an additional flag to your helm install command:
-
-```console
-helm install azure/open-service-broker-azure --name osba --namespace osba \
-  --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
-  --set azure.tenantId=$AZURE_TENANT_ID \
-  --set azure.clientId=$AZURE_CLIENT_ID \
-  --set azure.clientSecret=$AZURE_CLIENT_SECRET \
-  --set modules.minStability=EXPERIMENTAL
-```
-
 ## "osba" is forbidden: not yet ready to handle request
 
 [Service Catalog](https://github.com/kubernetes-incubator/service-catalog) is the software component that is used to integrate Open Service Broker for Azure with Kubernetes clusters. Service Catalog currently works with Kubernetes version 1.9.0 and higher, so you will need a Kubernetes cluster that is version 1.9.0 or higher. If you receive this error message when trying to install Open Service Broker For Azure, check the version of your Kubernetes cluster. If you are running a version less than 1.9.0, please upgrade. If you are making a new cluster with AKS, you can specify the version with the `--kubernetes-version` flag like so:

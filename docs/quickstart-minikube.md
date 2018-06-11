@@ -214,11 +214,6 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
     ```
 1. Deploy Open Service Broker for Azure on the cluster:
 
-   **Note**
-    Open Service Broker for Azure provides a number of services and each of these services is implemented by a separate module. The stability of individual modules is independent of overall broker stability and is ranked on a scale of `experimental`, `preview`, and `stable`. The broker can be configured to only load modules at or above a specified stability threshold. By default, the helm chart configures the broker to only load modules that are marked as `preview` or `stable`. This currently includes Azure Database for MySQL, Azure Database for PostgreSQL and Azure SQL Database.
-
-    To install OSBA with only `preview` and `stable` services, use the following command. If you'd like to use all of the services available, including those marked experimental, change the `--set modules.minStability` flag to `--set modules.minStability=EXPERIMENTAL`
-
     **Bash**
     ```console
     helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
@@ -226,8 +221,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
       --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
       --set azure.tenantId=$AZURE_TENANT_ID \
       --set azure.clientId=$AZURE_CLIENT_ID \
-      --set azure.clientSecret=$AZURE_CLIENT_SECRET \
-      --set modules.minStability=PREVIEW
+      --set azure.clientSecret=$AZURE_CLIENT_SECRET 
     ```
 
     **PowerShell**
@@ -237,8 +231,7 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
       --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
       --set azure.tenantId=$env:AZURE_TENANT_ID `
       --set azure.clientId=$env:AZURE_CLIENT_ID `
-      --set azure.clientSecret=$env:AZURE_CLIENT_SECRET `
-      --set modules.minStability=PREVIEW
+      --set azure.clientSecret=$env:AZURE_CLIENT_SECRET 
     ```
 
 1. Check on the status of Open Service Broker for Azure by running the
