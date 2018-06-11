@@ -1,5 +1,3 @@
-// +build experimental
-
 package mssql
 
 import (
@@ -12,7 +10,6 @@ import (
 func (d *dbmsManager) Bind(
 	service.Instance,
 	service.BindingParameters,
-	service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	return nil, nil, fmt.Errorf("service is not bindable")
 }

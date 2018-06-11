@@ -1,5 +1,3 @@
-// +build experimental
-
 package mssql
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
@@ -144,7 +142,7 @@ func buildGeneralPurposePlan(
 	id string,
 	includesDBMS bool,
 ) *service.PlanProperties {
-	gpDetails := vCorePlanDetails{
+	planDetails := vCorePlanDetails{
 		tierName:      "GeneralPurpose",
 		tierShortName: "GP",
 		includeDBMS:   includesDBMS,
@@ -155,7 +153,7 @@ func buildGeneralPurposePlan(
 		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage",
 		Free:        false,
 		Extended: map[string]interface{}{
-			"tierDetails": gpDetails,
+			"tierDetails": planDetails,
 		},
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "General Purpose",
@@ -170,7 +168,7 @@ func buildGeneralPurposePlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: gpDetails.getProvisionSchema(),
+				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
 			},
 		},
 	}
@@ -180,7 +178,7 @@ func buildBusinessCriticalPlan(
 	id string,
 	includesDBMS bool,
 ) *service.PlanProperties {
-	bcDetails := vCorePlanDetails{
+	planDetails := vCorePlanDetails{
 		tierName:      "BusinessCritical",
 		tierShortName: "BC",
 		includeDBMS:   includesDBMS,
@@ -192,7 +190,7 @@ func buildBusinessCriticalPlan(
 			"Local SSD, highest resilience to failures.",
 		Free: false,
 		Extended: map[string]interface{}{
-			"tierDetails": bcDetails,
+			"tierDetails": planDetails,
 		},
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Basic Tier",
@@ -206,7 +204,7 @@ func buildBusinessCriticalPlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: bcDetails.getProvisionSchema(),
+				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
 			},
 		},
 	}

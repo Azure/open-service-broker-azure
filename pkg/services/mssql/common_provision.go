@@ -1,5 +1,3 @@
-// +build experimental
-
 package mssql
 
 import (
@@ -17,31 +15,19 @@ func buildDBMSGoTemplateParameters(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, err
 	}
-	pp := dbmsProvisioningParams{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, err
-	}
 	p := map[string]interface{}{}
 	p["serverName"] = dt.ServerName
 	p["administratorLogin"] = dt.AdministratorLogin
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
 	p["version"] = instance.Service.GetProperties().Extended["version"]
-	// Only include these if they are not empty.
-	// ARM Deployer will fail if the values included are not
-	// valid IPV4 addresses (i.e. empty string wil fail)
-	if len(pp.FirewallRules) > 0 {
-		p["firewallRules"] = pp.FirewallRules
-	} else {
-		// Build the azure default
-		p["firewallRules"] = []firewallRule{
-			{
-				Name:    "AllowAzure",
-				StartIP: "0.0.0.0",
-				EndIP:   "0.0.0.0",
-			},
-		}
+	firewallRulesParams :=
+		instance.ProvisioningParameters.GetObjectArray("firewallRules")
+	firewallRules := make([]map[string]interface{}, len(firewallRulesParams))
+	for i, firewallRuleParams := range firewallRulesParams {
+		firewallRules[i] = firewallRuleParams.Data
 	}
+	p["firewallRules"] = firewallRules
+
 	return p, nil
 }
 

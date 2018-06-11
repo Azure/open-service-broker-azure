@@ -1,5 +1,3 @@
-// +build experimental
-
 package mssql
 
 import (
@@ -7,16 +5,9 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-)
-
-const (
-	defaultCores            = 2
-	defaultVCoreStorageInGB = 5
-	maxStorageInGB          = 1024
-
-	gen5Hardware = "Gen5"
 )
 
 type planDetails interface {
@@ -35,54 +26,46 @@ type dtuPlanDetails struct {
 	includeDBMS bool
 }
 
-func addDBMSParameters(schema map[string]service.PropertySchema) {
-	dbmsSchema := getDBMSCommonProvisionParamSchema().PropertySchemas
-	for key, value := range dbmsSchema {
-		schema[key] = value
-	}
-}
-
 func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
-	schema := service.InputParametersSchema{
+	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
-	// nolint: lll
-	if len(d.allowedDTUs) > 0 { // basic is constrained to just 5 DTUs, so don't present this as an option
-		schema.PropertySchemas["dtu"] = service.IntPropertySchema{
+	if d.includeDBMS {
+		ips = getDBMSCommonProvisionParamSchema()
+	}
+	// Basic tier is constrained to just 5 DTUs, so don't present this as an
+	// option
+	if len(d.allowedDTUs) > 0 {
+		ips.PropertySchemas["dtus"] = &service.IntPropertySchema{
 			AllowedValues: d.allowedDTUs,
 			DefaultValue:  ptr.ToInt64(d.defaultDTUs),
 			Description: "DTUs are a bundled measure of compute, " +
 				"storage, and IO resources.",
 		}
 	}
-	if d.includeDBMS {
-		addDBMSParameters(schema.PropertySchemas)
-	}
-	return schema
+	return ips
 }
 
 func (d dtuPlanDetails) getTierProvisionParameters(
 	instance service.Instance,
 ) (map[string]interface{}, error) {
-	pp := databaseProvisionParams{}
-	if err := service.GetStructFromMap(
-		instance.ProvisioningParameters,
-		&pp,
-	); err != nil {
-		return nil, err
-	}
 	p := map[string]interface{}{}
-	p["sku"] = d.getSKU(pp)
+	p["sku"] = d.getSKU(*instance.ProvisioningParameters)
 	p["tier"] = d.tierName
-	p["maxSizeBytes"] = convertBytesToGB(d.storageInGB)
+	// ARM template needs bytes
+	p["maxSizeBytes"] =
+		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
-func (d dtuPlanDetails) getSKU(pp databaseProvisionParams) string {
-	if pp.DTUs != nil {
-		return d.skuMap[*pp.DTUs]
+func (d dtuPlanDetails) getSKU(pp service.ProvisioningParameters) string {
+	// Basic tier is constrained to just 5 DTUs, if this is the basic tier, there
+	// is no dtus param. We can infer this is the case if the tier details don't
+	// tell us there's a choice.
+	if len(d.allowedDTUs) == 0 {
+		return d.skuMap[d.defaultDTUs]
 	}
-	return d.skuMap[d.defaultDTUs]
+	return d.skuMap[pp.GetInt64("dtus")]
 }
 
 type vCorePlanDetails struct {
@@ -92,75 +75,44 @@ type vCorePlanDetails struct {
 }
 
 func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
-	schema := service.InputParametersSchema{
-		PropertySchemas: map[string]service.PropertySchema{
-			"cores": service.IntPropertySchema{
-				AllowedValues: []int64{2, 4, 8, 16, 24, 32, 48, 80},
-				DefaultValue:  ptr.ToInt64(defaultCores),
-				Description:   "A virtual core represents the logical CPU",
-			},
-			"storage": service.IntPropertySchema{
-				MinValue:     ptr.ToInt64(defaultVCoreStorageInGB),
-				MaxValue:     ptr.ToInt64(maxStorageInGB),
-				DefaultValue: ptr.ToInt64(defaultVCoreStorageInGB),
-				Description:  "The maximum data storage capacity (in GB)",
-			},
-		},
+	ips := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{},
 	}
-
-	// Include the DBMS params here if the plan details call for it
 	if v.includeDBMS {
-		addDBMSParameters(schema.PropertySchemas)
+		ips = getDBMSCommonProvisionParamSchema()
 	}
-	return schema
+	ips.PropertySchemas["cores"] = &service.IntPropertySchema{
+		AllowedValues: []int64{2, 4, 8, 16, 24, 32, 48, 80},
+		DefaultValue:  ptr.ToInt64(2),
+		Description:   "A virtual core represents the logical CPU",
+	}
+	ips.PropertySchemas["storage"] = &service.IntPropertySchema{
+		MinValue:     ptr.ToInt64(5),
+		MaxValue:     ptr.ToInt64(1024),
+		DefaultValue: ptr.ToInt64(10),
+		Description:  "The maximum data storage capacity (in GB)",
+	}
+	return ips
 }
 
 func (v vCorePlanDetails) getTierProvisionParameters(
 	instance service.Instance,
 ) (map[string]interface{}, error) {
-	pp := databaseProvisionParams{}
-	if err := service.GetStructFromMap(
-		instance.ProvisioningParameters,
-		&pp,
-	); err != nil {
-		return nil, err
-	}
 	p := map[string]interface{}{}
-	p["sku"] = v.getSKU(pp)
+	p["sku"] = v.getSKU(*instance.ProvisioningParameters)
 	p["tier"] = v.tierName
-	p["maxSizeBytes"] = getStorageInBytes(pp)
+	// ARM template needs bytes
+	p["maxSizeBytes"] =
+		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
-func (v vCorePlanDetails) getSKU(pp databaseProvisionParams) string {
+func (v vCorePlanDetails) getSKU(pp service.ProvisioningParameters) string {
 	return fmt.Sprintf(
-		"%s_%s_%d",
+		"%s_Gen5_%d",
 		v.tierShortName,
-		gen5Hardware,
-		getCores(pp),
+		pp.GetInt64("cores"),
 	)
-}
-
-func getCores(pp databaseProvisionParams) int64 {
-	if pp.Cores != nil {
-		return *pp.Cores
-	}
-	return defaultCores
-}
-
-func convertBytesToGB(gb int64) int64 {
-	return gb * 1024 * 1024 * 1024
-}
-
-func getStorageInBytes(
-	pp databaseProvisionParams,
-) int64 {
-	if pp.Storage != nil {
-		storageGB := *pp.Storage
-		return convertBytesToGB(storageGB)
-	}
-	return convertBytesToGB(defaultVCoreStorageInGB)
-
 }
 
 func ipValidator(context, value string) error {
@@ -201,7 +153,17 @@ func firewallRuleValidator(
 
 func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
+		RequiredProperties: []string{"location", "resourceGroup"},
 		PropertySchemas: map[string]service.PropertySchema{
+			"location": &service.StringPropertySchema{
+				Description: "The Azure region in which to provision" +
+					" applicable resources.",
+				CustomPropertyValidator: azure.LocationValidator,
+			},
+			"resourceGroup": &service.StringPropertySchema{
+				Description: "The (new or existing) resource group with which" +
+					" to associate new resources.",
+			},
 			"firewallRules": &service.ArrayPropertySchema{
 				Description: "Firewall rules to apply to instance. " +
 					"If left unspecified, defaults to only Azure IPs",
@@ -240,6 +202,11 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 					" when connecting. Left unspecified, SSL will be enforced",
 				AllowedValues: []string{"enabled", "disabled"},
 				DefaultValue:  "enabled",
+			},
+			"tags": &service.ObjectPropertySchema{
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
 			},
 		},
 	}

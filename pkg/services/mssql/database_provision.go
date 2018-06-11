@@ -1,5 +1,3 @@
-// +build experimental
-
 package mssql
 
 import (
@@ -49,16 +47,23 @@ func (d *databaseManager) deployARMTemplate(
 	if err != nil {
 		return nil, nil, err
 	}
+	goTemplateParams["location"] =
+		instance.Parent.ProvisioningParameters.GetString("location")
 	goTemplateParams["serverName"] = pdt.ServerName
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
+	}
 	// No output, so ignore the output
 	_, err = d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.Parent.ResourceGroup,
-		instance.Parent.Location,
+		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
+		instance.Parent.ProvisioningParameters.GetString("location"),
 		databaseARMTemplateBytes,
 		goTemplateParams,
 		map[string]interface{}{}, // empty arm params
-		instance.Tags,
+		tags,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)

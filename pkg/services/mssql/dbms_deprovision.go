@@ -1,5 +1,3 @@
-// +build experimental
-
 package mssql
 
 import (
@@ -31,7 +29,7 @@ func (d *dbmsManager) deleteARMDeployment(
 	}
 	err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
@@ -51,7 +49,7 @@ func (d *dbmsManager) deleteMsSQLServer(
 	}
 	result, err := d.serversClient.Delete(
 		ctx,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.ServerName,
 	)
 	if err != nil {

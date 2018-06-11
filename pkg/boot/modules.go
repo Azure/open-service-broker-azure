@@ -15,12 +15,13 @@ import (
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources"
 	// searchSDK "github.com/Azure/azure-sdk-for-go/services/search/mgmt/2015-08-19/search"
 	// servicebusSDK "github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus"
-	// sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql"
+	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql"
 	// storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
@@ -133,18 +134,18 @@ func getModules(
 	postgresDatabasesClient.Authorizer = authorizer
 	postgresDatabasesClient.UserAgent = getUserAgent(postgresServersClient.Client)
 
-	// sqlServersClient := sqlSDK.NewServersClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// sqlServersClient.Authorizer = authorizer
-	// sqlServersClient.UserAgent = getUserAgent(sqlServersClient.Client)
-	// sqlDatabasesClient := sqlSDK.NewDatabasesClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// sqlDatabasesClient.Authorizer = authorizer
-	// sqlDatabasesClient.UserAgent = getUserAgent(sqlDatabasesClient.Client)
+	sqlServersClient := sqlSDK.NewServersClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	sqlServersClient.Authorizer = authorizer
+	sqlServersClient.UserAgent = getUserAgent(sqlServersClient.Client)
+	sqlDatabasesClient := sqlSDK.NewDatabasesClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	sqlDatabasesClient.Authorizer = authorizer
+	sqlDatabasesClient.UserAgent = getUserAgent(sqlDatabasesClient.Client)
 
 	// redisClient := redisSDK.NewClientWithBaseURI(
 	// 	azureConfig.Environment.ResourceManagerEndpoint,
@@ -193,12 +194,12 @@ func getModules(
 		// servicebus.New(armDeployer, serviceBusNamespacesClient),
 		// eventhubs.New(armDeployer, eventHubNamespacesClient),
 		// keyvault.New(azureConfig.TenantID, armDeployer, keyVaultsClient),
-		// mssql.New(
-		// 	azureConfig.Environment,
-		// 	armDeployer,
-		// 	sqlServersClient,
-		// 	sqlDatabasesClient,
-		// ),
+		mssql.New(
+			azureConfig.Environment,
+			armDeployer,
+			sqlServersClient,
+			sqlDatabasesClient,
+		),
 		// cosmosdb.New(armDeployer, cosmosdbAccountsClient),
 		// storage.New(armDeployer, storageAccountsClient),
 		// search.New(armDeployer, searchServicesClient),

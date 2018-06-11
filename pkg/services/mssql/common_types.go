@@ -1,5 +1,3 @@
-// +build experimental
-
 package mssql
 
 type bindingDetails struct {
