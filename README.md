@@ -65,8 +65,6 @@ Use [Helm](https://helm.sh) to install Open Service Broker for Azure onto your K
 cluster. Refer to the OSBA [Helm chart](https://github.com/Azure/open-service-broker-azure/tree/master/contrib/k8s/charts/open-service-broker-azure)
 for details on how to complete the installation.
 
-By default, the Helm chart will install OSBA with the flag `modules.minStability` set to `preview`. This will limit the services exposed by OSBA to Azure SQL, Azure Database for MySQL, and Azure Database for PostgreSQL. If you'd like to use other services, you'll need to provide `experimental` for that setting. This will instruct OSBA to include modules that are marked as `experimental` in the catalog. For more information on module stability, please refer to the [documentation](docs/stability.md). The offical [roadmap](docs/roadmap.md) has more information about the OSAB roadmap and plans to promote modules.
-
 #### OpenShift Project Template
 
 Deploy OSBA using a OpenShift Project Template
