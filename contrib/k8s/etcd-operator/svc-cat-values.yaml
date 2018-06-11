@@ -1,0 +1,6 @@
+rbacEnable: false
+apiserver:
+  storage:
+    etcd:
+      useEmbedded: false
+      servers: http://svc-cat-etcd-cluster-client.default.svc.cluster.local:2379
