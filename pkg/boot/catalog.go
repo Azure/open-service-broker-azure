@@ -51,7 +51,11 @@ func GetCatalog(
 			}
 			if len(filteredPlans) > 0 {
 				svc.SetPlans(filteredPlans)
-				services = append(services, svc)
+				services = append(services, service.NewService(
+					svc.GetProperties(),
+					svc.GetServiceManager(),
+					filteredPlans...,
+				))
 				usedServiceIDs[serviceID] = moduleName
 			}
 		}
