@@ -14,6 +14,11 @@ import (
 	"github.com/go-redis/redis"
 )
 
+const (
+	instances = "instanceList"
+	bindings  = "bindingList"
+)
+
 type store struct {
 	redisClient *redis.Client
 	catalog     service.Catalog
@@ -90,6 +95,7 @@ func (s *store) WriteInstance(instance service.Instance) error {
 		parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
 		pipeline.SAdd(parentAliasChildrenKey, instance.InstanceID)
 	}
+	pipeline.SAdd(instances, key)
 	_, err = pipeline.Exec()
 	if err != nil {
 		return fmt.Errorf(
@@ -186,6 +192,7 @@ func (s *store) DeleteInstance(instanceID string) (bool, error) {
 	key := getInstanceKey(instanceID)
 	pipeline := s.redisClient.TxPipeline()
 	pipeline.Del(key)
+
 	if instance.Alias != "" {
 		aliasKey := getInstanceAliasKey(instance.Alias)
 		pipeline.Del(aliasKey)
@@ -194,6 +201,7 @@ func (s *store) DeleteInstance(instanceID string) (bool, error) {
 		parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
 		pipeline.SRem(parentAliasChildrenKey, instance.InstanceID)
 	}
+	pipeline.SRem(instances, key)
 	_, err = pipeline.Exec()
 	if err != nil {
 		return false, fmt.Errorf(
@@ -228,7 +236,18 @@ func (s *store) WriteBinding(binding service.Binding) error {
 	if err != nil {
 		return err
 	}
-	return s.redisClient.Set(key, json, 0).Err()
+	pipeline := s.redisClient.TxPipeline()
+	pipeline.Set(key, json, 0)
+	pipeline.SAdd(bindings, key)
+	_, err = pipeline.Exec()
+	if err != nil {
+		return fmt.Errorf(
+			`error writing binding "%s": %s`,
+			binding.BindingID,
+			err,
+		)
+	}
+	return nil
 }
 
 func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
@@ -259,8 +278,17 @@ func (s *store) DeleteBinding(bindingID string) (bool, error) {
 	} else if err != nil {
 		return false, err
 	}
-	if err := s.redisClient.Del(key).Err(); err != nil {
-		return false, err
+
+	pipeline := s.redisClient.TxPipeline()
+	pipeline.Del(key)
+	pipeline.SRem(bindings, key)
+	_, err := pipeline.Exec()
+	if err != nil {
+		return false, fmt.Errorf(
+			`error deleting binding "%s": %s`,
+			bindingID,
+			err,
+		)
 	}
 	return true, nil
 }
