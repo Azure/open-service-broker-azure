@@ -37,6 +37,18 @@ We've added these stability labels so that services can move freely and
 independently across semver releases, which is important so we can improve
 an individual service, or subset of service at one time.
 
+**Note**: when OSBA `v1.0.0` is released, all services that were available as
+`preview` or `experimental` will not be available anymore, except for the 
+following:
+
+- All services in the catalog that offer PostgreSQL
+- All services in the catalog that offer SQL Server 
+- All services in the catalog that offer MySQL
+
+If you need to use any of the services that are removed in `v1.0.0` immediately,
+please downgrade to a version prior to `v1.0.0`. The removed services will
+be re-added in minor releases following `v1.0.0`.
+
 # Service Stability and OSBA Version
 
 We correlate service stability changes to OSBA version changes according to the
