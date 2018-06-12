@@ -27,7 +27,6 @@ type e2eTestCase struct {
 	serviceID              string
 	planID                 string
 	provisioningParameters map[string]interface{}
-	tags                   map[string]string
 	bind                   bool
 	bindingParameters      map[string]interface{}
 	childTestCases         []*e2eTestCase
@@ -76,7 +75,6 @@ func (e e2eTestCase) execute(
 		e.serviceID,
 		e.planID,
 		e.provisioningParameters,
-		e.tags,
 	)
 	if err != nil {
 		return err

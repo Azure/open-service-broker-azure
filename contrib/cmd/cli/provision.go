@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/client"
@@ -28,18 +26,6 @@ func provision(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	tags := make(map[string]string)
-	rawTagStrs := c.StringSlice(flagTag)
-	for _, rawTagStr := range rawTagStrs {
-		rawTagStr = strings.TrimSpace(rawTagStr)
-		tokens := strings.Split(rawTagStr, "=")
-		if len(tokens) != 2 {
-			return errors.New("tag string is incorrectly formatted")
-		}
-		key := strings.TrimSpace(tokens[0])
-		value := strings.TrimSpace(tokens[1])
-		tags[key] = value
-	}
 	instanceID, err := client.Provision(
 		host,
 		port,
@@ -48,7 +34,6 @@ func provision(c *cli.Context) error {
 		serviceID,
 		planID,
 		params,
-		tags,
 	)
 	if err != nil {
 		log.Fatal(err)
