@@ -34,8 +34,8 @@ name.
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y | |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y | |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
@@ -228,8 +228,8 @@ Provisions an Azure Database for PostgreSQL DBMS instance containing no database
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y | |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y | |
 | `alias` | `string` | Specifies an alias that can be used by later provision actions to create databases on this DBMS. | Y | |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |

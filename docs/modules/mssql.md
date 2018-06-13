@@ -36,8 +36,8 @@ Provisions a new SQL Server and a new database upon that server. The new dbms an
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y | |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y | |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
@@ -48,14 +48,13 @@ Additional Provision Parameters for : standard plan
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `dtu` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 10, 20, 50, 100, 200, 400, 800, 1600, 3000 | N | 10 |
-
+| `dtus` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 10, 20, 50, 100, 200, 400, 800, 1600, 3000 | N | 10 |
 
 Additional Provision Parameters for : premium plan
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `dtu` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 125, 250, 500, 1000, 1750, 1000 | N | 125 |
+| `dtus` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 125, 250, 500, 1000, 1750, 1000 | N | 125 |
 
 Additional Provision Parameters for: general-purpose
 
@@ -181,8 +180,8 @@ Provisions a SQL Server DBMS instance containing no databases. Databases can be 
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y | |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y | |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `alias` | `string` | Specifies an alias that can be used by later provision actions to create databases on this DBMS. | Y | |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
@@ -291,14 +290,14 @@ Additional Provision Parameters for : standard plan
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `dtu` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 10, 20, 50, 100, 200, 400, 800, 1600, 3000 | N | 10 |
+| `dtus` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 10, 20, 50, 100, 200, 400, 800, 1600, 3000 | N | 10 |
 
 
 Additional Provision Parameters for : premium plan
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `dtu` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 125, 250, 500, 1000, 1750, 1000 | N | 125 |
+| `dtus` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 125, 250, 500, 1000, 1750, 1000 | N | 125 |
 
 Additional Provision Parameters for: general-purpose
 
