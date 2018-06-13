@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 )
 
 type store struct {
 	catalog                       service.Catalog
-	codec                         crypto.Codec
 	instances                     map[string][]byte
 	instanceAliases               map[string]string
 	bindings                      map[string][]byte
@@ -21,10 +19,9 @@ type store struct {
 
 // NewStore returns a new memory-based implementation of the storage.Store used
 // for testing
-func NewStore(catalog service.Catalog, codec crypto.Codec) storage.Store {
+func NewStore(catalog service.Catalog) storage.Store {
 	return &store{
 		catalog:                  catalog,
-		codec:                    codec,
 		instances:                make(map[string][]byte),
 		instanceAliases:          make(map[string]string),
 		bindings:                 make(map[string][]byte),
@@ -33,7 +30,7 @@ func NewStore(catalog service.Catalog, codec crypto.Codec) storage.Store {
 }
 
 func (s *store) WriteInstance(instance service.Instance) error {
-	json, err := instance.ToJSON(s.codec)
+	json, err := instance.ToJSON()
 	if err != nil {
 		return err
 	}
@@ -58,7 +55,7 @@ func (s *store) GetInstance(instanceID string) (
 	if !ok {
 		return service.Instance{}, false, nil
 	}
-	instance, err := service.NewInstanceFromJSON(json, s.codec, nil)
+	instance, err := service.NewInstanceFromJSON(json, nil)
 	if err != nil {
 		return instance, false, err
 	}
@@ -82,11 +79,7 @@ func (s *store) GetInstance(instanceID string) (
 			)
 	}
 	pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema
-	instance, err = service.NewInstanceFromJSON(
-		json,
-		s.codec,
-		&pps,
-	)
+	instance, err = service.NewInstanceFromJSON(json, &pps)
 	instance.Service = svc
 	instance.Plan = plan
 	return instance, err == nil, err
@@ -131,7 +124,7 @@ func (s *store) GetInstanceChildCountByAlias(alias string) (int64, error) {
 }
 
 func (s *store) WriteBinding(binding service.Binding) error {
-	json, err := binding.ToJSON(s.codec)
+	json, err := binding.ToJSON()
 	if err != nil {
 		return err
 	}
@@ -144,11 +137,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	if !ok {
 		return service.Binding{}, false, nil
 	}
-	binding, err := service.NewBindingFromJSON(
-		json,
-		s.codec,
-		nil,
-	)
+	binding, err := service.NewBindingFromJSON(json, nil)
 	if err != nil {
 		return binding, false, err
 	}
@@ -160,11 +149,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	// binding from the JSON
 	if ok {
 		bps := instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema
-		binding, err = service.NewBindingFromJSON(
-			json,
-			s.codec,
-			&bps,
-		)
+		binding, err = service.NewBindingFromJSON(json, &bps)
 	}
 	return binding, err == nil, err
 }

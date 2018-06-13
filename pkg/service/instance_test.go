@@ -33,7 +33,6 @@ func init() {
 	}
 	provisioningParameters := &ProvisioningParameters{
 		Parameters: Parameters{
-			Codec:  noopCodec,
 			Schema: provisioningParametersSchema,
 			Data: map[string]interface{}{
 				"foo": "bar",
@@ -43,7 +42,6 @@ func init() {
 	provisioningParametersJSONStr := []byte(`{"foo":"bar"}`)
 	updatingParameters := &ProvisioningParameters{
 		Parameters: Parameters{
-			Codec:  noopCodec,
 			Schema: provisioningParametersSchema,
 			Data: map[string]interface{}{
 				"foo": "bat",
@@ -122,7 +120,6 @@ func init() {
 func TestNewInstanceFromJSON(t *testing.T) {
 	instance, err := NewInstanceFromJSON(
 		testInstanceJSON,
-		noopCodec,
 		provisioningParametersSchema,
 	)
 	assert.Nil(t, err)
@@ -130,7 +127,7 @@ func TestNewInstanceFromJSON(t *testing.T) {
 }
 
 func TestInstanceToJSON(t *testing.T) {
-	json, err := testInstance.ToJSON(noopCodec)
+	json, err := testInstance.ToJSON()
 	assert.Nil(t, err)
 	assert.Equal(t, string(testInstanceJSON), string(json))
 }
@@ -140,7 +137,7 @@ func TestEncryptSecureDetails(t *testing.T) {
 		SecureDetails: testSecureInstanceDetails,
 	}
 	var err error
-	instance, err = instance.encryptSecureDetails(noopCodec)
+	instance, err = instance.encryptSecureDetails()
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
@@ -155,7 +152,7 @@ func TestDecryptSecureDetails(t *testing.T) {
 		SecureDetails:          SecureInstanceDetails{},
 	}
 	var err error
-	instance, err = instance.decryptSecureDetails(noopCodec)
+	instance, err = instance.decryptSecureDetails()
 	assert.Nil(t, err)
 	assert.Equal(t, testSecureInstanceDetails, instance.SecureDetails)
 }

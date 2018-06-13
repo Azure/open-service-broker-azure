@@ -9,11 +9,10 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/slice"
 )
 
-// Parameters is a wrapper for a map that uses a schema to inform data access
-// and both schema and a codec to effect marshaling and unmarshaling with
-// seamless encryption and decryption of sensitive string fields.
+// Parameters is a wrapper for a map that uses a schema to inform data access,
+// marshaling, and unmarshaling with seamless encryption and decryption of
+// sensitive string fields using the globally configured codec.
 type Parameters struct {
-	Codec  crypto.Codec
 	Schema KeyedPropertySchemaContainer
 	Data   map[string]interface{}
 }
@@ -25,13 +24,6 @@ func (p Parameters) MarshalJSON() ([]byte, error) {
 	if p.Schema == nil {
 		return nil, errors.New(
 			`error marshaling parameters: cannot marshal without a schema`,
-		)
-	}
-	// TODO: krancour: Ideally, if we constrain how Params are created using some
-	// constructor-like function, perhaps we can forgo this check.
-	if p.Codec == nil {
-		return nil, errors.New(
-			`error marshaling parameters: cannot marshal without a codec`,
 		)
 	}
 	ips, ok := p.Schema.(*InputParametersSchema)
@@ -60,7 +52,7 @@ func (p Parameters) MarshalJSON() ([]byte, error) {
 					)
 				}
 				vBytes := []byte(vStr)
-				vBytes, err := p.Codec.Encrypt(vBytes)
+				vBytes, err := crypto.Encrypt(vBytes)
 				if err != nil {
 					return nil, err
 				}
@@ -79,13 +71,6 @@ func (p *Parameters) UnmarshalJSON(bytes []byte) error {
 	if p.Schema == nil {
 		return errors.New(
 			`error unmarshaling parameters: cannot unmarshal without a schema`,
-		)
-	}
-	// TODO: krancour: Ideally, if we constrain how Params are created using some
-	// constructor-like function, perhaps we can forgo this check.
-	if p.Codec == nil {
-		return errors.New(
-			`error unmarshaling parameters: cannot unmarshal without a codec`,
 		)
 	}
 	ips, ok := p.Schema.(*InputParametersSchema)
@@ -120,7 +105,7 @@ func (p *Parameters) UnmarshalJSON(bytes []byte) error {
 						)
 					}
 					vBytes := []byte(vStr)
-					vBytes, err := p.Codec.Decrypt(vBytes)
+					vBytes, err := crypto.Decrypt(vBytes)
 					if err != nil {
 						return err
 					}
@@ -492,9 +477,7 @@ func ifaceToFloat64(valIface interface{}, defaultVal *float64) float64 {
 // Parameters object with no underlying map is returned. GetObject calls can
 // be chained to "drill down" into a complex set of parameters.
 func (p *Parameters) GetObject(key string) Parameters {
-	params := Parameters{
-		Codec: p.Codec,
-	}
+	params := Parameters{}
 	if p.Schema == nil {
 		return params
 	}
@@ -514,7 +497,6 @@ func (p *Parameters) GetObject(key string) Parameters {
 	params.Schema = objectSchema
 	return ifaceToParams(
 		p.Data[key],
-		p.Codec,
 		objectSchema,
 		objectSchema.DefaultValue,
 	)
@@ -561,7 +543,6 @@ func (p *Parameters) GetObjectArray(key string) []Parameters {
 	if !ok {
 		return ifaceArrayToParamsArray(
 			arrSchema.DefaultValue,
-			p.Codec,
 			itemSchema,
 			itemDefault,
 		)
@@ -570,14 +551,12 @@ func (p *Parameters) GetObjectArray(key string) []Parameters {
 	if !ok {
 		return ifaceArrayToParamsArray(
 			arrSchema.DefaultValue,
-			p.Codec,
 			itemSchema,
 			itemDefault,
 		)
 	}
 	return ifaceArrayToParamsArray(
 		val,
-		p.Codec,
 		itemSchema,
 		itemDefault,
 	)
@@ -585,7 +564,6 @@ func (p *Parameters) GetObjectArray(key string) []Parameters {
 
 func ifaceArrayToParamsArray(
 	arr []interface{},
-	codec crypto.Codec,
 	itemSchema *ObjectPropertySchema, // nolint: interfacer
 	itemDefault map[string]interface{},
 ) []Parameters {
@@ -596,7 +574,6 @@ func ifaceArrayToParamsArray(
 	for i, item := range arr {
 		retArr[i] = ifaceToParams(
 			item,
-			codec,
 			itemSchema,
 			itemDefault,
 		)
@@ -606,12 +583,10 @@ func ifaceArrayToParamsArray(
 
 func ifaceToParams(
 	valIface interface{},
-	codec crypto.Codec,
 	schema KeyedPropertySchemaContainer,
 	defaultVal map[string]interface{},
 ) Parameters {
 	params := Parameters{
-		Codec:  codec,
 		Schema: schema,
 	}
 	if valIface == nil {

@@ -31,19 +31,16 @@ type Instance struct {
 // JSON []byte
 func NewInstanceFromJSON(
 	jsonBytes []byte,
-	codec crypto.Codec,
 	provisioningParametersSchema *InputParametersSchema, // nolint: interfacer
 ) (Instance, error) {
 	instance := Instance{
 		ProvisioningParameters: &ProvisioningParameters{
 			Parameters: Parameters{
-				Codec:  codec,
 				Schema: provisioningParametersSchema,
 			},
 		},
 		UpdatingParameters: &ProvisioningParameters{
 			Parameters: Parameters{
-				Codec: codec,
 				// Note that provisioning schema is deliberately used here in place of
 				// updating schema. That allows us to store/retrieve the FULL set of
 				// combined provisioning + updating parameters and not just the subset
@@ -57,51 +54,42 @@ func NewInstanceFromJSON(
 	if err := json.Unmarshal(jsonBytes, &instance); err != nil {
 		return instance, err
 	}
-	return instance.decrypt(codec)
+	return instance.decrypt()
 }
 
 // ToJSON returns a []byte containing a JSON representation of the
 // instance
-func (i Instance) ToJSON(codec crypto.Codec) ([]byte, error) {
+func (i Instance) ToJSON() ([]byte, error) {
 	var err error
-	if i, err = i.encrypt(codec); err != nil {
+	if i, err = i.encrypt(); err != nil {
 		return nil, err
-	}
-	// Set the codec on the params before continuing
-	if i.ProvisioningParameters != nil {
-		i.ProvisioningParameters.Codec = codec
-	}
-	if i.UpdatingParameters != nil {
-		i.UpdatingParameters.Codec = codec
 	}
 	return json.Marshal(i)
 }
 
-func (i Instance) encrypt(codec crypto.Codec) (Instance, error) {
-	return i.encryptSecureDetails(codec)
+func (i Instance) encrypt() (Instance, error) {
+	return i.encryptSecureDetails()
 }
 
-func (i Instance) encryptSecureDetails(
-	codec crypto.Codec,
-) (Instance, error) {
+func (i Instance) encryptSecureDetails() (Instance, error) {
 	jsonBytes, err := json.Marshal(i.SecureDetails)
 	if err != nil {
 		return i, err
 	}
-	i.EncryptedSecureDetails, err = codec.Encrypt(jsonBytes)
+	i.EncryptedSecureDetails, err = crypto.Encrypt(jsonBytes)
 	return i, err
 }
 
-func (i Instance) decrypt(codec crypto.Codec) (Instance, error) {
-	return i.decryptSecureDetails(codec)
+func (i Instance) decrypt() (Instance, error) {
+	return i.decryptSecureDetails()
 }
 
-func (i Instance) decryptSecureDetails(codec crypto.Codec) (Instance, error) {
+func (i Instance) decryptSecureDetails() (Instance, error) {
 	if len(i.EncryptedSecureDetails) == 0 ||
 		i.SecureDetails == nil {
 		return i, nil
 	}
-	plaintext, err := codec.Decrypt(i.EncryptedSecureDetails)
+	plaintext, err := crypto.Decrypt(i.EncryptedSecureDetails)
 	if err != nil {
 		return i, err
 	}

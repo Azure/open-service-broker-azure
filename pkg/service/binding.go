@@ -25,13 +25,11 @@ type Binding struct {
 // []byte
 func NewBindingFromJSON(
 	jsonBytes []byte,
-	codec crypto.Codec,
 	schema *InputParametersSchema, // nolint: interfacer
 ) (Binding, error) {
 	binding := Binding{
 		BindingParameters: &BindingParameters{
 			Parameters: Parameters{
-				Codec:  codec,
 				Schema: schema,
 			},
 		},
@@ -40,45 +38,41 @@ func NewBindingFromJSON(
 	if err := json.Unmarshal(jsonBytes, &binding); err != nil {
 		return binding, err
 	}
-	return binding.decrypt(codec)
+	return binding.decrypt()
 }
 
 // ToJSON returns a []byte containing a JSON representation of the instance
-func (b Binding) ToJSON(codec crypto.Codec) ([]byte, error) {
+func (b Binding) ToJSON() ([]byte, error) {
 	var err error
-	if b, err = b.encrypt(codec); err != nil {
+	if b, err = b.encrypt(); err != nil {
 		return nil, err
-	}
-	// Set the codec on the params before continuing
-	if b.BindingParameters != nil {
-		b.BindingParameters.Codec = codec
 	}
 	return json.Marshal(b)
 }
 
-func (b Binding) encrypt(codec crypto.Codec) (Binding, error) {
-	return b.encryptSecureDetails(codec)
+func (b Binding) encrypt() (Binding, error) {
+	return b.encryptSecureDetails()
 }
 
-func (b Binding) encryptSecureDetails(codec crypto.Codec) (Binding, error) {
+func (b Binding) encryptSecureDetails() (Binding, error) {
 	jsonBytes, err := json.Marshal(b.SecureDetails)
 	if err != nil {
 		return b, err
 	}
-	b.EncryptedSecureDetails, err = codec.Encrypt(jsonBytes)
+	b.EncryptedSecureDetails, err = crypto.Encrypt(jsonBytes)
 	return b, err
 }
 
-func (b Binding) decrypt(codec crypto.Codec) (Binding, error) {
-	return b.decryptSecureDetails(codec)
+func (b Binding) decrypt() (Binding, error) {
+	return b.decryptSecureDetails()
 }
 
-func (b Binding) decryptSecureDetails(codec crypto.Codec) (Binding, error) {
+func (b Binding) decryptSecureDetails() (Binding, error) {
 	if len(b.EncryptedSecureDetails) == 0 ||
 		b.SecureDetails == nil {
 		return b, nil
 	}
-	plaintext, err := codec.Decrypt(b.EncryptedSecureDetails)
+	plaintext, err := crypto.Decrypt(b.EncryptedSecureDetails)
 	if err != nil {
 		return b, err
 	}

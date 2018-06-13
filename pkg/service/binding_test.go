@@ -30,7 +30,6 @@ func init() {
 	}
 	bindingParameters := &BindingParameters{
 		Parameters: Parameters{
-			Codec:  noopCodec,
 			Schema: bindingParametersSchema,
 			Data: map[string]interface{}{
 				"foo": "bar",
@@ -98,17 +97,13 @@ func init() {
 }
 
 func TestNewBindingFromJSON(t *testing.T) {
-	binding, err := NewBindingFromJSON(
-		testBindingJSON,
-		noopCodec,
-		bindingParametersSchema,
-	)
+	binding, err := NewBindingFromJSON(testBindingJSON, bindingParametersSchema)
 	assert.Nil(t, err)
 	assert.Equal(t, testBinding, binding)
 }
 
 func TestBindingToJSON(t *testing.T) {
-	json, err := testBinding.ToJSON(noopCodec)
+	json, err := testBinding.ToJSON()
 	assert.Nil(t, err)
 	assert.Equal(t, testBindingJSON, json)
 }
@@ -118,7 +113,7 @@ func TestEncryptSecureBindingDetails(t *testing.T) {
 		SecureDetails: testSecureBindingDetails,
 	}
 	var err error
-	binding, err = binding.encryptSecureDetails(noopCodec)
+	binding, err = binding.encryptSecureDetails()
 	assert.Nil(t, err)
 	assert.Equal(
 		t,
@@ -133,7 +128,7 @@ func TestDecryptSecureBindingDetails(t *testing.T) {
 		SecureDetails:          SecureBindingDetails{},
 	}
 	var err error
-	binding, err = binding.decryptSecureDetails(noopCodec)
+	binding, err = binding.decryptSecureDetails()
 	assert.Nil(t, err)
 	assert.Equal(t, testSecureBindingDetails, binding.SecureDetails)
 }

@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"io"
 
@@ -17,8 +18,14 @@ type codec struct {
 }
 
 // NewCodec returns a new aes256-based implementation of crypto.Codec
-func NewCodec(key []byte) (crypto.Codec, error) {
-	block, err := aes.NewCipher(key)
+func NewCodec(config Config) (crypto.Codec, error) {
+	if config.Key == "" {
+		return nil, errors.New("AES256 key was not specified")
+	}
+	if len(config.Key) != 32 {
+		return nil, errors.New("AES256 key is an invalid length")
+	}
+	block, err := aes.NewCipher([]byte(config.Key))
 	if err != nil {
 		return nil, fmt.Errorf("error creating cipher: %s", err)
 	}
