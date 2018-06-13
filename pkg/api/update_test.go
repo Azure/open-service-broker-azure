@@ -14,7 +14,7 @@ import (
 )
 
 func TestUpdatingWithAcceptIncompleteNotSet(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(getDisposableInstanceID(), nil, nil)
 	assert.Nil(t, err)
@@ -25,7 +25,7 @@ func TestUpdatingWithAcceptIncompleteNotSet(t *testing.T) {
 }
 
 func TestUpdatingWithAcceptIncompleteNotTrue(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
 		getDisposableInstanceID(),
@@ -42,7 +42,7 @@ func TestUpdatingWithAcceptIncompleteNotTrue(t *testing.T) {
 }
 
 func TestUpdatingWithMissingServiceID(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
 		getDisposableInstanceID(),
@@ -62,7 +62,7 @@ func TestUpdatingWithMissingServiceID(t *testing.T) {
 }
 
 func TestUpdatingWithInvalidServiceID(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
 		getDisposableInstanceID(),
@@ -82,7 +82,7 @@ func TestUpdatingWithInvalidServiceID(t *testing.T) {
 }
 
 func TestUpdatingWithInvalidPlanID(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getUpdateRequest(
 		getDisposableInstanceID(),
@@ -104,15 +104,24 @@ func TestUpdatingWithInvalidPlanID(t *testing.T) {
 func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 	t *testing.T,
 ) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		ProvisioningParameters: service.ProvisioningParameters{
-			"someParameter": "foo",
+		ProvisioningParameters: &service.ProvisioningParameters{
+			Parameters: service.Parameters{
+				Schema: &service.InputParametersSchema{
+					PropertySchemas: map[string]service.PropertySchema{
+						"someParameter": &service.StringPropertySchema{},
+					},
+				},
+				Data: map[string]interface{}{
+					"someParameter": "foo",
+				},
+			},
 		},
 		Status: service.InstanceStateProvisioned,
 	})
@@ -140,15 +149,69 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndFullyProvisioned(
 func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( // nolint: lll
 	t *testing.T,
 ) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
 		InstanceID: instanceID,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
-		UpdatingParameters: service.ProvisioningParameters{
-			"someParameter": "foo",
+		ProvisioningParameters: &service.ProvisioningParameters{
+			Parameters: service.Parameters{
+				Schema: &service.InputParametersSchema{
+					PropertySchemas: map[string]service.PropertySchema{
+						"someParameter": &service.StringPropertySchema{},
+					},
+				},
+				Data: map[string]interface{}{
+					"someParameter": "foo",
+				},
+			},
+		},
+		Status: service.InstanceStateProvisioning,
+	})
+	assert.Nil(t, err)
+	req, err := getUpdateRequest(
+		instanceID,
+		map[string]string{
+			"accepts_incomplete": "true",
+		},
+		&UpdatingRequest{
+			ServiceID: fake.ServiceID,
+			PlanID:    fake.StandardPlanID,
+			Parameters: map[string]interface{}{
+				"someParameter": "foo",
+			},
+		},
+	)
+	assert.Nil(t, err)
+	rr := httptest.NewRecorder()
+	s.router.ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusAccepted, rr.Code)
+	assert.Equal(t, responseUpdatingAccepted, rr.Body.Bytes())
+}
+
+func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyUpdated( // nolint: lll
+	t *testing.T,
+) {
+	s, _, err := getTestServer()
+	assert.Nil(t, err)
+	instanceID := getDisposableInstanceID()
+	err = s.store.WriteInstance(service.Instance{
+		InstanceID: instanceID,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
+		UpdatingParameters: &service.ProvisioningParameters{
+			Parameters: service.Parameters{
+				Schema: &service.InputParametersSchema{
+					PropertySchemas: map[string]service.PropertySchema{
+						"someParameter": &service.StringPropertySchema{},
+					},
+				},
+				Data: map[string]interface{}{
+					"someParameter": "foo",
+				},
+			},
 		},
 		Status: service.InstanceStateUpdating,
 	})
@@ -174,7 +237,7 @@ func TestUpdatingWithExistingInstanceWithSameAttributesAndNotFullyProvisioned( /
 }
 
 func TestKickOffNewAsyncUpdating(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{

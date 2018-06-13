@@ -13,27 +13,39 @@ const jsonSchemaVersion = "http://json-schema.org/draft-04/schema#"
 // operations.
 type PlanSchemas struct {
 	ServiceInstances InstanceSchemas `json:"service_instance,omitempty"`
-	ServiceBindings  *BindingSchemas `json:"service_binding,omitempty"`
+	ServiceBindings  BindingSchemas  `json:"service_binding,omitempty"`
 }
 
 // InstanceSchemas encapsulates all plan-related schemas for validating input
 // parameters to all service instance operations.
 type InstanceSchemas struct {
-	ProvisioningParametersSchema InputParametersSchema  `json:"create,omitempty"`
-	UpdatingParametersSchema     *InputParametersSchema `json:"update,omitempty"`
+	ProvisioningParametersSchema InputParametersSchema `json:"create,omitempty"`
+	UpdatingParametersSchema     InputParametersSchema `json:"update,omitempty"`
 }
 
 // BindingSchemas encapsulates all plan-related schemas for validating input
 // parameters to all service binding operations.
 type BindingSchemas struct {
-	BindingParametersSchema *InputParametersSchema `json:"create,omitempty"`
+	BindingParametersSchema InputParametersSchema `json:"create,omitempty"`
 }
 
 // InputParametersSchema encapsulates schema for validating input parameters
 // to any single operation.
 type InputParametersSchema struct {
 	RequiredProperties []string                  `json:"required,omitempty"`
+	SecureProperties   []string                  `json:"-"`
 	PropertySchemas    map[string]PropertySchema `json:"properties,omitempty"`
+}
+
+// GetPropertySchemas returns a map of subordinate property schemas
+func (i InputParametersSchema) GetPropertySchemas() map[string]PropertySchema {
+	return i.PropertySchemas
+}
+
+// GetAdditionalPropertySchema returns the "additional" property schema-- the
+// schema that defines and allows for arbitrary properties on an object
+func (i InputParametersSchema) GetAdditionalPropertySchema() PropertySchema {
+	return nil
 }
 
 // MarshalJSON defines custom JSON marshaling for InputParametersSchema and
@@ -362,6 +374,16 @@ type CustomObjectPropertyValidator func(
 	value map[string]interface{},
 ) error
 
+// KeyedPropertySchemaContainer is an interface for any PropertySchema that
+// contains an map of subordinate PropertySchemas. The existence of this
+// interface alllows Params to treat InputParametersSchema and
+// ObjectPropertySchema the same even though there are some differences between
+// the two that are unimportant from Params' perspective.
+type KeyedPropertySchemaContainer interface {
+	GetPropertySchemas() map[string]PropertySchema
+	GetAdditionalPropertySchema() PropertySchema
+}
+
 // ObjectPropertySchema represents the attributes of a complicated schema type
 // that can have nested properties
 type ObjectPropertySchema struct {
@@ -371,6 +393,17 @@ type ObjectPropertySchema struct {
 	Additional              PropertySchema                `json:"additionalProperties,omitempty"` // nolint: lll
 	CustomPropertyValidator CustomObjectPropertyValidator `json:"-"`
 	DefaultValue            map[string]interface{}        `json:"-"`
+}
+
+// GetPropertySchemas returns a map of subordinate property schemas
+func (o ObjectPropertySchema) GetPropertySchemas() map[string]PropertySchema {
+	return o.PropertySchemas
+}
+
+// GetAdditionalPropertySchema returns the "additional" property schema-- the
+// schema that defines and allows for arbitrary properties on an object
+func (o ObjectPropertySchema) GetAdditionalPropertySchema() PropertySchema {
+	return o.Additional
 }
 
 // MarshalJSON provides functionality to marshal an ObjectPropertySchema to JSON
@@ -502,19 +535,6 @@ func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 	}
 	ps := p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas
 	if sp.ParentServiceID == "" {
-		ps["location"] = &StringPropertySchema{
-			Description: "The Azure region in which to provision" +
-				" applicable resources.",
-		}
-		ps["resourceGroup"] = &StringPropertySchema{
-			Description: "The (new or existing) resource group with which" +
-				" to associate new resources.",
-		}
-		ps["tags"] = &ObjectPropertySchema{
-			Description: "Tags to be applied to new resources," +
-				" specified as key/value pairs.",
-			Additional: &StringPropertySchema{},
-		}
 		if sp.ChildServiceID != "" {
 			p.ServiceInstances.ProvisioningParametersSchema.RequiredProperties =
 				append(
@@ -522,7 +542,8 @@ func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 					"alias",
 				)
 			ps["alias"] = &StringPropertySchema{
-				Description: "Alias to use when provisioning databases on this DBMS",
+				Description: "Alias to by which child services instances may " +
+					"reference this instance",
 			}
 		}
 	} else {
@@ -532,8 +553,7 @@ func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
 				"parentAlias",
 			)
 		ps["parentAlias"] = &StringPropertySchema{
-			Description: "Specifies the alias of the DBMS upon which the database " +
-				"should be provisioned.",
+			Description: "Alias of the parent service instance",
 		}
 	}
 }

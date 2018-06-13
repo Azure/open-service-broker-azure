@@ -7,7 +7,6 @@ import (
 func (a *allInOneManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	dt := allInOneInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
@@ -17,13 +16,8 @@ func (a *allInOneManager) Bind(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
 	return createBinding(
-		isSSLRequired(pp.dbmsProvisioningParameters),
+		isSSLRequired(*instance.ProvisioningParameters),
 		a.sqlDatabaseDNSSuffix,
 		dt.ServerName,
 		sdt.AdministratorLoginPassword,
@@ -48,14 +42,9 @@ func (a *allInOneManager) GetCredentials(
 	if err := service.GetStructFromMap(binding.SecureDetails, &sbd); err != nil {
 		return nil, err
 	}
-	pp := allInOneProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, err
-	}
 	creds := createCredential(
 		dt.FullyQualifiedDomainName,
-		isSSLRequired(pp.dbmsProvisioningParameters),
+		isSSLRequired(*instance.ProvisioningParameters),
 		dt.ServerName,
 		dt.DatabaseName,
 		bd,

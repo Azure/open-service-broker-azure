@@ -29,7 +29,7 @@ func (a *allInOneManager) deleteARMDeployment(
 	}
 	err := a.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
@@ -49,7 +49,7 @@ func (a *allInOneManager) deleteMsSQLServer(
 	}
 	result, err := a.serversClient.Delete(
 		ctx,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.ServerName,
 	)
 	if err != nil {

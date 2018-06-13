@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/slice"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,11 +19,11 @@ import (
 // cleanUpDependency, or neither of them. And we assume that the dependency is
 // in the same resource group with the service instance.
 type serviceLifecycleTestCase struct {
+	// To clarify-- this is a test grouping-- it is NOT a resource group
 	group                  string
 	name                   string
 	serviceID              string
 	planID                 string
-	location               string
 	provisioningParameters map[string]interface{}
 	parentServiceInstance  *service.Instance
 	bindingParameters      map[string]interface{}
@@ -66,6 +67,15 @@ func (s serviceLifecycleTestCase) execute(
 		)
 	}
 
+	// Force the resource group to be something known to this test executor
+	// to ensure good cleanup
+	if slice.ContainsString(
+		plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema.RequiredProperties, // nolint: lll
+		"resourceGroup",
+	) {
+		s.provisioningParameters["resourceGroup"] = resourceGroup
+	}
+
 	if err :=
 		plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema.Validate(
 			s.provisioningParameters,
@@ -75,10 +85,13 @@ func (s serviceLifecycleTestCase) execute(
 
 	serviceManager := svc.GetServiceManager()
 
-	pp, spp, err :=
-		serviceManager.SplitProvisioningParameters(s.provisioningParameters)
-	if err != nil {
-		return err
+	// Wrap the provisioning parameters with a "params" object that guides access
+	// to the parameters using schema
+	pp := &service.ProvisioningParameters{
+		Parameters: service.Parameters{
+			Schema: plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema,
+			Data:   s.provisioningParameters,
+		},
 	}
 
 	// Build an instance from test case details
@@ -87,13 +100,8 @@ func (s serviceLifecycleTestCase) execute(
 		Service:   svc,
 		PlanID:    s.planID,
 		Plan:      plan,
-		Location:  s.location,
-		// Force the resource group to be something known to this test executor
-		// to ensure good cleanup
-		ResourceGroup:                resourceGroup,
-		ProvisioningParameters:       pp,
-		SecureProvisioningParameters: spp,
-		Parent: s.parentServiceInstance,
+		ProvisioningParameters: pp,
+		Parent:                 s.parentServiceInstance,
 	}
 
 	// Provision...
@@ -130,17 +138,20 @@ func (s serviceLifecycleTestCase) execute(
 
 	//Only test the binding operations if the service is bindable
 	if svc.IsBindable() {
-		var bp service.BindingParameters
-		var sbp service.SecureBindingParameters
-		bp, sbp, err = serviceManager.SplitBindingParameters(s.bindingParameters)
-		if err != nil {
-			return err
+		// Wrap the binding parameters with a "params" object that guides access to
+		// the parameters using schema
+		bps := instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema
+		bp := service.BindingParameters{
+			Parameters: service.Parameters{
+				Schema: &bps,
+				Data:   s.bindingParameters,
+			},
 		}
 
 		// Bind
 		var bd service.BindingDetails
 		var sbd service.SecureBindingDetails
-		bd, sbd, err = serviceManager.Bind(instance, bp, sbp)
+		bd, sbd, err = serviceManager.Bind(instance, bp)
 		if err != nil {
 			return err
 		}

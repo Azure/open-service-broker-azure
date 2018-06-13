@@ -6,9 +6,6 @@ var allInOneARMTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "string"
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -18,7 +15,7 @@ var allInOneARMTemplateBytes = []byte(`
 			"type": "Microsoft.Sql/servers",
 			"name": "{{ .serverName }}",
 			"apiVersion": "2015-05-01-preview",
-			"location": "[parameters('location')]",
+			"location": "{{.location}}",
 			"properties": {
 				"administratorLogin": "{{ .administratorLogin }}",
 				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
@@ -26,15 +23,16 @@ var allInOneARMTemplateBytes = []byte(`
 			},
 			"tags": "[parameters('tags')]",
 			"resources": [
+				{{ $root := . }}
 				{{range .firewallRules}}
 				{
 					"type": "firewallrules",
-					"name": "{{.Name}}",
+					"name": "{{.name}}",
 					"apiVersion": "2014-04-01-preview",
-					"location": "[parameters('location')]",
+					"location": "{{$root.location}}",
 					"properties": {
-						"startIpAddress": "{{.StartIP}}",
-						"endIpAddress": "{{.EndIP}}"
+						"startIpAddress": "{{.startIPAddress}}",
+						"endIpAddress": "{{.endIPAddress}}"
 					},
 					"dependsOn": [
 						"Microsoft.Sql/servers/{{ $.serverName }}"
@@ -45,7 +43,7 @@ var allInOneARMTemplateBytes = []byte(`
 					"type": "databases",
 					"name": "{{ .databaseName }}",
 					"apiVersion": "2017-10-01-preview",
-					"location": "[parameters('location')]",
+					"location": "{{$root.location}}",
 					"properties": {
 						"collation": "SQL_Latin1_General_CP1_CI_AS",
 						"maxSizeBytes": "{{ .maxSizeBytes }}"
@@ -56,7 +54,7 @@ var allInOneARMTemplateBytes = []byte(`
 					},
 					"dependsOn": [
 						{{range .firewallRules}}
-						"Microsoft.Sql/servers/{{ $.serverName }}/firewallrules/{{.Name}}",
+						"Microsoft.Sql/servers/{{ $.serverName }}/firewallrules/{{.name}}",
 						{{end}}
 						"Microsoft.Sql/servers/{{ $.serverName }}"
 						

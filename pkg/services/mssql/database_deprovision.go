@@ -29,7 +29,7 @@ func (d *databaseManager) deleteARMDeployment(
 	}
 	err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.Parent.ResourceGroup,
+		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
@@ -55,7 +55,7 @@ func (d *databaseManager) deleteMsSQLDatabase(
 
 	if _, err := d.databasesClient.Delete(
 		ctx,
-		instance.Parent.ResourceGroup,
+		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
 		pdt.ServerName,
 		dt.DatabaseName,
 	); err != nil {

@@ -42,9 +42,7 @@ type server struct {
 	catalog         service.Catalog
 	catalogResponse []byte
 	// This allows tests to inject an alternative implementation of this function
-	listenAndServe            func(context.Context) error
-	defaultAzureLocation      string
-	defaultAzureResourceGroup string
+	listenAndServe func(context.Context) error
 }
 
 // NewServer returns an HTTP router
@@ -54,17 +52,13 @@ func NewServer(
 	asyncEngine async.Engine,
 	filterChain filter.Filter,
 	catalog service.Catalog,
-	defaultAzureLocation string,
-	defaultAzureResourceGroup string,
 ) (Server, error) {
 	s := &server{
-		port:                      port,
-		store:                     store,
-		asyncEngine:               asyncEngine,
-		filterChain:               filterChain,
-		catalog:                   catalog,
-		defaultAzureLocation:      defaultAzureLocation,
-		defaultAzureResourceGroup: defaultAzureResourceGroup,
+		port:        port,
+		store:       store,
+		asyncEngine: asyncEngine,
+		filterChain: filterChain,
+		catalog:     catalog,
 	}
 
 	router := mux.NewRouter()

@@ -7,25 +7,19 @@ import (
 )
 
 func validateStorageUpdate(
-	pp dbmsProvisioningParameters,
-	up dbmsUpdatingParameters,
+	pp service.ProvisioningParameters,
+	up service.ProvisioningParameters,
 ) error {
-	var existingStorage int64
-	if pp.Storage == nil {
-		existingStorage = 10
-	} else {
-		existingStorage = *pp.Storage
-	}
-	var newStorge int64
-	if up.Storage == nil {
-		newStorge = 10
-	} else {
-		newStorge = *up.Storage
-	}
+	existingStorage := pp.GetInt64("storage")
+	newStorge := up.GetInt64("storage")
 	if newStorge < existingStorage {
 		return service.NewValidationError(
 			"storage",
-			fmt.Sprintf(`invalid value: "%d". cannot reduce storage`, *up.Storage),
+			fmt.Sprintf(
+				`invalid value: cannot reduce storage from %d to %d`,
+				existingStorage,
+				newStorge,
+			),
 		)
 	}
 	return nil

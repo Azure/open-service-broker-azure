@@ -119,7 +119,7 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 	if err != nil {
 		return service.Instance{}, false, err
 	}
-	instance, err := service.NewInstanceFromJSON(bytes, s.codec)
+	instance, err := service.NewInstanceFromJSON(bytes, s.codec, nil)
 	if err != nil {
 		return instance, false, err
 	}
@@ -142,9 +142,11 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 				instance.ServiceID,
 			)
 	}
+	pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema
 	instance, err = service.NewInstanceFromJSON(
 		bytes,
 		s.codec,
+		&pps,
 	)
 	instance.Service = svc
 	instance.Plan = plan
@@ -262,11 +264,24 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	if err != nil {
 		return service.Binding{}, false, err
 	}
-	binding, err := service.NewBindingFromJSON(bytes, s.codec)
+	binding, err := service.NewBindingFromJSON(bytes, s.codec, nil)
 	if err != nil {
 		return binding, false, err
 	}
-	binding, err = service.NewBindingFromJSON(bytes, s.codec)
+	instance, ok, err := s.GetInstance(binding.InstanceID)
+	if err != nil {
+		return binding, false, err
+	}
+	// Now that we have schema for binding params, take a second pass at getting a
+	// binding from the JSON
+	if ok {
+		bps := instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema
+		binding, err = service.NewBindingFromJSON(
+			bytes,
+			s.codec,
+			&bps,
+		)
+	}
 	return binding, err == nil, err
 }
 

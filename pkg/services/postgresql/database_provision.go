@@ -49,14 +49,19 @@ func (d *databaseManager) deployARMTemplate(
 		"serverName":   pdt.ServerName,
 		"databaseName": dt.DatabaseName,
 	}
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
+	}
 	_, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.Parent.ResourceGroup,
-		instance.Parent.Location,
+		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
+		instance.Parent.ProvisioningParameters.GetString("location"),
 		databaseARMTemplateBytes,
 		nil, // Go template params
 		armTemplateParameters,
-		instance.Tags,
+		tags,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
@@ -82,15 +87,8 @@ func (d *databaseManager) setupDatabase(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return nil, nil, err
-	}
 	err := setupDatabase(
-		isSSLRequired(ppp),
+		isSSLRequired(*instance.Parent.ProvisioningParameters),
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,
@@ -120,26 +118,15 @@ func (d *databaseManager) createExtensions(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	pp := databaseProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return nil, nil, err
-	}
-	if len(pp.Extensions) > 0 {
+	extensions := instance.ProvisioningParameters.GetStringArray("extensions")
+	if len(extensions) > 0 {
 		err := createExtensions(
-			isSSLRequired(ppp),
+			isSSLRequired(*instance.Parent.ProvisioningParameters),
 			pdt.ServerName,
 			spdt.AdministratorLoginPassword,
 			pdt.FullyQualifiedDomainName,
 			dt.DatabaseName,
-			pp.Extensions,
+			extensions,
 		)
 		if err != nil {
 			return nil, nil, err

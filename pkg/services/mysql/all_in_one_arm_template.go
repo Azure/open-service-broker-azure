@@ -6,9 +6,6 @@ var allInOneARMTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "string"
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -20,7 +17,7 @@ var allInOneARMTemplateBytes = []byte(`
 		{
 			"apiVersion": "[variables('DBforMySQLapiVersion')]",
 			"kind": "",
-			"location": "[parameters('location')]",
+			"location": "{{.location}}",
 			"name": "{{ .serverName }}",
 			"properties": {
 				"version": "{{.version}}",
@@ -40,11 +37,12 @@ var allInOneARMTemplateBytes = []byte(`
 				"tier": "{{.tier}}",
 				"capacity": "{{.cores}}",
 				"size": "{{.storage}}",
-				"family": "{{.hardwareFamily}}"
+				"family": "Gen5"
 			},
 			"type": "Microsoft.DBforMySQL/servers",
 			"tags": "[parameters('tags')]",
 			"resources": [
+				{{ $root := . }}
 				{{range .firewallRules}}
 				{
 					"type": "firewallrules",
@@ -52,11 +50,11 @@ var allInOneARMTemplateBytes = []byte(`
 					"dependsOn": [
 						"Microsoft.DBforMySQL/servers/{{ $.serverName }}"
 					],
-					"location": "[parameters('location')]",
-					"name": "{{.Name}}",
+					"location": "{{$root.location}}",
+					"name": "{{.name}}",
 					"properties": {
-						"startIpAddress": "{{.StartIP}}",
-						"endIpAddress": "{{.EndIP}}"
+						"startIpAddress": "{{.startIPAddress}}",
+						"endIpAddress": "{{.endIPAddress}}"
 					}
 				},
 				{{end}}
@@ -64,10 +62,10 @@ var allInOneARMTemplateBytes = []byte(`
 					"apiVersion": "[variables('DBforMySQLapiVersion')]",
 					"name": "{{ .databaseName }}",
 					"type": "databases",
-					"location": "[parameters('location')]",
+					"location": "{{$root.location}}",
 					"dependsOn": [
 						{{range $.firewallRules}}
-						"Microsoft.DBforMySQL/servers/{{ $.serverName }}/firewallrules/{{.Name}}",
+						"Microsoft.DBforMySQL/servers/{{ $.serverName }}/firewallrules/{{.name}}",
 						{{end}}
 						"Microsoft.DBforMySQL/servers/{{ $.serverName }}"
 					],

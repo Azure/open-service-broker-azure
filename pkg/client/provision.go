@@ -17,7 +17,6 @@ func Provision(
 	serviceID string,
 	planID string,
 	params map[string]interface{},
-	tags map[string]string,
 ) (string, error) {
 	instanceID := uuid.NewV4().String()
 	url := fmt.Sprintf(
@@ -25,7 +24,6 @@ func Provision(
 		getBaseURL(host, port),
 		instanceID,
 	)
-	params["tags"] = tags
 	provisioningRequest := ProvisioningRequest{
 		ServiceID:  serviceID,
 		PlanID:     planID,

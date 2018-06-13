@@ -19,7 +19,6 @@ const (
 	flagsBindingID  = "binding-id, bid"
 	flagParameters  = "parameters"
 	flagsParameters = "parameters, params"
-	flagTag         = "tag"
 	flagOperation   = "operation"
 	flagsOperation  = "operation, o"
 	flagPoll        = "poll"

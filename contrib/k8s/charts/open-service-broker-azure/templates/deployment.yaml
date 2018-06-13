@@ -40,8 +40,6 @@ spec:
               secretKeyRef:
                 name: {{ template "fullname" . }}
                 key: azure-client-secret
-          - name: AZURE_DEFAULT_LOCATION
-            value: {{ .Values.azure.defaultLocation }}
           - name: REDIS_HOST
             {{- if .Values.redis.embedded }}
             value: {{ .Release.Name }}-redis

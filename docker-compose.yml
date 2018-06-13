@@ -25,10 +25,26 @@ services:
   test-api-compliance-broker:
     <<: *base-go-service
     command:  bash -c 'go run cmd/compliance-test-broker/compliance-test-broker.go'
+  e2e:
+    <<: *base-go-service
+    environment:
+      AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
+      TEST_MODULES: ${TEST_MODULES}
+      BASIC_AUTH_USERNAME: username
+      BASIC_AUTH_PASSWORD: password
+    links:
+    - broker:broker
   broker:
     build: .
     environment:
       LOG_LEVEL: DEBUG
+      AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}
       STORAGE_REDIS_HOST: redis
       STORAGE_REDIS_DB: 0
       ASYNC_REDIS_HOST: redis

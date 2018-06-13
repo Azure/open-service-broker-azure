@@ -10,21 +10,10 @@ import (
 func (a *allInOneManager) ValidateUpdatingParameters(
 	instance service.Instance,
 ) error {
-	pp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.ProvisioningParameters,
-		&pp,
-	); err != nil {
-		return err
-	}
-	up := dbmsUpdatingParameters{}
-	if err := service.GetStructFromMap(
-		instance.UpdatingParameters,
-		&up,
-	); err != nil {
-		return err
-	}
-	return validateStorageUpdate(pp, up)
+	return validateStorageUpdate(
+		*instance.ProvisioningParameters,
+		*instance.UpdatingParameters,
+	)
 }
 
 func (a *allInOneManager) GetUpdater(service.Plan) (service.Updater, error) {
@@ -48,36 +37,32 @@ func (a *allInOneManager) updateARMTemplate(
 		return nil, nil, err
 	}
 
-	up := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.UpdatingParameters,
-		&up,
-	); err != nil {
-		return nil, nil, err
-	}
-
 	version := instance.Service.GetProperties().Extended["version"].(string)
 	goTemplateParameters, err := buildGoTemplateParameters(
 		instance.Plan,
 		version,
 		dt.dbmsInstanceDetails,
 		sdt.secureDBMSInstanceDetails,
-		up,
+		*instance.UpdatingParameters,
 	)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to build go template parameters: %s", err)
 	}
 	goTemplateParameters["databaseName"] = dt.DatabaseName
-
+	tagsObj := instance.UpdatingParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
+	}
 	_, err = a.armDeployer.Update(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
+		instance.UpdatingParameters.GetString("resourceGroup"),
+		instance.UpdatingParameters.GetString("location"),
 		dbmsARMTemplateBytes,
 		goTemplateParameters,
 		map[string]interface{}{},
-		instance.Tags,
+		tags,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)

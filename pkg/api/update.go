@@ -154,64 +154,39 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 
 	serviceManager := svc.GetServiceManager()
 
-	updatingParameters, secureUpdatingParameters, err :=
-		serviceManager.SplitProvisioningParameters(updatingRequest.Parameters)
-	if err != nil {
-		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-		return
+	// Merge update parameters with the instance's provisioning params to build
+	// a complete set of params
+	rawUpdatingParameters := updatingRequest.Parameters
+	if instance.ProvisioningParameters != nil {
+		rawUpdatingParameters = mergeUpdateParameters(
+			instance.ProvisioningParameters.Data,
+			updatingRequest.Parameters,
+		)
 	}
-
-	// Merge both sets of update parameters with the instance's provision
-	// params to build the desired update state.
-	updatingParameters = mergeUpdateParameters(
-		instance.ProvisioningParameters,
-		updatingParameters,
-	)
-
-	secureUpdatingParameters = mergeUpdateParameters(
-		instance.SecureProvisioningParameters,
-		secureUpdatingParameters,
-	)
 
 	// This determines whether the parameters of the update request are already
 	// reflected in the provisioning parameters of a fully provisioned (or fully
 	// updated) instance OR the parameters of the update request are already
 	// reflected in the existing updating parameters of an in-progress update.
-	var existingParams map[string]interface{}
-	var existingSecureParams map[string]interface{}
+	existingParams := map[string]interface{}{}
 	switch instance.Status {
+	case service.InstanceStateProvisioning:
+		fallthrough
 	case service.InstanceStateProvisioned:
-		existingParams = instance.ProvisioningParameters
-		existingSecureParams = instance.SecureProvisioningParameters
+		if instance.ProvisioningParameters != nil {
+			existingParams = instance.ProvisioningParameters.Data
+		}
 	case service.InstanceStateUpdating:
-		existingParams = instance.UpdatingParameters
-		existingSecureParams = instance.SecureUpdatingParameters
+		if instance.UpdatingParameters != nil {
+			existingParams = instance.UpdatingParameters.Data
+		}
 	default:
 		// If instance isn't fully provisioned (or updated) and there isn't an
 		// update in-progress, we cannot handle this request. It's a conflict.
 		s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
 		return
 	}
-	var needsUpdate bool
-	for reqParamKey, reqParamVal := range updatingParameters {
-		existingVal, ok := existingParams[reqParamKey]
-		if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
-			needsUpdate = true
-			break
-		}
-	}
-	// Don't bother continuing to look if we already established that an update
-	// is needed.
-	if !needsUpdate {
-		for reqParamKey, reqParamVal := range secureUpdatingParameters {
-			existingVal, ok := existingSecureParams[reqParamKey]
-			if !ok || !reflect.DeepEqual(reqParamVal, existingVal) {
-				needsUpdate = true
-				break
-			}
-		}
-	}
-	if needsUpdate {
+	if !reflect.DeepEqual(existingParams, rawUpdatingParameters) {
 		if instance.Status == service.InstanceStateUpdating {
 			// We cannot handle two updates at once. This is a conflict.
 			s.writeResponse(w, http.StatusConflict, generateEmptyResponse())
@@ -233,36 +208,46 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	// need for a new update.
 
 	// Carry out schema-driven update request parameters validation.
-	if instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema != nil { // nolint: lll
-		if err :=
-			instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema.Validate( // nolint: lll
-				updatingRequest.Parameters,
-			); err != nil {
-			var validationErr *service.ValidationError
-			validationErr, ok = err.(*service.ValidationError)
-			if ok {
-				logFields["field"] = validationErr.Field
-				logFields["issue"] = validationErr.Issue
-				log.WithFields(logFields).Debug(
-					"bad updating request: validation error",
-				)
-				s.writeResponse(
-					w,
-					http.StatusBadRequest,
-					generateValidationFailedResponse(validationErr),
-				)
-				return
-			}
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+	if err :=
+		instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema.Validate( // nolint: lll
+			updatingRequest.Parameters,
+		); err != nil {
+		var validationErr *service.ValidationError
+		validationErr, ok = err.(*service.ValidationError)
+		if ok {
+			logFields["field"] = validationErr.Field
+			logFields["issue"] = validationErr.Issue
+			log.WithFields(logFields).Debug(
+				"bad updating request: validation error",
+			)
+			s.writeResponse(
+				w,
+				http.StatusBadRequest,
+				generateValidationFailedResponse(validationErr),
+			)
 			return
 		}
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
+	}
+
+	// Wrap the updating parameters with a "params" object that guides access
+	// to the parameters using schema. This uses provisioning schema instead of
+	// updating schema so that when persisting, we will be able to persist the
+	// full combined provisioning + updating parameters instea of just the subset
+	// that are updating params.
+	pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema
+	updatingParameters := &service.ProvisioningParameters{
+		Parameters: service.Parameters{
+			Schema: &pps,
+			Data:   rawUpdatingParameters,
+		},
 	}
 
 	// This uses module-specific logic to weigh update parameters against current
 	// instance state to detect any invalid state changes. An example of this
 	// might be reducing the amound of storage allocated to a database.
 	instance.UpdatingParameters = updatingParameters
-	instance.SecureUpdatingParameters = secureUpdatingParameters
 	if err := serviceManager.ValidateUpdatingParameters(instance); err != nil {
 		var validationErr *service.ValidationError
 		validationErr, ok = err.(*service.ValidationError)

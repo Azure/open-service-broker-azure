@@ -66,14 +66,21 @@ func (a *allInOneManager) deployARMTemplate(
 	for key, value := range dbParams {
 		goTemplateParams[key] = value
 	}
+	goTemplateParams["location"] =
+		instance.ProvisioningParameters.GetString("location")
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
+	}
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
+		instance.ProvisioningParameters.GetString("location"),
 		allInOneARMTemplateBytes,
 		goTemplateParams,
 		map[string]interface{}{}, // empty arm template params
-		instance.Tags,
+		tags,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)

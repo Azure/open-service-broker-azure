@@ -145,7 +145,7 @@ func buildGeneralPurposePlan(
 	id string,
 	includesDBMS bool,
 ) *service.PlanProperties {
-	gpDetails := vCorePlanDetails{
+	planDetails := vCorePlanDetails{
 		tierName:      "GeneralPurpose",
 		tierShortName: "GP",
 		includeDBMS:   includesDBMS,
@@ -157,7 +157,7 @@ func buildGeneralPurposePlan(
 		Free:        false,
 		Stability:   service.StabilityPreview,
 		Extended: map[string]interface{}{
-			"tierDetails": gpDetails,
+			"tierDetails": planDetails,
 		},
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "General Purpose",
@@ -172,7 +172,7 @@ func buildGeneralPurposePlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: gpDetails.getProvisionSchema(),
+				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
 			},
 		},
 	}
@@ -182,7 +182,7 @@ func buildBusinessCriticalPlan(
 	id string,
 	includesDBMS bool,
 ) *service.PlanProperties {
-	bcDetails := vCorePlanDetails{
+	planDetails := vCorePlanDetails{
 		tierName:      "BusinessCritical",
 		tierShortName: "BC",
 		includeDBMS:   includesDBMS,
@@ -195,7 +195,7 @@ func buildBusinessCriticalPlan(
 		Free:      false,
 		Stability: service.StabilityPreview,
 		Extended: map[string]interface{}{
-			"tierDetails": bcDetails,
+			"tierDetails": planDetails,
 		},
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Basic Tier",
@@ -209,7 +209,7 @@ func buildBusinessCriticalPlan(
 		},
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
-				ProvisioningParametersSchema: bcDetails.getProvisionSchema(),
+				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
 			},
 		},
 	}

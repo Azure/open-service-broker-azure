@@ -26,7 +26,7 @@ func (d *dbmsManager) deleteARMDeployment(
 	}
 	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 	); err != nil {
 		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
@@ -45,7 +45,7 @@ func (d *dbmsManager) deleteMySQLServer(
 	}
 	result, err := d.serversClient.Delete(
 		ctx,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.ServerName,
 	)
 	if err != nil {

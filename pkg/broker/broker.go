@@ -7,7 +7,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
@@ -51,7 +50,6 @@ func NewBroker(
 	asyncEngine async.Engine,
 	filterChain filter.Filter,
 	catalog service.Catalog,
-	azureConfig azure.Config,
 ) (Broker, error) {
 	b := &broker{
 		store:       store,
@@ -108,8 +106,6 @@ func NewBroker(
 		b.asyncEngine,
 		filterChain,
 		b.catalog,
-		azureConfig.DefaultLocation,
-		azureConfig.DefaultResourceGroup,
 	)
 	if err != nil {
 		return nil, err

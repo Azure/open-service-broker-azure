@@ -22,20 +22,21 @@ func buildGoTemplateParameters(
 	version string,
 	dt dbmsInstanceDetails,
 	sdt secureDBMSInstanceDetails,
-	pp dbmsProvisioningParameters,
+	pp service.ProvisioningParameters,
 ) (map[string]interface{}, error) {
 	td := plan.GetProperties().Extended["tierDetails"].(tierDetails)
 
 	p := map[string]interface{}{}
+	p["location"] = pp.GetString("location")
 	p["sku"] = td.getSku(pp)
 	p["tier"] = td.tierName
-	p["cores"] = td.getCores(pp)
-	p["storage"] = getStorage(pp) * 1024 //storage is in MB to arm :/
-	p["backupRetention"] = getBackupRetention(pp)
-	p["hardwareFamily"] = getHardwareFamily(pp)
+	p["cores"] = pp.GetInt64("cores")
+	p["storage"] = pp.GetInt64("storage") * 1024 // storage is in MB to arm :/
+	p["backupRetention"] = pp.GetInt64("backupRetention")
 	if isGeoRedundentBackup(pp) {
 		p["geoRedundantBackup"] = enabledARMString
 	}
+	p["version"] = version
 	p["serverName"] = dt.ServerName
 	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
 	if isSSLRequired(pp) {
@@ -43,8 +44,12 @@ func buildGoTemplateParameters(
 	} else {
 		p["sslEnforcement"] = disabledARMString
 	}
-	p["version"] = version
-	p["firewallRules"] = getFirewallRules(pp)
+	firewallRulesParams := pp.GetObjectArray("firewallRules")
+	firewallRules := make([]map[string]interface{}, len(firewallRulesParams))
+	for i, firewallRuleParams := range firewallRulesParams {
+		firewallRules[i] = firewallRuleParams.Data
+	}
+	p["firewallRules"] = firewallRules
 
 	return p, nil
 }
