@@ -289,17 +289,19 @@ Open Service Broker for Azure uses Redis as a backing store for its state. We re
 
 Save the access key and host to an environment variable for later use:
 
-    **Bash**
-    ```console
-    export REDIS_HOSTNAME=<Redis Host>
-    export REDIS_PASSWORD=<Redis PrimaryKey>
-    ```
+**Bash**
 
-    **PowerShell**
-    ```console
-    $env:REDIS_HOSTNAME = "<Redis Host>"
-    $env:REDIS_PASSWORD = "<Redis PrimaryKey>"
-    ```
+```console
+export REDIS_HOSTNAME=<Redis Host>
+export REDIS_PASSWORD=<Redis PrimaryKey>
+```
+
+**PowerShell**
+
+```console
+$env:REDIS_HOSTNAME = "<Redis Host>"
+$env:REDIS_PASSWORD = "<Redis PrimaryKey>"
+```
 
 ## Create a service principal
 
@@ -330,31 +332,33 @@ resources on your account on behalf of Kubernetes.
 
 You can now deploy Open Service Broker for Azure on the cluster. Using Helm:
 
-    **Bash**
-    ```console
-    helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
-    helm install azure/open-service-broker-azure --name osba --namespace osba \
-      --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
-      --set azure.tenantId=$AZURE_TENANT_ID \
-      --set azure.clientId=$AZURE_CLIENT_ID \
-      --set azure.clientSecret=$AZURE_CLIENT_SECRET \
-      --set redis.embedded=false \
-      --set redis.host=$REDIS_HOSTNAME \
-      --set redis.redisPassword=$REDIS_PASSWORD
-    ```
+**Bash**
 
-    **PowerShell**
-    ```console
-    helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
-    helm install azure/open-service-broker-azure --name osba --namespace osba `
-      --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
-      --set azure.tenantId=$env:AZURE_TENANT_ID `
-      --set azure.clientId=$env:AZURE_CLIENT_ID `
-      --set azure.clientSecret=$env:AZURE_CLIENT_SECRET `
-      --set redis.embedded=false `
-      --set redis.host=$env:REDIS_HOSTNAME `
-      --set redis.redisPassword=$env:REDIS_PASSWORD
-    ```
+```console
+helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+helm install azure/open-service-broker-azure --name osba --namespace osba \
+  --set azure.subscriptionId=$AZURE_SUBSCRIPTION_ID \
+  --set azure.tenantId=$AZURE_TENANT_ID \
+  --set azure.clientId=$AZURE_CLIENT_ID \
+  --set azure.clientSecret=$AZURE_CLIENT_SECRET \
+  --set redis.embedded=false \
+  --set redis.host=$REDIS_HOSTNAME \
+  --set redis.redisPassword=$REDIS_PASSWORD
+```
+
+**PowerShell**
+
+```console
+helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+helm install azure/open-service-broker-azure --name osba --namespace osba `
+  --set azure.subscriptionId=$env:AZURE_SUBSCRIPTION_ID `
+  --set azure.tenantId=$env:AZURE_TENANT_ID `
+  --set azure.clientId=$env:AZURE_CLIENT_ID `
+  --set azure.clientSecret=$env:AZURE_CLIENT_SECRET `
+  --set redis.embedded=false `
+  --set redis.host=$env:REDIS_HOSTNAME `
+  --set redis.redisPassword=$env:REDIS_PASSWORD
+```
 
 ## Backup and Recovery
 
@@ -401,4 +405,3 @@ kubectl create -f restore-request.yaml
 ```
 
 This will result in the current etcd pods being terminated and restarted with the specified backup file.
-
