@@ -1,0 +1,11 @@
+cluster:
+  name: svc-cat-etcd
+backup:
+  schedule: "*/30 * * * *"
+azure:
+  storage:
+    # Required Field
+    account:
+    # Required Field
+    key:
+    container: etcd-backups

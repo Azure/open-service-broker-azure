@@ -155,25 +155,68 @@ helm init
 
 In order to configure etcd operator to use Azure Blob Storage for backup and recovery purposes, you will need to first create a storage account:
 
+
+First, save your desired account name to an environment variable. It will be reused a few times.
+ **Bash**
+ ```console
+export AZURE_STORAGE_ACCOUNT=<STORAGE ACCOUNT>
+ ```
+
+**PowerShell**
 ```console
-az storage account create -n etcdoperator -g aks-group
+$env:AZURE_STORAGE_ACCOUNT = "<STORAGE ACCOUNT>"
+```
+
+Now use the az cli to create a new storage account.
+
+**Bash**
+```console
+az storage account create -n $AZURE_STORAGE_ACCOUNT -g aks-group
+```
+
+**PowerShell**
+```console
+az storage account create -n $AZURE_STORAGE_ACCOUNT -g aks-group
 ```
 
 Once the account has been created, retrieve the keys.
 
+**Bash**
 ```console
-az storage account keys list -n etcdoperator -g aks-group -o table
+az storage account keys list -n $AZURE_STORAGE_ACCOUNT -g aks-group -o table
+```
+
+**Powershell**
+```console
+az storage account keys list -n $env:AZURE_STORAGE_ACCOUNT -g aks-group -o table
+```
+
+Save the storage account key to an environment variable for later use.
+ **Bash**
+ ```console
+export AZURE_STORAGE_KEY=<STORAGE_KEY>
+ ```
+
+**PowerShell**
+```console
+$env:AZURE_STORAGE_KEY = "<STORAGE_KEY>"
 ```
 
 Next, you will need to create a container for backup storage.
 
+**Bash**
 ```console
-az storage container create --name etcd-backups --account-name etcdoperator --account-key <STORAGE_KEY>
+az storage container create --name etcd-backups --account-name $AZURE_STORAGE_ACCOUNT --account-key $AZURE_STORAGE_KEY
+```
+
+**PowerShell**
+```console
+az storage container create --name etcd-backups --account-name $env:AZURE_STORAGE_ACCOUNT --account-key $env:AZURE_STORAGE_KEY
 ```
 
 #### Install etcd Operator
 
-You will use Helm to install etcd Operator. We have included sample values.yaml file to setup etcd operator along with the backup and recovery operator. The default etcd Operator version installed by the Helm chart does not support Azure based backup and recovery. This values file uses a newer version of etcd Operator that provides Azure storage support.
+Service Catalog requires etcd to persist state for everything it manages. You will use Helm to install etcd Operator. We have included sample values.yaml file to setup etcd operator with a version that supports Azure backup. The default etcd Operator version installed by the Helm chart does not support Azure based backup and recovery. This values file uses a newer version of etcd Operator that provides Azure storage support.
 
 ```console
 helm install --name etcd-operator stable/etcd-operator --values=contrib/k8s/etcd-operator/etcd-operator-values.yaml
@@ -183,22 +226,18 @@ This will create three deployments: etcd-operator, etcd-backup-operator, and res
 
 #### Create etcd Cluster
 
-Once etcd Operator has been installed, you can create a cluster. For production scenarios, we recommend a three node cluster. For convienence purposes, we have included a sample cluster in contrib/k8s/etcd-operator.
+Once etcd Operator has been installed, you can create a cluster. For production scenarios, we recommend a three node cluster. For convenience purposes, we have provided a Helm chart that will create a cluster and configure a Kubernetes CronJob to enable automatic backups of the cluster.
 
+**Bash**
 ```console
-$ cat contrib/k8s/etcd-operator/svc-cat-cluster.yaml
-apiVersion: "etcd.database.coreos.com/v1beta2"
-kind: "EtcdCluster"
-metadata:
-  name: "svc-cat-etcd-cluster"
-spec:
-  size: 3
+helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+helm install azure/svc-cat-etcd --set azure.storage.account=$AZURE_STORAGE_ACCOUNT --set azure.storage.key=$AZURE_STORAGE_KEY
 ```
 
-You can use kubectl to create a new etcd cluster using this file. 
-
+**PowerShell**
 ```console
-kubectl create -f contrib/k8s/etcd-operator/svc-cat-cluster.yaml
+helm repo add azure https://kubernetescharts.blob.core.windows.net/azure
+helm install azure/svc-cat-etcd --set azure.storage.account=$env:AZURE_STORAGE_ACCOUNT --set azure.storage.key=$env:AZURE_STORAGE_KEY
 ```
 
 Once completed, you should see several etcd pods running:
@@ -210,9 +249,9 @@ NAME                                                              READY     STAT
 etcd-operator-etcd-operator-etcd-backup-operator-6b697d96c95fgv   1/1       Running   0          11m
 etcd-operator-etcd-operator-etcd-operator-676764c476-n4ftv        1/1       Running   0          11m
 etcd-operator-etcd-operator-etcd-restore-operator-7c8d6879rgkjv   1/1       Running   0          11m
-svc-cat-etcd-cluster-5xtj4vlhx8                                   1/1       Running   0          1m
-svc-cat-etcd-cluster-chfwgmjdph                                   1/1       Running   0          47s
-svc-cat-etcd-cluster-jj87b2hmwg                                   1/1       Running   0          31s
+svc-cat-etcd-5xtj4vlhx8                                   1/1       Running   0          1m
+svc-cat-etcd-chfwgmjdph                                   1/1       Running   0          47s
+svc-cat-etcd-jj87b2hmwg                                   1/1       Running   0          31s
 ```
 
 You should also have an etcd service:
@@ -222,11 +261,11 @@ $ kubectl get service
 NAME                          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)             AGE
 etcd-restore-operator         ClusterIP   10.0.231.143   <none>        19999/TCP           14m
 kubernetes                    ClusterIP   10.0.0.1       <none>        443/TCP             56m
-svc-cat-etcd-cluster          ClusterIP   None           <none>        2379/TCP,2380/TCP   3m
-svc-cat-etcd-cluster-client   ClusterIP   10.0.2.237     <none>        2379/TCP            3m
+svc-cat-etcd          ClusterIP   None           <none>        2379/TCP,2380/TCP   3m
+svc-cat-etcd-client   ClusterIP   10.0.2.237     <none>        2379/TCP            3m
 ```
 
-The `cluster-client` service is what you will use to configure Service Catalog.
+The `svc-cat-etcd-client` service is what you will use to configure Service Catalog.
 
 ### Install Service Catalog
 
@@ -236,28 +275,17 @@ Once you have created an etcd cluster, it is time to install Service Catalog. Yo
 * Embedded etcd must be disabled
 * You must point the installation at an external etcd.
 
-You can provide these values via `--set` operations when using the Helm CLI, but we recommend creating a `values.yaml` file for your Service Catalog installation.
-
-```yaml
-rbacEnable: false
-apiserver:
-  storage:
-    etcd:
-      useEmbedded: false
-      servers: http://svc-cat-etcd-cluster-client.default.svc.cluster.local:2379
-```
-
-The `servers` attribute should point to the service endpoint for your etcd cluster. If you ran the commands above without providing a Namespace, the file above should be sufficient. This file can be found in contrib/k8s/etcd-operator.
-
 ```console
 helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
 helm install svc-cat/catalog --name catalog --namespace catalog \
-   --values contrib/k8s/etcd-operator/svc-cat-values.yaml
+   --set rbacEnable=false \
+   --set apiserver.storage.etcd.useEmbedded=false \
+   --set apiserver.storage.etcd.servers=http://svc-cat-etcd-client.default.svc.cluster.local:2379
 ```
 
 ## Create Azure Redis Cache
 
-Open Service Broker for Azure uses Redis as a backing store for its state. We recommend using a managed Redis service, such as Azure Redis Cache. By default, Azure Redis Cache only keeps data in memory. For best results, you will want to use the Premium tier in order to configure backups of the Redis data. Please see [How to configure data persistence for a Premium Azure Redis Cache](https://docs.microsoft.com/en-us/azure/redis-cache/cache-how-to-premium-persistence) for instructions on how to create an Azure Redis Cache. Once created, you can obtain the hostname and keys from the Portal or via the CLI.
+Open Service Broker for Azure uses Redis as a backing store for its state. We recommend using a managed Redis service, such as Azure Redis Cache. By default, Azure Redis Cache only keeps data in memory. For best results, you will want to use the Premium tier in order to configure backups of the Redis data. Please see [How to configure data persistence for a Premium Azure Redis Cache](https://docs.microsoft.com/en-us/azure/redis-cache/cache-how-to-premium-persistence) for instructions on how to create an Azure Redis Cache. Once created, you can obtain the hostname and keys from the Portal or via the CLI. 
 
 Save the access key and host to an environment variable for later use:
 
@@ -327,3 +355,50 @@ You can now deploy Open Service Broker for Azure on the cluster. Using Helm:
       --set redis.host=$env:REDIS_HOSTNAME `
       --set redis.redisPassword=$env:REDIS_PASSWORD
     ```
+
+## Backup and Recovery
+
+### etcd
+
+The etcd cluster created above should have automatic backup enabled to Azure Blob Storage. The `etcd-backup` CronJob created by the Helm chart will periodically create new `etcdbackup` custom resources. These will not be removed if you remove the Helm chart.
+
+To initiate a restore of the etcd cluster, you need to create an instance of the `EtcdRestore` Custom Resource. A template for this can be found in contrib/k8s/etcd-operator/restore-operation.yaml
+
+```yaml
+apiVersion: etcd.database.coreos.com/v1beta2
+kind: EtcdRestore
+metadata:
+  name: svc-cat-etcd-restore
+spec:
+  etcdCluster:
+    name: svc-cat-etcd
+  backupStorageType: ABS
+  abs:
+    path: <abs continer>/<BACKUP-FILE> 
+    absSecret: <abs-credential-secret-name> 
+```
+
+You will need to replace the spec.abs.path value with the backup you'd like to restore from. You will need the storage container as well as the file name. For example, if your absSecret was called `dandy-clownfish-svc-cat-etcd` and you used etcd-backups as the storage container as directed above and the file name was etcd.backup.2018-06-12_19:31:05, your restore yaml would look like:
+
+```yaml
+apiVersion: etcd.database.coreos.com/v1beta2
+kind: EtcdRestore
+metadata:
+  name: svc-cat-etcd-restore
+spec:
+  etcdCluster:
+    name: svc-cat-etcd
+  backupStorageType: ABS
+  abs:
+    path: etcd-backups/etcd.backup.2018-06-12_19:31:05
+    absSecret: dandy-clownfish-svc-cat-etcd
+```
+
+If this file was saved in the current directory as restore-request.yaml, you would initiate the restore by using kubectl:
+
+```console
+kubectl create -f restore-request.yaml
+```
+
+This will result in the current etcd pods being terminated and restarted with the specified backup file.
+

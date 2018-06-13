@@ -1,41 +1,17 @@
-## Install Default RBAC roles and bindings
 rbac:
   create: false
 
-# Select what to deploy
-deployments:
-  etcdOperator: true
-  # one time deployment, delete once completed,
-  # Ref: https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/backup-operator.md
-  backupOperator: true
-  # one time deployment, delete once completed
-  # Ref: https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/restore-operator.md
-  restoreOperator: true
-
 # etcdOperator
 etcdOperator:
-  name: etcd-operator
-  replicaCount: 1
   image:
-    repository: quay.io/coreos/etcd-operator
     tag: v0.9.2
-    pullPolicy: Always
 
 # backup spec
 backupOperator:
-  name: etcd-backup-operator
-  replicaCount: 1
   image:
-    repository: quay.io/coreos/etcd-operator
     tag: v0.9.2
-    pullPolicy: Always
 
 # restore spec
 restoreOperator:
-  name: etcd-restore-operator
-  replicaCount: 1
   image:
-    repository: quay.io/coreos/etcd-operator
     tag: v0.9.2
-    pullPolicy: Always
-
