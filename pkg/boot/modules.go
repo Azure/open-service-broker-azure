@@ -28,7 +28,6 @@ import (
 )
 
 func getModules(
-	catalogConfig service.CatalogConfig,
 	azureConfig azure.Config,
 ) ([]service.Module, error) {
 	azureSubscriptionID := azureConfig.SubscriptionID

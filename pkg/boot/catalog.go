@@ -12,7 +12,7 @@ func GetCatalog(
 	catalogConfig service.CatalogConfig,
 	azureConfig azure.Config,
 ) (service.Catalog, error) {
-	modules, err := getModules(catalogConfig, azureConfig)
+	modules, err := getModules(azureConfig)
 	if err != nil {
 		return nil, fmt.Errorf("error getting modules: %s", err)
 	}
