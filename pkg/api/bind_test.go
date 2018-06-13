@@ -13,7 +13,7 @@ import (
 )
 
 func TestBindingWithInstanceThatDoesNotExist(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getBindingRequest(
 		getDisposableInstanceID(),
@@ -28,7 +28,7 @@ func TestBindingWithInstanceThatDoesNotExist(t *testing.T) {
 }
 
 func TestBindingWithInstanceThatIsNotFullyProvisioned(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -51,7 +51,7 @@ func TestBindingWithInstanceThatIsNotFullyProvisioned(t *testing.T) {
 }
 
 func TestBindingWithServiceIDDifferentFromInstanceServiceID(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -77,7 +77,7 @@ func TestBindingWithServiceIDDifferentFromInstanceServiceID(t *testing.T) {
 }
 
 func TestBindingWithPlanIDDifferentFromInstancePlanID(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -103,7 +103,7 @@ func TestBindingWithPlanIDDifferentFromInstancePlanID(t *testing.T) {
 }
 
 func TestBindingModuleNotFoundForServiceID(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	serviceID := getDisposableServiceID()
@@ -129,25 +129,38 @@ func TestBindingModuleNotFoundForServiceID(t *testing.T) {
 func TestBindingWithExistingBindingWithDifferentInstanceID(
 	t *testing.T,
 ) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
-	instanceID := getDisposableInstanceID()
+	instanceID1 := getDisposableInstanceID()
+	instanceID2 := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
-		InstanceID: instanceID,
+		InstanceID: instanceID1,
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
 	})
 	assert.Nil(t, err)
 	bindingID := getDisposableBindingID()
+	// This binding will already be bound to the first instance
 	err = s.store.WriteBinding(service.Binding{
-		InstanceID: getDisposableInstanceID(),
+		InstanceID: instanceID1,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
 	})
 	assert.Nil(t, err)
+	// Here's a second instance that we can try to bind to
+	err = s.store.WriteInstance(service.Instance{
+		InstanceID: instanceID2,
+		ServiceID:  fake.ServiceID,
+		PlanID:     fake.StandardPlanID,
+		Status:     service.InstanceStateProvisioned,
+	})
+	assert.Nil(t, err)
+	// This should be a conflict because we're trying to bind to the second
+	// instance, but this binding already exists and is bound to a different
+	// instance.
 	req, err := getBindingRequest(
-		instanceID,
+		instanceID2,
 		bindingID,
 		&BindingRequest{},
 	)
@@ -161,7 +174,7 @@ func TestBindingWithExistingBindingWithDifferentInstanceID(
 func TestBindingWithExistingBindingWithDifferentParameters(
 	t *testing.T,
 ) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -176,8 +189,17 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
-		BindingParameters: service.BindingParameters{
-			"someParameter": "foo",
+		BindingParameters: &service.BindingParameters{
+			Parameters: service.Parameters{
+				Schema: &service.InputParametersSchema{
+					PropertySchemas: map[string]service.PropertySchema{
+						"someParameter": &service.StringPropertySchema{},
+					},
+				},
+				Data: map[string]interface{}{
+					"someParameter": "foo",
+				},
+			},
 		},
 	}
 	err = s.store.WriteBinding(existingBinding)
@@ -201,7 +223,7 @@ func TestBindingWithExistingBindingWithDifferentParameters(
 func TestBindingWithExistingBoundBindingWithSameAttributes(
 	t *testing.T,
 ) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -216,8 +238,17 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 		InstanceID: instanceID,
 		BindingID:  bindingID,
 		ServiceID:  fake.ServiceID,
-		BindingParameters: service.BindingParameters{
-			"someParameter": "foo",
+		BindingParameters: &service.BindingParameters{
+			Parameters: service.Parameters{
+				Schema: &service.InputParametersSchema{
+					PropertySchemas: map[string]service.PropertySchema{
+						"someParameter": &service.StringPropertySchema{},
+					},
+				},
+				Data: map[string]interface{}{
+					"someParameter": "foo",
+				},
+			},
 		},
 		Status: service.BindingStateBound,
 	})
@@ -241,7 +272,7 @@ func TestBindingWithExistingBoundBindingWithSameAttributes(
 func TestBindingWithExistingFailedBindingWithSameAttributes(
 	t *testing.T,
 ) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -272,7 +303,7 @@ func TestBindingWithExistingFailedBindingWithSameAttributes(
 }
 
 func TestBrandNewBinding(t *testing.T) {
-	s, m, err := getTestServer("", "")
+	s, m, err := getTestServer()
 	assert.Nil(t, err)
 	bindCalled := false
 	m.ServiceManager.BindBehavior = func(

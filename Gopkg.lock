@@ -3,13 +3,35 @@
 
 [[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
-  packages = ["services/containerinstance/mgmt/2017-08-01-preview/containerinstance","services/cosmos-db/mgmt/2015-04-08/documentdb","services/eventhub/mgmt/2017-04-01/eventhub","services/keyvault/mgmt/2016-10-01/keyvault","services/mysql/mgmt/2017-04-30-preview/mysql","services/postgresql/mgmt/2017-04-30-preview/postgresql","services/redis/mgmt/2017-10-01/redis","services/resources/mgmt/2017-05-10/resources","services/search/mgmt/2015-08-19/search","services/servicebus/mgmt/2017-04-01/servicebus","services/sql/mgmt/2017-03-01-preview/sql","services/storage/mgmt/2017-10-01/storage","storage","version"]
+  packages = [
+    "services/containerinstance/mgmt/2017-08-01-preview/containerinstance",
+    "services/cosmos-db/mgmt/2015-04-08/documentdb",
+    "services/eventhub/mgmt/2017-04-01/eventhub",
+    "services/keyvault/mgmt/2016-10-01/keyvault",
+    "services/mysql/mgmt/2017-04-30-preview/mysql",
+    "services/postgresql/mgmt/2017-04-30-preview/postgresql",
+    "services/redis/mgmt/2017-10-01/redis",
+    "services/resources/mgmt/2017-05-10/resources",
+    "services/search/mgmt/2015-08-19/search",
+    "services/servicebus/mgmt/2017-04-01/servicebus",
+    "services/sql/mgmt/2017-03-01-preview/sql",
+    "services/storage/mgmt/2017-10-01/storage",
+    "storage",
+    "version"
+  ]
   revision = "5bf28521f7a6f72f2dde3e5a5fb0d27d7a8aeee9"
   version = "v14.0.0"
 
 [[projects]]
   name = "github.com/Azure/go-autorest"
-  packages = ["autorest","autorest/adal","autorest/azure","autorest/date","autorest/to","autorest/validation"]
+  packages = [
+    "autorest",
+    "autorest/adal",
+    "autorest/azure",
+    "autorest/date",
+    "autorest/to",
+    "autorest/validation"
+  ]
   revision = "5a06e9ddbe3c22262059b8e061777b9934f982bd"
   version = "v10.1.0"
 
@@ -56,7 +78,14 @@
 
 [[projects]]
   name = "github.com/go-redis/redis"
-  packages = [".","internal","internal/consistenthash","internal/hashtag","internal/pool","internal/proto"]
+  packages = [
+    ".",
+    "internal",
+    "internal/consistenthash",
+    "internal/hashtag",
+    "internal/pool",
+    "internal/proto"
+  ]
   revision = "35248155a505a84811be81a2aab1c423317447be"
   version = "v6.7.2"
 
@@ -96,7 +125,10 @@
 
 [[projects]]
   name = "github.com/lib/pq"
-  packages = [".","oid"]
+  packages = [
+    ".",
+    "oid"
+  ]
   revision = "e42267488fe361b9dc034be7a6bffef5b195bceb"
 
 [[projects]]
@@ -124,12 +156,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/satori/uuid"
-  packages = ["."]
-  revision = "5bf94b69c6b68ee1b541973bb8e1144db23a194b"
-
-[[projects]]
-  branch = "master"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   revision = "890a5c3458b43e6104ff5da8dfa139d013d77544"
@@ -141,7 +167,12 @@
 
 [[projects]]
   name = "golang.org/x/crypto"
-  packages = ["md4","pbkdf2","scrypt","ssh/terminal"]
+  packages = [
+    "md4",
+    "pbkdf2",
+    "scrypt",
+    "ssh/terminal"
+  ]
   revision = "81e90905daefcd6fd217b62423c0908922eadb30"
 
 [[projects]]
@@ -151,18 +182,27 @@
 
 [[projects]]
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
+  packages = [
+    "unix",
+    "windows"
+  ]
   revision = "9aade4d3a3b7e6d876cd3823ad20ec45fc035402"
 
 [[projects]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
-  packages = [".","bson","internal/json","internal/sasl","internal/scram"]
+  packages = [
+    ".",
+    "bson",
+    "internal/json",
+    "internal/sasl",
+    "internal/scram"
+  ]
   revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "73f6a689ac4988611f08cd41973109859bac7aed992145a48cdf5477efdfe2e1"
+  inputs-digest = "fb2910568fa948f07348c33778ebc841aa4a0e253a535412d9fe579987d75677"
   solver-name = "gps-cdcl"
   solver-version = 1

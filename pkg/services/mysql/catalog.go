@@ -10,7 +10,6 @@ func createBasicPlan(
 	td := tierDetails{
 		tierShortName:           "B",
 		tierName:                "Basic",
-		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		allowedCores:            []int64{1, 2},
 		defaultCores:            1,
 		maxStorage:              1024,
@@ -46,7 +45,6 @@ func createGPPlan(
 	td := tierDetails{
 		tierName:                "GeneralPurpose",
 		tierShortName:           "GP",
-		allowedHardware:         []string{gen4ParamString, gen5ParamString},
 		allowedCores:            []int64{2, 4, 8, 16, 32},
 		defaultCores:            2,
 		maxStorage:              2048,
@@ -87,7 +85,6 @@ func createMemoryOptimizedPlan(
 	td := tierDetails{
 		tierName:                "MemoryOptimized",
 		tierShortName:           "MO",
-		allowedHardware:         []string{gen5ParamString},
 		allowedCores:            []int64{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,

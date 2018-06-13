@@ -77,7 +77,6 @@ oc process -f https://raw.githubusercontent.com/Azure/open-service-broker-azure/
    -p AZURE_TENANT_ID=$AZURE_TENANT_ID \
    -p AZURE_CLIENT_ID=$AZURE_CLIENT_ID \
    -p AZURE_CLIENT_SECRET=$AZURE_CLIENT_SECRET \
-   -p AZURE_DEFAULT_LOCATION=$AZURE_DEFAULT_LOCATION \
    | oc create -f -
 ```
 ### Provisioning

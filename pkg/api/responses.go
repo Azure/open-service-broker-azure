@@ -148,23 +148,6 @@ func generateOperationInvalidResponse() []byte {
 	return responseOperationInvalid
 }
 
-var responseTagsMalformed = []byte(`{ "error": "MalformedRequestTags", ` +
-	`"description": The provided tags were not well-formed JSON" }`,
-)
-
-func generateMalformedTagsResponse() []byte {
-	return responseTagsMalformed
-}
-
-var responseIncorrectRequestBody = []byte(`{ "error": "MalformedRequest", ` +
-	`"description": The provided request did not match what was expected ` +
-	`for the service" }`,
-)
-
-func generateInvalidRequestResponse() []byte {
-	return responseIncorrectRequestBody
-}
-
 var validationFailedGenericResponse = []byte(
 	`{ "error" : "ValidationFailure", ` +
 		`"description" : "Failed to validate request" }`,

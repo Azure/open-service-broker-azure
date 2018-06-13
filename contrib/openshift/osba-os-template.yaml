@@ -164,8 +164,6 @@ objects:
                 secretKeyRef:
                   name: osba-open-service-broker-azure
                   key: azure-client-secret
-            - name: AZURE_DEFAULT_LOCATION
-              value: ${AZURE_DEFAULT_LOCATION}
             - name: REDIS_HOST
               value: osba-redis
             - name: REDIS_PASSWORD
@@ -228,9 +226,6 @@ parameters:
   value: 
   required: true
 - name: AZURE_CLIENT_ID
-  value: 
-  required: true
-- name: AZURE_DEFAULT_LOCATION
   value: 
   required: true
 - name: AZURE_CLIENT_SECRET

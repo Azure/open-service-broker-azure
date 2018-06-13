@@ -22,15 +22,8 @@ func (d *databaseManager) Unbind(
 	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
 		return err
 	}
-	ppp := dbmsProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.Parent.ProvisioningParameters,
-		&ppp,
-	); err != nil {
-		return err
-	}
 	return unbind(
-		isSSLRequired(ppp),
+		isSSLRequired(*instance.Parent.ProvisioningParameters),
 		pdt.ServerName,
 		spdt.AdministratorLoginPassword,
 		pdt.FullyQualifiedDomainName,

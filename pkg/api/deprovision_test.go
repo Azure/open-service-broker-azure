@@ -13,7 +13,7 @@ import (
 )
 
 func TestDeprovisioningWithAcceptIncompleteNotSet(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(getDisposableInstanceID(), nil)
 	assert.Nil(t, err)
@@ -24,7 +24,7 @@ func TestDeprovisioningWithAcceptIncompleteNotSet(t *testing.T) {
 }
 
 func TestDeprovisioningWithAcceptIncompleteNotTrue(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
 		getDisposableInstanceID(),
@@ -40,7 +40,7 @@ func TestDeprovisioningWithAcceptIncompleteNotTrue(t *testing.T) {
 }
 
 func TestDeprovisioningInstanceThatIsNotFound(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
 		getDisposableInstanceID(),
@@ -56,7 +56,7 @@ func TestDeprovisioningInstanceThatIsNotFound(t *testing.T) {
 }
 
 func TestDeprovisioningInstanceThatIsAlreadyDeprovisioning(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -80,7 +80,7 @@ func TestDeprovisioningInstanceThatIsAlreadyDeprovisioning(t *testing.T) {
 }
 
 func TestDeprovisioningInstanceThatIsStillProvisioning(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -104,7 +104,7 @@ func TestDeprovisioningInstanceThatIsStillProvisioning(t *testing.T) {
 }
 
 func TestKickOffNewAsyncDeprovisioning(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{

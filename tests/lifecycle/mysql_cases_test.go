@@ -18,8 +18,8 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 		name:      "all-in-one",
 		serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
 		planID:    "eae202c3-521c-46d1-a047-872dacf781fd",
-		location:  "southcentralus",
 		provisioningParameters: map[string]interface{}{
+			"location":       "southcentralus",
 			"sslEnforcement": "disabled",
 			"firewallRules": []interface{}{
 				map[string]interface{}{
@@ -41,9 +41,9 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 		name:      "dbms-only",
 		serviceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
 		planID:    "b242a78f-9946-406a-af67-813c56341960",
-		location:  "eastus",
 		provisioningParameters: map[string]interface{}{
-			"alias": mysqlDBMSAlias,
+			"location": "southcentralus",
+			"alias":    mysqlDBMSAlias,
 			"firewallRules": []interface{}{
 				map[string]interface{}{
 					"name":           "AllowAll",
@@ -58,7 +58,6 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 				name:            "database-only",
 				serviceID:       "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 				planID:          "ec77bd04-2107-408e-8fde-8100c1ce1f46",
-				location:        "", // This is actually irrelevant for this test
 				testCredentials: testMySQLCreds,
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": mysqlDBMSAlias,

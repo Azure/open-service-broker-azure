@@ -7,7 +7,6 @@ import (
 func (d *databaseManager) Bind(
 	instance service.Instance,
 	_ service.BindingParameters,
-	_ service.SecureBindingParameters,
 ) (service.BindingDetails, service.SecureBindingDetails, error) {
 	dt := databaseInstanceDetails{}
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {

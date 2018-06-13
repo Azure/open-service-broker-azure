@@ -63,11 +63,6 @@ func (d *dbmsManager) deployARMTemplate(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	pp := dbmsProvisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
 	version := instance.Service.GetProperties().Extended["version"].(string)
 
 	goTemplateParameters, err := buildGoTemplateParameters(
@@ -75,20 +70,25 @@ func (d *dbmsManager) deployARMTemplate(
 		version,
 		dt,
 		sdt,
-		pp,
+		*instance.ProvisioningParameters,
 	)
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to build go template parameters: %s", err)
 	}
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
+	}
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
+		instance.ProvisioningParameters.GetString("location"),
 		dbmsARMTemplateBytes,
 		goTemplateParameters,
 		map[string]interface{}{},
-		instance.Tags,
+		tags,
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)

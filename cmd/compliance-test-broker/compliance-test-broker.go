@@ -43,8 +43,6 @@ func main() {
 		fakeAsync.NewEngine(),
 		filterChain,
 		fakeCatalog,
-		" ",
-		" ",
 	)
 
 	if err != nil {

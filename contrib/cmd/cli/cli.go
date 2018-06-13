@@ -53,10 +53,6 @@ func main() {
 					Name:  flagsPlanID,
 					Usage: "specify the `<plan id>`; required",
 				},
-				cli.StringSliceFlag{
-					Name:  flagTag,
-					Usage: "specify a tag as a k=v pair",
-				},
 				cli.StringFlag{
 					Name:  flagsParameters,
 					Usage: "specify provisioning parameters as a JSON object",

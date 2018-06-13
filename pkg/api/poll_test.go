@@ -12,7 +12,7 @@ import (
 )
 
 func TestPollingWithMissingOperation(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getPollingRequest(getDisposableInstanceID(), "")
 	assert.Nil(t, err)
@@ -23,7 +23,7 @@ func TestPollingWithMissingOperation(t *testing.T) {
 }
 
 func TestPollingWithInvalidOperation(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	req, err := getPollingRequest(getDisposableInstanceID(), "bogus")
 	assert.Nil(t, err)
@@ -34,7 +34,7 @@ func TestPollingWithInvalidOperation(t *testing.T) {
 }
 
 func TestPollingWithInstanceProvisioning(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -53,7 +53,7 @@ func TestPollingWithInstanceProvisioning(t *testing.T) {
 }
 
 func TestPollingWithInstanceProvisioned(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -72,7 +72,7 @@ func TestPollingWithInstanceProvisioned(t *testing.T) {
 }
 
 func TestPollingWithInstanceProvisioningFailed(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -91,7 +91,7 @@ func TestPollingWithInstanceProvisioningFailed(t *testing.T) {
 }
 
 func TestPollingWithInstanceDeprovisioning(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{
@@ -110,7 +110,7 @@ func TestPollingWithInstanceDeprovisioning(t *testing.T) {
 }
 
 func TestPollingWithInstanceGone(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	assert.Nil(t, err)
 	req, err := getPollingRequest(
@@ -125,7 +125,7 @@ func TestPollingWithInstanceGone(t *testing.T) {
 }
 
 func TestPollingWithInstanceDeprovisioningFailed(t *testing.T) {
-	s, _, err := getTestServer("", "")
+	s, _, err := getTestServer()
 	assert.Nil(t, err)
 	instanceID := getDisposableInstanceID()
 	err = s.store.WriteInstance(service.Instance{

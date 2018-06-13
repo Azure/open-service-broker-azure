@@ -44,10 +44,7 @@ func getDisposableBindingID() string {
 	return uuid.NewV4().String()
 }
 
-func getTestServer(
-	defaultAzureLocation string,
-	defaultAzureResourceGroup string,
-) (*server, *fake.Module, error) {
+func getTestServer() (*server, *fake.Module, error) {
 	fakeModule, err := fake.New()
 	if err != nil {
 		return nil, nil, err
@@ -62,8 +59,6 @@ func getTestServer(
 		fakeAsync.NewEngine(),
 		filter.NewChain(),
 		fakeCatalog,
-		defaultAzureLocation,
-		defaultAzureResourceGroup,
 	)
 	if err != nil {
 		return nil, nil, err

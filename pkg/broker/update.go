@@ -120,12 +120,12 @@ func (b *broker) executeUpdatingStep(
 	}
 	// No next step-- we're done updating!
 	instanceCopy.Status = service.InstanceStateProvisioned
-	// Set the two Provision Parameters to the values of Update.
+	// Set Provision Parameters to the values of Updating Parameters.
 	// No need to merge here, as it was done in the API surface before
 	// the update kicked off
 	instanceCopy.ProvisioningParameters = instanceCopy.UpdatingParameters
-	instanceCopy.SecureProvisioningParameters =
-		instanceCopy.SecureUpdatingParameters
+	// Clear the Updating Parameters
+	instanceCopy.UpdatingParameters = nil
 	if err = b.store.WriteInstance(instanceCopy); err != nil {
 		return nil, b.handleUpdatingError(
 			instanceCopy,

@@ -164,19 +164,6 @@ forms:
     type: boolean
     label: Async Redis Enable TLS
     default: true
-- name: default-parameters-config-form
-  label: Default Parameters Config
-  properties:
-  - name: azure_default_resource_group
-    type: string
-    configurable: true
-    default: azure-service-broker
-    label: Default Resource Group
-  - name: azure_default_location
-    type: string
-    configurable: true
-    default: eastus
-    label: Default Location
 
 # Add any dependencies your tile has on other installed products.
 # This is often appropriate when using automatic service provisioning

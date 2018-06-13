@@ -5,36 +5,27 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-)
-
-const (
-	gen4TemplateString = "Gen4"
-	gen5TemplateString = "Gen5"
-	gen4ParamString    = "gen4"
-	gen5ParamString    = "gen5"
 )
 
 type tierDetails struct {
 	tierName                string
 	tierShortName           string
-	allowedHardware         []string
 	allowedCores            []int64
 	defaultCores            int64
 	maxStorage              int64
 	allowedBackupRedundancy []string
 }
 
-func (t *tierDetails) getSku(pp dbmsProvisioningParameters) string {
+func (t *tierDetails) getSku(pp service.ProvisioningParameters) string {
 	// The name of the sku, typically:
 	// tier + family + cores, e.g. B_Gen4_1, GP_Gen5_8.
 	sku := fmt.Sprintf(
-		"%s_%s_%d",
+		"%s_Gen5_%d",
 		t.tierShortName,
-		getHardwareFamily(pp),
-		t.getCores(pp),
+		pp.GetInt64("cores"),
 	)
 	return sku
 }
@@ -43,23 +34,34 @@ func generateProvisioningParamsSchema(
 	td tierDetails,
 ) service.InputParametersSchema {
 	ips := generateUpdatingParamsSchema(td)
-	ips.PropertySchemas["hardwareFamily"] = &service.StringPropertySchema{
-		Description:   "Specifies the compute generation to use for the DBMS",
-		AllowedValues: td.allowedHardware,
-		DefaultValue:  gen5ParamString,
+	ips.RequiredProperties = append(ips.RequiredProperties, "location")
+	ips.PropertySchemas["location"] = &service.StringPropertySchema{
+		Description: "The Azure region in which to provision" +
+			" applicable resources.",
+		CustomPropertyValidator: azure.LocationValidator,
+	}
+	ips.RequiredProperties = append(ips.RequiredProperties, "resourceGroup")
+	ips.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
+		Description: "The (new or existing) resource group with which" +
+			" to associate new resources.",
 	}
 	ips.PropertySchemas["backupRedundancy"] = &service.StringPropertySchema{
 		Description:   "Specifies the backup redundancy",
 		AllowedValues: td.allowedBackupRedundancy,
 		DefaultValue:  "local",
 	}
-	return *ips
+	ips.PropertySchemas["tags"] = &service.ObjectPropertySchema{
+		Description: "Tags to be applied to new resources," +
+			" specified as key/value pairs.",
+		Additional: &service.StringPropertySchema{},
+	}
+	return ips
 }
 
 func generateUpdatingParamsSchema(
 	td tierDetails,
-) *service.InputParametersSchema {
-	return &service.InputParametersSchema{
+) service.InputParametersSchema {
+	return service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"cores": &service.IntPropertySchema{
 				Description: "Specifies vCores, which represent the logical " +
@@ -122,58 +124,12 @@ func generateUpdatingParamsSchema(
 	}
 }
 
-func (t *tierDetails) getCores(pp dbmsProvisioningParameters) int64 {
-	if pp.Cores == nil {
-		return t.defaultCores
-	}
-	return *pp.Cores
+func isGeoRedundentBackup(pp service.ProvisioningParameters) bool {
+	return pp.GetString("backupRedundancy") == "geo"
 }
 
-func getStorage(pp dbmsProvisioningParameters) int64 {
-	if pp.Storage == nil {
-		return 10
-	}
-	return *pp.Storage
-}
-
-func getBackupRetention(pp dbmsProvisioningParameters) int64 {
-	if pp.BackupRetention == nil {
-		return 7
-	}
-	return *pp.BackupRetention
-}
-
-func isGeoRedundentBackup(pp dbmsProvisioningParameters) bool {
-	return pp.BackupRedundancy == "geo"
-}
-
-func getHardwareFamily(pp dbmsProvisioningParameters) string {
-	if pp.HardwareFamily == "" {
-		return gen5TemplateString
-	}
-	if pp.HardwareFamily == gen4ParamString {
-		return gen4TemplateString
-	}
-	return gen5TemplateString
-}
-
-func isSSLRequired(pp dbmsProvisioningParameters) bool {
-	return pp.SSLEnforcement != disabledParamString
-}
-
-func getFirewallRules(
-	pp dbmsProvisioningParameters,
-) []firewallRule {
-	if len(pp.FirewallRules) > 0 {
-		return pp.FirewallRules
-	}
-	return []firewallRule{
-		{
-			Name:    "AllowAzure",
-			StartIP: "0.0.0.0",
-			EndIP:   "0.0.0.0",
-		},
-	}
+func isSSLRequired(pp service.ProvisioningParameters) bool {
+	return pp.GetString("sslEnforcement") != disabledParamString
 }
 
 func ipValidator(context, value string) error {

@@ -100,47 +100,39 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Start by carrying out plan-specific binding request parameters validation
-	if instance.Plan.GetSchemas().ServiceBindings != nil &&
-		instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema != nil {
-		if err =
-			instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema.Validate(
-				bindingRequest.Parameters,
-			); err != nil {
-			var validationErr *service.ValidationError
-			validationErr, ok = err.(*service.ValidationError)
-			if ok {
-				logFields["field"] = validationErr.Field
-				logFields["issue"] = validationErr.Issue
-				log.WithFields(logFields).Debug(
-					"bad binding request: validation error",
-				)
-				s.writeResponse(
-					w,
-					http.StatusBadRequest,
-					generateValidationFailedResponse(validationErr),
-				)
-				return
-			}
-			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+	if err =
+		instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema.Validate(
+			bindingRequest.Parameters,
+		); err != nil {
+		var validationErr *service.ValidationError
+		validationErr, ok = err.(*service.ValidationError)
+		if ok {
+			logFields["field"] = validationErr.Field
+			logFields["issue"] = validationErr.Issue
+			log.WithFields(logFields).Debug(
+				"bad binding request: validation error",
+			)
+			s.writeResponse(
+				w,
+				http.StatusBadRequest,
+				generateValidationFailedResponse(validationErr),
+			)
 			return
 		}
+		s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+		return
 	}
 
 	serviceManager := instance.Service.GetServiceManager()
 
-	// Split the parameters into those that are sensitive and those that are not
-	bindingParameters, secureBindingParameters, err :=
-		serviceManager.SplitBindingParameters(bindingRequest.Parameters)
-	if err != nil {
-		logFields["error"] = err
-		log.WithFields(logFields).Debug(
-			"bad binding request: error decoding parameter map into " +
-				"service-specific parameters",
-		)
-		// krancour: Choosing to interpret this scenario as a bad request since the
-		// probable cause would be disagreement between provided and expected types
-		s.writeResponse(w, http.StatusBadRequest, generateInvalidRequestResponse())
-		return
+	// Wrap the binding parameters with a "params" object that guides access to
+	// the parameters using schema
+	bps := instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema
+	bindingParameters := &service.BindingParameters{
+		Parameters: service.Parameters{
+			Schema: &bps,
+			Data:   bindingRequest.Parameters,
+		},
 	}
 
 	binding, ok, err := s.store.GetBinding(bindingID)
@@ -170,13 +162,8 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if reflect.DeepEqual(
-			bindingParameters,
-			binding.BindingParameters,
-		) && reflect.DeepEqual(
-			secureBindingParameters,
-			binding.SecureBindingParameters,
-		) {
+		if (binding.BindingParameters == nil && len(bindingRequest.Parameters) == 0) || // nolint: lll
+			(binding.BindingParameters != nil && reflect.DeepEqual(binding.BindingParameters.Data, bindingRequest.Parameters)) { // nolint: lll
 			// Per the spec, if bound, respond with a 200
 			// Filling in a gap in the spec-- if the status is anything else, we'll
 			// choose to respond with a 409
@@ -232,8 +219,7 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 	// the datastore.
 	bindingDetails, secureBindingDetails, err := serviceManager.Bind(
 		instance,
-		bindingParameters,
-		secureBindingParameters,
+		*bindingParameters,
 	)
 	if err != nil {
 		s.handleBindingError(
@@ -250,13 +236,12 @@ func (s *server) bind(w http.ResponseWriter, r *http.Request) {
 		// Storing the serviceID on the binding gives us a shortcut to finding
 		// the service and therefore the serviceManager later on-- even if the
 		// binding somehow gets orphaned and we can no longer find the instance.
-		ServiceID:               instance.ServiceID,
-		BindingID:               bindingID,
-		BindingParameters:       bindingParameters,
-		SecureBindingParameters: secureBindingParameters,
-		Details:                 bindingDetails,
-		SecureDetails:           secureBindingDetails,
-		Created:                 time.Now(),
+		ServiceID:         instance.ServiceID,
+		BindingID:         bindingID,
+		BindingParameters: bindingParameters,
+		Details:           bindingDetails,
+		SecureDetails:     secureBindingDetails,
+		Created:           time.Now(),
 	}
 
 	binding.Status = service.BindingStateBound

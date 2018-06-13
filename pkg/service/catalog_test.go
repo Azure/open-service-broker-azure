@@ -38,6 +38,33 @@ func init() {
 				Name:        name,
 				Description: description,
 				Free:        free,
+				Schemas: PlanSchemas{
+					ServiceInstances: InstanceSchemas{
+						ProvisioningParametersSchema: InputParametersSchema{
+							PropertySchemas: map[string]PropertySchema{
+								"someParameter": &StringPropertySchema{
+									Description: "Some parameter",
+								},
+							},
+						},
+						UpdatingParametersSchema: InputParametersSchema{
+							PropertySchemas: map[string]PropertySchema{
+								"someParameter": &StringPropertySchema{
+									Description: "Some parameter",
+								},
+							},
+						},
+					},
+					ServiceBindings: BindingSchemas{
+						BindingParametersSchema: InputParametersSchema{
+							PropertySchemas: map[string]PropertySchema{
+								"someParameter": &StringPropertySchema{
+									Description: "Some parameter",
+								},
+							},
+						},
+					},
+				},
 			}),
 			NewPlan(&PlanProperties{
 				ID:          "test-id2",
@@ -92,20 +119,37 @@ func init() {
 										"$schema": "http://json-schema.org/draft-04/schema#",
 										"type": "object",
 										"properties": {
-											"location": {
+											"someParameter": {
 												"type": "string",
 												"description": "%s"
-											},
-											"resourceGroup": {
+											}
+										},
+										"additionalProperties": false
+									}
+								},
+								"update": {
+									"parameters": {
+										"$schema": "http://json-schema.org/draft-04/schema#",
+										"type": "object",
+										"properties": {
+											"someParameter": {
 												"type": "string",
 												"description": "%s"
-											},
-											"tags": {
-												"type": "object",
-												"description": "%s",
-												"additionalProperties" : {
-													"type" : "string"
-												}
+											}
+										},
+										"additionalProperties": false
+									}
+								}
+							},
+							"service_binding": {
+								"create": {
+									"parameters": {
+										"$schema": "http://json-schema.org/draft-04/schema#",
+										"type": "object",
+										"properties": {
+											"someParameter": {
+												"type": "string",
+												"description": "%s"
 											}
 										},
 										"additionalProperties": false
@@ -135,9 +179,9 @@ func init() {
 		name,
 		description,
 		free,
-		"The Azure region in which to provision applicable resources.",
-		"The (new or existing) resource group with which to associate new resources.",
-		"Tags to be applied to new resources, specified as key/value pairs.",
+		"Some parameter",
+		"Some parameter",
+		"Some parameter",
 	)
 
 	testCatalogJSON = []byte(testCatalogJSONStr)
