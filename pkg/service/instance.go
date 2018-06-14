@@ -3,8 +3,6 @@ package service
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 )
 
 // Instance represents an instance of a service
@@ -22,8 +20,6 @@ type Instance struct {
 	Parent                 *Instance               `json:"-"`
 	ParentAlias            string                  `json:"parentAlias"`
 	Details                InstanceDetails         `json:"details"`
-	EncryptedSecureDetails []byte                  `json:"secureDetails"`
-	SecureDetails          SecureInstanceDetails   `json:"-"`
 	Created                time.Time               `json:"created"`
 }
 
@@ -31,9 +27,11 @@ type Instance struct {
 // JSON []byte
 func NewInstanceFromJSON(
 	jsonBytes []byte,
+	emptyInstanceDetails InstanceDetails,
 	provisioningParametersSchema *InputParametersSchema, // nolint: interfacer
 ) (Instance, error) {
 	instance := Instance{
+		Details: emptyInstanceDetails,
 		ProvisioningParameters: &ProvisioningParameters{
 			Parameters: Parameters{
 				Schema: provisioningParametersSchema,
@@ -48,50 +46,13 @@ func NewInstanceFromJSON(
 				Schema: provisioningParametersSchema,
 			},
 		},
-		Details:       InstanceDetails{},
-		SecureDetails: SecureInstanceDetails{},
 	}
-	if err := json.Unmarshal(jsonBytes, &instance); err != nil {
-		return instance, err
-	}
-	return instance.decrypt()
+	err := json.Unmarshal(jsonBytes, &instance)
+	return instance, err
 }
 
 // ToJSON returns a []byte containing a JSON representation of the
 // instance
 func (i Instance) ToJSON() ([]byte, error) {
-	var err error
-	if i, err = i.encrypt(); err != nil {
-		return nil, err
-	}
 	return json.Marshal(i)
-}
-
-func (i Instance) encrypt() (Instance, error) {
-	return i.encryptSecureDetails()
-}
-
-func (i Instance) encryptSecureDetails() (Instance, error) {
-	jsonBytes, err := json.Marshal(i.SecureDetails)
-	if err != nil {
-		return i, err
-	}
-	i.EncryptedSecureDetails, err = crypto.Encrypt(jsonBytes)
-	return i, err
-}
-
-func (i Instance) decrypt() (Instance, error) {
-	return i.decryptSecureDetails()
-}
-
-func (i Instance) decryptSecureDetails() (Instance, error) {
-	if len(i.EncryptedSecureDetails) == 0 ||
-		i.SecureDetails == nil {
-		return i, nil
-	}
-	plaintext, err := crypto.Decrypt(i.EncryptedSecureDetails)
-	if err != nil {
-		return i, err
-	}
-	return i, json.Unmarshal(plaintext, &i.SecureDetails)
 }

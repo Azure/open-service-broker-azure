@@ -150,7 +150,6 @@ func TestGetExistingInstance(t *testing.T) {
 	// Blank out a few fields before we compare
 	retrievedInstance.Service = nil
 	retrievedInstance.Plan = nil
-	retrievedInstance.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -189,8 +188,6 @@ func TestGetExistingInstanceWithParent(t *testing.T) {
 	retrievedInstance.Parent.Service = nil
 	retrievedInstance.Plan = nil
 	retrievedInstance.Parent.Plan = nil
-	retrievedInstance.EncryptedSecureDetails = nil
-	retrievedInstance.Parent.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -227,7 +224,6 @@ func TestGetExistingInstanceByAlias(t *testing.T) {
 	// Blank out a few fields before we compare
 	retrievedInstance.Service = nil
 	retrievedInstance.Plan = nil
-	retrievedInstance.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -392,7 +388,6 @@ func TestGetExistingBinding(t *testing.T) {
 	assert.True(t, ok)
 	assert.Nil(t, err)
 	// Blank out a few fields before we compare
-	retrievedBinding.EncryptedSecureDetails = nil
 	assert.Equal(t, binding, retrievedBinding)
 }
 

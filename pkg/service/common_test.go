@@ -1,11 +1,5 @@
 package service
 
-import (
-	"fmt"
-)
-
-const fooValue = "bar"
-
-var (
-	testArbitraryObjectJSON = []byte(fmt.Sprintf(`{"foo":"%s"}`, fooValue))
-)
+type arbitraryType struct {
+	Foo string `json:"foo"`
+}

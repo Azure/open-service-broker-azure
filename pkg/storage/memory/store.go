@@ -55,7 +55,7 @@ func (s *store) GetInstance(instanceID string) (
 	if !ok {
 		return service.Instance{}, false, nil
 	}
-	instance, err := service.NewInstanceFromJSON(json, nil)
+	instance, err := service.NewInstanceFromJSON(json, nil, nil)
 	if err != nil {
 		return instance, false, err
 	}
@@ -79,7 +79,11 @@ func (s *store) GetInstance(instanceID string) (
 			)
 	}
 	pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema
-	instance, err = service.NewInstanceFromJSON(json, &pps)
+	instance, err = service.NewInstanceFromJSON(
+		json,
+		svc.GetServiceManager().GetEmptyInstanceDetails(),
+		&pps,
+	)
 	instance.Service = svc
 	instance.Plan = plan
 	return instance, err == nil, err
@@ -137,7 +141,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	if !ok {
 		return service.Binding{}, false, nil
 	}
-	binding, err := service.NewBindingFromJSON(json, nil)
+	binding, err := service.NewBindingFromJSON(json, nil, nil)
 	if err != nil {
 		return binding, false, err
 	}
@@ -149,7 +153,11 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	// binding from the JSON
 	if ok {
 		bps := instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema
-		binding, err = service.NewBindingFromJSON(json, &bps)
+		binding, err = service.NewBindingFromJSON(
+			json,
+			instance.Service.GetServiceManager().GetEmptyBindingDetails(),
+			&bps,
+		)
 	}
 	return binding, err == nil, err
 }

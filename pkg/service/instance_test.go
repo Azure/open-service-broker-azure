@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/base64"
 	"fmt"
 	"strings"
 	"testing"
@@ -11,13 +10,9 @@ import (
 )
 
 var (
-	testSecureInstanceDetails = SecureInstanceDetails{
-		"foo": fooValue,
-	}
 	testInstance                 Instance
 	testInstanceJSON             []byte
 	provisioningParametersSchema *InputParametersSchema
-	// updatingParametersSchema     *InputParametersSchema
 )
 
 func init() {
@@ -50,14 +45,10 @@ func init() {
 	}
 	updatingParametersJSONStr := []byte(`{"foo":"bat"}`)
 	statusReason := "in-progress"
-	details := InstanceDetails{
-		"foo": "baz",
+	details := &arbitraryType{
+		Foo: "baz",
 	}
 	detailsJSONStr := `{"foo":"baz"}`
-	secureDetails := SecureInstanceDetails{
-		"foo": "baz",
-	}
-	encryptedSecureDetails := []byte(`{"foo":"baz"}`)
 	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
 	if err != nil {
 		panic(err)
@@ -74,14 +65,8 @@ func init() {
 		StatusReason:           statusReason,
 		ParentAlias:            parentAlias,
 		Details:                details,
-		EncryptedSecureDetails: encryptedSecureDetails,
-		SecureDetails:          secureDetails,
 		Created:                created,
 	}
-
-	b64EncryptedSecureDetails := base64.StdEncoding.EncodeToString(
-		encryptedSecureDetails,
-	)
 
 	testInstanceJSONStr := fmt.Sprintf(
 		`{
@@ -95,7 +80,6 @@ func init() {
 			"statusReason":"%s",
 			"parentAlias":"%s",
 			"details":%s,
-			"secureDetails":"%s",
 			"created":"%s"
 		}`,
 		instanceID,
@@ -108,7 +92,6 @@ func init() {
 		statusReason,
 		parentAlias,
 		detailsJSONStr,
-		b64EncryptedSecureDetails,
 		created.Format(time.RFC3339),
 	)
 	testInstanceJSONStr = strings.Replace(testInstanceJSONStr, " ", "", -1)
@@ -120,6 +103,7 @@ func init() {
 func TestNewInstanceFromJSON(t *testing.T) {
 	instance, err := NewInstanceFromJSON(
 		testInstanceJSON,
+		&arbitraryType{},
 		provisioningParametersSchema,
 	)
 	assert.Nil(t, err)
@@ -130,29 +114,4 @@ func TestInstanceToJSON(t *testing.T) {
 	json, err := testInstance.ToJSON()
 	assert.Nil(t, err)
 	assert.Equal(t, string(testInstanceJSON), string(json))
-}
-
-func TestEncryptSecureDetails(t *testing.T) {
-	instance := Instance{
-		SecureDetails: testSecureInstanceDetails,
-	}
-	var err error
-	instance, err = instance.encryptSecureDetails()
-	assert.Nil(t, err)
-	assert.Equal(
-		t,
-		testArbitraryObjectJSON,
-		instance.EncryptedSecureDetails,
-	)
-}
-
-func TestDecryptSecureDetails(t *testing.T) {
-	instance := Instance{
-		EncryptedSecureDetails: testArbitraryObjectJSON,
-		SecureDetails:          SecureInstanceDetails{},
-	}
-	var err error
-	instance, err = instance.decryptSecureDetails()
-	assert.Nil(t, err)
-	assert.Equal(t, testSecureInstanceDetails, instance.SecureDetails)
 }
