@@ -16,7 +16,7 @@ func createBinding(
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
 	databaseName string,
-) (service.BindingDetails, service.SecureBindingDetails, error) {
+) (*bindingDetails, error) {
 	roleName := generate.NewIdentifier()
 	password := generate.NewPassword()
 
@@ -28,13 +28,13 @@ func createBinding(
 		primaryDB,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	tx, err := db.Begin()
 	if err != nil {
-		return nil, nil, fmt.Errorf("error starting transaction: %s", err)
+		return nil, fmt.Errorf("error starting transaction: %s", err)
 	}
 	defer func() {
 		if err != nil {
@@ -46,7 +46,7 @@ func createBinding(
 	if _, err = tx.Exec(
 		fmt.Sprintf("create role %s with password '%s' login", roleName, password),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error creating role "%s": %s`,
 			roleName,
 			err,
@@ -55,7 +55,7 @@ func createBinding(
 	if _, err = tx.Exec(
 		fmt.Sprintf("grant %s to %s", databaseName, roleName),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error adding role "%s" to role "%s": %s`,
 			databaseName,
 			roleName,
@@ -65,7 +65,7 @@ func createBinding(
 	if _, err = tx.Exec(
 		fmt.Sprintf("alter role %s set role %s", roleName, databaseName),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error making "%s" the default role for "%s" sessions: %s`,
 			databaseName,
 			roleName,
@@ -73,22 +73,13 @@ func createBinding(
 		)
 	}
 	if err = tx.Commit(); err != nil {
-		return nil, nil, fmt.Errorf("error committing transaction: %s", err)
+		return nil, fmt.Errorf("error committing transaction: %s", err)
 	}
-
-	bd := bindingDetails{
+	bd := &bindingDetails{
 		LoginName: roleName,
+		Password:  service.SecureString(password),
 	}
-	sbd := secureBindingDetails{
-		Password: password,
-	}
-
-	bdMap, err := service.GetMapFromStruct(bd)
-	if err != nil {
-		return nil, nil, err
-	}
-	sbdMap, err := service.GetMapFromStruct(sbd)
-	return bdMap, sbdMap, err
+	return bd, err
 }
 
 // Create a credential to be returned for binding purposes. This includes a CF
@@ -100,8 +91,7 @@ func createCredential(
 	sslRequired bool,
 	serverName string,
 	databaseName string,
-	bindDetails bindingDetails,
-	secureBindingDetails secureBindingDetails,
+	bindDetails *bindingDetails,
 ) credentials {
 	username := fmt.Sprintf("%s@%s", bindDetails.LoginName, serverName)
 	port := 5432
@@ -115,7 +105,7 @@ func createCredential(
 	connectionString := fmt.Sprintf(
 		connectionTemplate,
 		url.QueryEscape(username),
-		secureBindingDetails.Password,
+		string(bindDetails.Password),
 		fqdn,
 		port,
 		databaseName,
@@ -125,7 +115,7 @@ func createCredential(
 		Port:        port,
 		Database:    databaseName,
 		Username:    username,
-		Password:    secureBindingDetails.Password,
+		Password:    string(bindDetails.Password),
 		SSLRequired: sslRequired,
 		URI:         connectionString,
 		Tags:        []string{"postgresql"},
