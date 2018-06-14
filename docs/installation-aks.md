@@ -285,8 +285,7 @@ helm install svc-cat/catalog --name catalog --namespace catalog \
 
 ## Create Azure Redis Cache
 
-Open Service Broker for Azure uses Redis as a backing store for its state. We recommend using a managed Redis service, such as Azure Redis Cache. By default, Azure Redis Cache only keeps data in memory. For best results, you will want to use the Premium tier in order to configure backups of the Redis data. Please see [How to configure data persistence for a Premium Azure Redis Cache](https://docs.microsoft.com/en-us/azure/redis-cache/cache-how-to-premium-persistence) for instructions on how to create an Azure Redis Cache. Once created, you can obtain the hostname and keys from the Portal or via the CLI. 
-
+Open Service Broker for Azure uses Redis as a backing store for its state. We recommend using a managed Redis service, such as Azure Redis Cache. By default, Azure Redis Cache only keeps data in memory. For best results, you will want to use the Premium tier in order to configure backups of the Redis data. Please see [How to configure data persistence for a Premium Azure Redis Cache](https://docs.microsoft.com/en-us/azure/redis-cache/cache-how-to-premium-persistence) for instructions on how to create an Azure Redis Cache. Once created, you can obtain the hostname and keys from the Portal or via the CLI.
 Save the access key and host to an environment variable for later use:
 
 **Bash**
