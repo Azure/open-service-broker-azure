@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -51,12 +52,13 @@ func (p Parameters) MarshalJSON() ([]byte, error) {
 						k,
 					)
 				}
-				vBytes := []byte(vStr)
-				vBytes, err := crypto.Encrypt(vBytes)
+				encryptedBytes, err := crypto.Encrypt([]byte(vStr))
 				if err != nil {
 					return nil, err
 				}
-				v = string(vBytes)
+				// When the whole map gets marshaled, this []byte will automatically be
+				// base64 encoded and wrapped in quotes.
+				v = encryptedBytes
 			}
 			data[k] = v
 		}
@@ -104,12 +106,16 @@ func (p *Parameters) UnmarshalJSON(bytes []byte) error {
 							k,
 						)
 					}
-					vBytes := []byte(vStr)
-					vBytes, err := crypto.Decrypt(vBytes)
+					encryptedBytes, err := base64.StdEncoding.DecodeString(vStr)
 					if err != nil {
 						return err
 					}
-					v = string(vBytes)
+					decryptedBytes, err := crypto.Decrypt(encryptedBytes)
+					if err != nil {
+						return err
+					}
+					// The map we're building should have a string in it
+					v = string(decryptedBytes)
 				}
 				p.Data[k] = v
 			}
