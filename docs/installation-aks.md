@@ -216,13 +216,13 @@ az storage container create --name etcd-backups --account-name $env:AZURE_STORAG
 
 #### Install etcd Operator
 
-Service Catalog requires etcd to persist state for everything it manages. You will use Helm to install etcd Operator. We have included sample values.yaml file to setup etcd operator with a version that supports Azure backup. The default etcd Operator version installed by the Helm chart does not support Azure based backup and recovery. This values file uses a newer version of etcd Operator that provides Azure storage support.
+Service Catalog requires etcd to persist state for everything it manages. We recommend using etcd Operator to install and manage an etcd cluster for Service Catalog. We have included sample values.yaml file to setup etcd operator with a version that supports Azure backup. 
 
 ```console
 helm install --name etcd-operator stable/etcd-operator --values=contrib/k8s/etcd-operator/etcd-operator-values.yaml
 ```
 
-This will create three deployments: etcd-operator, etcd-backup-operator, and restore-operator. This will also create three new Custom Resource Definitions: `etcdclusters.etcd.database.coreos.com`, `etcdbackups.etcd.database.coreos.com` and `etcdrestores.etcd.database.coreos.com`.
+This will create three deployments: etcd-operator, etcd-backup-operator, and restore-operator. This will also create three new Custom Resource Definitions: `etcdclusters.etcd.database.coreos.com`, `etcdbackups.etcd.database.coreos.com` and `etcdrestores.etcd.database.coreos.com`. These can be used to create an etcd cluster, along with backup and restore operations. 
 
 #### Create etcd Cluster
 
