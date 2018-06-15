@@ -3,8 +3,8 @@ package mssql
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type bindingDetails struct {
-	LoginName string               `json:"loginName"`
-	Password  service.SecureString `json:"password"`
+	Username string               `json:"username"`
+	Password service.SecureString `json:"password"`
 }
 
 // Credentials encapsulates MSSQL-specific coonection details and credentials.
