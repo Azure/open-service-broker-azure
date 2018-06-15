@@ -15,7 +15,7 @@ func createBinding(
 	adminPassword string,
 	fqdn string,
 	databaseName string,
-) (service.BindingDetails, service.SecureBindingDetails, error) {
+) (service.BindingDetails, error) {
 
 	userName := generate.NewIdentifier()
 	password := generate.NewPassword()
@@ -29,19 +29,19 @@ func createBinding(
 		databaseName,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	// Open doesn't open a connection. Validate DSN data:
 	if err = db.Ping(); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	if _, err = db.Exec(
 		fmt.Sprintf("CREATE USER '%s'@'%%' IDENTIFIED BY '%s'", userName, password),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error creating user "%s": %s`,
 			userName,
 			err,
@@ -55,26 +55,17 @@ func createBinding(
 			"EXECUTE, REFERENCES, EVENT, "+
 			"TRIGGER ON %s.* TO '%s'@'%%'",
 			databaseName, userName)); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error granting permission to "%s": %s`,
 			userName,
 			err,
 		)
 	}
-
-	bd := bindingDetails{
+	bd := &bindingDetails{
 		LoginName: userName,
+		Password:  service.SecureString(password),
 	}
-	sbd := secureBindingDetails{
-		Password: password,
-	}
-
-	bdMap, err := service.GetMapFromStruct(bd)
-	if err != nil {
-		return nil, nil, err
-	}
-	sbdMap, err := service.GetMapFromStruct(sbd)
-	return bdMap, sbdMap, err
+	return bd, err
 }
 
 // Create a credential to be returned for binding purposes. This includes a CF
@@ -86,15 +77,14 @@ func createCredential(
 	sslRequired bool,
 	serverName string,
 	databaseName string,
-	bindingDetails bindingDetails,
-	secureBidningDetails secureBindingDetails,
+	bindingDetails *bindingDetails,
 ) credentials {
 	username := fmt.Sprintf("%s@%s", bindingDetails.LoginName, serverName)
 	connectionTemplate := "mysql://%s:%s@%s:3306/%s?useSSL=true&requireSSL=true"
 	connectionString := fmt.Sprintf(
 		connectionTemplate,
 		url.QueryEscape(username),
-		secureBidningDetails.Password,
+		string(bindingDetails.Password),
 		fqdn,
 		databaseName,
 	)
@@ -103,7 +93,7 @@ func createCredential(
 		Port:        3306,
 		Database:    databaseName,
 		Username:    username,
-		Password:    secureBidningDetails.Password,
+		Password:    string(bindingDetails.Password),
 		SSLRequired: sslRequired,
 		URI:         connectionString,
 		Tags:        []string{"mysql"},

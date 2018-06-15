@@ -16,12 +16,17 @@ func (
 }
 
 type dbmsInstanceDetails struct {
-	ARMDeploymentName        string `json:"armDeployment"`
-	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
-	ServerName               string `json:"server"`
-	AdministratorLogin       string `json:"administratorLogin"`
+	ARMDeploymentName          string               `json:"armDeployment"`
+	FullyQualifiedDomainName   string               `json:"fullyQualifiedDomainName"` // nolint: lll
+	ServerName                 string               `json:"server"`
+	AdministratorLogin         string               `json:"administratorLogin"`
+	AdministratorLoginPassword service.SecureString `json:"administratorLoginPassword"` // nolint: lll
 }
 
-type secureDBMSInstanceDetails struct {
-	AdministratorLoginPassword string `json:"administratorLoginPassword"`
+func (d *dbmsManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &dbmsInstanceDetails{}
+}
+
+func (d *dbmsManager) GetEmptyBindingDetails() service.BindingDetails {
+	return nil
 }

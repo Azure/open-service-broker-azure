@@ -22,64 +22,40 @@ func (a *allInOneManager) GetProvisioner(
 func (a *allInOneManager) preProvision(
 	ctx context.Context,
 	_ service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-
 	serverName, err := getAvailableServerName(
 		ctx,
 		a.checkNameAvailabilityClient,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	dt := allInOneInstanceDetails{
+	return &allInOneInstanceDetails{
 		dbmsInstanceDetails: dbmsInstanceDetails{
-			ARMDeploymentName: uuid.NewV4().String(),
-			ServerName:        serverName,
+			ARMDeploymentName:          uuid.NewV4().String(),
+			ServerName:                 serverName,
+			AdministratorLoginPassword: service.SecureString(generate.NewPassword()),
 		},
 		DatabaseName: generate.NewIdentifier(),
-	}
-
-	sdt := secureAllInOneInstanceDetails{
-		secureDBMSInstanceDetails: secureDBMSInstanceDetails{
-			AdministratorLoginPassword: generate.NewPassword(),
-		},
-	}
-
-	dtMap, err := service.GetMapFromStruct(dt)
-	if err != nil {
-		return nil, nil, err
-	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+	}, err
 }
 
 func (a *allInOneManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := allInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-	sdt := secureAllInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, nil, err
-	}
-
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*allInOneInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
-
 	goTemplateParameters, err := buildGoTemplateParameters(
 		instance.Plan,
 		version,
-		dt.dbmsInstanceDetails,
-		sdt.secureDBMSInstanceDetails,
+		&dt.dbmsInstanceDetails,
 		*instance.ProvisioningParameters,
 	)
-
 	if err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error building go template parameters :%s",
 			err,
 		)
@@ -100,18 +76,15 @@ func (a *allInOneManager) deployARMTemplate(
 		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-
 	var ok bool
 	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, instance.SecureDetails, err
+	return dt, err
 }

@@ -14,6 +14,9 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/boot"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
 	brokerLog "github.com/Azure/open-service-broker-azure/pkg/log"
@@ -68,6 +71,42 @@ func main() {
 	}
 	catalog, err := boot.GetCatalog(catalogConfig, azureConfig)
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Initialize encryption
+	cryptoConfig, err := crypto.GetConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	var codec crypto.Codec
+	switch cryptoConfig.EncryptionScheme {
+	case crypto.AES256:
+		var aes256Config aes256.Config
+		aes256Config, err = aes256.GetConfigFromEnvironment()
+		if err != nil {
+			log.Fatal(err)
+		}
+		codec, err = aes256.NewCodec(aes256Config)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.WithField(
+			"encryptionScheme",
+			cryptoConfig.EncryptionScheme,
+		).Info("Sensitive instance and binding details will be encrypted")
+	case crypto.NOOP:
+		codec = noop.NewCodec()
+		log.Warn(
+			"ENCRYPTION IS DISABLED -- THIS IS NOT A SUITABLE OPTION FOR PRODUCTION",
+		)
+	default:
+		log.Fatalf(
+			`unrecognized encryption scheme "%s"`,
+			cryptoConfig.EncryptionScheme,
+		)
+	}
+	if err = crypto.InitializeGlobalCodec(codec); err != nil {
 		log.Fatal(err)
 	}
 

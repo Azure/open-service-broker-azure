@@ -23,28 +23,19 @@ func (d *databaseManager) GetProvisioner(
 func (d *databaseManager) preProvision(
 	context.Context,
 	service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := databaseInstanceDetails{
+) (service.InstanceDetails, error) {
+	return &databaseInstanceDetails{
 		ARMDeploymentName: uuid.NewV4().String(),
 		DatabaseName:      generate.NewIdentifier(),
-	}
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, nil, err
+	}, nil
 }
 
 func (d *databaseManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt := dbmsInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
-		return nil, nil, err
-	}
-	dt := databaseInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	pdt := instance.Parent.Details.(*dbmsInstanceDetails)
+	dt := instance.Details.(*databaseInstanceDetails)
 	armTemplateParameters := map[string]interface{}{
 		"serverName":   pdt.ServerName,
 		"databaseName": dt.DatabaseName,
@@ -64,73 +55,49 @@ func (d *databaseManager) deployARMTemplate(
 		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }
 
 func (d *databaseManager) setupDatabase(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt := dbmsInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
-		return nil, nil, err
-	}
-	spdt := secureDBMSInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
-		return nil, nil, err
-	}
-	dt := databaseInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	pdt := instance.Parent.Details.(*dbmsInstanceDetails)
+	dt := instance.Details.(*databaseInstanceDetails)
 	err := setupDatabase(
 		isSSLRequired(*instance.Parent.ProvisioningParameters),
 		pdt.ServerName,
-		spdt.AdministratorLoginPassword,
+		string(pdt.AdministratorLoginPassword),
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }
 
 func (d *databaseManager) createExtensions(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt := dbmsInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
-		return nil, nil, err
-	}
-	spdt := secureDBMSInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
-		return nil, nil, err
-	}
-	dt := databaseInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	pdt := instance.Parent.Details.(*dbmsInstanceDetails)
+	dt := instance.Details.(*databaseInstanceDetails)
 	extensions := instance.ProvisioningParameters.GetStringArray("extensions")
 	if len(extensions) > 0 {
 		err := createExtensions(
 			isSSLRequired(*instance.Parent.ProvisioningParameters),
 			pdt.ServerName,
-			spdt.AdministratorLoginPassword,
+			string(pdt.AdministratorLoginPassword),
 			pdt.FullyQualifiedDomainName,
 			dt.DatabaseName,
 			extensions,
 		)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

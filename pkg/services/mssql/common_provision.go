@@ -5,15 +5,14 @@ import (
 )
 
 func buildDBMSGoTemplateParameters(
-	dt dbmsInstanceDetails,
-	sdt secureDBMSInstanceDetails,
+	dt *dbmsInstanceDetails,
 	params service.ProvisioningParameters,
 	version string,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
 	p["serverName"] = dt.ServerName
 	p["administratorLogin"] = dt.AdministratorLogin
-	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
+	p["administratorLoginPassword"] = string(dt.AdministratorLoginPassword)
 	p["version"] = version
 	firewallRulesParams :=
 		params.GetObjectArray("firewallRules")

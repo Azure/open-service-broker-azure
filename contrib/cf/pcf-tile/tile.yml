@@ -139,11 +139,11 @@ forms:
     type: boolean
     label: Storage Redis Enable TLS
     default: true
-  - name: storage_encryption_scheme
+  - name: crypto_encryption_scheme
     type: string
     label: Storage Encryption Scheme
     default: AES256
-  - name: storage_aes256_key
+  - name: crypto_aes256_key
     type: secret
     label: Storage AES256 KEY (32 characters)
   - name: async_redis_host

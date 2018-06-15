@@ -3,8 +3,6 @@ package service
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 )
 
 // Instance represents an instance of a service
@@ -22,8 +20,6 @@ type Instance struct {
 	Parent                 *Instance               `json:"-"`
 	ParentAlias            string                  `json:"parentAlias"`
 	Details                InstanceDetails         `json:"details"`
-	EncryptedSecureDetails []byte                  `json:"secureDetails"`
-	SecureDetails          SecureInstanceDetails   `json:"-"`
 	Created                time.Time               `json:"created"`
 }
 
@@ -31,19 +27,18 @@ type Instance struct {
 // JSON []byte
 func NewInstanceFromJSON(
 	jsonBytes []byte,
-	codec crypto.Codec,
+	emptyInstanceDetails InstanceDetails,
 	provisioningParametersSchema *InputParametersSchema, // nolint: interfacer
 ) (Instance, error) {
 	instance := Instance{
+		Details: emptyInstanceDetails,
 		ProvisioningParameters: &ProvisioningParameters{
 			Parameters: Parameters{
-				Codec:  codec,
 				Schema: provisioningParametersSchema,
 			},
 		},
 		UpdatingParameters: &ProvisioningParameters{
 			Parameters: Parameters{
-				Codec: codec,
 				// Note that provisioning schema is deliberately used here in place of
 				// updating schema. That allows us to store/retrieve the FULL set of
 				// combined provisioning + updating parameters and not just the subset
@@ -51,59 +46,13 @@ func NewInstanceFromJSON(
 				Schema: provisioningParametersSchema,
 			},
 		},
-		Details:       InstanceDetails{},
-		SecureDetails: SecureInstanceDetails{},
 	}
-	if err := json.Unmarshal(jsonBytes, &instance); err != nil {
-		return instance, err
-	}
-	return instance.decrypt(codec)
+	err := json.Unmarshal(jsonBytes, &instance)
+	return instance, err
 }
 
 // ToJSON returns a []byte containing a JSON representation of the
 // instance
-func (i Instance) ToJSON(codec crypto.Codec) ([]byte, error) {
-	var err error
-	if i, err = i.encrypt(codec); err != nil {
-		return nil, err
-	}
-	// Set the codec on the params before continuing
-	if i.ProvisioningParameters != nil {
-		i.ProvisioningParameters.Codec = codec
-	}
-	if i.UpdatingParameters != nil {
-		i.UpdatingParameters.Codec = codec
-	}
+func (i Instance) ToJSON() ([]byte, error) {
 	return json.Marshal(i)
-}
-
-func (i Instance) encrypt(codec crypto.Codec) (Instance, error) {
-	return i.encryptSecureDetails(codec)
-}
-
-func (i Instance) encryptSecureDetails(
-	codec crypto.Codec,
-) (Instance, error) {
-	jsonBytes, err := json.Marshal(i.SecureDetails)
-	if err != nil {
-		return i, err
-	}
-	i.EncryptedSecureDetails, err = codec.Encrypt(jsonBytes)
-	return i, err
-}
-
-func (i Instance) decrypt(codec crypto.Codec) (Instance, error) {
-	return i.decryptSecureDetails(codec)
-}
-
-func (i Instance) decryptSecureDetails(codec crypto.Codec) (Instance, error) {
-	if len(i.EncryptedSecureDetails) == 0 ||
-		i.SecureDetails == nil {
-		return i, nil
-	}
-	plaintext, err := codec.Decrypt(i.EncryptedSecureDetails)
-	if err != nil {
-		return i, err
-	}
-	return i, json.Unmarshal(plaintext, &i.SecureDetails)
 }

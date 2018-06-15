@@ -14,7 +14,7 @@ func bind(
 	administratorPassword string,
 	fqdn string,
 	databaseName string,
-) (service.BindingDetails, service.SecureBindingDetails, error) {
+) (service.BindingDetails, error) {
 
 	loginName := generate.NewIdentifier()
 	password := generate.NewPassword()
@@ -27,14 +27,14 @@ func bind(
 		"master",
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer masterDb.Close() // nolint: errcheck
 
 	if _, err = masterDb.Exec(
 		fmt.Sprintf("CREATE LOGIN \"%s\" WITH PASSWORD='%s'", loginName, password),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error creating login "%s": %s`,
 			loginName,
 			err,
@@ -49,13 +49,13 @@ func bind(
 		databaseName,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	tx, err := db.Begin()
 	if err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error starting transaction on the new database: %s",
 			err,
 		)
@@ -78,7 +78,7 @@ func bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("CREATE USER \"%s\" FOR LOGIN \"%s\"", loginName, loginName),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error creating user "%s": %s`,
 			loginName,
 			err,
@@ -87,31 +87,22 @@ func bind(
 	if _, err = tx.Exec(
 		fmt.Sprintf("GRANT CONTROL to \"%s\"", loginName),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error granting CONTROL to user "%s": %s`,
 			loginName,
 			err,
 		)
 	}
 	if err = tx.Commit(); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error committing transaction on the new database: %s",
 			err,
 		)
 	}
-
-	bd := bindingDetails{
+	return &bindingDetails{
 		LoginName: loginName,
-	}
-	sbd := secureBindingDetails{
-		Password: password,
-	}
-	bdMap, err := service.GetMapFromStruct(bd)
-	if err != nil {
-		return nil, nil, err
-	}
-	sbdMap, err := service.GetMapFromStruct(sbd)
-	return bdMap, sbdMap, err
+		Password:  service.SecureString(password),
+	}, nil
 }
 
 func createCredential(

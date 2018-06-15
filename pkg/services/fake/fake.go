@@ -16,7 +16,7 @@ type UpdatingValidationFunction func(service.Instance) error
 type BindFunction func(
 	service.Instance,
 	service.BindingParameters,
-) (service.BindingDetails, service.SecureBindingDetails, error)
+) (service.BindingDetails, error)
 
 // UnbindFunction describes a function used to provide pluggable unbinding
 // behavior to the fake implementation of the service.Module interface
@@ -75,8 +75,8 @@ func (s *ServiceManager) GetProvisioner(
 func (s *ServiceManager) provision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	return instance.Details, instance.SecureDetails, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 
 // ValidateUpdatingParameters validates the provided updating parameters
@@ -98,15 +98,15 @@ func (s *ServiceManager) GetUpdater(service.Plan) (service.Updater, error) {
 func (s *ServiceManager) update(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	return instance.Details, instance.SecureDetails, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 
 // Bind synchronously binds to a service
 func (s *ServiceManager) Bind(
 	instance service.Instance,
 	bindingParameters service.BindingParameters,
-) (service.BindingDetails, service.SecureBindingDetails, error) {
+) (service.BindingDetails, error) {
 	return s.BindBehavior(instance, bindingParameters)
 }
 
@@ -140,8 +140,8 @@ func (s *ServiceManager) GetDeprovisioner(
 func (s *ServiceManager) deprovision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	return instance.Details, instance.SecureDetails, nil
+) (service.InstanceDetails, error) {
+	return instance.Details, nil
 }
 
 func defaultUpdatingValidationBehavior(service.Instance) error {
@@ -151,8 +151,8 @@ func defaultUpdatingValidationBehavior(service.Instance) error {
 func defaultBindBehavior(
 	service.Instance,
 	service.BindingParameters,
-) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return nil, nil, nil
+) (service.BindingDetails, error) {
+	return nil, nil
 }
 
 func defaultUnbindBehavior(
