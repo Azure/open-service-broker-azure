@@ -13,8 +13,10 @@ import (
 type planDetails interface {
 	getProvisionSchema() service.InputParametersSchema
 	getTierProvisionParameters(
-		service.Instance,
+		pp service.ProvisioningParameters,
 	) (map[string]interface{}, error)
+	getUpdateSchema() service.InputParametersSchema
+	validateUpdateParameters(service.Instance) error
 }
 
 type dtuPlanDetails struct {
@@ -26,7 +28,11 @@ type dtuPlanDetails struct {
 	includeDBMS bool
 }
 
-func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
+func (d dtuPlanDetails) validateUpdateParameters(service.Instance) error {
+	return nil // no op
+}
+
+func (d dtuPlanDetails) getUpdateSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
@@ -46,15 +52,18 @@ func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
 	return ips
 }
 
+func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
+	return d.getUpdateSchema()
+}
+
 func (d dtuPlanDetails) getTierProvisionParameters(
-	instance service.Instance,
+	pp service.ProvisioningParameters,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
-	p["sku"] = d.getSKU(*instance.ProvisioningParameters)
+	p["sku"] = d.getSKU(pp)
 	p["tier"] = d.tierName
 	// ARM template needs bytes
-	p["maxSizeBytes"] =
-		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
+	p["maxSizeBytes"] = pp.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
@@ -74,7 +83,16 @@ type vCorePlanDetails struct {
 	includeDBMS   bool
 }
 
-func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
+func (v vCorePlanDetails) validateUpdateParameters(
+	instance service.Instance,
+) error {
+	return validateStorageUpdate(
+		*instance.ProvisioningParameters,
+		*instance.UpdatingParameters,
+	)
+}
+
+func (v vCorePlanDetails) getUpdateSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
@@ -95,15 +113,18 @@ func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
 	return ips
 }
 
+func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
+	return v.getUpdateSchema()
+}
+
 func (v vCorePlanDetails) getTierProvisionParameters(
-	instance service.Instance,
+	pp service.ProvisioningParameters,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
-	p["sku"] = v.getSKU(*instance.ProvisioningParameters)
+	p["sku"] = v.getSKU(pp)
 	p["tier"] = v.tierName
 	// ARM template needs bytes
-	p["maxSizeBytes"] =
-		instance.ProvisioningParameters.GetInt64("storage") * 1024 * 1024 * 1024
+	p["maxSizeBytes"] = pp.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
@@ -197,12 +218,6 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 					},
 				},
 			},
-			"sslEnforcement": &service.StringPropertySchema{
-				Description: "Specifies whether the server requires the use of TLS" +
-					" when connecting. Left unspecified, SSL will be enforced",
-				AllowedValues: []string{"enabled", "disabled"},
-				DefaultValue:  "enabled",
-			},
 			"tags": &service.ObjectPropertySchema{
 				Description: "Tags to be applied to new resources," +
 					" specified as key/value pairs.",
@@ -210,4 +225,23 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 			},
 		},
 	}
+}
+
+func validateStorageUpdate(
+	pp service.ProvisioningParameters,
+	up service.ProvisioningParameters,
+) error {
+	existingStorage := pp.GetInt64("storage")
+	newStorge := up.GetInt64("storage")
+	if newStorge < existingStorage {
+		return service.NewValidationError(
+			"storage",
+			fmt.Sprintf(
+				`invalid value: cannot reduce storage from %d to %d`,
+				existingStorage,
+				newStorge,
+			),
+		)
+	}
+	return nil
 }

@@ -71,7 +71,6 @@ name.
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
 | `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
 
-
 ##### Update
 
 Updates a previously provisioned PostgreSQL DBMS. Currently updating the database extensions is not supported.

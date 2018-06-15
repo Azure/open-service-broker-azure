@@ -94,6 +94,47 @@ Binding returns the following connection details and credentials:
 | `encrypt` | `boolean` | Flag indicating if the connection should be encrypted. |
 | `tags` | `string[]` | List of tags. |
 
+##### Update
+
+Updates a previously provisioned SQL DB Database and DBMS.
+
+###### Updating Parameters
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
+| `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
+| `firewallRules[n].startIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
+| `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
+
+Parameters for updating the SQL DB Database differ by plan. See each section for relevant parameters.
+
+Additional Provision Parameters for : standard plan
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `dtu` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 10, 20, 50, 100, 200, 400, 800, 1600, 3000 | N | 10 |
+
+Additional Provision Parameters for : premium plan
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `dtu` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 125, 250, 500, 1000, 1750, 1000 | N | 125 |
+
+Additional Provision Parameters for: general-purpose
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 24, 32, 48, 80 | N | 2 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048. Note, decreasing storage is not currently supported | N | 5 |
+
+Additional Provision Parameters for: business-critical
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 24, 32, 48, 80 | N | 2 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048. Note, decreasing storage is not currently supported | N | 5 |
+
 ##### Unbind
 
 Drops the applicable user from the SQL Server.
@@ -192,6 +233,19 @@ Provisions a SQL Server DBMS instance containing no databases. Databases can be 
 ##### Bind
 
 This service is not bindable.
+
+##### Update
+
+Updates a previously provisioned SQL DB DBMS.
+
+###### Updating Parameters
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
+| `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
+| `firewallRules[n].startIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
+| `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
 
 ##### Unbind
 
@@ -336,6 +390,40 @@ Binding returns the following connection details and credentials:
 | `jdbcUrl` | `string` | A fully formed JDBC url. |
 | `encrypt` | `boolean` | Flag indicating if the connection should be encrypted. |
 | `tags` | `string[]` | List of tags. |
+
+##### Update
+
+Updates a previously provisioned SQL DB Database.
+
+###### Updating Parameters
+
+Parameters for updating the SQL DB Database differ by plan. See each section for relevant parameters.
+
+Additional Provision Parameters for : standard plan
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `dtu` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 10, 20, 50, 100, 200, 400, 800, 1600, 3000 | N | 10 |
+
+Additional Provision Parameters for : premium plan
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `dtu` | `integer` | Specifies Database transaction units, which represent a bundled measure of compute, storage, and IO resources. Valid values are 125, 250, 500, 1000, 1750, 1000 | N | 125 |
+
+Additional Provision Parameters for: general-purpose
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 24, 32, 48, 80 | N | 2 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048. Note, decreasing storage is not currently supported | N | 5 |
+
+Additional Provision Parameters for: business-critical
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 24, 32, 48, 80 | N | 2 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048. Note, decreasing storage is not currently supported | N | 5 |
 
 ##### Unbind
 
