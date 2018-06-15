@@ -1,36 +1,25 @@
 package service
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"testing"
 
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/fake"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMarshalParametersWithMissingSchema(t *testing.T) {
-	p := Parameters{
-		Codec: fake.NewCodec(),
-	}
+	p := Parameters{}
 	_, err := json.Marshal(p)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "cannot marshal without a schema")
 }
 
-func TestMarshalParametersWithMissingCodec(t *testing.T) {
-	p := Parameters{
-		Schema: &InputParametersSchema{},
-	}
-	_, err := json.Marshal(p)
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "cannot marshal without a codec")
-}
-
 func TestMarshalParametersWithFielsdNotInSchema(t *testing.T) {
 	p := Parameters{
-		Codec:  fake.NewCodec(),
 		Schema: &InputParametersSchema{},
 		Data: map[string]interface{}{
 			"foo": "bar",
@@ -47,41 +36,8 @@ func TestMarshalParametersWithFielsdNotInSchema(t *testing.T) {
 	assert.Empty(t, mp)
 }
 
-func TestMarshalParametersWithInsecureFields(t *testing.T) {
-	codec := fake.NewCodec().(*fake.Codec)
-	var encryptCallCount int
-	codec.EncryptBehavior = func(plaintext []byte) ([]byte, error) {
-		encryptCallCount++
-		return plaintext, nil
-	}
-	p := Parameters{
-		Codec: codec,
-		Schema: &InputParametersSchema{
-			PropertySchemas: map[string]PropertySchema{
-				"foo": &StringPropertySchema{},
-				"bat": &StringPropertySchema{},
-			},
-		},
-		Data: map[string]interface{}{
-			"foo": "bar",
-			"bat": "baz",
-		},
-	}
-	jsonBytes, err := json.Marshal(p)
-	assert.Nil(t, err)
-	// Convert back to a map to make easier assertions
-	mp := map[string]interface{}{}
-	err = json.Unmarshal(jsonBytes, &mp)
-	assert.Nil(t, err)
-	// There should be exactly two elements
-	assert.Equal(t, 2, len(mp))
-	// Encrypt should never have been called
-	assert.Equal(t, 0, encryptCallCount)
-}
-
 func TestMarshalParametersWithNonStringSecureField(t *testing.T) {
 	p := Parameters{
-		Codec: fake.NewCodec(),
 		Schema: &InputParametersSchema{
 			SecureProperties: []string{"foo"},
 			PropertySchemas: map[string]PropertySchema{
@@ -99,7 +55,6 @@ func TestMarshalParametersWithNonStringSecureField(t *testing.T) {
 
 func TestMarshalParametersWithNonStringSecureFieldValue(t *testing.T) {
 	p := Parameters{
-		Codec: fake.NewCodec(),
 		Schema: &InputParametersSchema{
 			SecureProperties: []string{"foo"},
 			PropertySchemas: map[string]PropertySchema{
@@ -119,27 +74,20 @@ func TestMarshalParametersWithNonStringSecureFieldValue(t *testing.T) {
 	)
 }
 
-func TestMarshalParametersWithSomeSecureFields(t *testing.T) {
-	codec := fake.NewCodec().(*fake.Codec)
-	var encryptCallCount int
-	codec.EncryptBehavior = func(plaintext []byte) ([]byte, error) {
-		encryptCallCount++
-		return plaintext, nil
-	}
+func TestMarshalParameters(t *testing.T) {
+	const abcVal = "xyz"
+	const fooVal = "bar"
 	p := Parameters{
-		Codec: codec,
 		Schema: &InputParametersSchema{
 			SecureProperties: []string{"foo", "bat"},
 			PropertySchemas: map[string]PropertySchema{
 				"abc": &StringPropertySchema{}, // Not secure
 				"foo": &StringPropertySchema{},
-				"bat": &StringPropertySchema{},
 			},
 		},
 		Data: map[string]interface{}{
-			"abc": "xyz", // Not secure
-			"foo": "bar",
-			"bat": "baz",
+			"abc": abcVal, // Not secure
+			"foo": fooVal,
 		},
 	}
 	jsonBytes, err := json.Marshal(p)
@@ -148,28 +96,37 @@ func TestMarshalParametersWithSomeSecureFields(t *testing.T) {
 	mp := map[string]interface{}{}
 	err = json.Unmarshal(jsonBytes, &mp)
 	assert.Nil(t, err)
-	// There should be exactly three elements
-	assert.Equal(t, 3, len(mp))
-	// Encrypt should have been called twice
-	assert.Equal(t, 2, encryptCallCount)
+	// There should be exactly two elements
+	assert.Equal(t, 2, len(mp))
+	assert.Equal(t, abcVal, mp["abc"])
+	encodedFooIface, ok := mp["foo"]
+	assert.True(t, ok)
+	encodedFooStr, ok := encodedFooIface.(string)
+	assert.True(t, ok)
+	encryptedFooBytes, err := base64.StdEncoding.DecodeString(encodedFooStr)
+	assert.Nil(t, err)
+	decryptedFooBytes, err := crypto.Decrypt(encryptedFooBytes)
+	assert.Nil(t, err)
+	assert.Equal(t, fooVal, string(decryptedFooBytes))
+}
+
+func TestFoo(t *testing.T) {
+	const origStr = "foo"
+	encrypted, err := crypto.Encrypt([]byte(origStr))
+	assert.Nil(t, err)
+	encodedStr := base64.StdEncoding.EncodeToString(encrypted)
+	decodedBytes, err := base64.StdEncoding.DecodeString(encodedStr)
+	assert.Nil(t, err)
+	decrypted, err := crypto.Decrypt(decodedBytes)
+	assert.Nil(t, err)
+	assert.Equal(t, origStr, string(decrypted))
 }
 
 func TestUnmarshalParametersWithMissingSchema(t *testing.T) {
-	p := Parameters{
-		Codec: fake.NewCodec(),
-	}
+	p := Parameters{}
 	err := json.Unmarshal([]byte("{}"), &p)
 	assert.NotNil(t, err)
 	assert.Contains(t, err.Error(), "cannot unmarshal without a schema")
-}
-
-func TestUnmarshalParametersWithMissingCodec(t *testing.T) {
-	p := Parameters{
-		Schema: &InputParametersSchema{},
-	}
-	err := json.Unmarshal([]byte("{}"), &p)
-	assert.NotNil(t, err)
-	assert.Contains(t, err.Error(), "cannot unmarshal without a codec")
 }
 
 func TestUnmarshalParametersWithFielsdNotInSchema(t *testing.T) {
@@ -181,7 +138,6 @@ func TestUnmarshalParametersWithFielsdNotInSchema(t *testing.T) {
 	jsonBytes, err := json.Marshal(data)
 	assert.Nil(t, err)
 	p := Parameters{
-		Codec:  fake.NewCodec(),
 		Schema: &InputParametersSchema{},
 	}
 	// Unmarshal into p
@@ -189,37 +145,6 @@ func TestUnmarshalParametersWithFielsdNotInSchema(t *testing.T) {
 	assert.Nil(t, err)
 	// There should be nothing in p.Data
 	assert.Empty(t, p.Data)
-}
-
-func TestUnmarshalParametersWithInsecureFields(t *testing.T) {
-	data := map[string]interface{}{
-		"foo": "bar",
-		"bat": "baz",
-	}
-	// Turn the raw map into JSON
-	jsonBytes, err := json.Marshal(data)
-	assert.Nil(t, err)
-	codec := fake.NewCodec().(*fake.Codec)
-	var decryptCallCount int
-	codec.DecryptBehavior = func(plaintext []byte) ([]byte, error) {
-		decryptCallCount++
-		return plaintext, nil
-	}
-	p := Parameters{
-		Codec: codec,
-		Schema: &InputParametersSchema{
-			PropertySchemas: map[string]PropertySchema{
-				"foo": &StringPropertySchema{},
-				"bat": &StringPropertySchema{},
-			},
-		},
-	}
-	err = json.Unmarshal(jsonBytes, &p)
-	assert.Nil(t, err)
-	// There should be exactly two elements
-	assert.Equal(t, 2, len(p.Data))
-	// Decrypt should never have been called
-	assert.Equal(t, 0, decryptCallCount)
 }
 
 func TestUnmarshalParametersWithNonStringSecureField(t *testing.T) {
@@ -230,7 +155,6 @@ func TestUnmarshalParametersWithNonStringSecureField(t *testing.T) {
 	jsonBytes, err := json.Marshal(data)
 	assert.Nil(t, err)
 	p := Parameters{
-		Codec: fake.NewCodec(),
 		Schema: &InputParametersSchema{
 			SecureProperties: []string{"foo"},
 			PropertySchemas: map[string]PropertySchema{
@@ -251,7 +175,6 @@ func TestUnmarshalParametersWithNonStringSecureFieldValue(t *testing.T) {
 	jsonBytes, err := json.Marshal(data)
 	assert.Nil(t, err)
 	p := Parameters{
-		Codec: fake.NewCodec(),
 		Schema: &InputParametersSchema{
 			SecureProperties: []string{"foo"},
 			PropertySchemas: map[string]PropertySchema{
@@ -268,38 +191,33 @@ func TestUnmarshalParametersWithNonStringSecureFieldValue(t *testing.T) {
 	)
 }
 
-func TestUnmarshalParametersWithSomeSecureFields(t *testing.T) {
+func TestUnmarshalParameters(t *testing.T) {
+	const abcVal = "xyz"
+	const fooVal = "bar"
+	encryptedFooBytes, err := crypto.Encrypt([]byte(fooVal))
+	assert.Nil(t, err)
 	data := map[string]interface{}{
 		"abc": "xyz", // Not secure
-		"foo": "bar",
-		"bat": "baz",
+		"foo": encryptedFooBytes,
 	}
 	// Turn the raw map into JSON
 	jsonBytes, err := json.Marshal(data)
 	assert.Nil(t, err)
-	codec := fake.NewCodec().(*fake.Codec)
-	var dectypeCallCount int
-	codec.DecryptBehavior = func(plaintext []byte) ([]byte, error) {
-		dectypeCallCount++
-		return plaintext, nil
-	}
 	p := Parameters{
-		Codec: codec,
 		Schema: &InputParametersSchema{
-			SecureProperties: []string{"foo", "bat"},
+			SecureProperties: []string{"foo"},
 			PropertySchemas: map[string]PropertySchema{
 				"abc": &StringPropertySchema{}, // Not secure
 				"foo": &StringPropertySchema{},
-				"bat": &StringPropertySchema{},
 			},
 		},
 	}
 	err = json.Unmarshal(jsonBytes, &p)
 	assert.Nil(t, err)
-	// There should be exactly three elements
-	assert.Equal(t, 3, len(p.Data))
-	// Encrypt should have been called twice
-	assert.Equal(t, 2, dectypeCallCount)
+	// There should be exactly two elements
+	assert.Equal(t, 2, len(p.Data))
+	assert.Equal(t, abcVal, p.Data["abc"])
+	assert.Equal(t, fooVal, p.Data["foo"])
 }
 
 func TestGetStringWithNoSchema(t *testing.T) {

@@ -2,15 +2,10 @@ package redis
 
 import (
 	"crypto/tls"
-	"errors"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
-	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )
 
@@ -22,7 +17,6 @@ const (
 type store struct {
 	redisClient *redis.Client
 	catalog     service.Catalog
-	codec       crypto.Codec
 }
 
 // NewStore returns a new Redis-based implementation of the Store interface
@@ -41,47 +35,15 @@ func NewStore(
 			ServerName: config.RedisHost,
 		}
 	}
-
-	var codec crypto.Codec
-	switch config.EncryptionScheme {
-	case crypto.AES256:
-		if config.AES256Key == "" {
-			return nil, errors.New("AES256 key was not specified")
-		}
-		if len(config.AES256Key) != 32 {
-			return nil, errors.New("AES256 key is an invalid length")
-		}
-		var err error
-		codec, err = aes256.NewCodec([]byte(config.AES256Key))
-		if err != nil {
-			return nil, err
-		}
-		log.WithField(
-			"encryptionScheme",
-			config.EncryptionScheme,
-		).Info("Sensitive instance and binding details will be encrypted")
-	case crypto.NOOP:
-		codec = noop.NewCodec()
-		log.Warn(
-			"ENCRYPTION IS DISABLED -- THIS IS NOT A SUITABLE OPTION FOR PRODUCTION",
-		)
-	default:
-		return nil, fmt.Errorf(
-			`unrecognized encryption scheme "%s"`,
-			config.EncryptionScheme,
-		)
-	}
-
 	return &store{
 		redisClient: redis.NewClient(redisOpts),
 		catalog:     catalog,
-		codec:       codec,
 	}, nil
 }
 
 func (s *store) WriteInstance(instance service.Instance) error {
 	key := getInstanceKey(instance.InstanceID)
-	json, err := instance.ToJSON(s.codec)
+	json, err := instance.ToJSON()
 	if err != nil {
 		return err
 	}
@@ -119,7 +81,7 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 	if err != nil {
 		return service.Instance{}, false, err
 	}
-	instance, err := service.NewInstanceFromJSON(bytes, s.codec, nil)
+	instance, err := service.NewInstanceFromJSON(bytes, nil, nil)
 	if err != nil {
 		return instance, false, err
 	}
@@ -145,7 +107,7 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 	pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema
 	instance, err = service.NewInstanceFromJSON(
 		bytes,
-		s.codec,
+		svc.GetServiceManager().GetEmptyInstanceDetails(),
 		&pps,
 	)
 	instance.Service = svc
@@ -234,7 +196,7 @@ func getInstanceAliasChildrenKey(alias string) string {
 
 func (s *store) WriteBinding(binding service.Binding) error {
 	key := getBindingKey(binding.BindingID)
-	json, err := binding.ToJSON(s.codec)
+	json, err := binding.ToJSON()
 	if err != nil {
 		return err
 	}
@@ -264,7 +226,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 	if err != nil {
 		return service.Binding{}, false, err
 	}
-	binding, err := service.NewBindingFromJSON(bytes, s.codec, nil)
+	binding, err := service.NewBindingFromJSON(bytes, nil, nil)
 	if err != nil {
 		return binding, false, err
 	}
@@ -278,7 +240,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 		bps := instance.Plan.GetSchemas().ServiceBindings.BindingParametersSchema
 		binding, err = service.NewBindingFromJSON(
 			bytes,
-			s.codec,
+			instance.Service.GetServiceManager().GetEmptyBindingDetails(),
 			&bps,
 		)
 	}

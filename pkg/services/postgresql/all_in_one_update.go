@@ -26,28 +26,18 @@ func (a *allInOneManager) GetUpdater(service.Plan) (service.Updater, error) {
 func (a *allInOneManager) updateARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := allInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-
-	sdt := secureAllInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, nil, err
-	}
-
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*allInOneInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
 	goTemplateParameters, err := buildGoTemplateParameters(
 		instance.Plan,
 		version,
-		dt.dbmsInstanceDetails,
-		sdt.secureDBMSInstanceDetails,
+		&dt.dbmsInstanceDetails,
 		*instance.UpdatingParameters,
 	)
 
 	if err != nil {
-		return nil, nil, fmt.Errorf("unable to build go template parameters: %s", err)
+		return nil, fmt.Errorf("unable to build go template parameters: %s", err)
 	}
 	goTemplateParameters["databaseName"] = dt.DatabaseName
 	tagsObj := instance.UpdatingParameters.GetObject("tags")
@@ -65,10 +55,10 @@ func (a *allInOneManager) updateARMTemplate(
 		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	// This shouldn't change the instance details, so just return
 	// what was there already
-	return instance.Details, instance.SecureDetails, err
+	return instance.Details, err
 }

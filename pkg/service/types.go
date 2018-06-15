@@ -22,30 +22,18 @@ type ProvisioningParameters struct {
 	Parameters
 }
 
-// InstanceDetails is an alias for maps intended to contain non-sensitive
-// details of a service instance. It exists only to improve the clarity of
-// function signatures and documentation.
-type InstanceDetails map[string]interface{}
-
-// SecureInstanceDetails is an alias for maps intended to contain sensitive
-// details of a service instance. It exists only to improve the clarity of
-// function signatures and documentation.
-type SecureInstanceDetails map[string]interface{}
+// InstanceDetails is an alias for the emoty interface. It exists only to
+// improve the clarity of function signatures and documentation.
+type InstanceDetails interface{}
 
 // BindingParameters wraps a map containing binding parameters.
 type BindingParameters struct {
 	Parameters
 }
 
-// BindingDetails is an alias for maps intended to contain non-sensitive
-// details of a service binding. It exists only to improve the clarity of
-// function signatures and documentation.
-type BindingDetails map[string]interface{}
-
-// SecureBindingDetails is an alias for maps intended to contain sensitive
-// details of a service binding. It exists only to improve the clarity of
-// function signatures and documentation.
-type SecureBindingDetails map[string]interface{}
+// BindingDetails is an alias for the empty interface. It exists only to improve
+// the clarity of function signatures and documentation.
+type BindingDetails interface{}
 
 // Credentials is an interface to be implemented by service-specific types
 // that represent service credentials. This interface doesn't require any

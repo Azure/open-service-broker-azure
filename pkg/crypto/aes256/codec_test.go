@@ -7,7 +7,11 @@ import (
 )
 
 func TestCodecEncryptAndDecrypt(t *testing.T) {
-	c, err := NewCodec([]byte("AES256Key-32Characters1234567890"))
+	c, err := NewCodec(
+		Config{
+			Key: "AES256Key-32Characters1234567890",
+		},
+	)
 	assert.Nil(t, err)
 	initialPlaintext := []byte("foo")
 	ciphertext, err := c.Encrypt(initialPlaintext)

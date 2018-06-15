@@ -1,11 +1,18 @@
 package mysql
 
+import "github.com/Azure/open-service-broker-azure/pkg/service"
+
 type dbmsInstanceDetails struct {
-	ARMDeploymentName        string `json:"armDeployment"`
-	ServerName               string `json:"server"`
-	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
+	ARMDeploymentName          string               `json:"armDeployment"`
+	ServerName                 string               `json:"server"`
+	FullyQualifiedDomainName   string               `json:"fullyQualifiedDomainName"`   // nolint: lll
+	AdministratorLoginPassword service.SecureString `json:"administratorLoginPassword"` // nolint: lll
 }
 
-type secureDBMSInstanceDetails struct {
-	AdministratorLoginPassword string `json:"administratorLoginPassword"`
+func (d *dbmsManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &dbmsInstanceDetails{}
+}
+
+func (d *dbmsManager) GetEmptyBindingDetails() service.BindingDetails {
+	return nil
 }

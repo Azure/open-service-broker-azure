@@ -156,8 +156,7 @@ func createExtensions(
 func buildGoTemplateParameters(
 	plan service.Plan,
 	version string,
-	dt dbmsInstanceDetails,
-	sdt secureDBMSInstanceDetails,
+	dt *dbmsInstanceDetails,
 	pp service.ProvisioningParameters,
 ) (map[string]interface{}, error) {
 
@@ -175,7 +174,7 @@ func buildGoTemplateParameters(
 	}
 	p["version"] = version
 	p["serverName"] = dt.ServerName
-	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
+	p["administratorLoginPassword"] = string(dt.AdministratorLoginPassword)
 	if isSSLRequired(pp) {
 		p["sslEnforcement"] = enabledARMString
 	} else {

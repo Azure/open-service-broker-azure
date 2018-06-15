@@ -22,41 +22,35 @@ func (a *allInOneManager) GetDeprovisioner(
 func (a *allInOneManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := allInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*allInOneInstanceDetails)
 	err := a.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }
 
 func (a *allInOneManager) deleteMsSQLServer(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt := allInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+	dt := instance.Details.(*allInOneInstanceDetails)
 	result, err := a.serversClient.Delete(
 		ctx,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.ServerName,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
+		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
-		return nil, nil, fmt.Errorf("error deleting sql server: %s", err)
+		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

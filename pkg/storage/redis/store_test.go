@@ -6,8 +6,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	"github.com/go-redis/redis"
@@ -16,7 +14,6 @@ import (
 )
 
 var (
-	noopCodec          = noop.NewCodec()
 	fakeServiceManager service.ServiceManager
 	testStore          *store
 )
@@ -34,7 +31,6 @@ func init() {
 	fakeServiceManager = fakeModule.ServiceManager
 	config := NewConfigWithDefaults()
 	config.RedisHost = os.Getenv("STORAGE_REDIS_HOST")
-	config.EncryptionScheme = crypto.NOOP
 	str, err := NewStore(
 		fakeCatalog,
 		config,
@@ -142,7 +138,7 @@ func TestGetExistingInstance(t *testing.T) {
 	instance := getTestInstance()
 	key := getInstanceKey(instance.InstanceID)
 	// First ensure the instance exists in Redis
-	json, err := instance.ToJSON(noopCodec)
+	json, err := instance.ToJSON()
 	assert.Nil(t, err)
 	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
@@ -154,7 +150,6 @@ func TestGetExistingInstance(t *testing.T) {
 	// Blank out a few fields before we compare
 	retrievedInstance.Service = nil
 	retrievedInstance.Plan = nil
-	retrievedInstance.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -164,7 +159,7 @@ func TestGetExistingInstanceWithParent(t *testing.T) {
 	parentInstance.Alias = uuid.NewV4().String()
 	parentKey := getInstanceKey(parentInstance.InstanceID)
 	// Ensure the parent instance exists in Redis
-	json, err := parentInstance.ToJSON(noopCodec)
+	json, err := parentInstance.ToJSON()
 	assert.Nil(t, err)
 	statCmd := testStore.redisClient.Set(parentKey, json, 0)
 	assert.Nil(t, statCmd.Err())
@@ -179,7 +174,7 @@ func TestGetExistingInstanceWithParent(t *testing.T) {
 	instance.Parent = &parentInstance
 	key := getInstanceKey(instance.InstanceID)
 	// Ensure the child instance exists in Redis
-	json, err = instance.ToJSON(noopCodec)
+	json, err = instance.ToJSON()
 	assert.Nil(t, err)
 	statCmd = testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
@@ -193,8 +188,6 @@ func TestGetExistingInstanceWithParent(t *testing.T) {
 	retrievedInstance.Parent.Service = nil
 	retrievedInstance.Plan = nil
 	retrievedInstance.Parent.Plan = nil
-	retrievedInstance.EncryptedSecureDetails = nil
-	retrievedInstance.Parent.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -215,7 +208,7 @@ func TestGetExistingInstanceByAlias(t *testing.T) {
 	instance := getTestInstance()
 	key := getInstanceKey(instance.InstanceID)
 	// First ensure the instance exists in Redis
-	json, err := instance.ToJSON(noopCodec)
+	json, err := instance.ToJSON()
 	assert.Nil(t, err)
 	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
@@ -231,7 +224,6 @@ func TestGetExistingInstanceByAlias(t *testing.T) {
 	// Blank out a few fields before we compare
 	retrievedInstance.Service = nil
 	retrievedInstance.Plan = nil
-	retrievedInstance.EncryptedSecureDetails = nil
 	assert.Equal(t, instance, retrievedInstance)
 }
 
@@ -252,7 +244,7 @@ func TestDeleteExistingInstance(t *testing.T) {
 	instance := getTestInstance()
 	key := getInstanceKey(instance.InstanceID)
 	// First ensure the instance exists in Redis
-	json, err := instance.ToJSON(noopCodec)
+	json, err := instance.ToJSON()
 	assert.Nil(t, err)
 	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
@@ -274,7 +266,7 @@ func TestDeleteExistingInstanceWithAlias(t *testing.T) {
 	instance.Alias = uuid.NewV4().String()
 	key := getInstanceKey(instance.InstanceID)
 	// First ensure the instance exists in Redis
-	json, err := instance.ToJSON(noopCodec)
+	json, err := instance.ToJSON()
 	assert.Nil(t, err)
 	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
@@ -299,7 +291,7 @@ func TestDeleteExistingInstanceWithParent(t *testing.T) {
 	parentInstance := getTestInstance()
 	parentKey := getInstanceKey(parentInstance.InstanceID)
 	// Ensure the parent instance exists in Redis
-	json, err := parentInstance.ToJSON(noopCodec)
+	json, err := parentInstance.ToJSON()
 	assert.Nil(t, err)
 	statCmd := testStore.redisClient.Set(parentKey, json, 0)
 	assert.Nil(t, statCmd.Err())
@@ -314,7 +306,7 @@ func TestDeleteExistingInstanceWithParent(t *testing.T) {
 	instance.Parent = &parentInstance
 	key := getInstanceKey(instance.InstanceID)
 	// Ensure the child instance exists in Redis
-	json, err = instance.ToJSON(noopCodec)
+	json, err = instance.ToJSON()
 	assert.Nil(t, err)
 	statCmd = testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
@@ -385,7 +377,7 @@ func TestGetExistingBinding(t *testing.T) {
 	binding := getTestBinding()
 	key := getBindingKey(binding.BindingID)
 	// First ensure the binding exists in Redis
-	json, err := binding.ToJSON(noopCodec)
+	json, err := binding.ToJSON()
 	assert.Nil(t, err)
 
 	statCmd := testStore.redisClient.Set(key, json, 0)
@@ -396,7 +388,6 @@ func TestGetExistingBinding(t *testing.T) {
 	assert.True(t, ok)
 	assert.Nil(t, err)
 	// Blank out a few fields before we compare
-	retrievedBinding.EncryptedSecureDetails = nil
 	assert.Equal(t, binding, retrievedBinding)
 }
 
@@ -417,7 +408,7 @@ func TestDeleteExistingBinding(t *testing.T) {
 	binding := getTestBinding()
 	key := getBindingKey(binding.BindingID)
 	// First ensure the binding exists in Redis
-	json, err := binding.ToJSON(noopCodec)
+	json, err := binding.ToJSON()
 	assert.Nil(t, err)
 	statCmd := testStore.redisClient.Set(key, json, 0)
 	assert.Nil(t, statCmd.Err())
