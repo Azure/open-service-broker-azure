@@ -4,8 +4,8 @@ package servicebus
 
 import (
 	servicebusSDK "github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus" // nolint: lll
-	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/azure/arm"
+	"open-service-broker-azure/pkg/service"
 )
 
 type module struct {

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
-	"github.com/Azure/open-service-broker-azure/pkg/slice"
+	"open-service-broker-azure/pkg/crypto"
+	"open-service-broker-azure/pkg/slice"
 )
 
 // Parameters is a wrapper for a map that uses a schema to inform data access

@@ -3,7 +3,7 @@ package mssql
 import (
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 // TODO: Bind is not valid for DBMS only; determine correct behavior

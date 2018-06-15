@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/aes256"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/storage"
+	"open-service-broker-azure/pkg/crypto"
+	"open-service-broker-azure/pkg/crypto/aes256"
+	"open-service-broker-azure/pkg/crypto/noop"
+	"open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 )

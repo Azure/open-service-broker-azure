@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/async"
+	"open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 )
 

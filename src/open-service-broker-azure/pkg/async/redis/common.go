@@ -3,7 +3,7 @@ package redis
 import (
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"open-service-broker-azure/pkg/async"
 	log "github.com/Sirupsen/logrus"
 )
 

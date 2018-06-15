@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+	"open-service-broker-azure/pkg/http/filter"
 )
 
 // NewBasicAuthFilter returns an implementation of the filter.Filter interface

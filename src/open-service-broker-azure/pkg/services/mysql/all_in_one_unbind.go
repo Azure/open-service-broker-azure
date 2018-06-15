@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 func (a *allInOneManager) Unbind(

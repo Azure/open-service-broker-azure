@@ -1,6 +1,6 @@
 package generate
 
-import "github.com/Azure/open-service-broker-azure/pkg/rand"
+import "open-service-broker-azure/pkg/rand"
 
 const (
 	lowerAlphaChars = "abcdefghijklmnopqrstuvwxyz"

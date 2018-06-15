@@ -6,7 +6,7 @@ import (
 	"context"
 
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
-	az "github.com/Azure/open-service-broker-azure/pkg/azure"
+	az "open-service-broker-azure/pkg/azure"
 )
 
 func deleteResourceGroup(

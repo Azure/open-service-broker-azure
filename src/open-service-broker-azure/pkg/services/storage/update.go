@@ -3,7 +3,7 @@
 package storage
 
 import (
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 func (s *serviceManager) ValidateUpdatingParameters(service.Instance) error {

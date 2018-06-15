@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/ptr"
+	"open-service-broker-azure/pkg/ptr"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/fake"
+	"open-service-broker-azure/pkg/crypto/fake"
 	"github.com/stretchr/testify/assert"
 )
 

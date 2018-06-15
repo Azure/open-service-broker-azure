@@ -3,7 +3,7 @@
 package storage
 
 import (
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 const kindKey = "kind"

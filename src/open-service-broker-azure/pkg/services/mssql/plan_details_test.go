@@ -3,7 +3,7 @@ package mssql
 import (
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 	"github.com/stretchr/testify/assert"
 )
 

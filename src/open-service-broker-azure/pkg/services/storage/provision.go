@@ -8,8 +8,8 @@ import (
 	"fmt"
 
 	"github.com/Azure/azure-sdk-for-go/storage"
-	"github.com/Azure/open-service-broker-azure/pkg/generate"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/generate"
+	"open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
 )
 

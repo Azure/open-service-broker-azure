@@ -1,7 +1,7 @@
 package postgresql
 
 import (
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 func (d *databaseManager) ValidateUpdatingParameters(service.Instance) error {

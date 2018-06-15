@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/generate"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/generate"
+	"open-service-broker-azure/pkg/service"
 	_ "github.com/go-sql-driver/mysql" // MySQL driver
 	uuid "github.com/satori/go.uuid"
 )

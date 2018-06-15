@@ -2,8 +2,8 @@ package postgresql
 
 import (
 	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql" // nolint: lll
-	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/azure/arm"
+	"open-service-broker-azure/pkg/service"
 )
 
 type module struct {

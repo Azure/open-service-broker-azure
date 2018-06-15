@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/storage"
+	"open-service-broker-azure/pkg/crypto"
+	"open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/storage"
 )
 
 type store struct {

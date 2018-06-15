@@ -8,7 +8,7 @@ import (
 
 	"strings"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 func (m *mongoAccountManager) GetProvisioner(

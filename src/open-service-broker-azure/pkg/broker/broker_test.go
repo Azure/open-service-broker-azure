@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/http/filter"
+	"open-service-broker-azure/pkg/service"
 
-	fakeAPI "github.com/Azure/open-service-broker-azure/pkg/api/fake"
-	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
+	fakeAPI "open-service-broker-azure/pkg/api/fake"
+	fakeAsync "open-service-broker-azure/pkg/async/fake"
 	"github.com/stretchr/testify/assert"
 )
 

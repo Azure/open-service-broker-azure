@@ -3,7 +3,7 @@
 
 package e2e
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import "open-service-broker-azure/pkg/service"
 
 var cosmosdbTestCases = []e2eTestCase{
 	{ // SQL API all-in-one scenario

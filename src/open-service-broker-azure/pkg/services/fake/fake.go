@@ -3,7 +3,7 @@ package fake
 import (
 	"context"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 // UpdatingValidationFunction describes a function used to provide pluggable

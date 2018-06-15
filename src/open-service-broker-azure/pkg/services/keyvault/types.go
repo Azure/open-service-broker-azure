@@ -2,7 +2,7 @@
 
 package keyvault
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import "open-service-broker-azure/pkg/service"
 
 type provisioningParameters struct {
 	ObjectID string `json:"objectId"`

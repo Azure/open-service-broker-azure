@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/Azure/open-service-broker-azure/pkg/generate"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/generate"
+	"open-service-broker-azure/pkg/service"
 
 	log "github.com/Sirupsen/logrus"
 )

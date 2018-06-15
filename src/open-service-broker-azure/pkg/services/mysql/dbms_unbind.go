@@ -3,7 +3,7 @@ package mysql
 import (
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 func (v *dbmsManager) Unbind(

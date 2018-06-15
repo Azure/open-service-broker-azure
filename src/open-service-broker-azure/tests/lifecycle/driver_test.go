@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/boot"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/azure"
+	"open-service-broker-azure/pkg/boot"
+	"open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )

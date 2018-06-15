@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+	"open-service-broker-azure/pkg/http/filter"
 	"github.com/stretchr/testify/assert"
 )
 

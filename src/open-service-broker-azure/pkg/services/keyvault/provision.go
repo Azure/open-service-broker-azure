@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
 )
 

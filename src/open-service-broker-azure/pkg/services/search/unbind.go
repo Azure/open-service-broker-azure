@@ -2,7 +2,7 @@
 
 package search
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import "open-service-broker-azure/pkg/service"
 
 func (s *serviceManager) Unbind(
 	_ service.Instance,

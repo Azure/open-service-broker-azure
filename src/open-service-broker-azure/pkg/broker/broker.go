@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api"
-	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/storage"
+	"open-service-broker-azure/pkg/api"
+	"open-service-broker-azure/pkg/async"
+	"open-service-broker-azure/pkg/http/filter"
+	"open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
 )
 

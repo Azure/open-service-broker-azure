@@ -5,7 +5,7 @@ package cosmosdb
 import (
 	"context"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 func (m *mongoAccountManager) GetDeprovisioner(

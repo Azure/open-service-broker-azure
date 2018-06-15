@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api"
-	"github.com/Azure/open-service-broker-azure/pkg/client"
+	"open-service-broker-azure/pkg/api"
+	"open-service-broker-azure/pkg/client"
 	"github.com/stretchr/testify/assert"
 )
 

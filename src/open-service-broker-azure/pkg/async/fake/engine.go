@@ -3,7 +3,7 @@ package fake
 import (
 	"context"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"open-service-broker-azure/pkg/async"
 )
 
 // RunFn describes a function used to provide pluggable runtime behavior to

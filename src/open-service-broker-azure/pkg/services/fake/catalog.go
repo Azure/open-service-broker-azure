@@ -1,6 +1,6 @@
 package fake
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import "open-service-broker-azure/pkg/service"
 
 const (
 	// ServiceID is the service ID of the fake service

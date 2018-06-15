@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/service"
 )
 
 // BindingResponse represents the response to a binding request

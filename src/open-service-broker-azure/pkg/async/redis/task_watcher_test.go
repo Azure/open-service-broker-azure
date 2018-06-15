@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"open-service-broker-azure/pkg/async"
 	"github.com/stretchr/testify/assert"
 )
 

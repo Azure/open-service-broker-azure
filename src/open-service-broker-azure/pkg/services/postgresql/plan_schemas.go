@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/ptr"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/azure"
+	"open-service-broker-azure/pkg/ptr"
+	"open-service-broker-azure/pkg/service"
 )
 
 type tierDetails struct {

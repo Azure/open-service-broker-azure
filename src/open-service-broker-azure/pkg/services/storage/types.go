@@ -2,7 +2,7 @@
 
 package storage
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import "open-service-broker-azure/pkg/service"
 
 type storageKind string
 

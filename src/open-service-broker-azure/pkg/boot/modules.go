@@ -18,13 +18,13 @@ import (
 	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql"
 	// storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"
 	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
-	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
-	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
-	"github.com/Azure/open-service-broker-azure/pkg/version"
+	"open-service-broker-azure/pkg/azure"
+	"open-service-broker-azure/pkg/azure/arm"
+	"open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/services/mssql"
+	"open-service-broker-azure/pkg/services/mysql"
+	"open-service-broker-azure/pkg/services/postgresql"
+	"open-service-broker-azure/pkg/version"
 )
 
 func getModules(

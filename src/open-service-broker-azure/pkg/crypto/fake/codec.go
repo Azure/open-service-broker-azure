@@ -1,6 +1,6 @@
 package fake
 
-import "github.com/Azure/open-service-broker-azure/pkg/crypto"
+import "open-service-broker-azure/pkg/crypto"
 
 // Codec is an implementation of crypto.Codec used to facilitate testing
 type Codec struct {

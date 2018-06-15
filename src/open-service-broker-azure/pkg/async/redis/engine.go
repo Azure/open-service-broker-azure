@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"open-service-broker-azure/pkg/async"
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-redis/redis"
 	uuid "github.com/satori/go.uuid"

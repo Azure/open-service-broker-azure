@@ -1,6 +1,6 @@
 package noop
 
-import "github.com/Azure/open-service-broker-azure/pkg/crypto"
+import "open-service-broker-azure/pkg/crypto"
 
 type codec struct{}
 

@@ -10,7 +10,7 @@ import (
 
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
 	"github.com/Azure/go-autorest/autorest"
-	"github.com/Azure/open-service-broker-azure/pkg/template"
+	"open-service-broker-azure/pkg/template"
 	log "github.com/Sirupsen/logrus"
 )
 

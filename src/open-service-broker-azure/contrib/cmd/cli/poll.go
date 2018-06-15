@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/client"
+	"open-service-broker-azure/pkg/client"
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )

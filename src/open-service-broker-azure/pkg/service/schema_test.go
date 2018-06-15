@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/Azure/open-service-broker-azure/pkg/ptr"
+	"open-service-broker-azure/pkg/ptr"
 	"github.com/stretchr/testify/assert"
 )
 

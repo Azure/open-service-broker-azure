@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+	"open-service-broker-azure/pkg/http/filter"
 	log "github.com/Sirupsen/logrus"
 )
 

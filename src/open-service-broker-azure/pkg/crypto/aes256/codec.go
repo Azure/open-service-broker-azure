@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"open-service-broker-azure/pkg/crypto"
 )
 
 const nonceLength = 12

@@ -6,7 +6,7 @@ import (
 	"context"
 
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources" // nolint: lll
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"open-service-broker-azure/pkg/azure"
 )
 
 func ensureResourceGroup(resourceGroup string) error {

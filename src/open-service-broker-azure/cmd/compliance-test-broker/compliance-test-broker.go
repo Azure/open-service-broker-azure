@@ -7,14 +7,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api"
-	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
-	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
-	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
-	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
-	memoryStorage "github.com/Azure/open-service-broker-azure/pkg/storage/memory"
+	"open-service-broker-azure/pkg/api"
+	apiFilters "open-service-broker-azure/pkg/api/filters"
+	fakeAsync "open-service-broker-azure/pkg/async/fake"
+	"open-service-broker-azure/pkg/crypto/noop"
+	"open-service-broker-azure/pkg/http/filter"
+	"open-service-broker-azure/pkg/http/filters"
+	"open-service-broker-azure/pkg/services/fake"
+	memoryStorage "open-service-broker-azure/pkg/storage/memory"
 
 	log "github.com/Sirupsen/logrus"
 )

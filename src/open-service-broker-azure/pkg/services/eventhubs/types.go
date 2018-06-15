@@ -2,7 +2,7 @@
 
 package eventhubs
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import "open-service-broker-azure/pkg/service"
 
 type instanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`

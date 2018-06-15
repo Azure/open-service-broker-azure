@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/api"
+	"open-service-broker-azure/pkg/api"
 	log "github.com/Sirupsen/logrus"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"

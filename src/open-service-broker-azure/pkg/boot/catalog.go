@@ -3,8 +3,8 @@ package boot
 import (
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"open-service-broker-azure/pkg/azure"
+	"open-service-broker-azure/pkg/service"
 )
 
 // GetCatalog returns a fully initialized catalog
