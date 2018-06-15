@@ -192,7 +192,7 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
     helm install svc-cat/catalog --name catalog --namespace catalog \
        --set apiserver.storage.etcd.persistence.enabled=true
-    ``
+    ```
 
 1. Deploy Open Service Broker for Azure on the cluster:
 
