@@ -37,7 +37,7 @@ func (d dtuPlanDetails) getUpdateSchema() service.InputParametersSchema {
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
 	if d.includeDBMS {
-		ips = getDBMSCommonProvisionParamSchema()
+		ips = getDBMSCommonParamSchema()
 	}
 	// Basic tier is constrained to just 5 DTUs, so don't present this as an
 	// option
@@ -53,7 +53,23 @@ func (d dtuPlanDetails) getUpdateSchema() service.InputParametersSchema {
 }
 
 func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
-	return d.getUpdateSchema()
+	ips := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{},
+	}
+	if d.includeDBMS {
+		ips = getDBMSCommonProvisionParamSchema()
+	}
+	// Basic tier is constrained to just 5 DTUs, so don't present this as an
+	// option
+	if len(d.allowedDTUs) > 0 {
+		ips.PropertySchemas["dtus"] = &service.IntPropertySchema{
+			AllowedValues: d.allowedDTUs,
+			DefaultValue:  ptr.ToInt64(d.defaultDTUs),
+			Description: "DTUs are a bundled measure of compute, " +
+				"storage, and IO resources.",
+		}
+	}
+	return ips
 }
 
 func (d dtuPlanDetails) getTierProvisionParameters(
@@ -97,7 +113,7 @@ func (v vCorePlanDetails) getUpdateSchema() service.InputParametersSchema {
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
 	if v.includeDBMS {
-		ips = getDBMSCommonProvisionParamSchema()
+		ips = getDBMSCommonParamSchema()
 	}
 	ips.PropertySchemas["cores"] = &service.IntPropertySchema{
 		AllowedValues: []int64{2, 4, 8, 16, 24, 32, 48, 80},
@@ -114,7 +130,24 @@ func (v vCorePlanDetails) getUpdateSchema() service.InputParametersSchema {
 }
 
 func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
-	return v.getUpdateSchema()
+	ips := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{},
+	}
+	if v.includeDBMS {
+		ips = getDBMSCommonProvisionParamSchema()
+	}
+	ips.PropertySchemas["cores"] = &service.IntPropertySchema{
+		AllowedValues: []int64{2, 4, 8, 16, 24, 32, 48, 80},
+		DefaultValue:  ptr.ToInt64(2),
+		Description:   "A virtual core represents the logical CPU",
+	}
+	ips.PropertySchemas["storage"] = &service.IntPropertySchema{
+		MinValue:     ptr.ToInt64(5),
+		MaxValue:     ptr.ToInt64(1024),
+		DefaultValue: ptr.ToInt64(10),
+		Description:  "The maximum data storage capacity (in GB)",
+	}
+	return ips
 }
 
 func (v vCorePlanDetails) getTierProvisionParameters(
@@ -172,19 +205,9 @@ func firewallRuleValidator(
 	return nil
 }
 
-func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
+func getDBMSCommonParamSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
-		RequiredProperties: []string{"location", "resourceGroup"},
 		PropertySchemas: map[string]service.PropertySchema{
-			"location": &service.StringPropertySchema{
-				Description: "The Azure region in which to provision" +
-					" applicable resources.",
-				CustomPropertyValidator: azure.LocationValidator,
-			},
-			"resourceGroup": &service.StringPropertySchema{
-				Description: "The (new or existing) resource group with which" +
-					" to associate new resources.",
-			},
 			"firewallRules": &service.ArrayPropertySchema{
 				Description: "Firewall rules to apply to instance. " +
 					"If left unspecified, defaults to only Azure IPs",
@@ -218,13 +241,28 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 					},
 				},
 			},
-			"tags": &service.ObjectPropertySchema{
-				Description: "Tags to be applied to new resources," +
-					" specified as key/value pairs.",
-				Additional: &service.StringPropertySchema{},
-			},
 		},
 	}
+}
+
+func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
+	schema := getDBMSCommonParamSchema()
+	schema.RequiredProperties = []string{"location", "resourceGroup"}
+	schema.PropertySchemas["location"] = &service.StringPropertySchema{
+		Description: "The Azure region in which to provision" +
+			" applicable resources.",
+		CustomPropertyValidator: azure.LocationValidator,
+	}
+	schema.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
+		Description: "The (new or existing) resource group with which" +
+			" to associate new resources.",
+	}
+	schema.PropertySchemas["tags"] = &service.ObjectPropertySchema{
+		Description: "Tags to be applied to new resources," +
+			" specified as key/value pairs.",
+		Additional: &service.StringPropertySchema{},
+	}
+	return schema
 }
 
 func validateStorageUpdate(
