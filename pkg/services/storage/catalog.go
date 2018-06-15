@@ -33,7 +33,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name: "general-purpose-storage-account",
 				Description: "Azure general-purpose storage account; create your " +
 					"own containers, files, and tables within this account",
-				Free: false,
+				Free:      false,
+				Stability: service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					kindKey: storageKindGeneralPurposeStorageAcccount,
 				},
@@ -50,7 +51,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Specialized Azure storage account for storing block " +
 					"blobs and append blobs; create your own blob containers within " +
 					"this account",
-				Free: false,
+				Free:      false,
+				Stability: service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					kindKey: storageKindBlobStorageAccount,
 				},
@@ -68,7 +70,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "A specialized Azure storage account for storing block " +
 					"blobs and append blobs; automatically provisions a blob container " +
 					" within the account",
-				Free: false,
+				Free:      false,
+				Stability: service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					kindKey: storageKindBlobContainer,
 				},

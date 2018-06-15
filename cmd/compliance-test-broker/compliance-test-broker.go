@@ -10,7 +10,6 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
@@ -36,10 +35,9 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	noopCodec := noop.NewCodec()
 	server, err := api.NewServer(
 		8088,
-		memoryStorage.NewStore(fakeCatalog, noopCodec),
+		memoryStorage.NewStore(fakeCatalog),
 		fakeAsync.NewEngine(),
 		filterChain,
 		fakeCatalog,

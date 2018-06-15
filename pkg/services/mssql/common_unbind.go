@@ -9,9 +9,9 @@ func unbind(
 	administratorPassword string,
 	fqdn string,
 	databaseName string,
-	bd bindingDetails,
+	bd *bindingDetails,
 ) error {
-	// connect to new database to drop user for the login
+	// connect to database to drop user
 	db, err := getDBConnection(
 		administratorLogin,
 		administratorPassword,
@@ -23,32 +23,11 @@ func unbind(
 	defer db.Close() // nolint: errcheck
 
 	if _, err = db.Exec(
-		fmt.Sprintf("DROP USER \"%s\"", bd.LoginName),
+		fmt.Sprintf("DROP USER \"%s\"", bd.Username),
 	); err != nil {
 		return fmt.Errorf(
 			`error dropping user "%s": %s`,
-			bd.LoginName,
-			err,
-		)
-	}
-
-	// connect to master database to drop login
-	masterDb, err := getDBConnection(
-		administratorLogin,
-		administratorPassword,
-		fqdn,
-		"master")
-	if err != nil {
-		return err
-	}
-	defer masterDb.Close() // nolint: errcheck
-
-	if _, err = masterDb.Exec(
-		fmt.Sprintf("DROP LOGIN \"%s\"", bd.LoginName),
-	); err != nil {
-		return fmt.Errorf(
-			`error dropping login "%s": %s`,
-			bd.LoginName,
+			bd.Username,
 			err,
 		)
 	}

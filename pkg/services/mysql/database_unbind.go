@@ -8,29 +8,14 @@ func (d *databaseManager) Unbind(
 	instance service.Instance,
 	binding service.Binding,
 ) error {
-	pdt := dbmsInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
-		return err
-	}
-	spdt := secureDBMSInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.SecureDetails, &spdt); err != nil {
-		return err
-	}
-	dt := databaseInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return err
-	}
-	bd := bindingDetails{}
-	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
-		return err
-	}
+	pdt := instance.Parent.Details.(*dbmsInstanceDetails)
+	dt := instance.Details.(*databaseInstanceDetails)
+	bd := binding.Details.(*bindingDetails)
 	return unbind(
 		isSSLRequired(*instance.Parent.ProvisioningParameters),
 		d.sqlDatabaseDNSSuffix,
 		pdt.ServerName,
-		spdt.AdministratorLoginPassword,
+		string(pdt.AdministratorLoginPassword),
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 		bd,

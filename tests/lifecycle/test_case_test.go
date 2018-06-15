@@ -125,7 +125,7 @@ func (s serviceLifecycleTestCase) execute(
 				s.serviceID,
 			)
 		}
-		instance.Details, instance.SecureDetails, err = step.Execute(ctx, instance)
+		instance.Details, err = step.Execute(ctx, instance)
 		if err != nil {
 			return err
 		}
@@ -150,15 +150,13 @@ func (s serviceLifecycleTestCase) execute(
 
 		// Bind
 		var bd service.BindingDetails
-		var sbd service.SecureBindingDetails
-		bd, sbd, err = serviceManager.Bind(instance, bp)
+		bd, err = serviceManager.Bind(instance, bp)
 		if err != nil {
 			return err
 		}
 
 		binding := service.Binding{
-			Details:       bd,
-			SecureDetails: sbd,
+			Details: bd,
 		}
 
 		var credentials service.Credentials
@@ -221,7 +219,7 @@ func (s serviceLifecycleTestCase) execute(
 				s.serviceID,
 			)
 		}
-		instance.Details, instance.SecureDetails, err = step.Execute(ctx, instance)
+		instance.Details, err = step.Execute(ctx, instance)
 		if err != nil {
 			return err
 		}

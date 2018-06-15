@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/base64"
 	"fmt"
 	"strings"
 	"testing"
@@ -11,9 +10,6 @@ import (
 )
 
 var (
-	testSecureBindingDetails = SecureBindingDetails{
-		"foo": fooValue,
-	}
 	testBinding             Binding
 	testBindingJSON         []byte
 	bindingParametersSchema *InputParametersSchema
@@ -30,7 +26,6 @@ func init() {
 	}
 	bindingParameters := &BindingParameters{
 		Parameters: Parameters{
-			Codec:  noopCodec,
 			Schema: bindingParametersSchema,
 			Data: map[string]interface{}{
 				"foo": "bar",
@@ -39,35 +34,25 @@ func init() {
 	}
 	bindingParametersJSONStr := []byte(`{"foo":"bar"}`)
 	statusReason := "in-progress"
-	bindingDetails := BindingDetails{
-		"foo": "bat",
+	bindingDetails := &arbitraryType{
+		Foo: "bat",
 	}
 	bindingDetailsJSONStr := `{"foo":"bat"}`
-	secureBindingDetails := SecureBindingDetails{
-		"foo": "bat",
-	}
-	encryptedSecureBindingDetails := []byte(`{"foo":"bat"}`)
 	created, err := time.Parse(time.RFC3339, "2016-07-22T10:11:55-04:00")
 	if err != nil {
 		panic(err)
 	}
 
 	testBinding = Binding{
-		BindingID:              bindingID,
-		InstanceID:             instanceID,
-		ServiceID:              serviceID,
-		BindingParameters:      bindingParameters,
-		Status:                 BindingStateBound,
-		StatusReason:           statusReason,
-		Details:                bindingDetails,
-		EncryptedSecureDetails: encryptedSecureBindingDetails,
-		SecureDetails:          secureBindingDetails,
-		Created:                created,
+		BindingID:         bindingID,
+		InstanceID:        instanceID,
+		ServiceID:         serviceID,
+		BindingParameters: bindingParameters,
+		Status:            BindingStateBound,
+		StatusReason:      statusReason,
+		Details:           bindingDetails,
+		Created:           created,
 	}
-
-	b64EncryptedSecureBindingDetails := base64.StdEncoding.EncodeToString(
-		encryptedSecureBindingDetails,
-	)
 
 	testBindingJSONStr := fmt.Sprintf(
 		`{
@@ -78,7 +63,6 @@ func init() {
 			"status":"%s",
 			"statusReason":"%s",
 			"details":%s,
-			"secureDetails":"%s",
 			"created":"%s"
 		}`,
 		bindingID,
@@ -88,7 +72,6 @@ func init() {
 		BindingStateBound,
 		statusReason,
 		bindingDetailsJSONStr,
-		b64EncryptedSecureBindingDetails,
 		created.Format(time.RFC3339),
 	)
 	testBindingJSONStr = strings.Replace(testBindingJSONStr, " ", "", -1)
@@ -100,7 +83,7 @@ func init() {
 func TestNewBindingFromJSON(t *testing.T) {
 	binding, err := NewBindingFromJSON(
 		testBindingJSON,
-		noopCodec,
+		&arbitraryType{},
 		bindingParametersSchema,
 	)
 	assert.Nil(t, err)
@@ -108,32 +91,7 @@ func TestNewBindingFromJSON(t *testing.T) {
 }
 
 func TestBindingToJSON(t *testing.T) {
-	json, err := testBinding.ToJSON(noopCodec)
+	json, err := testBinding.ToJSON()
 	assert.Nil(t, err)
 	assert.Equal(t, testBindingJSON, json)
-}
-
-func TestEncryptSecureBindingDetails(t *testing.T) {
-	binding := Binding{
-		SecureDetails: testSecureBindingDetails,
-	}
-	var err error
-	binding, err = binding.encryptSecureDetails(noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(
-		t,
-		testArbitraryObjectJSON,
-		binding.EncryptedSecureDetails,
-	)
-}
-
-func TestDecryptSecureBindingDetails(t *testing.T) {
-	binding := Binding{
-		EncryptedSecureDetails: testArbitraryObjectJSON,
-		SecureDetails:          SecureBindingDetails{},
-	}
-	var err error
-	binding, err = binding.decryptSecureDetails(noopCodec)
-	assert.Nil(t, err)
-	assert.Equal(t, testSecureBindingDetails, binding.SecureDetails)
 }

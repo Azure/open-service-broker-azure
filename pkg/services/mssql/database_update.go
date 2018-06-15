@@ -25,21 +25,11 @@ func (d *databaseManager) GetUpdater(service.Plan) (service.Updater, error) {
 func (d *databaseManager) updateARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-
-	dt := databaseInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-	pdt := dbmsInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
-		return nil, nil, err
-	}
-
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*databaseInstanceDetails)
 	pd, ok := instance.Plan.GetProperties().Extended["tierDetails"]
 	if !ok {
-		return nil, nil, fmt.Errorf("unable to access plan details")
+		return nil, fmt.Errorf("unable to access plan details")
 	}
 	planDetails, _ := pd.(planDetails)
 	goTemplateParams, err := buildDatabaseGoTemplateParameters(
@@ -48,7 +38,7 @@ func (d *databaseManager) updateARMTemplate(
 		planDetails,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	goTemplateParams["location"] =
 		instance.ProvisioningParameters.GetString("location")
@@ -67,10 +57,9 @@ func (d *databaseManager) updateARMTemplate(
 		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-
 	// This shouldn't change the instance details, so just return
 	// what was there already
-	return instance.Details, instance.SecureDetails, err
+	return instance.Details, err
 }

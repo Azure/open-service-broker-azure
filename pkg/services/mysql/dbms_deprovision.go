@@ -19,40 +19,34 @@ func (d *dbmsManager) GetDeprovisioner(
 func (d *dbmsManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := dbmsInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*dbmsInstanceDetails)
 	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 	); err != nil {
-		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }
 
 func (d *dbmsManager) deleteMySQLServer(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt := dbmsInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+	dt := instance.Details.(*dbmsInstanceDetails)
 	result, err := d.serversClient.Delete(
 		ctx,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.ServerName,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deleting mysql server: %s", err)
+		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
 	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
-		return nil, nil, fmt.Errorf("error deleting mysql server: %s", err)
+		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

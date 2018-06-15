@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
-	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	memoryStorage "github.com/Azure/open-service-broker-azure/pkg/storage/memory"
@@ -55,7 +54,7 @@ func getTestServer() (*server, *fake.Module, error) {
 	}
 	s, err := NewServer(
 		8080,
-		memoryStorage.NewStore(fakeCatalog, noop.NewCodec()),
+		memoryStorage.NewStore(fakeCatalog),
 		fakeAsync.NewEngine(),
 		filter.NewChain(),
 		fakeCatalog,

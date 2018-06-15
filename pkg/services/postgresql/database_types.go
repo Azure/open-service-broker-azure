@@ -18,3 +18,11 @@ type databaseInstanceDetails struct {
 	ARMDeploymentName string `json:"armDeployment"`
 	DatabaseName      string `json:"database"`
 }
+
+func (d *databaseManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &databaseInstanceDetails{}
+}
+
+func (d *databaseManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &bindingDetails{}
+}

@@ -84,8 +84,8 @@ Open contrib/cf/manifest.yml and enter the values obtained in the earlier steps:
         STORAGE_REDIS_PORT: 6380
         STORAGE_REDIS_DB: 0
         STORAGE_REDIS_ENABLE_TLS: true
-        STORAGE_ENCRYPTION_SCHEME: AES256
-        STORAGE_AES256_KEY: AES256Key-32Characters1234567890
+        CRYPTO_ENCRYPTION_SCHEME: AES256
+        CRYPTO_AES256_KEY: AES256Key-32Characters1234567890
         ASYNC_REDIS_HOST: <HOSTNAME FROM AZURE REDIS CACHE>
         ASYNC_REDIS_PASSWORD: <PRIMARYKEY FROM AZURE REDIS CACHE>
         ASYNC_REDIS_PORT: 6380
@@ -97,7 +97,7 @@ Open contrib/cf/manifest.yml and enter the values obtained in the earlier steps:
         GO_INSTALL_PACKAGE_SPEC: github.com/Azure/open-service-broker-azure/cmd/broker
 ```
 
-**IMPORTANT**: The default values for `STORAGE_AES256_KEY`, `BASIC\_AUTH\_USERNAME`, and `BASIC\_AUTH\_PASSWORD` should never be used in production environments.
+**IMPORTANT**: The default values for `CRYPTO_AES256_KEY`, `BASIC\_AUTH\_USERNAME`, and `BASIC\_AUTH\_PASSWORD` should never be used in production environments.
 
 ## Push the broker to Cloud Foundry
 

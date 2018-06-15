@@ -21,29 +21,19 @@ func (d *databaseManager) GetProvisioner(
 func (d *databaseManager) preProvision(
 	context.Context,
 	service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := databaseInstanceDetails{
+) (service.InstanceDetails, error) {
+	return &databaseInstanceDetails{
 		ARMDeploymentName: uuid.NewV4().String(),
 		DatabaseName:      generate.NewIdentifier(),
-	}
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, nil, err
+	}, nil
 }
 
 func (d *databaseManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	pdt := dbmsInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
-		return nil, nil, err
-	}
-	dt := databaseInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-
+) (service.InstanceDetails, error) {
+	pdt := instance.Parent.Details.(*dbmsInstanceDetails)
+	dt := instance.Details.(*databaseInstanceDetails)
 	armTemplateParameters := map[string]interface{}{ // ARM template params
 		"serverName":   pdt.ServerName,
 		"databaseName": dt.DatabaseName,
@@ -63,8 +53,7 @@ func (d *databaseManager) deployARMTemplate(
 		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

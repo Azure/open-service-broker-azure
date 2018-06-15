@@ -34,6 +34,7 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				Name:        "standard",
 				Description: "The ONLY sort of fake service-- one that's fake!",
 				Free:        false,
+				Stability:   service.StabilityExperimental,
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Fake",
 					Bullets: []string{"Fake 1",

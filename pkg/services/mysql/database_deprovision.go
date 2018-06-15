@@ -19,35 +19,25 @@ func (d *databaseManager) GetDeprovisioner(
 func (d *databaseManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := databaseInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*databaseInstanceDetails)
 	if err := d.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
 	); err != nil {
-		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }
 
 func (d *databaseManager) deleteMySQLDatabase(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	pdt := dbmsInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.Parent.Details, &pdt); err != nil {
-		return nil, nil, err
-	}
-	dt := databaseInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+	pdt := instance.Parent.Details.(*dbmsInstanceDetails)
+	dt := instance.Details.(*databaseInstanceDetails)
 	result, err := d.databasesClient.Delete(
 		ctx,
 		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
@@ -55,10 +45,10 @@ func (d *databaseManager) deleteMySQLDatabase(
 		dt.DatabaseName,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deleting mysql database: %s", err)
+		return nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
 	if err := result.WaitForCompletion(ctx, d.databasesClient.Client); err != nil {
-		return nil, nil, fmt.Errorf("error deleting mysql database: %s", err)
+		return nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

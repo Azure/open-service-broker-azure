@@ -1,11 +1,10 @@
 package mssql
 
-type bindingDetails struct {
-	LoginName string `json:"loginName"`
-}
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-type secureBindingDetails struct {
-	Password string `json:"password"`
+type bindingDetails struct {
+	Username string               `json:"username"`
+	Password service.SecureString `json:"password"`
 }
 
 // Credentials encapsulates MSSQL-specific coonection details and credentials.

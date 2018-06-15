@@ -14,34 +14,12 @@ func bind(
 	administratorPassword string,
 	fqdn string,
 	databaseName string,
-) (service.BindingDetails, service.SecureBindingDetails, error) {
+) (service.BindingDetails, error) {
 
-	loginName := generate.NewIdentifier()
+	username := generate.NewIdentifier()
 	password := generate.NewPassword()
 
-	// connect to master database to create login
-	masterDb, err := getDBConnection(
-		administratorLogin,
-		administratorPassword,
-		fqdn,
-		"master",
-	)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer masterDb.Close() // nolint: errcheck
-
-	if _, err = masterDb.Exec(
-		fmt.Sprintf("CREATE LOGIN \"%s\" WITH PASSWORD='%s'", loginName, password),
-	); err != nil {
-		return nil, nil, fmt.Errorf(
-			`error creating login "%s": %s`,
-			loginName,
-			err,
-		)
-	}
-
-	// connect to new database to create user for the login
+	// connect to new database to create user
 	db, err := getDBConnection(
 		administratorLogin,
 		administratorPassword,
@@ -49,13 +27,13 @@ func bind(
 		databaseName,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer db.Close() // nolint: errcheck
 
 	tx, err := db.Begin()
 	if err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error starting transaction on the new database: %s",
 			err,
 		)
@@ -66,52 +44,36 @@ func bind(
 				log.WithField("error", err).
 					Error("error rolling back transaction on the new database")
 			}
-			// Drop the login created in the last step
-			if _, err = masterDb.Exec(
-				fmt.Sprintf("DROP LOGIN \"%s\"", loginName),
-			); err != nil {
-				log.WithField("error", err).
-					Error("error dropping login on master database")
-			}
 		}
 	}()
 	if _, err = tx.Exec(
-		fmt.Sprintf("CREATE USER \"%s\" FOR LOGIN \"%s\"", loginName, loginName),
+		fmt.Sprintf("CREATE USER \"%s\" WITH PASSWORD='%s'", username, password),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error creating user "%s": %s`,
-			loginName,
+			username,
 			err,
 		)
 	}
 	if _, err = tx.Exec(
-		fmt.Sprintf("GRANT CONTROL to \"%s\"", loginName),
+		fmt.Sprintf("GRANT CONTROL to \"%s\"", username),
 	); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			`error granting CONTROL to user "%s": %s`,
-			loginName,
+			username,
 			err,
 		)
 	}
 	if err = tx.Commit(); err != nil {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error committing transaction on the new database: %s",
 			err,
 		)
 	}
-
-	bd := bindingDetails{
-		LoginName: loginName,
-	}
-	sbd := secureBindingDetails{
-		Password: password,
-	}
-	bdMap, err := service.GetMapFromStruct(bd)
-	if err != nil {
-		return nil, nil, err
-	}
-	sbdMap, err := service.GetMapFromStruct(sbd)
-	return bdMap, sbdMap, err
+	return &bindingDetails{
+		Username: username,
+		Password: service.SecureString(password),
+	}, nil
 }
 
 func createCredential(

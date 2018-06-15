@@ -1,11 +1,10 @@
 package mysql
 
-type bindingDetails struct {
-	LoginName string `json:"loginName"`
-}
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-type secureBindingDetails struct {
-	Password string `json:"password"`
+type bindingDetails struct {
+	LoginName string               `json:"loginName"`
+	Password  service.SecureString `json:"password"`
 }
 
 type credentials struct {
