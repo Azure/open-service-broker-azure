@@ -20,6 +20,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	storage "github.com/Azure/open-service-broker-azure/pkg/storage/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
+
 	log "github.com/Sirupsen/logrus"
 )
 

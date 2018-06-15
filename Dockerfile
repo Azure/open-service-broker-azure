@@ -3,9 +3,9 @@ ARG BASE_PACKAGE_NAME
 ARG LDFLAGS
 ENV CGO_ENABLED=0
 WORKDIR /go/src/$BASE_PACKAGE_NAME/
-COPY cmd/broker cmd/broker
-COPY pkg/ pkg/
-COPY vendor/ vendor/
+COPY src/open-service-broker-azure/cmd/broker cmd/broker
+COPY src/open-service-broker-azure/pkg/ pkg/
+COPY src/open-service-broker-azure/vendor/ vendor/
 RUN go build -o bin/broker -ldflags "$LDFLAGS" ./cmd/broker
 
 FROM scratch

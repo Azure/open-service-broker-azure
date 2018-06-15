@@ -15,6 +15,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/http/filters"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	memoryStorage "github.com/Azure/open-service-broker-azure/pkg/storage/memory"
+
 	log "github.com/Sirupsen/logrus"
 )
 
