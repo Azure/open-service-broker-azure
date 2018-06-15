@@ -9,7 +9,7 @@ func unbind(
 	administratorPassword string,
 	fqdn string,
 	databaseName string,
-	bd bindingDetails,
+	bd *bindingDetails,
 ) error {
 	// connect to new database to drop user for the login
 	db, err := getDBConnection(

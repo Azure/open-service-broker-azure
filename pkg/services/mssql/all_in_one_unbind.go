@@ -8,22 +8,11 @@ func (a *allInOneManager) Unbind(
 	instance service.Instance,
 	binding service.Binding,
 ) error {
-	dt := allInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return err
-	}
-	sdt := secureAllInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return err
-	}
-	bd := bindingDetails{}
-	if err := service.GetStructFromMap(binding.Details, &bd); err != nil {
-		return err
-	}
-
+	dt := instance.Details.(*allInOneInstanceDetails)
+	bd := binding.Details.(*bindingDetails)
 	return unbind(
 		dt.AdministratorLogin,
-		sdt.AdministratorLoginPassword,
+		string(dt.AdministratorLoginPassword),
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
 		bd,

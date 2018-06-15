@@ -21,44 +21,28 @@ func (d *dbmsManager) GetProvisioner(
 func (d *dbmsManager) preProvision(
 	context.Context,
 	service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := dbmsInstanceDetails{
-		ARMDeploymentName:  uuid.NewV4().String(),
-		ServerName:         uuid.NewV4().String(),
-		AdministratorLogin: generate.NewIdentifier(),
-	}
-	sdt := secureDBMSInstanceDetails{
-		AdministratorLoginPassword: generate.NewPassword(),
-	}
-	dtMap, err := service.GetMapFromStruct(dt)
-	if err != nil {
-		return nil, nil, err
-	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+) (service.InstanceDetails, error) {
+	return &dbmsInstanceDetails{
+		ARMDeploymentName:          uuid.NewV4().String(),
+		ServerName:                 uuid.NewV4().String(),
+		AdministratorLogin:         generate.NewIdentifier(),
+		AdministratorLoginPassword: service.SecureString(generate.NewPassword()),
+	}, nil
 }
 
 func (d *dbmsManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := dbmsInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-	sdt := secureDBMSInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*dbmsInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
 	goTemplateParams, err := buildDBMSGoTemplateParameters(
 		dt,
-		sdt,
 		*instance.ProvisioningParameters,
 		version,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	goTemplateParams["location"] =
 		instance.ProvisioningParameters.GetString("location")
@@ -77,16 +61,15 @@ func (d *dbmsManager) deployARMTemplate(
 		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	var ok bool
 	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, instance.SecureDetails, err
+	return dt, err
 }

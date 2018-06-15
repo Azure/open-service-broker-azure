@@ -21,26 +21,16 @@ func (d *dbmsManager) GetUpdater(service.Plan) (service.Updater, error) {
 func (d *dbmsManager) updateARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-
-	dt := dbmsInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-	sdt := secureDBMSInstanceDetails{}
-	if err :=
-		service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*dbmsInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
 	goTemplateParams, err := buildDBMSGoTemplateParameters(
 		dt,
-		sdt,
 		*instance.UpdatingParameters,
 		version,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	goTemplateParams["location"] =
 		instance.ProvisioningParameters.GetString("location")
@@ -59,10 +49,10 @@ func (d *dbmsManager) updateARMTemplate(
 		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	// This shouldn't change the instance details, so just return
 	// what was there already
-	return instance.Details, instance.SecureDetails, err
+	return instance.Details, err
 }
