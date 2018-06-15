@@ -246,23 +246,58 @@ func getDBMSCommonUpdateParamSchema() service.InputParametersSchema {
 }
 
 func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
-	schema := getDBMSCommonUpdateParamSchema()
-	schema.RequiredProperties = []string{"location", "resourceGroup"}
-	schema.PropertySchemas["location"] = &service.StringPropertySchema{
-		Description: "The Azure region in which to provision" +
-			" applicable resources.",
-		CustomPropertyValidator: azure.LocationValidator,
+	return service.InputParametersSchema{
+		RequiredProperties: []string{"location", "resourceGroup"},
+		PropertySchemas: map[string]service.PropertySchema{
+			"location": &service.StringPropertySchema{
+				Description: "The Azure region in which to provision" +
+					" applicable resources.",
+				CustomPropertyValidator: azure.LocationValidator,
+			},
+			"resourceGroup": &service.StringPropertySchema{
+				Description: "The (new or existing) resource group with which" +
+					" to associate new resources.",
+			},
+			"firewallRules": &service.ArrayPropertySchema{
+				Description: "Firewall rules to apply to instance. " +
+					"If left unspecified, defaults to only Azure IPs",
+				ItemsSchema: &service.ObjectPropertySchema{
+					Description: "Individual Firewall Rule",
+					RequiredProperties: []string{
+						"name",
+						"startIPAddress",
+						"endIPAddress",
+					},
+					PropertySchemas: map[string]service.PropertySchema{
+						"name": &service.StringPropertySchema{
+							Description: "Name of firewall rule",
+						},
+						"startIPAddress": &service.StringPropertySchema{
+							Description:             "Start of firewall rule range",
+							CustomPropertyValidator: ipValidator,
+						},
+						"endIPAddress": &service.StringPropertySchema{
+							Description:             "End of firewall rule range",
+							CustomPropertyValidator: ipValidator,
+						},
+					},
+					CustomPropertyValidator: firewallRuleValidator,
+				},
+				DefaultValue: []interface{}{
+					map[string]interface{}{
+						"name":           "AllowAzure",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "0.0.0.0",
+					},
+				},
+			},
+			"tags": &service.ObjectPropertySchema{
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
+			},
+		},
 	}
-	schema.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
-		Description: "The (new or existing) resource group with which" +
-			" to associate new resources.",
-	}
-	schema.PropertySchemas["tags"] = &service.ObjectPropertySchema{
-		Description: "Tags to be applied to new resources," +
-			" specified as key/value pairs.",
-		Additional: &service.StringPropertySchema{},
-	}
-	return schema
 }
 
 func validateStorageUpdate(
