@@ -2,11 +2,11 @@ version: "3.2"
 services:
   base-go-service: &base-go-service
     image: quay.io/deis/lightweight-docker-go:v0.2.0
-    working_dir: /go/src/github.com/Azure/open-service-broker-azure
+    working_dir: /go/src/open-service-broker-azure
     environment: &base-go-environment
       CGO_ENABLED: 0
     volumes:
-    - .:/go/src/github.com/Azure/open-service-broker-azure
+    - .:/go/src/open-service-broker-azure
   test: # Like dev, but linked to redis
     <<: *base-go-service
     environment:
@@ -19,12 +19,12 @@ services:
     image: quay.io/deis/osb-checker:v0.3.0
     command: ./test.sh broker 8088 60
     volumes:
-    - ./tests/api-compliance/broker-config.json:/app/config.json
+    - ./src/open-service-broker-azure/tests/api-compliance/broker-config.json:/app/config.json
     links:
     - test-api-compliance-broker:broker
   test-api-compliance-broker:
     <<: *base-go-service
-    command:  bash -c 'go run cmd/compliance-test-broker/compliance-test-broker.go'
+    command:  bash -c 'export GOPATH=/go/src/open-service-broker-azure && go run ./src/open-service-broker-azure/cmd/compliance-test-broker/compliance-test-broker.go'
   e2e:
     <<: *base-go-service
     environment:

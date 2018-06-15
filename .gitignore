@@ -1,11 +1,19 @@
 .glide/
 .vscode/
-bin/
 _vendor-*/
 vendor.orig/
-contrib/k8s/charts/repo/
-contrib/k8s/charts/open-service-broker-azure/charts/
-contrib/cf/pcf-tile/product/
-contrib/cf/pcf-tile/release/
-contrib/cf/pcf-tile/resources/open-service-broker-azure.zip
-contrib/cf/pcf-tile/tile-history.yml
+
+src/open-service-broker-azure/cmd/broker/broker
+src/open-service-broker-azure/cmd/compliance-test-broker/compliance-test-broker
+
+src/open-service-broker-azure/contrib/k8s/charts/repo/
+src/open-service-broker-azure/contrib/k8s/charts/open-service-broker-azure/charts/
+src/open-service-broker-azure/contrib/cf/pcf-tile/product/
+src/open-service-broker-azure/contrib/cf/pcf-tile/release/
+src/open-service-broker-azure/contrib/cf/pcf-tile/resources/open-service-broker-azure.zip
+src/open-service-broker-azure/contrib/cf/pcf-tile/tile-history.yml
+# Golang
+/bin/
+/pkg/
+src/golang.org
+src/github.com

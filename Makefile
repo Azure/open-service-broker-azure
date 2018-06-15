@@ -14,7 +14,7 @@ endif
 # Go build details                                                             #
 ################################################################################
 
-BASE_PACKAGE_NAME := github.com/Azure/open-service-broker-azure
+BASE_PACKAGE_NAME := open-service-broker-azure
 
 LDFLAGS = -w -X $(BASE_PACKAGE_NAME)/pkg/version.commit=$(GIT_VERSION) \
 	-X $(BASE_PACKAGE_NAME)/pkg/version.version=$(BROKER_VERSION)
@@ -92,7 +92,10 @@ endif
 dev:
 	$(DOCKER_CMD_INT) bash
 
-DEP_CMD := dep ensure -v
+DEP_CMD := bash -c ' \
+	PRJ_DIR=$$(pwd)/src/open-service-broker-azure \
+	&& cd $$PRJ_DIR	\
+	&& dep ensure -v'
 
 # Install/update dependencies
 .PHONY: dep
@@ -127,7 +130,7 @@ stop-broker-redis:
 ################################################################################
 
 VERIFY_CMD := bash -c ' \
-	PRJ_DIR=$$(pwd) \
+	PRJ_DIR=$$(pwd)/src/open-service-broker-azure \
 	&& cp -r --parent -L $$PRJ_DIR /tmp \
 	&& cd /tmp$$PRJ_DIR \
 	&& GOPATH=/tmp$$GOPATH dep ensure -v \
@@ -148,7 +151,9 @@ endif
 test: test-unit test-api-compliance test-service-lifecycles
 
 # As of Go 1.9.0, testing ./... excludes tests on vendored code
-UNIT_TEST_CMD := go test -tags unit ./...
+UNIT_TEST_CMD := bash -c ' \
+	export GOPATH=$$PWD \
+	&& go test -tags unit open-service-broker-azure/...'
 
 # Executes unit tests
 .PHONY: test-unit
@@ -170,10 +175,12 @@ test-warn:
 	##############################################################################
 	@echo
 
-LIFECYCLE_TEST_CMD := go test \
+LIFECYCLE_TEST_CMD := bash -c ' \
+	export GOPATH=$$PWD \
+	&&	go test \
 	-parallel 10 \
 	-timeout 60m \
-	$(BASE_PACKAGE_NAME)/tests/lifecycle -v
+	$(BASE_PACKAGE_NAME)/tests/lifecycle -v'
 
 # Executes all or a subset of integration tests that test modules independently
 # from the broker core/framework
@@ -185,7 +192,9 @@ else
 	$(DOCKER_CMD) $(LIFECYCLE_TEST_CMD)
 endif
 
-E2E_CMD := go test -parallel 10 -timeout 60m $(BASE_PACKAGE_NAME)/tests/e2e -v
+E2E_CMD := bash -c ' \
+	export GOPATH=$$PWD \
+	&&	go test -parallel 10 -timeout 60m $(BASE_PACKAGE_NAME)/tests/e2e -v'
 
 # Executes all or a subset of e2e tests
 .PHONY: test-e2e
@@ -219,7 +228,7 @@ else
 	docker-compose rm -f test-api-compliance-broker
 endif
 	
-LINT_CMD := gometalinter ./... \
+LINT_CMD := gometalinter ./src/open-service-broker-azure/... \
 	--concurrency=1 \
 	--disable-all \
 	--enable gofmt \
@@ -329,7 +338,7 @@ DOCKER_HELM_CMD := docker run \
 	-w /go/src/$(BASE_PACKAGE_NAME) \
 	$(HELM_IMAGE)
 
-LINT_CHART_CMD := helm lint contrib/k8s/charts/open-service-broker-azure \
+LINT_CHART_CMD := helm lint src/open-service-broker-azure/contrib/k8s/charts/open-service-broker-azure \
 	--set azure.tenantId=foo \
 	--set azure.subscriptionId=foo \
 	--set azure.clientId=foo \

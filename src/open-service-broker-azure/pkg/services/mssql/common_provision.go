@@ -1,0 +1,44 @@
+package mssql
+
+import (
+	"open-service-broker-azure/pkg/service"
+)
+
+func buildDBMSGoTemplateParameters(
+	dt dbmsInstanceDetails,
+	sdt secureDBMSInstanceDetails,
+	params service.ProvisioningParameters,
+	version string,
+) (map[string]interface{}, error) {
+	p := map[string]interface{}{}
+	p["serverName"] = dt.ServerName
+	p["administratorLogin"] = dt.AdministratorLogin
+	p["administratorLoginPassword"] = sdt.AdministratorLoginPassword
+	p["version"] = version
+	firewallRulesParams :=
+		params.GetObjectArray("firewallRules")
+	firewallRules := make([]map[string]interface{}, len(firewallRulesParams))
+	for i, firewallRuleParams := range firewallRulesParams {
+		firewallRules[i] = firewallRuleParams.Data
+	}
+	p["firewallRules"] = firewallRules
+
+	return p, nil
+}
+
+func buildDatabaseGoTemplateParameters(
+	databaseName string,
+	pp service.ProvisioningParameters,
+	pd planDetails,
+) (map[string]interface{}, error) {
+	td, err := pd.getTierProvisionParameters(pp)
+	if err != nil {
+		return nil, err
+	}
+	p := map[string]interface{}{}
+	p["databaseName"] = databaseName
+	for key, value := range td {
+		p[key] = value
+	}
+	return p, nil
+}
