@@ -37,7 +37,7 @@ func (d dtuPlanDetails) getUpdateSchema() service.InputParametersSchema {
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
 	if d.includeDBMS {
-		ips = getDBMSCommonProvisionParamSchema()
+		ips = getDBMSCommonUpdateParamSchema()
 	}
 	// Basic tier is constrained to just 5 DTUs, so don't present this as an
 	// option
@@ -53,7 +53,23 @@ func (d dtuPlanDetails) getUpdateSchema() service.InputParametersSchema {
 }
 
 func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
-	return d.getUpdateSchema()
+	ips := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{},
+	}
+	if d.includeDBMS {
+		ips = getDBMSCommonProvisionParamSchema()
+	}
+	// Basic tier is constrained to just 5 DTUs, so don't present this as an
+	// option
+	if len(d.allowedDTUs) > 0 {
+		ips.PropertySchemas["dtus"] = &service.IntPropertySchema{
+			AllowedValues: d.allowedDTUs,
+			DefaultValue:  ptr.ToInt64(d.defaultDTUs),
+			Description: "DTUs are a bundled measure of compute, " +
+				"storage, and IO resources.",
+		}
+	}
+	return ips
 }
 
 func (d dtuPlanDetails) getTierProvisionParameters(
@@ -97,7 +113,7 @@ func (v vCorePlanDetails) getUpdateSchema() service.InputParametersSchema {
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
 	if v.includeDBMS {
-		ips = getDBMSCommonProvisionParamSchema()
+		ips = getDBMSCommonUpdateParamSchema()
 	}
 	ips.PropertySchemas["cores"] = &service.IntPropertySchema{
 		AllowedValues: []int64{2, 4, 8, 16, 24, 32, 48, 80},
@@ -114,7 +130,24 @@ func (v vCorePlanDetails) getUpdateSchema() service.InputParametersSchema {
 }
 
 func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
-	return v.getUpdateSchema()
+	ips := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{},
+	}
+	if v.includeDBMS {
+		ips = getDBMSCommonProvisionParamSchema()
+	}
+	ips.PropertySchemas["cores"] = &service.IntPropertySchema{
+		AllowedValues: []int64{2, 4, 8, 16, 24, 32, 48, 80},
+		DefaultValue:  ptr.ToInt64(2),
+		Description:   "A virtual core represents the logical CPU",
+	}
+	ips.PropertySchemas["storage"] = &service.IntPropertySchema{
+		MinValue:     ptr.ToInt64(5),
+		MaxValue:     ptr.ToInt64(1024),
+		DefaultValue: ptr.ToInt64(10),
+		Description:  "The maximum data storage capacity (in GB)",
+	}
+	return ips
 }
 
 func (v vCorePlanDetails) getTierProvisionParameters(
@@ -170,6 +203,46 @@ func firewallRuleValidator(
 		)
 	}
 	return nil
+}
+
+func getDBMSCommonUpdateParamSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"firewallRules": &service.ArrayPropertySchema{
+				Description: "Firewall rules to apply to instance. " +
+					"If left unspecified, defaults to only Azure IPs",
+				ItemsSchema: &service.ObjectPropertySchema{
+					Description: "Individual Firewall Rule",
+					RequiredProperties: []string{
+						"name",
+						"startIPAddress",
+						"endIPAddress",
+					},
+					PropertySchemas: map[string]service.PropertySchema{
+						"name": &service.StringPropertySchema{
+							Description: "Name of firewall rule",
+						},
+						"startIPAddress": &service.StringPropertySchema{
+							Description:             "Start of firewall rule range",
+							CustomPropertyValidator: ipValidator,
+						},
+						"endIPAddress": &service.StringPropertySchema{
+							Description:             "End of firewall rule range",
+							CustomPropertyValidator: ipValidator,
+						},
+					},
+					CustomPropertyValidator: firewallRuleValidator,
+				},
+				DefaultValue: []interface{}{
+					map[string]interface{}{
+						"name":           "AllowAzure",
+						"startIPAddress": "0.0.0.0",
+						"endIPAddress":   "0.0.0.0",
+					},
+				},
+			},
+		},
+	}
 }
 
 func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
