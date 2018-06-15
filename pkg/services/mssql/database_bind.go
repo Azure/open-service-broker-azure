@@ -28,7 +28,7 @@ func (d *databaseManager) GetCredentials(
 	return createCredential(
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,
-		bd.LoginName,
+		bd.Username,
 		string(bd.Password),
 	), nil
 }

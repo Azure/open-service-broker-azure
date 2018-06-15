@@ -26,7 +26,7 @@ func (a *allInOneManager) GetCredentials(
 	creds := createCredential(
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,
-		bd.LoginName,
+		bd.Username,
 		string(bd.Password),
 	)
 	return creds, nil
