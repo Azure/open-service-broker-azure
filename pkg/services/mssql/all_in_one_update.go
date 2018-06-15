@@ -46,7 +46,11 @@ func (a *allInOneManager) updateARMTemplate(
 		return nil, nil, err
 	}
 	pd := instance.Plan.GetProperties().Extended["tierDetails"].(planDetails)
-	dbParams, err := buildDatabaseGoTemplateParameters(dt.DatabaseName, *instance.ProvisioningParameters, pd)
+	dbParams, err := buildDatabaseGoTemplateParameters(
+		dt.DatabaseName,
+		*instance.ProvisioningParameters,
+		pd,
+	)
 	if err != nil {
 		return nil, nil, err
 	}

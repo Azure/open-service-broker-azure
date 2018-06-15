@@ -44,7 +44,11 @@ func (d *databaseManager) deployARMTemplate(
 		return nil, nil, err
 	}
 	pd := instance.Plan.GetProperties().Extended["tierDetails"].(planDetails)
-	goTemplateParams, err := buildDatabaseGoTemplateParameters(dt.DatabaseName, *instance.ProvisioningParameters, pd)
+	goTemplateParams, err := buildDatabaseGoTemplateParameters(
+		dt.DatabaseName,
+		*instance.ProvisioningParameters,
+		pd,
+	)
 	if err != nil {
 		return nil, nil, err
 	}

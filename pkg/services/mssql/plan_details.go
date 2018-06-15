@@ -28,13 +28,6 @@ type dtuPlanDetails struct {
 	includeDBMS bool
 }
 
-func addDBMSParameters(schema map[string]service.PropertySchema) {
-	dbmsSchema := getDBMSCommonProvisionParamSchema().PropertySchemas
-	for key, value := range dbmsSchema {
-		schema[key] = value
-	}
-}
-
 func (d dtuPlanDetails) validateUpdateParameters(service.Instance) error {
 	return nil // no op
 }
@@ -132,17 +125,6 @@ func (v vCorePlanDetails) getTierProvisionParameters(
 	p["tier"] = v.tierName
 	// ARM template needs bytes
 	p["maxSizeBytes"] = pp.GetInt64("storage") * 1024 * 1024 * 1024
-	return p, nil
-}
-
-func (v vCorePlanDetails) getTierUpdateParameters(
-	instance service.Instance,
-) (map[string]interface{}, error) {
-	p := map[string]interface{}{}
-	p["sku"] = v.getSKU(*instance.UpdatingParameters)
-	p["tier"] = v.tierName
-	p["maxSizeBytes"] =
-		instance.UpdatingParameters.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
