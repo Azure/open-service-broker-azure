@@ -21,7 +21,8 @@ func createBasicPlan(
 		Name: "basic",
 		Description: "Basic Tier-- For workloads that require light compute and " +
 			"I/O performance.",
-		Free: false,
+		Free:      false,
+		Stability: service.StabilityPreview,
 		Extended: map[string]interface{}{
 			"tierDetails": td,
 		},
@@ -59,8 +60,9 @@ func createGPPlan(
 		Name: "general-purpose",
 		Description: "General Purpose Tier-- For most business workloads that " +
 			"require balanced compute and memory with scalable I/O throughput. ",
-		Free:     false,
-		Extended: extendedPlanData,
+		Free:      false,
+		Stability: service.StabilityPreview,
+		Extended:  extendedPlanData,
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "General Purpose Tier",
 			Bullets: []string{
@@ -100,8 +102,9 @@ func createMemoryOptimizedPlan(
 		Description: "Memory Optimized Tier-- For high-performance database " +
 			"workloads that require in-memory performance for faster transaction " +
 			"processing and higher concurrency.",
-		Free:     false,
-		Extended: extendedPlanData,
+		Free:      false,
+		Stability: service.StabilityPreview,
+		Extended:  extendedPlanData,
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Memory Optimized Tier",
 			Bullets: []string{
@@ -196,6 +199,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "database",
 				Description: "A new database added to an existing DBMS",
 				Free:        false,
+				Stability:   service.StabilityPreview,
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for MySQL-- Database Only",
 				},

@@ -12,7 +12,7 @@ func GetCatalog(
 	catalogConfig service.CatalogConfig,
 	azureConfig azure.Config,
 ) (service.Catalog, error) {
-	modules, err := getModules(catalogConfig, azureConfig)
+	modules, err := getModules(azureConfig)
 	if err != nil {
 		return nil, fmt.Errorf("error getting modules: %s", err)
 	}
@@ -42,8 +42,22 @@ func GetCatalog(
 					serviceID,
 				)
 			}
-			services = append(services, svc)
-			usedServiceIDs[serviceID] = moduleName
+
+			filteredPlans := []service.Plan{}
+			for _, plan := range svc.GetPlans() {
+				if plan.GetStability() >= catalogConfig.MinStability {
+					filteredPlans = append(filteredPlans, plan)
+				}
+			}
+			if len(filteredPlans) > 0 {
+				svc.SetPlans(filteredPlans)
+				services = append(services, service.NewService(
+					svc.GetProperties(),
+					svc.GetServiceManager(),
+					filteredPlans...,
+				))
+				usedServiceIDs[serviceID] = moduleName
+			}
 		}
 	}
 	catalog := service.NewCatalog(services)

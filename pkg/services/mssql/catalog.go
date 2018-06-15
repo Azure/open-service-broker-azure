@@ -22,6 +22,7 @@ func buildBasicPlan(
 		Name:        "basic",
 		Description: "Basic Tier, 5 DTUs, 2GB Storage, 7 days point-in-time restore",
 		Free:        false,
+		Stability:   service.StabilityPreview,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -72,7 +73,8 @@ func buildStandardPlan(
 		Name: "standard",
 		Description: "Standard Tier, Up to 3000 DTUs, 250GB Storage, " +
 			"35 days point-in-time restore",
-		Free: false,
+		Free:      false,
+		Stability: service.StabilityPreview,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -120,7 +122,8 @@ func buildPremiumPlan(
 		Name: "premium",
 		Description: "Premium Tier, Up to 4000 DTUs, 500GB Storage, " +
 			"35 days point-in-time restore",
-		Free: false,
+		Free:      false,
+		Stability: service.StabilityPreview,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -155,6 +158,7 @@ func buildGeneralPurposePlan(
 		Name:        "general-purpose",
 		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage",
 		Free:        false,
+		Stability:   service.StabilityPreview,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -192,7 +196,8 @@ func buildBusinessCriticalPlan(
 		Name: "business-critical",
 		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage. " +
 			"Local SSD, highest resilience to failures.",
-		Free: false,
+		Free:      false,
+		Stability: service.StabilityPreview,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -296,6 +301,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "dbms",
 				Description: "Azure SQL Server-- DBMS only",
 				Free:        false,
+				Stability:   service.StabilityPreview,
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure SQL Server-- DBMS Only",
 				},

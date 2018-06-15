@@ -29,6 +29,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "free",
 				Description: "Free Tier. Max 3 Indexes, 50MB Storage/Partition",
 				Free:        true,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"searchServiceSku": "free",
 				},
@@ -45,6 +46,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "basic",
 				Description: "Basic Tier. Max 5 Indexes, 2GB Storage/Partition",
 				Free:        true,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"searchServiceSku": "basic",
 				},
@@ -61,6 +63,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "standard-s1",
 				Description: "S1 Tier. Max 50 Indexes, 25GB Storage/Partition",
 				Free:        true,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"searchServiceSku": "standard",
 				},

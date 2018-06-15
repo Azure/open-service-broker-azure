@@ -28,7 +28,6 @@ import (
 )
 
 func getModules(
-	catalogConfig service.CatalogConfig,
 	azureConfig azure.Config,
 ) ([]service.Module, error) {
 	azureSubscriptionID := azureConfig.SubscriptionID
@@ -206,15 +205,7 @@ func getModules(
 		// aci.New(armDeployer, aciClient),
 	}
 
-	// Filter modules based on stability
-	filteredModules := []service.Module{}
-	for _, module := range modules {
-		if module.GetStability() >= catalogConfig.MinStability {
-			filteredModules = append(filteredModules, module)
-		}
-	}
-
-	return filteredModules, nil
+	return modules, nil
 }
 
 func getUserAgent(client autorest.Client) string {
