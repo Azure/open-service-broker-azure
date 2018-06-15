@@ -28,6 +28,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "basic",
 				Description: "Basic Tier, 1 Consumer group, 100 Brokered connections",
 				Free:        false,
+				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"eventHubSku": "Basic",
 				},
@@ -45,7 +46,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Standard Tier, 20 Consumer groups, " +
 					"1000 Brokered connections, " +
 					"Additional Storage, Publisher Policies",
-				Free: false,
+				Free:      false,
+				Stability: service.StabilityExperimental,
 				Extended: map[string]interface{}{
 					"eventHubSku": "Standard",
 				},
