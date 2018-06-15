@@ -36,6 +36,7 @@ func buildBasicPlan(
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
 				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
+				UpdatingParametersSchema:     planDetails.getUpdateSchema(),
 			},
 		},
 	}
@@ -86,6 +87,7 @@ func buildStandardPlan(
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
 				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
+				UpdatingParametersSchema:     planDetails.getUpdateSchema(),
 			},
 		},
 	}
@@ -133,6 +135,7 @@ func buildPremiumPlan(
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
 				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
+				UpdatingParametersSchema:     planDetails.getUpdateSchema(),
 			},
 		},
 	}
@@ -169,6 +172,7 @@ func buildGeneralPurposePlan(
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
 				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
+				UpdatingParametersSchema:     planDetails.getUpdateSchema(),
 			},
 		},
 	}
@@ -205,6 +209,7 @@ func buildBusinessCriticalPlan(
 		Schemas: service.PlanSchemas{
 			ServiceInstances: service.InstanceSchemas{
 				ProvisioningParametersSchema: planDetails.getProvisionSchema(),
+				UpdatingParametersSchema:     planDetails.getUpdateSchema(),
 			},
 		},
 	}
@@ -297,6 +302,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
 						ProvisioningParametersSchema: m.dbmsManager.getProvisionParametersSchema(),
+						UpdatingParametersSchema:     m.dbmsManager.getUpdatingParametersSchema(),
 					},
 				},
 			}),

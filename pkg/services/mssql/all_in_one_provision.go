@@ -55,11 +55,22 @@ func (a *allInOneManager) deployARMTemplate(
 	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
 		return nil, nil, err
 	}
-	goTemplateParams, err := buildDBMSGoTemplateParameters(instance)
+	version := instance.Service.GetProperties().Extended["version"].(string)
+	goTemplateParams, err := buildDBMSGoTemplateParameters(
+		dt.dbmsInstanceDetails,
+		sdt.secureDBMSInstanceDetails,
+		*instance.ProvisioningParameters,
+		version,
+	)
 	if err != nil {
 		return nil, nil, err
 	}
-	dbParams, err := buildDatabaseGoTemplateParameters(instance)
+	pd := instance.Plan.GetProperties().Extended["tierDetails"].(planDetails)
+	dbParams, err := buildDatabaseGoTemplateParameters(
+		dt.DatabaseName,
+		*instance.ProvisioningParameters,
+		pd,
+	)
 	if err != nil {
 		return nil, nil, err
 	}

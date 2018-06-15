@@ -46,7 +46,17 @@ func (d *dbmsManager) deployARMTemplate(
 	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
 		return nil, nil, err
 	}
-	goTemplateParams, err := buildDBMSGoTemplateParameters(instance)
+	sdt := secureDBMSInstanceDetails{}
+	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
+		return nil, nil, err
+	}
+	version := instance.Service.GetProperties().Extended["version"].(string)
+	goTemplateParams, err := buildDBMSGoTemplateParameters(
+		dt,
+		sdt,
+		*instance.ProvisioningParameters,
+		version,
+	)
 	if err != nil {
 		return nil, nil, err
 	}
