@@ -11,8 +11,7 @@ func (
 func (
 	d *dbmsManager,
 ) getUpdatingParametersSchema() service.InputParametersSchema {
-	schema := getDBMSCommonProvisionParamSchema()
-	return schema
+	return getDBMSCommonUpdateParamSchema()
 }
 
 type dbmsInstanceDetails struct {

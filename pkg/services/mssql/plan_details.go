@@ -37,7 +37,7 @@ func (d dtuPlanDetails) getUpdateSchema() service.InputParametersSchema {
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
 	if d.includeDBMS {
-		ips = getDBMSCommonParamSchema()
+		ips = getDBMSCommonUpdateParamSchema()
 	}
 	// Basic tier is constrained to just 5 DTUs, so don't present this as an
 	// option
@@ -113,7 +113,7 @@ func (v vCorePlanDetails) getUpdateSchema() service.InputParametersSchema {
 		PropertySchemas: map[string]service.PropertySchema{},
 	}
 	if v.includeDBMS {
-		ips = getDBMSCommonParamSchema()
+		ips = getDBMSCommonUpdateParamSchema()
 	}
 	ips.PropertySchemas["cores"] = &service.IntPropertySchema{
 		AllowedValues: []int64{2, 4, 8, 16, 24, 32, 48, 80},
@@ -205,7 +205,7 @@ func firewallRuleValidator(
 	return nil
 }
 
-func getDBMSCommonParamSchema() service.InputParametersSchema {
+func getDBMSCommonUpdateParamSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"firewallRules": &service.ArrayPropertySchema{
@@ -246,7 +246,7 @@ func getDBMSCommonParamSchema() service.InputParametersSchema {
 }
 
 func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
-	schema := getDBMSCommonParamSchema()
+	schema := getDBMSCommonUpdateParamSchema()
 	schema.RequiredProperties = []string{"location", "resourceGroup"}
 	schema.PropertySchemas["location"] = &service.StringPropertySchema{
 		Description: "The Azure region in which to provision" +
