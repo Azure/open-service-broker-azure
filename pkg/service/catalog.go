@@ -58,6 +58,7 @@ type Service interface {
 	GetServiceManager() ServiceManager
 	GetPlans() []Plan
 	GetPlan(planID string) (Plan, bool)
+	SetPlans([]Plan)
 	GetParentServiceID() string
 	GetChildServiceID() string
 	GetProperties() *ServiceProperties
@@ -85,6 +86,7 @@ type PlanProperties struct {
 	Extended    map[string]interface{} `json:"-"`
 	EndOfLife   bool                   `json:"-"`
 	Schemas     PlanSchemas            `json:"schemas,omitempty"`
+	Stability   Stability              `json:"-"`
 }
 
 // ServicePlanMetadata contains metadata about the service plans
@@ -102,6 +104,7 @@ type Plan interface {
 	GetProperties() *PlanProperties
 	IsEndOfLife() bool
 	GetSchemas() PlanSchemas
+	GetStability() Stability
 }
 
 type plan struct {
@@ -245,6 +248,10 @@ func (s *service) GetPlan(planID string) (Plan, bool) {
 	return plan, ok
 }
 
+func (s *service) SetPlans(plans []Plan) {
+	s.plans = plans
+}
+
 func (s *service) GetParentServiceID() string {
 	return s.ParentServiceID
 }
@@ -302,4 +309,8 @@ func (p *plan) IsEndOfLife() bool {
 
 func (p *plan) GetSchemas() PlanSchemas {
 	return p.Schemas
+}
+
+func (p *plan) GetStability() Stability {
+	return p.Stability
 }
