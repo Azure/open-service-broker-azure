@@ -22,7 +22,7 @@ func createBasicPlan(
 		Description: "Basic Tier-- For workloads that require light compute and " +
 			"I/O performance.",
 		Free:      false,
-		Stability: service.StabilityPreview,
+		Stability: service.StabilityStable,
 		Extended: map[string]interface{}{
 			"tierDetails": td,
 		},
@@ -61,7 +61,7 @@ func createGPPlan(
 		Description: "General Purpose Tier-- For most business workloads that " +
 			"require balanced compute and memory with scalable I/O throughput. ",
 		Free:      false,
-		Stability: service.StabilityPreview,
+		Stability: service.StabilityStable,
 		Extended:  extendedPlanData,
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "General Purpose Tier",
@@ -103,7 +103,7 @@ func createMemoryOptimizedPlan(
 			"workloads that require in-memory performance for faster transaction " +
 			"processing and higher concurrency.",
 		Free:      false,
-		Stability: service.StabilityPreview,
+		Stability: service.StabilityStable,
 		Extended:  extendedPlanData,
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Memory Optimized Tier",
@@ -129,11 +129,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "997b8372-8dac-40ac-ae65-758b4a5075a5",
 				Name:        "azure-mysql-5-7",
-				Description: "Azure Database for MySQL 5.7-- DBMS and single database (preview)",
+				Description: "Azure Database for MySQL 5.7-- DBMS and single database",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL 5.7 (preview)",
+					DisplayName:      "Azure Database for MySQL 5.7",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL 5.7-- DBMS and single database (preview)",
+					LongDescription:  "Azure Database for MySQL 5.7-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -153,12 +153,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:             "30e7b836-199d-4335-b83d-adc7d23a95c2",
 				Name:           "azure-mysql-5-7-dbms",
-				Description:    "Azure Database for MySQL 5.7-- DBMS only (preview)",
+				Description:    "Azure Database for MySQL 5.7-- DBMS only",
 				ChildServiceID: "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL 5.7-- DBMS Only (preview)",
+					DisplayName:      "Azure Database for MySQL 5.7-- DBMS Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL 5.7-- DBMS only (preview)",
+					LongDescription:  "Azure Database for MySQL 5.7-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -178,12 +178,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:              "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 				Name:            "azure-mysql-5-7-database",
-				Description:     "Azure Database for MySQL 5.7-- database only (preview)",
+				Description:     "Azure Database for MySQL 5.7-- database only",
 				ParentServiceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL 5.7-- Database Only (preview)",
+					DisplayName:      "Azure Database for MySQL 5.7-- Database Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
-					LongDescription:  "Azure Database for MySQL 5.7-- database only (preview)",
+					LongDescription:  "Azure Database for MySQL 5.7-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -199,7 +199,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "database",
 				Description: "A new database added to an existing DBMS",
 				Free:        false,
-				Stability:   service.StabilityPreview,
+				Stability:   service.StabilityStable,
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for MySQL-- Database Only",
 				},
