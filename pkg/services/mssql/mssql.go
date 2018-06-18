@@ -62,7 +62,3 @@ func New(
 func (m *module) GetName() string {
 	return "mssql"
 }
-
-func (m *module) GetStability() service.Stability {
-	return service.StabilityPreview
-}
