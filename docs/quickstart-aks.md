@@ -30,7 +30,7 @@ save the connection information in Kubernetes secrets, and then bind them to our
 ### Install the Azure CLI
 
 Install `az` by following the instructions for your operating system.
-See the [full installation instructions](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) if yours isn't listed below.
+See the [full installation instructions](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest) if yours isn't listed below. You will need az cli version 2.0.37 or greater.
 
 #### MacOS
 
@@ -149,10 +149,7 @@ resources on your account on behalf of Kubernetes.
 
 ### Create a Kubernetes cluster using AKS
 
-Next we will create a managed Kubernetes cluster using AKS. AKS will create a managed Kubernetes cluster for you. Once the cluster is created, geting started with OSBA is very similar to doing so on [Minikube](quickstart-minikube.md), with a few exceptions: 
-
-* As AKS is currently in preview, you will need to enable it in your subscription
-* AKS currently does _not_ support RBAC, so we will need to explicity disable that when we install service catalog.
+Next we will create a managed Kubernetes cluster using AKS. AKS will create a managed Kubernetes cluster for you. Once the cluster is created, getting started with OSBA is very similar to doing so on [Minikube](quickstart-minikube.md).
 
 1. Enable AKS in your subscription, use the following command with the az cli:
     ```console
@@ -167,14 +164,14 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
 
 1. Create the AKS cluster!
     ```console
-    az aks create --resource-group aks-group --name osba-quickstart-cluster --generate-ssh-keys --kubernetes-version 1.9.6
+    az aks create --resource-group aks-group --name osba-quickstart-cluster --generate-ssh-keys --kubernetes-version 1.9.6 --enable-rbac
     ```
 
     Note: Service Catalog may not work with Kubernetes versions less than 1.9.0. If you are attempting to use an older AKS cluster, you will need to upgrade. The earliest 1.9.x release available from AKS is 1.9.1, so you will need to upgrade to at least that version.
 
-1. Configure kubectl to use the new cluster
+1. Configure kubectl to use the new cluster. You'll initially want to use the cluster admin user to configure Helm and Service Catalog.
     ```console
-    az aks get-credentials --resource-group aks-group --name osba-quickstart-cluster
+    az aks get-credentials --resource-group aks-group --name osba-quickstart-cluster --admin
     ```
 
 1. Verify your cluster is up and running
@@ -187,17 +184,15 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
 1. Before we can use Helm to install applications such as Service Catalog and
     WordPress on the cluster, we first need to prepare the cluster to work with Helm:
     ```console
-    helm init
+    kubectl create -f https://raw.githubusercontent.com/Azure/helm-charts/master/docs/prerequisities/helm-rbac-config.yaml
+    helm init --service-account tiller
     ```
 1. Deploy Service Catalog on the cluster:
     ```console
     helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
     helm install svc-cat/catalog --name catalog --namespace catalog \
-       --set rbacEnable=false \
        --set apiserver.storage.etcd.persistence.enabled=true
     ```
-
-    Note: the AKS preview does not _currently_ support RBAC, so you must disable RBAC as shown above. The command above also enables persistence for the embedded etcd used by Service Catalog. Using this flag will create a persistent volume for the etcd instance to use. Enabling the persistent volume is recommended for evaluation of Service Catalog because it allows you to restart Service Catalog without data loss. For production use, we recommend a dedicated etcd cluster with appropriate persistent storage and backup.
 
 1. Deploy Open Service Broker for Azure on the cluster:
 
