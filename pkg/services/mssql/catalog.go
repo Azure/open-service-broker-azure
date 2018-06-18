@@ -22,7 +22,7 @@ func buildBasicPlan(
 		Name:        "basic",
 		Description: "Basic Tier, 5 DTUs, 2GB Storage, 7 days point-in-time restore",
 		Free:        false,
-		Stability:   service.StabilityPreview,
+		Stability:   service.StabilityStable,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -74,7 +74,7 @@ func buildStandardPlan(
 		Description: "Standard Tier, Up to 3000 DTUs, 250GB Storage, " +
 			"35 days point-in-time restore",
 		Free:      false,
-		Stability: service.StabilityPreview,
+		Stability: service.StabilityStable,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -123,7 +123,7 @@ func buildPremiumPlan(
 		Description: "Premium Tier, Up to 4000 DTUs, 500GB Storage, " +
 			"35 days point-in-time restore",
 		Free:      false,
-		Stability: service.StabilityPreview,
+		Stability: service.StabilityStable,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
@@ -156,14 +156,14 @@ func buildGeneralPurposePlan(
 	return &service.PlanProperties{
 		ID:          id,
 		Name:        "general-purpose",
-		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage",
+		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage (preview)",
 		Free:        false,
 		Stability:   service.StabilityPreview,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
 		Metadata: &service.ServicePlanMetadata{
-			DisplayName: "General Purpose",
+			DisplayName: "General Purpose (preview)",
 			Bullets: []string{
 				"Scalable compute and storage options for budget-oriented applications",
 				"Up to 80 vCores",
@@ -195,14 +195,14 @@ func buildBusinessCriticalPlan(
 		ID:   id,
 		Name: "business-critical",
 		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage. " +
-			"Local SSD, highest resilience to failures.",
+			"Local SSD, highest resilience to failures. (preview)",
 		Free:      false,
 		Stability: service.StabilityPreview,
 		Extended: map[string]interface{}{
 			"tierDetails": planDetails,
 		},
 		Metadata: &service.ServicePlanMetadata{
-			DisplayName: "Basic Tier",
+			DisplayName: "Business Critical (preview)",
 			Bullets: []string{
 				"Up to 80 vCores",
 				"Up to 440 GB memory",
@@ -229,11 +229,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 				Name:        "azure-sql-12-0",
-				Description: "Azure SQL Database 12.0-- DBMS and single database (preview)",
+				Description: "Azure SQL Database 12.0-- DBMS and single database",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure SQL Database 12.0 (preview)",
+					DisplayName:      "Azure SQL Database 12.0",
 					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL Database 12.0-- DBMS and single database (preview)",
+					LongDescription:  "Azure SQL Database 12.0-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -280,12 +280,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:             "a7454e0e-be2c-46ac-b55f-8c4278117525",
 				Name:           "azure-sql-12-0-dbms",
-				Description:    "Azure SQL 12.0-- DBMS only (preview)",
+				Description:    "Azure SQL 12.0-- DBMS only",
 				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- DBMS Only (preview)",
+					DisplayName:      "Azure SQL 12.0-- DBMS Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL 12.0-- DBMS only (preview)",
+					LongDescription:  "Azure SQL 12.0-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -318,13 +318,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				Name:            "azure-sql-12-0-database",
-				Description:     "Azure SQL 12.0-- database only (preview)",
+				Description:     "Azure SQL 12.0-- database only",
 				Bindable:        true,
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- Database Only (preview)",
+					DisplayName:      "Azure SQL 12.0-- Database Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
-					LongDescription:  "Azure SQL 12.0-- database only (preview)",
+					LongDescription:  "Azure SQL 12.0-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},

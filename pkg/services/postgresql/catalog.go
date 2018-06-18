@@ -21,7 +21,7 @@ func createBasicPlan(
 		Description: "Basic Tier-- For workloads that require light compute and " +
 			"I/O performance.",
 		Free:      false,
-		Stability: service.StabilityPreview,
+		Stability: service.StabilityStable,
 		Extended: map[string]interface{}{
 			"tierDetails": td,
 		},
@@ -65,7 +65,7 @@ func createGPPlan(
 		Description: "General Purpose Tier-- For most business workloads that " +
 			"require balanced compute and memory with scalable I/O throughput.",
 		Free:      false,
-		Stability: service.StabilityPreview,
+		Stability: service.StabilityStable,
 		Extended:  extendedPlanData,
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "General Purpose Tier",
@@ -112,7 +112,7 @@ func createMemoryOptimizedPlan(
 			"workloads that require in-memory performance for faster transaction " +
 			"processing and higher concurrency.",
 		Free:      false,
-		Stability: service.StabilityPreview,
+		Stability: service.StabilityStable,
 		Extended:  extendedPlanData,
 		Metadata: &service.ServicePlanMetadata{
 			DisplayName: "Memory Optimized Tier",
@@ -142,11 +142,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:          "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 				Name:        "azure-postgresql-9-6",
-				Description: "Azure Database for PostgreSQL 9.6-- DBMS and single database (preview)",
+				Description: "Azure Database for PostgreSQL 9.6-- DBMS and single database",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 9.6 (preview)",
+					DisplayName:      "Azure Database for PostgreSQL 9.6",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
-					LongDescription:  "Azure Database for PostgreSQL-- DBMS and single database (preview)",
+					LongDescription:  "Azure Database for PostgreSQL-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -166,12 +166,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:             "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
 				Name:           "azure-postgresql-9-6-dbms",
-				Description:    "Azure Database for PostgreSQL 9.6-- DBMS only (preview)",
+				Description:    "Azure Database for PostgreSQL 9.6-- DBMS only",
 				ChildServiceID: "25434f16-d762-41c7-bbdd-8045d7f74ca",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 9.6-- DBMS Only (preview)",
+					DisplayName:      "Azure Database for PostgreSQL 9.6-- DBMS Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
-					LongDescription:  "Azure Database for PostgreSQL-- DBMS only (preview)",
+					LongDescription:  "Azure Database for PostgreSQL-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -191,12 +191,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			&service.ServiceProperties{
 				ID:              "25434f16-d762-41c7-bbdd-8045d7f74ca6",
 				Name:            "azure-postgresql-9-6-database",
-				Description:     "Azure Database for PostgreSQL 9.6-- database only (preview)",
+				Description:     "Azure Database for PostgreSQL 9.6-- database only",
 				ParentServiceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
 				Metadata: &service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 9.6-- Database Only (preview)",
+					DisplayName:      "Azure Database for PostgreSQL 9.6-- Database Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
-					LongDescription:  "Azure Database for PostgreSQL-- database only (preview)",
+					LongDescription:  "Azure Database for PostgreSQL-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -210,9 +210,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			service.NewPlan(&service.PlanProperties{
 				ID:          "df6f5ef1-e602-406b-ba73-09c107d1e31b",
 				Name:        "database",
-				Description: "A new database added to an existing DBMS (preview)",
+				Description: "A new database added to an existing DBMS",
 				Free:        false,
-				Stability:   service.StabilityPreview,
+				Stability:   service.StabilityStable,
 				Metadata: &service.ServicePlanMetadata{
 					DisplayName: "Azure Database for PostgreSQL-- Database Only",
 				},
