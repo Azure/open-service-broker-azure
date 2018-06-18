@@ -15,7 +15,7 @@ type CatalogConfig struct {
 
 type tempCatalogConfig struct {
 	CatalogConfig
-	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"PREVIEW"`
+	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"STABLE"`
 }
 
 // NewCatalogConfigWithDefaults returns a CatalogConfig object with default
