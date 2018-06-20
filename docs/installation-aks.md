@@ -1,9 +1,13 @@
 # Install and Operate Open Service Broker for Azure on an Azure Container Service managed cluster
 
-Open Service Broker for Azure allows you to provision Azure services from your Kubernetes cluster. OSBA is integrated with Kubernetes using [Service Catalog](https://github.com/kubernetes-incubator/service-catalog). Both Service Catalog and OSBA have data persistence needs. When using Service Catalog and OSBA for development, it is sufficient to use the embedded storage options available with each application. For production use cases, however, we recommend more robust solutions. This guide provides details on setting up OSBA and associated software including Service Catalog, etcd and Redis for production scenarios. If you are new to OSBA, you may find the [AKS](quickstart-aks.md) or [Minikube](quickstart-minikube.md) Quickstart guides useful.
+Open Service Broker for Azure allows you to provision Azure services from your Kubernetes cluster. OSBA is integrated with Kubernetes using [Service Catalog](https://github.com/kubernetes-incubator/service-catalog).
+
+Both Service Catalog and OSBA have data persistence needs. When using Service Catalog and OSBA for development, it is sufficient to use the embedded storage options available with each application. For production use cases, however, we recommend more robust solutions. This guide provides details on setting up OSBA and associated software including Service Catalog, etcd and Redis for production scenarios.
+
+If you are new to OSBA, you may find the [AKS](quickstart-aks.md) or [Minikube](quickstart-minikube.md) Quickstart guides useful.
 
 * [Prerequisites](#prerequisites)
-  * [Existing Clusters](#existing-cluster)
+  * [Existing Clusters](#existing-clusters)
   * [Create an AKS Cluster](#new-cluster)
 * [Cluster Configuration](#cluster-configuration)
   * [Install Helm](#install-helm)
@@ -15,7 +19,7 @@ Open Service Broker for Azure allows you to provision Azure services from your K
 * [Create an Azure Redis Cache](#create-azure-redis-cache)
 * [Create a service principal](#create-a-service-principal)
 * [Configure the cluster with Open Service Broker for Azure](#configure-the-cluster-with-open-service-broker-for-azure)
-* [Next Steps](#next-steps)
+* [Backup and Recovery](#backup-and-recovery)
 
 ## Prerequisites
 
@@ -104,8 +108,7 @@ az group create --name aks-group --location eastus
 
 #### Create a Kubernetes cluster using AKS
 
-* As AKS is currently in preview, you will need to enable it in your subscription
-* AKS currently does _not_ support RBAC, so we will need to explicity disable that when we install service catalog.
+Azure requires that you enable the AKS resource provider in your subscription. If you have not done so, the following command will enable it. 
 
 1. Enable AKS in your subscription, use the following command with the az cli:
     ```console
@@ -120,14 +123,14 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
 
 1. Create the AKS cluster!
     ```console
-    az aks create --resource-group aks-group --name aks-cluster --generate-ssh-keys --kubernetes-version 1.9.6
+    az aks create --resource-group aks-group --name aks-cluster --generate-ssh-keys --kubernetes-version 1.9.6 --enable-rbac
     ```
 
     Note: Service Catalog may not work with Kubernetes versions less than 1.9.0. If you are attempting to use an older AKS cluster, you will need to upgrade. The earliest 1.9.x release available from AKS is 1.9.1, so you will need to upgrade to at least that version.
 
-1. Configure kubectl to use the new cluster
+1. Configure kubectl to use the admin user in the new cluster
     ```console
-    az aks get-credentials --resource-group aks-group --name aks-cluster
+    az aks get-credentials --resource-group aks-group --name aks-cluster --admin
     ```
 
 1. Verify your cluster is up and running
@@ -146,7 +149,8 @@ Before you can install OSBA onto your cluster, you will first need to install Se
 We will use Helm to install etcd Operator, Service Catalog and OSBA. In order to install Helm in your cluster, use the `helm` CLI:
 
 ```console
-helm init
+kubectl create -f https://raw.githubusercontent.com/Azure/helm-charts/master/docs/prerequisities/helm-rbac-config.yaml
+helm init --service-account tiller
 ```
 
 ### Install etcd
@@ -155,8 +159,8 @@ helm init
 
 In order to configure etcd operator to use Azure Blob Storage for backup and recovery purposes, you will need to first create a storage account:
 
-
 First, save your desired account name to an environment variable. It will be reused a few times.
+
  **Bash**
  ```console
 export AZURE_STORAGE_ACCOUNT=<STORAGE ACCOUNT>
@@ -226,7 +230,7 @@ This will create three deployments: etcd-operator, etcd-backup-operator, and res
 
 #### Create etcd Cluster
 
-Once etcd Operator has been installed, you can create a cluster. For production scenarios, we recommend a three node cluster. For convenience purposes, we have provided a Helm chart that will create a cluster and configure a Kubernetes CronJob to enable automatic backups of the cluster.
+Once etcd Operator has been installed, you can create a cluster. For production scenarios, we recommend a three node cluster. The etcd operator currently creates ephemeral etcd members. The consequence of this is if an etcd member crashes, it's data will be lost. A three-node cluster will therefore provide a higher level of operational stability. If a single etcd pod crashes, it can be rescheduled to rejoin the cluster. For more severe failures, a recovery operation must be initiated from backup. We have provided a Helm chart that will create a three-node cluster and configure a Kubernetes CronJob to enable automatic backups of the cluster. 
 
 **Bash**
 ```console
@@ -271,14 +275,12 @@ The `svc-cat-etcd-client` service is what you will use to configure Service Cata
 
 Once you have created an etcd cluster, it is time to install Service Catalog. You will use Helm to install Service Catalog. There are a few values you will need to override for your Service Catalog installation:
 
-* RBAC must be disabled (pending AKS support)
 * Embedded etcd must be disabled
-* You must point the installation at an external etcd.
+* You must point the installation at an etcd cluster.
 
 ```console
 helm repo add svc-cat https://svc-catalog-charts.storage.googleapis.com
 helm install svc-cat/catalog --name catalog --namespace catalog \
-   --set rbacEnable=false \
    --set apiserver.storage.etcd.useEmbedded=false \
    --set apiserver.storage.etcd.servers=http://svc-cat-etcd-client.default.svc.cluster.local:2379
 ```
@@ -381,7 +383,7 @@ spec:
     absSecret: <abs-credential-secret-name> 
 ```
 
-You will need to replace the spec.abs.path value with the backup you'd like to restore from. You will need the storage container as well as the file name. For example, if your absSecret was called `dandy-clownfish-svc-cat-etcd` and you used etcd-backups as the storage container as directed above and the file name was etcd.backup.2018-06-12_19:31:05, your restore yaml would look like:
+You will need to replace the `spec.abs.path` value with the backup you'd like to restore from. You will need the storage container as well as the file name. For example, if your absSecret was called `dandy-clownfish-svc-cat-etcd` and you used etcd-backups as the storage container as directed above and the file name was etcd.backup.2018-06-12_19:31:05, your restore yaml would look like:
 
 ```yaml
 apiVersion: etcd.database.coreos.com/v1beta2
