@@ -262,6 +262,7 @@ You should also have an etcd service:
 
 ```console
 $ kubectl get service
+
 NAME                          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)             AGE
 etcd-restore-operator         ClusterIP   10.0.231.143   <none>        19999/TCP           14m
 kubernetes                    ClusterIP   10.0.0.1       <none>        443/TCP             56m
