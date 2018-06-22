@@ -17,7 +17,7 @@ type catalog struct {
 	Services        []json.RawMessage `json:"services"`
 	services        []Service
 	indexedServices map[string]Service
-	jsonMutex       sync.Mutex
+	jsonMutex       *sync.Mutex
 }
 
 // ServiceProperties represent the properties of a Service that can be directly
@@ -71,7 +71,7 @@ type service struct {
 	indexedPlans   map[string]Plan
 	Plans          []json.RawMessage `json:"plans"`
 	plans          []Plan
-	jsonMutex      sync.Mutex
+	jsonMutex      *sync.Mutex
 }
 
 // PlanProperties represent the properties of a Plan that can be directly
@@ -116,6 +116,7 @@ func NewCatalog(services []Service) Catalog {
 	c := &catalog{
 		services:        services,
 		indexedServices: make(map[string]Service),
+		jsonMutex:       new(sync.Mutex),
 	}
 	for _, service := range services {
 		c.indexedServices[service.GetID()] = service
@@ -161,14 +162,15 @@ func NewService(
 	serviceManager ServiceManager,
 	plans ...Plan,
 ) Service {
-	s := &service{
+	s := service{
 		ServiceProperties: serviceProperties,
 		serviceManager:    serviceManager,
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
+		jsonMutex:         new(sync.Mutex),
 	}
 	for _, planIfc := range s.plans {
-		p := planIfc.(*plan)
+		p := planIfc.(plan)
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
@@ -196,7 +198,7 @@ func NewServiceFromJSON(jsonBytes []byte) (Service, error) {
 	return s, nil
 }
 
-func (s *service) ToJSON() ([]byte, error) {
+func (s service) ToJSON() ([]byte, error) {
 	if s.EndOfLife {
 		return nil, nil
 	}
@@ -218,98 +220,98 @@ func (s *service) ToJSON() ([]byte, error) {
 	return json.Marshal(s)
 }
 
-func (s *service) GetID() string {
+func (s service) GetID() string {
 	return s.ID
 }
 
-func (s *service) GetName() string {
+func (s service) GetName() string {
 	return s.Name
 }
 
 // IsBindable returns true if a service is bindable
-func (s *service) IsBindable() bool {
+func (s service) IsBindable() bool {
 	return s.Bindable
 }
 
-func (s *service) GetServiceManager() ServiceManager {
+func (s service) GetServiceManager() ServiceManager {
 	return s.serviceManager
 }
 
 // GetPlans returns all of the service's plans
-func (s *service) GetPlans() []Plan {
+func (s service) GetPlans() []Plan {
 	return s.plans
 }
 
 // GetPlan finds a plan by planID in a service
 // TODO: Test this
-func (s *service) GetPlan(planID string) (Plan, bool) {
+func (s service) GetPlan(planID string) (Plan, bool) {
 	plan, ok := s.indexedPlans[planID]
 	return plan, ok
 }
 
-func (s *service) SetPlans(plans []Plan) {
+func (s service) SetPlans(plans []Plan) {
 	s.plans = plans
 }
 
-func (s *service) GetParentServiceID() string {
+func (s service) GetParentServiceID() string {
 	return s.ParentServiceID
 }
 
-func (s *service) GetChildServiceID() string {
+func (s service) GetChildServiceID() string {
 	return s.ChildServiceID
 }
 
-func (s *service) GetProperties() ServiceProperties {
+func (s service) GetProperties() ServiceProperties {
 	return s.ServiceProperties
 }
 
-func (s *service) IsEndOfLife() bool {
+func (s service) IsEndOfLife() bool {
 	return s.EndOfLife
 }
 
 // NewPlan initializes and returns a new Plan
 func NewPlan(planProperties PlanProperties) Plan {
-	return &plan{
+	return plan{
 		PlanProperties: planProperties,
 	}
 }
 
 // NewPlanFromJSON returns a new Plan unmarshalled from the provided JSON []byte
 func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
-	p := &plan{}
+	p := plan{}
 	if err := json.Unmarshal(jsonBytes, p); err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
-func (p *plan) ToJSON() ([]byte, error) {
+func (p plan) ToJSON() ([]byte, error) {
 	if p.EndOfLife {
 		return nil, nil
 	}
 	return json.Marshal(p)
 }
 
-func (p *plan) GetID() string {
+func (p plan) GetID() string {
 	return p.ID
 }
 
-func (p *plan) GetName() string {
+func (p plan) GetName() string {
 	return p.Name
 }
 
-func (p *plan) GetProperties() PlanProperties {
+func (p plan) GetProperties() PlanProperties {
 	return p.PlanProperties
 }
 
-func (p *plan) IsEndOfLife() bool {
+func (p plan) IsEndOfLife() bool {
 	return p.EndOfLife
 }
 
-func (p *plan) GetSchemas() PlanSchemas {
+func (p plan) GetSchemas() PlanSchemas {
 	return p.Schemas
 }
 
-func (p *plan) GetStability() Stability {
+func (p plan) GetStability() Stability {
 	return p.Stability
 }
