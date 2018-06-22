@@ -5,7 +5,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 func buildBasicPlan(
 	id string,
 	includesDBMS bool,
-) *service.PlanProperties {
+) service.PlanProperties {
 
 	planDetails := dtuPlanDetails{
 		storageInGB: 2,
@@ -17,7 +17,7 @@ func buildBasicPlan(
 		includeDBMS: includesDBMS,
 	}
 
-	return &service.PlanProperties{
+	return service.PlanProperties{
 		ID:          id,
 		Name:        "basic",
 		Description: "Basic Tier, 5 DTUs, 2GB Storage, 7 days point-in-time restore",
@@ -46,7 +46,7 @@ func buildBasicPlan(
 func buildStandardPlan(
 	id string,
 	includesDBMS bool,
-) *service.PlanProperties {
+) service.PlanProperties {
 	planDetails := dtuPlanDetails{
 		storageInGB: 250,
 		allowedDTUs: []int64{
@@ -68,7 +68,7 @@ func buildStandardPlan(
 		includeDBMS: includesDBMS,
 	}
 
-	return &service.PlanProperties{
+	return service.PlanProperties{
 		ID:   id,
 		Name: "standard",
 		Description: "Standard Tier, Up to 3000 DTUs, 250GB Storage, " +
@@ -98,7 +98,7 @@ func buildStandardPlan(
 func buildPremiumPlan(
 	id string,
 	includesDBMS bool,
-) *service.PlanProperties {
+) service.PlanProperties {
 	planDetails := dtuPlanDetails{
 		storageInGB: 500,
 		allowedDTUs: []int64{
@@ -117,7 +117,7 @@ func buildPremiumPlan(
 		includeDBMS: includesDBMS,
 	}
 
-	return &service.PlanProperties{
+	return service.PlanProperties{
 		ID:   id,
 		Name: "premium",
 		Description: "Premium Tier, Up to 4000 DTUs, 500GB Storage, " +
@@ -147,13 +147,13 @@ func buildPremiumPlan(
 func buildGeneralPurposePlan(
 	id string,
 	includesDBMS bool,
-) *service.PlanProperties {
+) service.PlanProperties {
 	planDetails := vCorePlanDetails{
 		tierName:      "GeneralPurpose",
 		tierShortName: "GP",
 		includeDBMS:   includesDBMS,
 	}
-	return &service.PlanProperties{
+	return service.PlanProperties{
 		ID:          id,
 		Name:        "general-purpose",
 		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage (preview)",
@@ -185,13 +185,13 @@ func buildGeneralPurposePlan(
 func buildBusinessCriticalPlan(
 	id string,
 	includesDBMS bool,
-) *service.PlanProperties {
+) service.PlanProperties {
 	planDetails := vCorePlanDetails{
 		tierName:      "BusinessCritical",
 		tierShortName: "BC",
 		includeDBMS:   includesDBMS,
 	}
-	return &service.PlanProperties{
+	return service.PlanProperties{
 		ID:   id,
 		Name: "business-critical",
 		Description: "Up to 80 vCores, 440 GB memory and 1 TB of storage. " +
@@ -226,7 +226,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 		// all-in-one (dbms and database) service
 		service.NewService(
-			&service.ServiceProperties{
+			service.ServiceProperties{
 				ID:          "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 				Name:        "azure-sql-12-0",
 				Description: "Azure SQL Database 12.0-- DBMS and single database",
@@ -277,7 +277,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		),
 		// dbms only service
 		service.NewService(
-			&service.ServiceProperties{
+			service.ServiceProperties{
 				ID:             "a7454e0e-be2c-46ac-b55f-8c4278117525",
 				Name:           "azure-sql-12-0-dbms",
 				Description:    "Azure SQL 12.0-- DBMS only",
@@ -296,7 +296,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			},
 			m.dbmsManager,
-			service.NewPlan(&service.PlanProperties{
+			service.NewPlan(service.PlanProperties{
 				ID:          "24f0f42e-1ab3-474e-a5ca-b943b2c48eee",
 				Name:        "dbms",
 				Description: "Azure SQL Server-- DBMS only",
@@ -315,7 +315,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		),
 		// database only service
 		service.NewService(
-			&service.ServiceProperties{
+			service.ServiceProperties{
 				ID:              "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				Name:            "azure-sql-12-0-database",
 				Description:     "Azure SQL 12.0-- database only",

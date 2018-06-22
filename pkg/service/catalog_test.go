@@ -24,7 +24,7 @@ func init() {
 
 	testCatalog = NewCatalog([]Service{
 		NewService(
-			&ServiceProperties{
+			ServiceProperties{
 				Name:          name,
 				ID:            id,
 				Description:   description,
@@ -33,7 +33,7 @@ func init() {
 				PlanUpdatable: planUpdatable,
 			},
 			nil,
-			NewPlan(&PlanProperties{
+			NewPlan(PlanProperties{
 				ID:          id,
 				Name:        name,
 				Description: description,
@@ -66,7 +66,7 @@ func init() {
 					},
 				},
 			}),
-			NewPlan(&PlanProperties{
+			NewPlan(PlanProperties{
 				ID:          "test-id2",
 				Name:        name,
 				Description: description,
@@ -75,7 +75,7 @@ func init() {
 			}),
 		),
 		NewService(
-			&ServiceProperties{
+			ServiceProperties{
 				Name:          name,
 				ID:            "test-id3",
 				Description:   description,
@@ -85,7 +85,7 @@ func init() {
 				EndOfLife:     true,
 			},
 			nil,
-			NewPlan(&PlanProperties{
+			NewPlan(PlanProperties{
 				ID:          "test-id4",
 				Name:        name,
 				Description: description,

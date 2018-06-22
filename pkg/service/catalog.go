@@ -61,12 +61,12 @@ type Service interface {
 	SetPlans([]Plan)
 	GetParentServiceID() string
 	GetChildServiceID() string
-	GetProperties() *ServiceProperties
+	GetProperties() ServiceProperties
 	IsEndOfLife() bool
 }
 
 type service struct {
-	*ServiceProperties
+	ServiceProperties
 	serviceManager ServiceManager
 	indexedPlans   map[string]Plan
 	Plans          []json.RawMessage `json:"plans"`
@@ -101,14 +101,14 @@ type Plan interface {
 	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
-	GetProperties() *PlanProperties
+	GetProperties() PlanProperties
 	IsEndOfLife() bool
 	GetSchemas() PlanSchemas
 	GetStability() Stability
 }
 
 type plan struct {
-	*PlanProperties
+	PlanProperties
 }
 
 // NewCatalog initializes and returns a new Catalog
@@ -157,7 +157,7 @@ func (c *catalog) GetService(serviceID string) (Service, bool) {
 
 // NewService initialized and returns a new Service
 func NewService(
-	serviceProperties *ServiceProperties,
+	serviceProperties ServiceProperties,
 	serviceManager ServiceManager,
 	plans ...Plan,
 ) Service {
@@ -169,7 +169,6 @@ func NewService(
 	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(*plan)
-		p.Schemas.addCommonSchema(serviceProperties)
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
@@ -260,7 +259,7 @@ func (s *service) GetChildServiceID() string {
 	return s.ChildServiceID
 }
 
-func (s *service) GetProperties() *ServiceProperties {
+func (s *service) GetProperties() ServiceProperties {
 	return s.ServiceProperties
 }
 
@@ -269,7 +268,7 @@ func (s *service) IsEndOfLife() bool {
 }
 
 // NewPlan initializes and returns a new Plan
-func NewPlan(planProperties *PlanProperties) Plan {
+func NewPlan(planProperties PlanProperties) Plan {
 	return &plan{
 		PlanProperties: planProperties,
 	}
@@ -299,7 +298,7 @@ func (p *plan) GetName() string {
 	return p.Name
 }
 
-func (p *plan) GetProperties() *PlanProperties {
+func (p *plan) GetProperties() PlanProperties {
 	return p.PlanProperties
 }
 

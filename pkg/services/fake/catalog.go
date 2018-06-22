@@ -14,7 +14,7 @@ const (
 func (m *Module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 		service.NewService(
-			&service.ServiceProperties{
+			service.ServiceProperties{
 				ID:          ServiceID,
 				Name:        "fake",
 				Description: "Fake Service",
@@ -29,7 +29,7 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				Tags:     []string{"Fake"},
 			},
 			m.ServiceManager,
-			service.NewPlan(&service.PlanProperties{
+			service.NewPlan(service.PlanProperties{
 				ID:          StandardPlanID,
 				Name:        "standard",
 				Description: "The ONLY sort of fake service-- one that's fake!",
