@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -97,7 +98,7 @@ func NewServer(
 	).Methods(http.MethodGet)
 	s.router = router
 
-	catalogJSON, err := catalog.ToJSON()
+	catalogJSON, err := json.Marshal(catalog)
 	if err != nil {
 		return nil, err
 	}

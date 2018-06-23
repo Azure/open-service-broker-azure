@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -190,7 +191,7 @@ func init() {
 }
 
 func TestCatalogToJSON(t *testing.T) {
-	json, err := testCatalog.ToJSON()
+	json, err := json.Marshal(testCatalog)
 	assert.Nil(t, err)
 	assert.Equal(t, testCatalogJSON, json)
 }

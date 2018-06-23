@@ -2,22 +2,18 @@ package service
 
 import (
 	"encoding/json"
-	"sync"
 )
 
 // Catalog is an interface to be implemented by types that represents the
 // service/plans offered by a service module or by the entire broker.
 type Catalog interface {
-	ToJSON() ([]byte, error)
 	GetServices() []Service
 	GetService(serviceID string) (Service, bool)
 }
 
 type catalog struct {
-	Services        []json.RawMessage `json:"services"`
 	services        []Service
 	indexedServices map[string]Service
-	jsonMutex       sync.Mutex
 }
 
 // ServiceProperties represent the properties of a Service that can be directly
@@ -51,14 +47,12 @@ type ServiceMetadata struct { // nolint: golint
 // Service is an interface to be implemented by types that represent a single
 // type of service with one or more plans
 type Service interface {
-	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
 	IsBindable() bool
 	GetServiceManager() ServiceManager
 	GetPlans() []Plan
 	GetPlan(planID string) (Plan, bool)
-	SetPlans([]Plan)
 	GetParentServiceID() string
 	GetChildServiceID() string
 	GetProperties() ServiceProperties
@@ -69,9 +63,7 @@ type service struct {
 	ServiceProperties
 	serviceManager ServiceManager
 	indexedPlans   map[string]Plan
-	Plans          []json.RawMessage `json:"plans"`
 	plans          []Plan
-	jsonMutex      *sync.Mutex
 }
 
 // PlanProperties represent the properties of a Plan that can be directly
@@ -98,7 +90,6 @@ type ServicePlanMetadata struct { // nolint: golint
 // Plan is an interface to be implemented by types that represent a single
 // variant or "sku" of a service
 type Plan interface {
-	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
 	GetProperties() PlanProperties
@@ -124,23 +115,20 @@ func NewCatalog(services []Service) Catalog {
 }
 
 // ToJSON returns a []byte containing a JSON representation of the catalog
-func (c *catalog) ToJSON() ([]byte, error) {
-	c.jsonMutex.Lock()
-	defer c.jsonMutex.Unlock()
-	defer func() {
-		c.Services = nil
-	}()
-	c.Services = []json.RawMessage{}
-	for _, svc := range c.services {
-		svcJSON, err := svc.ToJSON()
-		if err != nil {
-			return nil, err
-		}
-		if svcJSON != nil {
-			c.Services = append(c.Services, json.RawMessage(svcJSON))
+func (c *catalog) MarshalJSON() ([]byte, error) {
+	// filter out the EOL services. When MarshalJson is called
+	// they won't be present in the slice
+	nonEOLServices := []Service{}
+	for _, service := range c.services {
+		if !service.IsEndOfLife() {
+			nonEOLServices = append(nonEOLServices, service)
 		}
 	}
-	return json.Marshal(c)
+	return json.Marshal(struct {
+		Services []Service `json:"services"`
+	}{
+		Services: nonEOLServices,
+	})
 }
 
 // GetServices returns all of the catalog's services
@@ -166,7 +154,6 @@ func NewService(
 		serviceManager:    serviceManager,
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
-		jsonMutex:         new(sync.Mutex),
 	}
 	for _, planIfc := range s.plans {
 		p := planIfc.(plan)
@@ -175,43 +162,22 @@ func NewService(
 	return s
 }
 
-// NewServiceFromJSON returns a new Service unmarshalled from the provided
-// JSON []byte
-func NewServiceFromJSON(jsonBytes []byte) (Service, error) {
-	s := &service{
-		plans:        []Plan{},
-		indexedPlans: make(map[string]Plan),
-	}
-	if err := json.Unmarshal(jsonBytes, s); err != nil {
-		return nil, err
-	}
-	for _, planRawJSON := range s.Plans {
-		plan, err := NewPlanFromJSON(planRawJSON)
-		if err != nil {
-			return nil, err
-		}
-		s.plans = append(s.plans, plan)
-		s.indexedPlans[plan.GetID()] = plan
-	}
-	s.Plans = nil
-	return s, nil
-}
-
-func (s service) ToJSON() ([]byte, error) {
-	if s.EndOfLife {
-		return nil, nil
-	}
-	s.Plans = []json.RawMessage{}
+func (s service) MarshalJSON() ([]byte, error) {
+	// filter out the EOL plans. When MarshalJson is called
+	// they won't be present in the slice
+	nonEOLPlans := []Plan{}
 	for _, plan := range s.plans {
-		planJSON, err := plan.ToJSON()
-		if err != nil {
-			return nil, err
-		}
-		if planJSON != nil {
-			s.Plans = append(s.Plans, json.RawMessage(planJSON))
+		if !plan.IsEndOfLife() {
+			nonEOLPlans = append(nonEOLPlans, plan)
 		}
 	}
-	return json.Marshal(s)
+	return json.Marshal(struct {
+		ServiceProperties
+		Plans []Plan `json:"plans"`
+	}{
+		ServiceProperties: s.GetProperties(),
+		Plans:             nonEOLPlans,
+	})
 }
 
 func (s service) GetID() string {
@@ -243,10 +209,6 @@ func (s service) GetPlan(planID string) (Plan, bool) {
 	return plan, ok
 }
 
-func (s service) SetPlans(plans []Plan) {
-	s.plans = plans
-}
-
 func (s service) GetParentServiceID() string {
 	return s.ParentServiceID
 }
@@ -268,22 +230,6 @@ func NewPlan(planProperties PlanProperties) Plan {
 	return plan{
 		PlanProperties: planProperties,
 	}
-}
-
-// NewPlanFromJSON returns a new Plan unmarshalled from the provided JSON []byte
-func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
-	p := plan{}
-	if err := json.Unmarshal(jsonBytes, p); err != nil {
-		return nil, err
-	}
-	return p, nil
-}
-
-func (p plan) ToJSON() ([]byte, error) {
-	if p.EndOfLife {
-		return nil, nil
-	}
-	return json.Marshal(p)
 }
 
 func (p plan) GetID() string {
