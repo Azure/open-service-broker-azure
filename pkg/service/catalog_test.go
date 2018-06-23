@@ -103,6 +103,7 @@ func init() {
 				"name":"%s",
 				"id":"%s",
 				"description":"%s",
+				"metadata":{},
 				"tags":["%s"],
 				"bindable":%t,
 				"plan_updateable":%t,
@@ -112,6 +113,7 @@ func init() {
 						"name":"%s",
 						"description":"%s",
 						"free":%t,
+						"metadata":{},
 						"schemas": {
 							"service_instance": {
 								"create": {

@@ -25,7 +25,7 @@ func createBasicPlan(
 		Extended: map[string]interface{}{
 			"tierDetails": td,
 		},
-		Metadata: &service.ServicePlanMetadata{
+		Metadata: service.ServicePlanMetadata{
 			DisplayName: "Basic Tier",
 			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
 		},
@@ -67,7 +67,7 @@ func createGPPlan(
 		Free:      false,
 		Stability: service.StabilityStable,
 		Extended:  extendedPlanData,
-		Metadata: &service.ServicePlanMetadata{
+		Metadata: service.ServicePlanMetadata{
 			DisplayName: "General Purpose Tier",
 			Bullets: []string{
 				"Up to 32 vCores",
@@ -114,7 +114,7 @@ func createMemoryOptimizedPlan(
 		Free:      false,
 		Stability: service.StabilityStable,
 		Extended:  extendedPlanData,
-		Metadata: &service.ServicePlanMetadata{
+		Metadata: service.ServicePlanMetadata{
 			DisplayName: "Memory Optimized Tier",
 			Bullets: []string{
 				"Up to 16 memory optimized vCores",
@@ -143,7 +143,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:          "b43b4bba-5741-4d98-a10b-17dc5cee0175",
 				Name:        "azure-postgresql-9-6",
 				Description: "Azure Database for PostgreSQL 9.6-- DBMS and single database",
-				Metadata: &service.ServiceMetadata{
+				Metadata: service.ServiceMetadata{
 					DisplayName:      "Azure Database for PostgreSQL 9.6",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
 					LongDescription:  "Azure Database for PostgreSQL-- DBMS and single database",
@@ -168,7 +168,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:           "azure-postgresql-9-6-dbms",
 				Description:    "Azure Database for PostgreSQL 9.6-- DBMS only",
 				ChildServiceID: "25434f16-d762-41c7-bbdd-8045d7f74ca",
-				Metadata: &service.ServiceMetadata{
+				Metadata: service.ServiceMetadata{
 					DisplayName:      "Azure Database for PostgreSQL 9.6-- DBMS Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
 					LongDescription:  "Azure Database for PostgreSQL-- DBMS only",
@@ -193,7 +193,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:            "azure-postgresql-9-6-database",
 				Description:     "Azure Database for PostgreSQL 9.6-- database only",
 				ParentServiceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
-				Metadata: &service.ServiceMetadata{
+				Metadata: service.ServiceMetadata{
 					DisplayName:      "Azure Database for PostgreSQL 9.6-- Database Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
 					LongDescription:  "Azure Database for PostgreSQL-- database only",
@@ -213,7 +213,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "A new database added to an existing DBMS",
 				Free:        false,
 				Stability:   service.StabilityStable,
-				Metadata: &service.ServicePlanMetadata{
+				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Azure Database for PostgreSQL-- Database Only",
 				},
 				Schemas: service.PlanSchemas{

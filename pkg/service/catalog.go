@@ -17,20 +17,20 @@ type catalog struct {
 	Services        []json.RawMessage `json:"services"`
 	services        []Service
 	indexedServices map[string]Service
-	jsonMutex       *sync.Mutex
+	jsonMutex       sync.Mutex
 }
 
 // ServiceProperties represent the properties of a Service that can be directly
 // instantiated and passed to the NewService() constructor function which will
 // carry out all necessary initialization.
 type ServiceProperties struct { // nolint: golint
-	Name          string           `json:"name"`
-	ID            string           `json:"id"`
-	Description   string           `json:"description"`
-	Metadata      *ServiceMetadata `json:"metadata,omitempty"`
-	Tags          []string         `json:"tags"`
-	Bindable      bool             `json:"bindable"`
-	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
+	Name          string          `json:"name"`
+	ID            string          `json:"id"`
+	Description   string          `json:"description"`
+	Metadata      ServiceMetadata `json:"metadata,omitempty"`
+	Tags          []string        `json:"tags"`
+	Bindable      bool            `json:"bindable"`
+	PlanUpdatable bool            `json:"plan_updateable"` // Misspelling is
 	// deliberate to match the spec
 	ParentServiceID string                 `json:"-"`
 	ChildServiceID  string                 `json:"-"`
@@ -82,7 +82,7 @@ type PlanProperties struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	Free        bool                   `json:"free"`
-	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
+	Metadata    ServicePlanMetadata    `json:"metadata,omitempty"` // nolint: lll
 	Extended    map[string]interface{} `json:"-"`
 	EndOfLife   bool                   `json:"-"`
 	Schemas     PlanSchemas            `json:"schemas,omitempty"`
@@ -116,7 +116,6 @@ func NewCatalog(services []Service) Catalog {
 	c := &catalog{
 		services:        services,
 		indexedServices: make(map[string]Service),
-		jsonMutex:       new(sync.Mutex),
 	}
 	for _, service := range services {
 		c.indexedServices[service.GetID()] = service
@@ -202,11 +201,6 @@ func (s service) ToJSON() ([]byte, error) {
 	if s.EndOfLife {
 		return nil, nil
 	}
-	s.jsonMutex.Lock()
-	defer s.jsonMutex.Unlock()
-	defer func() {
-		s.Plans = nil
-	}()
 	s.Plans = []json.RawMessage{}
 	for _, plan := range s.plans {
 		planJSON, err := plan.ToJSON()

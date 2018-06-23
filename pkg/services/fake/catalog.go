@@ -18,7 +18,7 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				ID:          ServiceID,
 				Name:        "fake",
 				Description: "Fake Service",
-				Metadata: &service.ServiceMetadata{
+				Metadata: service.ServiceMetadata{
 					DisplayName:      "fake",
 					ImageURL:         "fake",
 					LongDescription:  "Fake Service",
@@ -35,7 +35,7 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				Description: "The ONLY sort of fake service-- one that's fake!",
 				Free:        false,
 				Stability:   service.StabilityExperimental,
-				Metadata: &service.ServicePlanMetadata{
+				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Fake",
 					Bullets: []string{"Fake 1",
 						"Fake 2",
