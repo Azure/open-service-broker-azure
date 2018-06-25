@@ -11,6 +11,7 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/slice"
+	"github.com/Azure/open-service-broker-azure/pkg/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,6 +26,7 @@ type serviceLifecycleTestCase struct {
 	serviceID              string
 	planID                 string
 	provisioningParameters map[string]interface{}
+	updatingParameters     map[string]interface{}
 	parentServiceInstance  *service.Instance
 	bindingParameters      map[string]interface{}
 	testCredentials        func(credentials map[string]interface{}) error
@@ -133,6 +135,65 @@ func (s serviceLifecycleTestCase) execute(
 		// If there is no next step, we're done with provisioning
 		if !ok {
 			break
+		}
+	}
+
+	// Update...
+	if len(s.updatingParameters) != 0 {
+		// equivalent to func mergeUpdateParameters in api/update
+		if len(s.provisioningParameters) != 0 {
+			ppCopy := map[string]interface{}{}
+			for key, value := range instance.ProvisioningParameters.Data {
+				ppCopy[key] = value
+			}
+			for key, value := range s.updatingParameters {
+				if !types.IsEmpty(value) {
+					ppCopy[key] = value
+				}
+			}
+			s.updatingParameters = ppCopy
+		}
+
+		// Wrap the updating parameters with a "params" object that guides access
+		// to the parameters using schema
+		pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema   // nolint: lll
+		up := &service.ProvisioningParameters{
+			Parameters: service.Parameters{
+				Schema: &pps,
+				Data:   s.updatingParameters,
+			},
+		}
+		instance.UpdatingParameters = up
+
+		updater, err := serviceManager.GetUpdater(plan)
+		if err != nil {
+			return err
+		}
+		stepName, ok := updater.GetFirstStepName()
+		// There MUST be a first step
+		if !ok {
+			return fmt.Errorf(`Updater for service "%s" has no steps`, s.serviceID)
+		}
+		// Execute updating steps until there are none left
+		for {
+			var step service.UpdatingStep
+			step, ok = updater.GetStep(stepName)
+			if !ok {
+				return fmt.Errorf(
+					`Updater step "%s" for service "%s" not found`,
+					stepName,
+					s.serviceID,
+				)
+			}
+			instance.Details, err = step.Execute(ctx, instance)
+			if err != nil {
+				return err
+			}
+			stepName, ok = updater.GetNextStepName(stepName)
+			// If there is no next step, we're done with provisioning
+			if !ok {
+				break
+			}
 		}
 	}
 
