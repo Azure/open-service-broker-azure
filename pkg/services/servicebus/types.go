@@ -1,31 +1,23 @@
-// +build experimental
-
 package servicebus
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type instanceDetails struct {
-	ARMDeploymentName       string `json:"armDeployment"`
-	ServiceBusNamespaceName string `json:"serviceBusNamespaceName"`
+	ARMDeploymentName       string               `json:"armDeployment"`
+	ServiceBusNamespaceName string               `json:"serviceBusNamespaceName"`
+	ConnectionString        service.SecureString `json:"connectionString"`
+	PrimaryKey              service.SecureString `json:"primaryKey"`
 }
 
-type secureInstanceDetails struct {
+func (s *serviceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &instanceDetails{}
+}
+
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return nil
+}
+
+type credentials struct {
 	ConnectionString string `json:"connectionString"`
 	PrimaryKey       string `json:"primaryKey"`
-}
-
-func (s *serviceManager) SplitProvisioningParameters(
-	map[string]interface{},
-) (
-	service.ProvisioningParameters,
-	service.SecureProvisioningParameters,
-	error,
-) {
-	return nil, nil, nil
-}
-
-func (s *serviceManager) SplitBindingParameters(
-	map[string]interface{},
-) (service.BindingParameters, service.SecureBindingParameters, error) {
-	return nil, nil, nil
 }
