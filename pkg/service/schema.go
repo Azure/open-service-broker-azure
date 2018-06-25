@@ -528,7 +528,9 @@ func (a ArrayPropertySchema) validate(context string, value interface{}) error {
 	return nil
 }
 
-func (p *PlanSchemas) addCommonSchema(sp *ServiceProperties) {
+// AddCommonSchema annotates a PlanSchema object with common attributes
+// based on the given ServiceProperties
+func (p *PlanSchemas) AddCommonSchema(sp ServiceProperties) {
 	if p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas == nil {
 		p.ServiceInstances.ProvisioningParametersSchema.PropertySchemas =
 			map[string]PropertySchema{}

@@ -6,7 +6,7 @@ import (
 
 func createBasicPlan(
 	planID string,
-) *service.PlanProperties {
+) service.PlanProperties {
 	td := tierDetails{
 		tierShortName:           "B",
 		tierName:                "Basic",
@@ -16,7 +16,7 @@ func createBasicPlan(
 		allowedBackupRedundancy: []string{"local"},
 	}
 
-	return &service.PlanProperties{
+	return service.PlanProperties{
 		ID:   planID,
 		Name: "basic",
 		Description: "Basic Tier-- For workloads that require light compute and " +
@@ -26,7 +26,7 @@ func createBasicPlan(
 		Extended: map[string]interface{}{
 			"tierDetails": td,
 		},
-		Metadata: &service.ServicePlanMetadata{
+		Metadata: service.ServicePlanMetadata{
 			DisplayName: "Basic Tier",
 			Bullets:     []string{"Up to 2 vCores", "Variable I/O performance"},
 		},
@@ -41,7 +41,7 @@ func createBasicPlan(
 
 func createGPPlan(
 	planID string,
-) *service.PlanProperties {
+) service.PlanProperties {
 
 	td := tierDetails{
 		tierName:                "GeneralPurpose",
@@ -55,7 +55,7 @@ func createGPPlan(
 		"tierDetails": td,
 	}
 
-	return &service.PlanProperties{
+	return service.PlanProperties{
 		ID:   planID,
 		Name: "general-purpose",
 		Description: "General Purpose Tier-- For most business workloads that " +
@@ -63,7 +63,7 @@ func createGPPlan(
 		Free:      false,
 		Stability: service.StabilityStable,
 		Extended:  extendedPlanData,
-		Metadata: &service.ServicePlanMetadata{
+		Metadata: service.ServicePlanMetadata{
 			DisplayName: "General Purpose Tier",
 			Bullets: []string{
 				"Up to 32 vCores",
@@ -82,7 +82,7 @@ func createGPPlan(
 
 func createMemoryOptimizedPlan(
 	planID string,
-) *service.PlanProperties {
+) service.PlanProperties {
 
 	td := tierDetails{
 		tierName:                "MemoryOptimized",
@@ -96,7 +96,7 @@ func createMemoryOptimizedPlan(
 		"tierDetails": td,
 	}
 
-	return &service.PlanProperties{
+	return service.PlanProperties{
 		ID:   planID,
 		Name: "memory-optimized",
 		Description: "Memory Optimized Tier-- For high-performance database " +
@@ -105,7 +105,7 @@ func createMemoryOptimizedPlan(
 		Free:      false,
 		Stability: service.StabilityStable,
 		Extended:  extendedPlanData,
-		Metadata: &service.ServicePlanMetadata{
+		Metadata: service.ServicePlanMetadata{
 			DisplayName: "Memory Optimized Tier",
 			Bullets: []string{
 				"Up to 16 memory optimized vCores",
@@ -126,11 +126,11 @@ func createMemoryOptimizedPlan(
 func (m *module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 		service.NewService(
-			&service.ServiceProperties{
+			service.ServiceProperties{
 				ID:          "997b8372-8dac-40ac-ae65-758b4a5075a5",
 				Name:        "azure-mysql-5-7",
 				Description: "Azure Database for MySQL 5.7-- DBMS and single database",
-				Metadata: &service.ServiceMetadata{
+				Metadata: service.ServiceMetadata{
 					DisplayName:      "Azure Database for MySQL 5.7",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
 					LongDescription:  "Azure Database for MySQL 5.7-- DBMS and single database",
@@ -150,12 +150,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		),
 		// dbms only service
 		service.NewService(
-			&service.ServiceProperties{
+			service.ServiceProperties{
 				ID:             "30e7b836-199d-4335-b83d-adc7d23a95c2",
 				Name:           "azure-mysql-5-7-dbms",
 				Description:    "Azure Database for MySQL 5.7-- DBMS only",
 				ChildServiceID: "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
-				Metadata: &service.ServiceMetadata{
+				Metadata: service.ServiceMetadata{
 					DisplayName:      "Azure Database for MySQL 5.7-- DBMS Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
 					LongDescription:  "Azure Database for MySQL 5.7-- DBMS only",
@@ -175,12 +175,12 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		),
 		// database only service
 		service.NewService(
-			&service.ServiceProperties{
+			service.ServiceProperties{
 				ID:              "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 				Name:            "azure-mysql-5-7-database",
 				Description:     "Azure Database for MySQL 5.7-- database only",
 				ParentServiceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
-				Metadata: &service.ServiceMetadata{
+				Metadata: service.ServiceMetadata{
 					DisplayName:      "Azure Database for MySQL 5.7-- Database Only",
 					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
 					LongDescription:  "Azure Database for MySQL 5.7-- database only",
@@ -194,13 +194,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			},
 			m.databaseManager,
-			service.NewPlan(&service.PlanProperties{
+			service.NewPlan(service.PlanProperties{
 				ID:          "ec77bd04-2107-408e-8fde-8100c1ce1f46",
 				Name:        "database",
 				Description: "A new database added to an existing DBMS",
 				Free:        false,
 				Stability:   service.StabilityStable,
-				Metadata: &service.ServicePlanMetadata{
+				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Azure Database for MySQL-- Database Only",
 				},
 			}),

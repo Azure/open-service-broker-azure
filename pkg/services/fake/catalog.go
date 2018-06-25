@@ -14,11 +14,11 @@ const (
 func (m *Module) GetCatalog() (service.Catalog, error) {
 	return service.NewCatalog([]service.Service{
 		service.NewService(
-			&service.ServiceProperties{
+			service.ServiceProperties{
 				ID:          ServiceID,
 				Name:        "fake",
 				Description: "Fake Service",
-				Metadata: &service.ServiceMetadata{
+				Metadata: service.ServiceMetadata{
 					DisplayName:      "fake",
 					ImageURL:         "fake",
 					LongDescription:  "Fake Service",
@@ -29,13 +29,13 @@ func (m *Module) GetCatalog() (service.Catalog, error) {
 				Tags:     []string{"Fake"},
 			},
 			m.ServiceManager,
-			service.NewPlan(&service.PlanProperties{
+			service.NewPlan(service.PlanProperties{
 				ID:          StandardPlanID,
 				Name:        "standard",
 				Description: "The ONLY sort of fake service-- one that's fake!",
 				Free:        false,
 				Stability:   service.StabilityExperimental,
-				Metadata: &service.ServicePlanMetadata{
+				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Fake",
 					Bullets: []string{"Fake 1",
 						"Fake 2",
