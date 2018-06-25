@@ -43,7 +43,7 @@ Provisions a new MySQL DBMS and a new database upon it. The new database will be
 
 The three plans each have additional provisioning parameters with different default and allowed values. See the tables below for details on each.
 
-####### Provisioning Parameters: basic
+Provisioning Parameters: basic
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
@@ -51,22 +51,21 @@ The three plans each have additional provisioning parameters with different defa
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
 
-
-####### Provisioning Parameters: general-purpose
+Provisioning Parameters: general-purpose
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
-| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16 or 32 | N | 2 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 2048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
 | `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
 
-####### Provisioning Parameters: memory-optimized
+Provisioning Parameters: memory-optimized
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
-| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8 or 16 | N | 2 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 2048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
 | `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
 
@@ -106,7 +105,7 @@ Deletes the MySQL DBMS and database.
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/mysql/mysql-instance.yaml` can be used to provision the `basic50` plan. This can be done with the following example:
+The `contrib/k8s/examples/mysql/mysql-instance.yaml` can be used to provision the `basic` plan. This can be done with the following example:
 
 ```console
 kubectl create -f contrib/k8s/examples/mysql/mysql-instance.yaml
@@ -120,10 +119,10 @@ kubectl create -f contrib/k8s/examples/mysql/mysql-binding.yaml
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can provision the `basic50` plan of this service with the following command:
+Using the `cf` cli, you can provision the `basic` plan of this service with the following command:
 
 ```console
-cf create-service azure-mysql basic50 mysql-all-in-one -c '{
+cf create-service azure-mysql basic mysql-all-in-one -c '{
     "resourceGroup" : "demo",
     "location" : "eastus",
     "firewallRules" : [
@@ -139,7 +138,7 @@ cf create-service azure-mysql basic50 mysql-all-in-one -c '{
 
 ###### cURL
 
-To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic50` plan with a cURL command similar to the following example:
+To provision an instance using the broker directly, you must use the ID for both plan and service. Assuming your OSBA is running locally on port 8080 with the default username and password, you can provision the `basic` plan with a cURL command similar to the following example:
 
 ```console
 curl -X PUT \
@@ -199,7 +198,7 @@ Provisions an Azure Database for MySQL DBMS instance containing no databases. Da
 
 The three plans each have additional provisioning parameters with different default and allowed values. See the tables below for details on each.
 
-####### Provisioning Parameters: basic
+Provisioning Parameters: basic
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
@@ -207,22 +206,21 @@ The three plans each have additional provisioning parameters with different defa
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
 
-
-####### Provisioning Parameters: general-purpose
+Provisioning Parameters: general-purpose
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
-| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16 or 32 | N | 2 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 2048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
 | `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
 
-####### Provisioning Parameters: memory-optimized
+Provisioning Parameters: memory-optimized
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 1 or 2 | N | 1 |
-| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048 | N | 10 |
+| `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8 or 16 | N | 2 |
+| `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 2048 | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
 | `backupRedundancy` | `string` | Specifies the backup redundancy, either `local` or `geo` | N | `local` |
 
