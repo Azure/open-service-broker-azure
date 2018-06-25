@@ -155,8 +155,7 @@ func NewService(
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
-	for _, planIfc := range s.plans {
-		p := planIfc.(plan)
+	for _, p := range s.plans {
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
