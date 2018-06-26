@@ -81,6 +81,6 @@ redis:
   ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
   redisPassword: password
 
-  ## If not emnedded, specifies whether to use a secure connection to the
+  ## If not embedded, specifies whether to use a secure connection to the
   ## remote Redis host
   enableTls: true
