@@ -1,5 +1,4 @@
 // +build !unit
-// +build experimental
 
 package lifecycle
 
@@ -9,6 +8,8 @@ var eventhubsTestCases = []serviceLifecycleTestCase{
 		name:      "eventhubs",
 		serviceID: "7bade660-32f1-4fd7-b9e6-d416d975170b",
 		planID:    "80756db5-a20c-495d-ae70-62cf7d196a3c",
-		location:  "southcentralus",
+		provisioningParameters: map[string]interface{}{
+			"location": "southcentralus",
+		},
 	},
 }
