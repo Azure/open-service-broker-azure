@@ -17,7 +17,7 @@ func getTestCases() ([]e2eTestCase, error) {
 	testCases = append(testCases, getMSSQLTestCases()...)
 	testCases = append(testCases, getMySQLTestCases()...)
 	// testCases = append(testCases, searchTestCases...)
-	// testCases = append(testCases, servicebusTestCases...)
+	testCases = append(testCases, servicebusTestCases...)
 	// testCases = append(testCases, storageTestCases...)
 
 	testCases = filterTestCases(testCases, getTestFilters())
