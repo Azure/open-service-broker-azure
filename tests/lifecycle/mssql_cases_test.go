@@ -35,7 +35,56 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 				},
 			},
 		},
+		updatingParameters: map[string]interface{}{
+			"dtus": 400,
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowSome2",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "45.0.0.0",
+				},
+				map[string]interface{}{
+					"name":           "AllowMore2",
+					"startIPAddress": "45.0.0.1",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+		},
 		testCredentials: testMsSQLCreds,
+	},
+	{ // all-in-one scenario (vcore-based)
+		group:     "mssql",
+		name:      "all-in-one (vCore)",
+		serviceID: "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
+		planID:    "c77e86af-f050-4457-a2ff-2b48451888f3",
+		provisioningParameters: map[string]interface{}{
+			"location": "southcentralus",
+			"cores":    4,
+			"storage":  25,
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowAll",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+		},
+		updatingParameters: map[string]interface{}{
+			"cores":   8,
+			"storage": 50,
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowSome2",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "45.0.0.0",
+				},
+				map[string]interface{}{
+					"name":           "AllowMore2",
+					"startIPAddress": "45.0.0.1",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+		},
 	},
 	{ // dbms only scenario
 		group:     "mssql",
@@ -58,10 +107,13 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 				group:           "mssql",
 				name:            "database-only (DTU)",
 				serviceID:       "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
-				planID:          "8fa8d759-c142-45dd-ae38-b93482ddc04a",
+				planID:          "9d36b6b3-b5f3-4907-a713-5cc13b785409",
 				testCredentials: testMsSQLCreds,
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": mssqlDBMSAlias,
+				},
+				updatingParameters: map[string]interface{}{
+					"dtus": 50,
 				},
 			},
 			{ // db only scenario (vcore-based)
@@ -75,23 +127,9 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 					"cores":       2,
 					"storage":     10,
 				},
-			},
-		},
-	},
-	{ // all-in-one scenario (vcore-based)
-		group:     "mssql",
-		name:      "all-in-one (vCore)",
-		serviceID: "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
-		planID:    "c77e86af-f050-4457-a2ff-2b48451888f3",
-		provisioningParameters: map[string]interface{}{
-			"location": "southcentralus",
-			"cores":    4,
-			"storage":  25,
-			"firewallRules": []interface{}{
-				map[string]interface{}{
-					"name":           "AllowAll",
-					"startIPAddress": "0.0.0.0",
-					"endIPAddress":   "255.255.255.255",
+				updatingParameters: map[string]interface{}{
+					"cores":   4,
+					"storage": 20,
 				},
 			},
 		},

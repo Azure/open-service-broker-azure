@@ -27,21 +27,19 @@ func (d *databaseManager) updateARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*databaseInstanceDetails)
-	pd, ok := instance.Plan.GetProperties().Extended["tierDetails"]
-	if !ok {
-		return nil, fmt.Errorf("unable to access plan details")
-	}
-	planDetails, _ := pd.(planDetails)
+	pdt := instance.Parent.Details.(*dbmsInstanceDetails)
+	pd := instance.Plan.GetProperties().Extended["tierDetails"].(planDetails)
 	goTemplateParams, err := buildDatabaseGoTemplateParameters(
 		dt.DatabaseName,
 		*instance.UpdatingParameters,
-		planDetails,
+		pd,
 	)
 	if err != nil {
 		return nil, err
 	}
 	goTemplateParams["location"] =
-		instance.ProvisioningParameters.GetString("location")
+		instance.Parent.ProvisioningParameters.GetString("location")
+	goTemplateParams["serverName"] = pdt.ServerName
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
@@ -49,9 +47,9 @@ func (d *databaseManager) updateARMTemplate(
 	}
 	_, err = d.armDeployer.Update(
 		dt.ARMDeploymentName,
-		instance.ProvisioningParameters.GetString("resourceGroup"),
-		instance.ProvisioningParameters.GetString("location"),
-		allInOneARMTemplateBytes,
+		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
+		instance.Parent.ProvisioningParameters.GetString("location"),
+		databaseARMTemplateBytes,
 		goTemplateParams,
 		map[string]interface{}{}, // empty arm template params
 		tags,

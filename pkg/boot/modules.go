@@ -14,7 +14,7 @@ import (
 	// redisSDK "github.com/Azure/azure-sdk-for-go/services/redis/mgmt/2017-10-01/redis"
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources"
 	// searchSDK "github.com/Azure/azure-sdk-for-go/services/search/mgmt/2015-08-19/search"
-	// servicebusSDK "github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus"
+	servicebusSDK "github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus"
 	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql"
 	// storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"
 	"github.com/Azure/go-autorest/autorest"
@@ -25,6 +25,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
+	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
 
@@ -161,13 +162,13 @@ func getModules(
 	// searchServicesClient.Authorizer = authorizer
 	// searchServicesClient.UserAgent = getUserAgent(searchServicesClient.Client)
 
-	// serviceBusNamespacesClient := servicebusSDK.NewNamespacesClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// serviceBusNamespacesClient.Authorizer = authorizer
-	// serviceBusNamespacesClient.UserAgent =
-	// 	getUserAgent(serviceBusNamespacesClient.Client)
+	serviceBusNamespacesClient := servicebusSDK.NewNamespacesClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	serviceBusNamespacesClient.Authorizer = authorizer
+	serviceBusNamespacesClient.UserAgent =
+		getUserAgent(serviceBusNamespacesClient.Client)
 
 	// storageAccountsClient := storageSDK.NewAccountsClientWithBaseURI(
 	// 	azureConfig.Environment.ResourceManagerEndpoint,
@@ -191,7 +192,7 @@ func getModules(
 			mysqlServersClient,
 			mysqlDatabasesClient,
 		),
-		// servicebus.New(armDeployer, serviceBusNamespacesClient),
+		servicebus.New(armDeployer, serviceBusNamespacesClient),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
 		// keyvault.New(azureConfig.TenantID, armDeployer, keyVaultsClient),
 		mssql.New(

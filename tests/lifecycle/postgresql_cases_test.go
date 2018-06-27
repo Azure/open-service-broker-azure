@@ -38,6 +38,12 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 				"uuid-ossp",
 				"postgis",
 			},
+			"backupRedundancy": "geo",
+		},
+		updatingParameters: map[string]interface{}{
+			"cores":           2,
+			"storage":         25,
+			"backupRetention": 35,
 		},
 	},
 	{
