@@ -1,5 +1,4 @@
 // +build !unit
-// +build experimental
 
 package lifecycle
 
@@ -9,6 +8,8 @@ var rediscacheTestCases = []serviceLifecycleTestCase{
 		name:      "rediscache",
 		serviceID: "0346088a-d4b2-4478-aa32-f18e295ec1d9",
 		planID:    "362b3d1b-5b57-4289-80ad-4a15a760c29c",
-		location:  "southcentralus",
+		provisioningParameters: map[string]interface{}{
+			"location": "southcentralus",
+		},
 	},
 }

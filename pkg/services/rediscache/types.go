@@ -1,5 +1,3 @@
-// +build experimental
-
 package rediscache
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
@@ -8,10 +6,7 @@ type instanceDetails struct {
 	ARMDeploymentName        string `json:"armDeployment"`
 	ServerName               string `json:"server"`
 	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
-}
-
-type secureInstanceDetails struct {
-	PrimaryKey string `json:"primaryKey"`
+	PrimaryKey        service.SecureString `json:"primaryKey"`
 }
 
 type credentials struct {
@@ -21,18 +16,15 @@ type credentials struct {
 	URI      string `json:"uri"`
 }
 
-func (s *serviceManager) SplitProvisioningParameters(
-	map[string]interface{},
-) (
-	service.ProvisioningParameters,
-	service.SecureProvisioningParameters,
-	error,
-) {
-	return nil, nil, nil
+type bindingDetails struct {
+	LoginName string               `json:"loginName"`
+	Password  service.SecureString `json:"password"`
 }
 
-func (s *serviceManager) SplitBindingParameters(
-	map[string]interface{},
-) (service.BindingParameters, service.SecureBindingParameters, error) {
-	return nil, nil, nil
+func (s *serviceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &instanceDetails{}
+}
+
+func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+	return &bindingDetails{}
 }
