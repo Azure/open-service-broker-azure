@@ -156,7 +156,7 @@ func (s serviceLifecycleTestCase) execute(
 
 		// Wrap the updating parameters with a "params" object that guides access
 		// to the parameters using schema
-		pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema   // nolint: lll
+		pps := plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema // nolint: lll
 		up := &service.ProvisioningParameters{
 			Parameters: service.Parameters{
 				Schema: &pps,
@@ -165,11 +165,12 @@ func (s serviceLifecycleTestCase) execute(
 		}
 		instance.UpdatingParameters = up
 
-		updater, err := serviceManager.GetUpdater(plan)
+		var updater service.Updater
+		updater, err = serviceManager.GetUpdater(plan)
 		if err != nil {
 			return err
 		}
-		stepName, ok := updater.GetFirstStepName()
+		stepName, ok = updater.GetFirstStepName()
 		// There MUST be a first step
 		if !ok {
 			return fmt.Errorf(`Updater for service "%s" has no steps`, s.serviceID)
