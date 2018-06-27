@@ -33,6 +33,12 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 					"endIPAddress":   "255.255.255.255",
 				},
 			},
+			"backupRedundancy": "geo",
+		},
+		updatingParameters: map[string]interface{}{
+			"cores":           2,
+			"storage":         25,
+			"backupRetention": 35,
 		},
 		testCredentials: testMySQLCreds,
 	},
