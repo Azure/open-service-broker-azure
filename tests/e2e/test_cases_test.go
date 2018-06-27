@@ -13,7 +13,7 @@ func getTestCases() ([]e2eTestCase, error) {
 	// testCases = append(testCases, rediscacheTestCases...)
 	// testCases = append(testCases, aciTestCases...)
 	// testCases = append(testCases, cosmosdbTestCases...)
-	// testCases = append(testCases, eventhubsTestCases...)
+	testCases = append(testCases, eventhubsTestCases...)
 	// testCases = append(testCases, keyvaultTestCases...)
 	testCases = append(testCases, getMSSQLTestCases()...)
 	testCases = append(testCases, getMySQLTestCases()...)
