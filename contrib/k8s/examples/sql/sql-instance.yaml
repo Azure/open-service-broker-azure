@@ -4,7 +4,7 @@ metadata:
   name: example-sql-instance
   namespace: default
 spec:
-  clusterServiceClassExternalName: azure-sql
+  clusterServiceClassExternalName: azure-sql-12-0
   clusterServicePlanExternalName: basic
   parameters:
     location: eastus
