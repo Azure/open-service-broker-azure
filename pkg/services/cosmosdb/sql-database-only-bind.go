@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 import (
@@ -10,28 +8,15 @@ func (s *sqlDatabaseManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	dt := sqlDatabaseOnlyInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, err
-	}
-	pdt := cosmosdbInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &pdt); err != nil {
-		return nil, err
-	}
-	psdt := cosmosdbSecureInstanceDetails{}
-	if err := service.GetStructFromMap(
-		instance.Parent.SecureDetails,
-		&psdt,
-	); err != nil {
-		return nil, err
-	}
+	dt := instance.Details.(*sqlDatabaseOnlyInstanceDetails)
+	pdt := instance.Parent.Details.(*cosmosdbInstanceDetails)
 	return sqlAPICredentials{
 		URI:                     pdt.FullyQualifiedDomainName,
-		PrimaryKey:              psdt.PrimaryKey,
-		PrimaryConnectionString: psdt.ConnectionString,
+		PrimaryKey:              pdt.PrimaryKey,
+		PrimaryConnectionString: pdt.ConnectionString,
 		DatabaseName:            dt.DatabaseName,
 		DatabaseID:              dt.DatabaseName,
 		Host:                    pdt.FullyQualifiedDomainName,
-		MasterKey:               psdt.PrimaryKey,
+		MasterKey:               pdt.PrimaryKey,
 	}, nil
 }

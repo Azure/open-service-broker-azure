@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 import (
@@ -19,55 +17,38 @@ func (t *tableAccountManager) GetProvisioner(
 }
 
 func (t *tableAccountManager) deployARMTemplate(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 
-	pp := &provisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
-		return nil, nil, err
-	}
-
-	dt := &cosmosdbInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-
-	p, err := t.buildGoTemplateParams(instance, "GlobalDocumentDB")
+	pp := instance.ProvisioningParameters
+	dt := instance.Details.(*cosmosdbInstanceDetails)
+	p, err := t.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	p["capability"] = "EnableTable"
-	if instance.Tags == nil {
-		instance.Tags = make(map[string]string)
-	}
-	instance.Tags["defaultExperience"] = "Table"
-
-	fqdn, sdt, err := t.cosmosAccountManager.deployARMTemplate(
-		ctx,
-		instance,
+	tags := getTags(pp)
+	tags["defaultExperience"] = "Table"
+	fqdn, pk, err := t.cosmosAccountManager.deployARMTemplate(
+		pp,
+		dt,
 		p,
+		tags,
 	)
-
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	dt.FullyQualifiedDomainName = fqdn
-	sdt.ConnectionString = fmt.Sprintf(
+	dt.PrimaryKey = pk
+	dt.ConnectionString = fmt.Sprintf(
 		"DefaultEndpointsProtocol=https;AccountName=%s;"+
 			"AccountKey=%s;TableEndpoint=%s",
 		dt.DatabaseAccountName,
 		dt.FullyQualifiedDomainName,
-		sdt.PrimaryKey,
+		dt.PrimaryKey,
 	)
-
-	dtMap, err := service.GetMapFromStruct(dt)
-	if err != nil {
-		return nil, nil, err
-	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+	return dt, err
 
 }

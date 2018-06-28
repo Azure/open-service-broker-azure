@@ -6,7 +6,7 @@ import (
 	"time"
 
 	// aciSDK "github.com/Azure/azure-sdk-for-go/services/containerinstance/mgmt/2017-08-01-preview/containerinstance"
-	// cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"
+	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"
 	eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub"
 	// keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault"
 	mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql"
@@ -21,6 +21,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
@@ -70,13 +71,13 @@ func getModules(
 	// aciClient.Authorizer = authorizer
 	// aciClient.UserAgent = getUserAgent(aciClient.Client)
 
-	// cosmosdbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// cosmosdbAccountsClient.Authorizer = authorizer
-	// cosmosdbAccountsClient.UserAgent =
-	// 	getUserAgent(cosmosdbAccountsClient.Client)
+	cosmosdbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	cosmosdbAccountsClient.Authorizer = authorizer
+	cosmosdbAccountsClient.UserAgent =
+		getUserAgent(cosmosdbAccountsClient.Client)
 
 	eventHubNamespacesClient := eventHubSDK.NewNamespacesClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,
@@ -201,7 +202,7 @@ func getModules(
 			sqlServersClient,
 			sqlDatabasesClient,
 		),
-		// cosmosdb.New(armDeployer, cosmosdbAccountsClient),
+		cosmosdb.New(armDeployer, cosmosdbAccountsClient),
 		// storage.New(armDeployer, storageAccountsClient),
 		// search.New(armDeployer, searchServicesClient),
 		// aci.New(armDeployer, aciClient),

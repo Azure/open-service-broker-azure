@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 import (
@@ -19,45 +17,34 @@ func (s *sqlAccountManager) GetProvisioner(
 }
 
 func (s *sqlAccountManager) deployARMTemplate(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 
-	pp := &provisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
-		return nil, nil, err
-	}
-
-	dt := &cosmosdbInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-
-	p, err := s.buildGoTemplateParams(instance, "GlobalDocumentDB")
+	pp := instance.ProvisioningParameters
+	dt := instance.Details.(*cosmosdbInstanceDetails)
+	p, err := s.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	if instance.Tags == nil {
-		instance.Tags = make(map[string]string)
-	}
-	instance.Tags["defaultExperience"] = "DocumentDB"
+	tags := getTags(pp)
+	tags["defaultExperience"] = "DocumentDB"
 
-	fqdn, sdt, err := s.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
-
-	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
-	}
-	dt.FullyQualifiedDomainName = fqdn
-	sdt.ConnectionString = fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
-		dt.FullyQualifiedDomainName,
-		sdt.PrimaryKey,
+	fqdn, pk, err := s.cosmosAccountManager.deployARMTemplate(
+		pp,
+		dt,
+		p,
+		tags,
 	)
 
-	dtMap, err := service.GetMapFromStruct(dt)
 	if err != nil {
-		return nil, nil, err
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+	dt.FullyQualifiedDomainName = fqdn
+	dt.PrimaryKey = pk
+	dt.ConnectionString = fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
+		dt.FullyQualifiedDomainName,
+		dt.PrimaryKey,
+	)
+	return dt, err
 }

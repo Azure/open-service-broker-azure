@@ -1,10 +1,7 @@
-// +build experimental
-
 package cosmosdb
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -23,26 +20,45 @@ func (s *sqlAllInOneManager) GetDeprovisioner(
 	)
 }
 
+func (s *sqlAllInOneManager) deleteARMDeployment(
+	_ context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*sqlAllInOneInstanceDetails)
+	if err := deleteARMDeployment(
+		s.armDeployer,
+		instance.ProvisioningParameters,
+		&dt.cosmosdbInstanceDetails,
+	); err != nil {
+		return nil, err
+	}
+	return dt, nil
+}
+
 func (s *sqlAllInOneManager) deleteDatabase(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := &sqlAllInOneInstanceDetails{}
-	err := service.GetStructFromMap(instance.Details, &dt)
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*sqlAllInOneInstanceDetails)
+	err := deleteDatabase(dt.DatabaseAccountName, dt.DatabaseName, dt.PrimaryKey)
 	if err != nil {
-		fmt.Printf("Failed to get DT Struct from Map %s", err)
-		return nil, nil, err
+		return nil, err
 	}
+	return instance.Details, nil
+}
 
-	sdt := &cosmosdbSecureInstanceDetails{}
-	err = service.GetStructFromMap(instance.SecureDetails, &sdt)
-	if err != nil {
-		fmt.Printf("Failed to get SDT Struct from Map %s", err)
-		return nil, nil, err
+func (s *sqlAllInOneManager) deleteCosmosDBAccount(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*sqlAllInOneInstanceDetails)
+	if err := deleteCosmosDBAccount(
+		ctx,
+		s.databaseAccountsClient,
+		instance.ProvisioningParameters,
+		&dt.cosmosdbInstanceDetails,
+	); err != nil {
+		return nil, err
 	}
-	err = deleteDatabase(dt.DatabaseAccountName, dt.DatabaseName, sdt.PrimaryKey)
-	if err != nil {
-		return nil, nil, err
-	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

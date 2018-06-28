@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 import (
@@ -23,13 +21,28 @@ func (m *mongoAccountManager) GetDeprovisioner(
 func (m *mongoAccountManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	return deleteARMDeployment(m.armDeployer, instance)
+) (service.InstanceDetails, error) {
+	if err := deleteARMDeployment(
+		m.armDeployer,
+		instance.ProvisioningParameters,
+		instance.Details.(*cosmosdbInstanceDetails),
+	); err != nil {
+		return nil, err
+	}
+	return instance.Details, nil
 }
 
 func (m *mongoAccountManager) deleteCosmosDBAccount(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	return deleteCosmosDBAccount(ctx, m.databaseAccountsClient, instance)
+) (service.InstanceDetails, error) {
+	if err := deleteCosmosDBAccount(
+		ctx,
+		m.databaseAccountsClient,
+		instance.ProvisioningParameters,
+		instance.Details.(*cosmosdbInstanceDetails),
+	); err != nil {
+		return nil, err
+	}
+	return instance.Details, nil
 }

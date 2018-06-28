@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 import (
@@ -21,32 +19,33 @@ func (m *mongoAccountManager) GetProvisioner(
 }
 
 func (m *mongoAccountManager) deployARMTemplate(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 
-	pp := &provisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
-		return nil, nil, err
-	}
-
-	dt := &cosmosdbInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, dt); err != nil {
-		return nil, nil, err
-	}
-
-	p, err := m.buildGoTemplateParams(instance, "MongoDB")
+	pp := instance.ProvisioningParameters
+	dt := instance.Details.(*cosmosdbInstanceDetails)
+	p, err := m.buildGoTemplateParams(
+		pp,
+		dt,
+		"MongoDB",
+	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-
-	fqdn, sdt, err := m.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
+	tags := getTags(pp)
+	fqdn, pk, err := m.cosmosAccountManager.deployARMTemplate(
+		pp,
+		dt,
+		p,
+		tags,
+	)
 
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	dt.FullyQualifiedDomainName = fqdn
+	dt.PrimaryKey = pk
 	// Allow to remove the https:// and the port 443 on the FQDN
 	// This will allow to adapt the FQDN for Azure Public / Azure Gov ...
 	// Before :
@@ -61,17 +60,12 @@ func (m *mongoAccountManager) deployARMTemplate(
 		strings.Split(hostnameNoHTTPS, ":443/"),
 		"",
 	)
-	sdt.ConnectionString = fmt.Sprintf(
+	dt.ConnectionString = fmt.Sprintf(
 		"mongodb://%s:%s@%s:10255/?ssl=true&replicaSet=globaldb",
 		dt.DatabaseAccountName,
-		sdt.PrimaryKey,
+		dt.PrimaryKey,
 		dt.FullyQualifiedDomainName,
 	)
 
-	dtMap, err := service.GetMapFromStruct(dt)
-	if err != nil {
-		return nil, nil, err
-	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+	return dt, err
 }
