@@ -26,11 +26,10 @@ func (s *sqlAllInOneManager) preProvision(
 	if err != nil {
 		return nil, err
 	}
-	dt := sqlAllInOneInstanceDetails{
+	return &sqlAllInOneInstanceDetails{
 		cosmosdbInstanceDetails: *cdt.(*cosmosdbInstanceDetails),
 		DatabaseName:            uuid.NewV4().String(),
-	}
-	return &dt, err
+	}, nil
 }
 
 func (s *sqlAllInOneManager) deployARMTemplate(

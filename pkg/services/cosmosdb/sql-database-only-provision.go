@@ -20,10 +20,9 @@ func (s *sqlDatabaseManager) preProvision(
 	_ context.Context,
 	_ service.Instance,
 ) (service.InstanceDetails, error) {
-	dt := sqlDatabaseOnlyInstanceDetails{
+	return &sqlDatabaseOnlyInstanceDetails{
 		DatabaseName: uuid.NewV4().String(),
-	}
-	return &dt, nil
+	}, nil
 }
 
 func (s *sqlDatabaseManager) createDatabase(

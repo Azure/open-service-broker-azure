@@ -38,11 +38,10 @@ func (c *cosmosAccountManager) preProvision(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	l := instance.ProvisioningParameters.GetString("location")
-	dt := cosmosdbInstanceDetails{
+	return &cosmosdbInstanceDetails{
 		ARMDeploymentName:   uuid.NewV4().String(),
 		DatabaseAccountName: generateAccountName(l),
-	}
-	return &dt, nil
+	}, nil
 }
 
 func (c *cosmosAccountManager) buildGoTemplateParams(
