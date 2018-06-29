@@ -7,8 +7,6 @@
 [Open Service Broker](https://www.openservicebrokerapi.org/)-compatible API
 server that provisions managed services in the Microsoft Azure public cloud.
 
-_Note: This software is alpha quality. Releases use [semantic versioning](https://semver.org) labels, but any release prior to `v1.0.0` may introduce breaking changes if the MINOR version number was incremented. Please see the offical [roadmap](docs/roadmap.md) for more information._
-
 ![Open Service Broker for Azure GIF](docs/images/demovideo.gif)
 
 *CLOUD FOUNDRY and OPEN SERVICE BROKER are trademarks of the CloudFoundry.org Foundation in the United States and other countries.*
