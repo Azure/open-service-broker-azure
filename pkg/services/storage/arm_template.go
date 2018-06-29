@@ -1,5 +1,3 @@
-// +build experimental
-
 package storage
 
 // nolint: lll
@@ -8,12 +6,6 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "string"
-		},
-		"name": {
-			"type": "string"
-		},
 		"accountType": {
 			"type": "string",
 			"defaultValue": "Standard_LRS",
@@ -36,9 +28,9 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 	"resources": [
 		{
 			"type": "Microsoft.Storage/storageAccounts",
-			"name": "[parameters('name')]",
-			"apiVersion": "2017-06-01",
-			"location": "[parameters('location')]",
+			"name": "{{ .name }}",
+			"apiVersion": "2017-10-01",
+			"location": "{{ .location }}",
 			"sku": {
 				"name": "[parameters('accountType')]"
 			},
@@ -59,7 +51,7 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 	"outputs": {
 		"accessKey": {
 			"type": "string",
-			"value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), '2015-06-15').key1]"
+			"value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', '{{ .name }}'), '2015-06-15').key1]"
 		}
 	}
 }
@@ -71,12 +63,6 @@ var armTemplateBytesBlobStorage = []byte(`
 	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "string"
-		},
-		"name": {
-			"type": "string"
-		},
 		"accountType": {
 			"type": "string",
 			"defaultValue": "Standard_LRS",
@@ -107,9 +93,9 @@ var armTemplateBytesBlobStorage = []byte(`
 	"resources": [
 		{
 			"type": "Microsoft.Storage/storageAccounts",
-			"name": "[parameters('name')]",
+			"name": "{{ .name }}",
 			"apiVersion": "2017-06-01",
-			"location": "[parameters('location')]",
+			"location": "{{ .location }}",
 			"sku": {
 				"name": "[parameters('accountType')]"
 			},
@@ -131,7 +117,7 @@ var armTemplateBytesBlobStorage = []byte(`
 	"outputs": {
 		"accessKey": {
 			"type": "string",
-			"value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), '2015-06-15').key1]"
+			"value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', '{{ .name }}'), '2015-06-15').key1]"
 		}
 	}
 }
