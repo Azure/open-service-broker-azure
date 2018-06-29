@@ -1,8 +1,8 @@
 package rediscache
 
 import (
-	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 func generateProvisioningParamsSchema() service.InputParametersSchema {
@@ -21,4 +21,3 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 		},
 	}
 }
-

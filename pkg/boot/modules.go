@@ -25,8 +25,8 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
-	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
+	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
 

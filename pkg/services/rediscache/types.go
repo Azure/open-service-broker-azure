@@ -3,10 +3,10 @@ package rediscache
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type instanceDetails struct {
-	ARMDeploymentName        string `json:"armDeployment"`
-	ServerName               string `json:"server"`
-	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
-	PrimaryKey        service.SecureString `json:"primaryKey"`
+	ARMDeploymentName        string               `json:"armDeployment"`
+	ServerName               string               `json:"server"`
+	FullyQualifiedDomainName string               `json:"fullyQualifiedDomainName"`
+	PrimaryKey               service.SecureString `json:"primaryKey"`
 }
 
 type credentials struct {

@@ -21,12 +21,10 @@ func (s *serviceManager) preProvision(
 	context.Context,
 	service.Instance,
 ) (service.InstanceDetails, error) {
-	dt := &instanceDetails{
+	return &instanceDetails{
 		ARMDeploymentName: uuid.NewV4().String(),
 		ServerName:        uuid.NewV4().String(),
-	}
-
-	return dt, nil
+	}, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
