@@ -1,5 +1,3 @@
-// +build experimental
-
 package rediscache
 
 import (
@@ -12,32 +10,24 @@ import (
 func (s *serviceManager) Bind(
 	service.Instance,
 	service.BindingParameters,
-	service.SecureBindingParameters,
-) (service.BindingDetails, service.SecureBindingDetails, error) {
-	return nil, nil, nil
+) (service.BindingDetails, error) {
+	return nil, nil
 }
 
 func (s *serviceManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, err
-	}
-	sdt := secureInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, err
-	}
+	dt := instance.Details.(*instanceDetails)
 
 	redisPort := 6379
 	return credentials{
 		Host:     dt.FullyQualifiedDomainName,
-		Password: sdt.PrimaryKey,
+		Password: string(dt.PrimaryKey),
 		Port:     redisPort,
 		URI: fmt.Sprintf(
 			"redis://:%s@%s:%d",
-			url.QueryEscape(sdt.PrimaryKey),
+			url.QueryEscape(string(dt.PrimaryKey)),
 			dt.FullyQualifiedDomainName,
 			redisPort,
 		),
