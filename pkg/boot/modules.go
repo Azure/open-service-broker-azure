@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	// aciSDK "github.com/Azure/azure-sdk-for-go/services/containerinstance/mgmt/2017-08-01-preview/containerinstance"
 	// cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"
 	eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub"
 	// keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault"
@@ -64,13 +63,6 @@ func getModules(
 		resourceGroupsClient,
 		resourceDeploymentsClient,
 	)
-
-	// aciClient := aciSDK.NewContainerGroupsClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// aciClient.Authorizer = authorizer
-	// aciClient.UserAgent = getUserAgent(aciClient.Client)
 
 	// cosmosdbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
 	// 	azureConfig.Environment.ResourceManagerEndpoint,
@@ -206,7 +198,6 @@ func getModules(
 		// cosmosdb.New(armDeployer, cosmosdbAccountsClient),
 		storage.New(armDeployer, storageAccountsClient),
 		// search.New(armDeployer, searchServicesClient),
-		// aci.New(armDeployer, aciClient),
 	}
 
 	return modules, nil
