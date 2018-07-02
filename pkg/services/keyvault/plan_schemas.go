@@ -18,23 +18,28 @@ func (
 		},
 		PropertySchemas: map[string]service.PropertySchema{
 			"location": &service.StringPropertySchema{
+				Title: "Location",
 				Description: "The Azure region in which to provision" +
 					" applicable resources.",
 				CustomPropertyValidator: azure.LocationValidator,
 			},
 			"resourceGroup": &service.StringPropertySchema{
+				Title: "Resource group",
 				Description: "The (new or existing) resource group with which" +
 					" to associate new resources.",
 			},
 			"objectId": &service.StringPropertySchema{
+				Title: "Object ID",
 				Description: "Object ID for an existing service principal, " +
 					"which will be granted access to the new vault.",
 			},
 			"clientId": &service.StringPropertySchema{
+				Title: "Client ID",
 				Description: "Client ID (username) for an existing service principal," +
 					"which will be granted access to the new vault.",
 			},
 			"clientSecret": &service.StringPropertySchema{
+				Title: "Client secret",
 				Description: "Client secret (password) for an existing service " +
 					"principal, which will be granted access to the new vault.",
 			},
