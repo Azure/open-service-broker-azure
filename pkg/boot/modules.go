@@ -16,7 +16,7 @@ import (
 	// searchSDK "github.com/Azure/azure-sdk-for-go/services/search/mgmt/2015-08-19/search"
 	servicebusSDK "github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus"
 	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql"
-	// storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"
+	storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
@@ -28,6 +28,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
+	"github.com/Azure/open-service-broker-azure/pkg/services/storage"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
 
@@ -172,12 +173,12 @@ func getModules(
 	serviceBusNamespacesClient.UserAgent =
 		getUserAgent(serviceBusNamespacesClient.Client)
 
-	// storageAccountsClient := storageSDK.NewAccountsClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// storageAccountsClient.Authorizer = authorizer
-	// storageAccountsClient.UserAgent = getUserAgent(storageAccountsClient.Client)
+	storageAccountsClient := storageSDK.NewAccountsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	storageAccountsClient.Authorizer = authorizer
+	storageAccountsClient.UserAgent = getUserAgent(storageAccountsClient.Client)
 
 	modules := []service.Module{
 		postgresql.New(
@@ -204,7 +205,7 @@ func getModules(
 			sqlDatabasesClient,
 		),
 		cosmosdb.New(armDeployer, cosmosdbAccountsClient),
-		// storage.New(armDeployer, storageAccountsClient),
+		storage.New(armDeployer, storageAccountsClient),
 		// search.New(armDeployer, searchServicesClient),
 		// aci.New(armDeployer, aciClient),
 	}
