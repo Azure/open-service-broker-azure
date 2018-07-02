@@ -213,7 +213,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Table",
 					},
 				},
-				m.graphAccountManager,
+				m.tableAccountManager,
 				service.NewPlan(service.PlanProperties{
 					ID:          "c970b1e8-794f-4d7c-9458-d28423c08856",
 					Name:        "account",

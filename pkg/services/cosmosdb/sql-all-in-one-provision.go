@@ -22,14 +22,16 @@ func (s *sqlAllInOneManager) preProvision(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+
 	cdt, err := s.cosmosAccountManager.preProvision(ctx, instance)
 	if err != nil {
 		return nil, err
 	}
-	return &sqlAllInOneInstanceDetails{
+	aid := &sqlAllInOneInstanceDetails{
 		cosmosdbInstanceDetails: *cdt.(*cosmosdbInstanceDetails),
 		DatabaseName:            uuid.NewV4().String(),
-	}, nil
+	}
+	return aid, nil
 }
 
 func (s *sqlAllInOneManager) deployARMTemplate(
