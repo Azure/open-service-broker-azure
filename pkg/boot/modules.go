@@ -11,7 +11,7 @@ import (
 	// keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault"
 	mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql"
 	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql"
-	// redisSDK "github.com/Azure/azure-sdk-for-go/services/redis/mgmt/2017-10-01/redis"
+	redisSDK "github.com/Azure/azure-sdk-for-go/services/redis/mgmt/2017-10-01/redis"
 	resourcesSDK "github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources"
 	// searchSDK "github.com/Azure/azure-sdk-for-go/services/search/mgmt/2015-08-19/search"
 	servicebusSDK "github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus"
@@ -26,6 +26,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mysql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/postgresql"
+	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
@@ -149,12 +150,12 @@ func getModules(
 	sqlDatabasesClient.Authorizer = authorizer
 	sqlDatabasesClient.UserAgent = getUserAgent(sqlDatabasesClient.Client)
 
-	// redisClient := redisSDK.NewClientWithBaseURI(
-	// 	azureConfig.Environment.ResourceManagerEndpoint,
-	// 	azureSubscriptionID,
-	// )
-	// redisClient.Authorizer = authorizer
-	// redisClient.UserAgent = getUserAgent(redisClient.Client)
+	redisClient := redisSDK.NewClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	redisClient.Authorizer = authorizer
+	redisClient.UserAgent = getUserAgent(redisClient.Client)
 
 	// searchServicesClient := searchSDK.NewServicesClientWithBaseURI(
 	// 	azureConfig.Environment.ResourceManagerEndpoint,
@@ -185,7 +186,7 @@ func getModules(
 			postgresServersClient,
 			postgresDatabasesClient,
 		),
-		// rediscache.New(armDeployer, redisClient),
+		rediscache.New(armDeployer, redisClient),
 		mysql.New(
 			azureConfig.Environment,
 			armDeployer,
