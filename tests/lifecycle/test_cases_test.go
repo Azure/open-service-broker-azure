@@ -18,7 +18,7 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 	testCases = append(testCases, mysqlTestCases...)
 	// testCases = append(testCases, searchTestCases...)
 	testCases = append(testCases, servicebusTestCases...)
-	// testCases = append(testCases, storageTestCases...)
+	testCases = append(testCases, storageTestCases...)
 
 	testCases = filter(testCases, getTestFilters())
 
