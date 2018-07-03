@@ -44,10 +44,12 @@ func (g *graphAccountManager) deployARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	dt.FullyQualifiedDomainName = fqdn
-	dt.PrimaryKey = pk
-	dt.ConnectionString = fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
-		dt.FullyQualifiedDomainName,
-		dt.PrimaryKey,
+	dt.PrimaryKey = service.SecureString(pk)
+	dt.ConnectionString = service.SecureString(
+		fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
+			dt.FullyQualifiedDomainName,
+			dt.PrimaryKey,
+		),
 	)
 	return dt, err
 }

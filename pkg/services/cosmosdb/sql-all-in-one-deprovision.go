@@ -40,7 +40,11 @@ func (s *sqlAllInOneManager) deleteDatabase(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*sqlAllInOneInstanceDetails)
-	err := deleteDatabase(dt.DatabaseAccountName, dt.DatabaseName, dt.PrimaryKey)
+	err := deleteDatabase(
+		dt.DatabaseAccountName,
+		dt.DatabaseName,
+		string(dt.PrimaryKey),
+	)
 	if err != nil {
 		return nil, err
 	}

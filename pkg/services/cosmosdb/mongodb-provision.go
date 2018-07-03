@@ -45,7 +45,7 @@ func (m *mongoAccountManager) deployARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	dt.FullyQualifiedDomainName = fqdn
-	dt.PrimaryKey = pk
+	dt.PrimaryKey = service.SecureString(pk)
 	// Allow to remove the https:// and the port 443 on the FQDN
 	// This will allow to adapt the FQDN for Azure Public / Azure Gov ...
 	// Before :
@@ -60,11 +60,13 @@ func (m *mongoAccountManager) deployARMTemplate(
 		strings.Split(hostnameNoHTTPS, ":443/"),
 		"",
 	)
-	dt.ConnectionString = fmt.Sprintf(
-		"mongodb://%s:%s@%s:10255/?ssl=true&replicaSet=globaldb",
-		dt.DatabaseAccountName,
-		dt.PrimaryKey,
-		dt.FullyQualifiedDomainName,
+	dt.ConnectionString = service.SecureString(
+		fmt.Sprintf(
+			"mongodb://%s:%s@%s:10255/?ssl=true&replicaSet=globaldb",
+			dt.DatabaseAccountName,
+			dt.PrimaryKey,
+			dt.FullyQualifiedDomainName,
+		),
 	)
 
 	return dt, err

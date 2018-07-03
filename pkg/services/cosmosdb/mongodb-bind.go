@@ -14,8 +14,8 @@ func (m *mongoAccountManager) GetCredentials(
 		Port: 10255,
 		// Username is the same as the database account name
 		Username:         dt.DatabaseAccountName,
-		Password:         dt.PrimaryKey,
-		ConnectionString: dt.ConnectionString,
-		URI:              dt.ConnectionString,
+		Password:         string(dt.PrimaryKey),
+		ConnectionString: string(dt.ConnectionString),
+		URI:              string(dt.ConnectionString),
 	}, nil
 }

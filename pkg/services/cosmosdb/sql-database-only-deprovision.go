@@ -20,7 +20,11 @@ func (s *sqlDatabaseManager) deleteDatabase(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*sqlDatabaseOnlyInstanceDetails)
 	pdt := instance.Parent.Details.(*cosmosdbInstanceDetails)
-	err := deleteDatabase(pdt.DatabaseAccountName, dt.DatabaseName, pdt.PrimaryKey)
+	err := deleteDatabase(
+		pdt.DatabaseAccountName,
+		dt.DatabaseName,
+		string(pdt.PrimaryKey),
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -12,11 +12,11 @@ func (s *sqlDatabaseManager) GetCredentials(
 	pdt := instance.Parent.Details.(*cosmosdbInstanceDetails)
 	return sqlAPICredentials{
 		URI:                     pdt.FullyQualifiedDomainName,
-		PrimaryKey:              pdt.PrimaryKey,
-		PrimaryConnectionString: pdt.ConnectionString,
+		PrimaryKey:              string(pdt.PrimaryKey),
+		PrimaryConnectionString: string(pdt.ConnectionString),
 		DatabaseName:            dt.DatabaseName,
 		DatabaseID:              dt.DatabaseName,
 		Host:                    pdt.FullyQualifiedDomainName,
-		MasterKey:               pdt.PrimaryKey,
+		MasterKey:               string(pdt.PrimaryKey),
 	}, nil
 }

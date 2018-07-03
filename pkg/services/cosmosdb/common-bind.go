@@ -18,7 +18,7 @@ func (c *cosmosAccountManager) GetCredentials(
 	dt := instance.Details.(*cosmosdbInstanceDetails)
 	return cosmosCredentials{
 		URI:                     dt.FullyQualifiedDomainName,
-		PrimaryKey:              dt.PrimaryKey,
-		PrimaryConnectionString: dt.ConnectionString,
+		PrimaryKey:              string(dt.PrimaryKey),
+		PrimaryConnectionString: string(dt.ConnectionString),
 	}, nil
 }

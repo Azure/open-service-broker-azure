@@ -3,12 +3,12 @@ package cosmosdb
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type cosmosdbInstanceDetails struct {
-	ARMDeploymentName        string `json:"armDeployment"`
-	DatabaseAccountName      string `json:"name"`
-	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
-	IPFilters                string `json:"ipFilters"`
-	ConnectionString         string `json:"connectionString"`
-	PrimaryKey               string `json:"primaryKey"`
+	ARMDeploymentName        string               `json:"armDeployment"`
+	DatabaseAccountName      string               `json:"name"`
+	FullyQualifiedDomainName string               `json:"fullyQualifiedDomainName"`
+	IPFilters                string               `json:"ipFilters"`
+	ConnectionString         service.SecureString `json:"connectionString"`
+	PrimaryKey               service.SecureString `json:"primaryKey"`
 }
 
 // cosmosCredentials encapsulates CosmosDB-specific details for connecting via

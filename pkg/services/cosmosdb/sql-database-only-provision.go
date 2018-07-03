@@ -31,7 +31,11 @@ func (s *sqlDatabaseManager) createDatabase(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*sqlDatabaseOnlyInstanceDetails)
 	pdt := instance.Parent.Details.(*cosmosdbInstanceDetails)
-	err := createDatabase(pdt.DatabaseAccountName, dt.DatabaseName, pdt.PrimaryKey)
+	err := createDatabase(
+		pdt.DatabaseAccountName,
+		dt.DatabaseName,
+		string(pdt.PrimaryKey),
+	)
 	if err != nil {
 		return nil, err
 	}

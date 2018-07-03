@@ -11,11 +11,11 @@ func (s *sqlAllInOneManager) GetCredentials(
 	dt := instance.Details.(*sqlAllInOneInstanceDetails)
 	return sqlAPICredentials{
 		URI:                     dt.FullyQualifiedDomainName,
-		PrimaryKey:              dt.PrimaryKey,
-		PrimaryConnectionString: dt.ConnectionString,
+		PrimaryKey:              string(dt.PrimaryKey),
+		PrimaryConnectionString: string(dt.ConnectionString),
 		DatabaseName:            dt.DatabaseName,
 		DatabaseID:              dt.DatabaseName,
 		Host:                    dt.FullyQualifiedDomainName,
-		MasterKey:               dt.PrimaryKey,
+		MasterKey:               string(dt.PrimaryKey),
 	}, nil
 }

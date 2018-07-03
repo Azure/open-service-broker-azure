@@ -41,13 +41,15 @@ func (t *tableAccountManager) deployARMTemplate(
 	}
 
 	dt.FullyQualifiedDomainName = fqdn
-	dt.PrimaryKey = pk
-	dt.ConnectionString = fmt.Sprintf(
-		"DefaultEndpointsProtocol=https;AccountName=%s;"+
-			"AccountKey=%s;TableEndpoint=%s",
-		dt.DatabaseAccountName,
-		dt.FullyQualifiedDomainName,
-		dt.PrimaryKey,
+	dt.PrimaryKey = service.SecureString(pk)
+	dt.ConnectionString = service.SecureString(
+		fmt.Sprintf(
+			"DefaultEndpointsProtocol=https;AccountName=%s;"+
+				"AccountKey=%s;TableEndpoint=%s",
+			dt.DatabaseAccountName,
+			dt.FullyQualifiedDomainName,
+			dt.PrimaryKey,
+		),
 	)
 	return dt, err
 
