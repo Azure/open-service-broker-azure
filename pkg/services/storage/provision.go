@@ -1,5 +1,3 @@
-// +build experimental
-
 package storage
 
 import (
@@ -43,7 +41,7 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 	dt := instanceDetails{
 		ARMDeploymentName:  uuid.NewV4().String(),
 		StorageAccountName: generate.NewIdentifier(),
@@ -52,7 +50,7 @@ func (s *serviceManager) preProvision(
 	storeKind, ok := instance.Plan.
 		GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
-		return nil, nil, errors.New(
+		return nil, errors.New(
 			"error retrieving the storage kind from the plan",
 		)
 	}
@@ -62,26 +60,17 @@ func (s *serviceManager) preProvision(
 	case storageKindBlobContainer:
 		dt.ContainerName = uuid.NewV4().String()
 	}
-
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, instance.SecureDetails, err
+	return &dt, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-	sdt := secureInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*instanceDetails)
 	storeKind, ok := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
 	if !ok {
-		return nil, nil, errors.New(
+		return nil, errors.New(
 			"error retrieving the storage kind from the plan",
 		)
 	}
@@ -93,48 +82,47 @@ func (s *serviceManager) deployARMTemplate(
 	case storageKindBlobStorageAccount, storageKindBlobContainer:
 		armTemplateBytes = armTemplateBytesBlobStorage
 	}
-	armTemplateParameters := map[string]interface{}{
-		"name": dt.StorageAccountName,
+	location := instance.ProvisioningParameters.GetString("location")
+	goTemplateParams := map[string]interface{}{
+		"name":     dt.StorageAccountName,
+		"location": location,
 	}
-	outputs, err := s.armDeployer.Deploy(
-		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
-		armTemplateBytes,
-		nil, // Go template params
-		armTemplateParameters, // ARM template params
-		instance.Tags,
-	)
-	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
 	}
 
-	sdt.AccessKey, ok = outputs["accessKey"].(string)
+	outputs, err := s.armDeployer.Deploy(
+		dt.ARMDeploymentName,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
+		instance.ProvisioningParameters.GetString("location"),
+		armTemplateBytes,
+		goTemplateParams,         // Go template params
+		map[string]interface{}{}, // ARM template params
+		tags,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
+	}
+
+	dt.AccessKey, ok = outputs["accessKey"].(string)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error retrieving primary access key from deployment: %s",
 			err,
 		)
 	}
-
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return instance.Details, sdtMap, err
+	return dt, nil
 }
 
 func (s *serviceManager) createBlobContainer(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-	sdt := secureInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*instanceDetails)
 
-	client, _ := storage.NewBasicClient(dt.StorageAccountName, sdt.AccessKey)
+	client, _ := storage.NewBasicClient(dt.StorageAccountName, dt.AccessKey)
 	blobCli := client.GetBlobService()
 	container := blobCli.GetContainerReference(dt.ContainerName)
 	options := storage.CreateContainerOptions{
@@ -142,10 +130,9 @@ func (s *serviceManager) createBlobContainer(
 	}
 	_, err := container.CreateIfNotExists(&options)
 	if err != nil {
-		return nil, nil, errors.New(
+		return nil, errors.New(
 			"error creating container",
 		)
 	}
-
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }
