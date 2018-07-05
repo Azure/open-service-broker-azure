@@ -53,7 +53,7 @@ func getTestServer() (*server, *fake.Module, error) {
 		return nil, nil, err
 	}
 	s, err := NewServer(
-		8080,
+		NewConfigWithDefaults(),
 		memoryStorage.NewStore(fakeCatalog),
 		fakeAsync.NewEngine(),
 		filter.NewChain(),

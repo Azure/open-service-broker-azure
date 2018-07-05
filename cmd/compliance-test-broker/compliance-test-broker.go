@@ -36,7 +36,9 @@ func main() {
 	)
 
 	server, err := api.NewServer(
-		8088,
+		api.Config{
+			Port: 8088,
+		},
 		memoryStorage.NewStore(fakeCatalog),
 		fakeAsync.NewEngine(),
 		filterChain,

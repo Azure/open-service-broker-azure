@@ -144,7 +144,7 @@ func getTestBroker() (*broker, error) {
 	asyncEngine := fakeAsync.NewEngine()
 	catalog := service.NewCatalog(nil)
 	apiServer, err := api.NewServer(
-		8080,
+		api.NewConfigWithDefaults(),
 		nil,
 		asyncEngine,
 		filter.NewChain(),

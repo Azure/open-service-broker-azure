@@ -140,9 +140,13 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
+	apiServerConfig, err := api.GetConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
 	// Create API server
 	apiServer, err := api.NewServer(
-		8080,
+		apiServerConfig,
 		store,
 		asyncEngine,
 		filterChain,

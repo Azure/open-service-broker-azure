@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"github.com/Azure/open-service-broker-azure/pkg/file"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
@@ -35,7 +36,7 @@ type Server interface {
 }
 
 type server struct {
-	port            int
+	apiServerConfig Config
 	store           storage.Store
 	asyncEngine     async.Engine
 	filterChain     filter.Filter
@@ -48,18 +49,18 @@ type server struct {
 
 // NewServer returns an HTTP router
 func NewServer(
-	port int,
+	apiServerConfig Config,
 	store storage.Store,
 	asyncEngine async.Engine,
 	filterChain filter.Filter,
 	catalog service.Catalog,
 ) (Server, error) {
 	s := &server{
-		port:        port,
-		store:       store,
-		asyncEngine: asyncEngine,
-		filterChain: filterChain,
-		catalog:     catalog,
+		apiServerConfig: apiServerConfig,
+		store:           store,
+		asyncEngine:     asyncEngine,
+		filterChain:     filterChain,
+		catalog:         catalog,
 	}
 
 	router := mux.NewRouter()
@@ -114,10 +115,6 @@ func (s *server) Run(ctx context.Context) error {
 	defer cancel()
 	errChan := make(chan error)
 	go func() {
-		log.WithField(
-			"address",
-			fmt.Sprintf("http://0.0.0.0:%d", s.port),
-		).Info("API server is listening")
 		select {
 		case errChan <- &errHTTPServerStopped{err: s.listenAndServe(ctx)}:
 		case <-ctx.Done():
@@ -135,15 +132,38 @@ func (s *server) Run(ctx context.Context) error {
 func (s *server) defaultListenAndServe(ctx context.Context) error {
 	errChan := make(chan error)
 	svr := http.Server{
-		Addr:    fmt.Sprintf(":%d", s.port),
+		Addr:    fmt.Sprintf(":%d", s.apiServerConfig.Port),
 		Handler: s.router,
 	}
-	go func() {
-		select {
-		case errChan <- svr.ListenAndServe():
-		case <-ctx.Done():
-		}
-	}()
+	if s.apiServerConfig.TLSCertPath != "" &&
+		s.apiServerConfig.TLSKeyPath != "" &&
+		file.Exists(s.apiServerConfig.TLSCertPath) &&
+		file.Exists(s.apiServerConfig.TLSKeyPath) {
+		log.WithField(
+			"address",
+			fmt.Sprintf("https://0.0.0.0:%d", s.apiServerConfig.Port),
+		).Info("API server is listening with TLS enabled")
+		go func() {
+			select {
+			case errChan <- svr.ListenAndServeTLS(
+				s.apiServerConfig.TLSCertPath,
+				s.apiServerConfig.TLSKeyPath,
+			):
+			case <-ctx.Done():
+			}
+		}()
+	} else {
+		log.WithField(
+			"address",
+			fmt.Sprintf("http://0.0.0.0:%d", s.apiServerConfig.Port),
+		).Warn("API server is listening with TLS disabled")
+		go func() {
+			select {
+			case errChan <- svr.ListenAndServe():
+			case <-ctx.Done():
+			}
+		}()
+	}
 	select {
 	case err := <-errChan:
 		return err
