@@ -352,7 +352,6 @@ PUBLISH_RC_CHART_CMD := bash -c ' \
 	&& mkdir repo \
 	&& cd repo \
 	&& sed -i "s/^version:.*/version: 0.0.1-$(GIT_VERSION)/g" ../open-service-broker-azure/Chart.yaml \
-	&& sed -i "s/^version:.*/version: 0.0.1-$(GIT_VERSION)/g" ../svc-cat-etcd/Chart.yaml \
 	&& sed -i "s/^appVersion:.*/appVersion: $(GIT_VERSION)/g" ../open-service-broker-azure/Chart.yaml \
 	&& sed -i "s/^  tag:.*/  tag: $(GIT_VERSION)/g" ../open-service-broker-azure/values.yaml \
 	&& helm dep build ../open-service-broker-azure \
