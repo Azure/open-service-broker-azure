@@ -29,9 +29,9 @@ func (e *errHTTPServerStopped) Error() string {
 // Server is an interface for components that respond to HTTP requests on behalf
 // of the broker
 type Server interface {
-	// Start causes the api server to start serving HTTP requests. It will block
+	// Run causes the api server to start serving HTTP requests. It will block
 	// until an error occurs and will return that error.
-	Start(context.Context) error
+	Run(context.Context) error
 }
 
 type server struct {
@@ -109,7 +109,7 @@ func NewServer(
 	return s, nil
 }
 
-func (s *server) Start(ctx context.Context) error {
+func (s *server) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	errChan := make(chan error)

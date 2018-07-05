@@ -21,7 +21,7 @@ func TestServerStartBlocksUntilListenAndServeErrors(t *testing.T) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	err = s.Start(ctx)
+	err = s.Run(ctx)
 	assert.Equal(t, &errHTTPServerStopped{err: errSome}, err)
 }
 
@@ -33,7 +33,7 @@ func TestServerStartBlocksUntilListenAndServeReturns(t *testing.T) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	err = s.Start(ctx)
+	err = s.Run(ctx)
 	assert.Equal(t, &errHTTPServerStopped{}, err)
 }
 
@@ -46,7 +46,7 @@ func TestServerStartBlocksUntilContextCanceled(t *testing.T) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	err = s.Start(ctx)
+	err = s.Run(ctx)
 	assert.Equal(t, ctx.Err(), err)
 }
 

@@ -34,7 +34,7 @@ func TestBrokerStartBlocksUntilAsyncEngineErrors(t *testing.T) {
 	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = b.Start(ctx)
+	err = b.Run(ctx)
 	assert.Equal(t, &errAsyncEngineStopped{err: errSome}, err)
 	time.Sleep(time.Second)
 	assert.True(t, apiServerStopped)
@@ -58,7 +58,7 @@ func TestBrokerStartBlocksUntilAsyncEngineReturns(t *testing.T) {
 	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = b.Start(ctx)
+	err = b.Run(ctx)
 	assert.Equal(t, &errAsyncEngineStopped{}, err)
 	time.Sleep(time.Second)
 	assert.True(t, apiServerStopped)
@@ -82,7 +82,7 @@ func TestBrokerStartBlocksUntilAPIServerErrors(t *testing.T) {
 	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = b.Start(ctx)
+	err = b.Run(ctx)
 	assert.Equal(t, &errAPIServerStopped{err: errSome}, err)
 	time.Sleep(time.Second)
 	assert.True(t, asyncEngineStopped)
@@ -106,7 +106,7 @@ func TestBrokerStartBlocksUntilAPIServerReturns(t *testing.T) {
 	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	err = b.Start(ctx)
+	err = b.Run(ctx)
 	assert.Equal(t, &errAPIServerStopped{}, err)
 	time.Sleep(time.Second)
 	assert.True(t, asyncEngineStopped)
@@ -133,7 +133,7 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 	b.apiServer = svr
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	err = b.Start(ctx)
+	err = b.Run(ctx)
 	assert.Equal(t, ctx.Err(), err)
 	time.Sleep(time.Second)
 	assert.True(t, apiServerStopped)

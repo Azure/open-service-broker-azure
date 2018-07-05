@@ -178,7 +178,7 @@ func main() {
 	}()
 
 	// Run broker
-	if err := broker.Start(ctx); err != nil {
+	if err := broker.Run(ctx); err != nil {
 		if err == ctx.Err() {
 			// Allow some time for goroutines to shut down
 			time.Sleep(time.Second * 3)

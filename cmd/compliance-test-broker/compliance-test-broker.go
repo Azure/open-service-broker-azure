@@ -61,7 +61,7 @@ func main() {
 		cancel()
 	}()
 
-	if err := server.Start(ctx); err != nil {
+	if err := server.Run(ctx); err != nil {
 		if err == ctx.Err() {
 			// Allow some time for goroutines to shut down
 			time.Sleep(time.Second * 3)

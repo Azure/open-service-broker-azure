@@ -31,9 +31,9 @@ func (e *errAPIServerStopped) Error() string {
 // Broker is an interface to be implemented by components that implement full
 // OSB functionality.
 type Broker interface {
-	// Start starts all broker components (e.g. API server and async execution
+	// Run starts all broker components (e.g. API server and async execution
 	// engine) and blocks until one of those components returns or fails.
-	Start(context.Context) error
+	Run(context.Context) error
 }
 
 type broker struct {
@@ -103,9 +103,9 @@ func NewBroker(
 	return b, nil
 }
 
-// Start starts all broker components (e.g. API server and async execution
+// Run starts all broker components (e.g. API server and async execution
 // engine) and blocks until one of those components returns or fails.
-func (b *broker) Start(ctx context.Context) error {
+func (b *broker) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	errChan := make(chan error)
@@ -119,7 +119,7 @@ func (b *broker) Start(ctx context.Context) error {
 	// Start api server
 	go func() {
 		select {
-		case errChan <- &errAPIServerStopped{err: b.apiServer.Start(ctx)}:
+		case errChan <- &errAPIServerStopped{err: b.apiServer.Run(ctx)}:
 		case <-ctx.Done():
 		}
 	}()
