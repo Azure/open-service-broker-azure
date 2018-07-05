@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
-	"github.com/Azure/open-service-broker-azure/pkg/service"
-
+	"github.com/Azure/open-service-broker-azure/pkg/api"
 	fakeAPI "github.com/Azure/open-service-broker-azure/pkg/api/fake"
 	fakeAsync "github.com/Azure/open-service-broker-azure/pkg/async/fake"
+	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -141,11 +141,23 @@ func TestBrokerStartBlocksUntilContextCanceled(t *testing.T) {
 }
 
 func getTestBroker() (*broker, error) {
-	b, err := NewBroker(
+	asyncEngine := fakeAsync.NewEngine()
+	catalog := service.NewCatalog(nil)
+	apiServer, err := api.NewServer(
+		8080,
 		nil,
-		fakeAsync.NewEngine(),
+		asyncEngine,
 		filter.NewChain(),
-		service.NewCatalog(nil),
+		catalog,
+	)
+	if err != nil {
+		return nil, err
+	}
+	b, err := NewBroker(
+		apiServer,
+		asyncEngine,
+		nil,
+		catalog,
 	)
 	if err != nil {
 		return nil, err

@@ -7,7 +7,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
@@ -46,12 +45,13 @@ type broker struct {
 
 // NewBroker returns a new Broker
 func NewBroker(
-	store storage.Store,
+	apiServer api.Server,
 	asyncEngine async.Engine,
-	filterChain filter.Filter,
+	store storage.Store,
 	catalog service.Catalog,
 ) (Broker, error) {
 	b := &broker{
+		apiServer:   apiServer,
 		store:       store,
 		asyncEngine: asyncEngine,
 		catalog:     catalog,
@@ -98,17 +98,6 @@ func NewBroker(
 			"error registering async job for executing check of children " +
 				"statuses",
 		)
-	}
-
-	b.apiServer, err = api.NewServer(
-		8080,
-		b.store,
-		b.asyncEngine,
-		filterChain,
-		b.catalog,
-	)
-	if err != nil {
-		return nil, err
 	}
 
 	return b, nil

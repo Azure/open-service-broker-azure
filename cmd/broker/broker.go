@@ -140,11 +140,23 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	// Create broker
-	broker, err := broker.NewBroker(
+	// Create API server
+	apiServer, err := api.NewServer(
+		8080,
 		store,
 		asyncEngine,
 		filterChain,
+		catalog,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create broker
+	broker, err := broker.NewBroker(
+		apiServer,
+		asyncEngine,
+		store,
 		catalog,
 	)
 	if err != nil {
