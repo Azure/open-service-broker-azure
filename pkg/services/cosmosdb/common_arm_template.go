@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 // nolint: lll
@@ -8,9 +6,6 @@ var armTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "string"
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -21,7 +16,7 @@ var armTemplateBytes = []byte(`
 			"kind": "{{ .kind }}",
 			"type": "Microsoft.DocumentDb/databaseAccounts",
 			"name": "{{ .name }}",
-			"location": "[parameters('location')]",
+			"location": "{{ .location }}",
 			"properties": {
 				{{ if .consistencyPolicy }}
 				"consistencyPolicy" : {
@@ -47,9 +42,9 @@ var armTemplateBytes = []byte(`
 				{{ end }}
 				"locations": [
 					{
-						"id": "[concat('{{ .name}}', '-', parameters('location'))]",
+						"id": "[concat('{{ .name}}', '-', '{{ .location}}')]",
 						"failoverPriority": 0,
-						"locationName": "[parameters('location')]"
+						"locationName": "{{ .location }}"
 					}
 				]
 			},

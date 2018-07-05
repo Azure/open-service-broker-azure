@@ -1,5 +1,3 @@
-// +build experimental
-
 package rediscache
 
 import (
@@ -21,40 +19,35 @@ func (s *serviceManager) GetDeprovisioner(
 func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*instanceDetails)
+
 	if err := s.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 	); err != nil {
-		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }
 
 func (s *serviceManager) deleteRedisServer(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+	dt := instance.Details.(*instanceDetails)
 	result, err := s.client.Delete(
 		ctx,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.ServerName,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deleting redis server: %s", err)
+		return nil, fmt.Errorf("error deleting redis server: %s", err)
 	}
 	if err := result.WaitForCompletion(ctx, s.client.Client); err != nil {
-		return nil, nil, fmt.Errorf("error deleting redis server: %s", err)
+		return nil, fmt.Errorf("error deleting redis server: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

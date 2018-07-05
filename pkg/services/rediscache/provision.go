@@ -1,5 +1,3 @@
-// +build experimental
-
 package rediscache
 
 import (
@@ -22,67 +20,62 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	context.Context,
 	service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := instanceDetails{
+) (service.InstanceDetails, error) {
+	return &instanceDetails{
 		ARMDeploymentName: uuid.NewV4().String(),
 		ServerName:        uuid.NewV4().String(),
-	}
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, nil, err
+	}, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-	sdt := secureInstanceDetails{}
-	if err := service.GetStructFromMap(instance.SecureDetails, &sdt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*instanceDetails)
 	plan := instance.Plan
+
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
+	}
+
 	outputs, err := s.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
+		instance.ProvisioningParameters.GetString("location"),
 		armTemplateBytes,
-		nil, // Go template params
 		map[string]interface{}{ // ARM template params
+			"location":           instance.ProvisioningParameters.GetString("location"),
 			"serverName":         dt.ServerName,
 			"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
 			"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
 			"redisCacheCapacity": plan.GetProperties().Extended["redisCacheCapacity"],
 		},
-		instance.Tags,
+		map[string]interface{}{},
+		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
 	var ok bool
 	dt.FullyQualifiedDomainName, ok = outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment: %s",
 			err,
 		)
 	}
 
-	sdt.PrimaryKey, ok = outputs["primaryKey"].(string)
+	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error retrieving primary key from deployment: %s",
 			err,
 		)
 	}
+	dt.PrimaryKey = service.SecureString(primaryKey)
 
-	dtMap, err := service.GetMapFromStruct(dt)
-	if err != nil {
-		return nil, nil, err
-	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+	return dt, err
 }

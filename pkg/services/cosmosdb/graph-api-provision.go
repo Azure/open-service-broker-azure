@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 import (
@@ -20,43 +18,38 @@ func (g *graphAccountManager) GetProvisioner(
 }
 
 func (g *graphAccountManager) deployARMTemplate(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-
-	pp := &provisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
-		return nil, nil, err
-	}
-
-	dt := &cosmosdbInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-
-	p, err := g.buildGoTemplateParams(instance, "GlobalDocumentDB")
+) (service.InstanceDetails, error) {
+	pp := instance.ProvisioningParameters
+	dt := instance.Details.(*cosmosdbInstanceDetails)
+	p, err := g.buildGoTemplateParams(
+		pp,
+		dt,
+		"GlobalDocumentDB",
+	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error building arm params: %s", err)
+		return nil, fmt.Errorf("error building arm params: %s", err)
 	}
 	p["capability"] = "EnableGremlin"
-	if instance.Tags == nil {
-		instance.Tags = make(map[string]string)
-	}
-	instance.Tags["defaultExperience"] = "Graph"
-	fqdn, sdt, err := g.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
+	tags := getTags(pp)
+	tags["defaultExperience"] = "Graph"
+	fqdn, pk, err := g.cosmosAccountManager.deployARMTemplate(
+		pp,
+		dt,
+		p,
+		tags,
+	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	dt.FullyQualifiedDomainName = fqdn
-	sdt.ConnectionString = fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
-		dt.FullyQualifiedDomainName,
-		sdt.PrimaryKey,
+	dt.PrimaryKey = service.SecureString(pk)
+	dt.ConnectionString = service.SecureString(
+		fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
+			dt.FullyQualifiedDomainName,
+			dt.PrimaryKey,
+		),
 	)
-	dtMap, err := service.GetMapFromStruct(dt)
-	if err != nil {
-		return nil, nil, err
-	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+	return dt, err
 }

@@ -46,11 +46,12 @@ func GetCatalog(
 			filteredPlans := []service.Plan{}
 			for _, plan := range svc.GetPlans() {
 				if plan.GetStability() >= catalogConfig.MinStability {
-					filteredPlans = append(filteredPlans, plan)
+					pProp := plan.GetProperties()
+					pProp.Schemas.AddCommonSchema(svc.GetProperties())
+					filteredPlans = append(filteredPlans, service.NewPlan(pProp))
 				}
 			}
 			if len(filteredPlans) > 0 {
-				svc.SetPlans(filteredPlans)
 				services = append(services, service.NewService(
 					svc.GetProperties(),
 					svc.GetServiceManager(),

@@ -148,7 +148,7 @@ objects:
       spec:
         containers:
           - name: open-service-broker-azure
-            image: microsoft/azure-service-broker:v0.10.0
+            image: microsoft/azure-service-broker:v1.0.1
             imagePullPolicy: IfNotPresent
             env:
             - name: ENVIRONMENT

@@ -218,7 +218,7 @@ else
 	docker-compose kill test-api-compliance-broker
 	docker-compose rm -f test-api-compliance-broker
 endif
-	
+
 LINT_CMD := gometalinter ./... \
 	--concurrency=1 \
 	--disable-all \
@@ -437,7 +437,7 @@ endif
 CONTRIB_BINARY_DIR := contrib/bin
 CLI_BINARY_NAME := broker-cli
 
-BUILD_CMD := go build -o $(CONTRIB_BINARY_DIR)/$(CLI_BINARY_NAME) ./cmd/cli
+BUILD_CMD := go build -o $(CONTRIB_BINARY_DIR)/$(CLI_BINARY_NAME) ./contrib/cmd/cli
 
 .PHONY: build-broker-cli
 build-broker-cli:
@@ -448,8 +448,8 @@ else
 	--rm \
 	-e GOOS=$(GOOS) \
 	-e GOARCH=$(GOARCH) \
-	-v $$(pwd)/..:/go/src/$(BASE_PACKAGE_NAME) \
-	-w /go/src/$(BASE_PACKAGE_NAME)/contrib \
+	-v $$(pwd):/go/src/$(BASE_PACKAGE_NAME) \
+	-w /go/src/$(BASE_PACKAGE_NAME) \
 	$(DEV_IMAGE) \
 	$(BUILD_CMD)
 endif

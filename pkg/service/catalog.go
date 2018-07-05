@@ -2,35 +2,31 @@ package service
 
 import (
 	"encoding/json"
-	"sync"
 )
 
 // Catalog is an interface to be implemented by types that represents the
 // service/plans offered by a service module or by the entire broker.
 type Catalog interface {
-	ToJSON() ([]byte, error)
 	GetServices() []Service
 	GetService(serviceID string) (Service, bool)
 }
 
 type catalog struct {
-	Services        []json.RawMessage `json:"services"`
 	services        []Service
 	indexedServices map[string]Service
-	jsonMutex       sync.Mutex
 }
 
 // ServiceProperties represent the properties of a Service that can be directly
 // instantiated and passed to the NewService() constructor function which will
 // carry out all necessary initialization.
 type ServiceProperties struct { // nolint: golint
-	Name          string           `json:"name"`
-	ID            string           `json:"id"`
-	Description   string           `json:"description"`
-	Metadata      *ServiceMetadata `json:"metadata,omitempty"`
-	Tags          []string         `json:"tags"`
-	Bindable      bool             `json:"bindable"`
-	PlanUpdatable bool             `json:"plan_updateable"` // Misspelling is
+	Name          string          `json:"name"`
+	ID            string          `json:"id"`
+	Description   string          `json:"description"`
+	Metadata      ServiceMetadata `json:"metadata,omitempty"`
+	Tags          []string        `json:"tags"`
+	Bindable      bool            `json:"bindable"`
+	PlanUpdatable bool            `json:"plan_updateable"` // Misspelling is
 	// deliberate to match the spec
 	ParentServiceID string                 `json:"-"`
 	ChildServiceID  string                 `json:"-"`
@@ -51,27 +47,23 @@ type ServiceMetadata struct { // nolint: golint
 // Service is an interface to be implemented by types that represent a single
 // type of service with one or more plans
 type Service interface {
-	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
 	IsBindable() bool
 	GetServiceManager() ServiceManager
 	GetPlans() []Plan
 	GetPlan(planID string) (Plan, bool)
-	SetPlans([]Plan)
 	GetParentServiceID() string
 	GetChildServiceID() string
-	GetProperties() *ServiceProperties
+	GetProperties() ServiceProperties
 	IsEndOfLife() bool
 }
 
 type service struct {
-	*ServiceProperties
+	ServiceProperties
 	serviceManager ServiceManager
 	indexedPlans   map[string]Plan
-	Plans          []json.RawMessage `json:"plans"`
 	plans          []Plan
-	jsonMutex      sync.Mutex
 }
 
 // PlanProperties represent the properties of a Plan that can be directly
@@ -82,7 +74,7 @@ type PlanProperties struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	Free        bool                   `json:"free"`
-	Metadata    *ServicePlanMetadata   `json:"metadata,omitempty"` // nolint: lll
+	Metadata    ServicePlanMetadata    `json:"metadata,omitempty"` // nolint: lll
 	Extended    map[string]interface{} `json:"-"`
 	EndOfLife   bool                   `json:"-"`
 	Schemas     PlanSchemas            `json:"schemas,omitempty"`
@@ -98,17 +90,16 @@ type ServicePlanMetadata struct { // nolint: golint
 // Plan is an interface to be implemented by types that represent a single
 // variant or "sku" of a service
 type Plan interface {
-	ToJSON() ([]byte, error)
 	GetID() string
 	GetName() string
-	GetProperties() *PlanProperties
+	GetProperties() PlanProperties
 	IsEndOfLife() bool
 	GetSchemas() PlanSchemas
 	GetStability() Stability
 }
 
 type plan struct {
-	*PlanProperties
+	PlanProperties
 }
 
 // NewCatalog initializes and returns a new Catalog
@@ -124,23 +115,20 @@ func NewCatalog(services []Service) Catalog {
 }
 
 // ToJSON returns a []byte containing a JSON representation of the catalog
-func (c *catalog) ToJSON() ([]byte, error) {
-	c.jsonMutex.Lock()
-	defer c.jsonMutex.Unlock()
-	defer func() {
-		c.Services = nil
-	}()
-	c.Services = []json.RawMessage{}
-	for _, svc := range c.services {
-		svcJSON, err := svc.ToJSON()
-		if err != nil {
-			return nil, err
-		}
-		if svcJSON != nil {
-			c.Services = append(c.Services, json.RawMessage(svcJSON))
+func (c *catalog) MarshalJSON() ([]byte, error) {
+	// filter out the EOL services. When MarshalJson is called
+	// they won't be present in the slice
+	nonEOLServices := []Service{}
+	for _, service := range c.services {
+		if !service.IsEndOfLife() {
+			nonEOLServices = append(nonEOLServices, service)
 		}
 	}
-	return json.Marshal(c)
+	return json.Marshal(struct {
+		Services []Service `json:"services"`
+	}{
+		Services: nonEOLServices,
+	})
 }
 
 // GetServices returns all of the catalog's services
@@ -157,160 +145,112 @@ func (c *catalog) GetService(serviceID string) (Service, bool) {
 
 // NewService initialized and returns a new Service
 func NewService(
-	serviceProperties *ServiceProperties,
+	serviceProperties ServiceProperties,
 	serviceManager ServiceManager,
 	plans ...Plan,
 ) Service {
-	s := &service{
+	s := service{
 		ServiceProperties: serviceProperties,
 		serviceManager:    serviceManager,
 		plans:             plans,
 		indexedPlans:      make(map[string]Plan),
 	}
-	for _, planIfc := range s.plans {
-		p := planIfc.(*plan)
-		p.Schemas.addCommonSchema(serviceProperties)
+	for _, p := range s.plans {
 		s.indexedPlans[p.GetID()] = p
 	}
 	return s
 }
 
-// NewServiceFromJSON returns a new Service unmarshalled from the provided
-// JSON []byte
-func NewServiceFromJSON(jsonBytes []byte) (Service, error) {
-	s := &service{
-		plans:        []Plan{},
-		indexedPlans: make(map[string]Plan),
-	}
-	if err := json.Unmarshal(jsonBytes, s); err != nil {
-		return nil, err
-	}
-	for _, planRawJSON := range s.Plans {
-		plan, err := NewPlanFromJSON(planRawJSON)
-		if err != nil {
-			return nil, err
-		}
-		s.plans = append(s.plans, plan)
-		s.indexedPlans[plan.GetID()] = plan
-	}
-	s.Plans = nil
-	return s, nil
-}
-
-func (s *service) ToJSON() ([]byte, error) {
-	if s.EndOfLife {
-		return nil, nil
-	}
-	s.jsonMutex.Lock()
-	defer s.jsonMutex.Unlock()
-	defer func() {
-		s.Plans = nil
-	}()
-	s.Plans = []json.RawMessage{}
+func (s service) MarshalJSON() ([]byte, error) {
+	// filter out the EOL plans. When MarshalJson is called
+	// they won't be present in the slice
+	nonEOLPlans := []Plan{}
 	for _, plan := range s.plans {
-		planJSON, err := plan.ToJSON()
-		if err != nil {
-			return nil, err
-		}
-		if planJSON != nil {
-			s.Plans = append(s.Plans, json.RawMessage(planJSON))
+		if !plan.IsEndOfLife() {
+			nonEOLPlans = append(nonEOLPlans, plan)
 		}
 	}
-	return json.Marshal(s)
+	return json.Marshal(struct {
+		ServiceProperties
+		Plans []Plan `json:"plans"`
+	}{
+		ServiceProperties: s.GetProperties(),
+		Plans:             nonEOLPlans,
+	})
 }
 
-func (s *service) GetID() string {
+func (s service) GetID() string {
 	return s.ID
 }
 
-func (s *service) GetName() string {
+func (s service) GetName() string {
 	return s.Name
 }
 
 // IsBindable returns true if a service is bindable
-func (s *service) IsBindable() bool {
+func (s service) IsBindable() bool {
 	return s.Bindable
 }
 
-func (s *service) GetServiceManager() ServiceManager {
+func (s service) GetServiceManager() ServiceManager {
 	return s.serviceManager
 }
 
 // GetPlans returns all of the service's plans
-func (s *service) GetPlans() []Plan {
+func (s service) GetPlans() []Plan {
 	return s.plans
 }
 
 // GetPlan finds a plan by planID in a service
 // TODO: Test this
-func (s *service) GetPlan(planID string) (Plan, bool) {
+func (s service) GetPlan(planID string) (Plan, bool) {
 	plan, ok := s.indexedPlans[planID]
 	return plan, ok
 }
 
-func (s *service) SetPlans(plans []Plan) {
-	s.plans = plans
-}
-
-func (s *service) GetParentServiceID() string {
+func (s service) GetParentServiceID() string {
 	return s.ParentServiceID
 }
 
-func (s *service) GetChildServiceID() string {
+func (s service) GetChildServiceID() string {
 	return s.ChildServiceID
 }
 
-func (s *service) GetProperties() *ServiceProperties {
+func (s service) GetProperties() ServiceProperties {
 	return s.ServiceProperties
 }
 
-func (s *service) IsEndOfLife() bool {
+func (s service) IsEndOfLife() bool {
 	return s.EndOfLife
 }
 
 // NewPlan initializes and returns a new Plan
-func NewPlan(planProperties *PlanProperties) Plan {
-	return &plan{
+func NewPlan(planProperties PlanProperties) Plan {
+	return plan{
 		PlanProperties: planProperties,
 	}
 }
 
-// NewPlanFromJSON returns a new Plan unmarshalled from the provided JSON []byte
-func NewPlanFromJSON(jsonBytes []byte) (Plan, error) {
-	p := &plan{}
-	if err := json.Unmarshal(jsonBytes, p); err != nil {
-		return nil, err
-	}
-	return p, nil
-}
-
-func (p *plan) ToJSON() ([]byte, error) {
-	if p.EndOfLife {
-		return nil, nil
-	}
-	return json.Marshal(p)
-}
-
-func (p *plan) GetID() string {
+func (p plan) GetID() string {
 	return p.ID
 }
 
-func (p *plan) GetName() string {
+func (p plan) GetName() string {
 	return p.Name
 }
 
-func (p *plan) GetProperties() *PlanProperties {
+func (p plan) GetProperties() PlanProperties {
 	return p.PlanProperties
 }
 
-func (p *plan) IsEndOfLife() bool {
+func (p plan) IsEndOfLife() bool {
 	return p.EndOfLife
 }
 
-func (p *plan) GetSchemas() PlanSchemas {
+func (p plan) GetSchemas() PlanSchemas {
 	return p.Schemas
 }
 
-func (p *plan) GetStability() Stability {
+func (p plan) GetStability() Stability {
 	return p.Stability
 }

@@ -154,11 +154,11 @@ $ make test-service-lifecycles
 
 If you'd like to run a subset of the service lifecycle tests, you can select
 a subset of the services by a comma delimited list of module names to the 
-TEST_MODULES environment variable. For example, to run only the `aci` and 
+TEST_MODULES environment variable. For example, to run only the `postgresql` and 
 `mssql` tests:
 
 ```console
-$ TEST_MODULES=aci,mssql make test-service-lifecycles
+$ TEST_MODULES=postgresql,mssql make test-service-lifecycles
 ```
 
 Regardless of success or failure, after tests have completed, you can verify
@@ -322,9 +322,9 @@ resuse the binary rather than build it each time it's used.
 This can be accomplished for your chosen OS using the appropriate command from
 the following list:
 
-- Mac OS: `make build-mac-broker-cli`
-- Linux: `make build-linux-broker-cli`
-- Windows: `make build-win-broker-cli`
+- Mac OS: `GOOS=darwin make build-broker-cli`
+- Linux: `GOOS=linux make build-broker-cli`
+- Windows: `GOOS=windows make build-broker-cli`
 
 In all cases, the binary is cross-compiled in the previously-discussed
 containerized development environment for an AMD64 architecture. (If you have

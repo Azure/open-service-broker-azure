@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -24,7 +25,7 @@ func init() {
 
 	testCatalog = NewCatalog([]Service{
 		NewService(
-			&ServiceProperties{
+			ServiceProperties{
 				Name:          name,
 				ID:            id,
 				Description:   description,
@@ -33,7 +34,7 @@ func init() {
 				PlanUpdatable: planUpdatable,
 			},
 			nil,
-			NewPlan(&PlanProperties{
+			NewPlan(PlanProperties{
 				ID:          id,
 				Name:        name,
 				Description: description,
@@ -66,7 +67,7 @@ func init() {
 					},
 				},
 			}),
-			NewPlan(&PlanProperties{
+			NewPlan(PlanProperties{
 				ID:          "test-id2",
 				Name:        name,
 				Description: description,
@@ -75,7 +76,7 @@ func init() {
 			}),
 		),
 		NewService(
-			&ServiceProperties{
+			ServiceProperties{
 				Name:          name,
 				ID:            "test-id3",
 				Description:   description,
@@ -85,7 +86,7 @@ func init() {
 				EndOfLife:     true,
 			},
 			nil,
-			NewPlan(&PlanProperties{
+			NewPlan(PlanProperties{
 				ID:          "test-id4",
 				Name:        name,
 				Description: description,
@@ -103,6 +104,7 @@ func init() {
 				"name":"%s",
 				"id":"%s",
 				"description":"%s",
+				"metadata":{},
 				"tags":["%s"],
 				"bindable":%t,
 				"plan_updateable":%t,
@@ -112,6 +114,7 @@ func init() {
 						"name":"%s",
 						"description":"%s",
 						"free":%t,
+						"metadata":{},
 						"schemas": {
 							"service_instance": {
 								"create": {
@@ -188,7 +191,7 @@ func init() {
 }
 
 func TestCatalogToJSON(t *testing.T) {
-	json, err := testCatalog.ToJSON()
+	json, err := json.Marshal(testCatalog)
 	assert.Nil(t, err)
 	assert.Equal(t, testCatalogJSON, json)
 }

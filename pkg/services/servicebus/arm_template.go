@@ -1,5 +1,3 @@
-// +build experimental
-
 package servicebus
 
 // nolint: lll
@@ -8,43 +6,23 @@ var armTemplateBytes = []byte(`
 	"$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "string"
-		},
-		"serviceBusNamespaceName": {
-			"type": "string",
-			"metadata": {
-				"description": "Name of the Service Bus namespace"
-			}
-		},
-		"serviceBusSku": {
-			"type": "string",
-			"allowedValues": [
-				"Basic",
-				"Standard",
-				"Premium"
-			],
-			"metadata": {
-				"description": "The messaging tier for service Bus namespace"
-			}
-		},
 		"tags": {
 			"type": "object"
 		}
 	},
 	"variables": {
 		"defaultSASKeyName": "RootManageSharedAccessKey",
-		"defaultAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', parameters('serviceBusNamespaceName'), variables('defaultSASKeyName'))]",
+		"defaultAuthRuleResourceId": "[resourceId('Microsoft.ServiceBus/namespaces/authorizationRules', '{{.serviceBusNamespaceName}}', variables('defaultSASKeyName'))]",
 		"sbVersion": "2017-04-01"
 	},
 	"resources": [
 		{
 			"apiVersion": "2017-04-01",
-			"name": "[parameters('serviceBusNamespaceName')]",
+			"name": "{{.serviceBusNamespaceName}}",
 			"type": "Microsoft.ServiceBus/Namespaces",
-			"location": "[parameters('location')]",
+			"location": "{{.location}}",
 			"sku": {
-				"name": "[parameters('serviceBusSku')]"
+				"name": "{{.serviceBusSku}}"
 			},
 			"tags": "[parameters('tags')]"
 		}
