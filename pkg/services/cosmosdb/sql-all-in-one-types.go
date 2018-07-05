@@ -1,23 +1,10 @@
-// +build experimental
-
 package cosmosdb
 
-import (
-	"github.com/Azure/open-service-broker-azure/pkg/service"
-)
-
-func (
-	s *sqlAllInOneManager,
-) getProvisionParametersSchema() service.InputParametersSchema {
-	return s.cosmosAccountManager.getProvisionParametersSchema()
-}
+import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type sqlAllInOneInstanceDetails struct {
-	ARMDeploymentName        string `json:"armDeployment"`
-	DatabaseAccountName      string `json:"name"`
-	FullyQualifiedDomainName string `json:"fullyQualifiedDomainName"`
-	IPFilters                string `json:"ipFilters"`
-	DatabaseName             string `json:"databaseName"`
+	cosmosdbInstanceDetails `json:",squash"`
+	DatabaseName            string `json:"databaseName"`
 }
 
 // cosmosCredentials encapsulates CosmosDB-specific details for connecting via
@@ -34,4 +21,18 @@ type sqlAPICredentials struct {
 
 type databaseCreationRequest struct {
 	ID string `json:"id"`
+}
+
+// GetEmptyInstanceDetails returns an "empty" service-specific object that
+// can be populated with data during unmarshaling of JSON to an Instance
+func (
+	s *sqlAllInOneManager,
+) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &sqlAllInOneInstanceDetails{}
+}
+
+// GetEmptyBindingDetails returns an "empty" service-specific object that
+// can be populated with data during unmarshaling of JSON to a Binding
+func (s *sqlAllInOneManager) GetEmptyBindingDetails() service.BindingDetails {
+	return nil
 }

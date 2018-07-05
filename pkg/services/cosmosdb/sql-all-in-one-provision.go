@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 import (
@@ -21,81 +19,70 @@ func (s *sqlAllInOneManager) GetProvisioner(
 }
 
 func (s *sqlAllInOneManager) preProvision(
-	_ context.Context,
+	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := sqlAllInOneInstanceDetails{
-		ARMDeploymentName:   uuid.NewV4().String(),
-		DatabaseAccountName: generateAccountName(instance.Location),
-		DatabaseName:        uuid.NewV4().String(),
+) (service.InstanceDetails, error) {
+
+	cdt, err := s.cosmosAccountManager.preProvision(ctx, instance)
+	if err != nil {
+		return nil, err
 	}
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, nil, err
+	aid := &sqlAllInOneInstanceDetails{
+		cosmosdbInstanceDetails: *cdt.(*cosmosdbInstanceDetails),
+		DatabaseName:            uuid.NewV4().String(),
+	}
+	return aid, nil
 }
 
 func (s *sqlAllInOneManager) deployARMTemplate(
-	ctx context.Context,
+	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 
-	pp := &provisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
-		return nil, nil, err
-	}
-	dt := &sqlAllInOneInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
-
+	pp := instance.ProvisioningParameters
+	dt := instance.Details.(*sqlAllInOneInstanceDetails)
 	p, err := s.cosmosAccountManager.buildGoTemplateParams(
-		instance,
+		pp,
+		&dt.cosmosdbInstanceDetails,
 		"GlobalDocumentDB",
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	if instance.Tags == nil {
-		instance.Tags = make(map[string]string)
-	}
-
-	fqdn, sdt, err := s.cosmosAccountManager.deployARMTemplate(ctx, instance, p)
+	tags := getTags(pp)
+	tags["defaultExperience"] = "DocumentDB"
+	fqdn, pk, err := s.cosmosAccountManager.deployARMTemplate(
+		pp,
+		&dt.cosmosdbInstanceDetails,
+		p,
+		tags,
+	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	dt.FullyQualifiedDomainName = fqdn
-	sdt.ConnectionString = fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
-		dt.FullyQualifiedDomainName,
-		sdt.PrimaryKey,
+	dt.PrimaryKey = service.SecureString(pk)
+	dt.ConnectionString = service.SecureString(
+		fmt.Sprintf("AccountEndpoint=%s;AccountKey=%s;",
+			dt.FullyQualifiedDomainName,
+			dt.PrimaryKey,
+		),
 	)
-
-	dtMap, err := service.GetMapFromStruct(dt)
-	if err != nil {
-		return nil, nil, err
-	}
-	sdtMap, err := service.GetMapFromStruct(sdt)
-	return dtMap, sdtMap, err
+	return dt, err
 }
 
 func (s *sqlAllInOneManager) createDatabase(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := &sqlAllInOneInstanceDetails{}
-	err := service.GetStructFromMap(instance.Details, &dt)
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*sqlAllInOneInstanceDetails)
+	err := createDatabase(
+		dt.DatabaseAccountName,
+		dt.DatabaseName,
+		string(dt.PrimaryKey),
+	)
 	if err != nil {
-		fmt.Printf("Failed to get DT Struct from Map %s", err)
-		return nil, nil, err
+		return nil, err
 	}
-	sdt := &cosmosdbSecureInstanceDetails{}
-	err = service.GetStructFromMap(instance.SecureDetails, &sdt)
-	if err != nil {
-		fmt.Printf("Failed to get SDT Struct from Map %s", err)
-		return nil, nil, err
-	}
-	err = createDatabase(dt.DatabaseAccountName, dt.DatabaseName, sdt.PrimaryKey)
-	if err != nil {
-		return nil, nil, err
-	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

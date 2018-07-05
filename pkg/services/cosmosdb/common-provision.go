@@ -1,5 +1,3 @@
-// +build experimental
-
 package cosmosdb
 
 import (
@@ -35,166 +33,120 @@ func generateAccountName(location string) string {
 	return databaseAccountName
 }
 
-func preProvision(
-	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := cosmosdbInstanceDetails{
-		ARMDeploymentName:   uuid.NewV4().String(),
-		DatabaseAccountName: generateAccountName(instance.Location),
-	}
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, nil, err
-}
-
 func (c *cosmosAccountManager) preProvision(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	return preProvision(instance)
+) (service.InstanceDetails, error) {
+	l := instance.ProvisioningParameters.GetString("location")
+	return &cosmosdbInstanceDetails{
+		ARMDeploymentName:   uuid.NewV4().String(),
+		DatabaseAccountName: generateAccountName(l),
+	}, nil
 }
 
 func (c *cosmosAccountManager) buildGoTemplateParams(
-	instance service.Instance,
+	pp *service.ProvisioningParameters,
+	dt *cosmosdbInstanceDetails,
 	kind string,
 ) (map[string]interface{}, error) {
-
-	pp := &provisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, pp); err != nil {
-		return nil, err
-	}
-
-	dt := &cosmosdbInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, err
-	}
-
 	p := map[string]interface{}{}
 	p["name"] = dt.DatabaseAccountName
 	p["kind"] = kind
-
+	p["location"] = pp.GetString("location")
 	filters := []string{}
-
-	if pp.IPFilterRules != nil {
-		if pp.IPFilterRules.AllowAzure != disabled {
-			filters = append(filters, "0.0.0.0")
-		} else if pp.IPFilterRules.AllowPortal != disabled {
-			// Azure Portal IP Addresses per:
-			// https://aka.ms/Vwxndo
-			//|| Region            || IP address(es) ||
-			//||=====================================||
-			//|| China             || 139.217.8.252  ||
-			//||===================||================||
-			//|| Germany           || 51.4.229.218   ||
-			//||===================||================||
-			//|| US Gov            || 52.244.48.71   ||
-			//||===================||================||
-			//|| All other regions || 104.42.195.92  ||
-			//||                   || 40.76.54.131   ||
-			//||                   || 52.176.6.30    ||
-			//||                   || 52.169.50.45   ||
-			//||                   || 52.187.184.26  ||
-			//=======================================||
-			// Given that we don't really have context of the cloud
-			// we are provisioning with right now, use all of the above
-			// addresses.
-			filters = append(filters,
-				"104.42.195.92",
-				"40.76.54.131",
-				"52.176.6.30",
-				"52.169.50.45",
-				"52.187.184.26",
-				"51.4.229.218",
-				"139.217.8.252",
-				"52.244.48.71",
-			)
-		}
-		filters = append(filters, pp.IPFilterRules.Filters...)
+	ipFilters := pp.GetObject("ipFilters")
+	if ipFilters.GetString("allowAzure") != disabled {
+		filters = append(filters, "0.0.0.0")
+	} else if ipFilters.GetString("allowPortal") != disabled {
+		// Azure Portal IP Addresses per:
+		// https://aka.ms/Vwxndo
+		//|| Region            || IP address(es) ||
+		//||=====================================||
+		//|| China             || 139.217.8.252  ||
+		//||===================||================||
+		//|| Germany           || 51.4.229.218   ||
+		//||===================||================||
+		//|| US Gov            || 52.244.48.71   ||
+		//||===================||================||
+		//|| All other regions || 104.42.195.92  ||
+		//||                   || 40.76.54.131   ||
+		//||                   || 52.176.6.30    ||
+		//||                   || 52.169.50.45   ||
+		//||                   || 52.187.184.26  ||
+		//=======================================||
+		// Given that we don't really have context of the cloud
+		// we are provisioning with right now, use all of the above
+		// addresses.
+		filters = append(filters,
+			"104.42.195.92",
+			"40.76.54.131",
+			"52.176.6.30",
+			"52.169.50.45",
+			"52.187.184.26",
+			"51.4.229.218",
+			"139.217.8.252",
+			"52.244.48.71",
+		)
 	} else {
 		filters = append(filters, "0.0.0.0")
 	}
+	filters = append(filters, ipFilters.GetStringArray("allowedIPRanges")...)
 	if len(filters) > 0 {
 		p["ipFilters"] = strings.Join(filters, ",")
 	}
-
-	if pp.ConsistencyPolicy != nil {
-		consistencyPolicy := map[string]interface{}{
-			"defaultConsistencyLevel": pp.ConsistencyPolicy.DefaultConsistency,
-		}
-		if pp.ConsistencyPolicy.DefaultConsistency == "BoundedStaleness" {
-			boundedStalenessSettings := make(map[string]interface{})
-			boundedStalenessSettings["maxIntervalInSeconds"] =
-				*pp.ConsistencyPolicy.BoundedStaleness.MaxInternal
-			boundedStalenessSettings["maxStalenessPrefix"] =
-				*pp.ConsistencyPolicy.BoundedStaleness.MaxStaleness
-		}
-		p["consistencyPolicy"] = consistencyPolicy
-	}
+	p["consistencyPolicy"] = pp.GetObject("consistencyPolicy").Data
 	return p, nil
 }
 
-func (c *cosmosAccountManager) deployARMTemplate(
-	_ context.Context,
-	instance service.Instance,
-	goParams map[string]interface{},
-) (string, *cosmosdbSecureInstanceDetails, error) {
-	dt := &cosmosdbInstanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return "", nil, err
+func getTags(pp *service.ProvisioningParameters) map[string]string {
+	tagsObj := pp.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
 	}
-	fqdn, sdt, err := c.deployTemplate(
-		instance,
-		goParams,
-		dt.ARMDeploymentName,
-		armTemplateBytes,
-	)
-	if err != nil {
-		return "", nil, fmt.Errorf("error deploying ARM template: %s", err)
-	}
-	return fqdn, sdt, nil
+	return tags
 }
 
-func (c *cosmosAccountManager) deployTemplate(
-	instance service.Instance,
+func (c *cosmosAccountManager) deployARMTemplate(
+	pp *service.ProvisioningParameters,
+	dt *cosmosdbInstanceDetails,
 	goParams map[string]interface{},
-	armDeploymentName string,
-	armTemplateBytes []byte,
-) (string, *cosmosdbSecureInstanceDetails, error) {
+	tags map[string]string,
+) (string, string, error) {
 	outputs, err := c.armDeployer.Deploy(
-		armDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
+		dt.ARMDeploymentName,
+		pp.GetString("resourceGroup"),
+		pp.GetString("location"),
 		armTemplateBytes,
 		goParams, // Go template params
 		map[string]interface{}{},
-		instance.Tags,
+		tags,
 	)
 	if err != nil {
-		return "", nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return "", "", fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	return c.handleOutput(outputs)
+	fqdn, primaryKey, err := c.handleOutput(outputs)
+	if err != nil {
+		return "", "", fmt.Errorf("error deploying ARM template: %s", err)
+	}
+	return fqdn, primaryKey, nil
 }
 
 func (c *cosmosAccountManager) handleOutput(
 	outputs map[string]interface{},
-) (string, *cosmosdbSecureInstanceDetails, error) {
+) (string, string, error) {
 
 	var ok bool
 	fqdn, ok := outputs["fullyQualifiedDomainName"].(string)
 	if !ok {
-		return "", nil, fmt.Errorf(
+		return "", "", fmt.Errorf(
 			"error retrieving fully qualified domain name from deployment",
 		)
 	}
 
 	primaryKey, ok := outputs["primaryKey"].(string)
 	if !ok {
-		return "", nil, fmt.Errorf("error retrieving primary key from deployment")
+		return "", "", fmt.Errorf("error retrieving primary key from deployment")
 	}
-
-	sdt := cosmosdbSecureInstanceDetails{
-		PrimaryKey: primaryKey,
-	}
-
-	return fqdn, &sdt, nil
+	return fqdn, primaryKey, nil
 }
