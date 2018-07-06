@@ -8,11 +8,20 @@ import (
 )
 
 func catalog(c *cli.Context) error {
+	useSSL := c.GlobalBool(flagSSL)
+	skipCertValidation := c.GlobalBool(flagInsecure)
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
 	username := c.GlobalString(flagUsername)
 	password := c.GlobalString(flagPassword)
-	catalog, err := client.GetCatalog(host, port, username, password)
+	catalog, err := client.GetCatalog(
+		useSSL,
+		skipCertValidation,
+		host,
+		port,
+		username,
+		password,
+	)
 	if err != nil {
 		return fmt.Errorf("error retrieving catalog: %s", err)
 	}

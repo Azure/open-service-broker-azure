@@ -10,18 +10,20 @@ import (
 // GetCatalog retrieves the catalog from the broker specified by host name
 // and port number
 func GetCatalog(
+	useSSL bool,
+	skipCertValidation bool,
 	host string,
 	port int,
 	username string,
 	password string,
 ) (Catalog, error) {
 	catalog := Catalog{}
-	url := fmt.Sprintf("%s/v2/catalog", getBaseURL(host, port))
+	url := fmt.Sprintf("%s/v2/catalog", getBaseURL(useSSL, host, port))
 	req, err := newRequest(http.MethodGet, url, username, password, nil)
 	if err != nil {
 		return catalog, err
 	}
-	httpClient := &http.Client{}
+	httpClient := getHTTPClient(skipCertValidation)
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return catalog, fmt.Errorf("error requesting catalog: %s", err)

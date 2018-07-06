@@ -10,6 +10,8 @@ import (
 )
 
 func provision(c *cli.Context) error {
+	useSSL := c.GlobalBool(flagSSL)
+	skipCertValidation := c.GlobalBool(flagInsecure)
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
 	username := c.GlobalString(flagUsername)
@@ -27,6 +29,8 @@ func provision(c *cli.Context) error {
 		return err
 	}
 	instanceID, err := client.Provision(
+		useSSL,
+		skipCertValidation,
 		host,
 		port,
 		username,
@@ -44,6 +48,8 @@ func provision(c *cli.Context) error {
 		defer ticker.Stop()
 		for range ticker.C {
 			result, err := client.Poll(
+				useSSL,
+				skipCertValidation,
 				host,
 				port,
 				username,

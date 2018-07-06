@@ -7,6 +7,8 @@ import (
 
 // Deprovision initiates deprovisioning of a service instance
 func Deprovision(
+	useSSL bool,
+	skipCertValidation bool,
 	host string,
 	port int,
 	username string,
@@ -15,7 +17,7 @@ func Deprovision(
 ) error {
 	url := fmt.Sprintf(
 		"%s/v2/service_instances/%s",
-		getBaseURL(host, port),
+		getBaseURL(useSSL, host, port),
 		instanceID,
 	)
 	req, err := newRequest(http.MethodDelete, url, username, password, nil)
@@ -25,7 +27,7 @@ func Deprovision(
 	q := req.URL.Query()
 	q.Add("accepts_incomplete", "true")
 	req.URL.RawQuery = q.Encode()
-	httpClient := &http.Client{}
+	httpClient := getHTTPClient(skipCertValidation)
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("error executing deprovision call: %s", err)
