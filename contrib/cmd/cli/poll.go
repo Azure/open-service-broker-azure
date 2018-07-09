@@ -9,6 +9,8 @@ import (
 )
 
 func poll(c *cli.Context) error {
+	useSSL := c.GlobalBool(flagSSL)
+	skipCertValidation := c.GlobalBool(flagInsecure)
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
 	username := c.GlobalString(flagUsername)
@@ -27,6 +29,8 @@ func poll(c *cli.Context) error {
 		return fmt.Errorf("invalid value for flag --%s", flagOperation)
 	}
 	status, err := client.Poll(
+		useSSL,
+		skipCertValidation,
 		host,
 		port,
 		username,

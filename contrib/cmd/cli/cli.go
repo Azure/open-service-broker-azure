@@ -14,6 +14,14 @@ func main() {
 	app.UsageText = "broker-cli [global options] <command> [command options] " +
 		"[arguments...]"
 	app.Flags = []cli.Flag{
+		cli.BoolFlag{
+			Name:  flagsSSL,
+			Usage: "use a secure connection (HTTPS)",
+		},
+		cli.BoolFlag{
+			Name:  flagsInsecure,
+			Usage: "skip SSL cert validation",
+		},
 		cli.StringFlag{
 			Name:  flagsHost,
 			Usage: "specify the broker's host",

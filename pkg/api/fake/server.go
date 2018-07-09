@@ -18,9 +18,9 @@ func NewServer() *Server {
 	}
 }
 
-// Start causes the api server to start serving HTTP requests. It will block
+// Run causes the api server to start serving HTTP requests. It will block
 // until an error occurs and will return that error.
-func (s *Server) Start(ctx context.Context) error {
+func (s *Server) Run(ctx context.Context) error {
 	return s.RunBehavior(ctx)
 }
 

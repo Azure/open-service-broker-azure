@@ -9,6 +9,8 @@ import (
 )
 
 func unbind(c *cli.Context) error {
+	useSSL := c.GlobalBool(flagSSL)
+	skipCertValidation := c.GlobalBool(flagInsecure)
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
 	username := c.GlobalString(flagUsername)
@@ -21,7 +23,16 @@ func unbind(c *cli.Context) error {
 	if bindingID == "" {
 		return fmt.Errorf("--%s is a required flag", flagBindingID)
 	}
-	err := client.Unbind(host, port, username, password, instanceID, bindingID)
+	err := client.Unbind(
+		useSSL,
+		skipCertValidation,
+		host,
+		port,
+		username,
+		password,
+		instanceID,
+		bindingID,
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

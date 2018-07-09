@@ -10,6 +10,8 @@ import (
 )
 
 func deprovision(c *cli.Context) error {
+	useSSL := c.GlobalBool(flagSSL)
+	skipCertValidation := c.GlobalBool(flagInsecure)
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
 	username := c.GlobalString(flagUsername)
@@ -18,7 +20,15 @@ func deprovision(c *cli.Context) error {
 	if instanceID == "" {
 		return fmt.Errorf("--%s is a required flag", flagInstanceID)
 	}
-	err := client.Deprovision(host, port, username, password, instanceID)
+	err := client.Deprovision(
+		useSSL,
+		skipCertValidation,
+		host,
+		port,
+		username,
+		password,
+		instanceID,
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,6 +38,8 @@ func deprovision(c *cli.Context) error {
 		defer ticker.Stop()
 		for range ticker.C {
 			result, err := client.Poll(
+				useSSL,
+				skipCertValidation,
 				host,
 				port,
 				username,
