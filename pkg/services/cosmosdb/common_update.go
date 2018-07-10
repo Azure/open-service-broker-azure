@@ -25,10 +25,31 @@ func (c *cosmosAccountManager) updateDeployment(
 	for k, v := range additionalTags {
 		tags[k] = v
 	}
-	_, _, err = c.deployARMTemplate(
+	err = c.deployUpdatedARMTemplate(
 		up,
 		dt,
 		p,
+		tags,
+	)
+	if err != nil {
+		return fmt.Errorf("error deploying ARM template: %s", err)
+	}
+	return nil
+}
+
+func (c *cosmosAccountManager) deployUpdatedARMTemplate(
+	pp *service.ProvisioningParameters,
+	dt *cosmosdbInstanceDetails,
+	goParams map[string]interface{},
+	tags map[string]string,
+) error {
+	_, err := c.armDeployer.Update(
+		dt.ARMDeploymentName,
+		pp.GetString("resourceGroup"),
+		pp.GetString("location"),
+		armTemplateBytes,
+		goParams, // Go template params
+		map[string]interface{}{},
 		tags,
 	)
 	if err != nil {
