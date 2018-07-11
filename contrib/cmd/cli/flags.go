@@ -22,4 +22,8 @@ const (
 	flagOperation   = "operation"
 	flagsOperation  = "operation, o"
 	flagPoll        = "poll"
+	flagSSL         = "ssl"
+	flagsSSL        = "ssl, s"
+	flagInsecure    = "insecure"
+	flagsInsecure   = "insecure, i"
 )

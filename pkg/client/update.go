@@ -8,6 +8,8 @@ import (
 
 // Update initiates updating of an existing service instance
 func Update(
+	useSSL bool,
+	skipCertValidation bool,
 	host string,
 	port int,
 	username string,
@@ -19,7 +21,7 @@ func Update(
 ) error {
 	url := fmt.Sprintf(
 		"%s/v2/service_instances/%s",
-		getBaseURL(host, port),
+		getBaseURL(useSSL, host, port),
 		instanceID,
 	)
 	updatingRequest := UpdatingRequest{
@@ -38,7 +40,7 @@ func Update(
 	q := req.URL.Query()
 	q.Add("accepts_incomplete", "true")
 	req.URL.RawQuery = q.Encode()
-	httpClient := &http.Client{}
+	httpClient := getHTTPClient(skipCertValidation)
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("error executing update call: %s", err)

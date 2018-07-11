@@ -10,6 +10,8 @@ import (
 )
 
 func update(c *cli.Context) error {
+	useSSL := c.GlobalBool(flagSSL)
+	skipCertValidation := c.GlobalBool(flagInsecure)
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
 	username := c.GlobalString(flagUsername)
@@ -28,6 +30,8 @@ func update(c *cli.Context) error {
 		return err
 	}
 	if err := client.Update(
+		useSSL,
+		skipCertValidation,
 		host,
 		port,
 		username,
@@ -45,6 +49,8 @@ func update(c *cli.Context) error {
 		defer ticker.Stop()
 		for range ticker.C {
 			result, err := client.Poll(
+				useSSL,
+				skipCertValidation,
 				host,
 				port,
 				username,

@@ -7,6 +7,8 @@ import (
 
 // Unbind carries out unbinding
 func Unbind(
+	useSSL bool,
+	skipCertValidation bool,
 	host string,
 	port int,
 	username string,
@@ -16,7 +18,7 @@ func Unbind(
 ) error {
 	url := fmt.Sprintf(
 		"%s/v2/service_instances/%s/service_bindings/%s",
-		getBaseURL(host, port),
+		getBaseURL(useSSL, host, port),
 		instanceID,
 		bindingID,
 	)
@@ -24,7 +26,7 @@ func Unbind(
 	if err != nil {
 		return err
 	}
-	httpClient := &http.Client{}
+	httpClient := getHTTPClient(skipCertValidation)
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("error executing unbind call: %s", err)

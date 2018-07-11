@@ -44,6 +44,9 @@ azure:
   ## Required
   clientSecret: 
 
+tls:
+  enabled: true
+
 ## Basic auth credentials that can later be used to access this broker
 basicAuth:
   ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION

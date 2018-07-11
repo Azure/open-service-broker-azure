@@ -6,8 +6,12 @@ import (
 	"net/http"
 )
 
-func getBaseURL(host string, port int) string {
-	return fmt.Sprintf("http://%s:%d", host, port)
+func getBaseURL(useSSL bool, host string, port int) string {
+	proto := "http"
+	if useSSL {
+		proto = "https"
+	}
+	return fmt.Sprintf("%s://%s:%d", proto, host, port)
 }
 
 func newRequest(

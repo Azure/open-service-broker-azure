@@ -140,11 +140,27 @@ func main() {
 		apiFilters.NewAPIVersionFilter(),
 	)
 
-	// Create broker
-	broker, err := broker.NewBroker(
+	apiServerConfig, err := api.GetConfigFromEnvironment()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Create API server
+	apiServer, err := api.NewServer(
+		apiServerConfig,
 		store,
 		asyncEngine,
 		filterChain,
+		catalog,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create broker
+	broker, err := broker.NewBroker(
+		apiServer,
+		asyncEngine,
+		store,
 		catalog,
 	)
 	if err != nil {
@@ -166,7 +182,7 @@ func main() {
 	}()
 
 	// Run broker
-	if err := broker.Start(ctx); err != nil {
+	if err := broker.Run(ctx); err != nil {
 		if err == ctx.Err() {
 			// Allow some time for goroutines to shut down
 			time.Sleep(time.Second * 3)

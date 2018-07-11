@@ -1,10 +1,37 @@
+{{- $ca := genCA "osba-ca" 3650 }}
+{{- if .Values.tls.enabled }}
+{{- $cn := printf "%s-open-service-broker-azure" .Release.Name }}
+{{- $altName1 := printf "%s-open-service-broker-azure.%s" .Release.Name .Release.Namespace }}
+{{- $altName2 := printf "%s-open-service-broker-azure.%s.svc" .Release.Name .Release.Namespace }}
+{{- $altName3 := printf "%s-open-service-broker-azure.%s.svc.cluster" .Release.Name .Release.Namespace }}
+{{- $altName4 := printf "%s-open-service-broker-azure.%s.svc.cluster.local" .Release.Name .Release.Namespace }}
+{{- $cert := genSignedCert $cn nil (list $altName1 $altName2 $altName3 $altName4) 3650 $ca }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "fullname" . }}-cert
+  labels:
+    app: {{ template "fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+  tls.crt: {{ b64enc $cert.Cert }}
+  tls.key: {{ b64enc $cert.Key }}
+{{- end }}
 {{- if .Values.registerBroker }}
+---
 apiVersion: servicecatalog.k8s.io/v1beta1
 kind: ClusterServiceBroker
 metadata:
   name: osba
 spec:
+  {{- if .Values.tls.enabled }}
+  url: https://{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  caBundle: {{ b64enc $ca.Cert }}
+  {{- else }}
   url: http://{{ template "fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  {{- end }}
   authInfo:
     basic:
       secretRef:
