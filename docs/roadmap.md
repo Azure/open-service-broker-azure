@@ -2,8 +2,7 @@
 
 This is the official roadmap for the Open Service Broker for Azure (OSBA) project. OSBA is currently available as a stable release and this roadmap represents our plan to continue to evolve (OSBA) and the services it provides.
 
-OSBA releases follow [semantic versioning](https://semver.org/) strictly, and the current stability is `v1.0.1`, which means
-that we will not make backward incompatible changes within a 1.x.x release.
+OSBA releases follow [semantic versioning](https://semver.org/) strictly, which means we will not implement backward incompatible changes in a minor or patch release.
 
 This roadmap addresses stability in terms of two dimensions:
 
