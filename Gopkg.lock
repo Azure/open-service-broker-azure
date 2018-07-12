@@ -11,7 +11,6 @@
     "services/postgresql/mgmt/2017-04-30-preview/postgresql",
     "services/redis/mgmt/2017-10-01/redis",
     "services/resources/mgmt/2017-05-10/resources",
-    "services/search/mgmt/2015-08-19/search",
     "services/servicebus/mgmt/2017-04-01/servicebus",
     "services/sql/mgmt/2017-03-01-preview/sql",
     "services/storage/mgmt/2017-10-01/storage",
@@ -202,6 +201,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0529e7a951a2741762353c16f796f7bf995e2e64a0db68588eb7f21b750fe3da"
+  inputs-digest = "a9ec67dd91d386fae211e2c5d0d540a9937f345a6446188815f9568588e26ebe"
   solver-name = "gps-cdcl"
   solver-version = 1
