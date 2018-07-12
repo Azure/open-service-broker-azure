@@ -1,9 +1,9 @@
 # Roadmap
 
-This is the official roadmap for the Open Service Broker for Azure (OSBA) project. OSBA is currently available as an alpha release and this roadmap represents our plan to deliver (OSBA) and the services it provides in a stable form.
+This is the official roadmap for the Open Service Broker for Azure (OSBA) project. OSBA is currently available as an stable release and this roadmap represents our plan to continue to evolve (OSBA) and the services it provides.
 
-OSBA releases follow [semantic versioning](https://semver.org/) strictly, and the current stability is pre-`v1.0.0`, which means
-that backward incompatible changes are possible.
+OSBA releases follow [semantic versioning](https://semver.org/) strictly, and the current stability is `v1.0.1`, which means
+that we will not make backward incompatible changes within a 1.x.x release.
 
 This roadmap addresses stability in terms of two dimensions:
 
@@ -29,13 +29,11 @@ Please see [stability documentation](stability.md) for information on each of th
 
 # July 2018
 
-Currently, the following services are in 'preview':
+Currently, the following services are 'stable':
 
 - [Azure SQL Database](https://azure.microsoft.com/services/sql-database/)
 - [Azure Database for MySQL](https://azure.microsoft.com/services/mysql/)
 - [Azure Database for PostgreSQL](https://azure.microsoft.com/services/postgresql/)
-
-We expect to declare these services 'stable' by July 2018.
 
 # December 2018
 
