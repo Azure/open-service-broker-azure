@@ -18,24 +18,29 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 		RequiredProperties: []string{"location", "resourceGroup"},
 		PropertySchemas: map[string]service.PropertySchema{
 			"location": &service.StringPropertySchema{
+				Title: "Location",
 				Description: "The Azure region in which to provision" +
 					" applicable resources.",
 				CustomPropertyValidator: azure.LocationValidator,
 			},
 			"resourceGroup": &service.StringPropertySchema{
+				Title: "Resource group",
 				Description: "The (new or existing) resource group with which" +
 					" to associate new resources.",
 			},
 			"ipFilters": &service.ObjectPropertySchema{
+				Title:       "IP filters",
 				Description: "IP Range Filter to be applied to new CosmosDB account",
 				PropertySchemas: map[string]service.PropertySchema{
 					"allowAccessFromAzure": &service.StringPropertySchema{
+						Title: "Allow access from Azure",
 						Description: "Specifies if Azure Services should be able to access" +
 							" the CosmosDB account.",
 						AllowedValues: []string{"enabled", "disabled"},
 						DefaultValue:  "enabled",
 					},
 					"allowAccessFromPortal": &service.StringPropertySchema{
+						Title: "Allow access From Portal",
 						Description: "Specifies if the Azure Portal should be able to" +
 							" access the CosmosDB account. If `allowAccessFromAzure` is" +
 							" set to enabled, this value is ignored.",
@@ -43,6 +48,7 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 						DefaultValue:  "enabled",
 					},
 					"allowedIPRanges": &service.ArrayPropertySchema{
+						Title: "Allowed IP ranges",
 						Description: "Values to include in IP Filter. " +
 							"Can be an IP Address or CIDR range.",
 						ItemsSchema: &service.StringPropertySchema{
@@ -56,12 +62,14 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 				},
 			},
 			"consistencyPolicy": &service.ObjectPropertySchema{
+				Title:       "Consistency policy",
 				Description: "The consistency policy for the Cosmos DB account.",
 				RequiredProperties: []string{
 					"defaultConsistencyLevel",
 				},
 				PropertySchemas: map[string]service.PropertySchema{
 					"defaultConsistencyLevel": &service.StringPropertySchema{
+						Title: "Default consistency level",
 						Description: "The default consistency level and" +
 							" configuration settings of the Cosmos DB account.",
 						AllowedValues: []string{
@@ -73,6 +81,7 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 						},
 					},
 					"boundedStaleness": &service.ObjectPropertySchema{
+						Title: "Bounded staleness",
 						Description: "The staleness settings when using " +
 							"BoundedStaleness consistency.  Required when " +
 							"using BoundedStaleness",
@@ -82,6 +91,7 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 						},
 						PropertySchemas: map[string]service.PropertySchema{
 							"maxStalenessPrefix": &service.IntPropertySchema{
+								Title: "Maximum staleness prefix",
 								Description: "When used with the Bounded Staleness " +
 									"consistency level, this value represents the number of " +
 									"stale requests tolerated" +
@@ -91,6 +101,7 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 								MaxValue: ptr.ToInt64(maxStalenessPrefixMax),
 							},
 							"maxIntervalInSeconds": &service.IntPropertySchema{
+								Title: "Maximum interval in seconds",
 								Description: "When used with the Bounded Staleness " +
 									"consistency level, this value represents the time " +
 									"amount of staleness (in seconds) tolerated. " +

@@ -36,21 +36,25 @@ func generateProvisioningParamsSchema(
 	ips := generateUpdatingParamsSchema(td)
 	ips.RequiredProperties = append(ips.RequiredProperties, "location")
 	ips.PropertySchemas["location"] = &service.StringPropertySchema{
+		Title: "Location",
 		Description: "The Azure region in which to provision" +
 			" applicable resources.",
 		CustomPropertyValidator: azure.LocationValidator,
 	}
 	ips.RequiredProperties = append(ips.RequiredProperties, "resourceGroup")
 	ips.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
+		Title: "Resource group",
 		Description: "The (new or existing) resource group with which" +
 			" to associate new resources.",
 	}
 	ips.PropertySchemas["backupRedundancy"] = &service.StringPropertySchema{
+		Title:         "Backup redundancy",
 		Description:   "Specifies the backup redundancy",
 		AllowedValues: td.allowedBackupRedundancy,
 		DefaultValue:  "local",
 	}
 	ips.PropertySchemas["tags"] = &service.ObjectPropertySchema{
+		Title: "Tags",
 		Description: "Tags to be applied to new resources," +
 			" specified as key/value pairs.",
 		Additional: &service.StringPropertySchema{},
@@ -64,33 +68,39 @@ func generateUpdatingParamsSchema(
 	return service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"cores": &service.IntPropertySchema{
+				Title: "Cores",
 				Description: "Specifies vCores, which represent the logical " +
 					"CPU of the underlying hardware",
 				AllowedValues: td.allowedCores,
 				DefaultValue:  ptr.ToInt64(td.defaultCores),
 			},
 			"storage": &service.IntPropertySchema{
+				Title:        "Storage",
 				Description:  "Specifies the storage in GBs",
 				DefaultValue: ptr.ToInt64(10),
 				MinValue:     ptr.ToInt64(5),
 				MaxValue:     ptr.ToInt64(td.maxStorage),
 			},
 			"backupRetention": &service.IntPropertySchema{
+				Title:        "Backup retention",
 				Description:  "Specifies the number of days for backup retention",
 				DefaultValue: ptr.ToInt64(7),
 				MinValue:     ptr.ToInt64(7),
 				MaxValue:     ptr.ToInt64(35),
 			},
 			"sslEnforcement": &service.StringPropertySchema{
+				Title: "SSL enforcement",
 				Description: "Specifies whether the server requires the use of TLS" +
 					" when connecting. Left unspecified, SSL will be enforced",
 				AllowedValues: []string{enabledParamString, disabledParamString},
 				DefaultValue:  enabledParamString,
 			},
 			"firewallRules": &service.ArrayPropertySchema{
+				Title: "Firewall rules",
 				Description: "Firewall rules to apply to instance. " +
 					"If left unspecified, defaults to only Azure IPs",
 				ItemsSchema: &service.ObjectPropertySchema{
+					Title:       "Firewall rule",
 					Description: "Individual Firewall Rule",
 					RequiredProperties: []string{
 						"name",
@@ -99,13 +109,16 @@ func generateUpdatingParamsSchema(
 					},
 					PropertySchemas: map[string]service.PropertySchema{
 						"name": &service.StringPropertySchema{
+							Title:       "Name",
 							Description: "Name of firewall rule",
 						},
 						"startIPAddress": &service.StringPropertySchema{
+							Title:                   "Start IP address",
 							Description:             "Start of firewall rule range",
 							CustomPropertyValidator: ipValidator,
 						},
 						"endIPAddress": &service.StringPropertySchema{
+							Title:                   "End IP address",
 							Description:             "End of firewall rule range",
 							CustomPropertyValidator: ipValidator,
 						},

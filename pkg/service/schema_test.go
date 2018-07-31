@@ -103,6 +103,7 @@ func TestValidateInputParametersSchema(t *testing.T) {
 
 func TestStringPropertySchemaToJSON(t *testing.T) {
 	fooSps := StringPropertySchema{
+		Title:         "bar",
 		Description:   "foo",
 		AllowedValues: []string{"foo", "bar", "bat", "baz"},
 	}
@@ -114,10 +115,13 @@ func TestStringPropertySchemaToJSON(t *testing.T) {
 	fooSpsMap := map[string]interface{}{}
 	err = json.Unmarshal(jsonBytes, &fooSpsMap)
 	assert.Nil(t, err)
-	assert.Equal(t, 3, len(fooSpsMap))
+	assert.Equal(t, 4, len(fooSpsMap))
 	schemaType, ok := fooSpsMap["type"]
 	assert.True(t, ok)
 	assert.Equal(t, "string", schemaType)
+	title, ok := fooSpsMap["title"]
+	assert.True(t, ok)
+	assert.Equal(t, fooSps.Title, title)
 	description, ok := fooSpsMap["description"]
 	assert.True(t, ok)
 	assert.Equal(t, fooSps.Description, description)
@@ -213,6 +217,7 @@ func TestValidateStringProperty(t *testing.T) {
 
 func TestIntPropertySchemaToJSON(t *testing.T) {
 	smallEvenIps := IntPropertySchema{
+		Title:            "foo",
 		Description:      "small, even integers",
 		MinValue:         ptr.ToInt64(0),
 		MaxValue:         ptr.ToInt64(8),
@@ -226,10 +231,13 @@ func TestIntPropertySchemaToJSON(t *testing.T) {
 	smallEvenIpsMap := map[string]interface{}{}
 	err = json.Unmarshal(jsonBytes, &smallEvenIpsMap)
 	assert.Nil(t, err)
-	assert.Equal(t, 5, len(smallEvenIpsMap))
+	assert.Equal(t, 6, len(smallEvenIpsMap))
 	schemaType, ok := smallEvenIpsMap["type"]
 	assert.True(t, ok)
 	assert.Equal(t, "integer", schemaType)
+	title, ok := smallEvenIpsMap["title"]
+	assert.True(t, ok)
+	assert.Equal(t, smallEvenIps.Title, title)
 	description, ok := smallEvenIpsMap["description"]
 	assert.True(t, ok)
 	assert.Equal(t, smallEvenIps.Description, description)
@@ -337,6 +345,7 @@ func TestValidateIntProperty(t *testing.T) {
 
 func TestFloatPropertySchemaToJSON(t *testing.T) {
 	smallIntsAndHalvesFps := FloatPropertySchema{
+		Title:       "foo",
 		Description: "small, integers and halves",
 		MinValue:    ptr.ToFloat64(0),
 		MaxValue:    ptr.ToFloat64(8),
@@ -349,10 +358,13 @@ func TestFloatPropertySchemaToJSON(t *testing.T) {
 	smallEvenIpsMap := map[string]interface{}{}
 	err = json.Unmarshal(jsonBytes, &smallEvenIpsMap)
 	assert.Nil(t, err)
-	assert.Equal(t, 4, len(smallEvenIpsMap))
+	assert.Equal(t, 5, len(smallEvenIpsMap))
 	schemaType, ok := smallEvenIpsMap["type"]
 	assert.True(t, ok)
 	assert.Equal(t, "number", schemaType)
+	title, ok := smallEvenIpsMap["title"]
+	assert.True(t, ok)
+	assert.Equal(t, smallIntsAndHalvesFps.Title, title)
 	description, ok := smallEvenIpsMap["description"]
 	assert.True(t, ok)
 	assert.Equal(t, smallIntsAndHalvesFps.Description, description)
@@ -433,8 +445,10 @@ func TestValidateFloatProperty(t *testing.T) {
 
 func TestArrayPropertySchemaToJSON(t *testing.T) {
 	fooAps := ArrayPropertySchema{
+		Title:       "foo",
 		Description: "a handful of foo",
 		ItemsSchema: StringPropertySchema{
+			Title:         "bar",
 			Description:   "foo",
 			AllowedValues: []string{"foo", "bar", "bat", "baz"},
 		},
@@ -447,10 +461,13 @@ func TestArrayPropertySchemaToJSON(t *testing.T) {
 	fooApsMap := map[string]interface{}{}
 	err = json.Unmarshal(jsonBytes, &fooApsMap)
 	assert.Nil(t, err)
-	assert.Equal(t, 3, len(fooApsMap))
+	assert.Equal(t, 4, len(fooApsMap))
 	schemaType, ok := fooApsMap["type"]
 	assert.True(t, ok)
 	assert.Equal(t, "array", schemaType)
+	title, ok := fooApsMap["title"]
+	assert.True(t, ok)
+	assert.Equal(t, fooAps.Title, title)
 	description, ok := fooApsMap["description"]
 	assert.True(t, ok)
 	assert.Equal(t, fooAps.Description, description)
@@ -524,6 +541,7 @@ func TestValidateArrayProperty(t *testing.T) {
 
 func TestObjectPropertySchemaToJSON(t *testing.T) {
 	myOps := ObjectPropertySchema{
+		Title:       "foo",
 		Description: "a small even integer and a foo",
 		PropertySchemas: map[string]PropertySchema{
 			"foo": StringPropertySchema{
@@ -546,10 +564,13 @@ func TestObjectPropertySchemaToJSON(t *testing.T) {
 	myOpsMap := map[string]interface{}{}
 	err = json.Unmarshal(jsonBytes, &myOpsMap)
 	assert.Nil(t, err)
-	assert.Equal(t, 4, len(myOpsMap))
+	assert.Equal(t, 5, len(myOpsMap))
 	schemaType, ok := myOpsMap["type"]
 	assert.True(t, ok)
 	assert.Equal(t, "object", schemaType)
+	title, ok := myOpsMap["title"]
+	assert.True(t, ok)
+	assert.Equal(t, myOps.Title, title)
 	description, ok := myOpsMap["description"]
 	assert.True(t, ok)
 	assert.Equal(t, myOps.Description, description)
