@@ -1,5 +1,3 @@
-// +build experimental
-
 package keyvault
 
 // nolint: lll
@@ -8,66 +6,6 @@ var armTemplateBytes = []byte(`
 	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
 	"contentVersion": "1.0.0.0",
 	"parameters": {
-		"location": {
-			"type": "string"
-		},
-		"keyVaultName": {
-			"type": "string",
-			"metadata": {
-				"description": "Name of the Key Vault"
-			}
-		},
-		"tenantId": {
-			"type": "string",
-			"metadata": {
-				"description": "Tenant Id for the subscription and user assigned access to the vault."
-			}
-		},
-		"accessPolicies": {
-			"type": "array",
-			"defaultValue": [],
-			"metadata": {
-				"description": "Access policies object"
-			}
-		},
-		"objectId": {
-			"type": "string",
-			"metadata": {
-				"description": "Object Id for the service principal"
-			}
-		},
-		"vaultSku": {
-			"type": "string",
-			"defaultValue": "Standard",
-			"allowedValues": [
-				"Standard",
-				"Premium"
-			],
-			"metadata": {
-				"description": "SKU for the vault"
-			}
-		},
-		"enabledForDeployment": {
-			"type": "bool",
-			"defaultValue": false,
-			"metadata": {
-				"description": "Specifies if the vault is enabled for VM or Service Fabric deployment"
-			}
-		},
-		"enabledForTemplateDeployment": {
-			"type": "bool",
-			"defaultValue": false,
-			"metadata": {
-				"description": "Specifies if the vault is enabled for ARM template deployment"
-			}
-		},
-		"enableVaultForVolumeEncryption": {
-			"type": "bool",
-			"defaultValue": false,
-			"metadata": {
-				"description": "Specifies if the vault is enabled for volume encryption"
-			}
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -75,18 +13,28 @@ var armTemplateBytes = []byte(`
 	"resources": [
 		{
 			"type": "Microsoft.KeyVault/vaults",
-			"name": "[parameters('keyVaultName')]",
+			"name": "{{.keyVaultName}}",
 			"apiVersion": "2015-06-01",
-			"location": "[parameters('location')]",
+			"location": "{{.location}}",
 			"tags": "[parameters('tags')]",
 			"properties": {
-				"enabledForDeployment": "[parameters('enabledForDeployment')]",
-				"enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
-				"enabledForVolumeEncryption": "[parameters('enableVaultForVolumeEncryption')]",
-				"tenantId": "[parameters('tenantId')]",
-				"accessPolicies": [{"objectId": "[parameters('objectId')]","tenantId": "[parameters('tenantId')]","permissions": {"keys": ["Get","List","Update","Create","Import","Delete","Recover","Backup","Restore"],"secrets": ["Get","List","Set","Delete","Recover","Backup","Restore"],"certificates": ["Get","List","Update","Create","Import","Delete","ManageContacts","ManageIssuers","GetIssuers","ListIssuers","SetIssuers","DeleteIssuers"]}}],
+				"enabledForDeployment": false,
+				"enabledForTemplateDeployment": false,
+				"enabledForVolumeEncryption": false,
+				"tenantId": "{{.tenantId}}",
+				"accessPolicies": [
+					{
+						"objectId": "{{.objectId}}",
+						"tenantId": "{{.tenantId}}",
+						"permissions": {
+							"keys": ["Get","List","Update","Create","Import","Delete","Recover","Backup","Restore"],
+							"secrets": ["Get","List","Set","Delete","Recover","Backup","Restore"],
+							"certificates": ["Get","List","Update","Create","Import","Delete","ManageContacts","ManageIssuers","GetIssuers","ListIssuers","SetIssuers","DeleteIssuers"]
+						}
+					}
+				],
 				"sku": {
-					"name": "[parameters('vaultSku')]",
+					"name": "{{.vaultSku}}",
 					"family": "A"
 				}
 			}
@@ -95,7 +43,7 @@ var armTemplateBytes = []byte(`
 	"outputs": {
 		"vaultUri": {
 			"type": "string",
-			"value": "[reference(parameters('keyVaultName')).vaultUri]"
+			"value": "[reference('{{.keyVaultName}}').vaultUri]"
 		}
 	}
 }
