@@ -9,25 +9,13 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func generateProvisioningParamsSchema() service.InputParametersSchema {
+func generateUpdatingParamsSchema() service.InputParametersSchema {
 	const maxStalenessPrefixMin = 1
 	const maxStalenessPrefixMax = 2147483647
 	const maxIntervalInSecondsMin = 5
 	const maxIntervalInSecondsMax = 86400
 	return service.InputParametersSchema{
-		RequiredProperties: []string{"location", "resourceGroup"},
 		PropertySchemas: map[string]service.PropertySchema{
-			"location": &service.StringPropertySchema{
-				Title: "Location",
-				Description: "The Azure region in which to provision" +
-					" applicable resources.",
-				CustomPropertyValidator: azure.LocationValidator,
-			},
-			"resourceGroup": &service.StringPropertySchema{
-				Title: "Resource group",
-				Description: "The (new or existing) resource group with which" +
-					" to associate new resources.",
-			},
 			"ipFilters": &service.ObjectPropertySchema{
 				Title:       "IP filters",
 				Description: "IP Range Filter to be applied to new CosmosDB account",
@@ -116,6 +104,30 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 				CustomPropertyValidator: consistencyPolicyValidator,
 			},
 		},
+	}
+}
+
+func generateProvisioningParamsSchema() service.InputParametersSchema {
+	propertySchemas := map[string]service.PropertySchema{
+		"location": &service.StringPropertySchema{
+			Title: "Location",
+			Description: "The Azure region in which to provision" +
+				" applicable resources.",
+			CustomPropertyValidator: azure.LocationValidator,
+		},
+		"resourceGroup": &service.StringPropertySchema{
+			Title: "Resource group",
+			Description: "The (new or existing) resource group with which" +
+				" to associate new resources.",
+		},
+	}
+	sharedSchema := generateUpdatingParamsSchema()
+	for k, v := range sharedSchema.PropertySchemas {
+		propertySchemas[k] = v
+	}
+	return service.InputParametersSchema{
+		RequiredProperties: []string{"location", "resourceGroup"},
+		PropertySchemas:    propertySchemas,
 	}
 }
 
