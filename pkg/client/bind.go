@@ -11,6 +11,8 @@ import (
 
 // Bind carries out binding to an existing service
 func Bind(
+	useSSL bool,
+	skipCertValidation bool,
 	host string,
 	port int,
 	username string,
@@ -21,7 +23,7 @@ func Bind(
 	bindingID := uuid.NewV4().String()
 	url := fmt.Sprintf(
 		"%s/v2/service_instances/%s/service_bindings/%s",
-		getBaseURL(host, port),
+		getBaseURL(useSSL, host, port),
 		instanceID,
 		bindingID,
 	)
@@ -36,7 +38,7 @@ func Bind(
 	if err != nil {
 		return "", nil, err
 	}
-	httpClient := &http.Client{}
+	httpClient := getHTTPClient(skipCertValidation)
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return "", nil, fmt.Errorf("error executing bind call: %s", err)

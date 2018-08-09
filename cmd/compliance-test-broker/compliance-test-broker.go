@@ -36,7 +36,9 @@ func main() {
 	)
 
 	server, err := api.NewServer(
-		8088,
+		api.Config{
+			Port: 8088,
+		},
 		memoryStorage.NewStore(fakeCatalog),
 		fakeAsync.NewEngine(),
 		filterChain,
@@ -61,7 +63,7 @@ func main() {
 		cancel()
 	}()
 
-	if err := server.Start(ctx); err != nil {
+	if err := server.Run(ctx); err != nil {
 		if err == ctx.Err() {
 			// Allow some time for goroutines to shut down
 			time.Sleep(time.Second * 3)

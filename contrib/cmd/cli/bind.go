@@ -9,6 +9,8 @@ import (
 )
 
 func bind(c *cli.Context) error {
+	useSSL := c.GlobalBool(flagSSL)
+	skipCertValidation := c.GlobalBool(flagInsecure)
 	host := c.GlobalString(flagHost)
 	port := c.GlobalInt(flagPort)
 	username := c.GlobalString(flagUsername)
@@ -22,6 +24,8 @@ func bind(c *cli.Context) error {
 		return err
 	}
 	bindingID, credentialMap, err := client.Bind(
+		useSSL,
+		skipCertValidation,
 		host,
 		port,
 		username,

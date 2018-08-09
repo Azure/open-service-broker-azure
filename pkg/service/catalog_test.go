@@ -44,14 +44,16 @@ func init() {
 						ProvisioningParametersSchema: InputParametersSchema{
 							PropertySchemas: map[string]PropertySchema{
 								"someParameter": &StringPropertySchema{
-									Description: "Some parameter",
+									Title:       "Some parameter",
+									Description: "Some parameter description",
 								},
 							},
 						},
 						UpdatingParametersSchema: InputParametersSchema{
 							PropertySchemas: map[string]PropertySchema{
 								"someParameter": &StringPropertySchema{
-									Description: "Some parameter",
+									Title:       "Some parameter",
+									Description: "Some parameter description",
 								},
 							},
 						},
@@ -60,7 +62,8 @@ func init() {
 						BindingParametersSchema: InputParametersSchema{
 							PropertySchemas: map[string]PropertySchema{
 								"someParameter": &StringPropertySchema{
-									Description: "Some parameter",
+									Title:       "Some parameter",
+									Description: "Some parameter description",
 								},
 							},
 						},
@@ -124,6 +127,7 @@ func init() {
 										"properties": {
 											"someParameter": {
 												"type": "string",
+												"title": "%s",
 												"description": "%s"
 											}
 										},
@@ -137,6 +141,7 @@ func init() {
 										"properties": {
 											"someParameter": {
 												"type": "string",
+												"title": "%s",
 												"description": "%s"
 											}
 										},
@@ -152,6 +157,7 @@ func init() {
 										"properties": {
 											"someParameter": {
 												"type": "string",
+												"title": "%s",
 												"description": "%s"
 											}
 										},
@@ -183,8 +189,11 @@ func init() {
 		description,
 		free,
 		"Some parameter",
+		"Some parameter description",
 		"Some parameter",
+		"Some parameter description",
 		"Some parameter",
+		"Some parameter description",
 	)
 
 	testCatalogJSON = []byte(testCatalogJSONStr)

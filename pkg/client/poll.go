@@ -10,6 +10,8 @@ import (
 
 // Poll polls the status of an instance
 func Poll(
+	useSSL bool,
+	skipCertValidation bool,
 	host string,
 	port int,
 	username string,
@@ -19,7 +21,7 @@ func Poll(
 ) (string, error) {
 	url := fmt.Sprintf(
 		"%s/v2/service_instances/%s/last_operation",
-		getBaseURL(host, port),
+		getBaseURL(useSSL, host, port),
 		instanceID,
 	)
 	req, err := newRequest(http.MethodGet, url, username, password, nil)
@@ -29,7 +31,7 @@ func Poll(
 	q := req.URL.Query()
 	q.Add("operation", operation)
 	req.URL.RawQuery = q.Encode()
-	httpClient := &http.Client{}
+	httpClient := getHTTPClient(skipCertValidation)
 	resp, err := httpClient.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("error executing polling call: %s", err)

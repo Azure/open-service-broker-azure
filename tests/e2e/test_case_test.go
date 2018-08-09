@@ -15,8 +15,10 @@ import (
 )
 
 const (
-	host = "broker"
-	port = 8080
+	useSSL             = false
+	skipCertValidation = true
+	host               = "broker"
+	port               = 8080
 )
 
 // e2eTestCase encapsulates all the required details for an end-to-end test
@@ -68,6 +70,8 @@ func (e e2eTestCase) execute(
 
 	// Provision...
 	instanceID, err := client.Provision(
+		useSSL,
+		skipCertValidation,
 		host,
 		port,
 		basicAuthConfig.GetUsername(),
@@ -87,6 +91,8 @@ provisionPollLoop:
 		case <-ticker.C:
 			var result string
 			result, err = client.Poll(
+				useSSL,
+				skipCertValidation,
 				host,
 				port,
 				basicAuthConfig.GetUsername(),
@@ -119,6 +125,8 @@ provisionPollLoop:
 	// Bind...
 	if e.bind {
 		bindingID, _, err = client.Bind(
+			useSSL,
+			skipCertValidation,
 			host,
 			port,
 			basicAuthConfig.GetUsername(),
@@ -143,6 +151,8 @@ provisionPollLoop:
 	// Unbind...
 	if e.bind {
 		err = client.Unbind(
+			useSSL,
+			skipCertValidation,
 			host,
 			port,
 			basicAuthConfig.GetUsername(),
@@ -157,6 +167,8 @@ provisionPollLoop:
 
 	// Deprovision...
 	err = client.Deprovision(
+		useSSL,
+		skipCertValidation,
 		host,
 		port,
 		basicAuthConfig.GetUsername(),
@@ -171,6 +183,8 @@ deprovisionPollLoop:
 		select {
 		case <-ticker.C:
 			result, err := client.Poll(
+				useSSL,
+				skipCertValidation,
 				host,
 				port,
 				basicAuthConfig.GetUsername(),

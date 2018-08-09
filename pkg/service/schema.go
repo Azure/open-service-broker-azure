@@ -104,6 +104,7 @@ type CustomStringPropertyValidator func(context, value string) error
 
 // StringPropertySchema represents schema for a single string property
 type StringPropertySchema struct {
+	Title                   string                        `json:"title,omitempty"`       // nolint: lll
 	Description             string                        `json:"description,omitempty"` // nolint: lll
 	MinLength               *int                          `json:"minLength,omitempty"`   // nolint: lll
 	MaxLength               *int                          `json:"maxLength,omitempty"`   // nolint: lll
@@ -179,6 +180,7 @@ type CustomIntPropertyValidator func(context string, value int64) error
 
 // IntPropertySchema represents schema for a single integer property
 type IntPropertySchema struct {
+	Title                   string                     `json:"title,omitempty"`       // nolint: lll
 	Description             string                     `json:"description,omitempty"` // nolint: lll
 	MinValue                *int64                     `json:"minimum,omitempty"`
 	MaxValue                *int64                     `json:"maximum,omitempty"`
@@ -284,6 +286,7 @@ type CustomFloatPropertyValidator func(context string, value float64) error
 
 // FloatPropertySchema represents schema for a single floating point property
 type FloatPropertySchema struct {
+	Title         string    `json:"title,omitempty"`
 	Description   string    `json:"description,omitempty"`
 	MinValue      *float64  `json:"minimum,omitempty"`
 	MaxValue      *float64  `json:"maximum,omitempty"`
@@ -387,6 +390,7 @@ type KeyedPropertySchemaContainer interface {
 // ObjectPropertySchema represents the attributes of a complicated schema type
 // that can have nested properties
 type ObjectPropertySchema struct {
+	Title                   string                        `json:"title,omitempty"`                // nolint: lll
 	Description             string                        `json:"description,omitempty"`          // nolint: lll
 	RequiredProperties      []string                      `json:"required,omitempty"`             // nolint: lll
 	PropertySchemas         map[string]PropertySchema     `json:"properties,omitempty"`           // nolint: lll
@@ -470,6 +474,7 @@ type CustomArrayPropertyValidator func(
 
 // ArrayPropertySchema represents the attributes of an array type
 type ArrayPropertySchema struct {
+	Title                   string                       `json:"title,omitempty"`       // nolint: lll
 	Description             string                       `json:"description,omitempty"` // nolint: lll
 	MinItems                *int                         `json:"minItems,omitempty"`    // nolint: lll
 	MaxItems                *int                         `json:"maxItems,omitempty"`    // nolint: lll

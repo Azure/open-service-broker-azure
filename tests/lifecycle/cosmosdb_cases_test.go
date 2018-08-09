@@ -25,6 +25,18 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
 		},
+		updatingParameters: map[string]interface{}{
+			"ipFilters": map[string]interface{}{
+				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
+			},
+			"consistencyPolicy": map[string]interface{}{
+				"defaultConsistencyLevel": "BoundedStaleness",
+				"boundedStaleness": map[string]interface{}{
+					"maxStalenessPrefix":   float64(10),
+					"maxIntervalInSeconds": float64(500),
+				},
+			},
+		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // database only scenario
 				group:     "cosmosdb",

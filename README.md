@@ -167,7 +167,7 @@ The following will create a Postgres service:
 ```console
 cf create-service azure-postgresql-9-6 basic50 mypostgresdb -c '{
   "location": "eastus",
-  "resourceGroup: "test",
+  "resourceGroup": "test",
   "firewallRules" : [
       {
         "name": "AllowAll",

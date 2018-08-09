@@ -1,5 +1,3 @@
-// +build experimental
-
 package keyvault
 
 import (
@@ -24,36 +22,30 @@ func (s *serviceManager) GetDeprovisioner(
 func (s *serviceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*instanceDetails)
 	if err := s.armDeployer.Delete(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 	); err != nil {
-		return nil, nil, fmt.Errorf("error deleting ARM deployment: %s", err)
+		return nil, fmt.Errorf("error deleting ARM deployment: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }
 
 func (s *serviceManager) deleteKeyVaultServer(
 	ctx context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
+) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
-	}
+	dt := instance.Details.(*instanceDetails)
 	if _, err := s.vaultsClient.Delete(
 		ctx,
-		instance.ResourceGroup,
+		instance.ProvisioningParameters.GetString("resourceGroup"),
 		dt.KeyVaultName,
 	); err != nil {
-		return nil, nil, fmt.Errorf("error deleting keyvault: %s", err)
+		return nil, fmt.Errorf("error deleting keyvault: %s", err)
 	}
-	return instance.Details, instance.SecureDetails, nil
+	return instance.Details, nil
 }

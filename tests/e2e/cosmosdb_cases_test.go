@@ -1,9 +1,6 @@
 // +build !unit
-// +build experimental
 
 package e2e
-
-import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 var cosmosdbTestCases = []e2eTestCase{
 	{ // SQL API all-in-one scenario
@@ -11,7 +8,7 @@ var cosmosdbTestCases = []e2eTestCase{
 		name:      "sql-api-all-in-one",
 		serviceID: "58d9fbbd-7041-4dbe-aabe-6268cd31de84",
 		planID:    "58d7223d-934e-4fb5-a046-0c67781eb24e",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"location":      "eastus",
 			"resourceGroup": "placeholder",
 			"ipFilters": map[string]interface{}{
@@ -52,7 +49,7 @@ var cosmosdbTestCases = []e2eTestCase{
 		name:      "graph-api-account-only",
 		serviceID: "5f5252a0-6922-4a0c-a755-f9be70d7c79b",
 		planID:    "126a2c47-11a3-49b1-833a-21b563de6c04",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"location":      "eastus",
 			"resourceGroup": "placeholder",
 			"ipFilters": map[string]interface{}{
@@ -73,7 +70,7 @@ var cosmosdbTestCases = []e2eTestCase{
 		name:      "table-api-account-only",
 		serviceID: "37915cad-5259-470d-a7aa-207ba89ada8c",
 		planID:    "c970b1e8-794f-4d7c-9458-d28423c08856",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"location":      "southcentralus",
 			"resourceGroup": "placeholder",
 			"ipFilters": map[string]interface{}{
@@ -87,7 +84,7 @@ var cosmosdbTestCases = []e2eTestCase{
 		name:      "mongo-api-account-only",
 		serviceID: "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
 		planID:    "86fdda05-78d7-4026-a443-1325928e7b02",
-		provisioningParameters: service.CombinedProvisioningParameters{
+		provisioningParameters: map[string]interface{}{
 			"location":      "eastus",
 			"resourceGroup": "placeholder",
 			"ipFilters": map[string]interface{}{

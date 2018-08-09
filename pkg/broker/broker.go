@@ -7,7 +7,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	"github.com/Azure/open-service-broker-azure/pkg/async"
-	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
@@ -32,9 +31,9 @@ func (e *errAPIServerStopped) Error() string {
 // Broker is an interface to be implemented by components that implement full
 // OSB functionality.
 type Broker interface {
-	// Start starts all broker components (e.g. API server and async execution
+	// Run starts all broker components (e.g. API server and async execution
 	// engine) and blocks until one of those components returns or fails.
-	Start(context.Context) error
+	Run(context.Context) error
 }
 
 type broker struct {
@@ -46,12 +45,13 @@ type broker struct {
 
 // NewBroker returns a new Broker
 func NewBroker(
-	store storage.Store,
+	apiServer api.Server,
 	asyncEngine async.Engine,
-	filterChain filter.Filter,
+	store storage.Store,
 	catalog service.Catalog,
 ) (Broker, error) {
 	b := &broker{
+		apiServer:   apiServer,
 		store:       store,
 		asyncEngine: asyncEngine,
 		catalog:     catalog,
@@ -100,23 +100,12 @@ func NewBroker(
 		)
 	}
 
-	b.apiServer, err = api.NewServer(
-		8080,
-		b.store,
-		b.asyncEngine,
-		filterChain,
-		b.catalog,
-	)
-	if err != nil {
-		return nil, err
-	}
-
 	return b, nil
 }
 
-// Start starts all broker components (e.g. API server and async execution
+// Run starts all broker components (e.g. API server and async execution
 // engine) and blocks until one of those components returns or fails.
-func (b *broker) Start(ctx context.Context) error {
+func (b *broker) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	errChan := make(chan error)
@@ -130,7 +119,7 @@ func (b *broker) Start(ctx context.Context) error {
 	// Start api server
 	go func() {
 		select {
-		case errChan <- &errAPIServerStopped{err: b.apiServer.Start(ctx)}:
+		case errChan <- &errAPIServerStopped{err: b.apiServer.Run(ctx)}:
 		case <-ctx.Done():
 		}
 	}()

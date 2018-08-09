@@ -1,5 +1,3 @@
-// +build experimental
-
 package keyvault
 
 import (
@@ -22,64 +20,49 @@ func (s *serviceManager) GetProvisioner(
 func (s *serviceManager) preProvision(
 	context.Context,
 	service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := instanceDetails{
+) (service.InstanceDetails, error) {
+	return &instanceDetails{
 		ARMDeploymentName: uuid.NewV4().String(),
 		KeyVaultName:      "sb" + uuid.NewV4().String()[:20],
-	}
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, nil, err
+	}, nil
 }
 
 func (s *serviceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
-) (service.InstanceDetails, service.SecureInstanceDetails, error) {
-	dt := instanceDetails{}
-	if err := service.GetStructFromMap(instance.Details, &dt); err != nil {
-		return nil, nil, err
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*instanceDetails)
+	pp := instance.ProvisioningParameters
+	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	tags := make(map[string]string, len(tagsObj.Data))
+	for k := range tagsObj.Data {
+		tags[k] = tagsObj.GetString(k)
 	}
-	pp := provisioningParameters{}
-	if err :=
-		service.GetStructFromMap(instance.ProvisioningParameters, &pp); err != nil {
-		return nil, nil, err
-	}
-	spp := secureProvisioningParameters{}
-	if err := service.GetStructFromMap(
-		instance.SecureProvisioningParameters,
-		&spp,
-	); err != nil {
-		return nil, nil, err
-	}
-
 	outputs, err := s.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.ResourceGroup,
-		instance.Location,
+		pp.GetString("resourceGroup"),
+		pp.GetString("location"),
 		armTemplateBytes,
-		nil, // Go template params
-		map[string]interface{}{ // ARM template params
+		map[string]interface{}{
+			"location":     pp.GetString("location"),
 			"keyVaultName": dt.KeyVaultName,
 			"vaultSku":     instance.Plan.GetProperties().Extended["vaultSku"],
 			"tenantId":     s.tenantID,
-			"objectId":     pp.ObjectID,
+			"objectId":     pp.GetString("objectId"),
 		},
-		instance.Tags,
+		map[string]interface{}{},
+		tags,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-
 	var ok bool
 	dt.VaultURI, ok = outputs["vaultUri"].(string)
 	if !ok {
-		return nil, nil, fmt.Errorf(
+		return nil, fmt.Errorf(
 			"error retrieving vaultUri from deployment: %s",
 			err,
 		)
 	}
-	dt.ClientID = pp.ClientID
-
-	dtMap, err := service.GetMapFromStruct(dt)
-	return dtMap, instance.SecureDetails, err
+	return dt, err
 }

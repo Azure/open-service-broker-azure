@@ -60,6 +60,17 @@ spec:
               secretKeyRef:
                 name: {{ template "fullname" . }}
                 key: encryption-key
+          {{- if .Values.tls.enabled }}
+          - name: API_SERVER_PORT
+            value: "8443"
+          - name: API_SERVER_TLS_CERT_PATH
+            value: /app/certs/tls.crt
+          - name: API_SERVER_TLS_KEY_PATH
+            value: /app/certs/tls.key
+          {{- else }}
+          - name: API_SERVER_PORT
+            value: "8080"
+          {{- end }}
           - name: BASIC_AUTH_USERNAME
             value: {{ .Values.basicAuth.username }}
           - name: BASIC_AUTH_PASSWORD
@@ -69,21 +80,51 @@ spec:
                 key: basic-auth-password
           - name: MIN_STABILITY
             value: {{ .Values.modules.minStability }}
+          {{- if .Values.tls.enabled }}
+          volumeMounts:
+          - name: cert
+            mountPath: /app/certs
+            readOnly: true
+          {{- end }}
           ports:
+          {{- if .Values.tls.enabled }}
+          - containerPort: 8443
+          {{- else }}
           - containerPort: 8080
+          {{- end }}
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /healthz
+              {{- if .Values.tls.enabled }}
+              port: 8443
+              scheme: HTTPS
+              {{- else }}
               port: 8080
+              scheme: HTTP
+              {{- end }}
             failureThreshold: 1
             initialDelaySeconds: 10
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 2
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /healthz
+              {{- if .Values.tls.enabled }}
+              port: 8443
+              scheme: HTTPS
+              {{- else }}
               port: 8080
+              scheme: HTTP
+              {{- end }}
             failureThreshold: 3
             initialDelaySeconds: 30
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 2
+      {{- if .Values.tls.enabled }}
+      volumes:
+      - name: cert
+        secret:
+          secretName: {{ template "fullname" . }}-cert
+      {{- end }}

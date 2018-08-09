@@ -12,10 +12,16 @@ spec:
   selector:
     app: {{ template "fullname" . }}
   ports:
+  {{- if .Values.tls.enabled }}
+  - name: https
+    port: 443
+    targetPort: 8443
+  {{- else }}
   - name: http
-    protocol: TCP
     port: 80
+    targetPort: 8080
+  {{- end }}
+    protocol: TCP
     {{- if eq .Values.service.type "NodePort" }}
     nodePort: {{ .Values.service.nodePort.port }}
     {{- end }}
-    targetPort: 8080
