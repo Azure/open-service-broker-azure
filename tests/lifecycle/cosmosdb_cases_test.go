@@ -24,18 +24,17 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"ipFilters": map[string]interface{}{
 				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
+			"readRegions": []interface{}{"eastus2"},
 		},
 		updatingParameters: map[string]interface{}{
 			"ipFilters": map[string]interface{}{
 				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
 			"consistencyPolicy": map[string]interface{}{
-				"defaultConsistencyLevel": "BoundedStaleness",
-				"boundedStaleness": map[string]interface{}{
-					"maxStalenessPrefix":   float64(10),
-					"maxIntervalInSeconds": float64(500),
-				},
+				"defaultConsistencyLevel": "Session",
 			},
+			"readRegions":         []interface{}{"centralus"},
+			"autoFailoverEnabled": "enabled",
 		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // database only scenario
@@ -55,17 +54,15 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		serviceID: "5f5252a0-6922-4a0c-a755-f9be70d7c79b",
 		planID:    "126a2c47-11a3-49b1-833a-21b563de6c04",
 		provisioningParameters: map[string]interface{}{
-			"location": "eastus",
+			"location": "westus",
 			"ipFilters": map[string]interface{}{
 				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
 			"consistencyPolicy": map[string]interface{}{
-				"defaultConsistencyLevel": "BoundedStaleness",
-				"boundedStaleness": map[string]interface{}{
-					"maxStalenessPrefix":   float64(10),
-					"maxIntervalInSeconds": float64(500),
-				},
+				"defaultConsistencyLevel": "Session",
 			},
+			"readRegions":         []interface{}{"centralus", "eastus"},
+			"autoFailoverEnabled": "enabled",
 		},
 	},
 	{ // Table API

@@ -41,12 +41,17 @@ var armTemplateBytes = []byte(`
 				],
 				{{ end }}
 				"locations": [
+					{{range $index,$location := .readLocations}}
+					{{if $index}}
+					,
+					{{end}}
 					{
-						"id": "[concat('{{ .name}}', '-', '{{ .location}}')]",
-						"failoverPriority": 0,
-						"locationName": "{{ .location }}"
+						"failoverPriority": {{$index}},
+						"locationName": "{{$location}}"
 					}
-				]
+					{{end}}
+				],
+				"enableAutomaticFailover": {{ .enableAutomaticFailover}}
 			},
 			"tags": "[parameters('tags')]"
 		}
