@@ -314,7 +314,7 @@ az ad sp delete --id http://osba-quickstart
 To tear down the AKS cluster:
 
 ```console
-az aks delete -resource-group aks-group --name osba-quickstart-cluster --no-wait
+az aks delete --resource-group aks-group --name osba-quickstart-cluster --no-wait
 ```
 
 ## Next Steps
