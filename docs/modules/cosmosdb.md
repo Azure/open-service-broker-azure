@@ -416,5 +416,4 @@ Idempotently update the service instance to specified state.
 
 **Caution**: This feature has several constraint in ` Strong ` and ` Bounded Staleness ` consistency level, we recommend you use this feature in `Session`, ` Consistent Prefix ` and ` Eventual `  consistency level. 
 
-**Caution**: Allowed elements in `readRegions` array:  `"westus2", "westus", "southcentralus", "centraluseuap", "centralus", "northcentralus", "canadacentral", "eastus2euap", "eastus2", "canadaeast", "northeurope", "ukwest", "uksouth", "francecentral", "westeurope", "westindia", "centralindia", "southindia", "southeastasia", "eastasia", "koreacentral", "koreasouth", "japaneast", "japanwest", "australiasoutheast", "australiaeast"`.
-
+**Caution**: Allowed elements in `readRegions` array:  `"westus2", "westus", "southcentralus", "centralus", "northcentralus", "canadacentral", "eastus2", "canadaeast", "northeurope", "ukwest", "uksouth", "francecentral", "westeurope", "westindia", "centralindia", "southindia", "southeastasia", "eastasia", "koreacentral", "koreasouth", "japaneast", "japanwest", "australiasoutheast", "australiaeast"`.
