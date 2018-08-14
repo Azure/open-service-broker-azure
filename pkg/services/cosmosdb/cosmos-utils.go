@@ -200,6 +200,9 @@ func (c *cosmosAccountManager) waitForReadLocationsReady(
 		resourceGroupName,
 		accountName,
 		databaseAccountClient,
+		// Here we need to add one, because the write region is also a read region
+		// but it is not in the `readRegions` array.
+		len(instance.ProvisioningParameters.GetStringArray("readRegions"))+1,
 	)
 	if err != nil {
 		return nil, err
@@ -224,6 +227,9 @@ func (s *sqlAllInOneManager) waitForReadLocationsReady(
 		resourceGroupName,
 		accountName,
 		databaseAccountClient,
+		// Here we need to add one, because the write region is also a read region
+		// but it is not in the `readRegions` array.
+		len(instance.ProvisioningParameters.GetStringArray("readRegions"))+1,
 	)
 	if err != nil {
 		return nil, err
@@ -233,34 +239,34 @@ func (s *sqlAllInOneManager) waitForReadLocationsReady(
 
 const succeeded = "succeeded"
 
-// For now, this method will return on either context is cancelled or
-// every region's state is "succeeded" in seven consecutive check.
-// The reason why we need seven consecutive check is that
-// the read region is created one by one, there is a small gap between
-// the finishment of previous creation and the start of the next creation.
-// By this check, we can detect gaps shorter than 1 mintue,
-// and report success within 70 seconds after completion.
+// This method will return when any of following situations is satisfied:
+// 1. The parent context is cancelled
+// 2. The timeout expired. Currently, the timeout is calculated as :
+// the_number_of_read_locations * 15 minutes
+// 3. The number of queried read locations equals `readLocationCount` and
+// every location's state is "Succeeded"
 func pollingUntilReadLocationsReady(
 	ctx context.Context,
 	resourceGroupName string,
 	accountName string,
 	databaseAccountClient cosmosSDK.DatabaseAccountsClient,
+	readLocationCount int,
 ) error {
-	childCtx, cancel := context.WithCancel(ctx)
+	const timeForOneLocation = time.Minute * 15
+	ctx, cancel := context.WithDeadline(
+		ctx,
+		time.Now().Add(time.Duration(readLocationCount)*timeForOneLocation),
+	)
 	defer cancel()
 
-	// Seven comsecutive check is needed to report success.
-	const confirmNumberOfTimes = 7
-
 	ticker := time.NewTicker(time.Second * 10)
-	previousSucceededTimes := 0
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-ticker.C:
 			result, err := databaseAccountClient.Get(
-				childCtx,
+				ctx,
 				resourceGroupName,
 				accountName,
 			)
@@ -268,21 +274,22 @@ func pollingUntilReadLocationsReady(
 				return err
 			}
 
-			//Check whether every read location's state is "Succeeded"
-			allSucceed := true
+			// Check whether current number of read locations equals `readLocationCount`
+			// and every region's state is "succeeded"
 			readLocations := *(result.DatabaseAccountProperties.ReadLocations)
+			if len(readLocations) != readLocationCount {
+				break
+			}
+			allSucceed := true
 			for i := range readLocations {
 				state := *(readLocations[i].ProvisioningState)
 				if strings.ToLower(state) != succeeded {
 					allSucceed = false
-					previousSucceededTimes = 0
 					break
 				}
 			}
-			if allSucceed && previousSucceededTimes >= confirmNumberOfTimes {
+			if allSucceed {
 				return nil
-			} else if allSucceed {
-				previousSucceededTimes++
 			}
 		}
 	}
