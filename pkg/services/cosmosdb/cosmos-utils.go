@@ -203,6 +203,7 @@ func (c *cosmosAccountManager) waitForReadLocationsReady(
 		// Here we need to add one, because the write region is also a read region
 		// but it is not in the `readRegions` array.
 		len(instance.ProvisioningParameters.GetStringArray("readRegions"))+1,
+		true,
 	)
 	if err != nil {
 		return nil, err
@@ -230,6 +231,7 @@ func (s *sqlAllInOneManager) waitForReadLocationsReady(
 		// Here we need to add one, because the write region is also a read region
 		// but it is not in the `readRegions` array.
 		len(instance.ProvisioningParameters.GetStringArray("readRegions"))+1,
+		true,
 	)
 	if err != nil {
 		return nil, err
@@ -242,7 +244,7 @@ const succeeded = "succeeded"
 // This method will return when any of following situations is satisfied:
 // 1. The parent context is cancelled
 // 2. The timeout expired. Currently, the timeout is calculated as :
-// the_number_of_read_locations * 15 minutes
+// the_number_of_read_locations * 7 minutes
 // 3. The number of queried read locations equals `readLocationCount` and
 // every location's state is "Succeeded"
 func pollingUntilReadLocationsReady(
@@ -251,12 +253,24 @@ func pollingUntilReadLocationsReady(
 	accountName string,
 	databaseAccountClient cosmosSDK.DatabaseAccountsClient,
 	readLocationCount int,
+	// When updating an existing instance, data in existing database will
+	// be copied and synchronized across all regions, it's hard to estimate
+	// how long the process will take so we disable timeout when updating.
+	enableTimeout bool,
 ) error {
-	const timeForOneLocation = time.Minute * 15
-	ctx, cancel := context.WithDeadline(
-		ctx,
-		time.Now().Add(time.Duration(readLocationCount)*timeForOneLocation),
-	)
+	const timeForOneReadLocation = time.Minute * 7
+
+	var cancel context.CancelFunc
+	if enableTimeout {
+		ctx, cancel = context.WithDeadline(
+			ctx,
+			time.Now().Add(
+				time.Duration(readLocationCount)*timeForOneReadLocation,
+			),
+		)
+	} else {
+		ctx, cancel = context.WithCancel(ctx)
+	}
 	defer cancel()
 
 	ticker := time.NewTicker(time.Second * 10)
@@ -352,7 +366,10 @@ func (c *cosmosAccountManager) buildGoTemplateParamsCore(
 	p["name"] = dt.DatabaseAccountName
 	p["kind"] = kind
 	p["location"] = pp.GetString("location")
-	p["readLocations"] = readLocations
+	p["readLocations"] = buildReadLocationInformation(
+		readLocations,
+		dt.DatabaseAccountName,
+	)
 	if pp.GetString("autoFailoverEnabled") == enabled {
 		p["enableAutomaticFailover"] = true
 	} else {
@@ -401,4 +418,45 @@ func (c *cosmosAccountManager) buildGoTemplateParamsCore(
 	}
 	p["consistencyPolicy"] = pp.GetObject("consistencyPolicy").Data
 	return p, nil
+}
+
+type readLocationInformation struct {
+	ID       string
+	Location string
+	Priority int
+}
+
+func buildReadLocationInformation(
+	readLocations []string,
+	databaseAccountName string,
+) []readLocationInformation {
+	informations := []readLocationInformation{}
+	for i := range readLocations {
+		information := readLocationInformation{}
+		information.Location = readLocations[i]
+		information.Priority = i
+		information.ID = generateIDForReadLocation(
+			databaseAccountName,
+			readLocations[i],
+		)
+		informations = append(informations, information)
+	}
+	return informations
+}
+
+// Because the database account name is determined during provision step,
+// it is possible the database account name has length 36 (the length of UUID).
+// And in update step, a read location whose name is longer than 14 character
+// may be provided, in which case will cause bug in updating. To avoid this case,
+// we truncate the id of read locations to 50 characters. It is tested that
+// truncating the read region id won't affect user's usage.
+func generateIDForReadLocation(
+	databaseAccountName string,
+	location string,
+) string {
+	locationID := fmt.Sprintf("%s-%s", databaseAccountName, location)
+	if len(locationID) > 50 {
+		locationID = locationID[0:50]
+	}
+	return locationID
 }

@@ -127,6 +127,7 @@ func (c *cosmosAccountManager) waitForReadLocationsReadyInUpdate(
 		// Here we need to add one, because the write region is also a read region
 		// but it is not in the `readRegions` array.
 		len(instance.UpdatingParameters.GetStringArray("readRegions"))+1,
+		false,
 	)
 	if err != nil {
 		return nil, err
