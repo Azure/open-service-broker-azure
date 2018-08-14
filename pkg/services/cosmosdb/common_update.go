@@ -1,6 +1,7 @@
 package cosmosdb
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -105,4 +106,30 @@ func (c *cosmosAccountManager) buildGoTemplateParamsOnlyRegionChanged(
 		kind,
 		readLocations,
 	)
+}
+
+// This function is the same as `c.waitForReadLocationsReady` except that
+// it uses `readRegions` array in updating parameter.
+func (c *cosmosAccountManager) waitForReadLocationsReadyInUpdate(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*cosmosdbInstanceDetails)
+	resourceGroupName := instance.ProvisioningParameters.GetString("resourceGroup")
+	accountName := dt.DatabaseAccountName
+	databaseAccountClient := c.databaseAccountsClient
+
+	err := pollingUntilReadLocationsReady(
+		ctx,
+		resourceGroupName,
+		accountName,
+		databaseAccountClient,
+		// Here we need to add one, because the write region is also a read region
+		// but it is not in the `readRegions` array.
+		len(instance.UpdatingParameters.GetStringArray("readRegions"))+1,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return dt, nil
 }

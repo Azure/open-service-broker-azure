@@ -24,7 +24,7 @@ func (
 		// add/remove regions at the same time, so we must deal with the update twice,
 		// one time updating region, one time updating properties.
 		service.NewUpdatingStep("updateReadLocations", g.updateReadLocations),
-		service.NewUpdatingStep("waitForReadLocationsReady", g.waitForReadLocationsReady), //nolint: lll
+		service.NewUpdatingStep("waitForReadLocationsReadyInUpdate", g.waitForReadLocationsReadyInUpdate), //nolint: lll
 		service.NewUpdatingStep("updateARMTemplate", g.updateARMTemplate),
 	)
 }

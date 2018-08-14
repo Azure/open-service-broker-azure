@@ -21,7 +21,7 @@ func (
 ) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateReadLocations", s.updateReadLocations),
-		service.NewUpdatingStep("waitForReadLocationsReady", s.waitForReadLocationsReady), //nolint: lll
+		service.NewUpdatingStep("waitForReadLocationsReadyInUpdate", s.waitForReadLocationsReadyInUpdate), //nolint: lll
 		service.NewUpdatingStep("updateARMTemplate", s.updateARMTemplate),
 	)
 }
@@ -64,4 +64,30 @@ func (s *sqlAllInOneManager) updateARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	return instance.Details, nil
+}
+
+// This function is the same as `s.waitForReadLocationsReady` except that
+// it uses `readRegions` array in updating parameter.
+func (s *sqlAllInOneManager) waitForReadLocationsReadyInUpdate(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*sqlAllInOneInstanceDetails)
+	resourceGroupName := instance.ProvisioningParameters.GetString("resourceGroup")
+	accountName := dt.DatabaseAccountName
+	databaseAccountClient := s.databaseAccountsClient
+
+	err := pollingUntilReadLocationsReady(
+		ctx,
+		resourceGroupName,
+		accountName,
+		databaseAccountClient,
+		// Here we need to add one, because the write region is also a read region
+		// but it is not in the `readRegions` array.
+		len(instance.UpdatingParameters.GetStringArray("readRegions"))+1,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return dt, nil
 }

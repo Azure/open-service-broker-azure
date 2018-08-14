@@ -21,7 +21,7 @@ func (
 ) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateReadLocations", t.updateReadLocations),
-		service.NewUpdatingStep("waitForReadLocationsReady", t.waitForReadLocationsReady), //nolint: lll
+		service.NewUpdatingStep("waitForReadLocationsReadyInUpdate", t.waitForReadLocationsReadyInUpdate), //nolint: lll
 		service.NewUpdatingStep("updateARMTemplate", t.updateARMTemplate),
 	)
 }
