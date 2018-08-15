@@ -234,6 +234,9 @@ Next we will create a local cluster using Minikube. You can also [try OSBA on th
       --set azure.clientSecret=$env:AZURE_CLIENT_SECRET 
     ```
 
+    Note: to install OSBA with experimental modules enabled, use the `--set modules.minStability=experimental` argument.
+ 
+ 
 1. Check on the status of Open Service Broker for Azure by running the
     following command and checking that every pod is in the `Running` state.
     You may need to wait a few minutes, rerunning the command until all of the
