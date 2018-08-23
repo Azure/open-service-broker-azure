@@ -216,8 +216,8 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
       --set azure.clientSecret=$env:AZURE_CLIENT_SECRET
     ```
 
-  
-
+    Note: to install OSBA with experimental modules enabled, use the `--set modules.minStability=EXPERIMENTAL` argument.
+ 
 1. Check on the status of everything that we have installed by running the
     following command and checking that every pod is in the `Running` state.
     You may need to wait a few minutes, rerunning the command until all of the
