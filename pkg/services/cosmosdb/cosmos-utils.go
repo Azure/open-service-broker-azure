@@ -200,9 +200,8 @@ func (c *cosmosAccountManager) waitForReadLocationsReady(
 		resourceGroupName,
 		accountName,
 		databaseAccountClient,
-		// Here we need to add one, because the write region is also a read region
-		// but it is not in the `readRegions` array.
-		len(instance.ProvisioningParameters.GetStringArray("readRegions"))+1,
+		instance.ProvisioningParameters.GetString("location"),
+		instance.ProvisioningParameters.GetStringArray("readRegions"),
 		true,
 	)
 	if err != nil {
@@ -228,9 +227,8 @@ func (s *sqlAllInOneManager) waitForReadLocationsReady(
 		resourceGroupName,
 		accountName,
 		databaseAccountClient,
-		// Here we need to add one, because the write region is also a read region
-		// but it is not in the `readRegions` array.
-		len(instance.ProvisioningParameters.GetStringArray("readRegions"))+1,
+		instance.ProvisioningParameters.GetString("location"),
+		instance.ProvisioningParameters.GetStringArray("readRegions"),
 		true,
 	)
 	if err != nil {
@@ -252,13 +250,18 @@ func pollingUntilReadLocationsReady(
 	resourceGroupName string,
 	accountName string,
 	databaseAccountClient cosmosSDK.DatabaseAccountsClient,
-	readLocationCount int,
+	location string,
+	readLocations []string,
 	// When updating an existing instance, data in existing database will
 	// be copied and synchronized across all regions, it's hard to estimate
 	// how long the process will take so we disable timeout when updating.
 	enableTimeout bool,
 ) error {
 	const timeForOneReadLocation = time.Minute * 7
+	readLocationCount := getEffectiveReadLocationCount(
+		location,
+		readLocations,
+	)
 
 	var cancel context.CancelFunc
 	if enableTimeout {
@@ -317,8 +320,17 @@ func validateReadLocations(
 		region := regions[i]
 		if !allowedReadLocations[region] {
 			return service.NewValidationError(
-				fmt.Sprintf("%s.allowedReadLocations", context),
-				fmt.Sprintf("given region %s is not allowed", region),
+				fmt.Sprintf("%s.readRegions", context),
+				fmt.Sprintf("given read region %s is not allowed", region),
+			)
+		}
+		if occurred[region] {
+			return service.NewValidationError(
+				fmt.Sprintf("%s.readRegions", context),
+				fmt.Sprintf(
+					"given read region %s can only occur once",
+					region,
+				),
 			)
 		}
 	}
@@ -459,4 +471,17 @@ func generateIDForReadLocation(
 		locationID = locationID[0:50]
 	}
 	return locationID
+}
+
+func getEffectiveReadLocationCount(
+	location string,
+	readLocation []string,
+) int {
+	result := len(readLocation) + 1
+	for i := range readLocation {
+		if location == readLocation[i] {
+			result--
+		}
+	}
+	return result
 }

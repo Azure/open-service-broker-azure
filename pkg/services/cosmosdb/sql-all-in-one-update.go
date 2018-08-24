@@ -82,9 +82,8 @@ func (s *sqlAllInOneManager) waitForReadLocationsReadyInUpdate(
 		resourceGroupName,
 		accountName,
 		databaseAccountClient,
-		// Here we need to add one, because the write region is also a read region
-		// but it is not in the `readRegions` array.
-		len(instance.UpdatingParameters.GetStringArray("readRegions"))+1,
+		instance.ProvisioningParameters.GetString("location"),
+		instance.UpdatingParameters.GetStringArray("readRegions"),
 		false,
 	)
 	if err != nil {
