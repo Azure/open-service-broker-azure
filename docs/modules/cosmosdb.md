@@ -416,4 +416,7 @@ Idempotently update the service instance to specified state.
 
 **Caution**: This feature has several constraint in ` Strong ` and ` Bounded Staleness ` consistency level, we recommend you use this feature in `Session`, ` Consistent Prefix ` and ` Eventual `  consistency level. 
 
+**Caution**: Do NOT fill provision parameter `location` in the `readRegions` array. For example, if the `location` of your account is `eastus` and you want to add a read region `westus`, you should use `{"readRegions": ["westus"]}` instead of `{"readRegions": ["eastus", "westus"]}`.
+
 **Caution**: Allowed elements in `readRegions` array:  `"westus2", "westus", "southcentralus", "centralus", "northcentralus", "canadacentral", "eastus2", "canadaeast", "northeurope", "ukwest", "uksouth", "francecentral", "westeurope", "westindia", "centralindia", "southindia", "southeastasia", "eastasia", "koreacentral", "koreasouth", "japaneast", "japanwest", "australiasoutheast", "australiaeast"`.
+
