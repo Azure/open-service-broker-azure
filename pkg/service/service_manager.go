@@ -10,7 +10,7 @@ type ServiceManager interface { // nolint: golint
 	// execute asynchronously to provision a service.
 	GetProvisioner(Plan) (Provisioner, error)
 	// ValidateUpdatingParameters validates the provided
-	// updating parameters against against current instance state
+	// updating parameters against current instance state
 	// and returns an error if there is any problem
 	ValidateUpdatingParameters(Instance) error
 	// GetUpdater returns a updater that defines the steps a module must
