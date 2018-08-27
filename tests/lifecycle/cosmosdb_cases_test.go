@@ -98,10 +98,10 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"consistencyPolicy": map[string]interface{}{
 				"defaultConsistencyLevel": "Session",
 			},
-			"readRegions": []interface{}{"eastus", "westus"},
+			"readRegions": []interface{}{"westus"},
 		},
 		updatingParameters: map[string]interface{}{
-			"readRegions": []interface{}{"eastus"},
+			"readRegions": []interface{}{},
 		},
 	},
 	{ // SQL API All In One
