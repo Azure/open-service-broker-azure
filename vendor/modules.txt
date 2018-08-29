@@ -1,0 +1,97 @@
+# cloud.google.com/go v0.26.0
+cloud.google.com/go/civil
+# github.com/Azure/azure-sdk-for-go v19.1.0+incompatible
+github.com/Azure/azure-sdk-for-go/services/resources/mgmt/2017-05-10/resources
+github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb
+github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub
+github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault
+github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql
+github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql
+github.com/Azure/azure-sdk-for-go/services/redis/mgmt/2017-10-01/redis
+github.com/Azure/azure-sdk-for-go/services/servicebus/mgmt/2017-04-01/servicebus
+github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql
+github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage
+github.com/Azure/azure-sdk-for-go/storage
+github.com/Azure/azure-sdk-for-go/version
+# github.com/Azure/go-autorest v10.15.2+incompatible
+github.com/Azure/go-autorest/autorest
+github.com/Azure/go-autorest/autorest/adal
+github.com/Azure/go-autorest/autorest/azure
+github.com/Azure/go-autorest/logger
+github.com/Azure/go-autorest/version
+github.com/Azure/go-autorest/autorest/date
+github.com/Azure/go-autorest/autorest/to
+github.com/Azure/go-autorest/autorest/validation
+# github.com/Masterminds/semver v1.4.2
+github.com/Masterminds/semver
+# github.com/Masterminds/sprig v2.15.0+incompatible
+github.com/Masterminds/sprig
+# github.com/Sirupsen/logrus v1.0.6 => github.com/krancour/logrus v1.0.4-0.20171115205400-9da25b464c10
+github.com/Sirupsen/logrus
+# github.com/aokoli/goutils v1.0.1
+github.com/aokoli/goutils
+# github.com/davecgh/go-spew v1.1.1
+github.com/davecgh/go-spew/spew
+# github.com/denisenkom/go-mssqldb v0.0.0-20180824013952-8fac8b954edb
+github.com/denisenkom/go-mssqldb
+github.com/denisenkom/go-mssqldb/internal/cp
+# github.com/dgrijalva/jwt-go v3.2.0+incompatible
+github.com/dgrijalva/jwt-go
+# github.com/go-redis/redis v6.14.0+incompatible
+github.com/go-redis/redis
+github.com/go-redis/redis/internal
+github.com/go-redis/redis/internal/consistenthash
+github.com/go-redis/redis/internal/hashtag
+github.com/go-redis/redis/internal/pool
+github.com/go-redis/redis/internal/proto
+github.com/go-redis/redis/internal/singleflight
+github.com/go-redis/redis/internal/util
+# github.com/go-sql-driver/mysql v1.4.0
+github.com/go-sql-driver/mysql
+# github.com/google/uuid v1.0.0
+github.com/google/uuid
+# github.com/gorilla/context v1.1.1
+github.com/gorilla/context
+# github.com/gorilla/mux v1.6.2
+github.com/gorilla/mux
+# github.com/huandu/xstrings v1.1.0
+github.com/huandu/xstrings
+# github.com/imdario/mergo v0.3.6
+github.com/imdario/mergo
+# github.com/kelseyhightower/envconfig v1.3.0
+github.com/kelseyhightower/envconfig
+# github.com/krancour/async v1.0.0
+github.com/krancour/async/redis
+github.com/krancour/async/fake
+github.com/krancour/async
+# github.com/lib/pq v1.0.0
+github.com/lib/pq
+github.com/lib/pq/oid
+# github.com/marstr/guid v1.1.0
+github.com/marstr/guid
+# github.com/mitchellh/mapstructure v1.0.0
+github.com/mitchellh/mapstructure
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/satori/go.uuid v1.2.0
+github.com/satori/go.uuid
+# github.com/stretchr/testify v1.2.2
+github.com/stretchr/testify/assert
+# github.com/urfave/cli v1.20.0
+github.com/urfave/cli
+# golang.org/x/crypto v0.0.0-20180820150726-614d502a4dac
+golang.org/x/crypto/ssh/terminal
+golang.org/x/crypto/md4
+golang.org/x/crypto/scrypt
+golang.org/x/crypto/pbkdf2
+# golang.org/x/sys v0.0.0-20180828065106-d99a578cf41b
+golang.org/x/sys/unix
+golang.org/x/sys/windows
+# google.golang.org/appengine v1.1.0
+google.golang.org/appengine/cloudsql
+# gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce
+gopkg.in/mgo.v2
+gopkg.in/mgo.v2/bson
+gopkg.in/mgo.v2/internal/sasl
+gopkg.in/mgo.v2/internal/scram
+gopkg.in/mgo.v2/internal/json
