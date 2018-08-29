@@ -1,7 +1,7 @@
 version: "3.2"
 services:
   base-go-service: &base-go-service
-    image: quay.io/deis/lightweight-docker-go:v0.2.0
+    image: quay.io/deis/lightweight-docker-go:v0.3.0
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     environment: &base-go-environment
       CGO_ENABLED: 0

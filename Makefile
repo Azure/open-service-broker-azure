@@ -23,7 +23,7 @@ LDFLAGS = -w -X $(BASE_PACKAGE_NAME)/pkg/version.commit=$(GIT_VERSION) \
 # Containerized development environment                                        #
 ################################################################################
 
-DEV_IMAGE := quay.io/deis/lightweight-docker-go:v0.2.0
+DEV_IMAGE := quay.io/deis/lightweight-docker-go:v0.3.0
 
 DOCKER_CMD_BASE := docker run \
 	--rm \
