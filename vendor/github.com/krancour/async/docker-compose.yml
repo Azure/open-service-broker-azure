@@ -1,0 +1,14 @@
+version: "3.2"
+services:
+  test:
+    image: quay.io/deis/lightweight-docker-go:v0.2.0
+    working_dir: /go/src/github.com/krancour/async
+    environment:
+      ASYNC_REDIS_HOST: redis
+    volumes:
+    - .:/go/src/github.com/krancour/async
+    links:
+    - test-redis:redis
+  test-redis:
+    image: redis:3.2.4
+  
