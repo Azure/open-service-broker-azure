@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/krancour/async"
 )
 
 func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {

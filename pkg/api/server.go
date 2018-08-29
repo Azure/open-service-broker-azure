@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/file"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/krancour/async"
 )
 
 type errHTTPServerStopped struct {
