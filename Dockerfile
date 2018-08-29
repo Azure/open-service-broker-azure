@@ -2,6 +2,7 @@ FROM quay.io/deis/lightweight-docker-go:v0.3.0
 ARG BASE_PACKAGE_NAME
 ARG LDFLAGS
 ENV CGO_ENABLED=0
+ENV GO111MODULE=on
 WORKDIR /go/src/$BASE_PACKAGE_NAME/
 COPY cmd/broker cmd/broker
 COPY pkg/ pkg/

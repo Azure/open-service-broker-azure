@@ -5,6 +5,7 @@ services:
     working_dir: /go/src/github.com/Azure/open-service-broker-azure
     environment: &base-go-environment
       CGO_ENABLED: 0
+      GO111MODULE: on
     volumes:
     - .:/go/src/github.com/Azure/open-service-broker-azure
   test: # Like dev, but linked to redis

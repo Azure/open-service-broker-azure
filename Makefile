@@ -28,6 +28,7 @@ DEV_IMAGE := quay.io/deis/lightweight-docker-go:v0.3.0
 DOCKER_CMD_BASE := docker run \
 	--rm \
 	-e CGO_ENABLED=0 \
+	-e GO111MODULE=on \
 	-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \
 	-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
 	-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
