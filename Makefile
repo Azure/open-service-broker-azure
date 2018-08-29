@@ -93,7 +93,7 @@ endif
 dev:
 	$(DOCKER_CMD_INT) bash
 
-DEP_CMD := dep ensure -v
+DEP_CMD := go build -o bin/tmp-broker ./cmd/broker && go mod vendor && rm bin/tmp-broker
 
 # Install/update dependencies
 .PHONY: dep
@@ -131,7 +131,7 @@ VERIFY_CMD := bash -c ' \
 	PRJ_DIR=$$(pwd) \
 	&& cp -r --parent -L $$PRJ_DIR /tmp \
 	&& cd /tmp$$PRJ_DIR \
-	&& GOPATH=/tmp$$GOPATH dep ensure -v \
+	&& GOPATH=/tmp$$GOPATH SKIP_DOCKER=true make dep \
 	&& diff $$PRJ_DIR/Gopkg.lock Gopkg.lock \
 	&& diff -r $$PRJ_DIR/vendor vendor'
 

@@ -6,8 +6,10 @@ ENV GO111MODULE=on
 WORKDIR /go/src/$BASE_PACKAGE_NAME/
 COPY cmd/broker cmd/broker
 COPY pkg/ pkg/
+COPY go.mod go.mod
+COPY go.sum go.sum
 COPY vendor/ vendor/
-RUN go build -o bin/broker -ldflags "$LDFLAGS" ./cmd/broker
+RUN go build -o bin/broker -ldflags "$LDFLAGS" -mod vendor ./cmd/broker
 
 FROM scratch
 ARG BASE_PACKAGE_NAME
