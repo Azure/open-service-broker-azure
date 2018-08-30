@@ -11,7 +11,6 @@ base-go-job: &base-go-job
   environment: &base-go-environment
     SKIP_DOCKER: true
     CGO_ENABLED: 0
-    GO111MODULE: on
   working_directory: /go/src/github.com/Azure/open-service-broker-azure
 
 base-docker-job: &base-docker-job

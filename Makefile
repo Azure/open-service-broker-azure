@@ -28,7 +28,6 @@ DEV_IMAGE := quay.io/deis/lightweight-docker-go:v0.3.0
 DOCKER_CMD_BASE := docker run \
 	--rm \
 	-e CGO_ENABLED=0 \
-	-e GO111MODULE=on \
 	-e AZURE_SUBSCRIPTION_ID=$${AZURE_SUBSCRIPTION_ID} \
 	-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
 	-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
@@ -93,7 +92,10 @@ endif
 dev:
 	$(DOCKER_CMD_INT) bash
 
-DEP_CMD := go build -o bin/tmp-broker ./cmd/broker && go mod vendor && rm bin/tmp-broker
+DEP_CMD := bash -c ' \
+	GO111MODULE=on go build -o bin/tmp-broker ./cmd/broker \
+	&& GO111MODULE=on go mod vendor \
+	&& rm bin/tmp-broker'
 
 # Install/update dependencies
 .PHONY: dep
