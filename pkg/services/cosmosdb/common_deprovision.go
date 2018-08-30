@@ -46,7 +46,8 @@ func deleteCosmosDBAccount(
 		databaseAccountsClient.Client,
 	); err != nil {
 		// Workaround for https://github.com/Azure/azure-sdk-for-go/issues/759
-		if !strings.Contains(err.Error(), "StatusCode=404") {
+		if !strings.Contains(err.Error(), "StatusCode=0") &&
+			!strings.Contains(err.Error(), "StatusCode=404") {
 			return fmt.Errorf("error deleting cosmosdb server: %s", err)
 		}
 	}
