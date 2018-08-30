@@ -34,6 +34,7 @@ DOCKER_CMD_BASE := docker run \
 	-e AZURE_CLIENT_SECRET=$${AZURE_CLIENT_SECRET} \
 	-e TEST_MODULES=$${TEST_MODULES} \
 	-v $$(pwd):/go/src/$(BASE_PACKAGE_NAME) \
+	-v $$(pwd)/.modcache:/go/pkg/mod \
 	-w /go/src/$(BASE_PACKAGE_NAME)
 
 DOCKER_CMD := $(DOCKER_CMD_BASE) $(DEV_IMAGE)
