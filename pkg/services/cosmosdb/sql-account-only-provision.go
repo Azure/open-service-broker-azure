@@ -23,10 +23,7 @@ func (s *sqlAccountManager) deployARMTemplate(
 
 	pp := instance.ProvisioningParameters
 	dt := instance.Details.(*cosmosdbInstanceDetails)
-	p, err := s.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
-	if err != nil {
-		return nil, err
-	}
+	p := s.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
 	tags := getTags(pp)
 	tags["defaultExperience"] = "DocumentDB"
 

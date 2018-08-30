@@ -36,7 +36,7 @@ func TestValidateStorageIncreases(t *testing.T) {
 	)
 
 	instance := service.Instance{
-		Plan: plan,
+		Plan:                   plan,
 		ProvisioningParameters: pp,
 		UpdatingParameters:     up,
 	}
@@ -74,7 +74,7 @@ func TestValidateStorageDecreaseFails(t *testing.T) {
 	)
 
 	instance := service.Instance{
-		Plan: plan,
+		Plan:                   plan,
 		ProvisioningParameters: pp,
 		UpdatingParameters:     up,
 	}

@@ -122,6 +122,16 @@
   revision = "70f0258d44cbaa3b6a2581d82f58da01a38e4de4"
 
 [[projects]]
+  name = "github.com/krancour/async"
+  packages = [
+    ".",
+    "fake",
+    "redis"
+  ]
+  revision = "b74fb9ddfb83491b4e51e17848b29b7f89d6ecea"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -201,6 +211,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a9ec67dd91d386fae211e2c5d0d540a9937f345a6446188815f9568588e26ebe"
+  inputs-digest = "be136522b42e60bb8160ea9714c87b071d597ac3f2932b40f6b03cbccc14cfbc"
   solver-name = "gps-cdcl"
   solver-version = 1

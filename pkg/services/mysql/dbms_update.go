@@ -29,21 +29,18 @@ func (d *dbmsManager) updateARMTemplate(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*dbmsInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
-	goTemplateParameters, err := buildGoTemplateParameters(
+	goTemplateParameters := buildGoTemplateParameters(
 		instance.Plan,
 		version,
 		dt,
 		*instance.UpdatingParameters,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("unable to build go template parameters: %s", err)
-	}
 	tagsObj := instance.UpdatingParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
-	_, err = d.armDeployer.Update(
+	_, err := d.armDeployer.Update(
 		dt.ARMDeploymentName,
 		instance.UpdatingParameters.GetString("resourceGroup"),
 		instance.UpdatingParameters.GetString("location"),

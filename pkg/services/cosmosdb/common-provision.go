@@ -48,7 +48,7 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	pp *service.ProvisioningParameters,
 	dt *cosmosdbInstanceDetails,
 	kind string,
-) (map[string]interface{}, error) {
+) map[string]interface{} {
 	p := map[string]interface{}{}
 	p["name"] = dt.DatabaseAccountName
 	p["kind"] = kind
@@ -95,7 +95,7 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 		p["ipFilters"] = strings.Join(filters, ",")
 	}
 	p["consistencyPolicy"] = pp.GetObject("consistencyPolicy").Data
-	return p, nil
+	return p
 }
 
 func getTags(pp *service.ProvisioningParameters) map[string]string {

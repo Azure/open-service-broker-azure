@@ -8,7 +8,7 @@ func buildDBMSGoTemplateParameters(
 	dt *dbmsInstanceDetails,
 	params service.ProvisioningParameters,
 	version string,
-) (map[string]interface{}, error) {
+) map[string]interface{} {
 	p := map[string]interface{}{}
 	p["serverName"] = dt.ServerName
 	p["administratorLogin"] = dt.AdministratorLogin
@@ -21,8 +21,7 @@ func buildDBMSGoTemplateParameters(
 		firewallRules[i] = firewallRuleParams.Data
 	}
 	p["firewallRules"] = firewallRules
-
-	return p, nil
+	return p
 }
 
 func buildDatabaseGoTemplateParameters(

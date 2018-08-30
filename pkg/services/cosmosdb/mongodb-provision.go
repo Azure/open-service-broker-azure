@@ -25,14 +25,11 @@ func (m *mongoAccountManager) deployARMTemplate(
 
 	pp := instance.ProvisioningParameters
 	dt := instance.Details.(*cosmosdbInstanceDetails)
-	p, err := m.buildGoTemplateParams(
+	p := m.buildGoTemplateParams(
 		pp,
 		dt,
 		"MongoDB",
 	)
-	if err != nil {
-		return nil, err
-	}
 	tags := getTags(pp)
 	fqdn, pk, err := m.cosmosAccountManager.deployARMTemplate(
 		pp,

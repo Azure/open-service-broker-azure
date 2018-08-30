@@ -23,14 +23,11 @@ func (g *graphAccountManager) deployARMTemplate(
 ) (service.InstanceDetails, error) {
 	pp := instance.ProvisioningParameters
 	dt := instance.Details.(*cosmosdbInstanceDetails)
-	p, err := g.buildGoTemplateParams(
+	p := g.buildGoTemplateParams(
 		pp,
 		dt,
 		"GlobalDocumentDB",
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error building arm params: %s", err)
-	}
 	p["capability"] = "EnableGremlin"
 	tags := getTags(pp)
 	tags["defaultExperience"] = "Graph"

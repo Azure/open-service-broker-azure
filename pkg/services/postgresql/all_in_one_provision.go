@@ -49,18 +49,12 @@ func (a *allInOneManager) deployARMTemplate(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*allInOneInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
-	goTemplateParameters, err := buildGoTemplateParameters(
+	goTemplateParameters := buildGoTemplateParameters(
 		instance.Plan,
 		version,
 		&dt.dbmsInstanceDetails,
 		*instance.ProvisioningParameters,
 	)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"error building go template parameters :%s",
-			err,
-		)
-	}
 	goTemplateParameters["databaseName"] = dt.DatabaseName
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))

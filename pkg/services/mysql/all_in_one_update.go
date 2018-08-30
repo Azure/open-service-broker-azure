@@ -29,22 +29,19 @@ func (a *allInOneManager) updateARMTemplate(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*allInOneInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
-	goTemplateParameters, err := buildGoTemplateParameters(
+	goTemplateParameters := buildGoTemplateParameters(
 		instance.Plan,
 		version,
 		&dt.dbmsInstanceDetails,
 		*instance.UpdatingParameters,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("unable to build go template parameters: %s", err)
-	}
 	goTemplateParameters["databaseName"] = dt.DatabaseName
 	tagsObj := instance.UpdatingParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
-	_, err = a.armDeployer.Update(
+	_, err := a.armDeployer.Update(
 		dt.ARMDeploymentName,
 		instance.UpdatingParameters.GetString("resourceGroup"),
 		instance.UpdatingParameters.GetString("location"),

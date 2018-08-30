@@ -142,6 +142,7 @@ var genericMap = map[string]interface{}{
 	"nindent":   nindent,
 	"replace":   replace,
 	"plural":    plural,
+	"sha1sum":   sha1sum,
 	"sha256sum": sha256sum,
 	"toString":  strval,
 
@@ -202,6 +203,7 @@ var genericMap = map[string]interface{}{
 	"compact":      compact,
 	"toJson":       toJson,
 	"toPrettyJson": toPrettyJson,
+	"ternary":      ternary,
 
 	// Reflection
 	"typeOf":     typeOf,
@@ -249,11 +251,12 @@ var genericMap = map[string]interface{}{
 	"reverse": reverse,
 	"uniq":    uniq,
 	"without": without,
-	"has":     func(needle interface{}, haystack []interface{}) bool { return inList(haystack, needle) },
+	"has":     has,
 
 	// Crypto:
 	"genPrivateKey":     generatePrivateKey,
 	"derivePassword":    derivePassword,
+	"buildCustomCert":   buildCustomCertificate,
 	"genCA":             generateCertificateAuthority,
 	"genSelfSignedCert": generateSelfSignedCertificate,
 	"genSignedCert":     generateSignedCertificate,

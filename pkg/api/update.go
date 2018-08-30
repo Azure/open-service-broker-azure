@@ -6,11 +6,11 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/types"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/krancour/async"
 )
 
 func (s *server) update(w http.ResponseWriter, r *http.Request) {
@@ -208,7 +208,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	// need for a new update.
 
 	// Carry out schema-driven update request parameters validation.
-	if err :=
+	if err =
 		instance.Plan.GetSchemas().ServiceInstances.UpdatingParametersSchema.Validate( // nolint: lll
 			updatingRequest.Parameters,
 		); err != nil {
@@ -248,7 +248,7 @@ func (s *server) update(w http.ResponseWriter, r *http.Request) {
 	// instance state to detect any invalid state changes. An example of this
 	// might be reducing the amound of storage allocated to a database.
 	instance.UpdatingParameters = updatingParameters
-	if err := serviceManager.ValidateUpdatingParameters(instance); err != nil {
+	if err = serviceManager.ValidateUpdatingParameters(instance); err != nil {
 		var validationErr *service.ValidationError
 		validationErr, ok = err.(*service.ValidationError)
 		if ok {

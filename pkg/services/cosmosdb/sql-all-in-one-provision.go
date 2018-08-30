@@ -41,14 +41,11 @@ func (s *sqlAllInOneManager) deployARMTemplate(
 
 	pp := instance.ProvisioningParameters
 	dt := instance.Details.(*sqlAllInOneInstanceDetails)
-	p, err := s.cosmosAccountManager.buildGoTemplateParams(
+	p := s.cosmosAccountManager.buildGoTemplateParams(
 		pp,
 		&dt.cosmosdbInstanceDetails,
 		"GlobalDocumentDB",
 	)
-	if err != nil {
-		return nil, err
-	}
 	tags := getTags(pp)
 	tags["defaultExperience"] = "DocumentDB"
 	fqdn, pk, err := s.cosmosAccountManager.deployARMTemplate(

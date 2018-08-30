@@ -14,10 +14,7 @@ func (c *cosmosAccountManager) updateDeployment(
 	capability string,
 	additionalTags map[string]string,
 ) error {
-	p, err := c.buildGoTemplateParams(up, dt, kind)
-	if err != nil {
-		return err
-	}
+	p := c.buildGoTemplateParams(up, dt, kind)
 	if capability != "" {
 		p["capability"] = capability
 	}
@@ -25,7 +22,7 @@ func (c *cosmosAccountManager) updateDeployment(
 	for k, v := range additionalTags {
 		tags[k] = v
 	}
-	err = c.deployUpdatedARMTemplate(
+	err := c.deployUpdatedARMTemplate(
 		up,
 		dt,
 		p,

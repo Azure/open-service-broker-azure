@@ -45,15 +45,12 @@ func (d *dbmsManager) deployARMTemplate(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*dbmsInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
-	goTemplateParameters, err := buildGoTemplateParameters(
+	goTemplateParameters := buildGoTemplateParameters(
 		instance.Plan,
 		version,
 		dt,
 		*instance.ProvisioningParameters,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("unable to build go template parameters: %s", err)
-	}
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {

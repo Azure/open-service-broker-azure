@@ -1,4 +1,4 @@
-FROM quay.io/deis/lightweight-docker-go:v0.2.0
+FROM quay.io/deis/lightweight-docker-go:v0.3.0
 ARG BASE_PACKAGE_NAME
 ARG LDFLAGS
 ENV CGO_ENABLED=0

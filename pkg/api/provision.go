@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/krancour/async"
 )
 
 func (s *server) provision(w http.ResponseWriter, r *http.Request) {
@@ -121,7 +121,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate the provisioning parameters
-	if err :=
+	if err =
 		plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema.Validate(
 			provisioningRequest.Parameters,
 		); err != nil {

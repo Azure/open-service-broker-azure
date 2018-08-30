@@ -23,7 +23,7 @@ LDFLAGS = -w -X $(BASE_PACKAGE_NAME)/pkg/version.commit=$(GIT_VERSION) \
 # Containerized development environment                                        #
 ################################################################################
 
-DEV_IMAGE := quay.io/deis/lightweight-docker-go:v0.2.0
+DEV_IMAGE := quay.io/deis/lightweight-docker-go:v0.3.0
 
 DOCKER_CMD_BASE := docker run \
 	--rm \
@@ -32,8 +32,10 @@ DOCKER_CMD_BASE := docker run \
 	-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
 	-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
 	-e AZURE_CLIENT_SECRET=$${AZURE_CLIENT_SECRET} \
+	-e SKIP_DOCKER=true \
 	-e TEST_MODULES=$${TEST_MODULES} \
 	-v $$(pwd):/go/src/$(BASE_PACKAGE_NAME) \
+	-v $$(pwd)/.modcache:/go/pkg/mod \
 	-w /go/src/$(BASE_PACKAGE_NAME)
 
 DOCKER_CMD := $(DOCKER_CMD_BASE) $(DEV_IMAGE)
@@ -92,7 +94,10 @@ endif
 dev:
 	$(DOCKER_CMD_INT) bash
 
-DEP_CMD := dep ensure -v
+DEP_CMD := bash -c ' \
+	GO111MODULE=on go build -o bin/tmp-broker ./cmd/broker \
+	&& GO111MODULE=on go mod vendor \
+	&& rm bin/tmp-broker'
 
 # Install/update dependencies
 .PHONY: dep
@@ -130,7 +135,7 @@ VERIFY_CMD := bash -c ' \
 	PRJ_DIR=$$(pwd) \
 	&& cp -r --parent -L $$PRJ_DIR /tmp \
 	&& cd /tmp$$PRJ_DIR \
-	&& GOPATH=/tmp$$GOPATH dep ensure -v \
+	&& GOPATH=/tmp$$GOPATH SKIP_DOCKER=true make dep \
 	&& diff $$PRJ_DIR/Gopkg.lock Gopkg.lock \
 	&& diff -r $$PRJ_DIR/vendor vendor'
 
@@ -219,7 +224,7 @@ else
 	docker-compose rm -f test-api-compliance-broker
 endif
 
-LINT_CMD := gometalinter ./... \
+LINT_CMD := gometalinter cmd/... pkg/... tests/... \
 	--concurrency=1 \
 	--disable-all \
 	--enable gofmt \
@@ -236,7 +241,6 @@ LINT_CMD := gometalinter ./... \
 	--enable interfacer \
 	--enable unconvert \
 	--enable goconst \
-	--enable gas \
 	--enable goimports \
 	--enable misspell \
 	--enable unparam \

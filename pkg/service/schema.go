@@ -64,8 +64,8 @@ func (i InputParametersSchema) MarshalJSON() ([]byte, error) {
 			Parameters inputParametersSchemaWrapper `json:"parameters"`
 		}{
 			Parameters: inputParametersSchemaWrapper{
-				Schema: jsonSchemaVersion,
-				Type:   "object",
+				Schema:                jsonSchemaVersion,
+				Type:                  "object",
 				inputParametersSchema: inputParametersSchema(i),
 				Additional:            false,
 			},

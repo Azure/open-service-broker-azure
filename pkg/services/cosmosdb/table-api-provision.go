@@ -23,10 +23,7 @@ func (t *tableAccountManager) deployARMTemplate(
 
 	pp := instance.ProvisioningParameters
 	dt := instance.Details.(*cosmosdbInstanceDetails)
-	p, err := t.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
-	if err != nil {
-		return nil, err
-	}
+	p := t.buildGoTemplateParams(pp, dt, "GlobalDocumentDB")
 	p["capability"] = "EnableTable"
 	tags := getTags(pp)
 	tags["defaultExperience"] = "Table"

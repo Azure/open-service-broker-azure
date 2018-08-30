@@ -24,14 +24,11 @@ func (d *dbmsManager) updateARMTemplate(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*dbmsInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
-	goTemplateParams, err := buildDBMSGoTemplateParameters(
+	goTemplateParams := buildDBMSGoTemplateParameters(
 		dt,
 		*instance.UpdatingParameters,
 		version,
 	)
-	if err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
-	}
 	goTemplateParams["location"] =
 		instance.ProvisioningParameters.GetString("location")
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
@@ -39,7 +36,7 @@ func (d *dbmsManager) updateARMTemplate(
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
-	_, err = d.armDeployer.Update(
+	_, err := d.armDeployer.Update(
 		dt.ARMDeploymentName,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 		instance.ProvisioningParameters.GetString("location"),
