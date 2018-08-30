@@ -237,7 +237,6 @@ LINT_CMD := gometalinter ./... \
 	--enable interfacer \
 	--enable unconvert \
 	--enable goconst \
-	--enable gas \
 	--enable goimports \
 	--enable misspell \
 	--enable unparam \
