@@ -223,7 +223,7 @@ else
 	docker-compose rm -f test-api-compliance-broker
 endif
 
-LINT_CMD := gometalinter ./... \
+LINT_CMD := gometalinter cmd/... pkg/... tests/... \
 	--concurrency=1 \
 	--disable-all \
 	--enable gofmt \
