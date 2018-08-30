@@ -32,6 +32,7 @@ DOCKER_CMD_BASE := docker run \
 	-e AZURE_TENANT_ID=$${AZURE_TENANT_ID} \
 	-e AZURE_CLIENT_ID=$${AZURE_CLIENT_ID} \
 	-e AZURE_CLIENT_SECRET=$${AZURE_CLIENT_SECRET} \
+	-e SKIP_DOCKER=true \
 	-e TEST_MODULES=$${TEST_MODULES} \
 	-v $$(pwd):/go/src/$(BASE_PACKAGE_NAME) \
 	-v $$(pwd)/.modcache:/go/pkg/mod \
