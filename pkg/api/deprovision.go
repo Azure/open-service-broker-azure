@@ -120,7 +120,8 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var task async.Task
-	if childCount, err :=
+	var childCount int64
+	if childCount, err =
 		s.store.GetInstanceChildCountByAlias(instance.Alias); err != nil {
 		logFields["step"] = firstStepName
 		logFields["error"] = err

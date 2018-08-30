@@ -158,7 +158,7 @@ func buildGoTemplateParameters(
 	version string,
 	dt *dbmsInstanceDetails,
 	pp service.ProvisioningParameters,
-) (map[string]interface{}, error) {
+) map[string]interface{} {
 
 	td := plan.GetProperties().Extended["tierDetails"].(tierDetails)
 
@@ -187,5 +187,5 @@ func buildGoTemplateParameters(
 	}
 	p["firewallRules"] = firewallRules
 
-	return p, nil
+	return p
 }

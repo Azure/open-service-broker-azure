@@ -113,7 +113,9 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 	instance.Service = svc
 	instance.Plan = plan
 	if instance.ParentAlias != "" {
-		parent, ok, err := s.GetInstanceByAlias(instance.ParentAlias)
+		var parent service.Instance
+		var ok bool
+		parent, ok, err = s.GetInstanceByAlias(instance.ParentAlias)
 		if err != nil {
 			return instance, false, fmt.Errorf(
 				`error retrieving parent with alias "%s" for instance "%s"`,

@@ -121,7 +121,7 @@ func (s *server) provision(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate the provisioning parameters
-	if err :=
+	if err =
 		plan.GetSchemas().ServiceInstances.ProvisioningParametersSchema.Validate(
 			provisioningRequest.Parameters,
 		); err != nil {

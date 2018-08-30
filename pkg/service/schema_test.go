@@ -372,12 +372,12 @@ func TestFloatPropertySchemaToJSON(t *testing.T) {
 	assert.True(t, ok)
 	minValueFloat, ok := minValueIface.(float64)
 	assert.True(t, ok)
-	assert.Equal(t, *smallIntsAndHalvesFps.MinValue, float64(minValueFloat))
+	assert.Equal(t, *smallIntsAndHalvesFps.MinValue, minValueFloat)
 	maxValueIface, ok := smallEvenIpsMap["maximum"]
 	assert.True(t, ok)
 	maxValueFloat, ok := maxValueIface.(float64)
 	assert.True(t, ok)
-	assert.Equal(t, *smallIntsAndHalvesFps.MaxValue, float64(maxValueFloat))
+	assert.Equal(t, *smallIntsAndHalvesFps.MaxValue, maxValueFloat)
 }
 
 func TestValidateFloatProperty(t *testing.T) {

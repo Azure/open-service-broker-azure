@@ -39,14 +39,11 @@ func (a *allInOneManager) deployARMTemplate(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*allInOneInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
-	goTemplateParams, err := buildDBMSGoTemplateParameters(
+	goTemplateParams := buildDBMSGoTemplateParameters(
 		&dt.dbmsInstanceDetails,
 		*instance.ProvisioningParameters,
 		version,
 	)
-	if err != nil {
-		return nil, err
-	}
 	pd := instance.Plan.GetProperties().Extended["tierDetails"].(planDetails)
 	dbParams, err := buildDatabaseGoTemplateParameters(
 		dt.DatabaseName,

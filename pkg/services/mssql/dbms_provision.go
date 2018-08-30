@@ -36,14 +36,11 @@ func (d *dbmsManager) deployARMTemplate(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*dbmsInstanceDetails)
 	version := instance.Service.GetProperties().Extended["version"].(string)
-	goTemplateParams, err := buildDBMSGoTemplateParameters(
+	goTemplateParams := buildDBMSGoTemplateParameters(
 		dt,
 		*instance.ProvisioningParameters,
 		version,
 	)
-	if err != nil {
-		return nil, err
-	}
 	goTemplateParams["location"] =
 		instance.ProvisioningParameters.GetString("location")
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")

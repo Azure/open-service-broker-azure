@@ -98,10 +98,10 @@ func (s serviceLifecycleTestCase) execute(
 
 	// Build an instance from test case details
 	instance := service.Instance{
-		ServiceID: s.serviceID,
-		Service:   svc,
-		PlanID:    s.planID,
-		Plan:      plan,
+		ServiceID:              s.serviceID,
+		Service:                svc,
+		PlanID:                 s.planID,
+		Plan:                   plan,
 		ProvisioningParameters: pp,
 		Parent:                 s.parentServiceInstance,
 	}
@@ -236,7 +236,7 @@ func (s serviceLifecycleTestCase) execute(
 
 		// Test the credentials
 		if s.testCredentials != nil {
-			if err := s.testCredentials(credsMap); err != nil {
+			if err = s.testCredentials(credsMap); err != nil {
 				return err
 			}
 		}
