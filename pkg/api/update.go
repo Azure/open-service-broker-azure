@@ -8,7 +8,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/async"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	"github.com/Azure/open-service-broker-azure/pkg/types"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
@@ -364,9 +363,7 @@ func mergeUpdateParameters(
 	// using both the previously specificed parameters and the new
 	// parameters.
 	for key, value := range up {
-		if !types.IsEmpty(value) {
-			ppCopy[key] = value
-		}
+		ppCopy[key] = value
 	}
 	return ppCopy
 }
