@@ -32,7 +32,6 @@ func (s *serviceManager) deployARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*instanceDetails)
-	plan := instance.Plan
 
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
@@ -45,13 +44,7 @@ func (s *serviceManager) deployARMTemplate(
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 		instance.ProvisioningParameters.GetString("location"),
 		armTemplateBytes,
-		map[string]interface{}{ // ARM template params
-			"location":           instance.ProvisioningParameters.GetString("location"),
-			"serverName":         dt.ServerName,
-			"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
-			"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
-			"redisCacheCapacity": plan.GetProperties().Extended["redisCacheCapacity"],
-		},
+		buildGoTemplate(instance),
 		map[string]interface{}{},
 		tags,
 	)
@@ -78,4 +71,32 @@ func (s *serviceManager) deployARMTemplate(
 	dt.PrimaryKey = service.SecureString(primaryKey)
 
 	return dt, err
+}
+
+func buildGoTemplate(
+	instance service.Instance,
+) map[string]interface{} {
+	pp := instance.ProvisioningParameters
+	dt := instance.Details.(*instanceDetails)
+	plan := instance.Plan
+
+	var enableNonSslPort string
+	if pp.GetString("enableNonSslPort") == "enabled" {
+		enableNonSslPort = "true"
+	} else {
+		enableNonSslPort = "false"
+	}
+
+	return map[string]interface{}{ // ARM template params
+		"location":           pp.GetString("location"),
+		"serverName":         dt.ServerName,
+		"redisConfiguration": pp.GetObject("redisConfiguration"),
+		"shardCount":         pp.GetString("shardCount"),
+		"subnetId":           pp.GetString("subnetId"),
+		"staticIP":           pp.GetString("staticIP"),
+		"enableNonSslPort":   enableNonSslPort,
+		"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
+		"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
+		"redisCacheCapacity": pp.GetString("skuCapacity"),
+	}
 }

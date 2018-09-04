@@ -29,9 +29,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
-					"redisCacheSKU":      "Basic",
-					"redisCacheFamily":   "C",
-					"redisCacheCapacity": 0,
+					"redisCacheSKU":    "Basic",
+					"redisCacheFamily": "C",
 				},
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Basic Tier",
@@ -39,7 +38,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						ProvisioningParametersSchema: newBasicPlanDetail().getProvisioningParamsSchema(),
+						UpdatingParametersSchema:     newBasicPlanDetail().getUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -50,9 +50,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
-					"redisCacheSKU":      "Standard",
-					"redisCacheFamily":   "C",
-					"redisCacheCapacity": 1,
+					"redisCacheSKU":    "Standard",
+					"redisCacheFamily": "C",
 				},
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Standard Tier",
@@ -60,7 +59,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						ProvisioningParametersSchema: newStandardPlanDetail().getProvisioningParamsSchema(),
+						UpdatingParametersSchema:     newStandardPlanDetail().getUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -71,9 +71,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Free:        false,
 				Stability:   service.StabilityExperimental,
 				Extended: map[string]interface{}{
-					"redisCacheSKU":      "Premium",
-					"redisCacheFamily":   "P",
-					"redisCacheCapacity": 1,
+					"redisCacheSKU":    "Premium",
+					"redisCacheFamily": "P",
 				},
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Premium Tier",
@@ -81,7 +80,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						ProvisioningParametersSchema: newPremiumPlanDetail().getProvisioningParamsSchema(),
+						UpdatingParametersSchema:     newPremiumPlanDetail().getUpdatingParamsSchema(),
 					},
 				},
 			}),
