@@ -12,8 +12,8 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
+	"github.com/deis/async"
 	"github.com/gorilla/mux"
-	"github.com/krancour/async"
 )
 
 type errHTTPServerStopped struct {

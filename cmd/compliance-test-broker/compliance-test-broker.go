@@ -14,7 +14,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	memoryStorage "github.com/Azure/open-service-broker-azure/pkg/storage/memory"
 	log "github.com/Sirupsen/logrus"
-	fakeAsync "github.com/krancour/async/fake"
+	fakeAsync "github.com/deis/async/fake"
 )
 
 func main() {

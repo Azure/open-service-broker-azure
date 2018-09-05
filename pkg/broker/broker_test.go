@@ -10,7 +10,7 @@ import (
 	fakeAPI "github.com/Azure/open-service-broker-azure/pkg/api/fake"
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	fakeAsync "github.com/krancour/async/fake"
+	fakeAsync "github.com/deis/async/fake"
 	"github.com/stretchr/testify/assert"
 )
 

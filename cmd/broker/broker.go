@@ -23,7 +23,7 @@ import (
 	storage "github.com/Azure/open-service-broker-azure/pkg/storage/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
-	async "github.com/krancour/async/redis"
+	async "github.com/deis/async/redis"
 )
 
 func main() {

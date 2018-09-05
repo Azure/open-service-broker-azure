@@ -10,8 +10,8 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
+	"github.com/deis/async"
 	"github.com/gorilla/mux"
-	"github.com/krancour/async"
 )
 
 func (s *server) provision(w http.ResponseWriter, r *http.Request) {

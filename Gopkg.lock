@@ -64,6 +64,16 @@
   revision = "04cdfd42973bb9c8589fd6a731800cf222fde1a9"
 
 [[projects]]
+  name = "github.com/deis/async"
+  packages = [
+    ".",
+    "fake",
+    "redis"
+  ]
+  revision = "a67e1cc80aa8389d0e3f6ff9c3aafe50a53ce251"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/denisenkom/go-mssqldb"
   packages = ["."]
   revision = "b49fae7d39756354262c5f385d4cf04f9ac6618b"
@@ -120,16 +130,6 @@
   name = "github.com/kelseyhightower/envconfig"
   packages = ["."]
   revision = "70f0258d44cbaa3b6a2581d82f58da01a38e4de4"
-
-[[projects]]
-  name = "github.com/krancour/async"
-  packages = [
-    ".",
-    "fake",
-    "redis"
-  ]
-  revision = "b74fb9ddfb83491b4e51e17848b29b7f89d6ecea"
-  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/lib/pq"
@@ -211,6 +211,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "be136522b42e60bb8160ea9714c87b071d597ac3f2932b40f6b03cbccc14cfbc"
+  inputs-digest = "7729d0a1744d67aa8f29d13261d3769fba6c495e168858eb0b7444a947e8a709"
   solver-name = "gps-cdcl"
   solver-version = 1

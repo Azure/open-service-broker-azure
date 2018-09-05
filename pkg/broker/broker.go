@@ -9,7 +9,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	log "github.com/Sirupsen/logrus"
-	"github.com/krancour/async"
+	"github.com/deis/async"
 )
 
 type errAsyncEngineStopped struct {

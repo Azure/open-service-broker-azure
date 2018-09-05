@@ -73,5 +73,5 @@
   name = "github.com/mitchellh/mapstructure"
 
 [[constraint]]
-  name = "github.com/krancour/async"
+  name = "github.com/deis/async"
   version = "v1.0.0"

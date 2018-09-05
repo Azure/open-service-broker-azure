@@ -7,7 +7,7 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	log "github.com/Sirupsen/logrus"
-	"github.com/krancour/async"
+	"github.com/deis/async"
 )
 
 func (b *broker) executeUpdatingStep(

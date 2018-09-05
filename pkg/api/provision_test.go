@@ -9,7 +9,7 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
-	fakeAsync "github.com/krancour/async/fake"
+	fakeAsync "github.com/deis/async/fake"
 	"github.com/stretchr/testify/assert"
 )
 

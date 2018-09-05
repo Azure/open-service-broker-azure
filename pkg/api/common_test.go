@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/http/filter"
 	"github.com/Azure/open-service-broker-azure/pkg/services/fake"
 	memoryStorage "github.com/Azure/open-service-broker-azure/pkg/storage/memory"
-	fakeAsync "github.com/krancour/async/fake"
+	fakeAsync "github.com/deis/async/fake"
 	uuid "github.com/satori/go.uuid"
 )
 
