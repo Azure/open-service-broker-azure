@@ -2,7 +2,7 @@
 # Go build details                                                             #
 ################################################################################
 
-BASE_PACKAGE_NAME := github.com/krancour/async
+BASE_PACKAGE_NAME := github.com/deis/async
 
 ################################################################################
 # Containerized development environment                                        #

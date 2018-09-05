@@ -7,8 +7,8 @@ import (
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/deis/async"
 	"github.com/go-redis/redis"
-	"github.com/krancour/async"
 	uuid "github.com/satori/go.uuid"
 )
 

@@ -8,7 +8,7 @@ base-go-job: &base-go-job
     - image: *go-image
   environment: &base-go-environment
     SKIP_DOCKER: true
-  working_directory: /go/src/github.com/krancour/async
+  working_directory: /go/src/github.com/deis/async
 
 jobs:
   lint:

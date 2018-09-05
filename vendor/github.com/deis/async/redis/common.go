@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/krancour/async"
+	"github.com/deis/async"
 )
 
 const (

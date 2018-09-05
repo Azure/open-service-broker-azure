@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/krancour/async"
+	"github.com/deis/async"
 	"github.com/stretchr/testify/assert"
 )
 

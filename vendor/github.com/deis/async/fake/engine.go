@@ -3,7 +3,7 @@ package fake
 import (
 	"context"
 
-	"github.com/krancour/async"
+	"github.com/deis/async"
 )
 
 // RunFn describes a function used to provide pluggable runtime behavior to
