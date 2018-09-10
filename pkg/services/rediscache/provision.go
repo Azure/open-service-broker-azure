@@ -100,7 +100,7 @@ func buildGoTemplate(
 	return map[string]interface{}{ // ARM template params
 		"location":           pp.GetString("location"),
 		"serverName":         dt.ServerName,
-		"redisConfiguration": pp.GetObject("redisConfiguration"),
+		"redisConfiguration": pp.GetObject("redisConfiguration").Data,
 		"shardCount":         pp.GetInt64("shardCount"),
 		"subnetId":           pp.GetString("subnetId"),
 		"staticIP":           pp.GetString("staticIP"),
