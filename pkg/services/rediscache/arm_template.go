@@ -17,7 +17,13 @@ var armTemplateBytes = []byte(`
 			"type": "Microsoft.Cache/Redis",
 			"location": "{{.location}}",
 			"properties": {
-				"redisConfiguration": {{.redisConfiguration}},
+				{{if .redisConfiguration}}
+				"redisConfiguration" : {
+					{{ range $key, $value := .redisConfiguration }}
+					"{{ $key }}": "{{ $value }}"
+				 	{{ end }}
+				},
+				{{end}}
 				{{if .shardCount}}
 				"shardCount": "{{.shardCount}}",
 				{{end}}
