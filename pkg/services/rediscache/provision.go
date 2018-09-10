@@ -101,7 +101,7 @@ func buildGoTemplate(
 		"location":           pp.GetString("location"),
 		"serverName":         dt.ServerName,
 		"redisConfiguration": pp.GetObject("redisConfiguration"),
-		"shardCount":         pp.GetString("shardCount"),
+		"shardCount":         pp.GetInt64("shardCount"),
 		"subnetId":           pp.GetString("subnetId"),
 		"staticIP":           pp.GetString("staticIP"),
 		"enableNonSslPort":   enableNonSslPort,
