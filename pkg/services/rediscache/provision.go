@@ -44,7 +44,7 @@ func (s *serviceManager) deployARMTemplate(
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 		instance.ProvisioningParameters.GetString("location"),
 		armTemplateBytes,
-		buildGoTemplate(instance),
+		buildGoTemplate(instance, provision),
 		map[string]interface{}{},
 		tags,
 	)
@@ -73,10 +73,20 @@ func (s *serviceManager) deployARMTemplate(
 	return dt, err
 }
 
+const provision = "provision"
+const update = "update"
+
 func buildGoTemplate(
 	instance service.Instance,
+	mode string,
 ) map[string]interface{} {
-	pp := instance.ProvisioningParameters
+	var pp *service.ProvisioningParameters
+	if mode == provision {
+		pp = instance.ProvisioningParameters
+	} else if mode == update {
+		pp = instance.UpdatingParameters
+	}
+
 	dt := instance.Details.(*instanceDetails)
 	plan := instance.Plan
 

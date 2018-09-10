@@ -32,6 +32,7 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 				Title:         "Sku capacity",
 				Description:   "The size of the Redis cache to deploy.",
 				AllowedValues: pd.allowedCapacity,
+				DefaultValue:  &(pd.allowedCapacity[0]),
 			},
 		},
 	}
