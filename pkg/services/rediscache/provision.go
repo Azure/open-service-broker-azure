@@ -107,6 +107,6 @@ func buildGoTemplate(
 		"enableNonSslPort":   enableNonSslPort,
 		"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
 		"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
-		"redisCacheCapacity": pp.GetString("skuCapacity"),
+		"redisCacheCapacity": pp.GetInt64("skuCapacity"),
 	}
 }
