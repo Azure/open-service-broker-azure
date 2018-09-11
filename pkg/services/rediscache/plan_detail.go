@@ -1,8 +1,8 @@
 package rediscache
 
-const basic = "Basic"
-const standard = "Standard"
-const premium = "Premium"
+const basic = "basic"
+const standard = "standard"
+const premium = "premium"
 
 type planDetail struct {
 	planName          string

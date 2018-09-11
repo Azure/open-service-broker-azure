@@ -3,6 +3,7 @@ package rediscache
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -13,11 +14,19 @@ func (s *serviceManager) ValidateUpdatingParameters(
 	pp := instance.ProvisioningParameters
 	up := instance.UpdatingParameters
 
+	// Can't update the instance from a larger capacity to a smaller capacity
 	provisionCapacity := pp.GetInt64("skuCapacity")
 	updateCapacity := up.GetInt64("skuCapacity")
 	if provisionCapacity > updateCapacity {
 		return fmt.Errorf("can not update an instance from larger capacity %d to"+
 			"smaller capacity %d", provisionCapacity, updateCapacity)
+	}
+
+	// Can't update `shardCount` and `skuCapacity` at the same time
+	if strings.ToLower(instance.Plan.GetName()) == premium {
+		if up.GetInt64("skuCapacity") != 0 && up.GetInt64("shardCount") != 0 {
+			return fmt.Errorf("can not update `shardCount` and `skuCapacity` at the same time")
+		}
 	}
 	return nil
 }
