@@ -103,13 +103,20 @@ func buildGoTemplate(
 		enableNonSslPort = "false"
 	}
 
-	redisConfiguration, _ := json.Marshal(
-		pp.GetObject("redisConfiguration").Data,
-	)
+	redisConfiguration := pp.GetObject("redisConfiguration").Data
+	if value, ok := redisConfiguration["rdb-backup-enabled"]; ok {
+		if value == "enabled" {
+			redisConfiguration["rdb-backup-enabled"] = true
+		} else {
+			redisConfiguration["rdb-backup-enabled"] = false
+		}
+	}
+
+	redisConfigurationBytes, _ := json.Marshal(redisConfiguration)
 	return map[string]interface{}{ // ARM template params
 		"location":           pp.GetString("location"),
 		"serverName":         dt.ServerName,
-		"redisConfiguration": string(redisConfiguration),
+		"redisConfiguration": string(redisConfigurationBytes),
 		"shardCount":         pp.GetInt64("shardCount"),
 		"subnetId":           pp.GetString("subnetId"),
 		"staticIP":           pp.GetString("staticIP"),
