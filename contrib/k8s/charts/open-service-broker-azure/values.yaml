@@ -87,3 +87,8 @@ redis:
   ## If not embedded, specifies whether to use a secure connection to the
   ## remote Redis host
   enableTls: true
+
+  ## Used to introduce a unique identifier to enable multiple OSBA instances 
+  ## to share one redis. If nothing is provided here, no additional identifier
+  ## is added.
+  prefix:

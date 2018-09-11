@@ -121,6 +121,7 @@ Broker chart and their default values.
 | `redis.port` | _If and only if_ `redis.embedded` is `false`, this option specifies the port to connect to on the remote Redis host. | `6380` |
 | `redis.redisPassword` | Specifies the Redis password. If `redis.embedded` is `true`, this option sets the password on the Redis cache itself _and_ provides it to OSBA. If `redis.embedded` is `false`, this option only provides the password to OSBA. In that case, the value of this option must be the correct password for the remote Redis cache. | `"password"`; __Do not use this default value in production!__ |
 | `redis.enableTls` | _If and only if_ `redis.embedded` is `false`, this option specifies whether to use a secure connection to the remote Redis host. | `true` |
+| `redis.prefix` | Set this value to enable multiple OSBA instances to share one Redis. | `` __Prefix must not be changed for an existing deployment of OSBA__ |
 
 Specify a value for each option using the `--set <key>=<value>` switch on the
 `helm install` command. That switch can be invoked multiple times to set
