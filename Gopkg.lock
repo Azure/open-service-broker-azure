@@ -70,8 +70,8 @@
     "fake",
     "redis"
   ]
-  revision = "a67e1cc80aa8389d0e3f6ff9c3aafe50a53ce251"
-  version = "v1.0.0"
+  revision = "e407b15739b9f1a994c3ac7c93dc8f4f439d0762"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/denisenkom/go-mssqldb"
@@ -211,6 +211,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7729d0a1744d67aa8f29d13261d3769fba6c495e168858eb0b7444a947e8a709"
+  inputs-digest = "e7b24abc329a22d2a05f968645a749596c11e732e6a8d3177e70e864834a2a58"
   solver-name = "gps-cdcl"
   solver-version = 1

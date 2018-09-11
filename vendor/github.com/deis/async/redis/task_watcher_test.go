@@ -13,7 +13,7 @@ func TestDefaultWatchDeferredTasks(t *testing.T) {
 	e := getTestEngine()
 
 	pendingTaskQueueName := getDisposableQueueName()
-	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
+	watchedTaskQueueName := e.watchedTaskQueueName
 
 	// Define some tasks
 	invalidTaskJSON := []byte("bogus")

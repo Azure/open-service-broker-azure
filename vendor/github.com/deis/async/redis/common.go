@@ -8,19 +8,8 @@ import (
 )
 
 const (
-	workerSetName         = "workers"
-	aliveIndicator        = "alive"
-	pendingTaskQueueName  = "pendingTasks"
-	deferredTaskQueueName = "deferredTasks"
+	aliveIndicator = "alive"
 )
-
-func getActiveTaskQueueName(workerID string) string {
-	return fmt.Sprintf("active-tasks:%s", workerID)
-}
-
-func getWatchedTaskQueueName(workerID string) string {
-	return fmt.Sprintf("watched-tasks:%s", workerID)
-}
 
 func (e *engine) getTaskFromJSON(
 	taskJSON []byte,
@@ -49,4 +38,11 @@ func (e *engine) getTaskFromJSON(
 		return nil, nil
 	}
 	return task, nil
+}
+
+func (e *engine) prefixRedisKey(key string) string {
+	if e.config.RedisPrefix != "" {
+		return fmt.Sprintf("%s:%s", e.config.RedisPrefix, key)
+	}
+	return key
 }
