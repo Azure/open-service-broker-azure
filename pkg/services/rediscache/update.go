@@ -53,5 +53,13 @@ func (s *serviceManager) updateARMTemplate(
 		return nil, fmt.Errorf("error updating redis instance %s", err)
 	}
 
-	return nil, nil
+	nonSSLPortEnabled := up.GetString("enableNonSslPort")
+	if nonSSLPortEnabled != "" {
+		if nonSSLPortEnabled == "enabled" {
+			dt.NonSSLEnabled = true
+		} else {
+			dt.NonSSLEnabled = false
+		}
+	}
+	return dt, nil
 }

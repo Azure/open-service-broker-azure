@@ -24,9 +24,10 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 					" to associate new resources.",
 			},
 			"enableNonSslPort": &service.StringPropertySchema{
-				Title:        "Enable non-SSL port",
-				Description:  "Specifies whether the non-ssl Redis server port (6379) is enabled.",
-				DefaultValue: "enabled",
+				Title:         "Enable non-SSL port",
+				Description:   "Specifies whether the non-ssl Redis server port (6379) is enabled.",
+				AllowedValues: []string{"enabled", "disabled"},
+				DefaultValue:  "enabled",
 			},
 			"skuCapacity": &service.IntPropertySchema{
 				Title:         "Sku capacity",
@@ -88,8 +89,9 @@ func (pd planDetail) getUpdatingParamsSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"enableNonSslPort": &service.StringPropertySchema{
-				Title:       "Enable non-SSL port",
-				Description: "Specifies whether the non-ssl Redis server port (6379) is enabled.",
+				Title:         "Enable non-SSL port",
+				Description:   "Specifies whether the non-ssl Redis server port (6379) is enabled.",
+				AllowedValues: []string{"enabled", "disabled"},
 			},
 			"skuCapacity": &service.IntPropertySchema{
 				Title:         "Sku capacity",

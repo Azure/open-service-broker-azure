@@ -70,6 +70,11 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	dt.PrimaryKey = service.SecureString(primaryKey)
 
+	if instance.ProvisioningParameters.GetString("enableNonSslPort") == "enabled" {
+		dt.NonSSLEnabled = true
+	} else {
+		dt.NonSSLEnabled = false
+	}
 	return dt, err
 }
 
