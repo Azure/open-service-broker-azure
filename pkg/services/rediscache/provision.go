@@ -2,6 +2,7 @@ package rediscache
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -102,10 +103,13 @@ func buildGoTemplate(
 		enableNonSslPort = "false"
 	}
 
+	redisConfiguration, _ := json.Marshal(
+		pp.GetObject("redisConfiguration").Data,
+	)
 	return map[string]interface{}{ // ARM template params
 		"location":           pp.GetString("location"),
 		"serverName":         dt.ServerName,
-		"redisConfiguration": pp.GetObject("redisConfiguration").Data,
+		"redisConfiguration": string(redisConfiguration),
 		"shardCount":         pp.GetInt64("shardCount"),
 		"subnetId":           pp.GetString("subnetId"),
 		"staticIP":           pp.GetString("staticIP"),

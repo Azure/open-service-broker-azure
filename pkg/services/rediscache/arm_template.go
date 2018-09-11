@@ -18,11 +18,7 @@ var armTemplateBytes = []byte(`
 			"location": "{{.location}}",
 			"properties": {
 				{{if .redisConfiguration}}
-				"redisConfiguration" : {
-					{{ range $key, $value := .redisConfiguration }}
-					"{{ $key }}": "{{ $value }}"
-				 	{{ end }}
-				},
+				"redisConfiguration" : {{.redisConfiguration}},
 				{{end}}
 				{{if .shardCount}}
 				"shardCount": "{{.shardCount}}",
