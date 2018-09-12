@@ -30,7 +30,7 @@ func (e *engine) defaultExecuteTasks(
 		case taskJSON := <-inputCh:
 			task, err := e.getTaskFromJSON(
 				taskJSON,
-				getActiveTaskQueueName(e.workerID),
+				e.activeTaskQueueName,
 			)
 			if err != nil {
 				select {
@@ -68,7 +68,7 @@ func (e *engine) defaultExecuteTasks(
 				}
 				pipeline := e.redisClient.TxPipeline()
 				pipeline.LPush(pendingTaskQueueName, newTaskJSON)
-				pipeline.LRem(getActiveTaskQueueName(e.workerID), -1, taskJSON)
+				pipeline.LRem(e.activeTaskQueueName, -1, taskJSON)
 				_, err = pipeline.Exec()
 				if err != nil {
 					select {
@@ -135,7 +135,7 @@ func (e *engine) defaultExecuteTasks(
 			// Regardless of success or failure, we're done with this task. Remove it
 			// from the active task queue.
 			pipeline := e.redisClient.TxPipeline()
-			pipeline.LRem(getActiveTaskQueueName(e.workerID), -1, taskJSON)
+			pipeline.LRem(e.activeTaskQueueName, -1, taskJSON)
 			// If the task was successful and we had no trouble marshaling the
 			// follow-up tasks, we can add them to the appropriate queues
 			if taskSuccess && !hadMarshalingError {
@@ -157,7 +157,7 @@ func (e *engine) defaultExecuteTasks(
 					`error removing task "%s" from queue "%s" and submitting follow-up `+
 						`tasks: %s`,
 					e.workerID,
-					getActiveTaskQueueName(e.workerID),
+					e.activeTaskQueueName,
 					err,
 				):
 				case <-ctx.Done():
