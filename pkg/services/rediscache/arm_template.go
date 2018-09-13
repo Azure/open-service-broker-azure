@@ -21,7 +21,7 @@ var armTemplateBytes = []byte(`
 				"redisConfiguration" : {{.redisConfiguration}},
 				{{end}}
 				{{if .shardCount}}
-				"shardCount": "{{.shardCount}}",
+				"shardCount": {{.shardCount}},
 				{{end}}
 				{{if .subnetId}}
 				"subnetId": "{{.subnetId}}",
