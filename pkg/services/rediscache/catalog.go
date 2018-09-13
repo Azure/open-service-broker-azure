@@ -3,6 +3,10 @@ package rediscache
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 func (m *module) GetCatalog() (service.Catalog, error) {
+	bpd := newBasicPlanDetail()
+	spd := newStandardPlanDetail()
+	ppd := newPremiumPlanDetail()
+
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			service.ServiceProperties{
@@ -38,8 +42,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: newBasicPlanDetail().getProvisioningParamsSchema(),
-						UpdatingParametersSchema:     newBasicPlanDetail().getUpdatingParamsSchema(),
+						ProvisioningParametersSchema: bpd.getProvisioningParamsSchema(),
+						UpdatingParametersSchema:     bpd.getUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -59,8 +63,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: newStandardPlanDetail().getProvisioningParamsSchema(),
-						UpdatingParametersSchema:     newStandardPlanDetail().getUpdatingParamsSchema(),
+						ProvisioningParametersSchema: spd.getProvisioningParamsSchema(),
+						UpdatingParametersSchema:     spd.getUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -80,8 +84,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: newPremiumPlanDetail().getProvisioningParamsSchema(),
-						UpdatingParametersSchema:     newPremiumPlanDetail().getUpdatingParamsSchema(),
+						ProvisioningParametersSchema: ppd.getProvisioningParamsSchema(),
+						UpdatingParametersSchema:     ppd.getUpdatingParamsSchema(),
 					},
 				},
 			}),

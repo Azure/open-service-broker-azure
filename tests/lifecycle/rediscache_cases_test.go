@@ -93,7 +93,7 @@ func createVirtualNetwork(
 					AddressPrefixes: &[]string{"172.19.0.0/16"},
 				},
 				Subnets: &[]networkSDK.Subnet{
-					networkSDK.Subnet{
+					{
 						Name: &subnetName,
 						SubnetPropertiesFormat: &networkSDK.SubnetPropertiesFormat{
 							AddressPrefix: to.StringPtr("172.19.0.0/24"),

@@ -31,7 +31,7 @@ type serviceLifecycleTestCase struct {
 	bindingParameters      map[string]interface{}
 	testCredentials        func(credentials map[string]interface{}) error
 	childTestCases         []*serviceLifecycleTestCase
-	// Sometimes, addtional resources need to be created before provisioning,
+	// Sometimes, additional resources need to be created before provisioning,
 	// so we add a field `preProvisionFns` to handle this case. Functions
 	// in the slice will be excuted in serial, each of which necessarily creates
 	// needed resources and update `provisioningParameters`.

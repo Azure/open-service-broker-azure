@@ -29,7 +29,7 @@ func (s *serviceManager) ValidateUpdatingParameters(
 		ppShardCount := pp.GetInt64("shardCount")
 		upShardCount := up.GetInt64("shardCount")
 		if ppSku != upSku && ppShardCount != upShardCount {
-			return fmt.Errorf("can not update `shardCount` and `skuCapacity` at the same time")
+			return fmt.Errorf("can not update `shardCount` and `skuCapacity` at the same time") // nolint: lll
 		}
 	}
 	return nil
@@ -68,7 +68,7 @@ func (s *serviceManager) updateARMTemplate(
 
 	nonSSLPortEnabled := up.GetString("enableNonSslPort")
 	if nonSSLPortEnabled != "" {
-		if nonSSLPortEnabled == "enabled" {
+		if nonSSLPortEnabled == enabled {
 			dt.NonSSLEnabled = true
 		} else {
 			dt.NonSSLEnabled = false

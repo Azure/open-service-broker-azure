@@ -9,6 +9,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const enabled = "enabled"
+
 func (s *serviceManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
@@ -71,7 +73,7 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	dt.PrimaryKey = service.SecureString(primaryKey)
 
-	if instance.ProvisioningParameters.GetString("enableNonSslPort") == "enabled" {
+	if instance.ProvisioningParameters.GetString("enableNonSslPort") == enabled {
 		dt.NonSSLEnabled = true
 	} else {
 		dt.NonSSLEnabled = false
@@ -97,7 +99,7 @@ func buildGoTemplate(
 	plan := instance.Plan
 
 	var enableNonSslPort string
-	if pp.GetString("enableNonSslPort") == "enabled" {
+	if pp.GetString("enableNonSslPort") == enabled {
 		enableNonSslPort = "true"
 	} else {
 		enableNonSslPort = "false"
@@ -105,7 +107,7 @@ func buildGoTemplate(
 
 	redisConfiguration := pp.GetObject("redisConfiguration").Data
 	if value, ok := redisConfiguration["rdb-backup-enabled"]; ok {
-		if value == "enabled" {
+		if value == enabled {
 			redisConfiguration["rdb-backup-enabled"] = true
 		} else {
 			redisConfiguration["rdb-backup-enabled"] = false
