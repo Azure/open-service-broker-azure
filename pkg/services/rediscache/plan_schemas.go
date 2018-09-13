@@ -58,7 +58,6 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 			DefaultValue:            "",
 			CustomPropertyValidator: ipValidator,
 		}
-		var defaultBackupFrequency int64 = 60
 		ips.PropertySchemas["redisConfiguration"] = &service.ObjectPropertySchema{
 			Title:       "Redis Configuration",
 			Description: "All Redis Settings.",
@@ -67,13 +66,11 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 					Title:         "RDB backup enabled",
 					Description:   "Specifies whether RDB backup is enabled.",
 					AllowedValues: []string{"enabled", "disabled"},
-					DefaultValue:  "disabled",
 				},
 				"rdb-backup-frequency": &service.IntPropertySchema{
 					Title:         "RDB backup frequency",
 					Description:   "The frequency doing backup",
 					AllowedValues: []int64{15, 30, 60, 360, 720, 1440},
-					DefaultValue:  &defaultBackupFrequency,
 				},
 				"rdb-storage-connection-string": &service.StringPropertySchema{
 					Title:       "RDB storage connection string",
