@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"github.com/deis/async"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func TestDefaultExecuteTasks(t *testing.T) {
 
 	pendingTaskQueueName := getDisposableQueueName()
 	deferredTaskQueueName := getDisposableQueueName()
-	activeTaskQueueName := getActiveTaskQueueName(e.workerID)
+	activeTaskQueueName := e.activeTaskQueueName
 
 	// Register some jobs with the worker
 	var badJobCallCount int

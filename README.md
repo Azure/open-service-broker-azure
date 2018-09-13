@@ -13,9 +13,23 @@ server that provisions managed services in the Microsoft Azure public cloud.
 
 ## Supported Services
 
+
+### Stable Services
+
 * [Azure Database for MySQL](docs/modules/mysql.md)
 * [Azure Database for PostgreSQL](docs/modules/postgresql.md)
 * [Azure SQL Database](docs/modules/mssql.md)
+
+### Experimental Services
+
+* [Azure CosmosDB](docs/modules/cosmosdb.md)
+* [Azure Event Hubs](docs/modules/eventhubs.md)
+* [Azure Key Vault](docs/modules/keyvault.md)
+* [Azure Redis Cache](docs/modules/rediscache.md)
+* [Azure Search](docs/modules/search.md)
+* [Azure Service Bus](docs/modules/servicebus.md)
+* [Azure Storage](docs/modules/storage.md)
+
 
 ## Quickstarts
 

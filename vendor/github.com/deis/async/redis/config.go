@@ -14,6 +14,7 @@ type Config struct {
 	RedisEnableTLS          bool   `envconfig:"REDIS_ENABLE_TLS"`
 	PendingTaskWorkerCount  int    `envconfig:"PENDING_TASK_WORKER_COUNT"`
 	DeferedTaskWatcherCount int    `envconfig:"DEFERED_TASK_WATCHER_COUNT"`
+	RedisPrefix             string `envconfig:"REDIS_PREFIX"`
 }
 
 // NewConfigWithDefaults returns a Config object with default values already

@@ -1,0 +1,48 @@
+version: 2
+
+go-image: &go-image quay.io/deis/lightweight-docker-go:v0.2.0
+redis-image: &redis-image redis:3.2.4
+
+base-go-job: &base-go-job
+  docker:
+    - image: *go-image
+  environment: &base-go-environment
+    SKIP_DOCKER: true
+  working_directory: /go/src/github.com/deis/async
+
+jobs:
+  lint:
+    <<: *base-go-job
+    steps:
+      - checkout
+      - run:
+          name: Lint Go Code
+          command: make lint
+  verify-vendored-code:
+    <<: *base-go-job
+    steps:
+      - checkout
+      - run:
+          name: Verify Vendored Code
+          command: make verify-vendored-code
+  test:
+    <<: *base-go-job
+    docker:
+      - image: *go-image
+      - image: *redis-image
+    environment:
+      <<: *base-go-environment
+      ASYNC_REDIS_HOST: localhost
+    steps:
+      - checkout
+      - run:
+          name: Run Tests
+          command: make test
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - lint
+      - verify-vendored-code
+      - test

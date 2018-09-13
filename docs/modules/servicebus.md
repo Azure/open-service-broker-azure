@@ -1,6 +1,6 @@
 # [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus/)
 
-_Note: This module is EXPERIMENTAL and is not included in the General Availability release of Open Service Broker for Azure. It will be added in a future OSBA release._
+_Note: This module is EXPERIMENTAL. To enable this module, you must run Open Service Broker for Azure with modules.minStability set to `experimental`_
 
 ## Services & Plans
 

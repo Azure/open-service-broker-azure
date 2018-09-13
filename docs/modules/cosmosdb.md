@@ -1,6 +1,6 @@
 # [Azure CosmosDB](https://azure.microsoft.com/en-us/services/cosmos-db/)
 
-_Note: This module is EXPERIMENTAL and is not included in the General Availability release of Open Service Broker for Azure. It will be added in a future OSBA release._
+_Note: This module is EXPERIMENTAL. To enable this module, you must run Open Service Broker for Azure with Minimum Stability set to `experimental`_
 
 ## Services & Plans
 

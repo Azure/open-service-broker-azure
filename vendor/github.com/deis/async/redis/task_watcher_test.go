@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Azure/open-service-broker-azure/pkg/async"
+	"github.com/deis/async"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +13,7 @@ func TestDefaultWatchDeferredTasks(t *testing.T) {
 	e := getTestEngine()
 
 	pendingTaskQueueName := getDisposableQueueName()
-	watchedTaskQueueName := getWatchedTaskQueueName(e.workerID)
+	watchedTaskQueueName := e.watchedTaskQueueName
 
 	// Define some tasks
 	invalidTaskJSON := []byte("bogus")
