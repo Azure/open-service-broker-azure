@@ -10,8 +10,9 @@ import (
 
 	"github.com/satori/go.uuid"
 
-	networkSDK "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-01-01/network"
-	storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage"
+	networkSDK "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-01-01/network" // nolint: lll
+	storageSDK "github.com/Azure/azure-sdk-for-go/services/storage/mgmt/2017-10-01/storage" // nolint: lll
+	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -80,15 +81,13 @@ func createVirtualNetwork(
 	virtualNetworksClient.Authorizer = authorizer
 
 	virtualNetworkName := uuid.NewV4().String()
-	eastus := "eastus"
 	subnetName := "default"
-	subnetCIDR := "172.19.0.0/24"
 	vnResult, err := virtualNetworksClient.CreateOrUpdate(
 		ctx,
 		resourceGroup,
 		virtualNetworkName,
 		networkSDK.VirtualNetwork{
-			Location: &eastus,
+			Location: to.StringPtr("eastus"),
 			VirtualNetworkPropertiesFormat: &networkSDK.VirtualNetworkPropertiesFormat{
 				AddressSpace: &networkSDK.AddressSpace{
 					AddressPrefixes: &[]string{"172.19.0.0/16"},
@@ -97,7 +96,7 @@ func createVirtualNetwork(
 					networkSDK.Subnet{
 						Name: &subnetName,
 						SubnetPropertiesFormat: &networkSDK.SubnetPropertiesFormat{
-							AddressPrefix: &subnetCIDR,
+							AddressPrefix: to.StringPtr("172.19.0.0/24"),
 						},
 					},
 				},
@@ -126,6 +125,7 @@ func createVirtualNetwork(
 	return nil
 }
 
+// nolint: lll
 func createStorageAccount(
 	ctx context.Context,
 	resourceGroup string,
@@ -151,7 +151,6 @@ func createStorageAccount(
 	storageClient.Authorizer = authorizer
 
 	storageAccountName := generate.NewIdentifierOfLength(24)
-	eastus := "eastus"
 	result, err := storageClient.Create(
 		ctx,
 		resourceGroup,
@@ -161,7 +160,7 @@ func createStorageAccount(
 				Name: storageSDK.SkuName("Standard_LRS"),
 			},
 			Kind:     storageSDK.Kind("Storage"),
-			Location: &eastus,
+			Location: to.StringPtr("eastus"),
 		},
 	)
 	if err != nil {
