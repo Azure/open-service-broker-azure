@@ -23,11 +23,11 @@ var rediscacheTestCases = []serviceLifecycleTestCase{
 		planID:    "362b3d1b-5b57-4289-80ad-4a15a760c29c",
 		provisioningParameters: map[string]interface{}{
 			"location":         "southcentralus",
-			"skuCapacity":      "1",
+			"skuCapacity":      1,
 			"enableNonSslPort": "disabled",
 		},
 		updatingParameters: map[string]interface{}{
-			"skuCapacity":      "2",
+			"skuCapacity":      2,
 			"enableNonSslPort": "enabled",
 		},
 	},
