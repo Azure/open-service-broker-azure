@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/satori/go.uuid"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -167,7 +169,7 @@ func TestRunBlocksUntilReceivePendingTasksSendsError(t *testing.T) {
 			t,
 			&errReceiverStopped{
 				workerID:  e.workerID,
-				queueName: pendingTaskQueueName,
+				queueName: e.pendingTaskQueueName,
 				err:       errSome,
 			},
 			err,
@@ -305,7 +307,7 @@ func TestRunBlocksUntilReceiveDeferredTasksSendsError(t *testing.T) {
 			t,
 			&errReceiverStopped{
 				workerID:  e.workerID,
-				queueName: deferredTaskQueueName,
+				queueName: e.deferredTaskQueueName,
 				err:       errSome,
 			},
 			err,
@@ -441,6 +443,7 @@ func getTestEngine() *engine {
 	config.RedisDB = 1
 	config.PendingTaskWorkerCount = 1
 	config.DeferedTaskWatcherCount = 1
+	config.RedisPrefix = uuid.NewV4().String()
 	e := NewEngine(config).(*engine)
 	// Cleaner loop
 	e.clean = func(

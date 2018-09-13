@@ -10,7 +10,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/api"
 	apiFilters "github.com/Azure/open-service-broker-azure/pkg/api/filters"
-	async "github.com/Azure/open-service-broker-azure/pkg/async/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/boot"
 	"github.com/Azure/open-service-broker-azure/pkg/broker"
@@ -24,6 +23,7 @@ import (
 	storage "github.com/Azure/open-service-broker-azure/pkg/storage/redis"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 	log "github.com/Sirupsen/logrus"
+	async "github.com/deis/async/redis"
 )
 
 func main() {
