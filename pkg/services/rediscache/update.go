@@ -24,7 +24,11 @@ func (s *serviceManager) ValidateUpdatingParameters(
 
 	// Can't update `shardCount` and `skuCapacity` at the same time
 	if strings.ToLower(instance.Plan.GetName()) == premium {
-		if up.GetInt64("skuCapacity") != 0 && up.GetInt64("shardCount") != 0 {
+		ppSku := pp.GetInt64("skuCapacity")
+		upSku := up.GetInt64("skuCapacity")
+		ppShardCount := pp.GetInt64("shardCount")
+		upShardCount := up.GetInt64("shardCount")
+		if ppSku != upSku && ppShardCount != upShardCount {
 			return fmt.Errorf("can not update `shardCount` and `skuCapacity` at the same time")
 		}
 	}
