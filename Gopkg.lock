@@ -64,6 +64,16 @@
   revision = "04cdfd42973bb9c8589fd6a731800cf222fde1a9"
 
 [[projects]]
+  name = "github.com/deis/async"
+  packages = [
+    ".",
+    "fake",
+    "redis"
+  ]
+  revision = "e407b15739b9f1a994c3ac7c93dc8f4f439d0762"
+  version = "v1.1.0"
+
+[[projects]]
   name = "github.com/denisenkom/go-mssqldb"
   packages = ["."]
   revision = "b49fae7d39756354262c5f385d4cf04f9ac6618b"
@@ -201,6 +211,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a9ec67dd91d386fae211e2c5d0d540a9937f345a6446188815f9568588e26ebe"
+  inputs-digest = "e7b24abc329a22d2a05f968645a749596c11e732e6a8d3177e70e864834a2a58"
   solver-name = "gps-cdcl"
   solver-version = 1
