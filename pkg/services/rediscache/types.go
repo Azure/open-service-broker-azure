@@ -6,6 +6,7 @@ type instanceDetails struct {
 	ARMDeploymentName        string               `json:"armDeployment"`
 	ServerName               string               `json:"server"`
 	FullyQualifiedDomainName string               `json:"fullyQualifiedDomainName"`
+	NonSSLEnabled            bool                 `json:"nonSSLEnabled"`
 	PrimaryKey               service.SecureString `json:"primaryKey"`
 }
 

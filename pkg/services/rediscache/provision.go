@@ -2,11 +2,14 @@ package rediscache
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
 )
+
+const enabled = "enabled"
 
 func (s *serviceManager) GetProvisioner(
 	service.Plan,
@@ -32,7 +35,6 @@ func (s *serviceManager) deployARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*instanceDetails)
-	plan := instance.Plan
 
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
@@ -45,13 +47,7 @@ func (s *serviceManager) deployARMTemplate(
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 		instance.ProvisioningParameters.GetString("location"),
 		armTemplateBytes,
-		map[string]interface{}{ // ARM template params
-			"location":           instance.ProvisioningParameters.GetString("location"),
-			"serverName":         dt.ServerName,
-			"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
-			"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
-			"redisCacheCapacity": plan.GetProperties().Extended["redisCacheCapacity"],
-		},
+		buildGoTemplate(instance, provision),
 		map[string]interface{}{},
 		tags,
 	)
@@ -77,5 +73,51 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	dt.PrimaryKey = service.SecureString(primaryKey)
 
+	dt.NonSSLEnabled = (instance.ProvisioningParameters.GetString("enableNonSslPort") == enabled) // nolint: lll
+
 	return dt, err
+}
+
+const provision = "provision"
+const update = "update"
+
+func buildGoTemplate(
+	instance service.Instance,
+	mode string,
+) map[string]interface{} {
+	var pp *service.ProvisioningParameters
+	if mode == provision {
+		pp = instance.ProvisioningParameters
+	} else if mode == update {
+		pp = instance.UpdatingParameters
+	}
+
+	dt := instance.Details.(*instanceDetails)
+	plan := instance.Plan
+
+	var enableNonSslPort string
+	if pp.GetString("enableNonSslPort") == enabled {
+		enableNonSslPort = "true"
+	} else {
+		enableNonSslPort = "false"
+	}
+
+	redisConfiguration := pp.GetObject("redisConfiguration").Data
+	if value, ok := redisConfiguration["rdb-backup-enabled"]; ok {
+		redisConfiguration["rdb-backup-enabled"] = (value == enabled)
+	}
+
+	redisConfigurationBytes, _ := json.Marshal(redisConfiguration)
+	return map[string]interface{}{ // ARM template params
+		"location":           pp.GetString("location"),
+		"serverName":         dt.ServerName,
+		"redisConfiguration": string(redisConfigurationBytes),
+		"shardCount":         pp.GetInt64("shardCount"),
+		"subnetId":           pp.GetString("subnetId"),
+		"staticIP":           pp.GetString("staticIP"),
+		"enableNonSslPort":   enableNonSslPort,
+		"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
+		"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
+		"redisCacheCapacity": pp.GetInt64("skuCapacity"),
+	}
 }
