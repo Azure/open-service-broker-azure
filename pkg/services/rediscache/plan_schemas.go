@@ -31,7 +31,7 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 				DefaultValue:  "enabled",
 			},
 			"skuCapacity": &service.IntPropertySchema{
-				Title:         "Sku capacity",
+				Title:         "SKU capacity",
 				Description:   "The size of the Redis cache to deploy.",
 				AllowedValues: pd.allowedCapacity,
 				DefaultValue:  &(pd.allowedCapacity[0]),
@@ -93,7 +93,7 @@ func (pd planDetail) getUpdatingParamsSchema() service.InputParametersSchema {
 				AllowedValues: []string{"enabled", "disabled"},
 			},
 			"skuCapacity": &service.IntPropertySchema{
-				Title:         "Sku capacity",
+				Title:         "SKU capacity",
 				Description:   "The size of the Redis cache to deploy.",
 				AllowedValues: pd.allowedCapacity,
 			},
