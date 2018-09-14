@@ -2,10 +2,24 @@ package rediscache
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
+const basic = "basic"
+const standard = "standard"
+const premium = "premium"
+
 func (m *module) GetCatalog() (service.Catalog, error) {
-	bpd := newBasicPlanDetail()
-	spd := newStandardPlanDetail()
-	ppd := newPremiumPlanDetail()
+	bpd := planDetail{
+		planName:        basic,
+		allowedCapacity: []int64{0, 1, 2, 3, 4, 5, 6},
+	}
+	spd := planDetail{
+		planName:        standard,
+		allowedCapacity: []int64{0, 1, 2, 3, 4, 5, 6},
+	}
+	ppd := planDetail{
+		planName:          premium,
+		allowedCapacity:   []int64{1, 2, 3, 4},
+		allowedShardCount: []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
+	}
 
 	return service.NewCatalog([]service.Service{
 		service.NewService(

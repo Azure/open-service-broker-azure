@@ -8,6 +8,12 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
+type planDetail struct {
+	planName          string
+	allowedCapacity   []int64
+	allowedShardCount []int64
+}
+
 // nolint: lll
 func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
