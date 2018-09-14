@@ -28,7 +28,7 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 				Title:         "Enable non-SSL port",
 				Description:   "Specifies whether the non-ssl Redis server port (6379) is enabled.",
 				AllowedValues: []string{"enabled", "disabled"},
-				DefaultValue:  "enabled",
+				DefaultValue:  "disabled",
 			},
 			"skuCapacity": &service.IntPropertySchema{
 				Title:         "SKU capacity",
