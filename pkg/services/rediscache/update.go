@@ -67,12 +67,6 @@ func (s *serviceManager) updateARMTemplate(
 	}
 
 	nonSSLPortEnabled := up.GetString("enableNonSslPort")
-	if nonSSLPortEnabled != "" {
-		if nonSSLPortEnabled == enabled {
-			dt.NonSSLEnabled = true
-		} else {
-			dt.NonSSLEnabled = false
-		}
-	}
+	dt.NonSSLEnabled = (nonSSLPortEnabled == enabled)
 	return dt, nil
 }

@@ -73,11 +73,8 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	dt.PrimaryKey = service.SecureString(primaryKey)
 
-	if instance.ProvisioningParameters.GetString("enableNonSslPort") == enabled {
-		dt.NonSSLEnabled = true
-	} else {
-		dt.NonSSLEnabled = false
-	}
+	dt.NonSSLEnabled = (instance.ProvisioningParameters.GetString("enableNonSslPort") == enabled) // nolint: lll
+
 	return dt, err
 }
 
@@ -107,11 +104,7 @@ func buildGoTemplate(
 
 	redisConfiguration := pp.GetObject("redisConfiguration").Data
 	if value, ok := redisConfiguration["rdb-backup-enabled"]; ok {
-		if value == enabled {
-			redisConfiguration["rdb-backup-enabled"] = true
-		} else {
-			redisConfiguration["rdb-backup-enabled"] = false
-		}
+		redisConfiguration["rdb-backup-enabled"] = (value == enabled)
 	}
 
 	redisConfigurationBytes, _ := json.Marshal(redisConfiguration)
