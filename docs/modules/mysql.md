@@ -1,7 +1,5 @@
 # [Azure Database for MySQL](https://azure.microsoft.com/en-us/services/mysql/)
 
-_Note: this module is PREVIEW. It is under moderate development, but future releases may still break the API._
-
 Open Service Broker for Azure contains three Azure Database for MySQL services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
 
 | Service Name | Description |

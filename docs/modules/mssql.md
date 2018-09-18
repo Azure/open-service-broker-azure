@@ -1,20 +1,18 @@
 # [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/)
 
-_Note: this module is PREVIEW. It is under moderate development, but future releases may still break the API._
-
 Open Service Broker for Azure (OSBA) contains three Azure SQL Database services. These services enable you to select the most appropriate provisioning scenario for your needs. These services are:
 
 | Service Name | Description |
 |--------------|-------------|
-| `azure-sql` | Provision both a SQL Server DBMS and a database. |
-| `azure-sql-dbms` | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
-| `azure-sql-database` | Provision a new database only upon a previously provisioned DBMS. |
+| `azure-sql-12-0` | Provision both a SQL Server DBMS and a database. |
+| `azure-sql-12-0-dbms` | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
+| `azure-sql-12-0-database` | Provision a new database only upon a previously provisioned DBMS. |
 
 The `azure-sql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-dbms` and `azure-sql-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
-### Service: azure-sql
+### Service: azure-sql-12-0
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -205,7 +203,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-sql-dbms
+### Service: azure-sql-12-0-dbms
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -318,7 +316,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-sql-database
+### Service: azure-sql-12-0-database
 
 | Plan Name | Description |
 |-----------|-------------|

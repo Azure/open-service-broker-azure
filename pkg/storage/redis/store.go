@@ -9,14 +9,13 @@ import (
 	"github.com/go-redis/redis"
 )
 
-const (
-	instances = "instanceList"
-	bindings  = "bindingList"
-)
-
 type store struct {
 	redisClient *redis.Client
 	catalog     service.Catalog
+
+	prefix       string
+	instanceList string
+	bindingList  string
 }
 
 // NewStore returns a new Redis-based implementation of the Store interface
@@ -36,13 +35,16 @@ func NewStore(
 		}
 	}
 	return &store{
-		redisClient: redis.NewClient(redisOpts),
-		catalog:     catalog,
+		redisClient:  redis.NewClient(redisOpts),
+		catalog:      catalog,
+		prefix:       config.RedisPrefix,
+		instanceList: wrapKey(config.RedisPrefix, "instances"),
+		bindingList:  wrapKey(config.RedisPrefix, "bindings"),
 	}, nil
 }
 
 func (s *store) WriteInstance(instance service.Instance) error {
-	key := getInstanceKey(instance.InstanceID)
+	key := s.getInstanceKey(instance.InstanceID)
 	json, err := instance.ToJSON()
 	if err != nil {
 		return err
@@ -50,14 +52,14 @@ func (s *store) WriteInstance(instance service.Instance) error {
 	pipeline := s.redisClient.TxPipeline()
 	pipeline.Set(key, json, 0)
 	if instance.Alias != "" {
-		aliasKey := getInstanceAliasKey(instance.Alias)
+		aliasKey := s.getInstanceAliasKey(instance.Alias)
 		pipeline.Set(aliasKey, instance.InstanceID, 0)
 	}
 	if instance.ParentAlias != "" {
-		parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
+		parentAliasChildrenKey := s.getInstanceAliasChildrenKey(instance.ParentAlias)
 		pipeline.SAdd(parentAliasChildrenKey, instance.InstanceID)
 	}
-	pipeline.SAdd(instances, key)
+	pipeline.SAdd(s.instanceList, key)
 	_, err = pipeline.Exec()
 	if err != nil {
 		return fmt.Errorf(
@@ -70,7 +72,7 @@ func (s *store) WriteInstance(instance service.Instance) error {
 }
 
 func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
-	key := getInstanceKey(instanceID)
+	key := s.getInstanceKey(instanceID)
 	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
 		return service.Instance{}, false, nil
@@ -131,7 +133,7 @@ func (s *store) GetInstance(instanceID string) (service.Instance, bool, error) {
 func (s *store) GetInstanceByAlias(
 	alias string,
 ) (service.Instance, bool, error) {
-	key := getInstanceAliasKey(alias)
+	key := s.getInstanceAliasKey(alias)
 	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
 		return service.Instance{}, false, nil
@@ -153,19 +155,19 @@ func (s *store) DeleteInstance(instanceID string) (bool, error) {
 	if !ok {
 		return false, nil
 	}
-	key := getInstanceKey(instanceID)
+	key := s.getInstanceKey(instanceID)
 	pipeline := s.redisClient.TxPipeline()
 	pipeline.Del(key)
 
 	if instance.Alias != "" {
-		aliasKey := getInstanceAliasKey(instance.Alias)
+		aliasKey := s.getInstanceAliasKey(instance.Alias)
 		pipeline.Del(aliasKey)
 	}
 	if instance.ParentAlias != "" {
-		parentAliasChildrenKey := getInstanceAliasChildrenKey(instance.ParentAlias)
+		parentAliasChildrenKey := s.getInstanceAliasChildrenKey(instance.ParentAlias)
 		pipeline.SRem(parentAliasChildrenKey, instance.InstanceID)
 	}
-	pipeline.SRem(instances, key)
+	pipeline.SRem(s.instanceList, key)
 	_, err = pipeline.Exec()
 	if err != nil {
 		return false, fmt.Errorf(
@@ -178,31 +180,31 @@ func (s *store) DeleteInstance(instanceID string) (bool, error) {
 }
 
 func (s *store) GetInstanceChildCountByAlias(alias string) (int64, error) {
-	aliasChildrenKey := getInstanceAliasChildrenKey(alias)
+	aliasChildrenKey := s.getInstanceAliasChildrenKey(alias)
 	return s.redisClient.SCard(aliasChildrenKey).Result()
 }
 
-func getInstanceKey(instanceID string) string {
-	return fmt.Sprintf("instances:%s", instanceID)
+func (s *store) getInstanceKey(instanceID string) string {
+	return wrapKey(s.prefix, fmt.Sprintf("instances:%s", instanceID))
 }
 
-func getInstanceAliasKey(alias string) string {
-	return fmt.Sprintf("instances:aliases:%s", alias)
+func (s *store) getInstanceAliasKey(alias string) string {
+	return wrapKey(s.prefix, fmt.Sprintf("instances:aliases:%s", alias))
 }
 
-func getInstanceAliasChildrenKey(alias string) string {
-	return fmt.Sprintf("instances:aliases:%s:children", alias)
+func (s *store) getInstanceAliasChildrenKey(alias string) string {
+	return wrapKey(s.prefix, fmt.Sprintf("instances:aliases:%s:children", alias))
 }
 
 func (s *store) WriteBinding(binding service.Binding) error {
-	key := getBindingKey(binding.BindingID)
+	key := s.getBindingKey(binding.BindingID)
 	json, err := binding.ToJSON()
 	if err != nil {
 		return err
 	}
 	pipeline := s.redisClient.TxPipeline()
 	pipeline.Set(key, json, 0)
-	pipeline.SAdd(bindings, key)
+	pipeline.SAdd(s.bindingList, key)
 	_, err = pipeline.Exec()
 	if err != nil {
 		return fmt.Errorf(
@@ -215,7 +217,7 @@ func (s *store) WriteBinding(binding service.Binding) error {
 }
 
 func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
-	key := getBindingKey(bindingID)
+	key := s.getBindingKey(bindingID)
 	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
 		return service.Binding{}, false, nil
@@ -248,7 +250,7 @@ func (s *store) GetBinding(bindingID string) (service.Binding, bool, error) {
 }
 
 func (s *store) DeleteBinding(bindingID string) (bool, error) {
-	key := getBindingKey(bindingID)
+	key := s.getBindingKey(bindingID)
 	strCmd := s.redisClient.Get(key)
 	if err := strCmd.Err(); err == redis.Nil {
 		return false, nil
@@ -258,7 +260,7 @@ func (s *store) DeleteBinding(bindingID string) (bool, error) {
 
 	pipeline := s.redisClient.TxPipeline()
 	pipeline.Del(key)
-	pipeline.SRem(bindings, key)
+	pipeline.SRem(s.bindingList, key)
 	_, err := pipeline.Exec()
 	if err != nil {
 		return false, fmt.Errorf(
@@ -270,10 +272,17 @@ func (s *store) DeleteBinding(bindingID string) (bool, error) {
 	return true, nil
 }
 
-func getBindingKey(bindingID string) string {
-	return fmt.Sprintf("bindings:%s", bindingID)
+func (s *store) getBindingKey(bindingID string) string {
+	return wrapKey(s.prefix, fmt.Sprintf("bindings:%s", bindingID))
 }
 
 func (s *store) TestConnection() error {
 	return s.redisClient.Ping().Err()
+}
+
+func wrapKey(prefix, key string) string {
+	if prefix != "" {
+		return fmt.Sprintf("%s:%s", prefix, key)
+	}
+	return key
 }

@@ -20,15 +20,6 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
-
-[[constraint]]
-  name = "github.com/Azure/azure-sdk-for-go"
-  version = "v14.0.0"
-
-[[constraint]]
-  name = "github.com/Azure/go-autorest"
-  version = "v10.1.0"
-
 [[constraint]]
   name = "github.com/Sirupsen/logrus"
   # krancour: We can resume using upstream logrus if/when this PR is merged:
@@ -37,41 +28,13 @@
   branch = "split-streams"
 
 [[constraint]]
-  name = "github.com/denisenkom/go-mssqldb"
-
-[[constraint]]
   name = "github.com/go-redis/redis"
 
 [[constraint]]
-  name = "github.com/go-sql-driver/mysql"
-
-[[constraint]]
-  name = "github.com/gorilla/mux"
-
-[[constraint]]
   name = "github.com/kelseyhightower/envconfig"
-
-[[constraint]]
-  name = "github.com/lib/pq"
 
 [[constraint]]
   name = "github.com/satori/go.uuid"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-
-[[constraint]]
-  name = "github.com/urfave/cli"
-
-[[constraint]]
-  name = "gopkg.in/mgo.v2"
-
-[[constraint]]
-  name = "github.com/Masterminds/sprig"
-
-[[constraint]]
-  name = "github.com/mitchellh/mapstructure"
-
-[[constraint]]
-  name = "github.com/deis/async"
-  version = "v1.1.0"
