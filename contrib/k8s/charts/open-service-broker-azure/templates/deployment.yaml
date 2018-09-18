@@ -55,6 +55,8 @@ spec:
               secretKeyRef:
                 name: {{ template "fullname" . }}
                 key: redis-password
+          - name: REDIS_PREFIX
+            value: {{ .Values.redis.prefix | quote }}
           - name: CRYPTO_AES256_KEY
             valueFrom:
               secretKeyRef:
