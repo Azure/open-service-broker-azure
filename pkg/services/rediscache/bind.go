@@ -20,13 +20,23 @@ func (s *serviceManager) GetCredentials(
 ) (service.Credentials, error) {
 	dt := instance.Details.(*instanceDetails)
 
-	redisPort := 6379
+	var redisPort int
+	var scheme string
+	if dt.NonSSLEnabled {
+		redisPort = 6379
+		scheme = "redis"
+	} else {
+		redisPort = 6380
+		scheme = "rediss"
+	}
+
 	return credentials{
 		Host:     dt.FullyQualifiedDomainName,
 		Password: string(dt.PrimaryKey),
 		Port:     redisPort,
 		URI: fmt.Sprintf(
-			"redis://:%s@%s:%d",
+			"%s://:%s@%s:%d",
+			scheme,
 			url.QueryEscape(string(dt.PrimaryKey)),
 			dt.FullyQualifiedDomainName,
 			redisPort,
