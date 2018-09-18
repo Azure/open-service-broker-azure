@@ -13,8 +13,7 @@ func (d *dbmsRegisteredManager) GetProvisioner(
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", d.preProvision),
-		service.NewProvisioningStep("getServer", d.getServer),
-		service.NewProvisioningStep("testConnection", d.testConnection),
+		service.NewProvisioningStep("validateServer", d.validateServer),
 	)
 }
 
@@ -31,7 +30,7 @@ func (d *dbmsRegisteredManager) preProvision(
 	}, nil
 }
 
-func (d *dbmsRegisteredManager) getServer(
+func (d *dbmsRegisteredManager) validateServer(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
@@ -79,44 +78,13 @@ func (d *dbmsRegisteredManager) getServer(
 		)
 	}
 	dt.FullyQualifiedDomainName = *result.FullyQualifiedDomainName
-	return instance.Details, nil
-}
 
-func (d *dbmsRegisteredManager) testConnection(
-	_ context.Context,
-	instance service.Instance,
-) (service.InstanceDetails, error) {
-	dt := instance.Details.(*dbmsInstanceDetails)
-	// connect to master database
-	masterDb, err := getDBConnection(
+	if err = validateServerAdmin(
 		dt.AdministratorLogin,
 		string(dt.AdministratorLoginPassword),
-		fmt.Sprintf("%s.%s", dt.ServerName, d.sqlDatabaseDNSSuffix),
-		"master",
-	)
-	if err != nil {
+		dt.FullyQualifiedDomainName,
+	); err != nil {
 		return nil, err
-	}
-	defer masterDb.Close() // nolint: errcheck
-
-	// Is there a better approach to verify if it is a sys admin?
-	rows, err := masterDb.Query("SELECT 1 FROM fn_my_permissions (NULL, 'DATABASE') WHERE permission_name='ALTER ANY USER'") // nolint: lll
-	if err != nil {
-		return nil, fmt.Errorf(
-			`error querying SELECT from table fn_my_permissions: %s`,
-			err,
-		)
-	}
-	defer rows.Close() // nolint: errcheck
-	if !rows.Next() {
-		return nil, fmt.Errorf(
-			`error user doesn't have permission 'ALTER ANY USER'`,
-		)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf(
-			`error iterating rows`,
-		)
 	}
 
 	return instance.Details, nil

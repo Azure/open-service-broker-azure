@@ -17,7 +17,6 @@ func (d *dbmsRegisteredManager) GetUpdater(
 ) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateAdministrator", d.updateAdministrator),
-		service.NewUpdatingStep("testConnection", d.testConnection),
 	)
 }
 
@@ -26,10 +25,23 @@ func (d *dbmsRegisteredManager) updateAdministrator(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*dbmsInstanceDetails)
-	dt.AdministratorLogin =
+	updatedAdministratorLogin :=
 		instance.UpdatingParameters.GetString("administratorLogin")
+	updatedAdministratorLoginPassword :=
+		instance.UpdatingParameters.GetString("administratorLoginPassword")
+
+	if err := validateServerAdmin(
+		updatedAdministratorLogin,
+		updatedAdministratorLoginPassword,
+		dt.FullyQualifiedDomainName,
+	); err != nil {
+		return nil, err
+	}
+
+	dt.AdministratorLogin = updatedAdministratorLogin
 	dt.AdministratorLoginPassword = service.SecureString(
-		instance.UpdatingParameters.GetString("administratorLoginPassword"),
+		updatedAdministratorLoginPassword,
 	)
+
 	return dt, nil
 }
