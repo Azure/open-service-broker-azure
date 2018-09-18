@@ -62,7 +62,13 @@ func TestWriteInstance(t *testing.T) {
 	// count, err := sCmd.Result()
 	// assert.Nil(t, err)
 	// assert.Equal(t, 1, len(count))
-	boolCmd := testStore.redisClient.SIsMember(wrapKey(config.RedisPrefix, "instances"), key)
+	boolCmd := testStore.redisClient.SIsMember(
+		wrapKey(
+			config.RedisPrefix,
+			"instances",
+		),
+		key,
+	)
 	assert.Nil(t, boolCmd.Err())
 	found, _ := boolCmd.Result()
 	assert.True(t, found)
@@ -259,7 +265,13 @@ func TestDeleteExistingInstance(t *testing.T) {
 	assert.Nil(t, err)
 	strCmd := testStore.redisClient.Get(key)
 	assert.Equal(t, redis.Nil, strCmd.Err())
-	boolCmd := testStore.redisClient.SIsMember(wrapKey(config.RedisPrefix, "instances"), key)
+	boolCmd := testStore.redisClient.SIsMember(
+		wrapKey(
+			config.RedisPrefix,
+			"instances",
+		),
+		key,
+	)
 	assert.Nil(t, boolCmd.Err())
 	found, _ := boolCmd.Result()
 	assert.False(t, found)
@@ -362,7 +374,13 @@ func TestWriteBinding(t *testing.T) {
 	// Assert that the binding is now in Redis
 	strCmd = testStore.redisClient.Get(key)
 	assert.Nil(t, strCmd.Err())
-	boolCmd := testStore.redisClient.SIsMember(wrapKey(config.RedisPrefix, "bindings"), key)
+	boolCmd := testStore.redisClient.SIsMember(
+		wrapKey(
+			config.RedisPrefix,
+			"bindings",
+		),
+		key,
+	)
 	assert.Nil(t, boolCmd.Err())
 	found, _ := boolCmd.Result()
 	assert.True(t, found)
