@@ -69,5 +69,13 @@ func (pd planDetail) getUpdatingParamsSchema() service.InputParametersSchema {
 			},
 		},
 	}
+	if pd.planName == premium {
+		ips.PropertySchemas["shardCount"] = &service.IntPropertySchema{
+			Title: "Shard Count",
+			Description: "The number of shards to be created on a Premium Cluster Cache. " +
+				"This action is irreversible. The number of shards can be changed later.",
+			AllowedValues: pd.allowedShardCount,
+		}
+	}
 	return ips
 }
