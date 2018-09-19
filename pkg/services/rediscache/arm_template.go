@@ -17,6 +17,9 @@ var armTemplateBytes = []byte(`
 			"type": "Microsoft.Cache/Redis",
 			"location": "{{.location}}",
 			"properties": {
+				{{if .redisConfiguration}}
+				"redisConfiguration" : {{.redisConfiguration}},
+				{{end}}
 				"enableNonSslPort": {{.enableNonSslPort}},
 				"sku": {
 					"capacity": "{{.redisCacheCapacity}}",

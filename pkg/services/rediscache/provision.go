@@ -2,6 +2,7 @@ package rediscache
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -101,6 +102,12 @@ func buildGoTemplate(
 		enableNonSslPort = "false"
 	}
 
+	redisConfiguration := pp.GetObject("redisConfiguration").Data
+	if value, ok := redisConfiguration["rdb-backup-enabled"]; ok {
+		redisConfiguration["rdb-backup-enabled"] = (value == enabled)
+	}
+	redisConfigurationBytes, _ := json.Marshal(redisConfiguration)
+
 	return map[string]interface{}{ // ARM template params
 		"location":           pp.GetString("location"),
 		"serverName":         dt.ServerName,
@@ -108,5 +115,6 @@ func buildGoTemplate(
 		"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
 		"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
 		"redisCacheCapacity": pp.GetInt64("skuCapacity"),
+		"redisConfiguration": string(redisConfigurationBytes),
 	}
 }

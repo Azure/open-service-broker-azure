@@ -40,6 +40,31 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 			},
 		},
 	}
+
+	if pd.planName == premium {
+		ips.PropertySchemas["redisConfiguration"] = &service.ObjectPropertySchema{
+			Title:       "Redis Configuration",
+			Description: "All Redis Settings.",
+			PropertySchemas: map[string]service.PropertySchema{
+				"rdb-backup-enabled": &service.StringPropertySchema{
+					Title:         "RDB backup enabled",
+					Description:   "Specifies whether RDB backup is enabled.",
+					AllowedValues: []string{"enabled", "disabled"},
+				},
+				"rdb-backup-frequency": &service.IntPropertySchema{
+					Title:         "RDB backup frequency",
+					Description:   "The frequency doing backup",
+					AllowedValues: []int64{15, 30, 60, 360, 720, 1440},
+				},
+				"rdb-storage-connection-string": &service.StringPropertySchema{
+					Title:       "RDB storage connection string",
+					Description: "The connnection string of the storage account for backup",
+				},
+			},
+			DefaultValue: map[string]interface{}{},
+		}
+	}
+
 	return ips
 }
 
@@ -59,5 +84,29 @@ func (pd planDetail) getUpdatingParamsSchema() service.InputParametersSchema {
 			},
 		},
 	}
+
+	if pd.planName == premium {
+		ips.PropertySchemas["redisConfiguration"] = &service.ObjectPropertySchema{
+			Title:       "Redis Configuration",
+			Description: "All Redis Settings.",
+			PropertySchemas: map[string]service.PropertySchema{
+				"rdb-backup-enabled": &service.StringPropertySchema{
+					Title:         "RDB backup enabled",
+					Description:   "Specifies whether RDB backup is enabled.",
+					AllowedValues: []string{"enabled", "disabled"},
+				},
+				"rdb-backup-frequency": &service.IntPropertySchema{
+					Title:         "RDB backup frequency",
+					Description:   "The frequency doing backup",
+					AllowedValues: []int64{15, 30, 60, 360, 720, 1440},
+				},
+				"rdb-storage-connection-string": &service.StringPropertySchema{
+					Title:       "RDB storage connection string",
+					Description: "The connnection string of the storage account for backup",
+				},
+			},
+		}
+	}
+
 	return ips
 }
