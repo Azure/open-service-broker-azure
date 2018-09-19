@@ -28,6 +28,12 @@ Provisions a new Redis cache.
 | `enableNonSslPort ` | `string`            | Specifies whether the non-SSL Redis server port (6379) is enabled. Valid values: (`enabled`, `disabled`) | N                                                            | If not provided, `disabled` is used. That is, you can't use non-SSL Redis server port by default. |
 | `tags`              | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N                                                            | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 
+For `premium` plan, following provisioning parameter is available:
+| Parameter Name | Type     | Description                                                  | Required | Default Value                                                |
+| -------------- | -------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| ` subnetId `   | `string` | The full resource ID of a subnet in a virtual network to deploy the Redis cache in. The subnet should be in the same region with Redis cache. Example format: /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.Network/virtualNetworks/{vn}/subnets/{sn} | N        | If not specified, the Redis cache won't be deployed in a subnet, that is, the Redis cache is publicly addressable and the access is not limited to a particular VNet. |
+| `staticIP`     | `string` | Static IP address. Required when deploying a Redis cache inside an existing Azure Virtual Network. Only valid when `subnetId` is provided. | N        | If `staticIP` **is not** specified and `subnetId` **is** specified, one valid IP will be chosen randomly in the subnet. |
+
 ##### Bind
 
 Returns a copy of one shared set of credentials.
