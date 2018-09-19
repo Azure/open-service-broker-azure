@@ -28,6 +28,15 @@ Provisions a new Redis cache.
 | `enableNonSslPort ` | `string`            | Specifies whether the non-SSL Redis server port (6379) is enabled. Valid values: (`enabled`, `disabled`) | N                                                            | If not provided, `disabled` is used. That is, you can't use non-SSL Redis server port by default. |
 | `tags`              | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N                                                            | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 
+For `premium` plan, following provisioning parameter is available:
+
+| Parameter Name                                           | Type      | Description                                                  | Required                                                     | Default Value                                             |
+| -------------------------------------------------------- | --------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------------------------------------------------------- |
+| `redisConfiguration`                                     | `object`  | Redis Settings. See below possible keys.                     | N                                                            | null object                                               |
+| `redisConfiguration`.` rdb-backup-enabled `              | `string`  | Specifies whether RDB backup is enabled. Valid values: (`enabled`, `disabled`) | N                                                            | If not specified, RDB backup will be disabled by default. |
+| `redisConfiguration`.` rdb-backup-frequency `            | `integer` | The frequency doing backup in minutes. Valid values: ( 15, 30, 60, 360, 720, 1440 ) | Yes when ` rdb-backup-enabled ` is set to `enabled`; otherwise is not required. |                                                           |
+| `redisConfiguration`.`  rdb-storage-connection-string  ` | `string`  | The connnection string of the storage account for backup.    | Yes when ` rdb-backup-enabled ` is set to `enabled`; otherwise is not required. |                                                           |
+
 ##### Bind
 
 Returns a copy of one shared set of credentials.
@@ -63,6 +72,15 @@ Updates existing Redis cache.
 | ------------------ | --------- | ------------------------------------------------------------ | -------- |
 | `skuCapacity`      | `integer` | The size of the Redis cache to deploy.  Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4). They denotes real size  (250MB, 1GB, 2.5 GB, 6 GB, 13 GB, 26 GB, 53GB) and (6 GB, 13 GB, 26 GB, 53GB) respectively. **Note**: you can only update from a smaller capacity to a larger capacity, the reverse is not allowed. | N        |
 | `enableNonSslPort` | `string`  | Specifies whether the non-ssl Redis server port (6379) is enabled. Valid values: (`enabled`, `disabled`) | N        |
+
+For `premium` plan, following updating parameter is available:
+
+| Parameter Name                                       | Type      | Description                                                  | Required                                                     |
+| ---------------------------------------------------- | --------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `redisConfiguration`                                 | `object`  | Redis Settings. See below possible keys.                     | N                                                            |
+| `redisConfiguration`.`rdb-backup-enabled`            | `string`  | Specifies whether RDB backup is enabled. Valid values: (`enabled`, `disabled`) | N                                                            |
+| `redisConfiguration`.`rdb-backup-frequency`          | `integer` | The frequency doing backup in minutes. Valid values: ( 15, 30, 60, 360, 720, 1440 ) | Yes when `rdb-backup-enabled` is set to `enabled`; otherwise is not required. |
+| `redisConfiguration`.`rdb-storage-connection-string` | `string`  | The connnection string of the storage account for backup.    | Yes when `rdb-backup-enabled` is set to `enabled`; otherwise is not required. |
 
 ##### Deprovision
 
