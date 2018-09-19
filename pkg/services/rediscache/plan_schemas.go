@@ -1,6 +1,9 @@
 package rediscache
 
 import (
+	"fmt"
+	"net"
+
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -40,6 +43,22 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 			},
 		},
 	}
+
+	if pd.planName == premium {
+		ips.PropertySchemas["subnetId"] = &service.StringPropertySchema{
+			Title: "Subnet ID",
+			Description: "The full resource ID of a subnet in a virtual network to deploy " +
+				"the Redis cache in",
+			DefaultValue: "",
+		}
+		ips.PropertySchemas["subnetIP"] = &service.StringPropertySchema{
+			Title: "Subnet IP",
+			Description: "Static IP address. Required when deploying a Redis cache inside " +
+				"an existing Azure Virtual Network.",
+			DefaultValue:            "",
+			CustomPropertyValidator: ipValidator,
+		}
+	}
 	return ips
 }
 
@@ -60,4 +79,15 @@ func (pd planDetail) getUpdatingParamsSchema() service.InputParametersSchema {
 		},
 	}
 	return ips
+}
+
+func ipValidator(context, value string) error {
+	ip := net.ParseIP(value)
+	if ip == nil {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf(`"%s" is not a valid IP address`, value),
+		)
+	}
+	return nil
 }

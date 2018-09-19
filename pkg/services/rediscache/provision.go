@@ -108,5 +108,7 @@ func buildGoTemplate(
 		"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
 		"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
 		"redisCacheCapacity": pp.GetInt64("skuCapacity"),
+		"subnetId":           pp.GetString("subnetId"),
+		"staticIP":           pp.GetString("staticIP"),
 	}
 }
