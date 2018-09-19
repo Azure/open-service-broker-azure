@@ -28,6 +28,12 @@ Provisions a new Redis cache.
 | `enableNonSslPort ` | `string`            | Specifies whether the non-SSL Redis server port (6379) is enabled. Valid values: (`enabled`, `disabled`) | N                                                            | If not provided, `disabled` is used. That is, you can't use non-SSL Redis server port by default. |
 | `tags`              | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N                                                            | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 
+For `premium` plan, following provisioning parameter is available:
+
+| Parameter Name | Type      | Description                                                  | Required | Default Value                                          |
+| -------------- | --------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------ |
+| `shardCount`   | `integer` | The number of shards to be created on a Premium Cluster Cache. This action is irreversible. The number of shards can be changed later. | N        | If not specified, no additional shard will be created. |
+
 ##### Bind
 
 Returns a copy of one shared set of credentials.
@@ -63,6 +69,12 @@ Updates existing Redis cache.
 | ------------------ | --------- | ------------------------------------------------------------ | -------- |
 | `skuCapacity`      | `integer` | The size of the Redis cache to deploy.  Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4). They denotes real size  (250MB, 1GB, 2.5 GB, 6 GB, 13 GB, 26 GB, 53GB) and (6 GB, 13 GB, 26 GB, 53GB) respectively. **Note**: you can only update from a smaller capacity to a larger capacity, the reverse is not allowed. | N        |
 | `enableNonSslPort` | `string`  | Specifies whether the non-ssl Redis server port (6379) is enabled. Valid values: (`enabled`, `disabled`) | N        |
+
+For `premium` plan, following updating parameter is available:
+
+| Parameter Name | Type      | Description                                                  | Required |
+| -------------- | --------- | ------------------------------------------------------------ | -------- |
+| `shardCount`   | `integer` | The number of shards to be created on a Premium Cluster Cache. This action is irreversible. The number of shards can be changed later. **Note**: you can't update `skuCapacity` and `shardCount` at the same time. | N        |
 
 ##### Deprovision
 
