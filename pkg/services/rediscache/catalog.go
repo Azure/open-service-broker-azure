@@ -16,8 +16,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		allowedCapacity: []int64{0, 1, 2, 3, 4, 5, 6},
 	}
 	ppd := planDetail{
-		planName:        premium,
-		allowedCapacity: []int64{1, 2, 3, 4},
+		planName:          premium,
+		allowedCapacity:   []int64{1, 2, 3, 4},
+		allowedShardCount: []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10},
 	}
 
 	return service.NewCatalog([]service.Service{
