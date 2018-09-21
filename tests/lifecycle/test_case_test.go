@@ -31,7 +31,15 @@ type serviceLifecycleTestCase struct {
 	bindingParameters      map[string]interface{}
 	testCredentials        func(credentials map[string]interface{}) error
 	childTestCases         []*serviceLifecycleTestCase
+	preProvisionFns        []preProvisionFn
 }
+
+type preProvisionFn func(
+	ctx context.Context,
+	resourceGroup string,
+	parent *service.Instance, // may need extra info from parent if it has
+	pp *map[string]interface{}, // specify extra provisioning parameters
+) error
 
 func (s serviceLifecycleTestCase) getName() string {
 	return fmt.Sprintf("TestServices/lifecycle/%s/%s", s.group, s.name)
@@ -76,6 +84,20 @@ func (s serviceLifecycleTestCase) execute(
 		"resourceGroup",
 	) {
 		s.provisioningParameters["resourceGroup"] = resourceGroup
+	}
+
+	// do preProvision scoped in the specified resourceGroup
+	if len(s.preProvisionFns) != 0 {
+		for _, fn := range s.preProvisionFns {
+			if err := fn(
+				ctx,
+				resourceGroup,
+				s.parentServiceInstance,
+				&s.provisioningParameters,
+			); err != nil {
+				return err
+			}
+		}
 	}
 
 	if err :=

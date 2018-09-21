@@ -319,6 +319,71 @@ func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 	}
 }
 
+func getDBMSRegisteredUpdateParamSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		SecureProperties: []string{
+			"administratorLoginPassword",
+		},
+		PropertySchemas: map[string]service.PropertySchema{
+			"administratorLogin": &service.StringPropertySchema{
+				Title: "Administrator Login",
+				Description: "Specifies the administrator login name" +
+					" of the existing server",
+			},
+			"administratorLoginPassword": &service.StringPropertySchema{
+				Title: "Administrator Login Password",
+				Description: "Specifies the administrator login password" +
+					" of the existing server",
+			},
+		},
+	}
+}
+
+func getDBMSRegisteredProvisionParamSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		RequiredProperties: []string{
+			"resourceGroup",
+			"location",
+			"server",
+			"administratorLogin",
+			"administratorLoginPassword",
+		},
+		SecureProperties: []string{
+			"administratorLoginPassword",
+		},
+		PropertySchemas: map[string]service.PropertySchema{
+			"resourceGroup": &service.StringPropertySchema{
+				Title:       "Resource Group",
+				Description: "Specifies the resource group of the existing server",
+			},
+			"location": &service.StringPropertySchema{
+				Title:       "Location",
+				Description: "Specifies the location of the existing server",
+			},
+			"server": &service.StringPropertySchema{
+				Title:       "Server Name",
+				Description: "Specifies the name of the existing server",
+			},
+			"administratorLogin": &service.StringPropertySchema{
+				Title: "Administrator Login",
+				Description: "Specifies the administrator login name" +
+					" of the existing server",
+			},
+			"administratorLoginPassword": &service.StringPropertySchema{
+				Title: "Administrator Login Password",
+				Description: "Specifies the administrator login password" +
+					" of the existing server",
+			},
+			"tags": &service.ObjectPropertySchema{
+				Title: "Tags",
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
+			},
+		},
+	}
+}
+
 func validateStorageUpdate(
 	pp service.ProvisioningParameters,
 	up service.ProvisioningParameters,
