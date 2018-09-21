@@ -34,8 +34,8 @@ For `premium` plan, following provisioning parameter is available:
 | -------------------------------------------------------- | --------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------------------------------------------------------- |
 | `redisConfiguration`                                     | `object`  | Redis Settings. See below possible keys.                     | N                                                            | null object                                               |
 | `redisConfiguration`.` rdb-backup-enabled `              | `string`  | Specifies whether RDB backup is enabled. Valid values: (`enabled`, `disabled`) | N                                                            | If not specified, RDB backup will be disabled by default. |
-| `redisConfiguration`.` rdb-backup-frequency `            | `integer` | The frequency doing backup in minutes. Valid values: ( 15, 30, 60, 360, 720, 1440 ) | Yes when ` rdb-backup-enabled ` is set to `enabled`; otherwise is not required. |                                                           |
-| `redisConfiguration`.`  rdb-storage-connection-string  ` | `string`  | The connnection string of the storage account for backup.    | Yes when ` rdb-backup-enabled ` is set to `enabled`; otherwise is not required. |                                                           |
+| `redisConfiguration`.` rdb-backup-frequency `            | `integer` | The frequency doing backup in minutes. Valid values: ( 15, 30, 60, 360, 720, 1440 ) | Yes when ` rdb-backup-enabled ` is set to `enabled`; otherwise is invalid. |                                                           |
+| `redisConfiguration`.`  rdb-storage-connection-string  ` | `string`  | The connnection string of the storage account for backup.    | Yes when ` rdb-backup-enabled ` is set to `enabled`; otherwise is invalid. |                                                           |
 
 ##### Bind
 
@@ -79,8 +79,8 @@ For `premium` plan, following updating parameter is available:
 | ---------------------------------------------------- | --------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | `redisConfiguration`                                 | `object`  | Redis Settings. See below possible keys.                     | N                                                            |
 | `redisConfiguration`.`rdb-backup-enabled`            | `string`  | Specifies whether RDB backup is enabled. Valid values: (`enabled`, `disabled`) | N                                                            |
-| `redisConfiguration`.`rdb-backup-frequency`          | `integer` | The frequency doing backup in minutes. Valid values: ( 15, 30, 60, 360, 720, 1440 ) | Yes when `rdb-backup-enabled` is set to `enabled`; otherwise is not required. |
-| `redisConfiguration`.`rdb-storage-connection-string` | `string`  | The connnection string of the storage account for backup.    | Yes when `rdb-backup-enabled` is set to `enabled`; otherwise is not required. |
+| `redisConfiguration`.`rdb-backup-frequency`          | `integer` | The frequency doing backup in minutes. Valid values: ( 15, 30, 60, 360, 720, 1440 ) | Yes when `rdb-backup-enabled` is set to `enabled`; otherwise is invalid. |
+| `redisConfiguration`.`rdb-storage-connection-string` | `string`  | The connnection string of the storage account for backup.    | Yes when `rdb-backup-enabled` is set to `enabled`; otherwise is invalid. |
 
 ##### Deprovision
 
