@@ -29,6 +29,7 @@ Provisions a new Redis cache.
 | `tags`              | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N                                                            | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 
 For `premium` plan, following provisioning parameter is available:
+
 | Parameter Name                | Type     | Description                                                  | Required                                             | Default Value                                                |
 | ----------------------------- | -------- | ------------------------------------------------------------ | ---------------------------------------------------- | ------------------------------------------------------------ |
 | `subnetSettings`              | `object` | Setting to deploy the Redis cache inside a subnet, so that the  cache is only accessible in the subnet | N                                                    | If not specified, the Redis cache won't be deployed in a subnet, that is, the Redis cache is publicly addressable and the access is not limited to a particular VNet. |
