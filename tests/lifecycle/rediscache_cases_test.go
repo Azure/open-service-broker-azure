@@ -108,6 +108,8 @@ func createVirtualNetwork(
 		virtualNetworkName,
 		subnetName,
 	)
-	(*pp)["subnetId"] = subnetID
+	(*pp)["subnetSettings"] = map[string]interface{}{
+		"subnetId": subnetID,
+	}
 	return nil
 }

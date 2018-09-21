@@ -101,6 +101,8 @@ func buildGoTemplate(
 		enableNonSslPort = "false"
 	}
 
+	subnetSettings := pp.GetObject("subnetSettings")
+
 	return map[string]interface{}{ // ARM template params
 		"location":           pp.GetString("location"),
 		"serverName":         dt.ServerName,
@@ -108,7 +110,7 @@ func buildGoTemplate(
 		"redisCacheSKU":      plan.GetProperties().Extended["redisCacheSKU"],
 		"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
 		"redisCacheCapacity": pp.GetInt64("skuCapacity"),
-		"subnetId":           pp.GetString("subnetId"),
-		"staticIP":           pp.GetString("staticIP"),
+		"subnetId":           subnetSettings.GetString("subnetId"),
+		"staticIP":           subnetSettings.GetString("staticIP"),
 	}
 }
