@@ -32,6 +32,8 @@ func GetCatalog(
 				err,
 			)
 		}
+
+		enableMigrationServices := catalogConfig.EnableMigrationServices
 		for _, svc := range catalog.GetServices() {
 			serviceID := svc.GetID()
 			if moduleNameForUsedServiceID, ok := usedServiceIDs[serviceID]; ok {
@@ -41,6 +43,16 @@ func GetCatalog(
 					moduleName,
 					serviceID,
 				)
+			}
+
+			serviceTags := svc.GetTags()
+			tagsMap := map[string]bool{}
+			for _, t := range serviceTags {
+				tagsMap[t] = true
+			}
+			// Skip migration services if disabled
+			if !enableMigrationServices && tagsMap[service.MigrationTag] {
+				continue
 			}
 
 			filteredPlans := []service.Plan{}
