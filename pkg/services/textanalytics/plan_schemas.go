@@ -20,10 +20,6 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 				Description: "The (new or existing) resource group with which" +
 					" to associate new resources.",
 			},
-			"name": &service.StringPropertySchema{
-				Title:       "Name",
-				Description: "Text Analytics API name.",
-			},
 		},
 	}
 }

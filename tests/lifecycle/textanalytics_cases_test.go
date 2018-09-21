@@ -2,6 +2,25 @@
 
 package lifecycle
 
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+// Sentiment struct for credentials test
+type Sentiment struct {
+	Documents []Documents `json:"documents"`
+}
+
+// Documents struct for credentials test
+type Documents struct {
+	Language string `json:"language"`
+	ID       string `json:"id"`
+	Text     string `json:"text"`
+}
+
 var textanalyticsTestCases = []serviceLifecycleTestCase{
 	{ // Text analytics free tier
 		group:     "textanalytics",
@@ -11,6 +30,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
+		testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s0 tier
 		group:     "textanalytics",
@@ -20,6 +40,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
+		testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s1 tier
 		group:     "textanalytics",
@@ -29,6 +50,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
+		testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s2 tier
 		group:     "textanalytics",
@@ -38,6 +60,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
+		testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s3 tier
 		group:     "textanalytics",
@@ -47,6 +70,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
+		testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s4 tier
 		group:     "textanalytics",
@@ -56,5 +80,43 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
+		testCredentials: testTextAnalyticsCreds,
 	},
+}
+
+func testTextAnalyticsCreds(credentials map[string]interface{}) error {
+
+	// Test data
+	testText := Documents{
+		Language: "en",
+		ID:       "1",
+		Text:     "Super positive happy text.",
+	}
+
+	documents := []Documents{}
+	sentiment := Sentiment{documents}
+	sentiment.Documents = append(sentiment.Documents, testText)
+
+	j, _ := json.Marshal(sentiment)
+	b := bytes.NewBuffer(j)
+
+	req, err := http.NewRequest("POST", credentials["textAnalyticsEndpoint"].(string)+"/sentiment", b)
+	if err != nil {
+		return fmt.Errorf("error validating the text analytics arguments: %s", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Ocp-Apim-Subscription-Key", credentials["textAnalyticsKey"].(string))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("error validating the text analytics arguments: %s", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("error validating the text analytics arguments: response code not = 200")
+	}
+
+	defer resp.Body.Close()
+	return nil
 }
