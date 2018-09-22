@@ -1,7 +1,8 @@
 ---
 applications:
 - name: osba
-  buildpack: https://github.com/cloudfoundry/go-buildpack/releases/download/v1.8.13/go-buildpack-v1.8.13.zip
+  buildpacks:
+    - https://github.com/cloudfoundry/go-buildpack/releases/download/v1.8.13/go-buildpack-v1.8.13.zip
   command: broker
   env:
     AZURE_SUBSCRIPTION_ID: <YOUR SUBSCRIPTION ID>
