@@ -36,7 +36,7 @@ func (
 		pp.GetStringArray("readRegions"),
 		up.GetStringArray("readRegions"),
 	) && !reflect.DeepEqual(ppData, upData) {
-		return fmt.Errorf("can't update readRegions and other properties at the same time")
+		return fmt.Errorf("can't update readRegions and other properties at the same time") // nolint: lll
 	}
 
 	return nil
@@ -67,10 +67,7 @@ func (c *cosmosAccountManager) updateDeployment(
 		p,
 		tags,
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (c *cosmosAccountManager) deployUpdatedARMTemplate(
@@ -88,10 +85,7 @@ func (c *cosmosAccountManager) deployUpdatedARMTemplate(
 		map[string]interface{}{},
 		tags,
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // This function is the same as `c.waitForReadLocationsReady` except that
