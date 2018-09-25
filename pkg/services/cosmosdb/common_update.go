@@ -30,8 +30,8 @@ func (
 	for k, v := range up.Data {
 		upData[k] = v
 	}
-	ppData["readRegions"] = nil
-	upData["readRegions"] = nil
+	delete(ppData, "readRegions")
+	delete(upData, "readRegions")
 	if !reflect.DeepEqual(
 		pp.GetStringArray("readRegions"),
 		up.GetStringArray("readRegions"),

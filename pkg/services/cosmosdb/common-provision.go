@@ -49,6 +49,9 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	dt *cosmosdbInstanceDetails,
 	kind string,
 ) (map[string]interface{}, error) {
+	// In Azure portal, "region" is used to indicate a place, while in REST api,
+	// "location" is used to indicate a place. So we use "readRegions" when
+	// communicating with users and use "readLocations" in the code.
 	readLocations := pp.GetStringArray("readRegions")
 	readLocations = append([]string{pp.GetString("location")}, readLocations...)
 	return c.buildGoTemplateParamsCore(
