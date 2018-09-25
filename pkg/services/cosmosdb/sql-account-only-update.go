@@ -9,40 +9,11 @@ import (
 
 func (
 	s *sqlAccountManager,
-) ValidateUpdatingParameters(instance service.Instance) error {
-	return validateReadLocations(
-		"sql account update",
-		instance.UpdatingParameters.GetStringArray("readRegions"),
-	)
-}
-
-func (
-	s *sqlAccountManager,
 ) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater(
-		service.NewUpdatingStep("updateReadLocations", s.updateReadLocations),
-		service.NewUpdatingStep("waitForReadLocationsReadyInUpdate", s.waitForReadLocationsReadyInUpdate), //nolint: lll
 		service.NewUpdatingStep("updateARMTemplate", s.updateARMTemplate),
+		service.NewUpdatingStep("waitForReadLocationsReadyInUpdate", s.waitForReadLocationsReadyInUpdate), //nolint: lll
 	)
-}
-
-func (s *sqlAccountManager) updateReadLocations(
-	_ context.Context,
-	instance service.Instance,
-) (service.InstanceDetails, error) {
-	if err := s.cosmosAccountManager.updateReadLocations(
-		instance.ProvisioningParameters,
-		instance.UpdatingParameters,
-		instance.Details.(*cosmosdbInstanceDetails),
-		"GlobalDocumentDB",
-		"",
-		map[string]string{
-			"defaultExperience": "DocumentDB",
-		},
-	); err != nil {
-		return nil, fmt.Errorf("error deploying ARM template: %s", err)
-	}
-	return instance.Details, nil
 }
 
 func (s *sqlAccountManager) updateARMTemplate(

@@ -59,6 +59,33 @@ func (c *cosmosAccountManager) buildGoTemplateParams(
 	)
 }
 
+// The deployment will return success once the write region is created,
+// ignoring the status of read regions , so we must implement detection logic
+// by ourselves.
+func (c *cosmosAccountManager) waitForReadLocationsReady(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*cosmosdbInstanceDetails)
+	resourceGroupName := instance.ProvisioningParameters.GetString("resourceGroup")
+	accountName := dt.DatabaseAccountName
+	databaseAccountClient := c.databaseAccountsClient
+
+	err := pollingUntilReadLocationsReady(
+		ctx,
+		resourceGroupName,
+		accountName,
+		databaseAccountClient,
+		instance.ProvisioningParameters.GetString("location"),
+		instance.ProvisioningParameters.GetStringArray("readRegions"),
+		true,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return dt, nil
+}
+
 func getTags(pp *service.ProvisioningParameters) map[string]string {
 	tagsObj := pp.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))

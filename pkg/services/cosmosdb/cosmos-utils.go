@@ -183,60 +183,6 @@ func deleteDatabase(
 	return nil
 }
 
-// The deployment will return success once the write region is created,
-// ignoring the status of read regions , so we must implement detection logic
-// by ourselves.
-func (c *cosmosAccountManager) waitForReadLocationsReady(
-	ctx context.Context,
-	instance service.Instance,
-) (service.InstanceDetails, error) {
-	dt := instance.Details.(*cosmosdbInstanceDetails)
-	resourceGroupName := instance.ProvisioningParameters.GetString("resourceGroup")
-	accountName := dt.DatabaseAccountName
-	databaseAccountClient := c.databaseAccountsClient
-
-	err := pollingUntilReadLocationsReady(
-		ctx,
-		resourceGroupName,
-		accountName,
-		databaseAccountClient,
-		instance.ProvisioningParameters.GetString("location"),
-		instance.ProvisioningParameters.GetStringArray("readRegions"),
-		true,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return dt, nil
-}
-
-// For sqlAllInOneManager, the real type of `instance.Details` is
-// `*sqlAllInOneInstanceDetails`, so type assertion must be changed.
-// Expect type assertion, this function is totally the same as previous one.
-func (s *sqlAllInOneManager) waitForReadLocationsReady(
-	ctx context.Context,
-	instance service.Instance,
-) (service.InstanceDetails, error) {
-	dt := instance.Details.(*sqlAllInOneInstanceDetails)
-	resourceGroupName := instance.ProvisioningParameters.GetString("resourceGroup")
-	accountName := dt.DatabaseAccountName
-	databaseAccountClient := s.databaseAccountsClient
-
-	err := pollingUntilReadLocationsReady(
-		ctx,
-		resourceGroupName,
-		accountName,
-		databaseAccountClient,
-		instance.ProvisioningParameters.GetString("location"),
-		instance.ProvisioningParameters.GetStringArray("readRegions"),
-		true,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return dt, nil
-}
-
 const succeeded = "succeeded"
 
 // This method will return when any of following situations is satisfied:

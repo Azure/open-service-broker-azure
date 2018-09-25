@@ -17,12 +17,14 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"readRegions": &service.ArrayPropertySchema{
+				Title: "Read Regions",
 				Description: "Read regions to be created, your data" +
 					" will be synchronized across these regions.",
 				DefaultValue:            []interface{}{},
 				CustomPropertyValidator: readLocationsValidator,
 			},
 			"autoFailoverEnabled": &service.StringPropertySchema{
+				Title: "Auto failover enabled",
 				Description: "Specifies if you want Cosmos DB to perform" +
 					" automatic failover of the write region to one of" +
 					" the read regions in the rare event of a data center outage.",

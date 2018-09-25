@@ -24,16 +24,12 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"ipFilters": map[string]interface{}{
 				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
 			},
-		},
-		updatingParameters: map[string]interface{}{
-			"ipFilters": map[string]interface{}{
-				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
-			},
 			"consistencyPolicy": map[string]interface{}{
 				"defaultConsistencyLevel": "Session",
 			},
-			"readRegions":         []interface{}{"centralus"},
-			"autoFailoverEnabled": "enabled",
+		},
+		updatingParameters: map[string]interface{}{
+			"readRegions": []interface{}{"centralus"},
 		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // database only scenario
