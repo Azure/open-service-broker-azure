@@ -17,7 +17,7 @@ type CatalogConfig struct {
 
 type tempCatalogConfig struct {
 	CatalogConfig
-	MinStabilityStr            string `envconfig:"MIN_STABILITY" default:"STABLE"`
+	MinStabilityStr            string `envconfig:"MIN_STABILITY" default:"PREVIEW"`
 	EnableMigrationServicesStr string `envconfig:"ENABLE_MIGRATION_SERVICES" default:"false"` // nolint: lll
 }
 
