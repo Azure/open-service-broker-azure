@@ -68,6 +68,34 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		s.writeResponse(w, http.StatusGone, generateEmptyResponse())
 		return
 	}
+	if instance.Details == nil {
+		// If we get to here, we're dealing with an orphan -- the instance
+		// detail is nil for some reason. We simply delete the record from
+		// the store and return 200 OK.
+		ok, err := s.store.DeleteInstance(instanceID)
+		if err != nil {
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"pre-deprovisioning error: error deleting instance will nil detail",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+		if !ok {
+			// We should never land in here, since "ok, err = false, nil" only happens
+			// when the instanceID can't be found in the store, but in L63, we have
+			// done the validation and we can make sure the instanceID is found in
+			// the store.
+			logFields["error"] = err
+			log.WithFields(logFields).Error(
+				"pre-deprovision fatal error: store inconsistency",
+			)
+			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
+			return
+		}
+		s.writeResponse(w, http.StatusOK, generateEmptyResponse())
+		return
+	}
 	switch instance.Status {
 	case service.InstanceStateDeprovisioning:
 		log.WithFields(logFields).Debug(
