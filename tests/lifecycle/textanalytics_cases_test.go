@@ -100,13 +100,19 @@ func testTextAnalyticsCreds(credentials map[string]interface{}) error {
 	j, _ := json.Marshal(sentiment)
 	b := bytes.NewBuffer(j)
 
-	req, err := http.NewRequest("POST", credentials["textAnalyticsEndpoint"].(string)+"/sentiment", b)
+	req, err := http.NewRequest(
+		"POST",
+		credentials["textAnalyticsEndpoint"].(string)+"/sentiment", b,
+	)
 	if err != nil {
 		return fmt.Errorf("error validating the text analytics arguments: %s", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Ocp-Apim-Subscription-Key", credentials["textAnalyticsKey"].(string))
+	req.Header.Set(
+		"Ocp-Apim-Subscription-Key",
+		credentials["textAnalyticsKey"].(string),
+	)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -114,9 +120,15 @@ func testTextAnalyticsCreds(credentials map[string]interface{}) error {
 	}
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("error validating the text analytics arguments: response code not = 200")
+		return fmt.Errorf(
+			"error validating the text analytics arguments: response code not = 200",
+		)
 	}
 
-	defer resp.Body.Close()
+	err = resp.Body.Close()
+	if err != nil {
+		return fmt.Errorf("error validating the text analytics arguments: %s", err)
+	}
+
 	return nil
 }
