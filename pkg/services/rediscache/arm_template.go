@@ -19,6 +19,7 @@ var armTemplateBytes = []byte(`
 			"properties": {
 				{{if .shardCount}}
 				"shardCount": {{.shardCount}},
+				{{end}}
 				{{if .subnetId}}
 				"subnetId": "{{.subnetId}}",
 				{{end}}
