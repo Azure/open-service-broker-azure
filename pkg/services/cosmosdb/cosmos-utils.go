@@ -189,8 +189,7 @@ const succeeded = "succeeded"
 // 1. The parent context is cancelled
 // 2. The timeout expired. Currently, the timeout is calculated as :
 // the_number_of_read_locations * 7 minutes
-// 3. The number of queried read locations equals `readLocationCount` and
-// every location's state is "Succeeded"
+// 3. Every location in parameter `readLocations` is created successfully
 func pollingUntilReadLocationsReady(
 	ctx context.Context,
 	resourceGroupName string,
@@ -204,17 +203,14 @@ func pollingUntilReadLocationsReady(
 	enableTimeout bool,
 ) error {
 	const timeForOneReadLocation = time.Minute * 7
-	readLocationCount := getEffectiveReadLocationCount(
-		location,
-		readLocations,
-	)
+	readLocations = append([]string{location}, readLocations...)
 
 	var cancel context.CancelFunc
 	if enableTimeout {
 		ctx, cancel = context.WithDeadline(
 			ctx,
 			time.Now().Add(
-				time.Duration(readLocationCount)*timeForOneReadLocation,
+				time.Duration(len(readLocations))*timeForOneReadLocation,
 			),
 		)
 	} else {
@@ -237,21 +233,11 @@ func pollingUntilReadLocationsReady(
 				return err
 			}
 
-			// Check whether current number of read locations equals `readLocationCount`
-			// and every region's state is "succeeded"
-			readLocations := *(result.DatabaseAccountProperties.ReadLocations)
-			if len(readLocations) != readLocationCount {
-				break
-			}
-			allSucceed := true
-			for i := range readLocations {
-				state := *(readLocations[i].ProvisioningState)
-				if strings.ToLower(state) != succeeded {
-					allSucceed = false
-					break
-				}
-			}
-			if allSucceed {
+			currentLocations := *(result.DatabaseAccountProperties.ReadLocations)
+			if isCreationSucceeded(
+				readLocations,
+				currentLocations,
+			) {
 				return nil
 			}
 		}
@@ -421,15 +407,28 @@ func generateIDForReadLocation(
 	return locationID
 }
 
-func getEffectiveReadLocationCount(
-	location string,
-	readLocation []string,
-) int {
-	result := len(readLocation) + 1
-	for i := range readLocation {
-		if location == readLocation[i] {
-			result--
+func isCreationSucceeded(
+	desiredLocations []string,
+	currentLocations []cosmosSDK.Location,
+) bool {
+	succeededLocations := make(map[string]bool)
+	for i := range currentLocations {
+		state := *(currentLocations[i].ProvisioningState)
+		// If the status of any region is not succeeded, we haven't finished
+		// the process and directly return false
+		if strings.ToLower(state) != succeeded {
+			return false
+		}
+		locationName := *(currentLocations[i].LocationName)
+		locationName = strings.Replace(locationName, " ", "", -1)
+		locationName = strings.ToLower(locationName)
+		succeededLocations[locationName] = true
+	}
+
+	for _, location := range desiredLocations {
+		if !succeededLocations[location] {
+			return false
 		}
 	}
-	return result
+	return true
 }
