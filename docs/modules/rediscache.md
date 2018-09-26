@@ -33,6 +33,9 @@ For `premium` plan, following provisioning parameter is available:
 | Parameter Name | Type      | Description                                                  | Required | Default Value                                          |
 | -------------- | --------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------ |
 | `shardCount`   | `integer` | The number of shards to be created on a Premium Cluster Cache. This action is irreversible. The number of shards can be changed later. | N        | If not specified, no additional shard will be created. |
+| `subnetSettings`              | `object` | Setting to deploy the Redis cache inside a subnet, so that the  cache is only accessible in the subnet | N                                                    | If not specified, the Redis cache won't be deployed in a subnet, that is, the Redis cache is publicly addressable and the access is not limited to a particular VNet. |
+| `subnetSettings`.` subnetId ` | `string` | The full resource ID of a subnet in a virtual network to deploy the Redis cache in. The subnet should be in the same region with Redis cache. Example format: /subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.Network/virtualNetworks/{vn}/subnets/{sn} | Yes when `subnetSettings` is provided, otherwise no. |                                                              |
+| `subnetSettings`.`staticIP`   | `string` | Static IP address. Required when deploying a Redis cache inside an existing Azure Virtual Network. Only valid when `subnetId` is provided. | N                                                    | If `staticIP` **is not** specified and `subnetId` **is** specified, one valid IP will be chosen randomly in the subnet. |
 
 ##### Bind
 

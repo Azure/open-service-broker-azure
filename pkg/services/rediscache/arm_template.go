@@ -19,6 +19,11 @@ var armTemplateBytes = []byte(`
 			"properties": {
 				{{if .shardCount}}
 				"shardCount": {{.shardCount}},
+				{{if .subnetId}}
+				"subnetId": "{{.subnetId}}",
+				{{end}}
+				{{if .staticIP}}
+				"staticIP": "{{.staticIP}}",
 				{{end}}
 				"enableNonSslPort": {{.enableNonSslPort}},
 				"sku": {
