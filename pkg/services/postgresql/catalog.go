@@ -223,5 +223,91 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 		),
+		// all-in-one for version 10
+		service.NewService(
+			service.ServiceProperties{
+				ID:          "32d3b4e0-e68f-4e96-93d4-35fd380f0874",
+				Name:        "azure-postgresql-10",
+				Description: "Azure Database for PostgreSQL 10-- DBMS and single database",
+				Metadata: service.ServiceMetadata{
+					DisplayName:      "Azure Database for PostgreSQL 10",
+					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					LongDescription:  "Azure Database for PostgreSQL-- DBMS and single database",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
+				Extended: map[string]interface{}{
+					"version": "10",
+				},
+			},
+			m.allInOneManager,
+			service.NewPlan(createBasicPlan("e5b147b1-9abd-4444-adf4-e8777b5219ec", true)),
+			service.NewPlan(createGPPlan("0f209a55-f166-4530-b5ad-26f81c598616", true)),
+			service.NewPlan(createMemoryOptimizedPlan("6caf83ec-5cc1-42a0-9b34-0d163d73064c", true)),
+		),
+		// dbms only for version 10
+		service.NewService(
+			service.ServiceProperties{
+				ID:             "cabd3125-5a13-46ea-afad-a69582af9578",
+				Name:           "azure-postgresql-10-dbms",
+				Description:    "Azure Database for PostgreSQL 10-- DBMS only",
+				ChildServiceID: "25434f16-d762-41c7-bbdd-8045d7f74ca",
+				Metadata: service.ServiceMetadata{
+					DisplayName:      "Azure Database for PostgreSQL 10-- DBMS Only",
+					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					LongDescription:  "Azure Database for PostgreSQL-- DBMS only",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: false,
+				Tags:     []string{"Azure", "PostgreSQL", "DBMS", "Server", "Database"},
+				Extended: map[string]interface{}{
+					"version": "10",
+				},
+			},
+			m.dbmsManager,
+			service.NewPlan(createBasicPlan("5cc758d2-b530-479e-8af7-e66f2906463a", false)),
+			service.NewPlan(createGPPlan("f5218659-72ba-4fd3-9567-afd52d871fee", false)),
+			service.NewPlan(createMemoryOptimizedPlan("c985dcc8-a4cd-43ac-a912-10793caed46b", false)),
+		),
+		// database only for version 10
+		service.NewService(
+			service.ServiceProperties{
+				ID:              "1fd01042-3b70-4612-ac19-9ced0b2a1525",
+				Name:            "azure-postgresql-10-database",
+				Description:     "Azure Database for PostgreSQL 10-- database only",
+				ParentServiceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
+				Metadata: service.ServiceMetadata{
+					DisplayName:      "Azure Database for PostgreSQL 10-- Database Only",
+					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					LongDescription:  "Azure Database for PostgreSQL-- database only",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "PostgreSQL", "Database"},
+				Extended: map[string]interface{}{
+					"version": "10",
+				},
+			},
+			m.databaseManager,
+			service.NewPlan(service.PlanProperties{
+				ID:          "672f80d5-8c9e-488f-b9ce-41142c205e99",
+				Name:        "database",
+				Description: "A new database added to an existing DBMS",
+				Free:        false,
+				Stability:   service.StabilityStable,
+				Metadata: service.ServicePlanMetadata{
+					DisplayName: "Azure Database for PostgreSQL-- Database Only",
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.databaseManager.getProvisionParametersSchema(),
+					},
+				},
+			}),
+		),
 	}), nil
 }
