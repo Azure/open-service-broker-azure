@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -86,12 +87,10 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			// when the instanceID can't be found in the store, but in L63, we have
 			// done the validation and we can make sure the instanceID is found in
 			// the store.
-			logFields["error"] = err
-			log.WithFields(logFields).Error(
-				"pre-deprovision fatal error: store inconsistency",
-			)
 			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
-			return
+			log.Fatal(
+				fmt.Errorf("pre-deprovision fatal error, store inconsistency %s", err),
+			)
 		}
 		s.writeResponse(w, http.StatusOK, generateEmptyResponse())
 		return
