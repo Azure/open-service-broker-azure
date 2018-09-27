@@ -4,15 +4,15 @@ Open Service Broker for Azure contains three Azure Database for PostgreSQL servi
 
 | Service Name | Description |
 |--------------|-------------|
-| `azure-postgresql-9-6` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
-| `azure-postgresql-9-6-dbms` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
-| `azure-postgresql-9-6-database` | Provision a new database only upon a previously provisioned DBMS. |
+| `azure-postgresql-9-6` and `azure-postgresql-10` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
+| `azure-postgresql-9-6-dbms` and `azure-postgresql-10-dbms` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
+| `azure-postgresql-9-6-database` and `azure-postgresql-10-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-postgresql-9-6` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-postgresql-9-6-dbms` and `azure-postgresql-9-6-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-postgresql-9-6` and `azure-postgresql-10` services allow you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through these two services. The `azure-postgresql-*-dbms` and `azure-postgresql-*-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
-### Service: azure-postgresql-9-6
+### Service: azure-postgresql-9-6 and azure-postgresql-10
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -95,7 +95,7 @@ Updates a previously provisioned PostgreSQL DBMS. Currently updating the databas
 ####### Updating Parameters: general-purpose
 
 | Parameter Name | Type | Description | Required | Default Value |
-|----------------|------|-------------|----------|---------------| 
+|----------------|------|-------------|----------|---------------|
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 32 | N | 2 |
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048. Note, this must not be lower than what was given at provision time. | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
@@ -207,7 +207,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-postgresql-9-6-dbms
+### Service: azure-postgresql-9-6-dbms and azure-postgresql-10-dbms
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -288,7 +288,7 @@ Updates a previously provisioned PostgreSQL DBMS.
 ####### Updating Parameters: general-purpose
 
 | Parameter Name | Type | Description | Required | Default Value |
-|----------------|------|-------------|----------|---------------| 
+|----------------|------|-------------|----------|---------------|
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 32 | N | 2 |
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048. Note, this must not be lower than what was given at provision time. | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
@@ -371,7 +371,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-postgresql-database
+### Service: azure-postgresql-9-6-database and azure-postgresql-10-database
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -391,6 +391,8 @@ name.
 |----------------|------|-------------|----------|---------------|
 | `extensions` | `string[]` | Specifies a list of PostgreSQL extensions to install | N | |
 | `parentAlias` | `string` | Specifies the alias of the DBMS upon which the database should be provisioned. | Y | |
+
+**Note**: You should use `azure-postgresql-9-6-dbms` as the parent of `azure-postgresql-9-6-database` and use `azure-postgresql-10-dbms` as the parent of `azure-postgresql-10-database`.
 
 ##### Update
 
