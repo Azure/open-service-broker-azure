@@ -29,7 +29,7 @@ server that provisions managed services in the Microsoft Azure public cloud.
 * [Azure Search](docs/modules/search.md)
 * [Azure Service Bus](docs/modules/servicebus.md)
 * [Azure Storage](docs/modules/storage.md)
-
+* [Azure Text Analytics (Cognitive Services)](docs/modules/textanalytics.md)
 
 ## Quickstarts
 
@@ -185,7 +185,7 @@ cf create-service azure-postgresql-9-6 basic50 mypostgresdb -c '{
   "firewallRules" : [
       {
         "name": "AllowAll",
-        "startIPAddress": "0.0.0.0", 
+        "startIPAddress": "0.0.0.0",
         "endIPAddress" : "255.255.255.255"
       }
     ]
