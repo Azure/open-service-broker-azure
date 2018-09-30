@@ -73,7 +73,7 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 		// If we get to here, we're dealing with an orphan -- the instance
 		// detail is nil for some reason. We simply delete the record from
 		// the store and return 200 OK.
-		ok, err := s.store.DeleteInstance(instanceID)
+		instanceFound, err := s.store.DeleteInstance(instanceID)
 		if err != nil {
 			logFields["error"] = err
 			log.WithFields(logFields).Error(
@@ -82,11 +82,11 @@ func (s *server) deprovision(w http.ResponseWriter, r *http.Request) {
 			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 			return
 		}
-		if !ok {
-			// We should never land in here, since "ok, err = false, nil" only happens
-			// when the instanceID can't be found in the store, but in L63, we have
-			// done the validation and we can make sure the instanceID is found in
-			// the store.
+		if !instanceFound {
+			// We should never land in here, since "instanceFound, err = false, nil"
+			// only happens when the instanceID can't be found in the store, but in L63
+			// we have done the validation and we can make sure the instanceID is found
+			// in the store.
 			s.writeResponse(w, http.StatusInternalServerError, generateEmptyResponse())
 			log.Fatal(
 				fmt.Errorf("pre-deprovision fatal error, store inconsistency %s", err),
