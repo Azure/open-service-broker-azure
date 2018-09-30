@@ -64,6 +64,7 @@ func TestDeprovisioningInstanceThatIsAlreadyDeprovisioning(t *testing.T) {
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateDeprovisioning,
+		Details:    fake.GetEmptyInstanceDetails(),
 	})
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
@@ -88,6 +89,7 @@ func TestDeprovisioningInstanceThatIsStillProvisioning(t *testing.T) {
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioning,
+		Details:    fake.GetEmptyInstanceDetails(),
 	})
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(
@@ -112,6 +114,7 @@ func TestKickOffNewAsyncDeprovisioning(t *testing.T) {
 		ServiceID:  fake.ServiceID,
 		PlanID:     fake.StandardPlanID,
 		Status:     service.InstanceStateProvisioned,
+		Details:    fake.GetEmptyInstanceDetails(),
 	})
 	assert.Nil(t, err)
 	req, err := getDeprovisionRequest(

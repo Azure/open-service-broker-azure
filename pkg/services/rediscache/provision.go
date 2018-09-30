@@ -107,6 +107,7 @@ func buildGoTemplate(
 		redisConfiguration["rdb-backup-enabled"] = (value == enabled)
 	}
 	redisConfigurationBytes, _ := json.Marshal(redisConfiguration)
+	subnetSettings := pp.GetObject("subnetSettings")
 
 	return map[string]interface{}{ // ARM template params
 		"location":           pp.GetString("location"),
@@ -116,5 +117,8 @@ func buildGoTemplate(
 		"redisCacheFamily":   plan.GetProperties().Extended["redisCacheFamily"],
 		"redisCacheCapacity": pp.GetInt64("skuCapacity"),
 		"redisConfiguration": string(redisConfigurationBytes),
+		"shardCount":         pp.GetInt64("shardCount"),
+		"subnetId":           subnetSettings.GetString("subnetId"),
+		"staticIP":           subnetSettings.GetString("staticIP"),
 	}
 }

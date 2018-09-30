@@ -19,6 +19,15 @@ var armTemplateBytes = []byte(`
 			"properties": {
 				{{if .redisConfiguration}}
 				"redisConfiguration" : {{.redisConfiguration}},
+        {{end}}
+				{{if .shardCount}}
+				"shardCount": {{.shardCount}},
+				{{end}}
+				{{if .subnetId}}
+				"subnetId": "{{.subnetId}}",
+				{{end}}
+				{{if .staticIP}}
+				"staticIP": "{{.staticIP}}",
 				{{end}}
 				"enableNonSslPort": {{.enableNonSslPort}},
 				"sku": {
