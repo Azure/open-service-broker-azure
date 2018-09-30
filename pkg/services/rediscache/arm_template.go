@@ -19,7 +19,7 @@ var armTemplateBytes = []byte(`
 			"properties": {
 				{{if .redisConfiguration}}
 				"redisConfiguration" : {{.redisConfiguration}},
-        {{end}}
+				{{end}}
 				{{if .shardCount}}
 				"shardCount": {{.shardCount}},
 				{{end}}
