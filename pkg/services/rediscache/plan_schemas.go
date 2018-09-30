@@ -9,8 +9,9 @@ import (
 )
 
 type planDetail struct {
-	planName        string
-	allowedCapacity []int64
+	planName          string
+	allowedCapacity   []int64
+	allowedShardCount []int64
 }
 
 // nolint: lll
@@ -45,6 +46,12 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 	}
 
 	if pd.planName == premium {
+		ips.PropertySchemas["shardCount"] = &service.IntPropertySchema{
+			Title: "Shard Count",
+			Description: "The number of shards to be created on a Premium Cluster Cache. " +
+				"This action is irreversible. The number of shards can be changed later.",
+			AllowedValues: pd.allowedShardCount,
+		}
 		ips.PropertySchemas["subnetSettings"] = &service.ObjectPropertySchema{
 			Title: "Subnet Settings",
 			Description: "Setting to deploy the Redis cache inside a subnet, so that the " +
@@ -86,6 +93,14 @@ func (pd planDetail) getUpdatingParamsSchema() service.InputParametersSchema {
 				AllowedValues: pd.allowedCapacity,
 			},
 		},
+	}
+	if pd.planName == premium {
+		ips.PropertySchemas["shardCount"] = &service.IntPropertySchema{
+			Title: "Shard Count",
+			Description: "The number of shards to be created on a Premium Cluster Cache. " +
+				"This action is irreversible. The number of shards can be changed later.",
+			AllowedValues: pd.allowedShardCount,
+		}
 	}
 	return ips
 }
