@@ -3,11 +3,9 @@ package fake
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type fakeInstanceDetails struct {
-	fakeField int
 }
 
 type fakeBindingDetails struct {
-	fakeField int
 }
 
 // GetEmptyInstanceDetails returns an "empty" service-specific object that
