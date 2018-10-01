@@ -4,6 +4,7 @@
 [[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
   packages = [
+    "services/cognitiveservices/mgmt/2017-04-18/cognitiveservices",
     "services/cosmos-db/mgmt/2015-04-08/documentdb",
     "services/eventhub/mgmt/2017-04-01/eventhub",
     "services/keyvault/mgmt/2016-10-01/keyvault",
@@ -212,6 +213,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "add149e2845794e0833cf506bf80d3255d7c7ed34e39ad07fa6062cfa35ceed0"
+  inputs-digest = "57d57986dbe9b1ac6030ddabd52602b141327ff9560373efbff73b3dfe213244"
   solver-name = "gps-cdcl"
   solver-version = 1
