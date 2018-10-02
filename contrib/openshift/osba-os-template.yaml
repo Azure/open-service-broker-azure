@@ -164,6 +164,8 @@ objects:
                 secretKeyRef:
                   name: osba-open-service-broker-azure
                   key: azure-client-secret
+            - name: REDIS_PREFIX
+              value: 
             - name: REDIS_HOST
               value: osba-redis
             - name: REDIS_PASSWORD

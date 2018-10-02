@@ -365,5 +365,43 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				),
 			),
 		),
+		// registered dbms only service
+		service.NewService(
+			service.ServiceProperties{
+				ID:             "c9bd94e7-5b7d-4b20-96e6-c5678f99d997",
+				Name:           "azure-sql-12-0-dbms-registered",
+				Description:    "Azure SQL 12.0-- DBMS only registered",
+				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
+				Metadata: service.ServiceMetadata{
+					DisplayName:      "Azure SQL 12.0-- DBMS Only registered",
+					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					LongDescription:  "Azure SQL 12.0-- DBMS only registered",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: false,
+				Tags:     []string{"Azure", "SQL", "DBMS", "Server", "Database"},
+				Extended: map[string]interface{}{
+					"version": "12.0",
+				},
+			},
+			m.dbmsRegisteredManager,
+			service.NewPlan(service.PlanProperties{
+				ID:          "4e95e962-0142-4117-b212-bcc7aec7f6c2",
+				Name:        "dbms",
+				Description: "Azure SQL Server-- DBMS only",
+				Free:        false,
+				Stability:   service.StabilityPreview,
+				Metadata: service.ServicePlanMetadata{
+					DisplayName: "Azure SQL Server-- DBMS Only",
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: m.dbmsRegisteredManager.getProvisionParametersSchema(),
+						UpdatingParametersSchema:     m.dbmsRegisteredManager.getUpdatingParametersSchema(),
+					},
+				},
+			}),
+		),
 	}), nil
 }

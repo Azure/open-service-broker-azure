@@ -55,6 +55,8 @@ spec:
               secretKeyRef:
                 name: {{ template "fullname" . }}
                 key: redis-password
+          - name: REDIS_PREFIX
+            value: {{ .Values.redis.prefix | quote }}
           - name: CRYPTO_AES256_KEY
             valueFrom:
               secretKeyRef:
@@ -122,6 +124,8 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 2
+      nodeSelector:
+        beta.kubernetes.io/os: linux
       {{- if .Values.tls.enabled }}
       volumes:
       - name: cert

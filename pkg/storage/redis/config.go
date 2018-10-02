@@ -14,6 +14,7 @@ type Config struct {
 	RedisPassword  string `envconfig:"REDIS_PASSWORD"`
 	RedisDB        int    `envconfig:"REDIS_DB"`
 	RedisEnableTLS bool   `envconfig:"REDIS_ENABLE_TLS"`
+	RedisPrefix    string `envconfig:"REDIS_PREFIX"`
 }
 
 // NewConfigWithDefaults returns a Config object with default values already

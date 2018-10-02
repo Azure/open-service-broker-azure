@@ -60,6 +60,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Variable Pricing",
 					},
 				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+					},
+				},
 			}),
 			service.NewPlan(service.PlanProperties{
 				ID:   "cec378a7-6452-4203-beca-d34898edbadc",
@@ -77,6 +82,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"Dedicated Capacity",
 						"Recommended For Production Workloads",
 						"Fixed Pricing",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
 					},
 				},
 			}),
