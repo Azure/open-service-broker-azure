@@ -246,6 +246,9 @@ To deprovision the service, use the `cf delete-service` command.
 cf delete-service mypostgresdb
 ```
 
+## Getting started on Service Fabric
+Please refer to the [example](https://github.com/Azure-Samples/service-fabric-service-catalog) for how to use Service Catalog with [Service Fabric](https://azure.microsoft.com/en-us/services/service-fabric/).
+
 ## Contributing
 
 For details on how to contribute to this project, please see
