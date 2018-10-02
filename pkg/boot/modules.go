@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	cognitiveSDK "github.com/Azure/azure-sdk-for-go/services/cognitiveservices/mgmt/2017-04-18/cognitiveservices"
 	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"
 	eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub"
 	keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault"
@@ -28,6 +29,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/rediscache"
 	"github.com/Azure/open-service-broker-azure/pkg/services/servicebus"
 	"github.com/Azure/open-service-broker-azure/pkg/services/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/services/textanalytics"
 	"github.com/Azure/open-service-broker-azure/pkg/version"
 )
 
@@ -64,6 +66,13 @@ func getModules(
 		resourceGroupsClient,
 		resourceDeploymentsClient,
 	)
+
+	cognitiveClient := cognitiveSDK.NewAccountsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	cognitiveClient.Authorizer = authorizer
+	cognitiveClient.UserAgent = getUserAgent(cognitiveClient.Client)
 
 	cosmosdbAccountsClient := cosmosSDK.NewDatabaseAccountsClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,
@@ -194,6 +203,7 @@ func getModules(
 		),
 		cosmosdb.New(armDeployer, cosmosdbAccountsClient),
 		storage.New(armDeployer, storageAccountsClient),
+		textanalytics.New(armDeployer, cognitiveClient),
 	}
 
 	return modules, nil
