@@ -81,6 +81,9 @@ func getModules(
 	cosmosdbAccountsClient.Authorizer = authorizer
 	cosmosdbAccountsClient.UserAgent =
 		getUserAgent(cosmosdbAccountsClient.Client)
+	// When there are multiple read regions, default polling duration
+	// (15 minutes) is not enough for deleting all of the regions.
+	cosmosdbAccountsClient.PollingDuration = time.Minute * 30
 
 	eventHubNamespacesClient := eventHubSDK.NewNamespacesClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,

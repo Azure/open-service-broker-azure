@@ -1,10 +1,46 @@
 package cosmosdb
 
 import (
+	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
+
+func (
+	c *cosmosAccountManager,
+) ValidateUpdatingParameters(instance service.Instance) error {
+	pp := instance.ProvisioningParameters
+	up := instance.UpdatingParameters
+
+	if err := validateReadLocations(
+		"graph account update",
+		up.GetStringArray("readRegions"),
+	); err != nil {
+		return err
+	}
+
+	// Can't update readRegions and other properties at the same time
+	ppData := make(map[string]interface{})
+	upData := make(map[string]interface{})
+	for k, v := range pp.Data {
+		ppData[k] = v
+	}
+	for k, v := range up.Data {
+		upData[k] = v
+	}
+	delete(ppData, "readRegions")
+	delete(upData, "readRegions")
+	if !reflect.DeepEqual(
+		pp.GetStringArray("readRegions"),
+		up.GetStringArray("readRegions"),
+	) && !reflect.DeepEqual(ppData, upData) {
+		return fmt.Errorf("can't update readRegions and other properties at the same time") // nolint: lll
+	}
+
+	return nil
+}
 
 func (c *cosmosAccountManager) updateDeployment(
 	pp *service.ProvisioningParameters,
@@ -31,10 +67,7 @@ func (c *cosmosAccountManager) updateDeployment(
 		p,
 		tags,
 	)
-	if err != nil {
-		return fmt.Errorf("error deploying ARM template: %s", err)
-	}
-	return nil
+	return err
 }
 
 func (c *cosmosAccountManager) deployUpdatedARMTemplate(
@@ -52,8 +85,31 @@ func (c *cosmosAccountManager) deployUpdatedARMTemplate(
 		map[string]interface{}{},
 		tags,
 	)
+	return err
+}
+
+// This function is the same as `c.waitForReadLocationsReady` except that
+// it uses `readRegions` array in updating parameter.
+func (c *cosmosAccountManager) waitForReadLocationsReadyInUpdate(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*cosmosdbInstanceDetails)
+	resourceGroupName := instance.ProvisioningParameters.GetString("resourceGroup")
+	accountName := dt.DatabaseAccountName
+	databaseAccountClient := c.databaseAccountsClient
+
+	err := pollingUntilReadLocationsReady(
+		ctx,
+		resourceGroupName,
+		accountName,
+		databaseAccountClient,
+		instance.ProvisioningParameters.GetString("location"),
+		instance.UpdatingParameters.GetStringArray("readRegions"),
+		false,
+	)
 	if err != nil {
-		return fmt.Errorf("error deploying ARM template: %s", err)
+		return nil, err
 	}
-	return nil
+	return dt, nil
 }

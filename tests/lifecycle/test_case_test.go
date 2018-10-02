@@ -50,7 +50,7 @@ func (s serviceLifecycleTestCase) execute(
 	catalog service.Catalog,
 	resourceGroup string,
 ) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*40)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*50)
 	defer cancel()
 
 	name := s.getName()

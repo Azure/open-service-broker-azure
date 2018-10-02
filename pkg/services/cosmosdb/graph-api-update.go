@@ -7,18 +7,12 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (g *graphAccountManager) ValidateUpdatingParameters(
-	instance service.Instance,
-) error {
-	return nil
-}
-
-func (g *graphAccountManager) GetUpdater(
-	service.Plan,
-) (service.Updater, error) {
-	// There isn't a need to do any "pre-provision here. just the update step"
+func (
+	g *graphAccountManager,
+) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateARMTemplate", g.updateARMTemplate),
+		service.NewUpdatingStep("waitForReadLocationsReadyInUpdate", g.waitForReadLocationsReadyInUpdate), //nolint: lll
 	)
 }
 
@@ -26,7 +20,7 @@ func (g *graphAccountManager) updateARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	err := g.cosmosAccountManager.updateDeployment(
+	if err := g.cosmosAccountManager.updateDeployment(
 		instance.ProvisioningParameters,
 		instance.UpdatingParameters,
 		instance.Details.(*cosmosdbInstanceDetails),
@@ -35,8 +29,7 @@ func (g *graphAccountManager) updateARMTemplate(
 		map[string]string{
 			"defaultExperience": "Graph",
 		},
-	)
-	if err != nil {
+	); err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	return instance.Details, nil
