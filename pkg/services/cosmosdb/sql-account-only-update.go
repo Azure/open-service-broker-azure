@@ -7,16 +7,12 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *sqlAccountManager) ValidateUpdatingParameters(
-	instance service.Instance,
-) error {
-	return nil
-}
-
-func (s *sqlAccountManager) GetUpdater(service.Plan) (service.Updater, error) {
-	// There isn't a need to do any "pre-provision here. just the update step"
+func (
+	s *sqlAccountManager,
+) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateARMTemplate", s.updateARMTemplate),
+		service.NewUpdatingStep("waitForReadLocationsReadyInUpdate", s.waitForReadLocationsReadyInUpdate), //nolint: lll
 	)
 }
 
@@ -24,7 +20,7 @@ func (s *sqlAccountManager) updateARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	err := s.cosmosAccountManager.updateDeployment(
+	if err := s.cosmosAccountManager.updateDeployment(
 		instance.ProvisioningParameters,
 		instance.UpdatingParameters,
 		instance.Details.(*cosmosdbInstanceDetails),
@@ -33,8 +29,7 @@ func (s *sqlAccountManager) updateARMTemplate(
 		map[string]string{
 			"defaultExperience": "DocumentDB",
 		},
-	)
-	if err != nil {
+	); err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 	return instance.Details, nil

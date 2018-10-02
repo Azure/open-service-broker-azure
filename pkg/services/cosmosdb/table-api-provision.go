@@ -13,6 +13,7 @@ func (t *tableAccountManager) GetProvisioner(
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", t.preProvision),
 		service.NewProvisioningStep("deployARMTemplate", t.deployARMTemplate),
+		service.NewProvisioningStep("waitForReadLocationsReady", t.waitForReadLocationsReady), // nolint: lll
 	)
 }
 
