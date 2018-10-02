@@ -31,6 +31,19 @@ var rediscacheTestCases = []serviceLifecycleTestCase{
 	},
 	{
 		group:     "rediscache",
+		name:      "rediscache-premium-shard-count-provision-and-update",
+		serviceID: "0346088a-d4b2-4478-aa32-f18e295ec1d9",
+		planID:    "b1057a8f-9a01-423a-bc35-e168d5c04cf0",
+		provisioningParameters: map[string]interface{}{
+			"location":   "eastus",
+			"shardCount": 2,
+		},
+		updatingParameters: map[string]interface{}{
+			"shardCount": 1,
+		},
+	},
+	{
+		group:     "rediscache",
 		name:      "rediscache-premium-provision-and-update",
 		serviceID: "0346088a-d4b2-4478-aa32-f18e295ec1d9",
 		planID:    "b1057a8f-9a01-423a-bc35-e168d5c04cf0",
