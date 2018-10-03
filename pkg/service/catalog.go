@@ -56,6 +56,7 @@ type Service interface {
 	GetParentServiceID() string
 	GetChildServiceID() string
 	GetProperties() ServiceProperties
+	GetTags() []string
 	IsEndOfLife() bool
 }
 
@@ -218,6 +219,10 @@ func (s service) GetChildServiceID() string {
 
 func (s service) GetProperties() ServiceProperties {
 	return s.ServiceProperties
+}
+
+func (s service) GetTags() []string {
+	return s.Tags
 }
 
 func (s service) IsEndOfLife() bool {
