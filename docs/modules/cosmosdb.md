@@ -1,6 +1,6 @@
 # [Azure CosmosDB](https://azure.microsoft.com/en-us/services/cosmos-db/)
 
-_Note: This module is EXPERIMENTAL. To enable this module, you must run Open Service Broker for Azure with Minimum Stability set to `experimental`_
+_Note: This module is PREVIEW._
 
 ## Services & Plans
 
