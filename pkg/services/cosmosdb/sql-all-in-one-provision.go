@@ -14,6 +14,7 @@ func (s *sqlAllInOneManager) GetProvisioner(
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", s.preProvision),
 		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
+		service.NewProvisioningStep("waitForReadLocationsReady", s.waitForReadLocationsReady), // nolint: lll
 		service.NewProvisioningStep("createDatabase", s.createDatabase),
 	)
 }
@@ -69,6 +70,34 @@ func (s *sqlAllInOneManager) deployARMTemplate(
 		),
 	)
 	return dt, err
+}
+
+// For sqlAllInOneManager, the real type of `instance.Details` is
+// `*sqlAllInOneInstanceDetails`, so type assertion must be changed.
+// Expect type assertion, this function is totally the same as
+// func (c *cosmosAccountManager) waitForReadLocationsReady.
+func (s *sqlAllInOneManager) waitForReadLocationsReady(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*sqlAllInOneInstanceDetails)
+	resourceGroupName := instance.ProvisioningParameters.GetString("resourceGroup")
+	accountName := dt.DatabaseAccountName
+	databaseAccountClient := s.databaseAccountsClient
+
+	err := pollingUntilReadLocationsReady(
+		ctx,
+		resourceGroupName,
+		accountName,
+		databaseAccountClient,
+		instance.ProvisioningParameters.GetString("location"),
+		instance.ProvisioningParameters.GetStringArray("readRegions"),
+		true,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return dt, nil
 }
 
 func (s *sqlAllInOneManager) createDatabase(

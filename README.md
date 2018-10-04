@@ -20,16 +20,19 @@ server that provisions managed services in the Microsoft Azure public cloud.
 * [Azure Database for PostgreSQL](docs/modules/postgresql.md)
 * [Azure SQL Database](docs/modules/mssql.md)
 
+### Preview Services
+
+- [Azure CosmosDB](docs/modules/cosmosdb.md)
+
 ### Experimental Services
 
-* [Azure CosmosDB](docs/modules/cosmosdb.md)
 * [Azure Event Hubs](docs/modules/eventhubs.md)
 * [Azure Key Vault](docs/modules/keyvault.md)
 * [Azure Redis Cache](docs/modules/rediscache.md)
 * [Azure Search](docs/modules/search.md)
 * [Azure Service Bus](docs/modules/servicebus.md)
 * [Azure Storage](docs/modules/storage.md)
-
+* [Azure Text Analytics (Cognitive Services)](docs/modules/textanalytics.md)
 
 ## Quickstarts
 
@@ -185,7 +188,7 @@ cf create-service azure-postgresql-9-6 basic50 mypostgresdb -c '{
   "firewallRules" : [
       {
         "name": "AllowAll",
-        "startIPAddress": "0.0.0.0", 
+        "startIPAddress": "0.0.0.0",
         "endIPAddress" : "255.255.255.255"
       }
     ]
@@ -245,6 +248,9 @@ To deprovision the service, use the `cf delete-service` command.
 ```console
 cf delete-service mypostgresdb
 ```
+
+## Getting started on Service Fabric
+Please refer to the [example](https://github.com/Azure-Samples/service-fabric-service-catalog) for how to use Service Catalog with [Service Fabric](https://azure.microsoft.com/en-us/services/service-fabric/).
 
 ## Contributing
 

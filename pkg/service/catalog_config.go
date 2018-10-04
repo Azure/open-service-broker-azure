@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/kelseyhightower/envconfig"
@@ -10,19 +11,24 @@ import (
 // CatalogConfig represents details re: which modules' services should be
 // included or excluded from the catalog
 type CatalogConfig struct {
-	MinStability Stability
+	MinStability            Stability
+	EnableMigrationServices bool
 }
 
 type tempCatalogConfig struct {
 	CatalogConfig
-	MinStabilityStr string `envconfig:"MIN_STABILITY" default:"STABLE"`
+	MinStabilityStr            string `envconfig:"MIN_STABILITY" default:"PREVIEW"`
+	EnableMigrationServicesStr string `envconfig:"ENABLE_MIGRATION_SERVICES" default:"false"` // nolint: lll
 }
 
 // NewCatalogConfigWithDefaults returns a CatalogConfig object with default
 // values already applied. Callers are then free to set custom values for the
 // remaining fields and/or override default values.
 func NewCatalogConfigWithDefaults() CatalogConfig {
-	return CatalogConfig{MinStability: StabilityPreview}
+	return CatalogConfig{
+		MinStability:            StabilityPreview,
+		EnableMigrationServices: false,
+	}
 }
 
 // GetCatalogConfigFromEnvironment returns catalog configuration
@@ -46,6 +52,15 @@ func GetCatalogConfigFromEnvironment() (CatalogConfig, error) {
 		return c.CatalogConfig, fmt.Errorf(
 			`unrecognized stability level "%s"`,
 			minStabilityStr,
+		)
+	}
+	c.EnableMigrationServices, err =
+		strconv.ParseBool(c.EnableMigrationServicesStr)
+	if err != nil {
+		return c.CatalogConfig, fmt.Errorf(
+			`unrecognized EnableMigrationServices boolean "%s": %s`,
+			c.EnableMigrationServicesStr,
+			err,
 		)
 	}
 	return c.CatalogConfig, nil

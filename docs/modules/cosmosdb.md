@@ -1,6 +1,6 @@
 # [Azure CosmosDB](https://azure.microsoft.com/en-us/services/cosmos-db/)
 
-_Note: This module is EXPERIMENTAL. To enable this module, you must run Open Service Broker for Azure with Minimum Stability set to `experimental`_
+_Note: This module is PREVIEW._
 
 ## Services & Plans
 
@@ -28,6 +28,8 @@ provisions an empty Database. Ready to use with existing Azure CosmosDB librarie
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
 | `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `readRegions` | `array ` | Read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority. See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
 
 ##### Bind
 
@@ -59,6 +61,21 @@ Does nothing.
 
 Deletes the CosmosDB database account and database.
 
+##### Update
+
+Idempotently update the service instance to specified state.
+
+| Parameter Name | Type                | Description                                                  | Required | Default Value                                                |
+| -------------- | ------------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
+| `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
+| `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `readRegions` | `array ` | Read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority. See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
+
+
 ### Service: azure-cosmosdb-sql-account
 
 | Plan Name | Description |
@@ -88,6 +105,8 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 | `consistencyPolicy.boundedStaleness` | `object` | Specifies the settings when using BoundedStaleness consistency. | Y - When Using `BoundedStaleness` | |
 | `consistencyPolicy.maxStalenessPrefix` | `integer` | When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range for this value is 1 – 2,147,483,647. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | Y | |
 | `consistencyPolicy.maxIntervalInSeconds` | `integer` | When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated. Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | Y | |
+| `readRegions` | `array ` | Replication read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority. See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
 
 ##### Bind
 
@@ -114,6 +133,20 @@ Does nothing.
 ##### Deprovision
 
 Deletes the CosmosDB database account.
+
+##### Update
+
+Idempotently update the service instance to specified state.
+
+| Parameter Name | Type                | Description                                                  | Required | Default Value                                                |
+| -------------- | ------------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
+| `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
+| `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `readRegions` | `array ` | Read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority.  See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
 
 ### Service: azure-cosmosdb-sql-database
 
@@ -190,6 +223,8 @@ Provisions a new CosmosDB database account that can be accessed through the Mong
 | `consistencyPolicy.defaultConsistencyLevel` | `string` | The default consistency level and configuration settings of the Cosmos DB account. - Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix | Y | |
 | `consistencyPolicy.maxStalenessPrefix` | `integer` | When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range for this value is 1 – 2,147,483,647. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
 | `consistencyPolicy.maxIntervalInSeconds` | `integer` | When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated. Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
+| `readRegions` | `array ` | Replication read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority.  See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
 
 ##### Bind
 
@@ -220,6 +255,20 @@ Does nothing.
 
 Deletes the CosmosDB database account.
 
+##### Update
+
+Idempotently update the service instance to specified state.
+
+| Parameter Name | Type                | Description                                                  | Required | Default Value                                                |
+| -------------- | ------------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
+| `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
+| `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `readRegions` | `array ` | Read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority.  See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
+
 ### Service: azure-cosmosdb-graph-account
 
 | Plan Name | Description |
@@ -245,9 +294,11 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 | `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
 | `consistencyPolicy` | `object` | The consistency policy for the Cosmos DB account. | N | |
 | `consistencyPolicy.defaultConsistencyLevel` | `string` | The default consistency level and configuration settings of the Cosmos DB account. - Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix | Y | |
-| `consistencyPolicy.boundedStaleness` | object | Settings for to determine staleness when used with `BoundedStaleness` consistency | Yes - If using `BoundedStaleness` consistency | | 
+| `consistencyPolicy.boundedStaleness` | object | Settings for to determine staleness when used with `BoundedStaleness` consistency | Yes - If using `BoundedStaleness` consistency | |
 | `consistencyPolicy.boundedStaleness.maxStalenessPrefix` | `integer` | When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range for this value is 1 – 2,147,483,647. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
 | `consistencyPolicy.boundedStaleness.maxIntervalInSeconds` | `integer` | When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated. Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
+| `readRegions` | `array ` | Replication read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority.  See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
 
 ##### Bind
 
@@ -274,6 +325,20 @@ Does nothing.
 ##### Deprovision
 
 Deletes the CosmosDB database account.
+
+##### Update
+
+Idempotently update the service instance to specified state.
+
+| Parameter Name | Type                | Description                                                  | Required | Default Value                                                |
+| -------------- | ------------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
+| `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
+| `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `readRegions` | `array ` | Read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority.  See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
 
 ### Service: azure-cosmosdb-table-account
 
@@ -302,6 +367,8 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 | `consistencyPolicy.defaultConsistencyLevel` | `string` | The default consistency level and configuration settings of the Cosmos DB account. - Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix | Y | |
 | `consistencyPolicy.maxStalenessPrefix` | `integer` | When used with the Bounded Staleness consistency level, this value represents the number of stale requests tolerated. Accepted range for this value is 1 – 2,147,483,647. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
 | `consistencyPolicy.maxIntervalInSeconds` | `integer` | When used with the Bounded Staleness consistency level, this value represents the time amount of staleness (in seconds) tolerated. Accepted range for this value is 5 - 86400. Required when defaultConsistencyPolicy is set to 'BoundedStaleness'. | N | |
+| `readRegions` | `array ` | Replication read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority.  See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
 
 ##### Bind
 
@@ -328,3 +395,28 @@ Does nothing.
 ##### Deprovision
 
 Deletes the CosmosDB database account.
+
+##### Update
+
+Idempotently update the service instance to specified state.
+
+| Parameter Name | Type                | Description                                                  | Required | Default Value                                                |
+| -------------- | ------------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
+| `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
+| `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowAccessFromPortal` | `string` | Specifies if the Azure Portal should be able to access the CosmosDB account. If `allowAccessFromAzure` is set to enabled, this value is ignored. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
+| `ipFilters.allowedIPRanges` | `array` | Values to include in IP Filter. Can be IP Address or CIDR range. | N | If not specified, no additional values will be included in filters. |
+| `readRegions` | `array ` | Read regions to be created, your data will be synchronized across these regions, providing high availability and disaster recovery ability. Region's order in the array will be treated as failover priority. **Note**: you can't update `readRegions` and other properties at the same time; if you want to update both `readRegions` and other properties, please update them in separate update operations. See [here](#About Read Regions) for points to pay attention to. | N | If not specified, no replication region will be created. |
+| `autoFailoverEnabled` | `string ` | Specifies if you want Cosmos DB to perform automatic failover of the write region to one of the read regions in the rare event of a data center outage. Valid values are ""(unspecified), enabled, or disabled. | N | If not specified, default "disabled". |
+
+## Supplementary explanation
+
+### About Read Regions
+
+**Caution**: This feature has several constraint in ` Strong ` and ` Bounded Staleness ` consistency level, we recommend you use this feature in `Session`, ` Consistent Prefix ` and ` Eventual `  consistency level. 
+
+**Caution**: Do NOT fill provision parameter `location` in the `readRegions` array. For example, if the `location` of your account is `eastus` and you want to add a read region `westus`, you should use `{"readRegions": ["westus"]}` instead of `{"readRegions": ["eastus", "westus"]}`.
+
+**Caution**: Allowed elements in `readRegions` array:  `"westus2", "westus", "southcentralus", "centralus", "northcentralus", "canadacentral", "eastus2", "canadaeast", "northeurope", "ukwest", "uksouth", "francecentral", "westeurope", "westindia", "centralindia", "southindia", "southeastasia", "eastasia", "koreacentral", "koreasouth", "japaneast", "japanwest", "australiasoutheast", "australiaeast"`.
+

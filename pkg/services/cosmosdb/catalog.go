@@ -31,7 +31,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "sql-api",
 					Description: "Azure CosmosDB With SQL API (Database Account and Database)",
 					Free:        false,
-					Stability:   service.StabilityExperimental,
+					Stability:   service.StabilityPreview,
 					Metadata: service.ServicePlanMetadata{
 						DisplayName: "Azure CosmosDB (SQL API Database Account and Database)",
 					},
@@ -71,7 +71,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "account",
 					Description: "Database Account with the SQL API",
 					Free:        false,
-					Stability:   service.StabilityExperimental,
+					Stability:   service.StabilityPreview,
 					Metadata: service.ServicePlanMetadata{
 						DisplayName: "Azure CosmosDB (SQL API - Database Account Only)",
 					},
@@ -111,7 +111,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "database",
 					Description: "Azure CosmosDB (SQL API - Database only)",
 					Free:        false,
-					Stability:   service.StabilityExperimental,
+					Stability:   service.StabilityPreview,
 					Metadata: service.ServicePlanMetadata{
 						DisplayName: "Azure CosmosDB (SQL API - Database only)",
 					},
@@ -144,7 +144,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "account",
 					Description: "Database Account with the MongoDB API",
 					Free:        false,
-					Stability:   service.StabilityExperimental,
+					Stability:   service.StabilityPreview,
 					Metadata: service.ServicePlanMetadata{
 						DisplayName: "Azure Cosmos DB (MongoDB API)",
 					},
@@ -184,7 +184,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "account",
 					Description: "Database Account with the Graph API",
 					Free:        false,
-					Stability:   service.StabilityExperimental,
+					Stability:   service.StabilityPreview,
 					Metadata: service.ServicePlanMetadata{
 						DisplayName: "Azure Cosmos DB (Graph API)",
 					},
@@ -223,7 +223,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					Name:        "account",
 					Description: "Database Account with the Table API",
 					Free:        false,
-					Stability:   service.StabilityExperimental,
+					Stability:   service.StabilityPreview,
 					Metadata: service.ServicePlanMetadata{
 						DisplayName: "Azure Cosmos DB (Table API)",
 					},

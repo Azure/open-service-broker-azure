@@ -17,6 +17,12 @@ const (
 	StabilityStable
 )
 
+const (
+	// MigrationTag is the tag of migration services. It can be used for tag
+	// filter to filter out migration services.
+	MigrationTag string = "Migration"
+)
+
 // ProvisioningParameters wraps a map containing provisioning parameters.
 type ProvisioningParameters struct {
 	Parameters
