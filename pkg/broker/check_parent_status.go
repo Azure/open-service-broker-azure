@@ -61,6 +61,14 @@ func (b *broker) doCheckParentStatus(
 			),
 		}, nil
 	}
+	if instance.Parent.InstanceID != instance.Service.GetParentServiceID() {
+		return nil, b.handleProvisioningError(
+			instance,
+			"checkParentStatus",
+			fmt.Errorf("instance with given parentAlias is not a valid parent"),
+			"error validating parent-child relationship",
+		)
+	}
 	serviceManager := instance.Service.GetServiceManager()
 	var provisioner service.Provisioner
 	provisioner, err = serviceManager.GetProvisioner(instance.Plan)
