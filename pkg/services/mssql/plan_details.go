@@ -83,6 +83,7 @@ func (d dtuPlanDetails) getFeProvisionSchema() service.InputParametersSchema {
 		ips = getDBMSCommonProvisionParamSchema()
 	}
 	ips.PropertySchemas["database"] = &service.StringPropertySchema{
+		Title:       "Database",
 		Description: "The name of the existing database",
 	}
 	return ips
@@ -178,6 +179,7 @@ func (v vCorePlanDetails) getFeProvisionSchema() service.InputParametersSchema {
 		ips = getDBMSCommonProvisionParamSchema()
 	}
 	ips.PropertySchemas["database"] = &service.StringPropertySchema{
+		Title:       "Database",
 		Description: "The name of the existing database",
 	}
 	return ips
