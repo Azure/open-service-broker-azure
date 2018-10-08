@@ -1,14 +1,16 @@
 # [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/)
 
-Open Service Broker for Azure (OSBA) contains three Azure SQL Database services. These services enable you to select the most appropriate provisioning scenario for your needs. These services are:
+Open Service Broker for Azure (OSBA) contains five Azure SQL Database services. These services enable you to select the most appropriate provisioning scenario for your needs. These services are:
 
 | Service Name | Description |
 |--------------|-------------|
-| `azure-sql-12-0` | Provision both a SQL Server DBMS and a database. |
-| `azure-sql-12-0-dbms` | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
-| `azure-sql-12-0-database` | Provision a new database only upon a previously provisioned DBMS. |
+| [`azure-sql-12-0`](#service-azure-sql-12-0) | Provision both a SQL Server DBMS and a database. |
+| [`azure-sql-12-0-dbms`](#service-azure-sql-12-0-dbms) | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
+| [`azure-sql-12-0-database`](#service-azure-sql-12-0-database) | Provision a new database only upon a previously provisioned DBMS. |
+| [`azure-sql-12-0-dbms-registered`](#service-azure-sql-12-0-dbms-registered) | Register an existing server as a DBMS service instance. |
+| [`azure-sql-12-0-database-from-existing`](#service-azure-sql-12-0-database-from-existing) | Taking over an existing database upon a previous DBMS as a database service instance. The service requires `ENABLE_MIGRATION_SERVICES` to be `true` in OSBA environment variables. |
 
-The `azure-sql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-dbms` and `azure-sql-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-sql-12-0` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-12-0-dbms` and `azure-sql-12-0-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS. The `azure-sql-12-0-dbms-registered` is in the same position with `azure-sql-12-0-dbms`. And `azure-sql-12-0-database-from-existing` is in the same position with `azure-sql-12-0-database`. For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -478,3 +480,54 @@ curl -X PUT \
 }
 '
 ```
+
+### Service: azure-sql-12-0-dbms-registered
+
+It is to *register* an existing Azure SQL Server as a SQL DBMS service instance. Both **azure-sql-12-0-database** service and **azure-sql-12-0-database-from-existing** service can be its child service.
+
+#### Behaviors
+
+##### Provision
+
+Please refer to [**azure-sql-12-0-dbms** service](#service-azure-sql-12-0-dbms) with extra required provisioning parameters below.
+
+###### Provisioning Parameters
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `server` | `string` | The SQL server name. | Y | |
+| `administratorLogin` | `string` | The administratorLogin input when creating the SQL server. | Y | |
+| `administratorLoginPassword` | `string` | The administratorLoginPassword input when creating the SQL server. | Y | |
+
+##### Update
+
+Update the `administratorLogin` and/or `administratorLoginPassword` as they may change and the server is assumed to be managed by yourself.
+
+###### Updating Parameters
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `administratorLogin` | `string` | New administratorLogin. | N | |
+| `administratorLoginPassword` | `string` | New administratorLoginPassword. | N | |
+
+##### Bind, Unbind, Deprovision
+
+Please refer to [**azure-sql-12-0-dbms** service](#service-azure-sql-12-0-dbms).
+
+### Service: azure-sql-12-0-database-from-existing
+
+It is to create SQL database service instance from existing Azure SQL Database *for taking over the database*. Both **azure-sql-12-0-dbms** service and **azure-sql-12-0-dbms-registered** service can be its parent service.
+
+##### Provision
+
+Please refer to [**azure-sql-12-0-database** service](#service-azure-sql-12-0-database) with extra required provisioning parameters below.
+
+###### Provisioning Parameters
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `database` | `string` | The SQL database name. | Y | |
+
+##### Update, Bind, Unbind, Deprovision
+
+Please refer to [**azure-sql-12-0-database** service](#service-azure-sql-12-0-database).
