@@ -510,9 +510,13 @@ Update the `administratorLogin` and/or `administratorLoginPassword` as they may 
 | `administratorLogin` | `string` | New administratorLogin. | N | |
 | `administratorLoginPassword` | `string` | New administratorLoginPassword. | N | |
 
-##### Bind, Unbind, Deprovision
+##### Bind, Unbind
 
 Please refer to [**azure-sql-12-0-dbms** service](#service-azure-sql-12-0-dbms).
+
+##### Deprovision
+
+Do nothing. The SQL server would not be deleted in Azure.
 
 ### Service: azure-sql-12-0-database-from-existing
 
@@ -531,3 +535,5 @@ Please refer to [**azure-sql-12-0-database** service](#service-azure-sql-12-0-da
 ##### Update, Bind, Unbind, Deprovision
 
 Please refer to [**azure-sql-12-0-database** service](#service-azure-sql-12-0-database).
+
+Note that deprovision would delete the SQL database in Azure!
