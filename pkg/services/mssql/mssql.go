@@ -12,6 +12,7 @@ type module struct {
 	dbmsManager            *dbmsManager
 	databaseManager        *databaseManager
 	dbmsRegisteredManager  *dbmsRegisteredManager
+	databaseFeManager      *databaseFeManager
 }
 
 type allInOneManager struct {
@@ -36,6 +37,10 @@ type dbmsRegisteredManager struct {
 	dbmsManager
 }
 
+type databaseFeManager struct {
+	databaseManager
+}
+
 // New returns a new instance of a type that fulfills the service.Module
 // interface and is capable of provisioning MS SQL servers and databases
 // using "Azure SQL Database"
@@ -50,6 +55,10 @@ func New(
 		armDeployer:          armDeployer,
 		serversClient:        serversClient,
 	}
+	databaseMan := databaseManager{
+		armDeployer:     armDeployer,
+		databasesClient: databasesClient,
+	}
 	return &module{
 		allInOneServiceManager: &allInOneManager{
 			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
@@ -57,13 +66,13 @@ func New(
 			serversClient:        serversClient,
 			databasesClient:      databasesClient,
 		},
-		dbmsManager: &dbmsMan,
-		databaseManager: &databaseManager{
-			armDeployer:     armDeployer,
-			databasesClient: databasesClient,
-		},
+		dbmsManager:     &dbmsMan,
+		databaseManager: &databaseMan,
 		dbmsRegisteredManager: &dbmsRegisteredManager{
 			dbmsMan,
+		},
+		databaseFeManager: &databaseFeManager{
+			databaseMan,
 		},
 	}
 }

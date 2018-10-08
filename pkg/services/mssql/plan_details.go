@@ -12,6 +12,7 @@ import (
 
 type planDetails interface {
 	getProvisionSchema() service.InputParametersSchema
+	getFeProvisionSchema() service.InputParametersSchema
 	getTierProvisionParameters(
 		pp service.ProvisioningParameters,
 	) (map[string]interface{}, error)
@@ -70,6 +71,19 @@ func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
 			Description: "DTUs are a bundled measure of compute, " +
 				"storage, and IO resources.",
 		}
+	}
+	return ips
+}
+
+func (d dtuPlanDetails) getFeProvisionSchema() service.InputParametersSchema {
+	ips := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{},
+	}
+	if d.includeDBMS {
+		ips = getDBMSCommonProvisionParamSchema()
+	}
+	ips.PropertySchemas["database"] = &service.StringPropertySchema{
+		Description: "The name of the existing database",
 	}
 	return ips
 }
@@ -152,6 +166,19 @@ func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
 		DefaultValue: ptr.ToInt64(10),
 		Title:        "Storage",
 		Description:  "The maximum data storage capacity (in GB)",
+	}
+	return ips
+}
+
+func (v vCorePlanDetails) getFeProvisionSchema() service.InputParametersSchema {
+	ips := service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{},
+	}
+	if v.includeDBMS {
+		ips = getDBMSCommonProvisionParamSchema()
+	}
+	ips.PropertySchemas["database"] = &service.StringPropertySchema{
+		Description: "The name of the existing database",
 	}
 	return ips
 }
