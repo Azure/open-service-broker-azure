@@ -1,5 +1,7 @@
 # [Azure Database for PostgreSQL](https://azure.microsoft.com/en-us/services/postgresql/)
 
+*Note: PostgreSQL version 9.6 is STABLE, and PostgreSQL version 10 is in PREVIEW*
+
 Open Service Broker for Azure contains three Azure Database for PostgreSQL services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
 
 | Service Name | Description |

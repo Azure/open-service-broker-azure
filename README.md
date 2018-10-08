@@ -17,12 +17,13 @@ server that provisions managed services in the Microsoft Azure public cloud.
 ### Stable Services
 
 * [Azure Database for MySQL](docs/modules/mysql.md)
-* [Azure Database for PostgreSQL](docs/modules/postgresql.md)
+* [Azure Database for PostgreSQL v9.6](docs/modules/postgresql.md)
 * [Azure SQL Database](docs/modules/mssql.md)
 
 ### Preview Services
 
 - [Azure CosmosDB](docs/modules/cosmosdb.md)
+- [Azure Database for PostgreSQL v10](docs/modules/postgresql.md)
 
 ### Experimental Services
 
