@@ -10,6 +10,8 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/boot"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto"
+	"github.com/Azure/open-service-broker-azure/pkg/crypto/noop"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
@@ -51,6 +53,9 @@ func TestServices(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
+	if err := crypto.InitializeGlobalCodec(noop.NewCodec()); err != nil {
+		os.Exit(-1)
+	}
 	if err := setup(); err != nil {
 		os.Exit(-1)
 	}
