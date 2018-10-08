@@ -50,12 +50,12 @@ func New(
 	serversClient sqlSDK.ServersClient,
 	databasesClient sqlSDK.DatabasesClient,
 ) service.Module {
-	dbmsMan := dbmsManager{
+	dbmsMgr := dbmsManager{
 		sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
 		armDeployer:          armDeployer,
 		serversClient:        serversClient,
 	}
-	databaseMan := databaseManager{
+	databaseMgr := databaseManager{
 		armDeployer:     armDeployer,
 		databasesClient: databasesClient,
 	}
@@ -66,13 +66,13 @@ func New(
 			serversClient:        serversClient,
 			databasesClient:      databasesClient,
 		},
-		dbmsManager:     &dbmsMan,
-		databaseManager: &databaseMan,
+		dbmsManager:     &dbmsMgr,
+		databaseManager: &databaseMgr,
 		dbmsRegisteredManager: &dbmsRegisteredManager{
-			dbmsMan,
+			dbmsMgr,
 		},
 		databaseFeManager: &databaseFeManager{
-			databaseMan,
+			databaseMgr,
 		},
 	}
 }
