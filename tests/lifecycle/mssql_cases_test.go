@@ -137,6 +137,19 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 					"storage": 20,
 				},
 			},
+			{ // db only from existing scenario (dtu-based)
+				group:           "mssql",
+				name:            "database-only-fe (DTU)",
+				serviceID:       "b0b2a2f7-9b5e-4692-8b94-24fe2f6a9a8e",
+				planID:          "e5804586-625a-4f67-996f-ca19a14711cc",
+				testCredentials: testMsSQLCreds,
+				preProvisionFns: []preProvisionFn{
+					createSQLDatabase,
+				},
+				provisioningParameters: map[string]interface{}{
+					"parentAlias": mssqlDBMSAlias,
+				},
+			},
 		},
 	},
 	{ // dbms only registered scenario
@@ -249,6 +262,54 @@ func createSQLServer(
 		firewallRule,
 	); err != nil {
 		return fmt.Errorf("error creating firewall rule: %s", err)
+	}
+	return nil
+}
+
+func createSQLDatabase(
+	ctx context.Context,
+	resourceGroup string,
+	parent *service.Instance,
+	pp *map[string]interface{},
+) error {
+	azureConfig, err := getAzureConfig()
+	if err != nil {
+		return err
+	}
+	authorizer, err := getBearerTokenAuthorizer(azureConfig)
+	if err != nil {
+		return err
+	}
+	databasesClient := sqlSDK.NewDatabasesClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureConfig.SubscriptionID,
+	)
+	databasesClient.Authorizer = authorizer
+
+	pdtMap, err := service.GetMapFromStruct(parent.Details)
+	if err != nil {
+		return err
+	}
+	serverName := pdtMap["server"].(string)
+	databaseName := generate.NewIdentifier()
+	location := parent.ProvisioningParameters.GetString("location")
+	database := sqlSDK.Database{
+		Location: &location,
+	}
+	(*pp)["database"] = databaseName
+
+	result, err := databasesClient.CreateOrUpdate(
+		ctx,
+		resourceGroup,
+		serverName,
+		databaseName,
+		database,
+	)
+	if err != nil {
+		return fmt.Errorf("error creating sql database: %s", err)
+	}
+	if err := result.WaitForCompletion(ctx, databasesClient.Client); err != nil {
+		return fmt.Errorf("error creating sql database: %s", err)
 	}
 	return nil
 }
