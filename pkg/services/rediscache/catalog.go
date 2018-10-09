@@ -26,13 +26,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 			service.ServiceProperties{
 				ID:          "0346088a-d4b2-4478-aa32-f18e295ec1d9",
 				Name:        "azure-rediscache",
-				Description: "Azure Redis Cache (Experimental)",
+				Description: "Azure Redis Cache (Preview)",
 				Metadata: service.ServiceMetadata{
 					DisplayName: "Azure Redis Cache",
 					ImageURL: "https://azure.microsoft.com/svghandler/redis-cache/" +
 						"?width=200",
 					LongDescription: "High throughput and consistent low-latency data " +
-						"access to power fast, scalable Azure applications (Experimental)",
+						"access to power fast, scalable Azure applications (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/redis-cache/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -45,7 +45,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "basic",
 				Description: "Basic Tier, 250MB Cache",
 				Free:        false,
-				Stability:   service.StabilityExperimental,
+				Stability:   service.StabilityPreview,
 				Extended: map[string]interface{}{
 					"redisCacheSKU":    "Basic",
 					"redisCacheFamily": "C",
@@ -66,7 +66,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "standard",
 				Description: "Standard Tier, 1GB Cache",
 				Free:        false,
-				Stability:   service.StabilityExperimental,
+				Stability:   service.StabilityPreview,
 				Extended: map[string]interface{}{
 					"redisCacheSKU":    "Standard",
 					"redisCacheFamily": "C",
@@ -87,7 +87,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "premium",
 				Description: "Premium Tier, 6GB Cache",
 				Free:        false,
-				Stability:   service.StabilityExperimental,
+				Stability:   service.StabilityPreview,
 				Extended: map[string]interface{}{
 					"redisCacheSKU":    "Premium",
 					"redisCacheFamily": "P",
