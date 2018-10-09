@@ -8,11 +8,11 @@ import (
 )
 
 type module struct {
-	allInOneServiceManager *allInOneManager
-	dbmsManager            *dbmsManager
-	databaseManager        *databaseManager
-	dbmsRegisteredManager  *dbmsRegisteredManager
-	databaseFeManager      *databaseFeManager
+	allInOneServiceManager             *allInOneManager
+	dbmsManager                        *dbmsManager
+	databaseManager                    *databaseManager
+	dbmsRegisteredManager              *dbmsRegisteredManager
+	databaseManagerForExistingInstance *databaseManagerForExistingInstance
 }
 
 type allInOneManager struct {
@@ -37,7 +37,7 @@ type dbmsRegisteredManager struct {
 	dbmsManager
 }
 
-type databaseFeManager struct {
+type databaseManagerForExistingInstance struct {
 	databaseManager
 }
 
@@ -71,7 +71,7 @@ func New(
 		dbmsRegisteredManager: &dbmsRegisteredManager{
 			dbmsMgr,
 		},
-		databaseFeManager: &databaseFeManager{
+		databaseManagerForExistingInstance: &databaseManagerForExistingInstance{
 			databaseMgr,
 		},
 	}

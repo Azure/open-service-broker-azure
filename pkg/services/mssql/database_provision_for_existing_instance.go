@@ -8,7 +8,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (d *databaseFeManager) GetProvisioner(
+func (d *databaseManagerForExistingInstance) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -18,7 +18,7 @@ func (d *databaseFeManager) GetProvisioner(
 	)
 }
 
-func (d *databaseFeManager) preProvision(
+func (d *databaseManagerForExistingInstance) preProvision(
 	_ context.Context,
 	_ service.Instance,
 ) (service.InstanceDetails, error) {
@@ -27,7 +27,7 @@ func (d *databaseFeManager) preProvision(
 	}, nil
 }
 
-func (d *databaseFeManager) getDatabase(
+func (d *databaseManagerForExistingInstance) getDatabase(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
@@ -51,7 +51,7 @@ func (d *databaseFeManager) getDatabase(
 	return instance.Details, nil
 }
 
-func (d *databaseFeManager) deployARMTemplate(
+func (d *databaseManagerForExistingInstance) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
@@ -74,7 +74,7 @@ func (d *databaseFeManager) deployARMTemplate(
 		dt.ARMDeploymentName,
 		instance.Parent.ProvisioningParameters.GetString("resourceGroup"),
 		location,
-		databaseFeARMTemplateBytes,
+		databaseARMTemplateBytesForExistingInstance,
 		goTemplateParams,
 		map[string]interface{}{}, // empty arm params
 		tags,

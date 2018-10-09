@@ -5,7 +5,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 func buildBasicPlan(
 	id string,
 	includesDBMS bool,
-	fe bool,
+	forExistingInstance bool,
 ) service.PlanProperties {
 
 	planDetails := dtuPlanDetails{
@@ -42,9 +42,9 @@ func buildBasicPlan(
 			},
 		},
 	}
-	if fe {
+	if forExistingInstance {
 		planProperties.Schemas.ServiceInstances.ProvisioningParametersSchema =
-			planDetails.getFeProvisionSchema()
+			planDetails.getProvisionSchemaForExistingIntance()
 	}
 
 	return planProperties
@@ -53,7 +53,7 @@ func buildBasicPlan(
 func buildStandardPlan(
 	id string,
 	includesDBMS bool,
-	fe bool,
+	forExistingInstance bool,
 ) service.PlanProperties {
 	planDetails := dtuPlanDetails{
 		storageInGB: 250,
@@ -101,9 +101,9 @@ func buildStandardPlan(
 			},
 		},
 	}
-	if fe {
+	if forExistingInstance {
 		planProperties.Schemas.ServiceInstances.ProvisioningParametersSchema =
-			planDetails.getFeProvisionSchema()
+			planDetails.getProvisionSchemaForExistingIntance()
 	}
 
 	return planProperties
@@ -112,7 +112,7 @@ func buildStandardPlan(
 func buildPremiumPlan(
 	id string,
 	includesDBMS bool,
-	fe bool,
+	forExistingInstance bool,
 ) service.PlanProperties {
 	planDetails := dtuPlanDetails{
 		storageInGB: 500,
@@ -157,9 +157,9 @@ func buildPremiumPlan(
 			},
 		},
 	}
-	if fe {
+	if forExistingInstance {
 		planProperties.Schemas.ServiceInstances.ProvisioningParametersSchema =
-			planDetails.getFeProvisionSchema()
+			planDetails.getProvisionSchemaForExistingIntance()
 	}
 
 	return planProperties
@@ -168,7 +168,7 @@ func buildPremiumPlan(
 func buildGeneralPurposePlan(
 	id string,
 	includesDBMS bool,
-	fe bool,
+	forExistingInstance bool,
 ) service.PlanProperties {
 	planDetails := vCorePlanDetails{
 		tierName:      "GeneralPurpose",
@@ -202,9 +202,9 @@ func buildGeneralPurposePlan(
 			},
 		},
 	}
-	if fe {
+	if forExistingInstance {
 		planProperties.Schemas.ServiceInstances.ProvisioningParametersSchema =
-			planDetails.getFeProvisionSchema()
+			planDetails.getProvisionSchemaForExistingIntance()
 	}
 
 	return planProperties
@@ -213,7 +213,7 @@ func buildGeneralPurposePlan(
 func buildBusinessCriticalPlan(
 	id string,
 	includesDBMS bool,
-	fe bool,
+	forExistingInstance bool,
 ) service.PlanProperties {
 	planDetails := vCorePlanDetails{
 		tierName:      "BusinessCritical",
@@ -247,9 +247,9 @@ func buildBusinessCriticalPlan(
 			},
 		},
 	}
-	if fe {
+	if forExistingInstance {
 		planProperties.Schemas.ServiceInstances.ProvisioningParametersSchema =
-			planDetails.getFeProvisionSchema()
+			planDetails.getProvisionSchemaForExistingIntance()
 	}
 
 	return planProperties
@@ -468,7 +468,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"version": "12.0",
 				},
 			},
-			m.databaseFeManager,
+			m.databaseManagerForExistingInstance,
 			service.NewPlan(
 				buildBasicPlan(
 					"e5804586-625a-4f67-996f-ca19a14711cc",
