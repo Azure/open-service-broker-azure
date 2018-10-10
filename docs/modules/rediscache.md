@@ -1,6 +1,6 @@
 # [Azure Redis Cache](https://azure.microsoft.com/en-us/services/cache/)
 
-_Note: This module is EXPERIMENTAL. To enable this module, you must run Open Service Broker for Azure with modules.minStability set to `experimental`_
+_Note: This module is PREVIEW._
 
 ## Services & Plans
 
