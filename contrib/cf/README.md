@@ -34,6 +34,8 @@ After executing this command, you can monitor it with the `az provider show -n M
 $ az redis create -n osba-cache -g myresourcegroup -l <location> --sku Standard --vm-size C1
 ```
 
+**Caution**: Here we create an Azure Redis cache with `Standard` SKU, which is ready for production usage. You should **never** use `Basic` SKU in production environment. 
+
 And get the keys:
 
 ```console
