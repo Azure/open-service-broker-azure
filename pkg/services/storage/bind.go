@@ -26,7 +26,8 @@ func (s *serviceManager) GetCredentials(
 		PrimaryBlobServiceEndPoint:  fmt.Sprintf("https://%s.blob.core.windows.net/", dt.StorageAccountName),
 		PrimaryTableServiceEndPoint: fmt.Sprintf("https://%s.table.core.windows.net/", dt.StorageAccountName),
 	}
-	if instance.Plan.GetName() == "general-purpose-storage-account" {
+	storeKind, _ := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
+	if storeKind == storageKindGeneralPurposeStorageAcccount {
 		credential.PrimaryFileServiceEndPoint = fmt.Sprintf("https://%s.file.core.windows.net/", dt.StorageAccountName)
 		credential.PrimaryQueueServiceEndPoint = fmt.Sprintf("https://%s.queue.core.windows.net/", dt.StorageAccountName)
 	}
