@@ -17,10 +17,6 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 				"Premium_LRS"
 			]
 		},
-		"blobEncryptionEnabled": {
-			"type": "bool",
-			"defaultValue": false
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -36,14 +32,7 @@ var armTemplateBytesGeneralPurposeStorage = []byte(`
 			},
 			"kind": "Storage",
 			"properties": {
-				"encryption": {
-					"keySource": "Microsoft.Storage",
-					"services": {
-						"blob": {
-							"enabled": "[parameters('blobEncryptionEnabled')]"
-						}
-					}
-				}
+				"supportsHttpsTrafficOnly": true
 			},
 			"tags": "[parameters('tags')]"
 		}
@@ -82,10 +71,6 @@ var armTemplateBytesBlobStorage = []byte(`
 				"Hot"
 			]
 		},
-		"blobEncryptionEnabled": {
-			"type": "bool",
-			"defaultValue": false
-		},
 		"tags": {
 			"type": "object"
 		}
@@ -102,14 +87,7 @@ var armTemplateBytesBlobStorage = []byte(`
 			"kind": "BlobStorage",
 			"properties": {
 				"accessTier": "[parameters('accessTier')]",
-				"encryption": {
-					"keySource": "Microsoft.Storage",
-					"services": {
-						"blob": {
-							"enabled": "[parameters('blobEncryptionEnabled')]"
-						}
-					}
-				}
+				"supportsHttpsTrafficOnly": true
 			},
 			"tags": "[parameters('tags')]"
 		}
