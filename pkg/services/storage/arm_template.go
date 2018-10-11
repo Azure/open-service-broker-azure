@@ -25,7 +25,7 @@ var armTemplateBytes = []byte(`
 		{
 			"type": "Microsoft.Storage/storageAccounts",
 			"name": "{{ .name }}",
-			"apiVersion": "2017-06-01",
+			"apiVersion": "2018-02-01",
 			"location": "{{ .location }}",
 			"sku": {
 				"name": "[parameters('accountType')]"
