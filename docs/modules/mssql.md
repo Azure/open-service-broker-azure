@@ -10,7 +10,13 @@ Open Service Broker for Azure (OSBA) contains a number of Azure SQL Database ser
 | [`azure-sql-12-0-dbms-registered`](#service-azure-sql-12-0-dbms-registered) | Register an existing server as a DBMS service instance. |
 | [`azure-sql-12-0-database-from-existing`](#service-azure-sql-12-0-database-from-existing) | Taking over an existing database upon a previous DBMS as a database service instance. The service requires `ENABLE_MIGRATION_SERVICES` to be `true` in OSBA environment variables. |
 
-The `azure-sql-12-0` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-12-0-dbms` and `azure-sql-12-0-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS. The `azure-sql-12-0-dbms-registered` is in the same position with `azure-sql-12-0-dbms`. And `azure-sql-12-0-database-from-existing` is in the same position with `azure-sql-12-0-database`. For more information on each service, refer to the descriptions below.
+The `azure-sql-12-0` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service.
+
+This module involve the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](./parent-child-model-for-multiple-layers-services.md).
+
+The `azure-sql-12-0-dbms` and `azure-sql-12-0-dbms-registered` are Parent services in this module. The `azure-sql-12-0-database` and `azure-sql-12-0-database-from-existing` are Child services in this module.
+
+For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
