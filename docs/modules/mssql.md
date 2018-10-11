@@ -164,7 +164,7 @@ kubectl create -f ../../contrib/k8s/examples/sql/sql-binding.yaml
 Using the `cf` cli, you can create the `basic` plan of the `azure-sql` service with the following command:
 
 ```console
-cf create-service azure-sql basic azure-sql-all-in-one -c '{
+cf create-service azure-sql-12-0 basic azure-sql-all-in-one -c '{
         "resourceGroup" : "demo",
         "location" : "eastus",
         "firewallRules" : [
@@ -184,7 +184,7 @@ Assuming your OSBA is running locally on port 8080 with the default username and
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/azure-sql-database?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/azure-sql-12-0?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \
@@ -215,7 +215,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions a SQL Server DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-sql-database` service.
+Provisions a SQL Server DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-sql-12-0-database` service.
 
 ###### Provisioning Parameters
 
@@ -259,7 +259,7 @@ Deprovision will delete the SQL Server DBMS. If any databases have been provisio
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml` can be used to provision one of the plans from the all-in-one `azure-sql-dbms` service. This can be done with the following example:
+The `contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml` can be used to provision one of the plans from the `azure-sql-12-0-dbms` service. This can be done with the following example:
 
 ```console
 kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml
@@ -267,10 +267,10 @@ kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can create the `dbms` plan of the `azure-sql-dbms` service with the following command:
+Using the `cf` cli, you can create the `dbms` plan of the `azure-sql-12-0-dbms` service with the following command:
 
 ```console
-cf create-service azure-sql-dbms dbms azure-sql-dbms -c '{
+cf create-service azure-sql-12-0-dbms dbms azure-sql-dbms -c '{
         "resourceGroup" : "demo",
         "location" : "eastus",
         "alias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12",
@@ -450,10 +450,10 @@ kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-database-binding.y
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can create the `basic` plan of the `azure-sql-database` service with the following command:
+Using the `cf` cli, you can create the `basic` plan of the `azure-sql-12-0-database` service with the following command:
 
 ```console
-cf create-service azure-sql-database basic azure-sql-database -c '{
+cf create-service azure-sql-12-0-database basic azure-sql-database -c '{
     "parentAlias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12"
 }'
 ```
