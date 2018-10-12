@@ -75,18 +75,22 @@ func (s *serviceManager) deployARMTemplate(
 		)
 	}
 
-	var armTemplateBytes []byte
-	switch storeKind {
-	case storageKindGeneralPurposeStorageAcccount:
-		armTemplateBytes = armTemplateBytesGeneralPurposeStorage
-	case storageKindBlobStorageAccount, storageKindBlobContainer:
-		armTemplateBytes = armTemplateBytesBlobStorage
-	}
 	location := instance.ProvisioningParameters.GetString("location")
 	goTemplateParams := map[string]interface{}{
 		"name":     dt.StorageAccountName,
 		"location": location,
 	}
+	switch storeKind {
+	case storageKindGeneralPurposeStorageAcccount:
+		goTemplateParams["kind"] = "Storage"
+	case storageKindGeneralPurposeV2StorageAccount:
+		goTemplateParams["kind"] = "StorageV2"
+		goTemplateParams["accessTier"] = "Hot"
+	case storageKindBlobStorageAccount, storageKindBlobContainer:
+		goTemplateParams["kind"] = "BlobStorage"
+		goTemplateParams["accessTier"] = "Hot"
+	}
+
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
