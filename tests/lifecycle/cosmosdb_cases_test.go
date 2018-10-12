@@ -33,9 +33,6 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 		},
 		updatingParameters: map[string]interface{}{
 			"readRegions": []interface{}{"centralus"},
-			"tags": map[string]interface{}{
-				"latest-operation": "update",
-			},
 		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // database only scenario
@@ -64,6 +61,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			},
 			"readRegions":         []interface{}{"eastus"},
 			"autoFailoverEnabled": "enabled",
+		},
+		updatingParameters: map[string]interface{}{
+			"tags": map[string]interface{}{
+				"latest-operation": "update",
+			},
 		},
 	},
 	{ // Table API
