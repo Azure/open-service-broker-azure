@@ -21,7 +21,6 @@ func (s *sqlAccountManager) updateARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	if err := s.cosmosAccountManager.updateDeployment(
-		instance.ProvisioningParameters,
 		instance.UpdatingParameters,
 		instance.Details.(*cosmosdbInstanceDetails),
 		"GlobalDocumentDB",

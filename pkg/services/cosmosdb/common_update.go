@@ -43,7 +43,7 @@ func (
 }
 
 func (c *cosmosAccountManager) updateDeployment(
-	pp *service.ProvisioningParameters,
+	// up is updating parameters
 	up *service.ProvisioningParameters,
 	dt *cosmosdbInstanceDetails,
 	kind string,
