@@ -68,29 +68,8 @@ func (s *serviceManager) deployARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*instanceDetails)
-	storeKind, ok := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
-	if !ok {
-		return nil, errors.New(
-			"error retrieving the storage kind from the plan",
-		)
-	}
 
-	location := instance.ProvisioningParameters.GetString("location")
-	goTemplateParams := map[string]interface{}{
-		"name":     dt.StorageAccountName,
-		"location": location,
-	}
-	switch storeKind {
-	case storageKindGeneralPurposeStorageAcccount:
-		goTemplateParams["kind"] = "Storage"
-	case storageKindGeneralPurposeV2StorageAccount:
-		goTemplateParams["kind"] = "StorageV2"
-		goTemplateParams["accessTier"] = "Hot"
-	case storageKindBlobStorageAccount, storageKindBlobContainer:
-		goTemplateParams["kind"] = "BlobStorage"
-		goTemplateParams["accessTier"] = "Hot"
-	}
-
+	goTemplateParams := buildGoTemplate(instance, *instance.ProvisioningParameters)
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
@@ -110,13 +89,14 @@ func (s *serviceManager) deployARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	dt.AccessKey, ok = outputs["accessKey"].(string)
+	accessKey, ok := outputs["accessKey"].(string)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error retrieving primary access key from deployment: %s",
 			err,
 		)
 	}
+	dt.AccessKey = accessKey
 	return dt, nil
 }
 
@@ -139,4 +119,32 @@ func (s *serviceManager) createBlobContainer(
 		)
 	}
 	return instance.Details, nil
+}
+
+func buildGoTemplate(
+	instance service.Instance,
+	parameter service.ProvisioningParameters,
+) map[string]interface{} {
+	dt := instance.Details.(*instanceDetails)
+
+	location := parameter.GetString("location")
+	nonHttpsEnabled := parameter.GetString("enableNonHttpsTraffic")
+	goTemplateParams := map[string]interface{}{
+		"name":                    dt.StorageAccountName,
+		"location":                location,
+		"supportHttpsTrafficOnly": nonHttpsEnabled == disabled,
+	}
+
+	storeKind, _ := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
+	switch storeKind {
+	case storageKindGeneralPurposeStorageAcccount:
+		goTemplateParams["kind"] = "Storage"
+	case storageKindGeneralPurposeV2StorageAccount:
+		goTemplateParams["kind"] = "StorageV2"
+		goTemplateParams["accessTier"] = "Hot"
+	case storageKindBlobStorageAccount, storageKindBlobContainer:
+		goTemplateParams["kind"] = "BlobStorage"
+		goTemplateParams["accessTier"] = "Hot"
+	}
+	return goTemplateParams
 }
