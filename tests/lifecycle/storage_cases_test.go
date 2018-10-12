@@ -10,6 +10,9 @@ var storageTestCases = []serviceLifecycleTestCase{
 		planID:    "6ddf6b41-fb60-4b70-af99-8ecc4896b3cf",
 		provisioningParameters: map[string]interface{}{
 			"location": "southcentralus",
+			"tags": map[string]string{
+				"latest-operation": "provision",
+			},
 		},
 	},
 	{ // Blob Storage Account
