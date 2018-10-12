@@ -29,7 +29,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		planID:    "d5a0f91f-10da-42fc-b792-656a616d9ec2",
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
-			"tags": map[string]string{
+			"tags": map[string]interface{}{
 				"latest-operation": "provision",
 			},
 		},

@@ -25,14 +25,14 @@ var rediscacheTestCases = []serviceLifecycleTestCase{
 			"location":         "southcentralus",
 			"skuCapacity":      1,
 			"enableNonSslPort": "disabled",
-			"tags": map[string]string{
+			"tags": map[string]interface{}{
 				"latest-operation": "provision",
 			},
 		},
 		updatingParameters: map[string]interface{}{
 			"skuCapacity":      2,
 			"enableNonSslPort": "enabled",
-			"tags": map[string]string{
+			"tags": map[string]interface{}{
 				"latest-operation": "update",
 			},
 		},
