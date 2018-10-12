@@ -3,6 +3,15 @@
 package lifecycle
 
 var storageTestCases = []serviceLifecycleTestCase{
+	{ // General Purpose V2 Storage Account
+		group:     "storage",
+		name:      "general-purpose-v2-account",
+		serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
+		planID:    "e19fb0be-dd1f-4ef0-b44f-88832dca1a66",
+		provisioningParameters: map[string]interface{}{
+			"location": "westus",
+		},
+	},
 	{ // General Purpose Storage Account
 		group:     "storage",
 		name:      "general-purpose-account",
