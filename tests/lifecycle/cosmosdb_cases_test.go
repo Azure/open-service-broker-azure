@@ -27,9 +27,15 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"consistencyPolicy": map[string]interface{}{
 				"defaultConsistencyLevel": "Session",
 			},
+			"tags": map[string]string{
+				"latest-operation": "provision",
+			},
 		},
 		updatingParameters: map[string]interface{}{
 			"readRegions": []interface{}{"centralus"},
+			"tags": map[string]string{
+				"latest-operation": "update",
+			},
 		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // database only scenario
