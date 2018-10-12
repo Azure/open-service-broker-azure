@@ -10,6 +10,9 @@ var servicebusTestCases = []serviceLifecycleTestCase{
 		planID:    "d06817b1-87ea-4320-8942-14b1d060206a",
 		provisioningParameters: map[string]interface{}{
 			"location": "southcentralus",
+			"tags": map[string]string{
+				"latest-operation": "provision",
+			},
 		},
 	},
 }
