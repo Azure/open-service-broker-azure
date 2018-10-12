@@ -43,6 +43,12 @@ func (
 				Description: "Client secret (password) for an existing service " +
 					"principal, which will be granted access to the new vault.",
 			},
+			"tags": &service.ObjectPropertySchema{
+				Title: "Tags",
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
+			},
 		},
 	}
 }

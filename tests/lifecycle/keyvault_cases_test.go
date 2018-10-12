@@ -13,6 +13,9 @@ var keyvaultTestCases = []serviceLifecycleTestCase{
 			"objectId":     "6a74d229-e927-42c5-b6e8-8f5c095cfba8",
 			"clientId":     "test",
 			"clientSecret": "test",
+			"tags": map[string]string{
+				"latest-operation": "provision",
+			},
 		},
 	},
 }
