@@ -22,7 +22,6 @@ func (s *sqlAllInOneManager) updateARMTemplate(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*sqlAllInOneInstanceDetails)
 	if err := s.cosmosAccountManager.updateDeployment(
-		instance.ProvisioningParameters,
 		instance.UpdatingParameters,
 		&dt.cosmosdbInstanceDetails,
 		"GlobalDocumentDB",
