@@ -16,7 +16,7 @@ import (
 var (
 	fakeServiceManager service.ServiceManager
 	testStore          *store
-	config             Config
+	testConfig         Config
 )
 
 func init() {
@@ -30,12 +30,12 @@ func init() {
 		log.Fatal(err)
 	}
 	fakeServiceManager = fakeModule.ServiceManager
-	config = NewConfigWithDefaults()
-	config.RedisHost = os.Getenv("STORAGE_REDIS_HOST")
-	config.RedisPrefix = uuid.NewV4().String()
+	testConfig = NewConfigWithDefaults()
+	testConfig.RedisHost = os.Getenv("STORAGE_REDIS_HOST")
+	testConfig.RedisPrefix = uuid.NewV4().String()
 	str, err := NewStore(
 		fakeCatalog,
-		config,
+		testConfig,
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -64,7 +64,7 @@ func TestWriteInstance(t *testing.T) {
 	// assert.Equal(t, 1, len(count))
 	boolCmd := testStore.redisClient.SIsMember(
 		wrapKey(
-			config.RedisPrefix,
+			testConfig.RedisPrefix,
 			"instances",
 		),
 		key,
@@ -267,7 +267,7 @@ func TestDeleteExistingInstance(t *testing.T) {
 	assert.Equal(t, redis.Nil, strCmd.Err())
 	boolCmd := testStore.redisClient.SIsMember(
 		wrapKey(
-			config.RedisPrefix,
+			testConfig.RedisPrefix,
 			"instances",
 		),
 		key,
@@ -376,7 +376,7 @@ func TestWriteBinding(t *testing.T) {
 	assert.Nil(t, strCmd.Err())
 	boolCmd := testStore.redisClient.SIsMember(
 		wrapKey(
-			config.RedisPrefix,
+			testConfig.RedisPrefix,
 			"bindings",
 		),
 		key,
@@ -449,13 +449,13 @@ func TestDeleteExistingBinding(t *testing.T) {
 
 func TestGetInstanceKey(t *testing.T) {
 	const rawKey = "foo"
-	expected := fmt.Sprintf("%s:instances:%s", config.RedisPrefix, rawKey)
+	expected := fmt.Sprintf("%s:instances:%s", testConfig.RedisPrefix, rawKey)
 	assert.Equal(t, expected, testStore.getInstanceKey(rawKey))
 }
 
 func TestGetBindingKey(t *testing.T) {
 	const rawKey = "foo"
-	expected := fmt.Sprintf("%s:bindings:%s", config.RedisPrefix, rawKey)
+	expected := fmt.Sprintf("%s:bindings:%s", testConfig.RedisPrefix, rawKey)
 	assert.Equal(t, expected, testStore.getBindingKey(rawKey))
 }
 

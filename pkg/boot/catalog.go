@@ -16,6 +16,7 @@ func GetCatalog(
 	if err != nil {
 		return nil, fmt.Errorf("error getting modules: %s", err)
 	}
+	v2GuidMap := getV2GuidMap()
 
 	// Consolidate the catalogs from all the individual modules into a single
 	// catalog. Check as we go along to make sure that no two modules provide
@@ -60,12 +61,31 @@ func GetCatalog(
 				if plan.GetStability() >= catalogConfig.MinStability {
 					pProp := plan.GetProperties()
 					pProp.Schemas.AddCommonSchema(svc.GetProperties())
+					// use V2 version plan IDs if enabled
+					if catalogConfig.UseV2Guid {
+						if mappedID := v2GuidMap[pProp.ID]; mappedID != "" {
+							pProp.ID = mappedID
+						}
+					}
 					filteredPlans = append(filteredPlans, service.NewPlan(pProp))
 				}
 			}
 			if len(filteredPlans) > 0 {
+				sProp := svc.GetProperties()
+				// use V2 version service IDs if enabled
+				if catalogConfig.UseV2Guid {
+					if mappedID := v2GuidMap[sProp.ID]; mappedID != "" {
+						sProp.ID = mappedID
+					}
+					if mappedID := v2GuidMap[sProp.ParentServiceID]; mappedID != "" {
+						sProp.ParentServiceID = mappedID
+					}
+					if mappedID := v2GuidMap[sProp.ChildServiceID]; mappedID != "" {
+						sProp.ChildServiceID = mappedID
+					}
+				}
 				services = append(services, service.NewService(
-					svc.GetProperties(),
+					sProp,
 					svc.GetServiceManager(),
 					filteredPlans...,
 				))

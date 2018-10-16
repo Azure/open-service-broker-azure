@@ -3,11 +3,14 @@ package redis
 import (
 	"crypto/tls"
 	"fmt"
+	"strconv"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	"github.com/Azure/open-service-broker-azure/pkg/storage"
 	"github.com/go-redis/redis"
 )
+
+const useV2GuidFlag = "useV2GuidFlag"
 
 type store struct {
 	redisClient *redis.Client
@@ -285,4 +288,66 @@ func wrapKey(prefix, key string) string {
 		return fmt.Sprintf("%s:%s", prefix, key)
 	}
 	return key
+}
+
+// DetermineV2GuidFlag can be called to determine whether to use V2 GUID.
+func DetermineV2GuidFlag(flagFromEnv bool) (bool, error) {
+	config, err := GetConfigFromEnvironment()
+	if err != nil {
+		return false, err
+	}
+	redisOpts := &redis.Options{
+		Addr: fmt.Sprintf(
+			"%s:%d",
+			config.RedisHost,
+			config.RedisPort,
+		),
+		Password:   config.RedisPassword,
+		DB:         config.RedisDB,
+		MaxRetries: 5,
+	}
+	if config.RedisEnableTLS {
+		redisOpts.TLSConfig = &tls.Config{
+			ServerName: config.RedisHost,
+		}
+	}
+	client := redis.NewClient(redisOpts)
+	if err := client.Ping().Err(); err != nil {
+		return false, err
+	}
+
+	flagFromStorageKey := wrapKey(config.RedisPrefix, useV2GuidFlag)
+	flagFromStorageStr, err := client.Get(flagFromStorageKey).Result()
+	if err != nil {
+		if err == redis.Nil {
+			if !flagFromEnv {
+				return false, nil
+			}
+			if settingErr := client.Set(
+				flagFromStorageKey,
+				strconv.FormatBool(true),
+				0,
+			).Err(); settingErr != nil {
+				return false, settingErr
+			}
+			return true, nil
+		}
+		return false, err
+	}
+	flagFromStorage, parsingErr := strconv.ParseBool(flagFromStorageStr)
+	if parsingErr != nil {
+		return false, parsingErr
+	}
+	// If the broker once use V2 GUID, it should persist in using V2 GUID.
+	// If the operator doesn't want the broker to use V2 GUID, he should
+	// nerver set the flag to true.
+	if !flagFromStorage {
+		// Normally, flagFromStorage can only be true or nil. If we get
+		// here, something must go wrong.
+		return false, fmt.Errorf(
+			"error getting unexpected %s",
+			useV2GuidFlag,
+		)
+	}
+	return true, nil
 }

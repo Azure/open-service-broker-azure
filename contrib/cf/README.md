@@ -34,7 +34,7 @@ After executing this command, you can monitor it with the `az provider show -n M
 $ az redis create -n osba-cache -g myresourcegroup -l <location> --sku Standard --vm-size C1
 ```
 
-**Caution**: Here we create an Azure Redis cache with `Standard` SKU, which is ready for production usage. You should **never** use `Basic` SKU in production environment. 
+**Caution**: Here we create an Azure Redis cache with `Standard` SKU, which is ready for production usage. You should **never** use `Basic` SKU in production environment.
 
 And get the keys:
 
@@ -89,6 +89,7 @@ Open contrib/cf/manifest.yml and enter the values obtained in the earlier steps:
         LOG_LEVEL: DEBUG
         MIN_STABILITY: PREVIEW
         ENABLE_MIGRATION_SERVICES: false
+        USE_V2_GUID: false
         REDIS_PREFIX:
         STORAGE_REDIS_HOST: <HOSTNAME FROM AZURE REDIS CACHE>
         STORAGE_REDIS_PASSWORD: <PRIMARYKEY FROM AZURE REDIS CACHE>
@@ -109,6 +110,8 @@ Open contrib/cf/manifest.yml and enter the values obtained in the earlier steps:
 ```
 
 **IMPORTANT**: The default values for `CRYPTO_AES256_KEY`, `BASIC\_AUTH\_USERNAME`, and `BASIC\_AUTH\_PASSWORD` should never be used in production environments.
+
+**NOTE**: `USE_V2_GUID` should always be `false` unless you want OSBA to co-exist with [Meta Azure Service Broker (MASB)](https://github.com/Azure/meta-azure-service-broker). Once it is set `true`, a flag would be wrote to the `STORAGE_REDIS_DB`. It means that the broker instance would use V2 GUID set forever. If you set it `true` by mistake, you need to manually connect to the `STORAGE_REDIS_DB` and *remove* the `useV2GuidFlag` key-value pair.
 
 ## Push the broker to Cloud Foundry
 

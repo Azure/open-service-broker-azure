@@ -12,12 +12,14 @@ import (
 // included or excluded from the catalog
 type CatalogConfig struct {
 	MinStability            Stability
+	UseV2Guid               bool
 	EnableMigrationServices bool
 }
 
 type tempCatalogConfig struct {
 	CatalogConfig
 	MinStabilityStr            string `envconfig:"MIN_STABILITY" default:"PREVIEW"`
+	UseV2GuidStr               string `envconfig:"USE_V2_GUID" default:"false"`
 	EnableMigrationServicesStr string `envconfig:"ENABLE_MIGRATION_SERVICES" default:"false"` // nolint: lll
 }
 
@@ -27,6 +29,7 @@ type tempCatalogConfig struct {
 func NewCatalogConfigWithDefaults() CatalogConfig {
 	return CatalogConfig{
 		MinStability:            StabilityPreview,
+		UseV2Guid:               false,
 		EnableMigrationServices: false,
 	}
 }
@@ -52,6 +55,14 @@ func GetCatalogConfigFromEnvironment() (CatalogConfig, error) {
 		return c.CatalogConfig, fmt.Errorf(
 			`unrecognized stability level "%s"`,
 			minStabilityStr,
+		)
+	}
+	c.UseV2Guid, err = strconv.ParseBool(c.UseV2GuidStr)
+	if err != nil {
+		return c.CatalogConfig, fmt.Errorf(
+			`unrecognized UseV2Guid boolean "%s": %s`,
+			c.EnableMigrationServicesStr,
+			err,
 		)
 	}
 	c.EnableMigrationServices, err =
