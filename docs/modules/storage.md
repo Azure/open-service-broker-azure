@@ -8,6 +8,7 @@ _Note: This module is EXPERIMENTAL. To enable this module, you must run Open Ser
 
 | Plan Name | Description |
 |-----------|-------------|
+| `general-purpose-v2-storage-account` | This is the second generation storage account and is recommended for most scenarios. This plan provisions a general purpose account only. Create your own containers, files, and tables within this account. |
 | `general-purpose-storage-account` | Provisions a general purpose account only. Create your own containers, files, and tables within this account. |
 | `blob-storage-account` | Provisions a blob storage account only. Create your own blob containers (only) within this account. |
 | `blob-container` | Provisions a blog storage account and a blob container within. |
@@ -15,7 +16,7 @@ _Note: This module is EXPERIMENTAL. To enable this module, you must run Open Ser
 #### Behaviors
 
 ##### Provision
-  
+
 Provisions the storage resources indicated by the applicable plan-- an account
 only, or an account with a container.
 
@@ -23,12 +24,12 @@ only, or an account with a container.
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and nonde is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
-  
+
 ##### Bind
-  
+
 Returns a copy of one shared set of credentials.
 
 ###### Binding Parameters
@@ -43,12 +44,16 @@ Binding returns the following connection details and shared credentials:
 |------------|------|-------------|
 | `storageAccountName` | `string` | The storage account name. |
 | `accessKey` | `string` | A key (password) for accessing the storage account. |
-| `containerName` | `string` | If applicable, the name of the container within the storage account. |
+| ` primaryBlobServiceEndPoint ` | `string` | Primary blob service end point. |
+| ` primaryTableServiceEndPoint ` | `string` | Primary table service end point. |
+| ` primaryFileServiceEndPoint ` | `string` | Primary file service end point. This field only appears in `general-purpose-v2-storage-account` and `general-purpose-storage-account`. |
+| ` primaryQueueServiceEndPoint ` | `string` | Primary queue service end point. This field only appears in `general-purpose-v2-storage-account` and `general-purpose-storage-account`. |
+| `containerName` | `string` | The name of the container within the storage account. This field only appears in `blob-container`. |
 
 ##### Unbind
 
 Does nothing.
-  
+
 ##### Deprovision
 
 Deletes the storage account.

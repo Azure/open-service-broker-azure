@@ -21,8 +21,8 @@ provisions an empty Database. Ready to use with existing Azure CosmosDB librarie
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
@@ -92,8 +92,8 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
 | `alias` | `string` | Specifies an alias that can be used by later provision actions to create databases on this DBMS. | Y | |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
@@ -212,8 +212,8 @@ Provisions a new CosmosDB database account that can be accessed through the Mong
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
@@ -285,8 +285,8 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
@@ -356,8 +356,8 @@ Provisions a new CosmosDB database account that can be accessed through any of t
 
 | Parameter Name | Type | Description | Required | Default Value |
 |----------------|------|-------------|----------|---------------|
-| `location` | `string` | The Azure region in which to provision applicable resources. | Required _unless_ an administrator has configured the broker itself with a default location. | The broker's default location, if configured. |
-| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | N | If an administrator has configured the broker itself with a default resource group and none is specified, that default will be applied, otherwise, a new resource group will be created with a UUID as its name. |
+| `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
+| `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |

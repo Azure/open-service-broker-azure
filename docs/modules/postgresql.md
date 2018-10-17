@@ -95,7 +95,7 @@ Updates a previously provisioned PostgreSQL DBMS. Currently updating the databas
 ####### Updating Parameters: general-purpose
 
 | Parameter Name | Type | Description | Required | Default Value |
-|----------------|------|-------------|----------|---------------| 
+|----------------|------|-------------|----------|---------------|
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 32 | N | 2 |
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048. Note, this must not be lower than what was given at provision time. | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
@@ -288,7 +288,7 @@ Updates a previously provisioned PostgreSQL DBMS.
 ####### Updating Parameters: general-purpose
 
 | Parameter Name | Type | Description | Required | Default Value |
-|----------------|------|-------------|----------|---------------| 
+|----------------|------|-------------|----------|---------------|
 | `cores` | `integer` | Specifies vCores, which represent the logical CPU. Valid values are 2, 4, 8, 16, or 32 | N | 2 |
 | `storage` | `integer` | Specifies the amount of storage to allocate in GB. Ranges from 5 to 1048. Note, this must not be lower than what was given at provision time. | N | 10 |
 | `backupRetention` | `integer` | Specifies the number of days to retain backups. Ranges from 7 to 35 | N | 7 |
@@ -381,7 +381,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions a new PostgreSQL DBMS and a new database upon that DBMS. The new
+Provisions a new database upon an existing PostgreSQL DBMS. The new
 database will be named randomly and will be owned by a role (group) of the same
 name.
 

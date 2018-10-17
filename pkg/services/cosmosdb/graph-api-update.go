@@ -21,7 +21,6 @@ func (g *graphAccountManager) updateARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	if err := g.cosmosAccountManager.updateDeployment(
-		instance.ProvisioningParameters,
 		instance.UpdatingParameters,
 		instance.Details.(*cosmosdbInstanceDetails),
 		"GlobalDocumentDB",
