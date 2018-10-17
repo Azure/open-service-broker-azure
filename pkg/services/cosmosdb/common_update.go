@@ -43,7 +43,7 @@ func (
 }
 
 func (c *cosmosAccountManager) updateDeployment(
-	pp *service.ProvisioningParameters,
+	// up is updating parameters
 	up *service.ProvisioningParameters,
 	dt *cosmosdbInstanceDetails,
 	kind string,
@@ -57,7 +57,7 @@ func (c *cosmosAccountManager) updateDeployment(
 	if capability != "" {
 		p["capability"] = capability
 	}
-	tags := getTags(pp)
+	tags := getTags(up)
 	for k, v := range additionalTags {
 		tags[k] = v
 	}
