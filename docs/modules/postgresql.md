@@ -381,7 +381,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions a new PostgreSQL DBMS and a new database upon that DBMS. The new
+Provisions a new database upon an existing PostgreSQL DBMS. The new
 database will be named randomly and will be owned by a role (group) of the same
 name.
 
