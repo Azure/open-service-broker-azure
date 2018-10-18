@@ -21,7 +21,6 @@ func (m *mongoAccountManager) updateARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	if err := m.cosmosAccountManager.updateDeployment(
-		instance.ProvisioningParameters,
 		instance.UpdatingParameters,
 		instance.Details.(*cosmosdbInstanceDetails),
 		"MongoDB",
