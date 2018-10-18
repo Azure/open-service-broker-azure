@@ -238,6 +238,7 @@ func pollingUntilReadLocationsReady(
 				readLocations,
 				currentLocations,
 			) {
+				// This is a temporary fix and should be removed after #617 is resolved
 				time.Sleep(time.Second * 20)
 				return nil
 			}
