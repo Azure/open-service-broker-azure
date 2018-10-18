@@ -128,11 +128,11 @@ func buildGoTemplate(
 	dt := instance.Details.(*instanceDetails)
 
 	location := parameter.GetString("location")
-	nonHttpsEnabled := parameter.GetString("enableNonHttpsTraffic")
+	nonHTTPSEnabled := parameter.GetString("enableNonHttpsTraffic")
 	goTemplateParams := map[string]interface{}{
 		"name":                    dt.StorageAccountName,
 		"location":                location,
-		"supportHttpsTrafficOnly": nonHttpsEnabled == disabled,
+		"supportHttpsTrafficOnly": nonHTTPSEnabled == disabled,
 	}
 
 	storeKind, _ := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
