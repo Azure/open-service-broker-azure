@@ -29,6 +29,12 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 				DefaultValue:  "disabled",
 				AllowedValues: []string{enabled, disabled},
 			},
+			"tags": &service.ObjectPropertySchema{
+				Title: "Tags",
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
+			},
 		},
 	}
 }
