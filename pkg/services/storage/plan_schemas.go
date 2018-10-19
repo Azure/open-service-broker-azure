@@ -41,6 +41,12 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 				Description:   "Specify whether non-https traffic is enabled",
 				AllowedValues: []string{enabled, disabled},
 			},
+			"tags": &service.ObjectPropertySchema{
+				Title: "Tags",
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
+			},
 		},
 	}
 }

@@ -11,9 +11,15 @@ var storageTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location":              "westus",
 			"enableNonHttpsTraffic": "enabled",
+			"tags": map[string]interface{}{
+				"latest-operation": "provision",
+			},
 		},
 		updatingParameters: map[string]interface{}{
 			"enableNonHttpsTraffic": "disabled",
+			"tags": map[string]interface{}{
+				"latest-operation": "update",
+			},
 		},
 	},
 	{ // General Purpose Storage Account
