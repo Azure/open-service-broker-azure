@@ -141,10 +141,10 @@ func buildGoTemplate(
 		goTemplateParams["kind"] = "Storage"
 	case storageKindGeneralPurposeV2StorageAccount:
 		goTemplateParams["kind"] = "StorageV2"
-		goTemplateParams["accessTier"] = "Hot"
+		goTemplateParams["accessTier"] = parameter.GetString("accessTier")
 	case storageKindBlobStorageAccount, storageKindBlobContainer:
 		goTemplateParams["kind"] = "BlobStorage"
-		goTemplateParams["accessTier"] = "Hot"
+		goTemplateParams["accessTier"] = parameter.GetString("accessTier")
 	}
 	return goTemplateParams
 }

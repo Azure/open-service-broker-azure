@@ -5,8 +5,26 @@ import (
 )
 
 const kindKey = "kind"
+const generalPurposeV1 = "generalPurposeV1"
+const generalPurposeV2 = "generalPurposeV2"
+const blobStorage = "blobStorage"
+const blobStorageWithContainer = "blobStorageWithContainer"
 
+// nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
+	v1PlanDetail := planDetail{
+		planName: generalPurposeV1,
+	}
+	v2PlanDetail := planDetail{
+		planName: generalPurposeV2,
+	}
+	blobPlanDetail := planDetail{
+		planName: blobStorage,
+	}
+	blobWithContainerPlanDetail := planDetail{
+		planName: blobStorageWithContainer,
+	}
+
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			service.ServiceProperties{
@@ -44,8 +62,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
-						UpdatingParametersSchema:     generateUpdatingParamsSchema(),
+						ProvisioningParametersSchema: v1PlanDetail.generateProvisioningParamsSchema(),
+						UpdatingParametersSchema:     v1PlanDetail.generateUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -67,8 +85,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
-						UpdatingParametersSchema:     generateUpdatingParamsSchema(),
+						ProvisioningParametersSchema: v2PlanDetail.generateProvisioningParamsSchema(),
+						UpdatingParametersSchema:     v2PlanDetail.generateUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -92,8 +110,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
-						UpdatingParametersSchema:     generateUpdatingParamsSchema(),
+						ProvisioningParametersSchema: blobPlanDetail.generateProvisioningParamsSchema(),
+						UpdatingParametersSchema:     blobPlanDetail.generateUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -117,8 +135,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
-						UpdatingParametersSchema:     generateUpdatingParamsSchema(),
+						ProvisioningParametersSchema: blobWithContainerPlanDetail.generateProvisioningParamsSchema(),
+						UpdatingParametersSchema:     blobWithContainerPlanDetail.generateUpdatingParamsSchema(),
 					},
 				},
 			}),
