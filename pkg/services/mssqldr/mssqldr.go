@@ -30,6 +30,7 @@ func New(
 	serversClient sqlSDK.ServersClient,
 	databasesClient sqlSDK.DatabasesClient, // nolint: unparam
 	failoverGroupsClient sqlSDK.FailoverGroupsClient, // nolint: unparam
+	// These used clients are for future PRs usage
 ) service.Module {
 	return &module{
 		dbmsPairRegisteredManager: &dbmsPairRegisteredManager{

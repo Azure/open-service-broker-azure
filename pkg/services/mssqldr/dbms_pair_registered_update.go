@@ -17,8 +17,6 @@ func (d *dbmsPairRegisteredManager) GetUpdater(
 ) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateAdministrators", d.updateAdministrators),
-		service.NewUpdatingStep("testPriConnection", d.testPriConnection),
-		service.NewUpdatingStep("testSecConnection", d.testSecConnection),
 	)
 }
 
@@ -28,13 +26,36 @@ func (d *dbmsPairRegisteredManager) updateAdministrators(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*dbmsPairInstanceDetails)
 	up := instance.UpdatingParameters
-	dt.PriAdministratorLogin = up.GetString("primaryAdministratorLogin")
+	updatedPriAdministratorLogin :=
+		up.GetString("primaryAdministratorLogin")
+	updatedPriAdministratorLoginPassword :=
+		up.GetString("primaryAdministratorLoginPassword")
+	if err := validateServerAdmin(
+		updatedPriAdministratorLogin,
+		updatedPriAdministratorLoginPassword,
+		dt.PriFullyQualifiedDomainName,
+	); err != nil {
+		return nil, err
+	}
+	updatedSecAdministratorLogin :=
+		up.GetString("secondaryAdministratorLogin")
+	updatedSecAdministratorLoginPassword :=
+		up.GetString("secondaryAdministratorLoginPassword")
+	if err := validateServerAdmin(
+		updatedSecAdministratorLogin,
+		updatedSecAdministratorLoginPassword,
+		dt.SecFullyQualifiedDomainName,
+	); err != nil {
+		return nil, err
+	}
+
+	dt.PriAdministratorLogin = updatedPriAdministratorLogin
 	dt.PriAdministratorLoginPassword = service.SecureString(
-		up.GetString("primaryAdministratorLoginPassword"), // nolint: lll
+		updatedPriAdministratorLoginPassword,
 	)
-	dt.SecAdministratorLogin = up.GetString("secondaryAdministratorLogin")
+	dt.SecAdministratorLogin = updatedSecAdministratorLogin
 	dt.SecAdministratorLoginPassword = service.SecureString(
-		up.GetString("secondaryAdministratorLoginPassword"), // nolint: lll
+		updatedSecAdministratorLoginPassword,
 	)
 	return dt, nil
 }

@@ -42,3 +42,44 @@ func getDBConnection(
 
 	return db, nil
 }
+
+func validateServerAdmin(
+	administratorLogin string,
+	administratorLoginPassword string,
+	fullyQualifiedDomainName string,
+) error {
+	// connect to master database
+	masterDb, err := getDBConnection(
+		administratorLogin,
+		administratorLoginPassword,
+		fullyQualifiedDomainName,
+		"master",
+	)
+	if err != nil {
+		return err
+	}
+	defer masterDb.Close() // nolint: errcheck
+
+	// Is there a better approach to verify if it is a sys admin?
+	rows, err := masterDb.Query("SELECT 1 FROM fn_my_permissions (NULL, 'DATABASE') WHERE permission_name='ALTER ANY USER'") // nolint: lll
+	if err != nil {
+		return fmt.Errorf(
+			"error querying SELECT from table fn_my_permissions: %s",
+			err,
+		)
+	}
+	defer rows.Close() // nolint: errcheck
+	if !rows.Next() {
+		return fmt.Errorf(
+			"error user doesn't have permission 'ALTER ANY USER'",
+		)
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf(
+			"error iterating rows: %s",
+			err,
+		)
+	}
+
+	return nil
+}

@@ -14,8 +14,6 @@ func (d *dbmsPairRegisteredManager) GetProvisioner(
 		service.NewProvisioningStep("preProvision", d.preProvision),
 		service.NewProvisioningStep("validatePriServer", d.validatePriServer),
 		service.NewProvisioningStep("validateSecServer", d.validateSecServer),
-		service.NewProvisioningStep("testPriConnection", d.testPriConnection),
-		service.NewProvisioningStep("testSecConnection", d.testSecConnection),
 	)
 }
 
@@ -63,6 +61,13 @@ func (d *dbmsPairRegisteredManager) validatePriServer(
 	if err != nil {
 		return nil, err
 	}
+	if err = validateServerAdmin(
+		dt.PriAdministratorLogin,
+		string(dt.PriAdministratorLoginPassword),
+		fqdn,
+	); err != nil {
+		return nil, err
+	}
 	dt.PriFullyQualifiedDomainName = fqdn
 	return dt, nil
 }
@@ -84,36 +89,13 @@ func (d *dbmsPairRegisteredManager) validateSecServer(
 	if err != nil {
 		return nil, err
 	}
-	dt.SecFullyQualifiedDomainName = fqdn
-	return dt, nil
-}
-
-func (d *dbmsPairRegisteredManager) testPriConnection(
-	_ context.Context,
-	instance service.Instance,
-) (service.InstanceDetails, error) {
-	dt := instance.Details.(*dbmsPairInstanceDetails)
-	if err := testConnection(
-		dt.PriFullyQualifiedDomainName,
-		dt.PriAdministratorLogin,
-		string(dt.PriAdministratorLoginPassword),
-	); err != nil {
-		return nil, err
-	}
-	return instance.Details, nil
-}
-
-func (d *dbmsPairRegisteredManager) testSecConnection(
-	_ context.Context,
-	instance service.Instance,
-) (service.InstanceDetails, error) {
-	dt := instance.Details.(*dbmsPairInstanceDetails)
-	if err := testConnection(
-		dt.SecFullyQualifiedDomainName,
+	if err = validateServerAdmin(
 		dt.SecAdministratorLogin,
 		string(dt.SecAdministratorLoginPassword),
+		fqdn,
 	); err != nil {
 		return nil, err
 	}
-	return instance.Details, nil
+	dt.SecFullyQualifiedDomainName = fqdn
+	return dt, nil
 }
