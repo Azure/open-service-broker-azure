@@ -61,9 +61,10 @@ Updates an existing storage account.
 
 ###### Updating parameters
 
-| Parameter Name            | Type     | Description                                                  | Required |
-| ------------------------- | -------- | ------------------------------------------------------------ | -------- |
-| ` enableNonHttpsTraffic ` | `string` | Specify whether non-https traffic is enabled. Allowed values:["enabled", "disabled"]. | N        |
+| Parameter Name            | Type                | Description                                                  | Required |
+| ------------------------- | ------------------- | ------------------------------------------------------------ | -------- |
+| ` enableNonHttpsTraffic ` | `string`            | Specify whether non-https traffic is enabled. Allowed values:["enabled", "disabled"]. | N        |
+| `tags`                    | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N        |
 
 ##### Deprovision
 
