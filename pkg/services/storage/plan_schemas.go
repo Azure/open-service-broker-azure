@@ -14,6 +14,7 @@ type planDetail struct {
 	planName string
 }
 
+// nolint: lll
 func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		RequiredProperties: []string{"location", "resourceGroup"},
@@ -54,6 +55,7 @@ func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersS
 	return ips
 }
 
+// nolint: lll
 func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
