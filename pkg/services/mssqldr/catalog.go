@@ -22,10 +22,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Bindable: false,
 				Tags: []string{
-					"AzurePublicCloud",
-					"AzureUSGovernmentCloud",
-					"AzureChinaCloud",
-					"AzureGermanCloud",
+					"Azure",
 					"SQL",
 					"DBMS",
 					"Server",

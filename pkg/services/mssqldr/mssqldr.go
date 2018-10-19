@@ -11,6 +11,10 @@ type module struct {
 	dbmsPairRegisteredManager *dbmsPairRegisteredManager
 }
 
+// The basic parent service in this module. A pair of servers is required to
+// foster the foundation of a Failover Group. The reason why not new server
+// pair, is based on users' feedback. We can still add a service for new server
+// pair if needed.
 type dbmsPairRegisteredManager struct {
 	sqlDatabaseDNSSuffix string
 	armDeployer          arm.Deployer
