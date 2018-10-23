@@ -5,10 +5,12 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-const enabled = "enabled"
-const disabled = "disabled"
-const hot = "Hot"
-const cool = "Cool"
+const (
+	enabled  = "enabled"
+	disabled = "disabled"
+	hot      = "Hot"
+	cool     = "Cool"
+)
 
 type planDetail struct {
 	planName string
