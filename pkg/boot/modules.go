@@ -61,7 +61,7 @@ func getModules(
 	resourceDeploymentsClient.Authorizer = authorizer
 	resourceDeploymentsClient.UserAgent =
 		getUserAgent(resourceDeploymentsClient.Client)
-	resourceDeploymentsClient.PollingDuration = time.Minute * 30
+	resourceDeploymentsClient.PollingDuration = time.Minute * 45
 	armDeployer := arm.NewDeployer(
 		resourceGroupsClient,
 		resourceDeploymentsClient,

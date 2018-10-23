@@ -10,6 +10,9 @@ var eventhubsTestCases = []serviceLifecycleTestCase{
 		planID:    "80756db5-a20c-495d-ae70-62cf7d196a3c",
 		provisioningParameters: map[string]interface{}{
 			"location": "southcentralus",
+			"tags": map[string]interface{}{
+				"latest-operation": "provision",
+			},
 		},
 	},
 }

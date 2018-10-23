@@ -45,6 +45,30 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
 						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(),
+					},
+				},
+			}),
+			service.NewPlan(service.PlanProperties{
+				ID:   "e19fb0be-dd1f-4ef0-b44f-88832dca1a66",
+				Name: "general-purpose-v2-storage-account",
+				Description: "Azure general-purpose storage account; create your " +
+					"own containers, files, and tables within this account",
+				Free:      false,
+				Stability: service.StabilityExperimental,
+				Extended: map[string]interface{}{
+					kindKey: storageKindGeneralPurposeV2StorageAccount,
+				},
+				Metadata: service.ServicePlanMetadata{
+					DisplayName: "General Purpose V2 Storage Account",
+					Bullets: []string{"Azure general-purpose storage account",
+						"Create your own containers, files, and tables within this account",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -69,6 +93,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
 						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(),
 					},
 				},
 			}),
@@ -93,6 +118,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
 						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(),
 					},
 				},
 			}),

@@ -27,6 +27,9 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"consistencyPolicy": map[string]interface{}{
 				"defaultConsistencyLevel": "Session",
 			},
+			"tags": map[string]interface{}{
+				"latest-operation": "provision",
+			},
 		},
 		updatingParameters: map[string]interface{}{
 			"readRegions": []interface{}{"centralus"},
@@ -58,6 +61,11 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			},
 			"readRegions":         []interface{}{"eastus"},
 			"autoFailoverEnabled": "enabled",
+		},
+		updatingParameters: map[string]interface{}{
+			"tags": map[string]interface{}{
+				"latest-operation": "update",
+			},
 		},
 	},
 	{ // Table API

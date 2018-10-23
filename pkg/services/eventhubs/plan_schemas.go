@@ -20,6 +20,12 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 				Description: "The (new or existing) resource group with which" +
 					" to associate new resources.",
 			},
+			"tags": &service.ObjectPropertySchema{
+				Title: "Tags",
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
+			},
 		},
 	}
 }

@@ -22,14 +22,15 @@ server that provisions managed services in the Microsoft Azure public cloud.
 
 ### Preview Services
 
-- [Azure CosmosDB](docs/modules/cosmosdb.md)
-- [Azure Database for PostgreSQL v10](docs/modules/postgresql.md)
+* [Azure CosmosDB](docs/modules/cosmosdb.md)
+* [Azure Redis Cache](docs/modules/rediscache.md)
+* [Azure Database for PostgreSQL v10](docs/modules/postgresql.md)
+
 
 ### Experimental Services
 
 * [Azure Event Hubs](docs/modules/eventhubs.md)
 * [Azure Key Vault](docs/modules/keyvault.md)
-* [Azure Redis Cache](docs/modules/rediscache.md)
 * [Azure Search](docs/modules/search.md)
 * [Azure Service Bus](docs/modules/servicebus.md)
 * [Azure Storage](docs/modules/storage.md)
