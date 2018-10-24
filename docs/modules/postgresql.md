@@ -2,19 +2,30 @@
 
 *Note: PostgreSQL version 9.6 is STABLE, and PostgreSQL version 10 is in PREVIEW*
 
-Open Service Broker for Azure contains three Azure Database for PostgreSQL services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
+Open Service Broker for Azure contains three types of Azure Database for PostgreSQL services. These services enable you to select the most appropriate provision scenario for your needs. These services are:
 
-| Service Name | Description |
-|--------------|-------------|
-| `azure-postgresql-9-6` and `azure-postgresql-10` | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
-| `azure-postgresql-9-6-dbms` and `azure-postgresql-10-dbms` | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
-| `azure-postgresql-9-6-database` and `azure-postgresql-10-database` | Provision a new database only upon a previously provisioned DBMS. |
+| Service Type                  | Description                                                  |
+| ----------------------------- | ------------------------------------------------------------ |
+| `azure-postgresql-*`          | Provision both an Azure Database for PostgreSQL Database Management System (DBMS) and a database. |
+| `azure-postgresql-*-dbms`     | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
+| `azure-postgresql-*-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-postgresql-9-6` and `azure-postgresql-10` services allow you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through these two services. The `azure-postgresql-*-dbms` and `azure-postgresql-*-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-postgresql-*` services allow you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through these two services. The `azure-postgresql-*-dbms` and `azure-postgresql-*-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS. Currently, OSBA supports two versions of Azure Database for PostgreSQL services:
+
+| Service Type                  | Service name                    | Stability |
+| ----------------------------- | ------------------------------- | --------- |
+| `azure-postgresql-*`          | `azure-postgresql-9-6`          | Stable    |
+| `azure-postgresql-*-dbms`     | `azure-postgresql-9-6-dbms`     | Stable    |
+| `azure-postgresql-*-database` | `azure-postgresql-9-6-database` | Stable    |
+| `azure-postgresql-*`          | `azure-postgresql-10`           | Preview   |
+| `azure-postgresql-*-dbms`     | `azure-postgresql-10-dbms`      | Preview   |
+| `azure-postgresql-*-database` | `azure-postgresql-10-database`  | Preview   |
+
+ For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
-### Service: azure-postgresql-9-6 and azure-postgresql-10
+### Service: azure-postgresql-*
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -209,7 +220,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-postgresql-9-6-dbms and azure-postgresql-10-dbms
+### Service: azure-postgresql-*-dbms
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -373,7 +384,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-postgresql-9-6-database and azure-postgresql-10-database
+### Service: azure-postgresql-*-database 
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -394,7 +405,7 @@ name.
 | `extensions` | `string[]` | Specifies a list of PostgreSQL extensions to install | N | |
 | `parentAlias` | `string` | Specifies the alias of the DBMS upon which the database should be provisioned. | Y | |
 
-**Note**: You should use `azure-postgresql-9-6-dbms` as the parent of `azure-postgresql-9-6-database` and use `azure-postgresql-10-dbms` as the parent of `azure-postgresql-10-database`.
+**Note**: You should use corresponding  `dbms` service instance as the parent of `database` service instance.  For example, you should use `azure-postgresql-10-dbms` as the parent of `azure-postgresql-10-database`.
 
 ##### Update
 
