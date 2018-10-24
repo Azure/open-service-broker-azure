@@ -17,6 +17,15 @@ type planDetail struct {
 }
 
 // nolint: lll
+var accountTypeMap = map[string][]string{
+	"update":                 []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	blobStorage:              []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	blobStorageWithContainer: []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	generalPurposeV1:         []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
+	generalPurposeV2:         []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
+}
+
+// nolint: lll
 func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		RequiredProperties: []string{"location", "resourceGroup"},
@@ -60,14 +69,7 @@ func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersS
 		Description: "This field is a combination of account kind and " +
 			" replication strategy",
 		DefaultValue:  "Standard_LRS",
-		AllowedValues: []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	}
-	if pd.planName == generalPurposeV1 {
-		sps := ips.PropertySchemas["accountType"].(*service.StringPropertySchema)
-		sps.AllowedValues = append(sps.AllowedValues, "Premium_LRS")
-	} else if pd.planName == generalPurposeV2 {
-		sps := ips.PropertySchemas["accountType"].(*service.StringPropertySchema)
-		sps.AllowedValues = append(sps.AllowedValues, "Premium_LRS", "Standard_ZRS")
+		AllowedValues: accountTypeMap[pd.planName],
 	}
 
 	return ips
@@ -103,7 +105,7 @@ func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchem
 		Description: "This field is a combination of account kind and " +
 			" replication strategy",
 		DefaultValue:  "Standard_LRS",
-		AllowedValues: []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+		AllowedValues: accountTypeMap["update"],
 	}
 
 	return ips
