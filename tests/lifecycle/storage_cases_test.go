@@ -14,12 +14,14 @@ var storageTestCases = []serviceLifecycleTestCase{
 			"tags": map[string]interface{}{
 				"latest-operation": "provision",
 			},
+			"accessTier": "Hot",
 		},
 		updatingParameters: map[string]interface{}{
 			"enableNonHttpsTraffic": "disabled",
 			"tags": map[string]interface{}{
 				"latest-operation": "update",
 			},
+			"accessTier": "Cool",
 		},
 	},
 	{ // General Purpose Storage Account
@@ -43,6 +45,10 @@ var storageTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location":              "eastus",
 			"enableNonHttpsTraffic": "enabled",
+			"accessTier":            "Cool",
+		},
+		updatingParameters: map[string]interface{}{
+			"accessTier": "Hot",
 		},
 	},
 	{ // Blob Storage Account + Blob Container

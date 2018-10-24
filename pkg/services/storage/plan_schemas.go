@@ -5,11 +5,20 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-const enabled = "enabled"
-const disabled = "disabled"
+const (
+	enabled  = "enabled"
+	disabled = "disabled"
+	hot      = "Hot"
+	cool     = "Cool"
+)
 
-func generateProvisioningParamsSchema() service.InputParametersSchema {
-	return service.InputParametersSchema{
+type planDetail struct {
+	planName string
+}
+
+// nolint: lll
+func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersSchema {
+	ips := service.InputParametersSchema{
 		RequiredProperties: []string{"location", "resourceGroup"},
 		PropertySchemas: map[string]service.PropertySchema{
 			"location": &service.StringPropertySchema{
@@ -26,7 +35,7 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 			"enableNonHttpsTraffic": &service.StringPropertySchema{
 				Title:         "Enable non-https traffic",
 				Description:   "Specify whether non-https traffic is enabled",
-				DefaultValue:  "disabled",
+				DefaultValue:  disabled,
 				AllowedValues: []string{enabled, disabled},
 			},
 			"tags": &service.ObjectPropertySchema{
@@ -37,10 +46,20 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 			},
 		},
 	}
+	if pd.planName != generalPurposeV1 {
+		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
+			Title:         "Access Tier",
+			Description:   "The access tier used for billing.",
+			DefaultValue:  hot,
+			AllowedValues: []string{hot, cool},
+		}
+	}
+	return ips
 }
 
-func generateUpdatingParamsSchema() service.InputParametersSchema {
-	return service.InputParametersSchema{
+// nolint: lll
+func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchema {
+	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"enableNonHttpsTraffic": &service.StringPropertySchema{
 				Title:         "Enable non-https traffic",
@@ -55,4 +74,12 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 			},
 		},
 	}
+	if pd.planName != generalPurposeV1 {
+		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
+			Title:         "Access Tier",
+			Description:   "The access tier used for billing.",
+			AllowedValues: []string{hot, cool},
+		}
+	}
+	return ips
 }
