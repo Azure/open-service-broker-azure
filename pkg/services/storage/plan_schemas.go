@@ -54,6 +54,22 @@ func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersS
 			AllowedValues: []string{hot, cool},
 		}
 	}
+
+	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
+		Title: "Account Type",
+		Description: "This field is a combination of account kind and " +
+			" replication strategy",
+		DefaultValue:  "Standard_LRS",
+		AllowedValues: []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	}
+	if pd.planName == generalPurposeV1 {
+		sps := ips.PropertySchemas["accountType"].(*service.StringPropertySchema)
+		sps.AllowedValues = append(sps.AllowedValues, "Premium_LRS")
+	} else if pd.planName == generalPurposeV2 {
+		sps := ips.PropertySchemas["accountType"].(*service.StringPropertySchema)
+		sps.AllowedValues = append(sps.AllowedValues, "Premium_LRS", "Standard_ZRS")
+	}
+
 	return ips
 }
 
@@ -81,5 +97,14 @@ func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchem
 			AllowedValues: []string{hot, cool},
 		}
 	}
+
+	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
+		Title: "Account Type",
+		Description: "This field is a combination of account kind and " +
+			" replication strategy",
+		DefaultValue:  "Standard_LRS",
+		AllowedValues: []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	}
+
 	return ips
 }

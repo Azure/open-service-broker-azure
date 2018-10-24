@@ -7,7 +7,18 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) ValidateUpdatingParameters(service.Instance) error {
+func (s *serviceManager) ValidateUpdatingParameters(instance service.Instance) error {
+	pp := instance.ProvisioningParameters
+	up := instance.UpdatingParameters
+	previousAccountType := pp.GetString("accountType")
+	nowAccountType := up.GetString("accountType")
+	if previousAccountType != nowAccountType {
+		if previousAccountType == "Standard_ZRS" {
+			return fmt.Errorf("account type using ZRS can't be changed")
+		} else if previousAccountType == "Premium_LRS" {
+			return fmt.Errorf("account type using Premium_LRS can't be changed")
+		}
+	}
 	return nil
 }
 
