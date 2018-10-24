@@ -11,15 +11,44 @@ Open Service Broker for Azure contains three types of Azure Database for Postgre
 | `azure-postgresql-*-database` | Provision a new database only upon a previously provisioned DBMS. |
 
 The `azure-postgresql-*` services allow you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through these two services. The `azure-postgresql-*-dbms` and `azure-postgresql-*-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS. Currently, OSBA supports two versions of Azure Database for PostgreSQL services:
-
-| Service Type                  | Service name                    | Stability |
-| ----------------------------- | ------------------------------- | --------- |
-| `azure-postgresql-*`          | `azure-postgresql-9-6`          | Stable    |
-| `azure-postgresql-*-dbms`     | `azure-postgresql-9-6-dbms`     | Stable    |
-| `azure-postgresql-*-database` | `azure-postgresql-9-6-database` | Stable    |
-| `azure-postgresql-*`          | `azure-postgresql-10`           | Preview   |
-| `azure-postgresql-*-dbms`     | `azure-postgresql-10-dbms`      | Preview   |
-| `azure-postgresql-*-database` | `azure-postgresql-10-database`  | Preview   |
+<table>
+	<thead>
+		<tr>
+			<th>Service Type</th>
+			<th>Service name</th>
+			<th>Stability</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td rowspan=2>azure-postgresql-*</td>
+			<td>azure-postgresql-9-6</td>
+			<td>Stable</td>
+		</tr>
+		<tr>
+			<td>azure-postgresql-10</td>
+			<td>Preview</td>
+		</tr>
+		<tr>
+			<td rowspan=2>azure-postgresql-*-dbms</td>
+			<td>azure-postgresql-9-6-dbms</td>
+			<td>Stable</td>
+		</tr>
+		<tr>
+			<td>azure-postgresql-10-dbms</td>
+			<td>Preview</td>
+		</tr>
+		<tr>
+			<td rowspan=2>azure-postgresql-*-database</td>
+			<td>azure-postgresql-9-6-database</td>
+			<td>Stable</td>
+		</tr>
+		<tr>
+			<td>azure-postgresql-10-database</td>
+			<td>Preview</td>
+		</tr>
+	</tbody>
+</table>
 
  For more information on each service, refer to the descriptions below.
 
