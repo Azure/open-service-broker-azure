@@ -7,7 +7,9 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) ValidateUpdatingParameters(instance service.Instance) error {
+func (s *serviceManager) ValidateUpdatingParameters(
+	instance service.Instance,
+) error {
 	pp := instance.ProvisioningParameters
 	up := instance.UpdatingParameters
 	previousAccountType := pp.GetString("accountType")
