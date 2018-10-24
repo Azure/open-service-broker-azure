@@ -9,7 +9,7 @@ var storageTestCases = []serviceLifecycleTestCase{
 		serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
 		planID:    "e19fb0be-dd1f-4ef0-b44f-88832dca1a66",
 		provisioningParameters: map[string]interface{}{
-			"location":              "westus",
+			"location":              "eastus",
 			"enableNonHttpsTraffic": "enabled",
 			"tags": map[string]interface{}{
 				"latest-operation": "provision",
