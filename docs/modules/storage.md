@@ -28,7 +28,8 @@ only, or an account with a container.
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | ` enableNonHttpsTraffic ` | `string` | Specify whether non-https traffic is enabled. Allowed values:["enabled", "disabled"]. | N | If not provided, "disabled" will be used as the default value. That is, only https traffic is allowed. |
-| `accessTier` | `string` | The access tier used for billing.    Allowed values: ["Hot", "Cool"]. Hot storage is optimized for storing data that is accessed frequently ,and cool storage is optimized for storing data that is infrequently accessed and stored for at least 30 days. **Note** : this field doesn't exist for plan `general-purpose-storage-account`. | N | If not provided, "Hot" will be used as the default value. |
+| `accessTier` | `string` | The access tier used for billing.    Allowed values: ["Hot", "Cool"]. Hot storage is optimized for storing data that is accessed frequently ,and cool storage is optimized for storing data that is infrequently accessed and stored for at least 30 days. **Note1** : this field doesn't exist for plan `general-purpose-storage-account`. **Note2** : this field can only set to "Hot" if you use "Premium_LRS" `accountType` | N | If not provided, "Hot" will be used as the default value. |
+| `accountType` | `string` | A combination of account kind and   replication strategy. Allowed values: for plan `blob-storage-account` and `blob-container`: [ "Standard_LRS", "Standard_GRS", "Standard_RAGRS"]; for plan `general-purpose-storage-account`: ["Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"]; for plan `general-purpose-v2-storage-account`: ["Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Standard_ZRS", "Premium_LRS"]. Check [here](https://docs.microsoft.com/en-us/azure/storage/common/storage-redundancy#choosing-a-replication-option) for detailed explanation of replication strategy. | N | If not provided, "Standard_LRS" will be used as the default value for all plans. |
 
 ##### Bind
 
@@ -66,7 +67,8 @@ Updates an existing storage account.
 | ------------------------- | ------------------- | ------------------------------------------------------------ | -------- |
 | ` enableNonHttpsTraffic ` | `string`            | Specify whether non-https traffic is enabled. Allowed values:["enabled", "disabled"]. | N        |
 | `tags`                    | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N        |
-| `accessTier`              | `string`            | The access tier used for billing.    Allowed values: ["Hot", "Cool"]. Hot storage is optimized for storing data that is accessed frequently ,and cool storage is optimized for storing data that is infrequently accessed and stored for at least 30 days. **Note** : this field doesn't exist for plan `general-purpose-storage-account`. | N        |
+| `accessTier`              | `string`            | The access tier used for billing.    Allowed values: ["Hot", "Cool"]. Hot storage is optimized for storing data that is accessed frequently ,and cool storage is optimized for storing data that is infrequently accessed and stored for at least 30 days. **Note1** : this field doesn't exist for plan `general-purpose-storage-account`. **Note2** : this field can only set to "Hot" if you use "Premium_LRS" `accountType` | N        |
+| `accountType`             | `string`            | A combination of account kind and   replication strategy. You can only update ["Standard_LRS", "Standard_GRS", "Standard_RAGRS"] accounts to one of ["Standard_LRS", "Standard_GRS", "Standard_RAGRS"]. For "Standard_ZRS" and "Premium_LRS" accounts, they are not updatable. | N        |
 
 ##### Deprovision
 
