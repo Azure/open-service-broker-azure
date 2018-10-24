@@ -27,6 +27,8 @@ only, or an account with a container.
 | `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
+| ` enableNonHttpsTraffic ` | `string` | Specify whether non-https traffic is enabled. Allowed values:["enabled", "disabled"]. | N | If not provided, "disabled" will be used as the default value. That is, only https traffic is allowed. |
+| `accessTier` | `string` | The access tier used for billing.    Allowed values: ["Hot", "Cool"]. Hot storage is optimized for storing data that is accessed frequently ,and cool storage is optimized for storing data that is infrequently accessed and stored for at least 30 days. **Note** : this field doesn't exist for plan `general-purpose-storage-account`. | N | If not provided, "Hot" will be used as the default value. |
 
 ##### Bind
 
@@ -53,6 +55,18 @@ Binding returns the following connection details and shared credentials:
 ##### Unbind
 
 Does nothing.
+
+##### Update
+
+Updates an existing storage account.
+
+###### Updating parameters
+
+| Parameter Name            | Type                | Description                                                  | Required |
+| ------------------------- | ------------------- | ------------------------------------------------------------ | -------- |
+| ` enableNonHttpsTraffic ` | `string`            | Specify whether non-https traffic is enabled. Allowed values:["enabled", "disabled"]. | N        |
+| `tags`                    | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N        |
+| `accessTier`              | `string`            | The access tier used for billing.    Allowed values: ["Hot", "Cool"]. Hot storage is optimized for storing data that is accessed frequently ,and cool storage is optimized for storing data that is infrequently accessed and stored for at least 30 days. **Note** : this field doesn't exist for plan `general-purpose-storage-account`. | N        |
 
 ##### Deprovision
 

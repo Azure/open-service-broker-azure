@@ -35,7 +35,7 @@ var armTemplateBytes = []byte(`
 				{{ if .accessTier }}
 				"accessTier": "{{.accessTier}}",
 				{{ end }}
-				"supportsHttpsTrafficOnly": true
+				"supportsHttpsTrafficOnly": {{.supportHttpsTrafficOnly}}
 			},
 			"tags": "[parameters('tags')]"
 		}
