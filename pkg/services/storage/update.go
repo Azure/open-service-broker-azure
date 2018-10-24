@@ -39,7 +39,7 @@ func (s *serviceManager) updateARMTemplate(
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("error updating redis instance %s", err)
+		return nil, fmt.Errorf("error updating storage account %s", err)
 	}
 	return dt, nil
 }
