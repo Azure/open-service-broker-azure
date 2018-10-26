@@ -18,11 +18,11 @@ type planDetail struct {
 
 // nolint: lll
 var accountTypeMap = map[string][]string{
-	"update":                 []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	blobStorage:              []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	blobStorageWithContainer: []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	generalPurposeV1:         []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
-	generalPurposeV2:         []string{"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
+	"update":                 {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	blobStorage:              {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	blobStorageWithContainer: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	generalPurposeV1:         {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
+	generalPurposeV2:         {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
 }
 
 // nolint: lll
