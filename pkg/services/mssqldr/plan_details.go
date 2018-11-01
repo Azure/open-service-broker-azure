@@ -1,6 +1,7 @@
 package mssqldr
 
 import (
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -60,8 +61,9 @@ func getDBMSPairRegisteredProvisionParamSchema() service.InputParametersSchema {
 					"the primary existing server",
 			},
 			"primaryLocation": &service.StringPropertySchema{
-				Title:       "Primary Location",
-				Description: "Specifies the location of the primary existing server",
+				Title:                   "Primary Location",
+				Description:             "Specifies the location of the primary existing server",
+				CustomPropertyValidator: azure.LocationValidator,
 			},
 			"primaryServer": &service.StringPropertySchema{
 				Title:       "Primary Server",
@@ -83,8 +85,9 @@ func getDBMSPairRegisteredProvisionParamSchema() service.InputParametersSchema {
 					"the secondary existing server",
 			},
 			"secondaryLocation": &service.StringPropertySchema{
-				Title:       "Secondary Location",
-				Description: "Specifies the location of the secondary existing server",
+				Title:                   "Secondary Location",
+				Description:             "Specifies the location of the secondary existing server",
+				CustomPropertyValidator: azure.LocationValidator,
 			},
 			"secondaryServer": &service.StringPropertySchema{
 				Title:       "Secondary Server",
