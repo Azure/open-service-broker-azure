@@ -29,6 +29,7 @@ server that provisions managed services in the Microsoft Azure public cloud.
 
 ### Experimental Services
 
+* [Azure Application Insights](docs/modules/appinsights.md)
 * [Azure Event Hubs](docs/modules/eventhubs.md)
 * [Azure Key Vault](docs/modules/keyvault.md)
 * [Azure Search](docs/modules/search.md)
