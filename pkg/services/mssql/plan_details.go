@@ -359,6 +359,7 @@ func getDBMSRegisteredProvisionParamSchema() service.InputParametersSchema {
 			"location": &service.StringPropertySchema{
 				Title:       "Location",
 				Description: "Specifies the location of the existing server",
+				CustomPropertyValidator: azure.LocationValidator,
 			},
 			"server": &service.StringPropertySchema{
 				Title:       "Server Name",
