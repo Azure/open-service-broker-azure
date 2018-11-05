@@ -11,6 +11,7 @@ import (
 )
 
 var postgresqlDBMSAlias = uuid.NewV4().String()
+var postgresqlV10DBMSAlias = uuid.NewV4().String()
 
 var postgresqlTestCases = []serviceLifecycleTestCase{
 	{
@@ -71,6 +72,72 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 				testCredentials: testPostgreSQLCreds,
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": postgresqlDBMSAlias,
+					"extensions": []interface{}{
+						"uuid-ossp",
+						"postgis",
+					},
+				},
+			},
+		},
+	},
+	{
+		group:           "postgresql",
+		name:            "all-in-one-v10",
+		serviceID:       "32d3b4e0-e68f-4e96-93d4-35fd380f0874",
+		planID:          "6caf83ec-5cc1-42a0-9b34-0d163d73064c",
+		testCredentials: testPostgreSQLCreds,
+		provisioningParameters: map[string]interface{}{
+			"location": "southcentralus",
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowSome",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "35.0.0.0",
+				},
+				map[string]interface{}{
+					"name":           "AllowMore",
+					"startIPAddress": "35.0.0.1",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+			"sslEnforcement": "disabled",
+			"extensions": []interface{}{
+				"uuid-ossp",
+				"postgis",
+			},
+			"backupRedundancy": "geo",
+		},
+		updatingParameters: map[string]interface{}{
+			"cores":           2,
+			"storage":         25,
+			"backupRetention": 35,
+		},
+	},
+	{
+		group:     "postgresql",
+		name:      "dbms-only-v10",
+		serviceID: "cabd3125-5a13-46ea-afad-a69582af9578",
+		planID:    "5cc758d2-b530-479e-8af7-e66f2906463a",
+		provisioningParameters: map[string]interface{}{
+			"location": "southcentralus",
+			"alias":    postgresqlV10DBMSAlias,
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowAll",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+		},
+		childTestCases: []*serviceLifecycleTestCase{
+			{ // database only scenario
+				group:           "postgresql",
+				name:            "database-only-v10",
+				serviceID:       "1fd01042-3b70-4612-ac19-9ced0b2a1525",
+				planID:          "672f80d5-8c9e-488f-b9ce-41142c205e99",
+				testCredentials: testPostgreSQLCreds,
+				provisioningParameters: map[string]interface{}{
+					"parentAlias": postgresqlV10DBMSAlias,
 					"extensions": []interface{}{
 						"uuid-ossp",
 						"postgis",
