@@ -9,12 +9,13 @@ var storageTestCases = []serviceLifecycleTestCase{
 		serviceID: "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
 		planID:    "e19fb0be-dd1f-4ef0-b44f-88832dca1a66",
 		provisioningParameters: map[string]interface{}{
-			"location":              "westus",
+			"location":              "eastus",
 			"enableNonHttpsTraffic": "enabled",
 			"tags": map[string]interface{}{
 				"latest-operation": "provision",
 			},
-			"accessTier": "Hot",
+			"accessTier":  "Hot",
+			"accountType": "Standard_ZRS",
 		},
 		updatingParameters: map[string]interface{}{
 			"enableNonHttpsTraffic": "disabled",
@@ -32,6 +33,7 @@ var storageTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location":              "southcentralus",
 			"enableNonHttpsTraffic": "disabled",
+			"accountType":           "Premium_LRS",
 		},
 		updatingParameters: map[string]interface{}{
 			"enableNonHttpsTraffic": "enabled",
@@ -46,9 +48,11 @@ var storageTestCases = []serviceLifecycleTestCase{
 			"location":              "eastus",
 			"enableNonHttpsTraffic": "enabled",
 			"accessTier":            "Cool",
+			"accountType":           "Standard_LRS",
 		},
 		updatingParameters: map[string]interface{}{
-			"accessTier": "Hot",
+			"accessTier":  "Hot",
+			"accountType": "Standard_RAGRS",
 		},
 	},
 	{ // Blob Storage Account + Blob Container
@@ -59,6 +63,10 @@ var storageTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location":              "southcentralus",
 			"enableNonHttpsTraffic": "enabled",
+			"accountType":           "Standard_GRS",
+		},
+		updatingParameters: map[string]interface{}{
+			"accountType": "Standard_LRS",
 		},
 	},
 }

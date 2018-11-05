@@ -17,6 +17,15 @@ type planDetail struct {
 }
 
 // nolint: lll
+var accountTypeMap = map[string][]string{
+	"update":                 {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	blobStorage:              {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	blobStorageWithContainer: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	generalPurposeV1:         {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
+	generalPurposeV2:         {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
+}
+
+// nolint: lll
 func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		RequiredProperties: []string{"location", "resourceGroup"},
@@ -54,6 +63,15 @@ func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersS
 			AllowedValues: []string{hot, cool},
 		}
 	}
+
+	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
+		Title: "Account Type",
+		Description: "This field is a combination of account kind and " +
+			" replication strategy",
+		DefaultValue:  "Standard_LRS",
+		AllowedValues: accountTypeMap[pd.planName],
+	}
+
 	return ips
 }
 
@@ -81,5 +99,14 @@ func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchem
 			AllowedValues: []string{hot, cool},
 		}
 	}
+
+	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
+		Title: "Account Type",
+		Description: "This field is a combination of account kind and " +
+			" replication strategy",
+		DefaultValue:  "Standard_LRS",
+		AllowedValues: accountTypeMap["update"],
+	}
+
 	return ips
 }
