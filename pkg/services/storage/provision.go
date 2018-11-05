@@ -133,6 +133,7 @@ func buildGoTemplate(
 		"name":                    dt.StorageAccountName,
 		"location":                location,
 		"supportHttpsTrafficOnly": nonHTTPSEnabled == disabled,
+		"accountType":             parameter.GetString("accountType"),
 	}
 
 	storeKind, _ := instance.Plan.GetProperties().Extended[kindKey].(storageKind)
