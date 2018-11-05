@@ -27,7 +27,7 @@ var mssqldrTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"alias":             mssqlDBMSPairAlias,
 			"primaryLocation":   "southcentralus",
-			"secondaryLocation": "northcentralus",
+			"secondaryLocation": "eastus",
 		},
 	},
 }
