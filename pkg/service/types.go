@@ -21,6 +21,9 @@ const (
 	// MigrationTag is the tag of migration services. It can be used for tag
 	// filter to filter out migration services.
 	MigrationTag string = "Migration"
+	// DRTag is the tag of DR services. It can be used for tag filter to
+	// filter out DR services.
+	DRTag string = "Disaster Recovery"
 )
 
 // ProvisioningParameters wraps a map containing provisioning parameters.
