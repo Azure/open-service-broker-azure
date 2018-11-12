@@ -327,5 +327,63 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				),
 			),
 		),
+		// database pair registered service
+		service.NewService(
+			service.ServiceProperties{
+				ID:              "8480271a-f4c7-4232-b2b7-7f33391728f7",
+				Name:            "azure-sql-12-0-dr-database-pair-registered",
+				Description:     "Azure SQL 12.0-- disaster recovery database pair registered",
+				Bindable:        true,
+				ParentServiceID: "00ce53a3-d6c3-4c24-8cb2-3f48d3b161d8",
+				Metadata: service.ServiceMetadata{
+					DisplayName:      "Azure SQL 12.0-- disaster recovery Database Pair registered",
+					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair registered, the primary database, the secondary database, and the failover group are existing",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Tags: []string{
+					"Azure",
+					"SQL",
+					"Database",
+					service.DRTag,
+					"Failover Group",
+				},
+				Extended: map[string]interface{}{
+					"version": "12.0",
+				},
+			},
+			m.databasePairRegisteredManager,
+			service.NewPlan(service.PlanProperties{
+				ID:          "9e05f8b7-27ce-4fb4-b889-e7b2f8575df7",
+				Name:        "database",
+				Description: "Azure SQL Server-- database",
+				Free:        false,
+				Stability:   service.StabilityExperimental,
+				Metadata: service.ServicePlanMetadata{
+					DisplayName: "Azure SQL Server-- database",
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: service.InputParametersSchema{
+							RequiredProperties: []string{
+								"failoverGroup",
+								"database",
+							},
+							PropertySchemas: map[string]service.PropertySchema{
+								"failoverGroup": &service.StringPropertySchema{
+									Title:       "Failover Group",
+									Description: "The name of the failover group",
+								},
+								"database": &service.StringPropertySchema{
+									Title:       "Database",
+									Description: "The name of the database",
+								},
+							},
+						},
+					},
+				},
+			}),
+		),
 	}), nil
 }
