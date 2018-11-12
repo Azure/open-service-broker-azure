@@ -12,7 +12,7 @@ func getDBConnection(
 	administratorLogin string,
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
-	databaseName string, // nolint: unparam
+	databaseName string,
 ) (*sql.DB, error) {
 
 	query := url.Values{}

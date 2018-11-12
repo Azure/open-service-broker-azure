@@ -9,16 +9,23 @@ import (
 
 type module struct {
 	dbmsPairRegisteredManager *dbmsPairRegisteredManager
+	databasePairManager       *databasePairManager
 }
 
-// The basic parent service in this module. A pair of servers is required to
-// foster the foundation of a Failover Group. The reason why not new server
-// pair, is based on users' feedback. We can still add a service for new server
-// pair if needed.
 type dbmsPairRegisteredManager struct {
 	sqlDatabaseDNSSuffix string
 	armDeployer          arm.Deployer
 	serversClient        sqlSDK.ServersClient
+}
+
+type commonDatabasePairManager struct {
+	armDeployer          arm.Deployer
+	databasesClient      sqlSDK.DatabasesClient
+	failoverGroupsClient sqlSDK.FailoverGroupsClient
+}
+
+type databasePairManager struct {
+	commonDatabasePairManager
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -28,15 +35,22 @@ func New(
 	azureEnvironment azure.Environment,
 	armDeployer arm.Deployer,
 	serversClient sqlSDK.ServersClient,
-	databasesClient sqlSDK.DatabasesClient, // nolint: unparam
-	failoverGroupsClient sqlSDK.FailoverGroupsClient, // nolint: unparam
-	// These used clients are for future PRs usage
+	databasesClient sqlSDK.DatabasesClient,
+	failoverGroupsClient sqlSDK.FailoverGroupsClient,
 ) service.Module {
+	commonDatabasePairMgr := commonDatabasePairManager{
+		armDeployer:          armDeployer,
+		databasesClient:      databasesClient,
+		failoverGroupsClient: failoverGroupsClient,
+	}
 	return &module{
 		dbmsPairRegisteredManager: &dbmsPairRegisteredManager{
 			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
 			armDeployer:          armDeployer,
 			serversClient:        serversClient,
+		},
+		databasePairManager: &databasePairManager{
+			commonDatabasePairMgr,
 		},
 	}
 }

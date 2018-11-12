@@ -29,6 +29,23 @@ var mssqldrTestCases = []serviceLifecycleTestCase{
 			"primaryLocation":   "southcentralus",
 			"secondaryLocation": "eastus",
 		},
+		childTestCases: []*serviceLifecycleTestCase{
+			{
+				group:           "mssqldr",
+				name:            "azure-sql-12-0-dr-database-pair",
+				serviceID:       "2eb94a7e-5a7c-46f9-b9d2-ff769f215845",
+				planID:          "edce3e74-69eb-4524-aabb-f2c4a7ee9398",
+				testCredentials: testMsSQLCreds,
+				provisioningParameters: map[string]interface{}{
+					"parentAlias":   mssqlDBMSPairAlias,
+					"failoverGroup": uuid.NewV4().String(),
+					"database":      uuid.NewV4().String(),
+				},
+				updatingParameters: map[string]interface{}{
+					"dtus": 50,
+				},
+			},
+		},
 	},
 }
 
