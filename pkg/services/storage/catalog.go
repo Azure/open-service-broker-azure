@@ -4,33 +4,21 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-const kindKey = "kind"
-const generalPurposeV1 = "generalPurposeV1"
-const generalPurposeV2 = "generalPurposeV2"
-const blobStorage = "blobStorage"
-const blobStorageWithContainer = "blobStorageWithContainer"
+const serviceGeneralPurposeV2 = "azure-storage-general-purpose-v2"
+const serviceGeneralPurposeV1 = "azure-storage-general-purpose-v1"
+const serviceBlobAccount = "azure-storage-blob-account"
+const serviceBlobAccountAndContainer = "azure-storage-blob-account-and-container"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
-	v1PlanDetail := planDetail{
-		planName: generalPurposeV1,
-	}
-	v2PlanDetail := planDetail{
-		planName: generalPurposeV2,
-	}
-	blobPlanDetail := planDetail{
-		planName: blobStorage,
-	}
-	blobWithContainerPlanDetail := planDetail{
-		planName: blobStorageWithContainer,
-	}
 
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			service.ServiceProperties{
-				ID:          "2e2fc314-37b6-4587-8127-8f9ee8b33fea",
-				Name:        "azure-storage",
-				Description: "Azure Storage (Experimental)",
+				ID:   "9a3e28fe-8c02-49da-9b35-1b054eb06c95",
+				Name: serviceGeneralPurposeV2,
+				Description: "Azure general purpose v2 storage account; create your " +
+					"own containers, files, and tables within this account",
 				Metadata: service.ServiceMetadata{
 					DisplayName: "Azure Storage",
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
@@ -43,64 +31,96 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable: true,
 				Tags:     []string{"Azure", "Storage"},
 			},
-			m.serviceManager,
+			m.generalPurposeV2Manager,
 			service.NewPlan(service.PlanProperties{
-				ID:   "6ddf6b41-fb60-4b70-af99-8ecc4896b3cf",
-				Name: "general-purpose-storage-account",
-				Description: "Azure general-purpose storage account; create your " +
+				ID:   "bc4f766a-c372-479c-b0b4-bd9d0546b3ef",
+				Name: "account",
+				Description: "Azure general purpose v2 storage account; create your " +
 					"own containers, files, and tables within this account",
 				Free:      false,
 				Stability: service.StabilityExperimental,
-				Extended: map[string]interface{}{
-					kindKey: storageKindGeneralPurposeStorageAcccount,
-				},
-				Metadata: service.ServicePlanMetadata{
-					DisplayName: "General Purpose Storage Account",
-					Bullets: []string{"Azure general-purpose storage account",
-						"Create your own containers, files, and tables within this account",
-					},
-				},
-				Schemas: service.PlanSchemas{
-					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: v1PlanDetail.generateProvisioningParamsSchema(),
-						UpdatingParametersSchema:     v1PlanDetail.generateUpdatingParamsSchema(),
-					},
-				},
-			}),
-			service.NewPlan(service.PlanProperties{
-				ID:   "e19fb0be-dd1f-4ef0-b44f-88832dca1a66",
-				Name: "general-purpose-v2-storage-account",
-				Description: "Azure general-purpose storage account; create your " +
-					"own containers, files, and tables within this account",
-				Free:      false,
-				Stability: service.StabilityExperimental,
-				Extended: map[string]interface{}{
-					kindKey: storageKindGeneralPurposeV2StorageAccount,
-				},
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "General Purpose V2 Storage Account",
-					Bullets: []string{"Azure general-purpose storage account",
+					Bullets: []string{"Azure general-purpose v2 storage account",
 						"Create your own containers, files, and tables within this account",
 					},
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: v2PlanDetail.generateProvisioningParamsSchema(),
-						UpdatingParametersSchema:     v2PlanDetail.generateUpdatingParamsSchema(),
+						ProvisioningParametersSchema: generateProvisioningParamsSchema(serviceGeneralPurposeV2),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(serviceGeneralPurposeV2),
 					},
 				},
 			}),
+		),
+		service.NewService(
+			service.ServiceProperties{
+				ID:   "d10ea062-b627-41e8-a240-543b60030694",
+				Name: serviceGeneralPurposeV1,
+				Description: "Azure general purpose v1 storage account; create your " +
+					"own containers, files, and tables within this account",
+				Metadata: service.ServiceMetadata{
+					DisplayName: "Azure Storage",
+					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
+						"?width=200",
+					LongDescription: "Offload the heavy lifting of datacenter management" +
+						" (Experimental)",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Storage"},
+			},
+			m.generalPurposeV1Manager,
 			service.NewPlan(service.PlanProperties{
-				ID:   "800a17e1-f20a-463d-a290-20516052f647",
-				Name: "blob-storage-account",
+				ID:   "9364d013-3690-4ce5-b0a2-b43d9b970b02",
+				Name: "account",
+				Description: "General-purpose v1 accounts provide access to all " +
+					"Azure Storage services, but may not have the latest features" +
+					"or the lowest per gigabyte pricing",
+				Free:      false,
+				Stability: service.StabilityExperimental,
+				Metadata: service.ServicePlanMetadata{
+					DisplayName: "General Purpose V1 Storage Account",
+					Bullets: []string{"Azure general-purpose v1 storage account",
+						"Create your own containers, files, and tables within this account",
+					},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: generateProvisioningParamsSchema(serviceGeneralPurposeV1),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(serviceGeneralPurposeV1),
+					},
+				},
+			}),
+		),
+		service.NewService(
+			service.ServiceProperties{
+				ID:   "1a5b4582-29a3-48c5-9cac-511fd8c52756",
+				Name: serviceBlobAccount,
+				Description: "Specialized Azure storage account for storing block " +
+					"blobs and append blobs",
+				Metadata: service.ServiceMetadata{
+					DisplayName: "Azure Storage",
+					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
+						"?width=200",
+					LongDescription: "Offload the heavy lifting of datacenter management" +
+						" (Experimental)",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Storage"},
+			},
+			m.blobAccountManager,
+			service.NewPlan(service.PlanProperties{
+				ID:   "98ae02ec-da21-4b09-b5e0-e2f9583d565c",
+				Name: "account",
 				Description: "Specialized Azure storage account for storing block " +
 					"blobs and append blobs; create your own blob containers within " +
 					"this account",
 				Free:      false,
 				Stability: service.StabilityExperimental,
-				Extended: map[string]interface{}{
-					kindKey: storageKindBlobStorageAccount,
-				},
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Blob Storage Account",
 					Bullets: []string{"Specialized Azure storage account for storing " +
@@ -110,22 +130,40 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: blobPlanDetail.generateProvisioningParamsSchema(),
-						UpdatingParametersSchema:     blobPlanDetail.generateUpdatingParamsSchema(),
+						ProvisioningParametersSchema: generateProvisioningParamsSchema(serviceBlobAccount),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(serviceBlobAccount),
 					},
 				},
 			}),
+		),
+		service.NewService(
+			service.ServiceProperties{
+				ID:   "d799916e-3faf-4bdf-a48b-bf5012a2d38c",
+				Name: serviceBlobAccountAndContainer,
+				Description: "A specialized Azure storage account for storing block " +
+					"blobs and append blobs; automatically provisions a blob container " +
+					" within the account",
+				Metadata: service.ServiceMetadata{
+					DisplayName: "Azure Storage",
+					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
+						"?width=200",
+					LongDescription: "Offload the heavy lifting of datacenter management" +
+						" (Experimental)",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Storage"},
+			},
+			m.blobAllInOneManager,
 			service.NewPlan(service.PlanProperties{
-				ID:   "189d3b8f-8307-4b3f-8c74-03d069237f70",
-				Name: "blob-container",
+				ID:   "6c3b587d-0f88-4112-982a-dbe541f30669",
+				Name: "all-in-one",
 				Description: "A specialized Azure storage account for storing block " +
 					"blobs and append blobs; automatically provisions a blob container " +
 					" within the account",
 				Free:      false,
 				Stability: service.StabilityExperimental,
-				Extended: map[string]interface{}{
-					kindKey: storageKindBlobContainer,
-				},
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Blob Container",
 					Bullets: []string{"A specialized Azure storage account for storing " +
@@ -135,8 +173,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: blobWithContainerPlanDetail.generateProvisioningParamsSchema(),
-						UpdatingParametersSchema:     blobWithContainerPlanDetail.generateUpdatingParamsSchema(),
+						ProvisioningParametersSchema: generateProvisioningParamsSchema(serviceBlobAccountAndContainer),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(serviceBlobAccountAndContainer),
 					},
 				},
 			}),

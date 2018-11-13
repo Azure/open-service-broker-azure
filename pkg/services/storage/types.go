@@ -2,15 +2,6 @@ package storage
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-type storageKind string
-
-const (
-	storageKindGeneralPurposeStorageAcccount  storageKind = "GeneralPurposeStorageAccount"   // nolint: lll
-	storageKindGeneralPurposeV2StorageAccount storageKind = "GeneralPurposeV2StorageAccount" // nolint: lll
-	storageKindBlobStorageAccount             storageKind = "BlobStorageAccount"
-	storageKindBlobContainer                  storageKind = "BlobContainer"
-)
-
 type instanceDetails struct {
 	ARMDeploymentName  string `json:"armDeployment"`
 	StorageAccountName string `json:"storageAccountName"`
@@ -27,10 +18,10 @@ type credentials struct {
 	ContainerName               string `json:"containerName,omitempty"`
 }
 
-func (s *serviceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+func (s *storageManager) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &instanceDetails{}
 }
 
-func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+func (s *storageManager) GetEmptyBindingDetails() service.BindingDetails {
 	return nil
 }

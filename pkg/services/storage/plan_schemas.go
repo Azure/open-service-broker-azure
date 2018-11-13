@@ -12,21 +12,17 @@ const (
 	cool     = "Cool"
 )
 
-type planDetail struct {
-	planName string
-}
-
 // nolint: lll
 var accountTypeMap = map[string][]string{
-	"update":                 {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	blobStorage:              {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	blobStorageWithContainer: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	generalPurposeV1:         {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
-	generalPurposeV2:         {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
+	"update":                       {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceBlobAccount:             {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceBlobAccountAndContainer: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceGeneralPurposeV1:        {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
+	serviceGeneralPurposeV2:        {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
 }
 
 // nolint: lll
-func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersSchema {
+func generateProvisioningParamsSchema(serviceName string) service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		RequiredProperties: []string{"location", "resourceGroup"},
 		PropertySchemas: map[string]service.PropertySchema{
@@ -55,7 +51,7 @@ func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersS
 			},
 		},
 	}
-	if pd.planName != generalPurposeV1 {
+	if serviceName != serviceGeneralPurposeV1 {
 		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
 			Title:         "Access Tier",
 			Description:   "The access tier used for billing.",
@@ -69,14 +65,14 @@ func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersS
 		Description: "This field is a combination of account kind and " +
 			" replication strategy",
 		DefaultValue:  "Standard_LRS",
-		AllowedValues: accountTypeMap[pd.planName],
+		AllowedValues: accountTypeMap[serviceName],
 	}
 
 	return ips
 }
 
 // nolint: lll
-func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchema {
+func generateUpdatingParamsSchema(serviceName string) service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"enableNonHttpsTraffic": &service.StringPropertySchema{
@@ -92,7 +88,7 @@ func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchem
 			},
 		},
 	}
-	if pd.planName != generalPurposeV1 {
+	if serviceName != serviceGeneralPurposeV1 {
 		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
 			Title:         "Access Tier",
 			Description:   "The access tier used for billing.",
