@@ -4,10 +4,10 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-const serviceGeneralPurposeV2 = "azure-storage-general-purpose-v2"
-const serviceGeneralPurposeV1 = "azure-storage-general-purpose-v1"
+const serviceGeneralPurposeV2 = "azure-storage-general-purpose-v2-account"
+const serviceGeneralPurposeV1 = "azure-storage-general-purpose-v1-account"
+const serviceBlobAllInOne = "azure-storage-blob"
 const serviceBlobAccount = "azure-storage-blob-account"
-const serviceBlobAccountAndContainer = "azure-storage-blob-account-and-container"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
@@ -139,7 +139,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 		service.NewService(
 			service.ServiceProperties{
 				ID:   "d799916e-3faf-4bdf-a48b-bf5012a2d38c",
-				Name: serviceBlobAccountAndContainer,
+				Name: serviceBlobAllInOne,
 				Description: "A specialized Azure storage account for storing block " +
 					"blobs and append blobs; automatically provisions a blob container " +
 					" within the account",
@@ -173,8 +173,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(serviceBlobAccountAndContainer),
-						UpdatingParametersSchema:     generateUpdatingParamsSchema(serviceBlobAccountAndContainer),
+						ProvisioningParametersSchema: generateProvisioningParamsSchema(serviceBlobAllInOne),
+						UpdatingParametersSchema:     generateUpdatingParamsSchema(serviceBlobAllInOne),
 					},
 				},
 			}),

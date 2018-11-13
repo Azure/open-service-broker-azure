@@ -24,7 +24,7 @@ func buildGoTemplate(
 	case serviceGeneralPurposeV2:
 		goTemplateParams["kind"] = "StorageV2"
 		goTemplateParams["accessTier"] = parameter.GetString("accessTier")
-	case serviceBlobAccount, serviceBlobAccountAndContainer:
+	case serviceBlobAccount, serviceBlobAllInOne:
 		goTemplateParams["kind"] = "BlobStorage"
 		goTemplateParams["accessTier"] = parameter.GetString("accessTier")
 	}

@@ -14,11 +14,11 @@ const (
 
 // nolint: lll
 var accountTypeMap = map[string][]string{
-	"update":                       {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	serviceBlobAccount:             {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	serviceBlobAccountAndContainer: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	serviceGeneralPurposeV1:        {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
-	serviceGeneralPurposeV2:        {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
+	"update":                {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceBlobAccount:      {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceBlobAllInOne:     {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceGeneralPurposeV1: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
+	serviceGeneralPurposeV2: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
 }
 
 // nolint: lll
