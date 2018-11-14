@@ -365,22 +365,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: service.InputParametersSchema{
-							RequiredProperties: []string{
-								"failoverGroup",
-								"database",
-							},
-							PropertySchemas: map[string]service.PropertySchema{
-								"failoverGroup": &service.StringPropertySchema{
-									Title:       "Failover Group",
-									Description: "The name of the failover group",
-								},
-								"database": &service.StringPropertySchema{
-									Title:       "Database",
-									Description: "The name of the database",
-								},
-							},
-						},
+						ProvisioningParametersSchema: m.databasePairRegisteredManager.getProvisionParametersSchema(),
 					},
 				},
 			}),
