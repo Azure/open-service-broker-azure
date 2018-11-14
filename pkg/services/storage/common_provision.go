@@ -10,7 +10,7 @@ import (
 )
 
 func (s *storageManager) GetProvisioner(
-	plan service.Plan,
+	_ service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", s.preProvision),
@@ -20,7 +20,7 @@ func (s *storageManager) GetProvisioner(
 
 func (s *storageManager) preProvision(
 	_ context.Context,
-	instance service.Instance,
+	_ service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instanceDetails{
 		ARMDeploymentName:  uuid.NewV4().String(),

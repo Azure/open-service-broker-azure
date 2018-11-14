@@ -11,7 +11,7 @@ import (
 )
 
 func (b *blobAllInOneManager) GetProvisioner(
-	plan service.Plan,
+	_ service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", b.preProvision),

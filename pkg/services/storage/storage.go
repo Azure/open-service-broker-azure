@@ -40,15 +40,15 @@ func New(
 	armDeployer arm.Deployer,
 	accountsClient storageSDK.AccountsClient,
 ) service.Module {
-	storageManager := storageManager{
+	storageMgr := storageManager{
 		armDeployer:    armDeployer,
 		accountsClient: accountsClient,
 	}
 	return &module{
-		generalPurposeV1Manager: &generalPurposeV1Manager{storageManager},
-		generalPurposeV2Manager: &generalPurposeV2Manager{storageManager},
-		blobAccountManager:      &blobAccountManager{storageManager},
-		blobAllInOneManager:     &blobAllInOneManager{storageManager},
+		generalPurposeV1Manager: &generalPurposeV1Manager{storageMgr},
+		generalPurposeV2Manager: &generalPurposeV2Manager{storageMgr},
+		blobAccountManager:      &blobAccountManager{storageMgr},
+		blobAllInOneManager:     &blobAllInOneManager{storageMgr},
 	}
 }
 
