@@ -59,6 +59,22 @@ var mssqldrTestCases = []serviceLifecycleTestCase{
 					"parentAlias": mssqlDBMSPairAlias,
 				},
 			},
+			{
+				group:           "mssqldr",
+				name:            "azure-sql-12-0-dr-database-pair-from-existing",
+				serviceID:       "e18a9861-5740-4e1a-9bd0-6f0fc3e4d12f",
+				planID:          "af66e3e3-c500-4042-879e-5a6d47901d1c",
+				testCredentials: testMsSQLCreds,
+				preProvisionFns: []preProvisionFn{
+					createSQLDatabasePair,
+				},
+				provisioningParameters: map[string]interface{}{
+					"parentAlias": mssqlDBMSPairAlias,
+				},
+				updatingParameters: map[string]interface{}{
+					"dtus": 50,
+				},
+			},
 		},
 	},
 }

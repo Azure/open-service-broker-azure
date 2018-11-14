@@ -3,8 +3,7 @@ package mssqldr
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 func buildBasicPlan(
-	id string, // nolint: unparam
-	// TODO remove the comment
+	id string,
 ) service.PlanProperties {
 
 	planDetails := dtuPlanDetails{
@@ -45,8 +44,7 @@ func buildBasicPlan(
 }
 
 func buildStandardPlan(
-	id string, // nolint: unparam
-	// TODO remove the comment
+	id string,
 ) service.PlanProperties {
 	planDetails := dtuPlanDetails{
 		storageInGB: 250,
@@ -98,8 +96,7 @@ func buildStandardPlan(
 }
 
 func buildPremiumPlan(
-	id string, // nolint: unparam
-	// TODO remove the comment
+	id string,
 ) service.PlanProperties {
 	planDetails := dtuPlanDetails{
 		storageInGB: 500,
@@ -148,8 +145,7 @@ func buildPremiumPlan(
 }
 
 func buildGeneralPurposePlan(
-	id string, // nolint: unparam
-	// TODO remove the comment
+	id string,
 ) service.PlanProperties {
 	planDetails := vCorePlanDetails{
 		tierName:      "GeneralPurpose",
@@ -187,8 +183,7 @@ func buildGeneralPurposePlan(
 }
 
 func buildBusinessCriticalPlan(
-	id string, // nolint: unparam
-	// TODO remove the comment
+	id string,
 ) service.PlanProperties {
 	planDetails := vCorePlanDetails{
 		tierName:      "BusinessCritical",
@@ -369,6 +364,60 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					},
 				},
 			}),
+		),
+		// database pair from existing service
+		service.NewService(
+			service.ServiceProperties{
+				ID:              "e18a9861-5740-4e1a-9bd0-6f0fc3e4d12f",
+				Name:            "azure-sql-12-0-dr-database-pair-from-existing",
+				Description:     "Azure SQL 12.0-- disaster recovery database pair from existing",
+				Bindable:        true,
+				ParentServiceID: "00ce53a3-d6c3-4c24-8cb2-3f48d3b161d8",
+				Metadata: service.ServiceMetadata{
+					DisplayName:      "Azure SQL 12.0-- disaster recovery Database Pair from existing",
+					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair from existing",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Tags: []string{
+					"Azure",
+					"SQL",
+					"Database",
+					service.DRTag,
+					service.MigrationTag,
+					"Failover Group",
+				},
+				Extended: map[string]interface{}{
+					"version": "12.0",
+				},
+			},
+			m.databasePairManagerForExistingInstance,
+			service.NewPlan(
+				buildBasicPlan(
+					"5ffdb255-8261-4841-a0f4-f1ec4ed9402c",
+				),
+			),
+			service.NewPlan(
+				buildStandardPlan(
+					"af66e3e3-c500-4042-879e-5a6d47901d1c",
+				),
+			),
+			service.NewPlan(
+				buildPremiumPlan(
+					"e3b13175-5686-443e-aee0-33f76d62ab55",
+				),
+			),
+			service.NewPlan(
+				buildGeneralPurposePlan(
+					"94a2888f-dcec-4f6a-bea8-f7a7e4f6edc8",
+				),
+			),
+			service.NewPlan(
+				buildBusinessCriticalPlan(
+					"0a7d3d85-147a-4bae-9c67-055e8404af1e",
+				),
+			),
 		),
 	}), nil
 }
