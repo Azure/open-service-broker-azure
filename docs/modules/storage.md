@@ -4,7 +4,7 @@ _Note: This module is EXPERIMENTAL. To enable this module, you must run Open Ser
 
 ## Services & Plans
 
-### Service: azure-storage-general-purpose-v2-account
+### Service: azure-storage-general-purpose-v2-storage-account
 
 | Plan Name | Description                                                  |
 | --------- | ------------------------------------------------------------ |
@@ -71,7 +71,7 @@ Deletes the storage account.
 
 
 
-### Service: azure-storage-general-purpose-v1-account
+### Service: azure-storage-general-purpose-v1-storage-account
 
 | Plan Name | Description                                                  |
 | --------- | ------------------------------------------------------------ |
@@ -136,7 +136,7 @@ Deletes the storage account.
 
 
 
-### Service: azure-storage-blob
+### Service: azure-storage-blob-storage-account-and-container
 
 | Plan Name    | Description                                                  |
 | ------------ | ------------------------------------------------------------ |
@@ -201,7 +201,7 @@ Deletes the storage account and the blob container inside it.
 
 
 
-### Service: azure-storage-blob-account
+### Service: azure-storage-blob-storage-account
 
 | Plan Name | Description                                                  |
 | --------- | ------------------------------------------------------------ |
