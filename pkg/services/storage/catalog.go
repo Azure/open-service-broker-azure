@@ -11,7 +11,6 @@ const serviceBlobAccount = "azure-storage-blob-storage-account"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
-
 	return service.NewCatalog([]service.Service{
 		service.NewService(
 			service.ServiceProperties{
@@ -100,6 +99,8 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name: serviceBlobAccount,
 				Description: "Specialized Azure storage account for storing block " +
 					"blobs and append blobs",
+				// Tongyao: This is a placeholder, I'll send a PR later to add a child service.
+				ChildServiceID: "fb6ce656-c16d-4b48-aff9-286714298af8",
 				Metadata: service.ServiceMetadata{
 					DisplayName: "Azure Storage",
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
