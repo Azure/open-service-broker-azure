@@ -295,6 +295,25 @@ func getDBMSPairRegisteredProvisionParamSchema() service.InputParametersSchema {
 	}
 }
 
+func getDatabasePairRegisteredProvisionParamSchema() service.InputParametersSchema { // nolint: lll
+	return service.InputParametersSchema{
+		RequiredProperties: []string{
+			"failoverGroup",
+			"database",
+		},
+		PropertySchemas: map[string]service.PropertySchema{
+			"failoverGroup": &service.StringPropertySchema{
+				Title:       "Failover Group",
+				Description: "The name of the failover group",
+			},
+			"database": &service.StringPropertySchema{
+				Title:       "Database",
+				Description: "The name of the database",
+			},
+		},
+	}
+}
+
 func validateStorageUpdate(
 	pp service.ProvisioningParameters,
 	up service.ProvisioningParameters,

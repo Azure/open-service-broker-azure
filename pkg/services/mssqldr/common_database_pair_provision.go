@@ -7,6 +7,65 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
+func (d *commonDatabasePairManager) validatePriDatabase(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	pp := instance.ProvisioningParameters
+	ppp := instance.Parent.ProvisioningParameters
+	pdt := instance.Parent.Details.(*dbmsPairInstanceDetails)
+	if err := validateDatabase(
+		ctx,
+		&d.databasesClient,
+		ppp.GetString("primaryResourceGroup"),
+		pdt.PriServerName,
+		pp.GetString("database"),
+	); err != nil {
+		return nil, err
+	}
+	return instance.Details, nil
+}
+
+func (d *commonDatabasePairManager) validateSecDatabase(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	pp := instance.ProvisioningParameters
+	ppp := instance.Parent.ProvisioningParameters
+	pdt := instance.Parent.Details.(*dbmsPairInstanceDetails)
+	if err := validateDatabase(
+		ctx,
+		&d.databasesClient,
+		ppp.GetString("secondaryResourceGroup"),
+		pdt.SecServerName,
+		pp.GetString("database"),
+	); err != nil {
+		return nil, err
+	}
+	return instance.Details, nil
+}
+
+func (d *commonDatabasePairManager) validateFailoverGroup(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	pp := instance.ProvisioningParameters
+	ppp := instance.Parent.ProvisioningParameters
+	pdt := instance.Parent.Details.(*dbmsPairInstanceDetails)
+	if err := validateFailoverGroup(
+		ctx,
+		&d.failoverGroupsClient,
+		ppp.GetString("primaryResourceGroup"),
+		pdt.PriServerName,
+		pdt.SecServerName,
+		pp.GetString("database"),
+		pp.GetString("failoverGroup"),
+	); err != nil {
+		return nil, err
+	}
+	return instance.Details, nil
+}
+
 func (d *commonDatabasePairManager) deployPriARMTemplate(
 	_ context.Context,
 	instance service.Instance,
