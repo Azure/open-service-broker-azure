@@ -8,8 +8,9 @@ import (
 )
 
 type module struct {
-	dbmsPairRegisteredManager *dbmsPairRegisteredManager
-	databasePairManager       *databasePairManager
+	dbmsPairRegisteredManager     *dbmsPairRegisteredManager
+	databasePairManager           *databasePairManager
+	databasePairRegisteredManager *databasePairRegisteredManager
 }
 
 type dbmsPairRegisteredManager struct {
@@ -25,6 +26,10 @@ type commonDatabasePairManager struct {
 }
 
 type databasePairManager struct {
+	commonDatabasePairManager
+}
+
+type databasePairRegisteredManager struct {
 	commonDatabasePairManager
 }
 
@@ -50,6 +55,9 @@ func New(
 			serversClient:        serversClient,
 		},
 		databasePairManager: &databasePairManager{
+			commonDatabasePairMgr,
+		},
+		databasePairRegisteredManager: &databasePairRegisteredManager{
 			commonDatabasePairMgr,
 		},
 	}
