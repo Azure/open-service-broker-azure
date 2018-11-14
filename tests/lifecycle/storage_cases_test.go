@@ -65,7 +65,7 @@ var storageTestCases = []serviceLifecycleTestCase{
 			"location":              "southcentralus",
 			"enableNonHttpsTraffic": "enabled",
 			"accountType":           "Standard_GRS",
-			"containerName":         "blobContainer",
+			"containerName":         "blob-container",
 		},
 		updatingParameters: map[string]interface{}{
 			"accountType": "Standard_LRS",
