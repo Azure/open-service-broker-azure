@@ -49,6 +49,7 @@ var storageTestCases = []serviceLifecycleTestCase{
 			"enableNonHttpsTraffic": "enabled",
 			"accessTier":            "Cool",
 			"accountType":           "Standard_LRS",
+			"alias":                 "blobAccount",
 		},
 		updatingParameters: map[string]interface{}{
 			"accessTier":  "Hot",
@@ -64,6 +65,7 @@ var storageTestCases = []serviceLifecycleTestCase{
 			"location":              "southcentralus",
 			"enableNonHttpsTraffic": "enabled",
 			"accountType":           "Standard_GRS",
+			"containerName":         "blobContainer",
 		},
 		updatingParameters: map[string]interface{}{
 			"accountType": "Standard_LRS",

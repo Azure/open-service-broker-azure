@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *storageManager) Bind(
+func (b *blobAccountManager) Bind(
 	service.Instance,
 	service.BindingParameters,
 ) (service.BindingDetails, error) {
@@ -14,7 +14,7 @@ func (s *storageManager) Bind(
 }
 
 // nolint: lll
-func (s *storageManager) GetCredentials(
+func (b *blobAccountManager) GetCredentials(
 	instance service.Instance,
 	_ service.Binding,
 ) (service.Credentials, error) {
@@ -22,7 +22,6 @@ func (s *storageManager) GetCredentials(
 	credential := credentials{
 		StorageAccountName:         dt.StorageAccountName,
 		AccessKey:                  dt.AccessKey,
-		ContainerName:              dt.ContainerName,
 		PrimaryBlobServiceEndPoint: fmt.Sprintf("https://%s.blob.core.windows.net/", dt.StorageAccountName),
 	}
 	return credential, nil

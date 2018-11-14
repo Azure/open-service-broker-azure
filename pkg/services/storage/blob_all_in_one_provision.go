@@ -27,7 +27,11 @@ func (b *blobAllInOneManager) preProvision(
 	dt := instanceDetails{
 		ARMDeploymentName:  uuid.NewV4().String(),
 		StorageAccountName: generate.NewIdentifier(),
-		ContainerName:      uuid.NewV4().String(),
+	}
+	if instance.ProvisioningParameters.GetString("containerName") != "" {
+		dt.ContainerName = instance.ProvisioningParameters.GetString("containerName")
+	} else {
+		dt.ContainerName = uuid.NewV4().String()
 	}
 	return &dt, nil
 }

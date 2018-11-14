@@ -51,6 +51,15 @@ func generateProvisioningParamsSchema(serviceName string) service.InputParameter
 			},
 		},
 	}
+
+	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
+		Title: "Account Type",
+		Description: "This field is a combination of account kind and " +
+			" replication strategy",
+		DefaultValue:  "Standard_LRS",
+		AllowedValues: accountTypeMap[serviceName],
+	}
+
 	if serviceName != serviceGeneralPurposeV1 {
 		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
 			Title:         "Access Tier",
@@ -60,12 +69,12 @@ func generateProvisioningParamsSchema(serviceName string) service.InputParameter
 		}
 	}
 
-	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
-		Title: "Account Type",
-		Description: "This field is a combination of account kind and " +
-			" replication strategy",
-		DefaultValue:  "Standard_LRS",
-		AllowedValues: accountTypeMap[serviceName],
+	if serviceName == serviceBlobAllInOne {
+		ips.PropertySchemas["containerName"] = &service.StringPropertySchema{
+			Title: "Container Name",
+			Description: "The name of the container which will be created inside" +
+				"the blob stroage account",
+		}
 	}
 
 	return ips
@@ -88,13 +97,6 @@ func generateUpdatingParamsSchema(serviceName string) service.InputParametersSch
 			},
 		},
 	}
-	if serviceName != serviceGeneralPurposeV1 {
-		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
-			Title:         "Access Tier",
-			Description:   "The access tier used for billing.",
-			AllowedValues: []string{hot, cool},
-		}
-	}
 
 	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
 		Title: "Account Type",
@@ -102,6 +104,14 @@ func generateUpdatingParamsSchema(serviceName string) service.InputParametersSch
 			" replication strategy",
 		DefaultValue:  "Standard_LRS",
 		AllowedValues: accountTypeMap["update"],
+	}
+
+	if serviceName != serviceGeneralPurposeV1 {
+		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
+			Title:         "Access Tier",
+			Description:   "The access tier used for billing.",
+			AllowedValues: []string{hot, cool},
+		}
 	}
 
 	return ips
