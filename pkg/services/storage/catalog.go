@@ -4,10 +4,10 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-const serviceGeneralPurposeV2 = "azure-storage-general-purpose-v2-account"
-const serviceGeneralPurposeV1 = "azure-storage-general-purpose-v1-account"
-const serviceBlobAllInOne = "azure-storage-blob"
-const serviceBlobAccount = "azure-storage-blob-account"
+const serviceGeneralPurposeV2 = "azure-storage-general-purpose-v2-storage-account"
+const serviceGeneralPurposeV1 = "azure-storage-general-purpose-v1-storage-account"
+const serviceBlobAllInOne = "azure-storage-blob-storage-account-and-container"
+const serviceBlobAccount = "azure-storage-blob-storage-account"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
