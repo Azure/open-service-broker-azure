@@ -4,6 +4,7 @@ import (
 	"regexp"
 
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -77,8 +78,8 @@ func generateProvisioningParamsSchema(serviceName string) service.InputParameter
 			Description: "The name of the container which will be created inside" +
 				"the blob stroage account",
 			AllowedPattern: regexp.MustCompile("^[a-z0-9]+(?:-[a-z0-9]+)*$"),
-			MinLength:      getIntPointer(3),
-			MaxLength:      getIntPointer(63),
+			MinLength:      ptr.ToInt(3),
+			MaxLength:      ptr.ToInt(63),
 		}
 	}
 
@@ -120,8 +121,4 @@ func generateUpdatingParamsSchema(serviceName string) service.InputParametersSch
 	}
 
 	return ips
-}
-
-func getIntPointer(num int) *int {
-	return &num
 }
