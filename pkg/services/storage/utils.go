@@ -1,6 +1,9 @@
 package storage
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import (
+	"github.com/Azure/azure-sdk-for-go/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+)
 
 func buildGoTemplate(
 	instance service.Instance,
@@ -29,4 +32,24 @@ func buildGoTemplate(
 		goTemplateParams["accessTier"] = parameter.GetString("accessTier")
 	}
 	return goTemplateParams
+}
+
+func createBlobContainer(storageAccountName, accessKey, containerName string) error {
+	client, _ := storage.NewBasicClient(storageAccountName, accessKey)
+	blobCli := client.GetBlobService()
+	container := blobCli.GetContainerReference(containerName)
+	options := storage.CreateContainerOptions{
+		Access: storage.ContainerAccessTypePrivate,
+	}
+	_, err := container.CreateIfNotExists(&options)
+	return err
+}
+
+func deleteBlobContainer(storageAccountName, accessKey, containerName string) error {
+	client, _ := storage.NewBasicClient(storageAccountName, accessKey)
+	blobCli := client.GetBlobService()
+	container := blobCli.GetContainerReference(containerName)
+	options := storage.DeleteContainerOptions{}
+	_, err := container.DeleteIfExists(&options)
+	return err
 }
