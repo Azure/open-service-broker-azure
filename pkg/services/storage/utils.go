@@ -34,7 +34,7 @@ func buildGoTemplate(
 	return goTemplateParams
 }
 
-func createBlobContainer(storageAccountName, accessKey, containerName string) error {
+func createBlobContainer(storageAccountName, accessKey, containerName string) error { // nolint: lll
 	client, _ := storage.NewBasicClient(storageAccountName, accessKey)
 	blobCli := client.GetBlobService()
 	container := blobCli.GetContainerReference(containerName)
@@ -45,7 +45,7 @@ func createBlobContainer(storageAccountName, accessKey, containerName string) er
 	return err
 }
 
-func deleteBlobContainer(storageAccountName, accessKey, containerName string) error {
+func deleteBlobContainer(storageAccountName, accessKey, containerName string) error { // nolint: lll
 	client, _ := storage.NewBasicClient(storageAccountName, accessKey)
 	blobCli := client.GetBlobService()
 	container := blobCli.GetContainerReference(containerName)

@@ -123,6 +123,7 @@ func generateUpdatingParamsSchema(serviceName string) service.InputParametersSch
 	return ips
 }
 
+// nolint: lll
 func generateBlobContainerProvisioningParamsSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
