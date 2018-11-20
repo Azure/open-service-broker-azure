@@ -92,7 +92,7 @@ func (s *sqlAllInOneManager) waitForReadLocationsReady(
 		databaseAccountClient,
 		instance.ProvisioningParameters.GetString("location"),
 		instance.ProvisioningParameters.GetStringArray("readRegions"),
-		true,
+		false,
 	)
 	if err != nil {
 		return nil, err

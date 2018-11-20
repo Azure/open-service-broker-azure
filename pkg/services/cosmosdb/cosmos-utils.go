@@ -200,7 +200,7 @@ func pollingUntilReadLocationsReady(
 	// When updating an existing instance, data in existing database will
 	// be copied and synchronized across all regions, it's hard to estimate
 	// how long the process will take so we disable timeout when updating.
-	enableTimeout bool,
+	enableTimeout bool, // nolint: unparam
 ) error {
 	const timeForOneReadLocation = time.Minute * 7
 	readLocations = append([]string{location}, readLocations...)
