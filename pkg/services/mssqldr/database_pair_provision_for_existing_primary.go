@@ -39,9 +39,9 @@ func (d *databasePairManagerForExistingPrimary) preProvision(
 	_ service.Instance,
 ) (service.InstanceDetails, error) {
 	return &databasePairInstanceDetails{
-		PriARMDeploymentName: uuid.NewV4().String(),
-		SecARMDeploymentName: uuid.NewV4().String(),
-		FailoverGroupARMDeploymentName:  uuid.NewV4().String(),
+		PriARMDeploymentName:           uuid.NewV4().String(),
+		SecARMDeploymentName:           uuid.NewV4().String(),
+		FailoverGroupARMDeploymentName: uuid.NewV4().String(),
 	}, nil
 }
 
