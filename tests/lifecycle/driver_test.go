@@ -27,6 +27,8 @@ func TestServices(t *testing.T) {
 
 	catalogConfig := service.NewCatalogConfigWithDefaults()
 	catalogConfig.MinStability = service.StabilityExperimental
+	catalogConfig.EnableMigrationServices = true
+	catalogConfig.EnableDRServices = true
 
 	catalog, err := boot.GetCatalog(catalogConfig, azureConfig)
 	assert.Nil(t, err)
