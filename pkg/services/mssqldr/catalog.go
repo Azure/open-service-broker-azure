@@ -446,7 +446,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"version": "12.0",
 				},
 			},
-			m.databasePairManagerForExistingInstance,
+			m.databasePairManagerForExistingPair,
 			service.NewPlan(
 				buildBasicPlan(
 					"5ffdb255-8261-4841-a0f4-f1ec4ed9402c",
