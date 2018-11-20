@@ -53,7 +53,7 @@ func generateProvisioningParamsSchema(planName string) service.InputParametersSc
 				"daily quota of messages that you can send.",
 			DefaultValue: ptr.ToInt64(1),
 			MinValue:     ptr.ToInt64(1),
-			MaxValue:     ptr.ToInt64(49),
+			MaxValue:     ptr.ToInt64(200),
 		}
 	}
 
