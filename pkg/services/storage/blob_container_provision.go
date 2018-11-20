@@ -28,7 +28,7 @@ func (b *blobContainerManager) checkNameAvailability(
 		return nil, nil
 	}
 
-	pdt := instance.Parent.Details.(instanceDetails)
+	pdt := instance.Parent.Details.(*instanceDetails)
 	client, _ := storage.NewBasicClient(
 		pdt.StorageAccountName,
 		pdt.AccessKey,
