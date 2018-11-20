@@ -54,7 +54,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:   "bdff693c-39cb-4590-b4ce-d1a17fab5848",
 				Name: planB1,
 				Description: "IoT hub Basic B1 Tier - max 400,000 " +
-					"messages per day.",
+					"messages per unit per day.",
 				Free: false,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Basic B1 Tier",
@@ -69,7 +69,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:   "eaa7bebe-6b62-4471-b02a-d9f97094f894",
 				Name: planB2,
 				Description: "IoT hub Basic B2 Tier - max 6,000,000 " +
-					"messages per day.",
+					"messages per unit per day.",
 				Free: false,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Basic B2 Tier",
@@ -84,7 +84,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:   "d5b67100-d826-4ac3-bc30-6c01f4cc5c52",
 				Name: planB3,
 				Description: "IoT hub Basic B3 Tier - max 300,000,000 " +
-					"messages per day.",
+					"messages per unit per day.",
 				Free: false,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Basic B3 Tier",
@@ -99,7 +99,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:   "0dde7e80-1f32-470d-ba0b-9db4fe1826be",
 				Name: planS1,
 				Description: "IoT hub Standard S1 Tier - max 400,000 " +
-					"messages per day.",
+					"messages per unit per day.",
 				Free: false,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Standard S1 Tier",
@@ -114,7 +114,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:   "857a73b3-4a3a-44cd-b4fa-e74cab6bd4db",
 				Name: planS2,
 				Description: "IoT hub Standard S2 Tier - max 6,000,000 " +
-					"messages per day.",
+					"messages per unit per day.",
 				Free: false,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Standard S2 Tier",
@@ -129,7 +129,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ID:   "7f1264d8-4786-4121-be43-c1de31f1cb1e",
 				Name: planS3,
 				Description: "IoT hub Standard S3 Tier - max 300,000,000 " +
-					"messages per day.",
+					"messages per unit per day.",
 				Free: false,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Standard S3 Tier",

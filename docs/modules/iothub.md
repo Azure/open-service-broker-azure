@@ -9,12 +9,12 @@ _Note: This module is EXPERIMENTAL. To enable this module, you must run Open Ser
 | Plan Name     | Description                                                  |
 | ------------- | ------------------------------------------------------------ |
 | `free`        | IoT hub Free Tier - max 8,000 messages per day.              |
-| `basic-b1`    | IoT hub Basic B1 Tier - max 400,000 messages per day.        |
-| `basic-b2`    | IoT hub Basic B2 Tier - max 6,000,000 messages per day.      |
-| `basic-b3`    | IoT hub Basic B3 Tier - max 300,000,000 messages per day.    |
-| `standard-s1` | IoT hub Standard S1 Tier - max 400,000 messages per day.     |
-| `standard-s2` | IoT hub Standard S2 Tier - max 6,000,000 messages per day.   |
-| `standard-s3` | IoT hub Standard S3 Tier - max 300,000,000 messages per day. |
+| `basic-b1`    | IoT hub Basic B1 Tier - max 400,000 messages per unit per day. |
+| `basic-b2`    | IoT hub Basic B2 Tier - max 6,000,000 messages per unit per day. |
+| `basic-b3`    | IoT hub Basic B3 Tier - max 300,000,000 messages per unit per day. |
+| `standard-s1` | IoT hub Standard S1 Tier - max 400,000 messages per unit per day. |
+| `standard-s2` | IoT hub Standard S2 Tier - max 6,000,000 messages per unit per day. |
+| `standard-s3` | IoT hub Standard S3 Tier - max 300,000,000 messages per unit per day. |
 
 #### Behaviors
 
@@ -29,8 +29,8 @@ Provisions a new IoT Hub.
 | `location`       | `string`            | The Azure region in which to provision applicable resources. | Y        |                                                              |
 | `resourceGroup`  | `string`            | The (new or existing) resource group with which to associate new resources. | Y        |                                                              |
 | `tags`           | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N        | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
-| `units`          | `int`               | Number of IoT hub units. Each IoT Hub is provisioned with a certain number of units in a specific tier. The tier and number of units determine the maximum daily quota of messages that you can send. **Note**: for plan `free`, this field is invalid; for plan `standard-s3`, allowed values are [1,10]; for other plans, allowed values are [1, 49]. | N        | If not provided, `1 `will be used as default value.          |
-| `partitionCount` | `int`               | The number of partitions relates the device-to-cloud messages to the number of simultaneous readers of these messages. Most IoT hubs only need four partitions. **Note**: for plan `free`, this field is invalid; for plan `basic-*`, allowed values are [2,8]; for plan `standard-*`, allowed values are [2, 32]. | N        | If not provided, `4` will be used as default value. For plan `free`, this field cannot be provided and `2` will be used. |
+| `units`          | `int`               | Number of IoT hub units. Each IoT Hub is provisioned with a certain number of units in a specific tier. The tier and number of units determine the maximum daily quota of messages that you can send. **Note**: for plan `free`, this field is invalid; for plan `standard-s3`, allowed values are from 1 to 10; for other plans, allowed values are from 1 to 49. | N        | If not provided, `1 `will be used as default value.          |
+| `partitionCount` | `int`               | The number of partitions relates the device-to-cloud messages to the number of simultaneous readers of these messages. Most IoT hubs only need four partitions. **Note**: for plan `free`, this field is invalid; for plan `basic-*`, allowed values are from 2 to 8; for plan `standard-*`, allowed values are from 2 to 32. | N        | If not provided, `4` will be used as default value. For plan `free`, this field cannot be provided and `2` will be used. |
 
 ##### Bind
 
