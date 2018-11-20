@@ -7,7 +7,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) ValidateUpdatingParameters(
+func (s *storageManager) ValidateUpdatingParameters(
 	instance service.Instance,
 ) error {
 	pp := instance.ProvisioningParameters
@@ -24,13 +24,13 @@ func (s *serviceManager) ValidateUpdatingParameters(
 	return nil
 }
 
-func (s *serviceManager) GetUpdater(service.Plan) (service.Updater, error) {
+func (s *storageManager) GetUpdater(service.Plan) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateARMTemplate", s.updateARMTemplate),
 	)
 }
 
-func (s *serviceManager) updateARMTemplate(
+func (s *storageManager) updateARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
