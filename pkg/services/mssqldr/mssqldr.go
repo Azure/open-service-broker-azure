@@ -11,7 +11,8 @@ type module struct {
 	dbmsPairRegisteredManager              *dbmsPairRegisteredManager
 	databasePairManager                    *databasePairManager
 	databasePairRegisteredManager          *databasePairRegisteredManager
-	databasePairManagerForExistingInstance *databasePairManagerForExistingInstance // nolint: lll
+	databasePairManagerForExistingPrimary  *databasePairManagerForExistingPrimary
+	databasePairManagerForExistingInstance *databasePairManagerForExistingInstance
 }
 
 type dbmsPairRegisteredManager struct {
@@ -31,6 +32,10 @@ type databasePairManager struct {
 }
 
 type databasePairRegisteredManager struct {
+	commonDatabasePairManager
+}
+
+type databasePairManagerForExistingPrimary struct {
 	commonDatabasePairManager
 }
 
@@ -63,6 +68,9 @@ func New(
 			commonDatabasePairMgr,
 		},
 		databasePairRegisteredManager: &databasePairRegisteredManager{
+			commonDatabasePairMgr,
+		},
+		databasePairManagerForExistingPrimary: &databasePairManagerForExistingPrimary{ // nolint: lll
 			commonDatabasePairMgr,
 		},
 		databasePairManagerForExistingInstance: &databasePairManagerForExistingInstance{ // nolint: lll

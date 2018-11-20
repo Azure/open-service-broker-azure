@@ -5,6 +5,7 @@ package lifecycle
 import (
 	"context"
 	"fmt"
+	"time"
 
 	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql" // nolint: lll
 	"github.com/Azure/go-autorest/autorest/to"
@@ -70,6 +71,23 @@ var mssqldrTestCases = []serviceLifecycleTestCase{
 				},
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": mssqlDBMSPairAlias,
+				},
+				updatingParameters: map[string]interface{}{
+					"dtus": 50,
+				},
+			},
+			{
+				group:           "mssqldr",
+				name:            "azure-sql-12-0-dr-database-pair-from-existing-primary", // nolint: lll
+				serviceID:       "505ae87a-5cd8-4aeb-b7ea-809dd249dc1f",
+				planID:          "8ec86bea-42f6-4805-b3e9-506eaebbf9e0",
+				testCredentials: testMsSQLCreds,
+				preProvisionFns: []preProvisionFn{
+					createPrimarySQLDatabase,
+				},
+				provisioningParameters: map[string]interface{}{
+					"parentAlias":   mssqlDBMSPairAlias,
+					"failoverGroup": uuid.NewV4().String(),
 				},
 				updatingParameters: map[string]interface{}{
 					"dtus": 50,
@@ -300,7 +318,9 @@ func createSQLDatabasePair(
 	}
 	// The secondary db is created by the failover group creation. But in a very
 	//   short time after creating failover group, you can't get the secondary db.
-	//   Here ensures that the getting of the secondary db could succeed.
+	//   Here is the workaround to ensure that the getting of the secondary
+	//   db could succeed.
+	time.Sleep(time.Second * 10)
 	database = sqlSDK.Database{
 		Location: &secLocation,
 	}
@@ -318,6 +338,54 @@ func createSQLDatabasePair(
 		ctx,
 		databasesClient.Client,
 	); err != nil {
+		return fmt.Errorf("error creating sql database: %s", err)
+	}
+	return nil
+}
+
+func createPrimarySQLDatabase(
+	ctx context.Context,
+	resourceGroup string,
+	parent *service.Instance,
+	pp *map[string]interface{},
+) error {
+	azureConfig, err := getAzureConfig()
+	if err != nil {
+		return err
+	}
+	authorizer, err := getBearerTokenAuthorizer(azureConfig)
+	if err != nil {
+		return err
+	}
+	databasesClient := sqlSDK.NewDatabasesClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureConfig.SubscriptionID,
+	)
+	databasesClient.Authorizer = authorizer
+
+	dtMap, err := service.GetMapFromStruct(parent.Details)
+	if err != nil {
+		return err
+	}
+	serverName := dtMap["primaryServer"].(string)
+	databaseName := generate.NewIdentifier()
+	location := parent.ProvisioningParameters.GetString("primaryLocation")
+	database := sqlSDK.Database{
+		Location: &location,
+	}
+	(*pp)["database"] = databaseName
+
+	result, err := databasesClient.CreateOrUpdate(
+		ctx,
+		resourceGroup,
+		serverName,
+		databaseName,
+		database,
+	)
+	if err != nil {
+		return fmt.Errorf("error creating sql database: %s", err)
+	}
+	if err := result.WaitForCompletion(ctx, databasesClient.Client); err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
 	return nil

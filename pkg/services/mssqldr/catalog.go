@@ -365,6 +365,60 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 			}),
 		),
+		// database pair from existing primary service
+		service.NewService(
+			service.ServiceProperties{
+				ID:              "505ae87a-5cd8-4aeb-b7ea-809dd249dc1f",
+				Name:            "azure-sql-12-0-dr-database-pair-from-existing-primary",
+				Description:     "Azure SQL 12.0-- disaster recovery database pair from existing primary",
+				Bindable:        true,
+				ParentServiceID: "00ce53a3-d6c3-4c24-8cb2-3f48d3b161d8",
+				Metadata: service.ServiceMetadata{
+					DisplayName:      "Azure SQL 12.0-- disaster recovery Database Pair from existing primary",
+					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair from existing primary database, create the secondary database and the failover group",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Tags: []string{
+					"Azure",
+					"SQL",
+					"Database",
+					service.DRTag,
+					service.MigrationTag,
+					"Failover Group",
+				},
+				Extended: map[string]interface{}{
+					"version": "12.0",
+				},
+			},
+			m.databasePairManagerForExistingPrimary,
+			service.NewPlan(
+				buildBasicPlan(
+					"8a65de90-6d8b-4ac6-8a4c-8edbe892d909",
+				),
+			),
+			service.NewPlan(
+				buildStandardPlan(
+					"8ec86bea-42f6-4805-b3e9-506eaebbf9e0",
+				),
+			),
+			service.NewPlan(
+				buildPremiumPlan(
+					"9c8c9dd1-fd0e-49a6-8178-7b3a21e5d4e0",
+				),
+			),
+			service.NewPlan(
+				buildGeneralPurposePlan(
+					"5408c07e-8a08-4ff6-bd4a-967099bb3a1e",
+				),
+			),
+			service.NewPlan(
+				buildBusinessCriticalPlan(
+					"82d21981-b8b8-4f06-81d7-cfb4011aedd7",
+				),
+			),
+		),
 		// database pair from existing service
 		service.NewService(
 			service.ServiceProperties{
