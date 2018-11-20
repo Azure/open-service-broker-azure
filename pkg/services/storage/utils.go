@@ -41,8 +41,7 @@ func createBlobContainer(storageAccountName, accessKey, containerName string) er
 	options := storage.CreateContainerOptions{
 		Access: storage.ContainerAccessTypePrivate,
 	}
-	_, err := container.CreateIfNotExists(&options)
-	return err
+	return container.Create(&options)
 }
 
 func deleteBlobContainer(storageAccountName, accessKey, containerName string) error { // nolint: lll
