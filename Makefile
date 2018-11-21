@@ -171,8 +171,8 @@ test-warn:
 	@echo
 
 LIFECYCLE_TEST_CMD := go test \
-	-parallel 10 \
-	-timeout 60m \
+	-parallel 12 \
+	-timeout 80m \
 	$(BASE_PACKAGE_NAME)/tests/lifecycle -v
 
 # Executes all or a subset of integration tests that test modules independently
