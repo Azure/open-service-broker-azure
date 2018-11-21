@@ -10,6 +10,7 @@ type module struct {
 	generalPurposeV1Manager *generalPurposeV1Manager
 	generalPurposeV2Manager *generalPurposeV2Manager
 	blobAccountManager      *blobAccountManager
+	blobContainerManager    *blobContainerManager
 	blobAllInOneManager     *blobAllInOneManager
 }
 
@@ -27,6 +28,10 @@ type generalPurposeV2Manager struct {
 }
 
 type blobAccountManager struct {
+	storageManager
+}
+
+type blobContainerManager struct {
 	storageManager
 }
 
@@ -48,6 +53,7 @@ func New(
 		generalPurposeV1Manager: &generalPurposeV1Manager{storageMgr},
 		generalPurposeV2Manager: &generalPurposeV2Manager{storageMgr},
 		blobAccountManager:      &blobAccountManager{storageMgr},
+		blobContainerManager:    &blobContainerManager{storageMgr},
 		blobAllInOneManager:     &blobAllInOneManager{storageMgr},
 	}
 }
