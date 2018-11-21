@@ -122,3 +122,19 @@ func generateUpdatingParamsSchema(serviceName string) service.InputParametersSch
 
 	return ips
 }
+
+// nolint: lll
+func generateBlobContainerProvisioningParamsSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"containerName": &service.StringPropertySchema{
+				Title: "Container Name",
+				Description: "The name of the container which will be created inside" +
+					"the blob stroage account",
+				AllowedPattern: regexp.MustCompile("^[a-z0-9]+(?:-[a-z0-9]+)*$"),
+				MinLength:      ptr.ToInt(3),
+				MaxLength:      ptr.ToInt(63),
+			},
+		},
+	}
+}

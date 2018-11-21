@@ -8,6 +8,7 @@ const serviceGeneralPurposeV2 = "azure-storage-general-purpose-v2-storage-accoun
 const serviceGeneralPurposeV1 = "azure-storage-general-purpose-v1-storage-account" // nolint: lll
 const serviceBlobAllInOne = "azure-storage-blob-storage-account-and-container"
 const serviceBlobAccount = "azure-storage-blob-storage-account"
+const serviceBlobContainer = "azure-storage-blob-container"
 
 // nolint: lll
 func (m *module) GetCatalog() (service.Catalog, error) {
@@ -19,11 +20,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure general purpose v2 storage account; create your " +
 					"own containers, files, and tables within this account",
 				Metadata: service.ServiceMetadata{
-					DisplayName: "Azure Storage",
+					DisplayName: "Azure Storage General Purpose V2 Storage Account",
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
 						"?width=200",
-					LongDescription: "Offload the heavy lifting of datacenter management" +
-						" (Experimental)",
+					LongDescription: "Azure general purpose v2 storage account; create your " +
+						"own containers, files, and tables within this account (Experimental)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -59,11 +60,11 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure general purpose v1 storage account; create your " +
 					"own containers, files, and tables within this account",
 				Metadata: service.ServiceMetadata{
-					DisplayName: "Azure Storage",
+					DisplayName: "Azure Storage General Purpose V1 Storage Account",
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
 						"?width=200",
-					LongDescription: "Offload the heavy lifting of datacenter management" +
-						" (Experimental)",
+					LongDescription: "Azure general purpose v1 storage account; create your " +
+						"own containers, files, and tables within this account (Experimental)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -99,14 +100,13 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name: serviceBlobAccount,
 				Description: "Specialized Azure storage account for storing block " +
 					"blobs and append blobs",
-				// Tongyao: This is a placeholder, I'll send a PR later to add a child service.
 				ChildServiceID: "fb6ce656-c16d-4b48-aff9-286714298af8",
 				Metadata: service.ServiceMetadata{
-					DisplayName: "Azure Storage",
+					DisplayName: "Azure Storage Blob Storage Account",
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
 						"?width=200",
-					LongDescription: "Offload the heavy lifting of datacenter management" +
-						" (Experimental)",
+					LongDescription: "Specialized Azure storage account for storing block " +
+						"blobs and append blobs (Experimental)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -143,13 +143,14 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name: serviceBlobAllInOne,
 				Description: "A specialized Azure storage account for storing block " +
 					"blobs and append blobs; automatically provisions a blob container " +
-					" within the account",
+					"within the account",
 				Metadata: service.ServiceMetadata{
-					DisplayName: "Azure Storage",
+					DisplayName: "Azure Storage Blob Storage Account And Container",
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
 						"?width=200",
-					LongDescription: "Offload the heavy lifting of datacenter management" +
-						" (Experimental)",
+					LongDescription: "A specialized Azure storage account for storing block " +
+						"blobs and append blobs; automatically provisions a blob container " +
+						"within the account (Experimental)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -162,20 +163,56 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name: "all-in-one",
 				Description: "A specialized Azure storage account for storing block " +
 					"blobs and append blobs; automatically provisions a blob container " +
-					" within the account",
+					"within the account",
 				Free:      false,
 				Stability: service.StabilityExperimental,
 				Metadata: service.ServicePlanMetadata{
-					DisplayName: "Blob Container",
+					DisplayName: "Blob Storage Account And Container",
 					Bullets: []string{"A specialized Azure storage account for storing " +
-						"block blobs and append blobs",
-						"Automatically provisions a blob container within the account",
+						"block blobs and append blobs; " +
+						"automatically provisions a blob container within the account",
 					},
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
 						ProvisioningParametersSchema: generateProvisioningParamsSchema(serviceBlobAllInOne),
 						UpdatingParametersSchema:     generateUpdatingParamsSchema(serviceBlobAllInOne),
+					},
+				},
+			}),
+		),
+		service.NewService(
+			service.ServiceProperties{
+				ID:              "fb6ce656-c16d-4b48-aff9-286714298af8",
+				Name:            serviceBlobContainer,
+				Description:     "A blob container inside an existing blob storage account",
+				ParentServiceID: "1a5b4582-29a3-48c5-9cac-511fd8c52756",
+				Metadata: service.ServiceMetadata{
+					DisplayName: "Azure Storage Blob Container",
+					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
+						"?width=200",
+					LongDescription: "A blob container inside an existing blob storage account" +
+						" (Experimental)",
+					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
+					SupportURL:       "https://azure.microsoft.com/en-us/support/",
+				},
+				Bindable: true,
+				Tags:     []string{"Azure", "Storage"},
+			},
+			m.blobContainerManager,
+			service.NewPlan(service.PlanProperties{
+				ID:          "6b120780-c1f1-49ba-83c1-ffbd6b81df5e",
+				Name:        "container",
+				Description: "A blob container inside an existing blob storage account",
+				Free:        false,
+				Stability:   service.StabilityExperimental,
+				Metadata: service.ServicePlanMetadata{
+					DisplayName: "Blob Container",
+					Bullets:     []string{"A blob container inside an existing blob storage account"},
+				},
+				Schemas: service.PlanSchemas{
+					ServiceInstances: service.InstanceSchemas{
+						ProvisioningParametersSchema: generateBlobContainerProvisioningParamsSchema(),
 					},
 				},
 			}),
