@@ -65,6 +65,8 @@ func (s *serviceManager) deployARMTemplate(
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
+	applicationType :=
+		instance.Plan.GetProperties().Extended["applicationType"].(string)
 	outputs, err := s.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		pp.GetString("resourceGroup"),
@@ -73,7 +75,7 @@ func (s *serviceManager) deployARMTemplate(
 		map[string]interface{}{
 			"location":        pp.GetString("location"),
 			"appInsightsName": dt.AppInsightsName,
-			"applicationType": pp.GetString("applicationType"),
+			"applicationType": applicationType,
 		},
 		map[string]interface{}{},
 		tags,
