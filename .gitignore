@@ -1,6 +1,6 @@
 .glide/
 .vscode/
-!/vendor/**/.vscode/
+!/vendor/**
 bin/
 _vendor-*/
 vendor.orig/
