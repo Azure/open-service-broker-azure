@@ -4,7 +4,6 @@ package lifecycle
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/Microsoft/ApplicationInsights-Go/appinsights"
 )
@@ -78,7 +77,7 @@ var appinsightsTestCases = []serviceLifecycleTestCase{
 }
 
 func testAppinsightsCreds(credentials map[string]interface{}) error {
-	ik, ok := credentials["instrumentationKey"]
+	ik, ok := credentials["instrumentationKey"].(string)
 	if !ok {
 		return fmt.Errorf(
 			"can't find instrumentation key in the credentials",
@@ -86,8 +85,5 @@ func testAppinsightsCreds(credentials map[string]interface{}) error {
 	}
 	client := appinsights.NewTelemetryClient(ik)
 	client.TrackEvent("Client connected")
-	trace := appinsights.NewTraceTelemetry("message", appinsights.Warning)
-	trace.Properties["test"] = "osba"
-	trace.Timestamp = time.Now().Sub(time.Minute)
-	client.Track(trace)
+	return nil
 }

@@ -8,8 +8,10 @@ import (
 )
 
 type module struct {
-	dbmsPairRegisteredManager *dbmsPairRegisteredManager
-	databasePairManager       *databasePairManager
+	dbmsPairRegisteredManager              *dbmsPairRegisteredManager
+	databasePairManager                    *databasePairManager
+	databasePairRegisteredManager          *databasePairRegisteredManager
+	databasePairManagerForExistingInstance *databasePairManagerForExistingInstance // nolint: lll
 }
 
 type dbmsPairRegisteredManager struct {
@@ -25,6 +27,14 @@ type commonDatabasePairManager struct {
 }
 
 type databasePairManager struct {
+	commonDatabasePairManager
+}
+
+type databasePairRegisteredManager struct {
+	commonDatabasePairManager
+}
+
+type databasePairManagerForExistingInstance struct {
 	commonDatabasePairManager
 }
 
@@ -50,6 +60,12 @@ func New(
 			serversClient:        serversClient,
 		},
 		databasePairManager: &databasePairManager{
+			commonDatabasePairMgr,
+		},
+		databasePairRegisteredManager: &databasePairRegisteredManager{
+			commonDatabasePairMgr,
+		},
+		databasePairManagerForExistingInstance: &databasePairManagerForExistingInstance{ // nolint: lll
 			commonDatabasePairMgr,
 		},
 	}

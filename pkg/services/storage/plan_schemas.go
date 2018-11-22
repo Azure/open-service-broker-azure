@@ -1,7 +1,10 @@
 package storage
 
 import (
+	"regexp"
+
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -12,21 +15,17 @@ const (
 	cool     = "Cool"
 )
 
-type planDetail struct {
-	planName string
-}
-
 // nolint: lll
 var accountTypeMap = map[string][]string{
-	"update":                 {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	blobStorage:              {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	blobStorageWithContainer: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
-	generalPurposeV1:         {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
-	generalPurposeV2:         {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
+	"update":                {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceBlobAccount:      {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceBlobAllInOne:     {"Standard_LRS", "Standard_GRS", "Standard_RAGRS"},
+	serviceGeneralPurposeV1: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS"},
+	serviceGeneralPurposeV2: {"Standard_LRS", "Standard_GRS", "Standard_RAGRS", "Premium_LRS", "Standard_ZRS"},
 }
 
 // nolint: lll
-func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersSchema {
+func generateProvisioningParamsSchema(serviceName string) service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		RequiredProperties: []string{"location", "resourceGroup"},
 		PropertySchemas: map[string]service.PropertySchema{
@@ -55,7 +54,16 @@ func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersS
 			},
 		},
 	}
-	if pd.planName != generalPurposeV1 {
+
+	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
+		Title: "Account Type",
+		Description: "This field is a combination of account kind and " +
+			" replication strategy",
+		DefaultValue:  "Standard_LRS",
+		AllowedValues: accountTypeMap[serviceName],
+	}
+
+	if serviceName != serviceGeneralPurposeV1 {
 		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
 			Title:         "Access Tier",
 			Description:   "The access tier used for billing.",
@@ -64,19 +72,22 @@ func (pd planDetail) generateProvisioningParamsSchema() service.InputParametersS
 		}
 	}
 
-	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
-		Title: "Account Type",
-		Description: "This field is a combination of account kind and " +
-			" replication strategy",
-		DefaultValue:  "Standard_LRS",
-		AllowedValues: accountTypeMap[pd.planName],
+	if serviceName == serviceBlobAllInOne {
+		ips.PropertySchemas["containerName"] = &service.StringPropertySchema{
+			Title: "Container Name",
+			Description: "The name of the container which will be created inside" +
+				"the blob stroage account",
+			AllowedPattern: regexp.MustCompile("^[a-z0-9]+(?:-[a-z0-9]+)*$"),
+			MinLength:      ptr.ToInt(3),
+			MaxLength:      ptr.ToInt(63),
+		}
 	}
 
 	return ips
 }
 
 // nolint: lll
-func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchema {
+func generateUpdatingParamsSchema(serviceName string) service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"enableNonHttpsTraffic": &service.StringPropertySchema{
@@ -92,13 +103,6 @@ func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchem
 			},
 		},
 	}
-	if pd.planName != generalPurposeV1 {
-		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
-			Title:         "Access Tier",
-			Description:   "The access tier used for billing.",
-			AllowedValues: []string{hot, cool},
-		}
-	}
 
 	ips.PropertySchemas["accountType"] = &service.StringPropertySchema{
 		Title: "Account Type",
@@ -108,5 +112,29 @@ func (pd planDetail) generateUpdatingParamsSchema() service.InputParametersSchem
 		AllowedValues: accountTypeMap["update"],
 	}
 
+	if serviceName != serviceGeneralPurposeV1 {
+		ips.PropertySchemas["accessTier"] = &service.StringPropertySchema{
+			Title:         "Access Tier",
+			Description:   "The access tier used for billing.",
+			AllowedValues: []string{hot, cool},
+		}
+	}
+
 	return ips
+}
+
+// nolint: lll
+func generateBlobContainerProvisioningParamsSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"containerName": &service.StringPropertySchema{
+				Title: "Container Name",
+				Description: "The name of the container which will be created inside" +
+					"the blob stroage account",
+				AllowedPattern: regexp.MustCompile("^[a-z0-9]+(?:-[a-z0-9]+)*$"),
+				MinLength:      ptr.ToInt(3),
+				MaxLength:      ptr.ToInt(63),
+			},
+		},
+	}
 }
