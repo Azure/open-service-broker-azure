@@ -8,7 +8,11 @@ _Note: This module is EXPERIMENTAL. To enable this module, you must run Open Ser
 
 | Plan Name | Description |
 |-----------|-------------|
-| `default` | For general application. |
+| `asp-dot-net-web` | For ASP.NET web applications. |
+| `java-web` | For Java web applications. |
+| `node-dot-js` | For Node.JS applications. |
+| `general` | For general applications. |
+| `app-center` | For Mobile applications. |
 
 #### Behaviors
 
