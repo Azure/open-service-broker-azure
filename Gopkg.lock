@@ -2,8 +2,15 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "code.cloudfoundry.org/clock"
+  packages = ["."]
+  revision = "02e53af36e6c978af692887ed449b74026d76fec"
+
+[[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
   packages = [
+    "services/appinsights/mgmt/2015-05-01/insights",
     "services/cognitiveservices/mgmt/2017-04-18/cognitiveservices",
     "services/cosmos-db/mgmt/2015-04-08/documentdb",
     "services/eventhub/mgmt/2017-04-01/eventhub",
@@ -46,6 +53,15 @@
   packages = ["."]
   revision = "efda631a76d70875162cdc25ffa0d0164bf69758"
   version = "v2.14.0"
+
+[[projects]]
+  name = "github.com/Microsoft/ApplicationInsights-Go"
+  packages = [
+    "appinsights",
+    "appinsights/contracts"
+  ]
+  revision = "d2df5d440eda5372f24fcac03839a64d6cb5f7e5"
+  version = "v0.4.2"
 
 [[projects]]
   branch = "split-streams"
@@ -213,6 +229,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "57d57986dbe9b1ac6030ddabd52602b141327ff9560373efbff73b3dfe213244"
+  inputs-digest = "fd3c68d849b196be356e1a6ac66051513648560e3844c6ab93caf4e13162b852"
   solver-name = "gps-cdcl"
   solver-version = 1
