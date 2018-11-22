@@ -71,8 +71,9 @@ func (s *serviceManager) deployARMTemplate(
 		pp.GetString("location"),
 		armTemplateBytes,
 		map[string]interface{}{
-			"location":        pp.GetString("location"), // nolint: lll
+			"location":        pp.GetString("location"),
 			"appInsightsName": dt.AppInsightsName,
+			"applicationType": pp.GetString("applicationType"),
 		},
 		map[string]interface{}{},
 		tags,

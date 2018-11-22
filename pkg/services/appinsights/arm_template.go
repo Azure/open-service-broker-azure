@@ -18,7 +18,7 @@ var armTemplateBytes = []byte(`
 			"location": "{{.location}}",
 			"properties": {
 				"ApplicationId": "{{.appInsightsName}}",
-				"Application_Type": "other",
+				"Application_Type": "{{.applicationType}}",
 				"Flow_Type": "Bluefield",
     		"Request_Source": "rest"
 			},
