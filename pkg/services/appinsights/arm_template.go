@@ -20,7 +20,7 @@ var armTemplateBytes = []byte(`
 				"ApplicationId": "{{.appInsightsName}}",
 				"Application_Type": "other",
 				"Flow_Type": "Bluefield",
-    			"Request_Source": "rest"
+    		"Request_Source": "rest"
 			},
 			"tags": "[parameters('tags')]"
 		}
