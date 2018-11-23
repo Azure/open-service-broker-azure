@@ -24,7 +24,7 @@ func (i *iotHubManager) GetCredentials(
 		IoTHubName: dt.IoTHubName,
 		HostName:   hostName,
 		KeyName:    dt.KeyName,
-		Key:        dt.Key,
+		Key:        string(dt.Key),
 		ConnectionString: fmt.Sprintf(
 			"HostName=%s;SharedAccessKeyName=%s;SharedAccessKey=%s",
 			hostName,

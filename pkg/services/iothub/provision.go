@@ -62,7 +62,7 @@ func (i *iotHubManager) deployARMTemplate(
 		)
 	}
 
-	dt.Key, ok = keyInfo["primaryKey"].(string)
+	dt.Key, ok = keyInfo["primaryKey"].(service.SecureString)
 	if !ok {
 		return nil, fmt.Errorf(
 			"error retrieving key from deployment: %s",

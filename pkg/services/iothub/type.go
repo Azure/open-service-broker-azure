@@ -3,10 +3,10 @@ package iothub
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type instanceDetails struct {
-	ARMDeploymentName string `json:"armDeployment"`
-	IoTHubName        string `json:"iotHubName"`
-	KeyName           string `json:"keyName"`
-	Key               string `json:"key"`
+	ARMDeploymentName string               `json:"armDeployment"`
+	IoTHubName        string               `json:"iotHubName"`
+	KeyName           string               `json:"keyName"`
+	Key               service.SecureString `json:"key"`
 }
 
 type credentials struct {
