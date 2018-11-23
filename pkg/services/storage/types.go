@@ -8,6 +8,7 @@ type instanceDetails struct {
 	ContainerName      string `json:"containerName"`
 	AccessKey          string `json:"accessKey"`
 }
+
 type credentials struct {
 	StorageAccountName          string `json:"storageAccountName"`
 	AccessKey                   string `json:"accessKey"`

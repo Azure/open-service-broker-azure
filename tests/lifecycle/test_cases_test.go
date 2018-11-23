@@ -9,14 +9,18 @@ import (
 )
 
 func getTestCases() ([]serviceLifecycleTestCase, error) {
-	testCases := rediscacheTestCases
-	testCases = append(testCases, mssqldrTestCases...)
-	testCases = append(testCases, postgresqlTestCases...)
+	// Modules expect to cost long time
+	testCases := mssqldrTestCases
+	testCases = append(testCases, rediscacheTestCases...)
+	testCases = append(testCases, mssqlTestCases...)
 	testCases = append(testCases, cosmosdbTestCases...)
+	testCases = append(testCases, postgresqlTestCases...)
+	testCases = append(testCases, mysqlTestCases...)
+
+	// Modules expect to cost shorter time
+	testCases = append(testCases, appinsightsTestCases...)
 	testCases = append(testCases, eventhubsTestCases...)
 	testCases = append(testCases, keyvaultTestCases...)
-	testCases = append(testCases, mssqlTestCases...)
-	testCases = append(testCases, mysqlTestCases...)
 	testCases = append(testCases, servicebusTestCases...)
 	testCases = append(testCases, storageTestCases...)
 	testCases = append(testCases, textanalyticsTestCases...)
