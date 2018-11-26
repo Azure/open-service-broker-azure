@@ -59,8 +59,8 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"consistencyPolicy": map[string]interface{}{
 				"defaultConsistencyLevel": "Session",
 			},
-			"readRegions":         []interface{}{"eastus"},
-			"autoFailoverEnabled": "enabled",
+			"readRegions":                 []interface{}{"eastus"},
+			"multipleWriteRegionsEnabled": "enabled",
 		},
 		updatingParameters: map[string]interface{}{
 			"tags": map[string]interface{}{
@@ -81,7 +81,8 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"consistencyPolicy": map[string]interface{}{
 				"defaultConsistencyLevel": "Session",
 			},
-			"readRegions": []interface{}{"eastus2"},
+			"readRegions":                 []interface{}{"eastus2"},
+			"multipleWriteRegionsEnabled": "enabled",
 		},
 		updatingParameters: map[string]interface{}{
 			"readRegions": []interface{}{"centralus"},
