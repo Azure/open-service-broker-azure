@@ -55,6 +55,18 @@ var storageTestCases = []serviceLifecycleTestCase{
 			"accessTier":  "Hot",
 			"accountType": "Standard_RAGRS",
 		},
+		childTestCases: []*serviceLifecycleTestCase{
+			{ // database only scenario
+				group:     "storage",
+				name:      "blob-container-only",
+				serviceID: "fb6ce656-c16d-4b48-aff9-286714298af8",
+				planID:    "6b120780-c1f1-49ba-83c1-ffbd6b81df5e",
+				provisioningParameters: map[string]interface{}{
+					"parentAlias":   "blobAccount",
+					"containerName": "self-defined-container-name",
+				},
+			},
+		},
 	},
 	{ // Blob Storage Account + Blob Container
 		group:     "storage",

@@ -2,9 +2,7 @@ package storage
 
 import (
 	"context"
-	"errors"
 
-	"github.com/Azure/azure-sdk-for-go/storage"
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	uuid "github.com/satori/go.uuid"
@@ -42,17 +40,12 @@ func (b *blobAllInOneManager) createBlobContainer(
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*instanceDetails)
 
-	client, _ := storage.NewBasicClient(dt.StorageAccountName, dt.AccessKey)
-	blobCli := client.GetBlobService()
-	container := blobCli.GetContainerReference(dt.ContainerName)
-	options := storage.CreateContainerOptions{
-		Access: storage.ContainerAccessTypePrivate,
-	}
-	_, err := container.CreateIfNotExists(&options)
-	if err != nil {
-		return nil, errors.New(
-			"error creating container",
-		)
+	if err := createBlobContainer(
+		dt.StorageAccountName,
+		dt.AccessKey,
+		dt.ContainerName,
+	); err != nil {
+		return nil, err
 	}
 	return instance.Details, nil
 }
