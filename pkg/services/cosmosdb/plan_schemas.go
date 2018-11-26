@@ -141,6 +141,13 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 			Description: "The (new or existing) resource group with which" +
 				" to associate new resources.",
 		},
+		"multipleWriteRegionsEnabled": &service.StringPropertySchema{
+			Title: "Multiple write regions enabled",
+			Description: "Specifies if you want  the account to write " +
+				"in multiple regions.",
+			AllowedValues: []string{"enabled", "disabled"},
+			DefaultValue:  "disabled",
+		},
 	}
 	sharedSchema := generateUpdatingParamsSchema()
 	for k, v := range sharedSchema.PropertySchemas {

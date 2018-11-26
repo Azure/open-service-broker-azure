@@ -52,7 +52,8 @@ var armTemplateBytes = []byte(`
 					}
 					{{end}}
 				],
-				"enableAutomaticFailover": {{ .enableAutomaticFailover}}
+				"enableAutomaticFailover": {{ .enableAutomaticFailover}},
+				"enableMultipleWriteLocations": {{ .enableMultipleWriteLocations}}
 			},
 			"tags": "[parameters('tags')]"
 		}
