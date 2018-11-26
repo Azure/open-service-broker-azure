@@ -27,6 +27,8 @@ func (d *databasePairManagerForExistingPrimary) GetProvisioner(
 			"deployFailoverGroupARMTemplateForExistingInstance",
 			d.deployFailoverGroupARMTemplateForExistingInstance,
 		),
+		// The secondary database must be created by the creation of failover group.
+		// This deployment is for the update api to update the secondary database.
 		service.NewProvisioningStep(
 			"deploySecARMTemplateForExistingInstance",
 			d.deploySecARMTemplateForExistingInstance,

@@ -58,6 +58,8 @@ var mssqldrTestCases = []serviceLifecycleTestCase{
 				},
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": mssqlDBMSPairAlias,
+					// "failoverGroup" and "database" are specified
+					// by createSQLDatabasePair
 				},
 			},
 			{
@@ -71,6 +73,8 @@ var mssqldrTestCases = []serviceLifecycleTestCase{
 				},
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": mssqlDBMSPairAlias,
+					// "failoverGroup" and "database" are specified
+					// by createSQLDatabasePair
 				},
 				updatingParameters: map[string]interface{}{
 					"dtus": 50,
@@ -88,6 +92,7 @@ var mssqldrTestCases = []serviceLifecycleTestCase{
 				provisioningParameters: map[string]interface{}{
 					"parentAlias":   mssqlDBMSPairAlias,
 					"failoverGroup": uuid.NewV4().String(),
+					// "database" is specified by createPrimarySQLDatabase
 				},
 				updatingParameters: map[string]interface{}{
 					"dtus": 50,
