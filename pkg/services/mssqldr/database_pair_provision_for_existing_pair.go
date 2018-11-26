@@ -7,7 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (d *databasePairManagerForExistingInstance) GetProvisioner(
+func (d *databasePairManagerForExistingPair) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -33,7 +33,7 @@ func (d *databasePairManagerForExistingInstance) GetProvisioner(
 	)
 }
 
-func (d *databasePairManagerForExistingInstance) preProvision(
+func (d *databasePairManagerForExistingPair) preProvision(
 	_ context.Context,
 	_ service.Instance,
 ) (service.InstanceDetails, error) {
