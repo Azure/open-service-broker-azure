@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	appinsightsSDK "github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights"
 	cognitiveSDK "github.com/Azure/azure-sdk-for-go/services/cognitiveservices/mgmt/2017-04-18/cognitiveservices"
 	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"
 	eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub"
@@ -20,6 +21,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
+	"github.com/Azure/open-service-broker-azure/pkg/services/appinsights"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
@@ -67,6 +69,13 @@ func getModules(
 		resourceGroupsClient,
 		resourceDeploymentsClient,
 	)
+
+	appinsightsClient := appinsightsSDK.NewComponentsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	appinsightsClient.Authorizer = authorizer
+	appinsightsClient.UserAgent = getUserAgent(appinsightsClient.Client)
 
 	cognitiveClient := cognitiveSDK.NewAccountsClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,
@@ -220,6 +229,7 @@ func getModules(
 		cosmosdb.New(armDeployer, cosmosdbAccountsClient),
 		storage.New(armDeployer, storageAccountsClient),
 		textanalytics.New(armDeployer, cognitiveClient),
+		appinsights.New(armDeployer, appinsightsClient),
 	}
 
 	return modules, nil
