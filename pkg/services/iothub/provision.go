@@ -51,9 +51,10 @@ func (i *iotHubManager) deployARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	keys := outputs["keys"].([]map[string]interface{})
+	keys := outputs["keys"].([]interface{})
 
-	for _, key := range keys {
+	for _, keyInterface := range keys {
+		key := keyInterface.(map[string]interface{})
 		var ki keyInfo
 		var ok bool
 
