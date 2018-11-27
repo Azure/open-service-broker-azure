@@ -25,7 +25,7 @@ server that provisions managed services in the Microsoft Azure public cloud.
 * [Azure CosmosDB](docs/modules/cosmosdb.md)
 * [Azure Redis Cache](docs/modules/rediscache.md)
 * [Azure Database for PostgreSQL v10](docs/modules/postgresql.md)
-
+* [Azure Storage](docs/modules/storage.md)
 
 ### Experimental Services
 
@@ -34,7 +34,6 @@ server that provisions managed services in the Microsoft Azure public cloud.
 * [Azure Key Vault](docs/modules/keyvault.md)
 * [Azure Search](docs/modules/search.md)
 * [Azure Service Bus](docs/modules/servicebus.md)
-* [Azure Storage](docs/modules/storage.md)
 * [Azure Text Analytics (Cognitive Services)](docs/modules/textanalytics.md)
 
 ## Quickstarts

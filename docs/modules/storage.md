@@ -1,6 +1,6 @@
 # [Azure Storage](https://azure.microsoft.com/en-us/services/storage/)
 
-_Note: This module is EXPERIMENTAL. To enable this module, you must run Open Service Broker for Azure with modules.minStability set to `experimental`_
+_Note: This module is Preview._
 
 ## Services & Plans
 
