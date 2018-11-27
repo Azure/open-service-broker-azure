@@ -51,13 +51,13 @@ func (i *iotHubManager) deployARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	keyInfos := outputs["keyInfos"].([]map[string]interface{})
+	keys := outputs["keys"].([]map[string]interface{})
 
-	for _, keyInfo := range keyInfos {
-		var key KeyInfo
+	for _, key := range keys {
+		var ki keyInfo
 		var ok bool
 
-		key.KeyName, ok = keyInfo["keyName"].(string)
+		ki.KeyName, ok = key["keyName"].(string)
 		if !ok {
 			return nil, fmt.Errorf(
 				"error retrieving keyName from deployment: %s",
@@ -65,7 +65,7 @@ func (i *iotHubManager) deployARMTemplate(
 			)
 		}
 
-		key.Rights, ok = keyInfo["rights"].(string)
+		ki.Rights, ok = key["rights"].(string)
 		if !ok {
 			return nil, fmt.Errorf(
 				"error retrieving rights from deployment: %s",
@@ -73,25 +73,25 @@ func (i *iotHubManager) deployARMTemplate(
 			)
 		}
 
-		pk, ok := keyInfo["primaryKey"].(string)
+		pk, ok := key["primaryKey"].(string)
 		if !ok {
 			return nil, fmt.Errorf(
 				"error retrieving primary key from deployment: %s",
 				err,
 			)
 		}
-		key.PrimaryKey = service.SecureString(pk)
+		ki.PrimaryKey = service.SecureString(pk)
 
-		sk, ok := keyInfo["secondaryKey"].(string)
+		sk, ok := key["secondaryKey"].(string)
 		if !ok {
 			return nil, fmt.Errorf(
 				"error retrieving secondary key from deployment: %s",
 				err,
 			)
 		}
-		key.SecondaryKey = service.SecureString(sk)
+		ki.SecondaryKey = service.SecureString(sk)
 
-		dt.Keys = append(dt.Keys, key)
+		dt.Keys = append(dt.Keys, ki)
 	}
 	return dt, err
 }
@@ -127,7 +127,7 @@ func buildGoTemplateParams(instance service.Instance) map[string]interface{} {
 		params["partitionCount"] = 2
 	} else {
 		params["skuUnits"] = instance.ProvisioningParameters.GetInt64("units")
-		params["partitionCount"] = instance.ProvisioningParameters.GetInt64("partitionCount")
+		params["partitionCount"] = instance.ProvisioningParameters.GetInt64("partitionCount") // nolint: lll
 	}
 	return params
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
+// nolint: lll
 func generateProvisioningParamsSchema(planName string) service.InputParametersSchema {
 	ips := service.InputParametersSchema{
 		RequiredProperties: []string{"location", "resourceGroup"},

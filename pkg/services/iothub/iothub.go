@@ -1,7 +1,7 @@
 package iothub
 
 import (
-	iotHubSDK "github.com/Azure/azure-sdk-for-go/services/iothub/mgmt/2017-07-01/devices"
+	iotHubSDK "github.com/Azure/azure-sdk-for-go/services/iothub/mgmt/2017-07-01/devices" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )

@@ -2,7 +2,7 @@ package iothub
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-type KeyInfo struct {
+type keyInfo struct {
 	KeyName      string               `json:"keyName"`
 	PrimaryKey   service.SecureString `json:"primaryKey"`
 	SecondaryKey service.SecureString `json:"secondaryKey"`
@@ -12,7 +12,7 @@ type KeyInfo struct {
 type instanceDetails struct {
 	ARMDeploymentName string    `json:"armDeployment"`
 	IoTHubName        string    `json:"iotHubName"`
-	Keys              []KeyInfo `json:"keys"`
+	Keys              []keyInfo `json:"keys"`
 }
 
 type credentials struct {
