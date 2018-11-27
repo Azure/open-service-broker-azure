@@ -24,7 +24,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
 						"?width=200",
 					LongDescription: "Azure general purpose v2 storage account; create your " +
-						"own containers, files, and tables within this account (Experimental)",
+						"own containers, files, and tables within this account (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -38,7 +38,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure general purpose v2 storage account; create your " +
 					"own containers, files, and tables within this account",
 				Free:      false,
-				Stability: service.StabilityExperimental,
+				Stability: service.StabilityPreview,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "General Purpose V2 Storage Account",
 					Bullets: []string{"Azure general-purpose v2 storage account",
@@ -64,7 +64,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
 						"?width=200",
 					LongDescription: "Azure general purpose v1 storage account; create your " +
-						"own containers, files, and tables within this account (Experimental)",
+						"own containers, files, and tables within this account (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -79,7 +79,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"Azure Storage services, but may not have the latest features" +
 					"or the lowest per gigabyte pricing",
 				Free:      false,
-				Stability: service.StabilityExperimental,
+				Stability: service.StabilityPreview,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "General Purpose V1 Storage Account",
 					Bullets: []string{"Azure general-purpose v1 storage account",
@@ -106,7 +106,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
 						"?width=200",
 					LongDescription: "Specialized Azure storage account for storing block " +
-						"blobs and append blobs (Experimental)",
+						"blobs and append blobs (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -121,7 +121,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"blobs and append blobs; create your own blob containers within " +
 					"this account",
 				Free:      false,
-				Stability: service.StabilityExperimental,
+				Stability: service.StabilityPreview,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Blob Storage Account",
 					Bullets: []string{"Specialized Azure storage account for storing " +
@@ -150,7 +150,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						"?width=200",
 					LongDescription: "A specialized Azure storage account for storing block " +
 						"blobs and append blobs; automatically provisions a blob container " +
-						"within the account (Experimental)",
+						"within the account (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -165,7 +165,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					"blobs and append blobs; automatically provisions a blob container " +
 					"within the account",
 				Free:      false,
-				Stability: service.StabilityExperimental,
+				Stability: service.StabilityPreview,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Blob Storage Account And Container",
 					Bullets: []string{"A specialized Azure storage account for storing " +
@@ -192,7 +192,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ImageURL: "https://azure.microsoft.com/svghandler/storage/" +
 						"?width=200",
 					LongDescription: "A blob container inside an existing blob storage account" +
-						" (Experimental)",
+						" (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
 				},
@@ -205,7 +205,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "container",
 				Description: "A blob container inside an existing blob storage account",
 				Free:        false,
-				Stability:   service.StabilityExperimental,
+				Stability:   service.StabilityPreview,
 				Metadata: service.ServicePlanMetadata{
 					DisplayName: "Blob Container",
 					Bullets:     []string{"A blob container inside an existing blob storage account"},

@@ -323,6 +323,11 @@ func (c *cosmosAccountManager) buildGoTemplateParamsCore(
 	} else {
 		p["enableAutomaticFailover"] = false
 	}
+	if pp.GetString("multipleWriteRegionsEnabled") == enabled {
+		p["enableMultipleWriteLocations"] = true
+	} else {
+		p["enableMultipleWriteLocations"] = false
+	}
 
 	filters := []string{}
 	ipFilters := pp.GetObject("ipFilters")
