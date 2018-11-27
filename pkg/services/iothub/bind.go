@@ -20,16 +20,18 @@ func (i *iotHubManager) GetCredentials(
 	dt := instance.Details.(*instanceDetails)
 
 	hostName := fmt.Sprintf("%s.azure-devices.net", dt.IoTHubName)
-	return credentials{
+	c := credentials{
 		IoTHubName: dt.IoTHubName,
 		HostName:   hostName,
-		KeyName:    dt.KeyName,
-		Key:        string(dt.Key),
-		ConnectionString: fmt.Sprintf(
-			"HostName=%s;SharedAccessKeyName=%s;SharedAccessKey=%s",
-			hostName,
-			dt.KeyName,
-			dt.Key,
-		),
-	}, nil
+		KeyName:    dt.Keys[0].KeyName,
+		Key:        string(dt.Keys[0].PrimaryKey),
+	}
+	c.ConnectionString = fmt.Sprintf(
+		"HostName=%s;SharedAccessKeyName=%s;SharedAccessKey=%s",
+		hostName,
+		c.KeyName,
+		c.Key,
+	)
+
+	return c, nil
 }

@@ -51,25 +51,48 @@ func (i *iotHubManager) deployARMTemplate(
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
 
-	keyInfo := outputs["keyInfo"].(map[string]interface{})
-	var ok bool
+	keyInfos := outputs["keyInfos"].([]map[string]interface{})
 
-	dt.KeyName, ok = keyInfo["keyName"].(string)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error retrieving keyName from deployment: %s",
-			err,
-		)
-	}
+	for _, keyInfo := range keyInfos {
+		var key KeyInfo
+		var ok bool
 
-	key, ok := keyInfo["primaryKey"].(string)
-	if !ok {
-		return nil, fmt.Errorf(
-			"error retrieving key from deployment: %s",
-			err,
-		)
+		key.KeyName, ok = keyInfo["keyName"].(string)
+		if !ok {
+			return nil, fmt.Errorf(
+				"error retrieving keyName from deployment: %s",
+				err,
+			)
+		}
+
+		key.Rights, ok = keyInfo["rights"].(string)
+		if !ok {
+			return nil, fmt.Errorf(
+				"error retrieving rights from deployment: %s",
+				err,
+			)
+		}
+
+		pk, ok := keyInfo["primaryKey"].(string)
+		if !ok {
+			return nil, fmt.Errorf(
+				"error retrieving primary key from deployment: %s",
+				err,
+			)
+		}
+		key.PrimaryKey = service.SecureString(pk)
+
+		sk, ok := keyInfo["secondaryKey"].(string)
+		if !ok {
+			return nil, fmt.Errorf(
+				"error retrieving secondary key from deployment: %s",
+				err,
+			)
+		}
+		key.SecondaryKey = service.SecureString(sk)
+
+		dt.Keys = append(dt.Keys, key)
 	}
-	dt.Key = service.SecureString(key)
 	return dt, err
 }
 

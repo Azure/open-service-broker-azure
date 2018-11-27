@@ -31,9 +31,9 @@ var armTemplateBytes = []byte(`
         }
     ],
     "outputs": {
-        "keyInfo": {
-            "type": "Object",
-            "value": "[listKeys(resourceId('Microsoft.Devices/iotHubs', '{{.iotHubName}}'), '2018-04-01').value[0]]"
+        "keyInfos": {
+            "type": "Array",
+            "value": "[listKeys(resourceId('Microsoft.Devices/iotHubs', '{{.iotHubName}}').value, '2018-04-01')]"
         }
     }
 }
