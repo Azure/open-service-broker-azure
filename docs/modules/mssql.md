@@ -1,14 +1,22 @@
 # [Azure SQL Database](https://azure.microsoft.com/en-us/services/sql-database/)
 
-Open Service Broker for Azure (OSBA) contains three Azure SQL Database services. These services enable you to select the most appropriate provisioning scenario for your needs. These services are:
+Open Service Broker for Azure (OSBA) contains a number of Azure SQL Database services. These services enable you to select the most appropriate provisioning scenario for your needs. These services are:
 
 | Service Name | Description |
 |--------------|-------------|
-| `azure-sql-12-0` | Provision both a SQL Server DBMS and a database. |
-| `azure-sql-12-0-dbms` | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
-| `azure-sql-12-0-database` | Provision a new database only upon a previously provisioned DBMS. |
+| [`azure-sql-12-0`](#service-azure-sql-12-0) | Provision both a SQL Server DBMS and a database. |
+| [`azure-sql-12-0-dbms`](#service-azure-sql-12-0-dbms) | Provision only a SQL Server Database Management System (DBMS). This can be used to provision multiple databases at a later time. |
+| [`azure-sql-12-0-database`](#service-azure-sql-12-0-database) | Provision a new database only upon a previously provisioned DBMS. |
+| [`azure-sql-12-0-dbms-registered`](#service-azure-sql-12-0-dbms-registered) | Register an existing server as a DBMS service instance. |
+| [`azure-sql-12-0-database-from-existing`](#service-azure-sql-12-0-database-from-existing) | Taking over an existing database upon a previous DBMS as a database service instance. The service requires `ENABLE_MIGRATION_SERVICES` to be `true` in OSBA environment variables. |
 
-The `azure-sql` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service. The `azure-sql-dbms` and `azure-sql-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
+The `azure-sql-12-0` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service.
+
+This module involves the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](../parent-child-model-for-multiple-layers-services.md).
+
+The `azure-sql-12-0-dbms` and `azure-sql-12-0-dbms-registered` are Parent services in this module. The `azure-sql-12-0-database` and `azure-sql-12-0-database-from-existing` are Child services in this module.
+
+For more information on each service, refer to the descriptions below.
 
 ## Services & Plans
 
@@ -162,7 +170,7 @@ kubectl create -f ../../contrib/k8s/examples/sql/sql-binding.yaml
 Using the `cf` cli, you can create the `basic` plan of the `azure-sql` service with the following command:
 
 ```console
-cf create-service azure-sql basic azure-sql-all-in-one -c '{
+cf create-service azure-sql-12-0 basic azure-sql-all-in-one -c '{
         "resourceGroup" : "demo",
         "location" : "eastus",
         "firewallRules" : [
@@ -182,7 +190,7 @@ Assuming your OSBA is running locally on port 8080 with the default username and
 
 ```console
 curl -X PUT \
-  'http://localhost:8080/v2/service_instances/azure-sql-database?accepts_incomplete=true' \
+  'http://localhost:8080/v2/service_instances/azure-sql-12-0?accepts_incomplete=true' \
   -H 'authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=' \
   -H 'content-type: application/json' \
   -H 'x-broker-api-version: 2.13' \
@@ -213,7 +221,7 @@ curl -X PUT \
 
 ##### Provision
 
-Provisions a SQL Server DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-sql-database` service.
+Provisions a SQL Server DBMS instance containing no databases. Databases can be created through subsequent provision requests using the `azure-sql-12-0-database` service.
 
 ###### Provisioning Parameters
 
@@ -257,7 +265,7 @@ Deprovision will delete the SQL Server DBMS. If any databases have been provisio
 
 ###### Kubernetes
 
-The `contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml` can be used to provision one of the plans from the all-in-one `azure-sql-dbms` service. This can be done with the following example:
+The `contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml` can be used to provision one of the plans from the `azure-sql-12-0-dbms` service. This can be done with the following example:
 
 ```console
 kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml
@@ -265,10 +273,10 @@ kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-dbms-instance.yaml
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can create the `dbms` plan of the `azure-sql-dbms` service with the following command:
+Using the `cf` cli, you can create the `dbms` plan of the `azure-sql-12-0-dbms` service with the following command:
 
 ```console
-cf create-service azure-sql-dbms dbms azure-sql-dbms -c '{
+cf create-service azure-sql-12-0-dbms dbms azure-sql-dbms -c '{
         "resourceGroup" : "demo",
         "location" : "eastus",
         "alias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12",
@@ -448,10 +456,10 @@ kubectl create -f ../../contrib/k8s/examples/sql/advanced/sql-database-binding.y
 
 ###### Cloud Foundry
 
-Using the `cf` cli, you can create the `basic` plan of the `azure-sql-database` service with the following command:
+Using the `cf` cli, you can create the `basic` plan of the `azure-sql-12-0-database` service with the following command:
 
 ```console
-cf create-service azure-sql-database basic azure-sql-database -c '{
+cf create-service azure-sql-12-0-database basic azure-sql-database -c '{
     "parentAlias" : "ed9798f2-2e91-4b21-8903-d364a3ff7d12"
 }'
 ```
@@ -478,3 +486,60 @@ curl -X PUT \
 }
 '
 ```
+
+### Service: azure-sql-12-0-dbms-registered
+
+It is to *register* an existing Azure SQL Server as a SQL DBMS service instance. Both **azure-sql-12-0-database** service and **azure-sql-12-0-database-from-existing** service can be its child service.
+
+#### Behaviors
+
+##### Provision
+
+Please refer to [**azure-sql-12-0-dbms** service](#service-azure-sql-12-0-dbms) with extra required provisioning parameters below.
+
+###### Provisioning Parameters
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `server` | `string` | The SQL server name. | Y | |
+| `administratorLogin` | `string` | The administratorLogin input when creating the SQL server. | Y | |
+| `administratorLoginPassword` | `string` | The administratorLoginPassword input when creating the SQL server. | Y | |
+
+##### Update
+
+Update the `administratorLogin` and/or `administratorLoginPassword` as they may change and the server is assumed to be managed by yourself.
+
+###### Updating Parameters
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `administratorLogin` | `string` | New administratorLogin. | N | |
+| `administratorLoginPassword` | `string` | New administratorLoginPassword. | N | |
+
+##### Bind, Unbind
+
+Please refer to [**azure-sql-12-0-dbms** service](#service-azure-sql-12-0-dbms).
+
+##### Deprovision
+
+Do nothing. The SQL server would not be deleted in Azure.
+
+### Service: azure-sql-12-0-database-from-existing
+
+It is to create SQL database service instance from existing Azure SQL Database *for taking over the database*. Typically, you can create **azure-sql-12-0-dbms-registered** service instance to register your Azure SQL server first and use this service to import the database to OSBA's management.
+
+##### Provision
+
+Please refer to [**azure-sql-12-0-database** service](#service-azure-sql-12-0-database) with extra required provisioning parameters below.
+
+###### Provisioning Parameters
+
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `database` | `string` | The SQL database name. | Y | |
+
+##### Update, Bind, Unbind, Deprovision
+
+Please refer to [**azure-sql-12-0-database** service](#service-azure-sql-12-0-database).
+
+Note that deprovision would delete the SQL database in Azure!
