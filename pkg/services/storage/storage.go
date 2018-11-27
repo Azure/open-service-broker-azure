@@ -7,12 +7,36 @@ import (
 )
 
 type module struct {
-	serviceManager *serviceManager
+	generalPurposeV1Manager *generalPurposeV1Manager
+	generalPurposeV2Manager *generalPurposeV2Manager
+	blobAccountManager      *blobAccountManager
+	blobContainerManager    *blobContainerManager
+	blobAllInOneManager     *blobAllInOneManager
 }
 
-type serviceManager struct {
+type storageManager struct {
 	armDeployer    arm.Deployer
 	accountsClient storageSDK.AccountsClient
+}
+
+type generalPurposeV1Manager struct {
+	storageManager
+}
+
+type generalPurposeV2Manager struct {
+	storageManager
+}
+
+type blobAccountManager struct {
+	storageManager
+}
+
+type blobContainerManager struct {
+	storageManager
+}
+
+type blobAllInOneManager struct {
+	storageManager
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -21,18 +45,19 @@ func New(
 	armDeployer arm.Deployer,
 	accountsClient storageSDK.AccountsClient,
 ) service.Module {
+	storageMgr := storageManager{
+		armDeployer:    armDeployer,
+		accountsClient: accountsClient,
+	}
 	return &module{
-		serviceManager: &serviceManager{
-			armDeployer:    armDeployer,
-			accountsClient: accountsClient,
-		},
+		generalPurposeV1Manager: &generalPurposeV1Manager{storageMgr},
+		generalPurposeV2Manager: &generalPurposeV2Manager{storageMgr},
+		blobAccountManager:      &blobAccountManager{storageMgr},
+		blobContainerManager:    &blobContainerManager{storageMgr},
+		blobAllInOneManager:     &blobAllInOneManager{storageMgr},
 	}
 }
 
 func (m *module) GetName() string {
 	return "storage"
-}
-
-func (m *module) GetStability() service.Stability {
-	return service.StabilityExperimental
 }

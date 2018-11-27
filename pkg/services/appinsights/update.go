@@ -1,4 +1,4 @@
-package storage
+package appinsights
 
 import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"

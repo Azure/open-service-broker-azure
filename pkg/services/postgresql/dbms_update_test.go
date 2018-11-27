@@ -32,7 +32,11 @@ func TestValidateStorageIncreases(t *testing.T) {
 	}
 
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
+		createBasicPlan(
+			"73191861-04b3-4d0b-a29b-429eb15a83d4",
+			false,
+			service.StabilityStable,
+		),
 	)
 
 	instance := service.Instance{
@@ -70,7 +74,11 @@ func TestValidateStorageDecreaseFails(t *testing.T) {
 	}
 
 	plan := service.NewPlan(
-		createBasicPlan("73191861-04b3-4d0b-a29b-429eb15a83d4", false),
+		createBasicPlan(
+			"73191861-04b3-4d0b-a29b-429eb15a83d4",
+			false,
+			service.StabilityStable,
+		),
 	)
 
 	instance := service.Instance{

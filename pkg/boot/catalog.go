@@ -34,6 +34,7 @@ func GetCatalog(
 		}
 
 		enableMigrationServices := catalogConfig.EnableMigrationServices
+		enableDRServices := catalogConfig.EnableDRServices
 		for _, svc := range catalog.GetServices() {
 			serviceID := svc.GetID()
 			if moduleNameForUsedServiceID, ok := usedServiceIDs[serviceID]; ok {
@@ -52,6 +53,10 @@ func GetCatalog(
 			}
 			// Skip migration services if disabled
 			if !enableMigrationServices && tagsMap[service.MigrationTag] {
+				continue
+			}
+			// Skip DR services if disabled
+			if !enableDRServices && tagsMap[service.DRTag] {
 				continue
 			}
 

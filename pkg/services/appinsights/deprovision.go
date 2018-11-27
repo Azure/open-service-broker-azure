@@ -1,4 +1,4 @@
-package storage
+package appinsights
 
 import (
 	"context"
@@ -12,10 +12,7 @@ func (s *serviceManager) GetDeprovisioner(
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
 		service.NewDeprovisioningStep("deleteARMDeployment", s.deleteARMDeployment),
-		service.NewDeprovisioningStep(
-			"deleteStorageAccount",
-			s.deleteStorageAccount,
-		),
+		service.NewDeprovisioningStep("deleteAppInsights", s.deleteAppInsights),
 	)
 }
 
@@ -24,7 +21,6 @@ func (s *serviceManager) deleteARMDeployment(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*instanceDetails)
-
 	if err := s.armDeployer.Delete(
 		dt.ARMDeploymentName,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
@@ -34,20 +30,20 @@ func (s *serviceManager) deleteARMDeployment(
 	return instance.Details, nil
 }
 
-func (s *serviceManager) deleteStorageAccount(
+func (s *serviceManager) deleteAppInsights(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	dt := instance.Details.(*instanceDetails)
-	_, err := s.accountsClient.Delete(
+	_, err := s.appInsightsClient.Delete(
 		ctx,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
-		dt.StorageAccountName,
+		dt.AppInsightsName,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error deleting storage account: %s", err)
+		return nil, fmt.Errorf("error deleting app insights: %s", err)
 	}
 	return instance.Details, nil
 }

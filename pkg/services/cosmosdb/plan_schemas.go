@@ -16,6 +16,12 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 	const maxIntervalInSecondsMax = 86400
 	return service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
+			"tags": &service.ObjectPropertySchema{
+				Title: "Tags",
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
+			},
 			"readRegions": &service.ArrayPropertySchema{
 				Title: "Read Regions",
 				Description: "Read regions to be created, your data" +
@@ -134,6 +140,13 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 			Title: "Resource group",
 			Description: "The (new or existing) resource group with which" +
 				" to associate new resources.",
+		},
+		"multipleWriteRegionsEnabled": &service.StringPropertySchema{
+			Title: "Multiple write regions enabled",
+			Description: "Specifies if you want  the account to write " +
+				"in multiple regions.",
+			AllowedValues: []string{"enabled", "disabled"},
+			DefaultValue:  "disabled",
 		},
 	}
 	sharedSchema := generateUpdatingParamsSchema()

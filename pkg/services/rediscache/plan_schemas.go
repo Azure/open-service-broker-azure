@@ -42,6 +42,12 @@ func (pd planDetail) getProvisioningParamsSchema() service.InputParametersSchema
 				AllowedValues: pd.allowedCapacity,
 				DefaultValue:  &(pd.allowedCapacity[0]),
 			},
+			"tags": &service.ObjectPropertySchema{
+				Title: "Tags",
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
+			},
 		},
 	}
 
@@ -112,6 +118,12 @@ func (pd planDetail) getUpdatingParamsSchema() service.InputParametersSchema {
 				Title:         "SKU capacity",
 				Description:   "The size of the Redis cache to deploy.",
 				AllowedValues: pd.allowedCapacity,
+			},
+			"tags": &service.ObjectPropertySchema{
+				Title: "Tags",
+				Description: "Tags to be applied to new resources," +
+					" specified as key/value pairs.",
+				Additional: &service.StringPropertySchema{},
 			},
 		},
 	}

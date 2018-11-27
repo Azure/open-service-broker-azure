@@ -13,12 +13,14 @@ import (
 type CatalogConfig struct {
 	MinStability            Stability
 	EnableMigrationServices bool
+	EnableDRServices        bool
 }
 
 type tempCatalogConfig struct {
 	CatalogConfig
 	MinStabilityStr            string `envconfig:"MIN_STABILITY" default:"PREVIEW"`
-	EnableMigrationServicesStr string `envconfig:"ENABLE_MIGRATION_SERVICES" default:"false"` // nolint: lll
+	EnableMigrationServicesStr string `envconfig:"ENABLE_MIGRATION_SERVICES" default:"false"`         // nolint: lll
+	EnableDRServicesStr        string `envconfig:"ENABLE_DISASTER_RECOVERY_SERVICES" default:"false"` // nolint: lll
 }
 
 // NewCatalogConfigWithDefaults returns a CatalogConfig object with default
@@ -60,6 +62,14 @@ func GetCatalogConfigFromEnvironment() (CatalogConfig, error) {
 		return c.CatalogConfig, fmt.Errorf(
 			`unrecognized EnableMigrationServices boolean "%s": %s`,
 			c.EnableMigrationServicesStr,
+			err,
+		)
+	}
+	c.EnableDRServices, err = strconv.ParseBool(c.EnableDRServicesStr)
+	if err != nil {
+		return c.CatalogConfig, fmt.Errorf(
+			`unrecognized EnableDRServices boolean "%s": %s`,
+			c.EnableDRServicesStr,
 			err,
 		)
 	}

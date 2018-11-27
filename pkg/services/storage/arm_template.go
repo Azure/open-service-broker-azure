@@ -28,14 +28,14 @@ var armTemplateBytes = []byte(`
 			"apiVersion": "2018-02-01",
 			"location": "{{ .location }}",
 			"sku": {
-				"name": "[parameters('accountType')]"
+				"name": "{{.accountType}}"
 			},
 			"kind": "{{.kind}}",
 			"properties": {
 				{{ if .accessTier }}
 				"accessTier": "{{.accessTier}}",
 				{{ end }}
-				"supportsHttpsTrafficOnly": true
+				"supportsHttpsTrafficOnly": {{.supportHttpsTrafficOnly}}
 			},
 			"tags": "[parameters('tags')]"
 		}

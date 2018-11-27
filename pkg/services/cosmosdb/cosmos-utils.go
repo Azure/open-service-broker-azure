@@ -200,7 +200,7 @@ func pollingUntilReadLocationsReady(
 	// When updating an existing instance, data in existing database will
 	// be copied and synchronized across all regions, it's hard to estimate
 	// how long the process will take so we disable timeout when updating.
-	enableTimeout bool,
+	enableTimeout bool, // nolint: unparam
 ) error {
 	const timeForOneReadLocation = time.Minute * 7
 	readLocations = append([]string{location}, readLocations...)
@@ -238,6 +238,8 @@ func pollingUntilReadLocationsReady(
 				readLocations,
 				currentLocations,
 			) {
+				// This is a temporary fix and should be removed after #617 is resolved
+				time.Sleep(time.Second * 20)
 				return nil
 			}
 		}
@@ -320,6 +322,11 @@ func (c *cosmosAccountManager) buildGoTemplateParamsCore(
 		p["enableAutomaticFailover"] = true
 	} else {
 		p["enableAutomaticFailover"] = false
+	}
+	if pp.GetString("multipleWriteRegionsEnabled") == enabled {
+		p["enableMultipleWriteLocations"] = true
+	} else {
+		p["enableMultipleWriteLocations"] = false
 	}
 
 	filters := []string{}
