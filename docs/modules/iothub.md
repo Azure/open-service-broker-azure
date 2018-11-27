@@ -44,13 +44,13 @@ This binding operation does not support any parameters.
 
 Binding returns the following connection details and shared credentials:
 
-| Field Name         | Type     | Description              |
-| ------------------ | -------- | ------------------------ |
-| `iotHubName`       | `string` | The name of the IoT Hub. |
-| `hostName`         | `string` | Hostname.                |
-| `keyName`          | `string` | Name of the key.         |
-| `key`              | `string` | Key of the IoT Hub.      |
-| `connectionString` | `string` | The connection string.   |
+| Field Name         | Type     | Description                                                  |
+| ------------------ | -------- | ------------------------------------------------------------ |
+| `iotHubName`       | `string` | The name of the IoT Hub.                                     |
+| `hostName`         | `string` | Hostname.                                                    |
+| `keyName`          | `string` | Name of the key. Currently, it will always be `iothubowner`  |
+| `key`              | `string` | Key of the IoT Hub. Currently, it will always be the primary key of `iothubowner` and having "Registry Write, Service Connect, Device Connect" rights. |
+| `connectionString` | `string` | The connection string.                                       |
 
 ##### Unbind
 
