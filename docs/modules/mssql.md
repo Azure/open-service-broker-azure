@@ -12,7 +12,7 @@ Open Service Broker for Azure (OSBA) contains a number of Azure SQL Database ser
 
 The `azure-sql-12-0` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through this service.
 
-This module involves the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](../parent-child-model-for-multiple-layers-services.md).
+_This module involves the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](../parent-child-model-for-multiple-layers-services.md)._
 
 The `azure-sql-12-0-dbms` and `azure-sql-12-0-dbms-registered` are Parent services in this module. The `azure-sql-12-0-database` and `azure-sql-12-0-database-from-existing` are Child services in this module.
 

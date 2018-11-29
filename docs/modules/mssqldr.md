@@ -16,6 +16,8 @@ Open Service Broker for Azure (OSBA) contains five Azure SQL Database Failover G
 
 All the services in this module require `ENABLE_DISASTER_RECOVERY_SERVICES` to be `true` in OSBA environment variables. Besides, `azure-sql-12-0-dr-database-pair-from-existing` and `azure-sql-12-0-dr-database-pair-from-existing-primary` require `ENABLE_MIGRATION_SERVICES` to be `true`. For more information on each service, refer to the descriptions below.
 
+_This module involves the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](../parent-child-model-for-multiple-layers-services.md)_.
+
 ## Services & Plans
 
 ### Service: azure-sql-12-0-dr-dbms-pair-registered
