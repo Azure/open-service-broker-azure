@@ -9,6 +9,7 @@ import (
 	cognitiveSDK "github.com/Azure/azure-sdk-for-go/services/cognitiveservices/mgmt/2017-04-18/cognitiveservices"
 	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb"
 	eventHubSDK "github.com/Azure/azure-sdk-for-go/services/eventhub/mgmt/2017-04-01/eventhub"
+	iotHubSDK "github.com/Azure/azure-sdk-for-go/services/iothub/mgmt/2017-07-01/devices"
 	keyVaultSDK "github.com/Azure/azure-sdk-for-go/services/keyvault/mgmt/2016-10-01/keyvault"
 	mysqlSDK "github.com/Azure/azure-sdk-for-go/services/mysql/mgmt/2017-04-30-preview/mysql"
 	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql"
@@ -24,6 +25,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/services/appinsights"
 	"github.com/Azure/open-service-broker-azure/pkg/services/cosmosdb"
 	"github.com/Azure/open-service-broker-azure/pkg/services/eventhubs"
+	"github.com/Azure/open-service-broker-azure/pkg/services/iothub"
 	"github.com/Azure/open-service-broker-azure/pkg/services/keyvault"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssql"
 	"github.com/Azure/open-service-broker-azure/pkg/services/mssqldr"
@@ -102,6 +104,14 @@ func getModules(
 	eventHubNamespacesClient.Authorizer = authorizer
 	eventHubNamespacesClient.UserAgent =
 		getUserAgent(eventHubNamespacesClient.Client)
+
+	iotHubClient := iotHubSDK.NewIotHubResourceClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	iotHubClient.Authorizer = authorizer
+	iotHubClient.UserAgent =
+		getUserAgent(iotHubClient.Client)
 
 	keyVaultsClient := keyVaultSDK.NewVaultsClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,
@@ -229,6 +239,7 @@ func getModules(
 		cosmosdb.New(armDeployer, cosmosdbAccountsClient),
 		storage.New(armDeployer, storageAccountsClient),
 		textanalytics.New(armDeployer, cognitiveClient),
+		iothub.New(armDeployer, iotHubClient),
 		appinsights.New(armDeployer, appinsightsClient),
 	}
 

@@ -24,6 +24,7 @@ func getTestCases() ([]serviceLifecycleTestCase, error) {
 	testCases = append(testCases, servicebusTestCases...)
 	testCases = append(testCases, storageTestCases...)
 	testCases = append(testCases, textanalyticsTestCases...)
+	testCases = append(testCases, iotHubTestCases...)
 
 	testCases = filter(testCases, getTestFilters())
 
