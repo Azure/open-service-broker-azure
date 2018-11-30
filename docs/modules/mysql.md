@@ -10,6 +10,8 @@ Open Service Broker for Azure contains three Azure Database for MySQL services. 
 
 The `azure-mysql-5-7` service allows you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can't provision additional databases onto an instance provisioned through this service. The `azure-mysql-5-7-dbms` and `azure-mysql-5-7-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS.  For more information on each service, refer to the descriptions below.
 
+_This module involves the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](../parent-child-model-for-multiple-layers-services.md)_.
+
 ## Services & Plans
 
 ### Service: azure-mysql-5-7

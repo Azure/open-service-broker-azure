@@ -52,6 +52,8 @@ The `azure-postgresql-*` services allow you to provision both a DBMS and a datab
 
  For more information on each service, refer to the descriptions below.
 
+_This module involves the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](../parent-child-model-for-multiple-layers-services.md)_.
+
 ## Services & Plans
 
 ### Service: azure-postgresql-*
@@ -413,7 +415,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-postgresql-*-database 
+### Service: azure-postgresql-*-database
 
 | Plan Name | Description |
 |-----------|-------------|

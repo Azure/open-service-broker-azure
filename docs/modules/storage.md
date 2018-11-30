@@ -2,6 +2,8 @@
 
 _Note: This module is Preview._
 
+_This module involves the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](../parent-child-model-for-multiple-layers-services.md)._
+
 ## Services & Plans
 
 ### Service: azure-storage-general-purpose-v2-storage-account
