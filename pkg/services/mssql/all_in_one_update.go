@@ -88,6 +88,7 @@ func (a *allInOneManager) updateConnectionPolicy(
 			&a.serverConnectionPoliciesClient,
 			pp.GetString("resourceGroup"),
 			pp.GetString("server"),
+			pp.GetString("location"),
 			connectionPolicy,
 		)
 	}

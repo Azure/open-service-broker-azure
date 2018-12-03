@@ -103,6 +103,7 @@ func (a *allInOneManager) setConnectionPolicy(
 			&a.serverConnectionPoliciesClient,
 			pp.GetString("resourceGroup"),
 			pp.GetString("server"),
+			pp.GetString("location"),
 			connectionPolicy,
 		)
 	}

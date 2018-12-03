@@ -51,9 +51,11 @@ func setConnectionPolicy(
 	client *sqlSDK.ServerConnectionPoliciesClient,
 	resourceGroupName string,
 	serverName string,
+	location string,
 	connectionPolicy string,
 ) error {
 	var serverConnectionPolicy sqlSDK.ServerConnectionPolicy
+	serverConnectionPolicy.Location = &location
 	switch connectionPolicy {
 	case string(sqlSDK.ServerConnectionTypeDefault):
 		serverConnectionPolicy.ServerConnectionPolicyProperties =

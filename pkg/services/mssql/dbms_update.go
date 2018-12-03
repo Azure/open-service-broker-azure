@@ -73,6 +73,7 @@ func (d *dbmsManager) updateConnectionPolicy(
 			&d.serverConnectionPoliciesClient,
 			pp.GetString("resourceGroup"),
 			pp.GetString("server"),
+			pp.GetString("location"),
 			connectionPolicy,
 		)
 	}
