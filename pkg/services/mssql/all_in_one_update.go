@@ -19,7 +19,7 @@ func (a *allInOneManager) GetUpdater(service.Plan) (service.Updater, error) {
 	// There isn't a need to do any "pre-provision here. just the update step"
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateARMTemplate", a.updateARMTemplate),
-		service.NewUpdatingStep("setConnectionPolicy", a.setConnectionPolicy),
+		service.NewUpdatingStep("updateConnectionPolicy", a.updateConnectionPolicy),
 	)
 }
 
@@ -71,5 +71,25 @@ func (a *allInOneManager) updateARMTemplate(
 	}
 	// This shouldn't change the instance details, so just return
 	// what was there already
+	return instance.Details, err
+}
+
+func (a *allInOneManager) updateConnectionPolicy(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	pp := instance.ProvisioningParameters
+	up := instance.UpdatingParameters
+	connectionPolicy := up.GetString("connectionPolicy")
+	var err error
+	if connectionPolicy != "" {
+		err = setConnectionPolicy(
+			ctx,
+			&a.serverConnectionPoliciesClient,
+			pp.GetString("resourceGroup"),
+			pp.GetString("server"),
+			connectionPolicy,
+		)
+	}
 	return instance.Details, err
 }

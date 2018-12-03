@@ -15,7 +15,7 @@ func (d *dbmsManager) GetUpdater(service.Plan) (service.Updater, error) {
 	// There isn't a need to do any "pre-provision here. just the update step"
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateARMTemplate", d.updateARMTemplate),
-		service.NewUpdatingStep("setConnectionPolicy", d.setConnectionPolicy),
+		service.NewUpdatingStep("updateConnectionPolicy", d.updateConnectionPolicy),
 	)
 }
 
@@ -56,5 +56,25 @@ func (d *dbmsManager) updateARMTemplate(
 
 	// This shouldn't change the instance details, so just return
 	// what was there already
+	return instance.Details, err
+}
+
+func (d *dbmsManager) updateConnectionPolicy(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	pp := instance.ProvisioningParameters
+	up := instance.UpdatingParameters
+	connectionPolicy := up.GetString("connectionPolicy")
+	var err error
+	if connectionPolicy != "" {
+		err = setConnectionPolicy(
+			ctx,
+			&d.serverConnectionPoliciesClient,
+			pp.GetString("resourceGroup"),
+			pp.GetString("server"),
+			connectionPolicy,
+		)
+	}
 	return instance.Details, err
 }
