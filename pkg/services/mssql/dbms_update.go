@@ -15,6 +15,7 @@ func (d *dbmsManager) GetUpdater(service.Plan) (service.Updater, error) {
 	// There isn't a need to do any "pre-provision here. just the update step"
 	return service.NewUpdater(
 		service.NewUpdatingStep("updateARMTemplate", d.updateARMTemplate),
+		service.NewUpdatingStep("setConnectionPolicy", d.setConnectionPolicy),
 	)
 }
 
@@ -23,27 +24,28 @@ func (d *dbmsManager) updateARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*dbmsInstanceDetails)
+	pp := instance.ProvisioningParameters
+	up := instance.UpdatingParameters
 	version := instance.Service.GetProperties().Extended["version"].(string)
 	goTemplateParams, err := buildDBMSGoTemplateParameters(
 		dt,
-		*instance.UpdatingParameters,
+		*up,
 		version,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deploying ARM template: %s", err)
 	}
-	goTemplateParams["location"] =
-		instance.ProvisioningParameters.GetString("location")
-	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	goTemplateParams["location"] = pp.GetString("location")
+	tagsObj := pp.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
 	_, err = d.armDeployer.Update(
 		dt.ARMDeploymentName,
-		instance.ProvisioningParameters.GetString("resourceGroup"),
-		instance.ProvisioningParameters.GetString("location"),
-		allInOneARMTemplateBytes,
+		pp.GetString("resourceGroup"),
+		pp.GetString("location"),
+		dbmsARMTemplateBytes,
 		goTemplateParams,
 		map[string]interface{}{}, // empty arm template params
 		tags,

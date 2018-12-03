@@ -7,6 +7,18 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
+const (
+	// ConnectionPolicyDefault is the connection policy in effect on all servers
+	// after creation.
+	ConnectionPolicyDefault = string(sqlSDK.ServerConnectionTypeDefault)
+	// ConnectionPolicyProxy -- all connections are proxied via the Azure
+	// SQL Database gateways.
+	ConnectionPolicyProxy = string(sqlSDK.ServerConnectionTypeProxy)
+	// ConnectionPolicyRedirect -- clients establish connections directly
+	// to the node hosting the database.
+	ConnectionPolicyRedirect = string(sqlSDK.ServerConnectionTypeRedirect)
+)
+
 type module struct {
 	allInOneServiceManager             *allInOneManager
 	dbmsManager                        *dbmsManager
@@ -16,16 +28,18 @@ type module struct {
 }
 
 type allInOneManager struct {
-	sqlDatabaseDNSSuffix string
-	armDeployer          arm.Deployer
-	serversClient        sqlSDK.ServersClient
-	databasesClient      sqlSDK.DatabasesClient
+	sqlDatabaseDNSSuffix           string
+	armDeployer                    arm.Deployer
+	serversClient                  sqlSDK.ServersClient
+	databasesClient                sqlSDK.DatabasesClient
+	serverConnectionPoliciesClient sqlSDK.ServerConnectionPoliciesClient
 }
 
 type dbmsManager struct {
-	sqlDatabaseDNSSuffix string
-	armDeployer          arm.Deployer
-	serversClient        sqlSDK.ServersClient
+	sqlDatabaseDNSSuffix           string
+	armDeployer                    arm.Deployer
+	serversClient                  sqlSDK.ServersClient
+	serverConnectionPoliciesClient sqlSDK.ServerConnectionPoliciesClient
 }
 
 type databaseManager struct {
@@ -49,11 +63,13 @@ func New(
 	armDeployer arm.Deployer,
 	serversClient sqlSDK.ServersClient,
 	databasesClient sqlSDK.DatabasesClient,
+	serverConnectionPoliciesClient sqlSDK.ServerConnectionPoliciesClient,
 ) service.Module {
 	dbmsMgr := dbmsManager{
-		sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
-		armDeployer:          armDeployer,
-		serversClient:        serversClient,
+		sqlDatabaseDNSSuffix:           azureEnvironment.SQLDatabaseDNSSuffix,
+		armDeployer:                    armDeployer,
+		serversClient:                  serversClient,
+		serverConnectionPoliciesClient: serverConnectionPoliciesClient,
 	}
 	databaseMgr := databaseManager{
 		armDeployer:     armDeployer,
@@ -61,10 +77,11 @@ func New(
 	}
 	return &module{
 		allInOneServiceManager: &allInOneManager{
-			sqlDatabaseDNSSuffix: azureEnvironment.SQLDatabaseDNSSuffix,
-			armDeployer:          armDeployer,
-			serversClient:        serversClient,
-			databasesClient:      databasesClient,
+			sqlDatabaseDNSSuffix:           azureEnvironment.SQLDatabaseDNSSuffix,
+			armDeployer:                    armDeployer,
+			serversClient:                  serversClient,
+			databasesClient:                databasesClient,
+			serverConnectionPoliciesClient: serverConnectionPoliciesClient,
 		},
 		dbmsManager:     &dbmsMgr,
 		databaseManager: &databaseMgr,

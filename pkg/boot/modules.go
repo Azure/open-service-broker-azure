@@ -174,6 +174,15 @@ func getModules(
 	)
 	sqlDatabasesClient.Authorizer = authorizer
 	sqlDatabasesClient.UserAgent = getUserAgent(sqlDatabasesClient.Client)
+	sqlServerConnectionPoliciesClient :=
+		sqlSDK.NewServerConnectionPoliciesClientWithBaseURI(
+			azureConfig.Environment.ResourceManagerEndpoint,
+			azureSubscriptionID,
+		)
+	sqlServerConnectionPoliciesClient.Authorizer = authorizer
+	sqlServerConnectionPoliciesClient.UserAgent = getUserAgent(
+		sqlServerConnectionPoliciesClient.Client,
+	)
 
 	sqlFailoverGroupsClient := sqlSDK.NewFailoverGroupsClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,
@@ -228,6 +237,7 @@ func getModules(
 			armDeployer,
 			sqlServersClient,
 			sqlDatabasesClient,
+			sqlServerConnectionPoliciesClient,
 		),
 		mssqldr.New(
 			azureConfig.Environment,

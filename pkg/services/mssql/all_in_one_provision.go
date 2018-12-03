@@ -15,6 +15,7 @@ func (a *allInOneManager) GetProvisioner(
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", a.preProvision),
 		service.NewProvisioningStep("deployARMTemplate", a.deployARMTemplate),
+		service.NewProvisioningStep("setConnectionPolicy", a.setConnectionPolicy),
 	)
 }
 
@@ -38,10 +39,11 @@ func (a *allInOneManager) deployARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*allInOneInstanceDetails)
+	pp := instance.ProvisioningParameters
 	version := instance.Service.GetProperties().Extended["version"].(string)
 	goTemplateParams, err := buildDBMSGoTemplateParameters(
 		&dt.dbmsInstanceDetails,
-		*instance.ProvisioningParameters,
+		*pp,
 		version,
 	)
 	if err != nil {
@@ -50,7 +52,7 @@ func (a *allInOneManager) deployARMTemplate(
 	pd := instance.Plan.GetProperties().Extended["tierDetails"].(planDetails)
 	dbParams, err := buildDatabaseGoTemplateParameters(
 		dt.DatabaseName,
-		*instance.ProvisioningParameters,
+		*pp,
 		pd,
 	)
 	if err != nil {
@@ -59,17 +61,16 @@ func (a *allInOneManager) deployARMTemplate(
 	for key, value := range dbParams {
 		goTemplateParams[key] = value
 	}
-	goTemplateParams["location"] =
-		instance.ProvisioningParameters.GetString("location")
-	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+	goTemplateParams["location"] = pp.GetString("location")
+	tagsObj := pp.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
 	outputs, err := a.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.ProvisioningParameters.GetString("resourceGroup"),
-		instance.ProvisioningParameters.GetString("location"),
+		pp.GetString("resourceGroup"),
+		pp.GetString("location"),
 		allInOneARMTemplateBytes,
 		goTemplateParams,
 		map[string]interface{}{}, // empty arm template params
@@ -87,4 +88,23 @@ func (a *allInOneManager) deployARMTemplate(
 		)
 	}
 	return dt, err
+}
+
+func (a *allInOneManager) setConnectionPolicy(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	pp := instance.ProvisioningParameters
+	connectionPolicy := pp.GetString("connectionPolicy")
+	var err error
+	if connectionPolicy != "" {
+		err = setConnectionPolicy(
+			ctx,
+			&a.serverConnectionPoliciesClient,
+			pp.GetString("resourceGroup"),
+			pp.GetString("server"),
+			connectionPolicy,
+		)
+	}
+	return instance.Details, err
 }
