@@ -78,6 +78,7 @@ func (a *allInOneManager) updateConnectionPolicy(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	dt := instance.Details.(*allInOneInstanceDetails)
 	pp := instance.ProvisioningParameters
 	up := instance.UpdatingParameters
 	connectionPolicy := up.GetString("connectionPolicy")
@@ -87,7 +88,7 @@ func (a *allInOneManager) updateConnectionPolicy(
 			ctx,
 			&a.serverConnectionPoliciesClient,
 			pp.GetString("resourceGroup"),
-			pp.GetString("server"),
+			dt.ServerName,
 			pp.GetString("location"),
 			connectionPolicy,
 		)

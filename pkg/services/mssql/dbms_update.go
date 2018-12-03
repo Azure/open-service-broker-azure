@@ -63,6 +63,7 @@ func (d *dbmsManager) updateConnectionPolicy(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	dt := instance.Details.(*dbmsInstanceDetails)
 	pp := instance.ProvisioningParameters
 	up := instance.UpdatingParameters
 	connectionPolicy := up.GetString("connectionPolicy")
@@ -72,7 +73,7 @@ func (d *dbmsManager) updateConnectionPolicy(
 			ctx,
 			&d.serverConnectionPoliciesClient,
 			pp.GetString("resourceGroup"),
-			pp.GetString("server"),
+			dt.ServerName,
 			pp.GetString("location"),
 			connectionPolicy,
 		)

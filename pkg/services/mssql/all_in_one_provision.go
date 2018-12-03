@@ -94,6 +94,7 @@ func (a *allInOneManager) setConnectionPolicy(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	dt := instance.Details.(*allInOneInstanceDetails)
 	pp := instance.ProvisioningParameters
 	connectionPolicy := pp.GetString("connectionPolicy")
 	var err error
@@ -102,7 +103,7 @@ func (a *allInOneManager) setConnectionPolicy(
 			ctx,
 			&a.serverConnectionPoliciesClient,
 			pp.GetString("resourceGroup"),
-			pp.GetString("server"),
+			dt.ServerName,
 			pp.GetString("location"),
 			connectionPolicy,
 		)

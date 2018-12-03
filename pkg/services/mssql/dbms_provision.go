@@ -80,6 +80,7 @@ func (d *dbmsManager) setConnectionPolicy(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
+	dt := instance.Details.(*dbmsInstanceDetails)
 	pp := instance.ProvisioningParameters
 	connectionPolicy := pp.GetString("connectionPolicy")
 	var err error
@@ -88,7 +89,7 @@ func (d *dbmsManager) setConnectionPolicy(
 			ctx,
 			&d.serverConnectionPoliciesClient,
 			pp.GetString("resourceGroup"),
-			pp.GetString("server"),
+			dt.ServerName,
 			pp.GetString("location"),
 			connectionPolicy,
 		)
