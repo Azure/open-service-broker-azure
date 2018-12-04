@@ -39,6 +39,7 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 					"endIPAddress":   "255.255.255.255",
 				},
 			},
+			"connectionPolicy": "Proxy",
 		},
 		updatingParameters: map[string]interface{}{
 			"dtus": 400,
@@ -54,6 +55,7 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 					"endIPAddress":   "255.255.255.255",
 				},
 			},
+			"connectionPolicy": "Default",
 		},
 		testCredentials: testMsSQLCreds,
 	},
@@ -89,6 +91,7 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 					"endIPAddress":   "255.255.255.255",
 				},
 			},
+			"connectionPolicy": "Redirect",
 		},
 	},
 	{ // dbms only scenario
@@ -106,6 +109,9 @@ var mssqlTestCases = []serviceLifecycleTestCase{
 					"endIPAddress":   "255.255.255.255",
 				},
 			},
+		},
+		updatingParameters: map[string]interface{}{
+			"connectionPolicy": "Proxy",
 		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // db only scenario (dtu-based)

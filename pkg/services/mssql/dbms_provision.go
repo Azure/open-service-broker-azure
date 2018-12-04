@@ -15,6 +15,7 @@ func (d *dbmsManager) GetProvisioner(
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", d.preProvision),
 		service.NewProvisioningStep("deployARMTemplate", d.deployARMTemplate),
+		service.NewProvisioningStep("setConnectionPolicy", d.setConnectionPolicy),
 	)
 }
 
@@ -35,26 +36,27 @@ func (d *dbmsManager) deployARMTemplate(
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	dt := instance.Details.(*dbmsInstanceDetails)
+	pp := instance.ProvisioningParameters
 	version := instance.Service.GetProperties().Extended["version"].(string)
 	goTemplateParams, err := buildDBMSGoTemplateParameters(
 		dt,
-		*instance.ProvisioningParameters,
+		*pp,
 		version,
 	)
 	if err != nil {
 		return nil, err
 	}
 	goTemplateParams["location"] =
-		instance.ProvisioningParameters.GetString("location")
-	tagsObj := instance.ProvisioningParameters.GetObject("tags")
+		pp.GetString("location")
+	tagsObj := pp.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
 	outputs, err := d.armDeployer.Deploy(
 		dt.ARMDeploymentName,
-		instance.ProvisioningParameters.GetString("resourceGroup"),
-		instance.ProvisioningParameters.GetString("location"),
+		pp.GetString("resourceGroup"),
+		pp.GetString("location"),
 		dbmsARMTemplateBytes,
 		goTemplateParams,
 		map[string]interface{}{},
@@ -72,4 +74,25 @@ func (d *dbmsManager) deployARMTemplate(
 		)
 	}
 	return dt, err
+}
+
+func (d *dbmsManager) setConnectionPolicy(
+	ctx context.Context,
+	instance service.Instance,
+) (service.InstanceDetails, error) {
+	dt := instance.Details.(*dbmsInstanceDetails)
+	pp := instance.ProvisioningParameters
+	connectionPolicy := pp.GetString("connectionPolicy")
+	var err error
+	if connectionPolicy != "" {
+		err = setConnectionPolicy(
+			ctx,
+			&d.serverConnectionPoliciesClient,
+			pp.GetString("resourceGroup"),
+			dt.ServerName,
+			pp.GetString("location"),
+			connectionPolicy,
+		)
+	}
+	return instance.Details, err
 }

@@ -281,71 +281,41 @@ func getDBMSCommonUpdateParamSchema() service.InputParametersSchema {
 					},
 				},
 			},
+			"connectionPolicy": &service.StringPropertySchema{
+				Title:       "Connection Policy",
+				Description: "The type of server connection policy.",
+				AllowedValues: []string{
+					"", // Allow empty. It doesn't call the setting method.
+					ConnectionPolicyDefault,
+					ConnectionPolicyProxy,
+					ConnectionPolicyRedirect,
+				},
+			},
 		},
 	}
 }
 
 func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
-	return service.InputParametersSchema{
-		RequiredProperties: []string{"location", "resourceGroup"},
-		PropertySchemas: map[string]service.PropertySchema{
-			"location": &service.StringPropertySchema{
-				Title: "Location",
-				Description: "The Azure region in which to provision" +
-					" applicable resources.",
-				CustomPropertyValidator: azure.LocationValidator,
-			},
-			"resourceGroup": &service.StringPropertySchema{
-				Title: "Resource group",
-				Description: "The (new or existing) resource group with which" +
-					" to associate new resources.",
-			},
-			"firewallRules": &service.ArrayPropertySchema{
-				Title: "Firewall rules",
-				Description: "Firewall rules to apply to instance. " +
-					"If left unspecified, defaults to only Azure IPs",
-				ItemsSchema: &service.ObjectPropertySchema{
-					Title:       "Firewall rule",
-					Description: "Individual Firewall Rule",
-					RequiredProperties: []string{
-						"name",
-						"startIPAddress",
-						"endIPAddress",
-					},
-					PropertySchemas: map[string]service.PropertySchema{
-						"name": &service.StringPropertySchema{
-							Title:       "Name",
-							Description: "Name of firewall rule",
-						},
-						"startIPAddress": &service.StringPropertySchema{
-							Title:                   "Start IP address",
-							Description:             "Start of firewall rule range",
-							CustomPropertyValidator: ipValidator,
-						},
-						"endIPAddress": &service.StringPropertySchema{
-							Title:                   "End IP address",
-							Description:             "End of firewall rule range",
-							CustomPropertyValidator: ipValidator,
-						},
-					},
-					CustomPropertyValidator: firewallRuleValidator,
-				},
-				DefaultValue: []interface{}{
-					map[string]interface{}{
-						"name":           "AllowAzure",
-						"startIPAddress": "0.0.0.0",
-						"endIPAddress":   "0.0.0.0",
-					},
-				},
-			},
-			"tags": &service.ObjectPropertySchema{
-				Title: "Tags",
-				Description: "Tags to be applied to new resources," +
-					" specified as key/value pairs.",
-				Additional: &service.StringPropertySchema{},
-			},
-		},
+	pps := getDBMSCommonUpdateParamSchema()
+	pps.RequiredProperties = []string{"location", "resourceGroup"}
+	pps.PropertySchemas["location"] = &service.StringPropertySchema{
+		Title: "Location",
+		Description: "The Azure region in which to provision" +
+			" applicable resources.",
+		CustomPropertyValidator: azure.LocationValidator,
 	}
+	pps.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
+		Title: "Resource group",
+		Description: "The (new or existing) resource group with which" +
+			" to associate new resources.",
+	}
+	pps.PropertySchemas["tags"] = &service.ObjectPropertySchema{
+		Title: "Tags",
+		Description: "Tags to be applied to new resources," +
+			" specified as key/value pairs.",
+		Additional: &service.StringPropertySchema{},
+	}
+	return pps
 }
 
 func getDBMSRegisteredUpdateParamSchema() service.InputParametersSchema {
@@ -369,49 +339,28 @@ func getDBMSRegisteredUpdateParamSchema() service.InputParametersSchema {
 }
 
 func getDBMSRegisteredProvisionParamSchema() service.InputParametersSchema {
-	return service.InputParametersSchema{
-		RequiredProperties: []string{
-			"resourceGroup",
-			"location",
-			"server",
-			"administratorLogin",
-			"administratorLoginPassword",
-		},
-		SecureProperties: []string{
-			"administratorLoginPassword",
-		},
-		PropertySchemas: map[string]service.PropertySchema{
-			"resourceGroup": &service.StringPropertySchema{
-				Title:       "Resource Group",
-				Description: "Specifies the resource group of the existing server",
-			},
-			"location": &service.StringPropertySchema{
-				Title:                   "Location",
-				Description:             "Specifies the location of the existing server",
-				CustomPropertyValidator: azure.LocationValidator,
-			},
-			"server": &service.StringPropertySchema{
-				Title:       "Server Name",
-				Description: "Specifies the name of the existing server",
-			},
-			"administratorLogin": &service.StringPropertySchema{
-				Title: "Administrator Login",
-				Description: "Specifies the administrator login name" +
-					" of the existing server",
-			},
-			"administratorLoginPassword": &service.StringPropertySchema{
-				Title: "Administrator Login Password",
-				Description: "Specifies the administrator login password" +
-					" of the existing server",
-			},
-			"tags": &service.ObjectPropertySchema{
-				Title: "Tags",
-				Description: "Tags to be applied to new resources," +
-					" specified as key/value pairs.",
-				Additional: &service.StringPropertySchema{},
-			},
-		},
+	pps := getDBMSRegisteredUpdateParamSchema()
+	pps.RequiredProperties = []string{
+		"resourceGroup",
+		"location",
+		"server",
+		"administratorLogin",
+		"administratorLoginPassword",
 	}
+	pps.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
+		Title:       "Resource Group",
+		Description: "Specifies the resource group of the existing server",
+	}
+	pps.PropertySchemas["location"] = &service.StringPropertySchema{
+		Title:                   "Location",
+		Description:             "Specifies the location of the existing server",
+		CustomPropertyValidator: azure.LocationValidator,
+	}
+	pps.PropertySchemas["server"] = &service.StringPropertySchema{
+		Title:       "Server Name",
+		Description: "Specifies the name of the existing server",
+	}
+	return pps
 }
 
 func validateStorageUpdate(

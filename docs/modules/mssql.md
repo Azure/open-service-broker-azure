@@ -49,6 +49,7 @@ Provisions a new SQL Server and a new database upon that server. The new dbms an
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
 | `firewallRules[n].startIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
 | `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
+| `connectionPolicy` | `string` | Changes connection policy if you want. Refer to [here](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-connectivity-architecture#connection-policy). Valid values are "Redirect", "Proxy", and "Default". | N | |
 
 Additional Provision Parameters for : standard plan
 
@@ -112,6 +113,7 @@ Updates a previously provisioned SQL DB Database and DBMS.
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
 | `firewallRules[n].startIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
 | `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
+| `connectionPolicy` | `string` | Changes connection policy if you want. Refer to [here](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-connectivity-architecture#connection-policy). Valid values are "Redirect", "Proxy", and "Default". | N | |
 
 Parameters for updating the SQL DB Database differ by plan. See each section for relevant parameters.
 
@@ -235,6 +237,7 @@ Provisions a SQL Server DBMS instance containing no databases. Databases can be 
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
 | `firewallRules[n].startIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
 | `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
+| `connectionPolicy` | `string` | Changes connection policy if you want. Refer to [here](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-connectivity-architecture#connection-policy). Valid values are "Redirect", "Proxy", and "Default". | N | |
 
 ##### Bind
 
@@ -252,6 +255,7 @@ Updates a previously provisioned SQL DB DBMS.
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
 | `firewallRules[n].startIPAddress` | `string` | Specifies the start of the IP range allowed by this firewall rule | Y | |
 | `firewallRules[n].endIPAddress` | `string` | Specifies the end of the IP range allowed by this firewall rule | Y | |
+| `connectionPolicy` | `string` | Changes connection policy if you want. Refer to [here](https://docs.microsoft.com/en-us/azure/sql-database/sql-database-connectivity-architecture#connection-policy). Valid values are "Redirect", "Proxy", and "Default". | N | |
 
 ##### Unbind
 

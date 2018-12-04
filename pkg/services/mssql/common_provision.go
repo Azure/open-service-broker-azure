@@ -1,6 +1,10 @@
 package mssql
 
 import (
+	"context"
+	"fmt"
+
+	sqlSDK "github.com/Azure/azure-sdk-for-go/services/sql/mgmt/2017-03-01-preview/sql" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -40,4 +44,42 @@ func buildDatabaseGoTemplateParameters(
 		p[key] = value
 	}
 	return p, nil
+}
+
+func setConnectionPolicy(
+	ctx context.Context,
+	client *sqlSDK.ServerConnectionPoliciesClient,
+	resourceGroupName string,
+	serverName string,
+	location string,
+	connectionPolicy string,
+) error {
+	var serverConnectionPolicy sqlSDK.ServerConnectionPolicy
+	serverConnectionPolicy.Location = &location
+	switch connectionPolicy {
+	case string(sqlSDK.ServerConnectionTypeDefault):
+		serverConnectionPolicy.ServerConnectionPolicyProperties =
+			&sqlSDK.ServerConnectionPolicyProperties{
+				ConnectionType: sqlSDK.ServerConnectionTypeDefault,
+			}
+	case string(sqlSDK.ServerConnectionTypeProxy):
+		serverConnectionPolicy.ServerConnectionPolicyProperties =
+			&sqlSDK.ServerConnectionPolicyProperties{
+				ConnectionType: sqlSDK.ServerConnectionTypeProxy,
+			}
+	case string(sqlSDK.ServerConnectionTypeRedirect):
+		serverConnectionPolicy.ServerConnectionPolicyProperties =
+			&sqlSDK.ServerConnectionPolicyProperties{
+				ConnectionType: sqlSDK.ServerConnectionTypeRedirect,
+			}
+	default:
+		return fmt.Errorf("no such connection policy")
+	}
+	_, err := client.CreateOrUpdate(
+		ctx,
+		resourceGroupName,
+		serverName,
+		serverConnectionPolicy,
+	)
+	return err
 }
