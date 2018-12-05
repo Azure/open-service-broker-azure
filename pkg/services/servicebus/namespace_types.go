@@ -2,22 +2,22 @@ package servicebus
 
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
-type instanceDetails struct {
+type namespaceInstanceDetails struct {
 	ARMDeploymentName       string               `json:"armDeployment"`
 	ServiceBusNamespaceName string               `json:"serviceBusNamespaceName"`
 	ConnectionString        service.SecureString `json:"connectionString"`
 	PrimaryKey              service.SecureString `json:"primaryKey"`
 }
 
-func (s *namespaceManager) GetEmptyInstanceDetails() service.InstanceDetails {
-	return &instanceDetails{}
+func (nm *namespaceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+	return &namespaceInstanceDetails{}
 }
 
-func (s *namespaceManager) GetEmptyBindingDetails() service.BindingDetails {
+func (nm *namespaceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return nil
 }
 
-type credentials struct {
+type namespaceCredentials struct {
 	ConnectionString string `json:"connectionString"`
 	PrimaryKey       string `json:"primaryKey"`
 }

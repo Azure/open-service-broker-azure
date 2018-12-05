@@ -4,7 +4,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *namespaceManager) Unbind(
+func (nm *namespaceManager) Unbind(
 	_ service.Instance,
 	_ service.Binding,
 ) error {

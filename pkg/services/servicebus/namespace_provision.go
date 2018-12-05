@@ -8,36 +8,36 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s *namespaceManager) GetProvisioner(
+func (nm *namespaceManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", s.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", nm.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", nm.deployARMTemplate),
 	)
 }
 
-func (s *namespaceManager) preProvision(
+func (nm *namespaceManager) preProvision(
 	context.Context,
 	service.Instance,
 ) (service.InstanceDetails, error) {
-	return &instanceDetails{
+	return &namespaceInstanceDetails{
 		ARMDeploymentName:       uuid.NewV4().String(),
 		ServiceBusNamespaceName: "sb-" + uuid.NewV4().String(),
 	}, nil
 }
 
-func (s *namespaceManager) deployARMTemplate(
+func (nm *namespaceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	dt := instance.Details.(*instanceDetails)
+	dt := instance.Details.(*namespaceInstanceDetails)
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
-	outputs, err := s.armDeployer.Deploy(
+	outputs, err := nm.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 		instance.ProvisioningParameters.GetString("location"),
