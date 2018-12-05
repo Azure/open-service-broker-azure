@@ -127,7 +127,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						ProvisioningParametersSchema: generateQueueProvisioningParamsSchema(),
 					},
 				},
 			}),
@@ -164,7 +164,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				},
 				Schemas: service.PlanSchemas{
 					ServiceInstances: service.InstanceSchemas{
-						ProvisioningParametersSchema: generateProvisioningParamsSchema(),
+						ProvisioningParametersSchema: generateTopicProvisioningParamsSchema(),
 					},
 				},
 			}),
