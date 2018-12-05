@@ -5,7 +5,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func generateProvisioningParamsSchema() service.InputParametersSchema {
+func generateNamespaceProvisioningParamsSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
 		RequiredProperties: []string{"location", "resourceGroup"},
 		PropertySchemas: map[string]service.PropertySchema{

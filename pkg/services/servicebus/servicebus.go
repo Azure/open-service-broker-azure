@@ -7,12 +7,20 @@ import (
 )
 
 type module struct {
-	serviceManager *serviceManager
+	namespaceManager *namespaceManager
+	queueManager     *queueManager
+	topicManager     *topicManager
 }
 
-type serviceManager struct {
+type namespaceManager struct {
 	armDeployer      arm.Deployer
 	namespacesClient servicebusSDK.NamespacesClient
+}
+
+type queueManager struct {
+}
+
+type topicManager struct {
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -22,7 +30,7 @@ func New(
 	namespacesClient servicebusSDK.NamespacesClient,
 ) service.Module {
 	return &module{
-		serviceManager: &serviceManager{
+		namespaceManager: &namespaceManager{
 			armDeployer:      armDeployer,
 			namespacesClient: namespacesClient,
 		},

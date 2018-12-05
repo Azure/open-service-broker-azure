@@ -8,7 +8,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s *serviceManager) GetProvisioner(
+func (s *namespaceManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
@@ -17,7 +17,7 @@ func (s *serviceManager) GetProvisioner(
 	)
 }
 
-func (s *serviceManager) preProvision(
+func (s *namespaceManager) preProvision(
 	context.Context,
 	service.Instance,
 ) (service.InstanceDetails, error) {
@@ -27,7 +27,7 @@ func (s *serviceManager) preProvision(
 	}, nil
 }
 
-func (s *serviceManager) deployARMTemplate(
+func (s *namespaceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {

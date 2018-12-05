@@ -9,11 +9,11 @@ type instanceDetails struct {
 	PrimaryKey              service.SecureString `json:"primaryKey"`
 }
 
-func (s *serviceManager) GetEmptyInstanceDetails() service.InstanceDetails {
+func (s *namespaceManager) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &instanceDetails{}
 }
 
-func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
+func (s *namespaceManager) GetEmptyBindingDetails() service.BindingDetails {
 	return nil
 }
 

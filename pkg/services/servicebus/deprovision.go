@@ -8,7 +8,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-func (s *serviceManager) GetDeprovisioner(
+func (s *namespaceManager) GetDeprovisioner(
 	service.Plan,
 ) (service.Deprovisioner, error) {
 	return service.NewDeprovisioner(
@@ -17,7 +17,7 @@ func (s *serviceManager) GetDeprovisioner(
 	)
 }
 
-func (s *serviceManager) deleteARMDeployment(
+func (s *namespaceManager) deleteARMDeployment(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
@@ -31,7 +31,7 @@ func (s *serviceManager) deleteARMDeployment(
 	return instance.Details, nil
 }
 
-func (s *serviceManager) deleteNamespace(
+func (s *namespaceManager) deleteNamespace(
 	ctx context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
