@@ -33,14 +33,14 @@ func (tm *topicManager) preProvision(
 	if topicName := instance.ProvisioningParameters.GetString("topicName"); topicName != "" {
 		getResult, err := tm.topicsClient.Get(
 			ctx,
-			ppp.GetString("resourceGroupName"),
+			ppp.GetString("resourceGroup"),
 			pdt.ServiceBusNamespaceName,
 			topicName,
 		)
 		if getResult.Name != nil && err == nil {
 			return nil, fmt.Errorf("topic with name '%s' already exists in the namespace", topicName)
 		} else if !strings.Contains(err.Error(), "StatusCode=404") {
-			return nil, fmt.Errorf("unexpected error creating queue: %s", err)
+			return nil, fmt.Errorf("unexpected error creating topic: %s", err)
 		} else {
 			return &topicInstanceDetails{
 				ServiceBusTopicName: topicName,
@@ -61,15 +61,15 @@ func (tm *topicManager) createTopic(
 
 	ppp := instance.Parent.ProvisioningParameters
 	pdt := instance.Parent.Details.(*namespaceInstanceDetails)
-	dt := instance.Details.(*queueInstanceDetails)
+	dt := instance.Details.(*topicInstanceDetails)
 	if _, err := tm.topicsClient.CreateOrUpdate(
 		ctx,
-		ppp.GetString("resourceGroupName"),
+		ppp.GetString("resourceGroup"),
 		pdt.ServiceBusNamespaceName,
-		dt.ServiceBusQueueName,
+		dt.ServiceBusTopicName,
 		tm.buildTopicInformation(instance),
 	); err != nil {
-		return nil, fmt.Errorf("error creating queue: %s", err)
+		return nil, fmt.Errorf("error creating topic: %s", err)
 	}
 	return dt, nil
 }
@@ -80,7 +80,7 @@ func (tm *topicManager) buildTopicInformation(
 	pp := instance.ProvisioningParameters
 	return servicebusSDK.SBTopic{
 		SBTopicProperties: &servicebusSDK.SBTopicProperties{
-			MaxSizeInMegabytes:       ptr.ToInt32(int32(pp.GetInt64("maxQueueSize"))),
+			MaxSizeInMegabytes:       ptr.ToInt32(int32(pp.GetInt64("maxTopicSize"))),
 			DefaultMessageTimeToLive: ptr.ToString(pp.GetString("messageTimeToLive")),
 		},
 	}

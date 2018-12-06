@@ -69,9 +69,9 @@ func generateTopicProvisioningParamsSchema() service.InputParametersSchema {
 			},
 			// TODO: add custom validators to configurations
 			"maxTopicSize": &service.IntPropertySchema{
-				Title: "Max Queue Size",
+				Title: "Max Topic Size",
 				Description: "The maximum size of the topic in megabytes, " +
-					"which is the size of memory allocated for the queue.",
+					"which is the size of memory allocated for the topic.",
 				DefaultValue: ptr.ToInt64(1024),
 			},
 			"messageTimeToLive": &service.StringPropertySchema{

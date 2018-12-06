@@ -38,7 +38,7 @@ var servicebusTestCases = []serviceLifecycleTestCase{
 				provisioningParameters: map[string]interface{}{
 					"parentAlias":       serviceBusNamespaceAlias,
 					"topicName":         "testtopic",
-					"maxQueueSize":      4096,
+					"maxTopicSize":      4096,
 					"messageTimeToLive": "PT276H13M14S",
 				},
 			},

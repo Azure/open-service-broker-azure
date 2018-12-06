@@ -33,7 +33,7 @@ func (qm *queueManager) preProvision(
 	if queueName := instance.ProvisioningParameters.GetString("queueName"); queueName != "" {
 		getResult, err := qm.queuesClient.Get(
 			ctx,
-			ppp.GetString("resourceGroupName"),
+			ppp.GetString("resourceGroup"),
 			pdt.ServiceBusNamespaceName,
 			queueName,
 		)
@@ -64,7 +64,7 @@ func (qm *queueManager) createQueue(
 	dt := instance.Details.(*queueInstanceDetails)
 	if _, err := qm.queuesClient.CreateOrUpdate(
 		ctx,
-		ppp.GetString("resourceGroupName"),
+		ppp.GetString("resourceGroup"),
 		pdt.ServiceBusNamespaceName,
 		dt.ServiceBusQueueName,
 		qm.buildQueueInformation(instance),
