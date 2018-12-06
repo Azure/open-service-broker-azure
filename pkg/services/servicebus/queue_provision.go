@@ -21,6 +21,7 @@ func (qm *queueManager) GetProvisioner(
 	)
 }
 
+// nolint: lll
 func (qm *queueManager) preProvision(
 	ctx context.Context,
 	instance service.Instance,

@@ -21,6 +21,7 @@ func (tm *topicManager) GetProvisioner(
 	)
 }
 
+// nolint: lll
 func (tm *topicManager) preProvision(
 	ctx context.Context,
 	instance service.Instance,
