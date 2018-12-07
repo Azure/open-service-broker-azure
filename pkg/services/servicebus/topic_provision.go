@@ -35,7 +35,7 @@ func (tm *topicManager) preProvision(
 		getResult, err := tm.topicsClient.Get(
 			ctx,
 			ppp.GetString("resourceGroup"),
-			pdt.ServiceBusNamespaceName,
+			pdt.NamespaceName,
 			topicName,
 		)
 		if getResult.Name != nil && err == nil {
@@ -44,12 +44,12 @@ func (tm *topicManager) preProvision(
 			return nil, fmt.Errorf("unexpected error creating topic: %s", err)
 		} else {
 			return &topicInstanceDetails{
-				ServiceBusTopicName: topicName,
+				TopicName: topicName,
 			}, nil
 		}
 	}
 	return &topicInstanceDetails{
-		ServiceBusTopicName: uuid.NewV4().String(),
+		TopicName: uuid.NewV4().String(),
 	}, nil
 }
 
@@ -66,8 +66,8 @@ func (tm *topicManager) createTopic(
 	if _, err := tm.topicsClient.CreateOrUpdate(
 		ctx,
 		ppp.GetString("resourceGroup"),
-		pdt.ServiceBusNamespaceName,
-		dt.ServiceBusTopicName,
+		pdt.NamespaceName,
+		dt.TopicName,
 		tm.buildTopicInformation(instance),
 	); err != nil {
 		return nil, fmt.Errorf("error creating topic: %s", err)

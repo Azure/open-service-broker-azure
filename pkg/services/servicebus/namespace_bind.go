@@ -19,5 +19,6 @@ func (nm *namespaceManager) GetCredentials(
 	return namespaceCredentials{
 		ConnectionString: string(dt.ConnectionString),
 		PrimaryKey:       string(dt.PrimaryKey),
+		NamespaceName:    dt.NamespaceName,
 	}, nil
 }

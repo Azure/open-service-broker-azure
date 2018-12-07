@@ -46,6 +46,7 @@ Binding returns the following connection details and shared credentials:
 |------------|------|-------------|
 | `connectionString` | `string` | Connection string. |
 | `primaryKey` | `string` | Secret key (password). |
+| `namespaceName` | `string` | The name of the namespace. |
 
 ##### Unbind
 
@@ -91,12 +92,12 @@ This binding operation does not support any parameters.
 
 Binding returns the following connection details and shared credentials:
 
-| Field Name         | Type     | Description            |
-| ------------------ | -------- | ---------------------- |
-| `connectionString` | `string` | Connection string.     |
-| `primaryKey`       | `string` | Secret key (password). |
-| `queueName`        | `string` | The name of the queue  |
-| `queueURL`         | `string` | Queue URL              |
+| Field Name         | Type     | Description                |
+| ------------------ | -------- | -------------------------- |
+| `connectionString` | `string` | Connection string.         |
+| `primaryKey`       | `string` | Secret key (password).     |
+| `namespaceName`    | `string` | The name of the namespace. |
+| `queueName`        | `string` | The name of the queue.     |
 
 ##### Unbind
 
@@ -147,8 +148,8 @@ Binding returns the following connection details and shared credentials:
 | ------------------ | -------- | ------------------------------------------------------------ |
 | `connectionString` | `string` | Connection string.                                           |
 | `primaryKey`       | `string` | Secret key (password).                                       |
+| `namespaceName`    | `string` | The name of the namespace.                                   |
 | `topicName`        | `string` | The name of the topic.                                       |
-| `topicURL`         | `string` | Topic URL                                                    |
 | `subscriptionName` | `string` | The name of the created subscription. Only appears when `subscriptionNeeded` is set to "yes". |
 
 ##### Unbind

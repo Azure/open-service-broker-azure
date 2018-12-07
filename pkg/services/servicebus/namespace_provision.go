@@ -22,8 +22,8 @@ func (nm *namespaceManager) preProvision(
 	service.Instance,
 ) (service.InstanceDetails, error) {
 	return &namespaceInstanceDetails{
-		ARMDeploymentName:       uuid.NewV4().String(),
-		ServiceBusNamespaceName: "sb-" + uuid.NewV4().String(),
+		ARMDeploymentName: uuid.NewV4().String(),
+		NamespaceName:     "sb-" + uuid.NewV4().String(),
 	}, nil
 }
 
@@ -44,7 +44,7 @@ func (nm *namespaceManager) deployARMTemplate(
 		armTemplateBytes,
 		map[string]interface{}{
 			"location":                instance.ProvisioningParameters.GetString("location"), // nolint: lll
-			"serviceBusNamespaceName": dt.ServiceBusNamespaceName,
+			"serviceBusNamespaceName": dt.NamespaceName,
 			"serviceBusSku": instance.Plan.
 				GetProperties().Extended["serviceBusSku"],
 		},

@@ -21,8 +21,8 @@ func (tm *topicManager) Unbind(
 	_, err := tm.subscriptionsClient.Delete(
 		context.TODO(),
 		ppp.GetString("resourceGroup"),
-		pdt.ServiceBusNamespaceName,
-		dt.ServiceBusTopicName,
+		pdt.NamespaceName,
+		dt.TopicName,
 		bt.SubscriptionName,
 	)
 	return err

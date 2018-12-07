@@ -28,8 +28,8 @@ func (tm *topicManager) deleteTopic(
 	_, err := tm.topicsClient.Delete(
 		ctx,
 		ppp.GetString("resourceGroup"),
-		pdt.ServiceBusNamespaceName,
-		dt.ServiceBusTopicName,
+		pdt.NamespaceName,
+		dt.TopicName,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deleting service bus topic: %s", err)

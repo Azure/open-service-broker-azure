@@ -3,7 +3,7 @@ package servicebus
 import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type topicInstanceDetails struct {
-	ServiceBusTopicName string `json:"serviceBusTopicName"`
+	TopicName string `json:"topicName"`
 }
 
 type topicBindingDetails struct {
@@ -21,7 +21,7 @@ func (tm *topicManager) GetEmptyBindingDetails() service.BindingDetails {
 type topicCredentials struct {
 	ConnectionString string `json:"connectionString"`
 	PrimaryKey       string `json:"primaryKey"`
+	NamespaceName    string `json:"namespaceName"`
 	TopicName        string `json:"topicName"`
-	TopicURL         string `json:"topicURL"`
 	SubscriptionName string `json:"subscriptionName,omitempty"`
 }

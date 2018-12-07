@@ -1,8 +1,6 @@
 package servicebus
 
 import (
-	"fmt"
-
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -22,11 +20,7 @@ func (qm *queueManager) GetCredentials(
 	return queueCredentials{
 		ConnectionString: string(pdt.ConnectionString),
 		PrimaryKey:       string(pdt.PrimaryKey),
-		QueueName:        string(dt.ServiceBusQueueName),
-		QueueURL: fmt.Sprintf(
-			"https://%s.servicebus.windows.net/%s",
-			pdt.ServiceBusNamespaceName,
-			dt.ServiceBusQueueName,
-		),
+		NamespaceName:    string(pdt.NamespaceName),
+		QueueName:        string(dt.QueueName),
 	}, nil
 }

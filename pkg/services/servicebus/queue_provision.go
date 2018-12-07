@@ -35,7 +35,7 @@ func (qm *queueManager) preProvision(
 		getResult, err := qm.queuesClient.Get(
 			ctx,
 			ppp.GetString("resourceGroup"),
-			pdt.ServiceBusNamespaceName,
+			pdt.NamespaceName,
 			queueName,
 		)
 		if getResult.Name != nil && err == nil {
@@ -44,12 +44,12 @@ func (qm *queueManager) preProvision(
 			return nil, fmt.Errorf("unexpected error creating queue: %s", err)
 		} else {
 			return &queueInstanceDetails{
-				ServiceBusQueueName: queueName,
+				QueueName: queueName,
 			}, nil
 		}
 	}
 	return &queueInstanceDetails{
-		ServiceBusQueueName: uuid.NewV4().String(),
+		QueueName: uuid.NewV4().String(),
 	}, nil
 }
 
@@ -66,8 +66,8 @@ func (qm *queueManager) createQueue(
 	if _, err := qm.queuesClient.CreateOrUpdate(
 		ctx,
 		ppp.GetString("resourceGroup"),
-		pdt.ServiceBusNamespaceName,
-		dt.ServiceBusQueueName,
+		pdt.NamespaceName,
+		dt.QueueName,
 		qm.buildQueueInformation(instance),
 	); err != nil {
 		return nil, fmt.Errorf("error creating queue: %s", err)

@@ -41,7 +41,7 @@ func (nm *namespaceManager) deleteNamespace(
 	result, err := nm.namespacesClient.Delete(
 		ctx,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
-		dt.ServiceBusNamespaceName,
+		dt.NamespaceName,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("error deleting service bus namespace: %s", err)

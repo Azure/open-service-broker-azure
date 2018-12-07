@@ -28,8 +28,8 @@ func (tm *topicManager) Bind(
 	if _, err := tm.subscriptionsClient.CreateOrUpdate(
 		context.TODO(),
 		ppp.GetString("resourceGroup"),
-		pdt.ServiceBusNamespaceName,
-		dt.ServiceBusTopicName,
+		pdt.NamespaceName,
+		dt.TopicName,
 		bt.SubscriptionName,
 		servicebusSDK.SBSubscription{},
 	); err != nil {
@@ -48,12 +48,8 @@ func (tm *topicManager) GetCredentials(
 	return topicCredentials{
 		ConnectionString: string(pdt.ConnectionString),
 		PrimaryKey:       string(pdt.PrimaryKey),
-		TopicName:        string(dt.ServiceBusTopicName),
-		TopicURL: fmt.Sprintf(
-			"https://%s.servicebus.windows.net/%s",
-			pdt.ServiceBusNamespaceName,
-			dt.ServiceBusTopicName,
-		),
+		NamespaceName:    string(pdt.NamespaceName),
+		TopicName:        string(dt.TopicName),
 		SubscriptionName: bt.SubscriptionName,
 	}, nil
 }
