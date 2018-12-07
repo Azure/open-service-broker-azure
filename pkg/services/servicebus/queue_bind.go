@@ -22,6 +22,7 @@ func (qm *queueManager) GetCredentials(
 	return queueCredentials{
 		ConnectionString: string(pdt.ConnectionString),
 		PrimaryKey:       string(pdt.PrimaryKey),
+		QueueName:        string(dt.ServiceBusQueueName),
 		QueueURL: fmt.Sprintf(
 			"https://%s.servicebus.windows.net/%s",
 			pdt.ServiceBusNamespaceName,

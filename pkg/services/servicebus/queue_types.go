@@ -17,5 +17,6 @@ func (qm *queueManager) GetEmptyBindingDetails() service.BindingDetails {
 type queueCredentials struct {
 	ConnectionString string `json:"connectionString"`
 	PrimaryKey       string `json:"primaryKey"`
+	QueueName        string `json:"queueName"`
 	QueueURL         string `json:"queueURL"`
 }

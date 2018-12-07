@@ -17,5 +17,6 @@ func (tm *topicManager) GetEmptyBindingDetails() service.BindingDetails {
 type topicCredentials struct {
 	ConnectionString string `json:"connectionString"`
 	PrimaryKey       string `json:"primaryKey"`
+	TopicName        string `json:"topicName"`
 	TopicURL         string `json:"topicURL"`
 }

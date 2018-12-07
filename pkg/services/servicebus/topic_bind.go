@@ -22,6 +22,7 @@ func (tm *topicManager) GetCredentials(
 	return topicCredentials{
 		ConnectionString: string(pdt.ConnectionString),
 		PrimaryKey:       string(pdt.PrimaryKey),
+		TopicName:        string(dt.ServiceBusTopicName),
 		TopicURL: fmt.Sprintf(
 			"https://%s.servicebus.windows.net/%s",
 			pdt.ServiceBusNamespaceName,
