@@ -220,7 +220,7 @@ func getModules(
 	serviceBusTopicsClient.Authorizer = authorizer
 	serviceBusTopicsClient.UserAgent =
 		getUserAgent(serviceBusTopicsClient.Client)
-	serviceBusSubscriptionsClient := servicebusSDK.NewSubscriptionsClientWithBaseURI(
+	serviceBusSubscriptionsClient := servicebusSDK.NewSubscriptionsClientWithBaseURI( // nolint: lll
 		azureConfig.Environment.ResourceManagerEndpoint,
 		azureSubscriptionID,
 	)
