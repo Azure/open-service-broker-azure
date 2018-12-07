@@ -23,8 +23,9 @@ type queueManager struct {
 }
 
 type topicManager struct {
-	armDeployer  arm.Deployer
-	topicsClient servicebusSDK.TopicsClient
+	armDeployer         arm.Deployer
+	topicsClient        servicebusSDK.TopicsClient
+	subscriptionsClient servicebusSDK.SubscriptionsClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -34,6 +35,7 @@ func New(
 	namespacesClient servicebusSDK.NamespacesClient,
 	queuesClient servicebusSDK.QueuesClient,
 	topicsClient servicebusSDK.TopicsClient,
+	subscriptionsClient servicebusSDK.SubscriptionsClient,
 ) service.Module {
 	return &module{
 		namespaceManager: &namespaceManager{
@@ -45,8 +47,9 @@ func New(
 			queuesClient: queuesClient,
 		},
 		topicManager: &topicManager{
-			armDeployer:  armDeployer,
-			topicsClient: topicsClient,
+			armDeployer:         armDeployer,
+			topicsClient:        topicsClient,
+			subscriptionsClient: subscriptionsClient,
 		},
 	}
 }

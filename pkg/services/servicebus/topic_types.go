@@ -6,12 +6,16 @@ type topicInstanceDetails struct {
 	ServiceBusTopicName string `json:"serviceBusTopicName"`
 }
 
+type topicBindingDetails struct {
+	SubscriptionName string `json:"subscriptionName,omitempty"`
+}
+
 func (tm *topicManager) GetEmptyInstanceDetails() service.InstanceDetails {
 	return &topicInstanceDetails{}
 }
 
 func (tm *topicManager) GetEmptyBindingDetails() service.BindingDetails {
-	return nil
+	return &topicBindingDetails{}
 }
 
 type topicCredentials struct {
@@ -19,4 +23,5 @@ type topicCredentials struct {
 	PrimaryKey       string `json:"primaryKey"`
 	TopicName        string `json:"topicName"`
 	TopicURL         string `json:"topicURL"`
+	SubscriptionName string `json:"subscriptionName,omitempty"`
 }

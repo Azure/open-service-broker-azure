@@ -166,6 +166,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					ServiceInstances: service.InstanceSchemas{
 						ProvisioningParametersSchema: generateTopicProvisioningParamsSchema(),
 					},
+					ServiceBindings: service.BindingSchemas{
+						BindingParametersSchema: generateTopicBindingParamsSchema(),
+					},
 				},
 			}),
 		),

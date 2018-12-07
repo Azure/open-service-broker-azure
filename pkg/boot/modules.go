@@ -220,6 +220,13 @@ func getModules(
 	serviceBusTopicsClient.Authorizer = authorizer
 	serviceBusTopicsClient.UserAgent =
 		getUserAgent(serviceBusTopicsClient.Client)
+	serviceBusSubscriptionsClient := servicebusSDK.NewSubscriptionsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	serviceBusSubscriptionsClient.Authorizer = authorizer
+	serviceBusSubscriptionsClient.UserAgent =
+		getUserAgent(serviceBusQueuesClient.Client)
 
 	storageAccountsClient := storageSDK.NewAccountsClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,
@@ -248,6 +255,7 @@ func getModules(
 			serviceBusNamespacesClient,
 			serviceBusQueuesClient,
 			serviceBusTopicsClient,
+			serviceBusSubscriptionsClient,
 		),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
 		keyvault.New(azureConfig.TenantID, armDeployer, keyVaultsClient),

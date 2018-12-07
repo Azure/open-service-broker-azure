@@ -82,3 +82,17 @@ func generateTopicProvisioningParamsSchema() service.InputParametersSchema {
 		},
 	}
 }
+
+func generateTopicBindingParamsSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"subscriptionNeeded": &service.StringPropertySchema{
+				Title: "Subscription Needed",
+				Description: "Specifies whether to create a subscription in the topic." +
+					" Valid values are [\"yes\", \"no\"]. ",
+				AllowedValues: []string{"yes", "no"},
+				DefaultValue:  "yes",
+			},
+		},
+	}
+}

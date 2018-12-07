@@ -95,6 +95,7 @@ Binding returns the following connection details and shared credentials:
 | ------------------ | -------- | ---------------------- |
 | `connectionString` | `string` | Connection string.     |
 | `primaryKey`       | `string` | Secret key (password). |
+| `queueName`        | `string` | The name of the queue  |
 | `queueURL`         | `string` | Queue URL              |
 
 ##### Unbind
@@ -126,29 +127,33 @@ Provisions a new topic in an existing namespace.
 | `parentAlias`       | `string` | Specifies the alias of the namespace in which the  topic should be provisioned. **Note**: the parent must be a service-bus-namespace instance with `standard` or `premium` plan. | Y        |                                                              |
 | `topicName`         | `string` | The name of the topic                                        | N        | If not provided, a random name will be generated as the topic name. |
 | `maxTopicSize`      | `int`    | The maximum size of the topic in megabytes, which is the size of memory allocated for the topic. | N        | 1024                                                         |
-| `messageTimeToLive` | `string` | ISO 8601 default message timespan to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself. For example, `PT276H13M14S` sets the message to expire in 11 days 12 hours 13 minutes 14 seconds. | N        | "PT336H"                                                     |
+| `messageTimeToLive` | `string` | ISO 8601 default message timespan to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself. For example, `PT276H13M14S` sets the message to expire in 11 day 12 hour 13 minute 14 seconds. | N        | "PT336H"                                                     |
 
 ##### Bind
 
-Returns a copy of one shared set of credentials.
+Depending on the binding parameter, the binding operation will create a subscription in the topic or directly return the credential of the topic.
 
 ###### Binding Parameters
 
-This binding operation does not support any parameters.
+| Parameter Name       | Type     | Description                                                  | Required | Default Value |
+| -------------------- | -------- | ------------------------------------------------------------ | -------- | ------------- |
+| `subscriptionNeeded` | `string` | Specifies whether to create a subscription in the topic. Valid values are ["yes", "no"]. If set to "yes", a subscription having random name will be created in the topic; otherwise, it leaves everything unchanged. You may set this field to "yes" for message consumer, and set this field to "no" for message producer. | N        | "yes"         |
 
 ###### Credentials
 
 Binding returns the following connection details and shared credentials:
 
-| Field Name         | Type     | Description            |
-| ------------------ | -------- | ---------------------- |
-| `connectionString` | `string` | Connection string.     |
-| `primaryKey`       | `string` | Secret key (password). |
-| `topicURL`         | `string` | Topic URL              |
+| Field Name         | Type     | Description                                                  |
+| ------------------ | -------- | ------------------------------------------------------------ |
+| `connectionString` | `string` | Connection string.                                           |
+| `primaryKey`       | `string` | Secret key (password).                                       |
+| `topicName`        | `string` | The name of the topic.                                       |
+| `topicURL`         | `string` | Topic URL                                                    |
+| `subscriptionName` | `string` | The name of the created subscription. Only appears when `subscriptionNeeded` is set to "yes". |
 
 ##### Unbind
 
-Does nothing.
+If `subscriptionNeeded` is set to "yes", deletes the created subscription; otherwise, does nothing.
 
 ##### Deprovision
 
