@@ -48,8 +48,8 @@ func (tm *topicManager) GetCredentials(
 	return topicCredentials{
 		ConnectionString: string(pdt.ConnectionString),
 		PrimaryKey:       string(pdt.PrimaryKey),
-		NamespaceName:    string(pdt.NamespaceName),
-		TopicName:        string(dt.TopicName),
+		NamespaceName:    pdt.NamespaceName,
+		TopicName:        dt.TopicName,
 		SubscriptionName: bt.SubscriptionName,
 	}, nil
 }

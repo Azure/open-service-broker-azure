@@ -20,7 +20,7 @@ func (qm *queueManager) GetCredentials(
 	return queueCredentials{
 		ConnectionString: string(pdt.ConnectionString),
 		PrimaryKey:       string(pdt.PrimaryKey),
-		NamespaceName:    string(pdt.NamespaceName),
-		QueueName:        string(dt.QueueName),
+		NamespaceName:    pdt.NamespaceName,
+		QueueName:        dt.QueueName,
 	}, nil
 }
