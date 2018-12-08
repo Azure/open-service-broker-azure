@@ -8,43 +8,43 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (s *serviceManager) GetProvisioner(
+func (nm *namespaceManager) GetProvisioner(
 	service.Plan,
 ) (service.Provisioner, error) {
 	return service.NewProvisioner(
-		service.NewProvisioningStep("preProvision", s.preProvision),
-		service.NewProvisioningStep("deployARMTemplate", s.deployARMTemplate),
+		service.NewProvisioningStep("preProvision", nm.preProvision),
+		service.NewProvisioningStep("deployARMTemplate", nm.deployARMTemplate),
 	)
 }
 
-func (s *serviceManager) preProvision(
+func (nm *namespaceManager) preProvision(
 	context.Context,
 	service.Instance,
 ) (service.InstanceDetails, error) {
-	return &instanceDetails{
-		ARMDeploymentName:       uuid.NewV4().String(),
-		ServiceBusNamespaceName: "sb-" + uuid.NewV4().String(),
+	return &namespaceInstanceDetails{
+		ARMDeploymentName: uuid.NewV4().String(),
+		NamespaceName:     "sb-" + uuid.NewV4().String(),
 	}, nil
 }
 
-func (s *serviceManager) deployARMTemplate(
+func (nm *namespaceManager) deployARMTemplate(
 	_ context.Context,
 	instance service.Instance,
 ) (service.InstanceDetails, error) {
-	dt := instance.Details.(*instanceDetails)
+	dt := instance.Details.(*namespaceInstanceDetails)
 	tagsObj := instance.ProvisioningParameters.GetObject("tags")
 	tags := make(map[string]string, len(tagsObj.Data))
 	for k := range tagsObj.Data {
 		tags[k] = tagsObj.GetString(k)
 	}
-	outputs, err := s.armDeployer.Deploy(
+	outputs, err := nm.armDeployer.Deploy(
 		dt.ARMDeploymentName,
 		instance.ProvisioningParameters.GetString("resourceGroup"),
 		instance.ProvisioningParameters.GetString("location"),
 		armTemplateBytes,
 		map[string]interface{}{
 			"location":                instance.ProvisioningParameters.GetString("location"), // nolint: lll
-			"serviceBusNamespaceName": dt.ServiceBusNamespaceName,
+			"serviceBusNamespaceName": dt.NamespaceName,
 			"serviceBusSku": instance.Plan.
 				GetProperties().Extended["serviceBusSku"],
 		},

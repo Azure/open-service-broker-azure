@@ -206,6 +206,27 @@ func getModules(
 	serviceBusNamespacesClient.Authorizer = authorizer
 	serviceBusNamespacesClient.UserAgent =
 		getUserAgent(serviceBusNamespacesClient.Client)
+	serviceBusQueuesClient := servicebusSDK.NewQueuesClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	serviceBusQueuesClient.Authorizer = authorizer
+	serviceBusQueuesClient.UserAgent =
+		getUserAgent(serviceBusQueuesClient.Client)
+	serviceBusTopicsClient := servicebusSDK.NewTopicsClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	serviceBusTopicsClient.Authorizer = authorizer
+	serviceBusTopicsClient.UserAgent =
+		getUserAgent(serviceBusTopicsClient.Client)
+	serviceBusSubscriptionsClient := servicebusSDK.NewSubscriptionsClientWithBaseURI( // nolint: lll
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureSubscriptionID,
+	)
+	serviceBusSubscriptionsClient.Authorizer = authorizer
+	serviceBusSubscriptionsClient.UserAgent =
+		getUserAgent(serviceBusQueuesClient.Client)
 
 	storageAccountsClient := storageSDK.NewAccountsClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,
@@ -229,7 +250,13 @@ func getModules(
 			mysqlServersClient,
 			mysqlDatabasesClient,
 		),
-		servicebus.New(armDeployer, serviceBusNamespacesClient),
+		servicebus.New(
+			armDeployer,
+			serviceBusNamespacesClient,
+			serviceBusQueuesClient,
+			serviceBusTopicsClient,
+			serviceBusSubscriptionsClient,
+		),
 		eventhubs.New(armDeployer, eventHubNamespacesClient),
 		keyvault.New(azureConfig.TenantID, armDeployer, keyVaultsClient),
 		mssql.New(

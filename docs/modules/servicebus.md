@@ -2,9 +2,11 @@
 
 _Note: This module is EXPERIMENTAL. To enable this module, you must run Open Service Broker for Azure with modules.minStability set to `experimental`_
 
+_This module involves the Parent-Child Model concept in OSBA, please refer to the [Parent-Child Model doc](../parent-child-model-for-multiple-layers-services.md)._
+
 ## Services & Plans
 
-### Service: azure-servicebus
+### Service: azure-servicebus-namespace
 
 | Plan Name | Description |
 |-----------|-------------|
@@ -15,7 +17,7 @@ _Note: This module is EXPERIMENTAL. To enable this module, you must run Open Ser
 #### Behaviors
 
 ##### Provision
-  
+
 Provisions a new Service Bus namespace. The new namespace will be named using
 new UUIDs.
 
@@ -25,10 +27,11 @@ new UUIDs.
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
+| `alias` | `string` | Specifies an alias that can be used by later provision actions to create queues/topics in this namespace. | Y |  |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
-  
+
 ##### Bind
-  
+
 Returns a copy of one shared set of credentials.
 
 ###### Binding Parameters
@@ -43,11 +46,116 @@ Binding returns the following connection details and shared credentials:
 |------------|------|-------------|
 | `connectionString` | `string` | Connection string. |
 | `primaryKey` | `string` | Secret key (password). |
+| `namespaceName` | `string` | The name of the namespace. |
 
 ##### Unbind
 
 Does nothing.
-  
+
 ##### Deprovision
 
 Deletes the Service Bus namespace.
+
+
+
+### Service: azure-servicebus-queue
+
+| Plan Name | Description                     |
+| --------- | ------------------------------- |
+| `queue`   | New queue in existing namespace |
+
+#### Behaviors
+
+##### Provision
+
+Provisions a new queue in an existing namespace. 
+
+###### Provisioning Parameters
+
+| Parameter Name      | Type     | Description                                                  | Required | Default Value                                                |
+| ------------------- | -------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| `parentAlias`       | `string` | Specifies the alias of the namespace in which the  queue should be provisioned. | Y        |                                                              |
+| `queueName`         | `string` | The name of the queue.                                       | N        | If not provided, a random name will be generated as the queue name. |
+| `maxQueueSize`      | `int`    | The maximum size of the queue in megabytes, which is the size of memory allocated for the queue. | N        | 1024                                                         |
+| `messageTimeToLive` | `string` | ISO 8601 default message timespan to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself. For example, `PT276H13M14S` sets the message to expire in 11 day 12 hour 13 minute 14 seconds. | N        | "PT336H"                                                     |
+| `lockDuration`      | `string` | ISO 8601 timespan duration of a peek-lock; that is, the amount of time that the message is locked for other receivers. The lock duration time window can range from 5 seconds to 5 minutes. For example, `PT2M30S` sets the lock duration time to 2 minutes 30 seconds. | N        | "PT30S"                                                      |
+
+##### Bind
+
+Returns a copy of one shared set of credentials.
+
+###### Binding Parameters
+
+This binding operation does not support any parameters.
+
+###### Credentials
+
+Binding returns the following connection details and shared credentials:
+
+| Field Name         | Type     | Description                |
+| ------------------ | -------- | -------------------------- |
+| `connectionString` | `string` | Connection string.         |
+| `primaryKey`       | `string` | Secret key (password).     |
+| `namespaceName`    | `string` | The name of the namespace. |
+| `queueName`        | `string` | The name of the queue.     |
+
+##### Unbind
+
+Does nothing.
+
+##### Deprovision
+
+Deletes the Service Bus queue.
+
+
+
+### Service: azure-servicebus-topic
+
+| Plan Name | Description                     |
+| --------- | ------------------------------- |
+| `topic`   | New topic in existing namespace |
+
+#### Behaviors
+
+##### Provision
+
+Provisions a new topic in an existing namespace. 
+
+###### Provisioning Parameters
+
+| Parameter Name      | Type     | Description                                                  | Required | Default Value                                                |
+| ------------------- | -------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| `parentAlias`       | `string` | Specifies the alias of the namespace in which the  topic should be provisioned. **Note**: the parent must be a service-bus-namespace instance with `standard` or `premium` plan. | Y        |                                                              |
+| `topicName`         | `string` | The name of the topic                                        | N        | If not provided, a random name will be generated as the topic name. |
+| `maxTopicSize`      | `int`    | The maximum size of the topic in megabytes, which is the size of memory allocated for the topic. | N        | 1024                                                         |
+| `messageTimeToLive` | `string` | ISO 8601 default message timespan to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus. This is the default value used when TimeToLive is not set on a message itself. For example, `PT276H13M14S` sets the message to expire in 11 day 12 hour 13 minute 14 seconds. | N        | "PT336H"                                                     |
+
+##### Bind
+
+Depending on the binding parameter, the binding operation will create a subscription in the topic or directly return the credential of the topic.
+
+###### Binding Parameters
+
+| Parameter Name       | Type     | Description                                                  | Required | Default Value |
+| -------------------- | -------- | ------------------------------------------------------------ | -------- | ------------- |
+| `subscriptionNeeded` | `string` | Specifies whether to create a subscription in the topic. Valid values are ["yes", "no"]. If set to "yes", a subscription having random name will be created in the topic; otherwise, it leaves everything unchanged. You may set this field to "yes" for message consumer, and set this field to "no" for message producer. | N        | "yes"         |
+
+###### Credentials
+
+Binding returns the following connection details and shared credentials:
+
+| Field Name         | Type     | Description                                                  |
+| ------------------ | -------- | ------------------------------------------------------------ |
+| `connectionString` | `string` | Connection string.                                           |
+| `primaryKey`       | `string` | Secret key (password).                                       |
+| `namespaceName`    | `string` | The name of the namespace.                                   |
+| `topicName`        | `string` | The name of the topic.                                       |
+| `subscriptionName` | `string` | The name of the created subscription. Only appears when `subscriptionNeeded` is set to "yes". |
+
+##### Unbind
+
+If `subscriptionNeeded` is set to "yes", deletes the created subscription; otherwise, does nothing.
+
+##### Deprovision
+
+Deletes the Service Bus topic.
