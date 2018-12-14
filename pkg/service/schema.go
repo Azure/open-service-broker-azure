@@ -549,6 +549,7 @@ func (p *PlanSchemas) AddCommonSchema(sp ServiceProperties) {
 					"alias",
 				)
 			ps["alias"] = &StringPropertySchema{
+				Title: "Alias",
 				Description: "Alias to by which child services instances may " +
 					"reference this instance",
 			}
@@ -560,6 +561,7 @@ func (p *PlanSchemas) AddCommonSchema(sp ServiceProperties) {
 				"parentAlias",
 			)
 		ps["parentAlias"] = &StringPropertySchema{
+			Title:       "Parent Alias",
 			Description: "Alias of the parent service instance",
 		}
 	}
