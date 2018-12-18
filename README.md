@@ -31,6 +31,7 @@ server that provisions managed services in the Microsoft Azure public cloud.
 
 * [Azure Application Insights](docs/modules/appinsights.md)
 * [Azure Event Hubs](docs/modules/eventhubs.md)
+* [Azure IoT Hub](docs/modules/iothub.md)
 * [Azure Key Vault](docs/modules/keyvault.md)
 * [Azure Search](docs/modules/search.md)
 * [Azure Service Bus](docs/modules/servicebus.md)
