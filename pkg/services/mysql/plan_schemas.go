@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
+	"github.com/Azure/open-service-broker-azure/pkg/schemas"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -35,18 +35,9 @@ func generateProvisioningParamsSchema(
 ) service.InputParametersSchema {
 	ips := generateUpdatingParamsSchema(td)
 	ips.RequiredProperties = append(ips.RequiredProperties, "location")
-	ips.PropertySchemas["location"] = &service.StringPropertySchema{
-		Title: "Location",
-		Description: "The Azure region in which to provision" +
-			" applicable resources.",
-		CustomPropertyValidator: azure.LocationValidator,
-	}
+	ips.PropertySchemas["location"] = schemas.GetLocationSchema()
 	ips.RequiredProperties = append(ips.RequiredProperties, "resourceGroup")
-	ips.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
-		Title: "Resource group",
-		Description: "The (new or existing) resource group with which" +
-			" to associate new resources.",
-	}
+	ips.PropertySchemas["resourceGroup"] = schemas.GetResourceGroupSchema()
 	ips.PropertySchemas["backupRedundancy"] = &service.StringPropertySchema{
 		Title:         "Backup redundancy",
 		Description:   "Specifies the backup redundancy",

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
+	"github.com/Azure/open-service-broker-azure/pkg/schemas"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -130,17 +130,8 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 
 func generateProvisioningParamsSchema() service.InputParametersSchema {
 	propertySchemas := map[string]service.PropertySchema{
-		"location": &service.StringPropertySchema{
-			Title: "Location",
-			Description: "The Azure region in which to provision" +
-				" applicable resources.",
-			CustomPropertyValidator: azure.LocationValidator,
-		},
-		"resourceGroup": &service.StringPropertySchema{
-			Title: "Resource group",
-			Description: "The (new or existing) resource group with which" +
-				" to associate new resources.",
-		},
+		"resourceGroup": schemas.GetResourceGroupSchema(),
+		"location":      schemas.GetLocationSchema(),
 		"multipleWriteRegionsEnabled": &service.StringPropertySchema{
 			Title: "Multiple write regions enabled",
 			Description: "Specifies if you want  the account to write " +
