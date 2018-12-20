@@ -109,7 +109,7 @@ type StringPropertySchema struct {
 	MinLength               *int                          `json:"minLength,omitempty"`   // nolint: lll
 	MaxLength               *int                          `json:"maxLength,omitempty"`   // nolint: lll
 	AllowedValues           []string                      `json:"enum,omitempty"`
-	AllowedPattern          *regexp.Regexp                `json:"pattern,omitempty"` // nolint: lll
+	AllowedPattern          string                        `json:"pattern,omitempty"` // nolint: lll
 	CustomPropertyValidator CustomStringPropertyValidator `json:"-"`
 	DefaultValue            string                        `json:"default,omitempty"` // nolint: lll
 }
@@ -163,8 +163,9 @@ func (s StringPropertySchema) validate(
 			return NewValidationError(context, "field value is invalid")
 		}
 	}
-	if s.AllowedPattern != nil {
-		if !s.AllowedPattern.MatchString(val) {
+	if s.AllowedPattern != "" {
+		pattern := regexp.MustCompile(s.AllowedPattern)
+		if !pattern.MatchString(val) {
 			return NewValidationError(context, "field value is invalid")
 		}
 	}

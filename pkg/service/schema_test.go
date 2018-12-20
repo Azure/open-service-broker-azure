@@ -3,7 +3,6 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"testing"
 
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
@@ -199,7 +198,7 @@ func TestValidateStringProperty(t *testing.T) {
 	assert.Nil(t, err)
 
 	sps = StringPropertySchema{
-		AllowedPattern: regexp.MustCompile(`^\w{3}$`),
+		AllowedPattern: `^\w{3}$`,
 	}
 	// This should fail validation because the value does not match the regex
 	err = sps.validate(fieldName, "foobar")
