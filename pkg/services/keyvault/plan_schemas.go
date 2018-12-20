@@ -1,7 +1,7 @@
 package keyvault
 
 import (
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/schemas"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -17,17 +17,8 @@ func (
 			"clientSecret",
 		},
 		PropertySchemas: map[string]service.PropertySchema{
-			"location": &service.StringPropertySchema{
-				Title: "Location",
-				Description: "The Azure region in which to provision" +
-					" applicable resources.",
-				CustomPropertyValidator: azure.LocationValidator,
-			},
-			"resourceGroup": &service.StringPropertySchema{
-				Title: "Resource group",
-				Description: "The (new or existing) resource group with which" +
-					" to associate new resources.",
-			},
+			"resourceGroup": schemas.GetResourceGroupSchema(),
+			"location":      schemas.GetLocationSchema(),
 			"objectId": &service.StringPropertySchema{
 				Title: "Object ID",
 				Description: "Object ID for an existing service principal, " +

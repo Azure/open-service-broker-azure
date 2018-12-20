@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
+	"github.com/Azure/open-service-broker-azure/pkg/schemas"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -298,17 +298,8 @@ func getDBMSCommonUpdateParamSchema() service.InputParametersSchema {
 func getDBMSCommonProvisionParamSchema() service.InputParametersSchema {
 	pps := getDBMSCommonUpdateParamSchema()
 	pps.RequiredProperties = []string{"location", "resourceGroup"}
-	pps.PropertySchemas["location"] = &service.StringPropertySchema{
-		Title: "Location",
-		Description: "The Azure region in which to provision" +
-			" applicable resources.",
-		CustomPropertyValidator: azure.LocationValidator,
-	}
-	pps.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
-		Title: "Resource group",
-		Description: "The (new or existing) resource group with which" +
-			" to associate new resources.",
-	}
+	pps.PropertySchemas["location"] = schemas.GetLocationSchema()
+	pps.PropertySchemas["resourceGroup"] = schemas.GetResourceGroupSchema()
 	pps.PropertySchemas["tags"] = &service.ObjectPropertySchema{
 		Title: "Tags",
 		Description: "Tags to be applied to new resources," +
@@ -347,15 +338,8 @@ func getDBMSRegisteredProvisionParamSchema() service.InputParametersSchema {
 		"administratorLogin",
 		"administratorLoginPassword",
 	}
-	pps.PropertySchemas["resourceGroup"] = &service.StringPropertySchema{
-		Title:       "Resource Group",
-		Description: "Specifies the resource group of the existing server",
-	}
-	pps.PropertySchemas["location"] = &service.StringPropertySchema{
-		Title:                   "Location",
-		Description:             "Specifies the location of the existing server",
-		CustomPropertyValidator: azure.LocationValidator,
-	}
+	pps.PropertySchemas["resourceGroup"] = schemas.GetResourceGroupSchema()
+	pps.PropertySchemas["location"] = schemas.GetLocationSchema()
 	pps.PropertySchemas["server"] = &service.StringPropertySchema{
 		Title:       "Server Name",
 		Description: "Specifies the name of the existing server",
