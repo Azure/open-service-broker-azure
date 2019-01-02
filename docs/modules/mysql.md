@@ -299,7 +299,7 @@ curl -X PUT \
 }'
 ```
 
-### Service: azure-mysql-5-7-dbms
+### Service: azure-mysql-5-7-database
 
 | Plan Name | Description |
 |-----------|-------------|
