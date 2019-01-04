@@ -23,7 +23,7 @@
 
 [[constraint]]
   name = "github.com/Azure/azure-sdk-for-go"
-  version = "v14.0.0"
+  version = "v20.2.0"
 
 [[constraint]]
   name = "github.com/Azure/go-autorest"

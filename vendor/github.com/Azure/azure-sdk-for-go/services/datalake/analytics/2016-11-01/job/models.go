@@ -38,6 +38,11 @@ const (
 	SingleBox CompileMode = "SingleBox"
 )
 
+// PossibleCompileModeValues returns an array of possible values for the CompileMode const type.
+func PossibleCompileModeValues() []CompileMode {
+	return []CompileMode{Full, Semantic, SingleBox}
+}
+
 // ResourceType enumerates the values for resource type.
 type ResourceType string
 
@@ -56,6 +61,11 @@ const (
 	VertexResourceInUserFolder ResourceType = "VertexResourceInUserFolder"
 )
 
+// PossibleResourceTypeValues returns an array of possible values for the ResourceType const type.
+func PossibleResourceTypeValues() []ResourceType {
+	return []ResourceType{JobManagerResource, JobManagerResourceInUserFolder, StatisticsResource, StatisticsResourceInUserFolder, VertexResource, VertexResourceInUserFolder}
+}
+
 // Result enumerates the values for result.
 type Result string
 
@@ -69,6 +79,11 @@ const (
 	// Succeeded ...
 	Succeeded Result = "Succeeded"
 )
+
+// PossibleResultValues returns an array of possible values for the Result const type.
+func PossibleResultValues() []Result {
+	return []Result{Cancelled, Failed, None, Succeeded}
+}
 
 // SeverityTypes enumerates the values for severity types.
 type SeverityTypes string
@@ -87,6 +102,11 @@ const (
 	// Warning ...
 	Warning SeverityTypes = "Warning"
 )
+
+// PossibleSeverityTypesValues returns an array of possible values for the SeverityTypes const type.
+func PossibleSeverityTypesValues() []SeverityTypes {
+	return []SeverityTypes{Deprecated, Error, Info, SevereWarning, UserWarning, Warning}
+}
 
 // State enumerates the values for state.
 type State string
@@ -114,6 +134,11 @@ const (
 	StateWaitingForCapacity State = "WaitingForCapacity"
 )
 
+// PossibleStateValues returns an array of possible values for the State const type.
+func PossibleStateValues() []State {
+	return []State{StateAccepted, StateCompiling, StateEnded, StateNew, StatePaused, StateQueued, StateRunning, StateScheduling, StateStarting, StateWaitingForCapacity}
+}
+
 // Type enumerates the values for type.
 type Type string
 
@@ -126,6 +151,11 @@ const (
 	TypeUSQL Type = "USql"
 )
 
+// PossibleTypeValues returns an array of possible values for the Type const type.
+func PossibleTypeValues() []Type {
+	return []Type{TypeHive, TypeJobProperties, TypeUSQL}
+}
+
 // TypeBasicCreateJobProperties enumerates the values for type basic create job properties.
 type TypeBasicCreateJobProperties string
 
@@ -136,6 +166,11 @@ const (
 	TypeBasicCreateJobPropertiesTypeUSQL TypeBasicCreateJobProperties = "USql"
 )
 
+// PossibleTypeBasicCreateJobPropertiesValues returns an array of possible values for the TypeBasicCreateJobProperties const type.
+func PossibleTypeBasicCreateJobPropertiesValues() []TypeBasicCreateJobProperties {
+	return []TypeBasicCreateJobProperties{TypeBasicCreateJobPropertiesTypeCreateJobProperties, TypeBasicCreateJobPropertiesTypeUSQL}
+}
+
 // TypeEnum enumerates the values for type enum.
 type TypeEnum string
 
@@ -145,6 +180,11 @@ const (
 	// USQL ...
 	USQL TypeEnum = "USql"
 )
+
+// PossibleTypeEnumValues returns an array of possible values for the TypeEnum const type.
+func PossibleTypeEnumValues() []TypeEnum {
+	return []TypeEnum{Hive, USQL}
+}
 
 // BaseJobParameters data Lake Analytics Job Parameters base class for build and submit.
 type BaseJobParameters struct {
@@ -241,8 +281,10 @@ func (bjp *BuildJobParameters) UnmarshalJSON(body []byte) error {
 type CreateJobParameters struct {
 	// Name - the friendly name of the job to submit.
 	Name *string `json:"name,omitempty"`
-	// DegreeOfParallelism - the degree of parallelism to use for this job. This must be greater than 0, if set to less than 0 it will default to 1.
+	// DegreeOfParallelism - the degree of parallelism used for this job. At most one of degreeOfParallelism and degreeOfParallelismPercent should be specified. If none, a default value of 1 will be used.
 	DegreeOfParallelism *int32 `json:"degreeOfParallelism,omitempty"`
+	// DegreeOfParallelismPercent - the degree of parallelism in percentage used for this job. At most one of degreeOfParallelism and degreeOfParallelismPercent should be specified. If none, a default value of 1 will be used for degreeOfParallelism.
+	DegreeOfParallelismPercent *float64 `json:"degreeOfParallelismPercent,omitempty"`
 	// Priority - the priority value to use for the current job. Lower numbers have a higher priority. By default, a job has a priority of 1000. This must be greater than 0.
 	Priority *int32 `json:"priority,omitempty"`
 	// LogFilePatterns - the list of log file name patterns to find in the logFolder. '*' is the only matching character allowed. Example format: jobExecution*.log or *mylog*.txt
@@ -281,6 +323,15 @@ func (cjp *CreateJobParameters) UnmarshalJSON(body []byte) error {
 					return err
 				}
 				cjp.DegreeOfParallelism = &degreeOfParallelism
+			}
+		case "degreeOfParallelismPercent":
+			if v != nil {
+				var degreeOfParallelismPercent float64
+				err = json.Unmarshal(*v, &degreeOfParallelismPercent)
+				if err != nil {
+					return err
+				}
+				cjp.DegreeOfParallelismPercent = &degreeOfParallelismPercent
 			}
 		case "priority":
 			if v != nil {
@@ -395,7 +446,9 @@ func (cjp CreateJobProperties) MarshalJSON() ([]byte, error) {
 	if cjp.Script != nil {
 		objectMap["script"] = cjp.Script
 	}
-	objectMap["type"] = cjp.Type
+	if cjp.Type != "" {
+		objectMap["type"] = cjp.Type
+	}
 	return json.Marshal(objectMap)
 }
 
@@ -430,14 +483,18 @@ type CreateUSQLJobProperties struct {
 func (cusjp CreateUSQLJobProperties) MarshalJSON() ([]byte, error) {
 	cusjp.Type = TypeBasicCreateJobPropertiesTypeUSQL
 	objectMap := make(map[string]interface{})
-	objectMap["compileMode"] = cusjp.CompileMode
+	if cusjp.CompileMode != "" {
+		objectMap["compileMode"] = cusjp.CompileMode
+	}
 	if cusjp.RuntimeVersion != nil {
 		objectMap["runtimeVersion"] = cusjp.RuntimeVersion
 	}
 	if cusjp.Script != nil {
 		objectMap["script"] = cusjp.Script
 	}
-	objectMap["type"] = cusjp.Type
+	if cusjp.Type != "" {
+		objectMap["type"] = cusjp.Type
+	}
 	return json.Marshal(objectMap)
 }
 
@@ -555,7 +612,9 @@ func (hjp HiveJobProperties) MarshalJSON() ([]byte, error) {
 	if hjp.Script != nil {
 		objectMap["script"] = hjp.Script
 	}
-	objectMap["type"] = hjp.Type
+	if hjp.Type != "" {
+		objectMap["type"] = hjp.Type
+	}
 	return json.Marshal(objectMap)
 }
 
@@ -698,8 +757,10 @@ type Information struct {
 	Type TypeEnum `json:"type,omitempty"`
 	// Submitter - the user or account that submitted the job.
 	Submitter *string `json:"submitter,omitempty"`
-	// DegreeOfParallelism - the degree of parallelism used for this job. This must be greater than 0, if set to less than 0 it will default to 1.
+	// DegreeOfParallelism - the degree of parallelism used for this job.
 	DegreeOfParallelism *int32 `json:"degreeOfParallelism,omitempty"`
+	// DegreeOfParallelismPercent - the degree of parallelism in percentage used for this job.
+	DegreeOfParallelismPercent *float64 `json:"degreeOfParallelismPercent,omitempty"`
 	// Priority - the priority value for the current job. Lower numbers have a higher priority. By default, a job has a priority of 1000. This must be greater than 0.
 	Priority *int32 `json:"priority,omitempty"`
 	// SubmitTime - the time the job was submitted to the service.
@@ -800,6 +861,15 @@ func (i *Information) UnmarshalJSON(body []byte) error {
 				}
 				i.DegreeOfParallelism = &degreeOfParallelism
 			}
+		case "degreeOfParallelismPercent":
+			if v != nil {
+				var degreeOfParallelismPercent float64
+				err = json.Unmarshal(*v, &degreeOfParallelismPercent)
+				if err != nil {
+					return err
+				}
+				i.DegreeOfParallelismPercent = &degreeOfParallelismPercent
+			}
 		case "priority":
 			if v != nil {
 				var priority int32
@@ -897,8 +967,10 @@ type InformationBasic struct {
 	Type TypeEnum `json:"type,omitempty"`
 	// Submitter - the user or account that submitted the job.
 	Submitter *string `json:"submitter,omitempty"`
-	// DegreeOfParallelism - the degree of parallelism used for this job. This must be greater than 0, if set to less than 0 it will default to 1.
+	// DegreeOfParallelism - the degree of parallelism used for this job.
 	DegreeOfParallelism *int32 `json:"degreeOfParallelism,omitempty"`
+	// DegreeOfParallelismPercent - the degree of parallelism in percentage used for this job.
+	DegreeOfParallelismPercent *float64 `json:"degreeOfParallelismPercent,omitempty"`
 	// Priority - the priority value for the current job. Lower numbers have a higher priority. By default, a job has a priority of 1000. This must be greater than 0.
 	Priority *int32 `json:"priority,omitempty"`
 	// SubmitTime - the time the job was submitted to the service.
@@ -1155,7 +1227,9 @@ func (p Properties) MarshalJSON() ([]byte, error) {
 	if p.Script != nil {
 		objectMap["script"] = p.Script
 	}
-	objectMap["type"] = p.Type
+	if p.Type != "" {
+		objectMap["type"] = p.Type
+	}
 	return json.Marshal(objectMap)
 }
 
@@ -1474,14 +1548,18 @@ func (usjp USQLJobProperties) MarshalJSON() ([]byte, error) {
 	if usjp.YarnApplicationTimeStamp != nil {
 		objectMap["yarnApplicationTimeStamp"] = usjp.YarnApplicationTimeStamp
 	}
-	objectMap["compileMode"] = usjp.CompileMode
+	if usjp.CompileMode != "" {
+		objectMap["compileMode"] = usjp.CompileMode
+	}
 	if usjp.RuntimeVersion != nil {
 		objectMap["runtimeVersion"] = usjp.RuntimeVersion
 	}
 	if usjp.Script != nil {
 		objectMap["script"] = usjp.Script
 	}
-	objectMap["type"] = usjp.Type
+	if usjp.Type != "" {
+		objectMap["type"] = usjp.Type
+	}
 	return json.Marshal(objectMap)
 }
 

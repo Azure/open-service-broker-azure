@@ -34,26 +34,26 @@ import (
 // BaseClient is the base client for Textanalytics.
 type BaseClient struct {
 	autorest.Client
-	AzureRegion AzureRegions
+	Endpoint string
 }
 
 // New creates an instance of the BaseClient client.
-func New(azureRegion AzureRegions) BaseClient {
-	return NewWithoutDefaults(azureRegion)
+func New(endpoint string) BaseClient {
+	return NewWithoutDefaults(endpoint)
 }
 
 // NewWithoutDefaults creates an instance of the BaseClient client.
-func NewWithoutDefaults(azureRegion AzureRegions) BaseClient {
+func NewWithoutDefaults(endpoint string) BaseClient {
 	return BaseClient{
-		Client:      autorest.NewClientWithUserAgent(UserAgent()),
-		AzureRegion: azureRegion,
+		Client:   autorest.NewClientWithUserAgent(UserAgent()),
+		Endpoint: endpoint,
 	}
 }
 
 // DetectLanguage scores close to 1 indicate 100% certainty that the identified language is true. A total of 120
 // languages are supported.
-//
-// input is collection of documents to analyze.
+// Parameters:
+// input - collection of documents to analyze.
 func (client BaseClient) DetectLanguage(ctx context.Context, input BatchInput) (result LanguageBatchResult, err error) {
 	req, err := client.DetectLanguagePreparer(ctx, input)
 	if err != nil {
@@ -79,14 +79,14 @@ func (client BaseClient) DetectLanguage(ctx context.Context, input BatchInput) (
 // DetectLanguagePreparer prepares the DetectLanguage request.
 func (client BaseClient) DetectLanguagePreparer(ctx context.Context, input BatchInput) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/text/analytics", urlParameters),
-		autorest.WithPath("/v2.0/languages"),
+		autorest.WithCustomBaseURL("{Endpoint}/text/analytics/v2.0", urlParameters),
+		autorest.WithPath("/languages"),
 		autorest.WithJSON(input))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -111,11 +111,74 @@ func (client BaseClient) DetectLanguageResponder(resp *http.Response) (result La
 	return
 }
 
-// KeyPhrases we employ techniques from Microsoft Office's sophisticated Natural Language Processing toolkit. See the
-// <a href="https://docs.microsoft.com/en-us/azure/cognitive-services/text-analytics/overview#supported-languages">Text
+// Entities to get even more information on each recognized entity we recommend using the Bing Entity Search API by
+// querying for the recognized entities names. See the <a
+// href="https://docs.microsoft.com/en-us/azure/cognitive-services/text-analytics/text-analytics-supported-languages">Supported
+// languages in Text Analytics API</a> for the list of enabled languages.
+// Parameters:
+// input - collection of documents to analyze.
+func (client BaseClient) Entities(ctx context.Context, input MultiLanguageBatchInput) (result EntitiesBatchResult, err error) {
+	req, err := client.EntitiesPreparer(ctx, input)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "textanalytics.BaseClient", "Entities", nil, "Failure preparing request")
+		return
+	}
+
+	resp, err := client.EntitiesSender(req)
+	if err != nil {
+		result.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "textanalytics.BaseClient", "Entities", resp, "Failure sending request")
+		return
+	}
+
+	result, err = client.EntitiesResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "textanalytics.BaseClient", "Entities", resp, "Failure responding to request")
+	}
+
+	return
+}
+
+// EntitiesPreparer prepares the Entities request.
+func (client BaseClient) EntitiesPreparer(ctx context.Context, input MultiLanguageBatchInput) (*http.Request, error) {
+	urlParameters := map[string]interface{}{
+		"Endpoint": client.Endpoint,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsContentType("application/json; charset=utf-8"),
+		autorest.AsPost(),
+		autorest.WithCustomBaseURL("{Endpoint}/text/analytics/v2.0", urlParameters),
+		autorest.WithPath("/entities"),
+		autorest.WithJSON(input))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+}
+
+// EntitiesSender sends the Entities request. The method will close the
+// http.Response Body if it receives an error.
+func (client BaseClient) EntitiesSender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+}
+
+// EntitiesResponder handles the response to the Entities request. The method always
+// closes the http.Response Body.
+func (client BaseClient) EntitiesResponder(resp *http.Response) (result EntitiesBatchResult, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
+// KeyPhrases see the <a
+// href="https://docs.microsoft.com/en-us/azure/cognitive-services/text-analytics/overview#supported-languages">Text
 // Analytics Documentation</a> for details about the languages that are supported by key phrase extraction.
-//
-// input is collection of documents to analyze. Documents can now contain a language field to indicate the text
+// Parameters:
+// input - collection of documents to analyze. Documents can now contain a language field to indicate the text
 // language
 func (client BaseClient) KeyPhrases(ctx context.Context, input MultiLanguageBatchInput) (result KeyPhraseBatchResult, err error) {
 	req, err := client.KeyPhrasesPreparer(ctx, input)
@@ -142,14 +205,14 @@ func (client BaseClient) KeyPhrases(ctx context.Context, input MultiLanguageBatc
 // KeyPhrasesPreparer prepares the KeyPhrases request.
 func (client BaseClient) KeyPhrasesPreparer(ctx context.Context, input MultiLanguageBatchInput) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/text/analytics", urlParameters),
-		autorest.WithPath("/v2.0/keyPhrases"),
+		autorest.WithCustomBaseURL("{Endpoint}/text/analytics/v2.0", urlParameters),
+		autorest.WithPath("/keyPhrases"),
 		autorest.WithJSON(input))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -174,13 +237,12 @@ func (client BaseClient) KeyPhrasesResponder(resp *http.Response) (result KeyPhr
 	return
 }
 
-// Sentiment scores close to 1 indicate positive sentiment, while scores close to 0 indicate negative sentiment.
-// Sentiment score is generated using classification techniques. The input features to the classifier include n-grams,
-// features generated from part-of-speech tags, and word embeddings. See the <a
+// Sentiment scores close to 1 indicate positive sentiment, while scores close to 0 indicate negative sentiment. A
+// score of 0.5 indicates the lack of sentiment (e.g. a factoid statement). See the <a
 // href="https://docs.microsoft.com/en-us/azure/cognitive-services/text-analytics/overview#supported-languages">Text
 // Analytics Documentation</a> for details about the languages that are supported by sentiment analysis.
-//
-// input is collection of documents to analyze.
+// Parameters:
+// input - collection of documents to analyze.
 func (client BaseClient) Sentiment(ctx context.Context, input MultiLanguageBatchInput) (result SentimentBatchResult, err error) {
 	req, err := client.SentimentPreparer(ctx, input)
 	if err != nil {
@@ -206,14 +268,14 @@ func (client BaseClient) Sentiment(ctx context.Context, input MultiLanguageBatch
 // SentimentPreparer prepares the Sentiment request.
 func (client BaseClient) SentimentPreparer(ctx context.Context, input MultiLanguageBatchInput) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/text/analytics", urlParameters),
-		autorest.WithPath("/v2.0/sentiment"),
+		autorest.WithCustomBaseURL("{Endpoint}/text/analytics/v2.0", urlParameters),
+		autorest.WithPath("/sentiment"),
 		autorest.WithJSON(input))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }

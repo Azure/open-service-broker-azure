@@ -243,7 +243,8 @@ func TestWithErrorUnlessStatusCode_FoundAzureFullError(t *testing.T) {
 			"target": "target1",
 			"details": [{"code": "conflict1", "message":"error message1"}, 
 						{"code": "conflict2", "message":"error message2"}],
-			"innererror": { "customKey": "customValue" }
+			"innererror": { "customKey": "customValue" },
+			"additionalInfo": [{"type": "someErrorType", "info": {"someProperty": "someValue"}}]
 		}
 	}`
 	uuid := "71FDB9F4-5E49-4C12-B266-DE7B4FD999A6"
@@ -285,6 +286,11 @@ func TestWithErrorUnlessStatusCode_FoundAzureFullError(t *testing.T) {
 	i, _ := json.Marshal(azErr.ServiceError.InnerError)
 	if string(i) != `{"customKey":"customValue"}` {
 		t.Fatalf("azure: inner error is not unmarshaled properly")
+	}
+
+	a, _ := json.Marshal(azErr.ServiceError.AdditionalInfo)
+	if string(a) != `[{"info":{"someProperty":"someValue"},"type":"someErrorType"}]` {
+		t.Fatalf("azure: error additional info is not unmarshaled properly")
 	}
 
 	if expected := http.StatusInternalServerError; azErr.StatusCode != expected {
@@ -333,6 +339,9 @@ func TestWithErrorUnlessStatusCode_NoAzureError(t *testing.T) {
 	expected := &ServiceError{
 		Code:    "Unknown",
 		Message: "Unknown service error",
+		Details: []map[string]interface{}{
+			{"Status": "NotFound"},
+		},
 	}
 
 	if !reflect.DeepEqual(expected, azErr.ServiceError) {
@@ -367,7 +376,8 @@ func TestWithErrorUnlessStatusCode_UnwrappedError(t *testing.T) {
 		"target": "target1",
 		"details": [{"code": "conflict1", "message":"error message1"},
 					{"code": "conflict2", "message":"error message2"}],
-		"innererror": { "customKey": "customValue" }
+		"innererror": { "customKey": "customValue" },
+		"additionalInfo": [{"type": "someErrorType", "info": {"someProperty": "someValue"}}]
     }`
 	uuid := "71FDB9F4-5E49-4C12-B266-DE7B4FD999A6"
 	r := mocks.NewResponseWithContent(j)
@@ -432,6 +442,15 @@ func TestWithErrorUnlessStatusCode_UnwrappedError(t *testing.T) {
 		t.Fail()
 	}
 
+	expectedServiceErrorAdditionalInfo := `[{"info":{"someProperty":"someValue"},"type":"someErrorType"}]`
+	if azErr.ServiceError.AdditionalInfo == nil {
+		t.Logf("`ServiceError.AdditionalInfo` was nil when it should have been %q", expectedServiceErrorAdditionalInfo)
+		t.Fail()
+	} else if additionalInfo, _ := json.Marshal(azErr.ServiceError.AdditionalInfo); expectedServiceErrorAdditionalInfo != string(additionalInfo) {
+		t.Logf("Additional info was not unmarshaled properly.\n\tgot:  %q\n\twant: %q", string(additionalInfo), expectedServiceErrorAdditionalInfo)
+		t.Fail()
+	}
+
 	// the error body should still be there
 	defer r.Body.Close()
 	b, err := ioutil.ReadAll(r.Body)
@@ -451,7 +470,8 @@ func TestRequestErrorString_WithError(t *testing.T) {
 			"message": "Conflict",
 			"target": "target1",
 			"details": [{"code": "conflict1", "message":"error message1"}],
-			"innererror": { "customKey": "customValue" }
+			"innererror": { "customKey": "customValue" },
+			"additionalInfo": [{"type": "someErrorType", "info": {"someProperty": "someValue"}}]
 		}
 	}`
 	uuid := "71FDB9F4-5E49-4C12-B266-DE7B4FD999A6"
@@ -469,7 +489,7 @@ func TestRequestErrorString_WithError(t *testing.T) {
 		t.Fatalf("azure: returned nil error for proper error response")
 	}
 	azErr, _ := err.(*RequestError)
-	expected := "autorest/azure: Service returned an error. Status=500 Code=\"InternalError\" Message=\"Conflict\" Target=\"target1\" Details=[{\"code\":\"conflict1\",\"message\":\"error message1\"}] InnerError={\"customKey\":\"customValue\"}"
+	expected := "autorest/azure: Service returned an error. Status=500 Code=\"InternalError\" Message=\"Conflict\" Target=\"target1\" Details=[{\"code\":\"conflict1\",\"message\":\"error message1\"}] InnerError={\"customKey\":\"customValue\"} AdditionalInfo=[{\"info\":{\"someProperty\":\"someValue\"},\"type\":\"someErrorType\"}]"
 	if expected != azErr.Error() {
 		t.Fatalf("azure: send wrong RequestError.\nexpected=%v\ngot=%v", expected, azErr.Error())
 	}
@@ -501,6 +521,81 @@ func TestRequestErrorString_WithErrorNonConforming(t *testing.T) {
 	expected := "autorest/azure: Service returned an error. Status=500 Code=\"InternalError\" Message=\"Conflict\" Details=[{\"code\":\"conflict1\",\"message\":\"error message1\"}]"
 	if expected != azErr.Error() {
 		t.Fatalf("azure: send wrong RequestError.\nexpected=%v\ngot=%v", expected, azErr.Error())
+	}
+}
+
+func TestParseResourceID_WithValidBasicResourceID(t *testing.T) {
+
+	basicResourceID := "/subscriptions/subid-3-3-4/resourceGroups/regGroupVladdb/providers/Microsoft.Network/LoadBalancer/testResourceName"
+	want := Resource{
+		SubscriptionID: "subid-3-3-4",
+		ResourceGroup:  "regGroupVladdb",
+		Provider:       "Microsoft.Network",
+		ResourceType:   "LoadBalancer",
+		ResourceName:   "testResourceName",
+	}
+	got, err := ParseResourceID(basicResourceID)
+
+	if err != nil {
+		t.Fatalf("azure: error returned while parsing valid resourceId")
+	}
+
+	if got != want {
+		t.Logf("got:  %+v\nwant: %+v", got, want)
+		t.Fail()
+	}
+}
+
+func TestParseResourceID_WithValidSubResourceID(t *testing.T) {
+	subresourceID := "/subscriptions/subid-3-3-4/resourceGroups/regGroupVladdb/providers/Microsoft.Network/LoadBalancer/resource/is/a/subresource/actualresourceName"
+	want := Resource{
+		SubscriptionID: "subid-3-3-4",
+		ResourceGroup:  "regGroupVladdb",
+		Provider:       "Microsoft.Network",
+		ResourceType:   "LoadBalancer",
+		ResourceName:   "actualresourceName",
+	}
+	got, err := ParseResourceID(subresourceID)
+
+	if err != nil {
+		t.Fatalf("azure: error returned while parsing valid resourceId")
+	}
+
+	if got != want {
+		t.Logf("got:  %+v\nwant: %+v", got, want)
+		t.Fail()
+	}
+}
+
+func TestParseResourceID_WithIncompleteResourceID(t *testing.T) {
+	basicResourceID := "/subscriptions/subid-3-3-4/resourceGroups/regGroupVladdb/providers/Microsoft.Network/"
+	want := Resource{}
+
+	got, err := ParseResourceID(basicResourceID)
+
+	if err == nil {
+		t.Fatalf("azure: no error returned on incomplete resource id")
+	}
+
+	if got != want {
+		t.Logf("got:  %+v\nwant: %+v", got, want)
+		t.Fail()
+	}
+}
+
+func TestParseResourceID_WithMalformedResourceID(t *testing.T) {
+	malformedResourceID := "/providers/subid-3-3-4/resourceGroups/regGroupVladdb/subscriptions/Microsoft.Network/LoadBalancer/testResourceName"
+	want := Resource{}
+
+	got, err := ParseResourceID(malformedResourceID)
+
+	if err == nil {
+		t.Fatalf("azure: error returned while parsing malformed resourceID")
+	}
+
+	if got != want {
+		t.Logf("got:  %+v\nwant: %+v", got, want)
+		t.Fail()
 	}
 }
 

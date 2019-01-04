@@ -1,7 +1,7 @@
 package postgresql
 
 import (
-	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-04-30-preview/postgresql" // nolint: lll
+	postgresSDK "github.com/Azure/azure-sdk-for-go/services/postgresql/mgmt/2017-12-01/postgresql" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/azure/arm"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )

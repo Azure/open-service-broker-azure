@@ -33,26 +33,20 @@ import (
 // Text can be at most 1024 characters long.
 // If the content passed to the text API or the image API exceeds the size limits, the API will return an error code
 // that informs about the issue.
-//
-// This API is currently available in:
-//
-// * West US - westus.api.cognitive.microsoft.com
-// * East US 2 - eastus2.api.cognitive.microsoft.com
-// * West Central US - westcentralus.api.cognitive.microsoft.com
-// * West Europe - westeurope.api.cognitive.microsoft.com
-// * Southeast Asia - southeastasia.api.cognitive.microsoft.com .
 type ListManagementImageClient struct {
 	BaseClient
 }
 
 // NewListManagementImageClient creates an instance of the ListManagementImageClient client.
-func NewListManagementImageClient(baseURL AzureRegionBaseURL) ListManagementImageClient {
-	return ListManagementImageClient{New(baseURL)}
+func NewListManagementImageClient(endpoint string) ListManagementImageClient {
+	return ListManagementImageClient{New(endpoint)}
 }
 
 // AddImage add an image to the list with list Id equal to list Id passed.
-//
-// listID is list Id of the image list. tag is tag for the image. label is the image label.
+// Parameters:
+// listID - list Id of the image list.
+// tag - tag for the image.
+// label - the image label.
 func (client ListManagementImageClient) AddImage(ctx context.Context, listID string, tag *int32, label string) (result Image, err error) {
 	req, err := client.AddImagePreparer(ctx, listID, tag, label)
 	if err != nil {
@@ -78,7 +72,7 @@ func (client ListManagementImageClient) AddImage(ctx context.Context, listID str
 // AddImagePreparer prepares the AddImage request.
 func (client ListManagementImageClient) AddImagePreparer(ctx context.Context, listID string, tag *int32, label string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -95,7 +89,7 @@ func (client ListManagementImageClient) AddImagePreparer(ctx context.Context, li
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/imagelists/{listId}/images", pathParameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
@@ -122,10 +116,11 @@ func (client ListManagementImageClient) AddImageResponder(resp *http.Response) (
 }
 
 // AddImageFileInput add an image to the list with list Id equal to list Id passed.
-//
-// listID is list Id of the image list. imageStream is the image file. imageStream will be closed upon successful
-// return. Callers should ensure closure when receiving an error.tag is tag for the image. label is the image
-// label.
+// Parameters:
+// listID - list Id of the image list.
+// imageStream - the image file.
+// tag - tag for the image.
+// label - the image label.
 func (client ListManagementImageClient) AddImageFileInput(ctx context.Context, listID string, imageStream io.ReadCloser, tag *int32, label string) (result Image, err error) {
 	req, err := client.AddImageFileInputPreparer(ctx, listID, imageStream, tag, label)
 	if err != nil {
@@ -151,7 +146,7 @@ func (client ListManagementImageClient) AddImageFileInput(ctx context.Context, l
 // AddImageFileInputPreparer prepares the AddImageFileInput request.
 func (client ListManagementImageClient) AddImageFileInputPreparer(ctx context.Context, listID string, imageStream io.ReadCloser, tag *int32, label string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -167,9 +162,9 @@ func (client ListManagementImageClient) AddImageFileInputPreparer(ctx context.Co
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsOctetStream(),
+		autorest.AsContentType("image/gif"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/imagelists/{listId}/images", pathParameters),
 		autorest.WithFile(imageStream),
 		autorest.WithQueryParameters(queryParameters))
@@ -197,9 +192,12 @@ func (client ListManagementImageClient) AddImageFileInputResponder(resp *http.Re
 }
 
 // AddImageURLInput add an image to the list with list Id equal to list Id passed.
-//
-// listID is list Id of the image list. contentType is the content type. imageURL is the image url. tag is tag for
-// the image. label is the image label.
+// Parameters:
+// listID - list Id of the image list.
+// contentType - the content type.
+// imageURL - the image url.
+// tag - tag for the image.
+// label - the image label.
 func (client ListManagementImageClient) AddImageURLInput(ctx context.Context, listID string, contentType string, imageURL BodyModel, tag *int32, label string) (result Image, err error) {
 	req, err := client.AddImageURLInputPreparer(ctx, listID, contentType, imageURL, tag, label)
 	if err != nil {
@@ -225,7 +223,7 @@ func (client ListManagementImageClient) AddImageURLInput(ctx context.Context, li
 // AddImageURLInputPreparer prepares the AddImageURLInput request.
 func (client ListManagementImageClient) AddImageURLInputPreparer(ctx context.Context, listID string, contentType string, imageURL BodyModel, tag *int32, label string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -241,9 +239,9 @@ func (client ListManagementImageClient) AddImageURLInputPreparer(ctx context.Con
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/imagelists/{listId}/images", pathParameters),
 		autorest.WithJSON(imageURL),
 		autorest.WithQueryParameters(queryParameters),
@@ -272,8 +270,8 @@ func (client ListManagementImageClient) AddImageURLInputResponder(resp *http.Res
 }
 
 // DeleteAllImages deletes all images from the list with list Id equal to list Id passed.
-//
-// listID is list Id of the image list.
+// Parameters:
+// listID - list Id of the image list.
 func (client ListManagementImageClient) DeleteAllImages(ctx context.Context, listID string) (result String, err error) {
 	req, err := client.DeleteAllImagesPreparer(ctx, listID)
 	if err != nil {
@@ -299,7 +297,7 @@ func (client ListManagementImageClient) DeleteAllImages(ctx context.Context, lis
 // DeleteAllImagesPreparer prepares the DeleteAllImages request.
 func (client ListManagementImageClient) DeleteAllImagesPreparer(ctx context.Context, listID string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -308,7 +306,7 @@ func (client ListManagementImageClient) DeleteAllImagesPreparer(ctx context.Cont
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsDelete(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/imagelists/{listId}/images", pathParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -334,8 +332,9 @@ func (client ListManagementImageClient) DeleteAllImagesResponder(resp *http.Resp
 }
 
 // DeleteImage deletes an image from the list with list Id and image Id passed.
-//
-// listID is list Id of the image list. imageID is id of the image.
+// Parameters:
+// listID - list Id of the image list.
+// imageID - id of the image.
 func (client ListManagementImageClient) DeleteImage(ctx context.Context, listID string, imageID string) (result String, err error) {
 	req, err := client.DeleteImagePreparer(ctx, listID, imageID)
 	if err != nil {
@@ -361,7 +360,7 @@ func (client ListManagementImageClient) DeleteImage(ctx context.Context, listID 
 // DeleteImagePreparer prepares the DeleteImage request.
 func (client ListManagementImageClient) DeleteImagePreparer(ctx context.Context, listID string, imageID string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -371,7 +370,7 @@ func (client ListManagementImageClient) DeleteImagePreparer(ctx context.Context,
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsDelete(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/imagelists/{listId}/images/{ImageId}", pathParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -397,8 +396,8 @@ func (client ListManagementImageClient) DeleteImageResponder(resp *http.Response
 }
 
 // GetAllImageIds gets all image Ids from the list with list Id equal to list Id passed.
-//
-// listID is list Id of the image list.
+// Parameters:
+// listID - list Id of the image list.
 func (client ListManagementImageClient) GetAllImageIds(ctx context.Context, listID string) (result ImageIds, err error) {
 	req, err := client.GetAllImageIdsPreparer(ctx, listID)
 	if err != nil {
@@ -424,7 +423,7 @@ func (client ListManagementImageClient) GetAllImageIds(ctx context.Context, list
 // GetAllImageIdsPreparer prepares the GetAllImageIds request.
 func (client ListManagementImageClient) GetAllImageIdsPreparer(ctx context.Context, listID string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -433,7 +432,7 @@ func (client ListManagementImageClient) GetAllImageIdsPreparer(ctx context.Conte
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/imagelists/{listId}/images", pathParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }

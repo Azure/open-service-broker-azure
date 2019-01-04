@@ -19,71 +19,36 @@
 
 package compute
 
-import original "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2017-12-01/compute"
+import original "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2018-06-01/compute"
 
 type AvailabilitySetsClient = original.AvailabilitySetsClient
-
-func NewAvailabilitySetsClient(subscriptionID string) AvailabilitySetsClient {
-	return original.NewAvailabilitySetsClient(subscriptionID)
-}
-func NewAvailabilitySetsClientWithBaseURI(baseURI string, subscriptionID string) AvailabilitySetsClient {
-	return original.NewAvailabilitySetsClientWithBaseURI(baseURI, subscriptionID)
-}
 
 const (
 	DefaultBaseURI = original.DefaultBaseURI
 )
 
 type BaseClient = original.BaseClient
-
-func New(subscriptionID string) BaseClient {
-	return original.New(subscriptionID)
-}
-func NewWithBaseURI(baseURI string, subscriptionID string) BaseClient {
-	return original.NewWithBaseURI(baseURI, subscriptionID)
-}
-
 type ContainerServicesClient = original.ContainerServicesClient
-
-func NewContainerServicesClient(subscriptionID string) ContainerServicesClient {
-	return original.NewContainerServicesClient(subscriptionID)
-}
-func NewContainerServicesClientWithBaseURI(baseURI string, subscriptionID string) ContainerServicesClient {
-	return original.NewContainerServicesClientWithBaseURI(baseURI, subscriptionID)
-}
-
 type DisksClient = original.DisksClient
-
-func NewDisksClient(subscriptionID string) DisksClient {
-	return original.NewDisksClient(subscriptionID)
-}
-func NewDisksClientWithBaseURI(baseURI string, subscriptionID string) DisksClient {
-	return original.NewDisksClientWithBaseURI(baseURI, subscriptionID)
-}
-
+type GalleriesClient = original.GalleriesClient
+type GalleryImagesClient = original.GalleryImagesClient
+type GalleryImageVersionsClient = original.GalleryImageVersionsClient
 type ImagesClient = original.ImagesClient
-
-func NewImagesClient(subscriptionID string) ImagesClient {
-	return original.NewImagesClient(subscriptionID)
-}
-func NewImagesClientWithBaseURI(baseURI string, subscriptionID string) ImagesClient {
-	return original.NewImagesClientWithBaseURI(baseURI, subscriptionID)
-}
-
 type LogAnalyticsClient = original.LogAnalyticsClient
-
-func NewLogAnalyticsClient(subscriptionID string) LogAnalyticsClient {
-	return original.NewLogAnalyticsClient(subscriptionID)
-}
-func NewLogAnalyticsClientWithBaseURI(baseURI string, subscriptionID string) LogAnalyticsClient {
-	return original.NewLogAnalyticsClientWithBaseURI(baseURI, subscriptionID)
-}
-
 type AccessLevel = original.AccessLevel
 
 const (
 	None AccessLevel = original.None
 	Read AccessLevel = original.Read
+)
+
+type AggregatedReplicationState = original.AggregatedReplicationState
+
+const (
+	Completed  AggregatedReplicationState = original.Completed
+	Failed     AggregatedReplicationState = original.Failed
+	InProgress AggregatedReplicationState = original.InProgress
+	Unknown    AggregatedReplicationState = original.Unknown
 )
 
 type CachingTypes = original.CachingTypes
@@ -169,6 +134,7 @@ const (
 	Empty     DiskCreateOption = original.Empty
 	FromImage DiskCreateOption = original.FromImage
 	Import    DiskCreateOption = original.Import
+	Restore   DiskCreateOption = original.Restore
 )
 
 type DiskCreateOptionTypes = original.DiskCreateOptionTypes
@@ -177,6 +143,14 @@ const (
 	DiskCreateOptionTypesAttach    DiskCreateOptionTypes = original.DiskCreateOptionTypesAttach
 	DiskCreateOptionTypesEmpty     DiskCreateOptionTypes = original.DiskCreateOptionTypesEmpty
 	DiskCreateOptionTypesFromImage DiskCreateOptionTypes = original.DiskCreateOptionTypesFromImage
+)
+
+type HostCaching = original.HostCaching
+
+const (
+	HostCachingNone      HostCaching = original.HostCachingNone
+	HostCachingReadOnly  HostCaching = original.HostCachingReadOnly
+	HostCachingReadWrite HostCaching = original.HostCachingReadWrite
 )
 
 type InstanceViewTypes = original.InstanceViewTypes
@@ -237,6 +211,54 @@ const (
 	HTTPS ProtocolTypes = original.HTTPS
 )
 
+type ProvisioningState = original.ProvisioningState
+
+const (
+	ProvisioningStateCreating  ProvisioningState = original.ProvisioningStateCreating
+	ProvisioningStateDeleting  ProvisioningState = original.ProvisioningStateDeleting
+	ProvisioningStateFailed    ProvisioningState = original.ProvisioningStateFailed
+	ProvisioningStateMigrating ProvisioningState = original.ProvisioningStateMigrating
+	ProvisioningStateSucceeded ProvisioningState = original.ProvisioningStateSucceeded
+	ProvisioningStateUpdating  ProvisioningState = original.ProvisioningStateUpdating
+)
+
+type ProvisioningState1 = original.ProvisioningState1
+
+const (
+	ProvisioningState1Creating  ProvisioningState1 = original.ProvisioningState1Creating
+	ProvisioningState1Deleting  ProvisioningState1 = original.ProvisioningState1Deleting
+	ProvisioningState1Failed    ProvisioningState1 = original.ProvisioningState1Failed
+	ProvisioningState1Migrating ProvisioningState1 = original.ProvisioningState1Migrating
+	ProvisioningState1Succeeded ProvisioningState1 = original.ProvisioningState1Succeeded
+	ProvisioningState1Updating  ProvisioningState1 = original.ProvisioningState1Updating
+)
+
+type ProvisioningState2 = original.ProvisioningState2
+
+const (
+	ProvisioningState2Creating  ProvisioningState2 = original.ProvisioningState2Creating
+	ProvisioningState2Deleting  ProvisioningState2 = original.ProvisioningState2Deleting
+	ProvisioningState2Failed    ProvisioningState2 = original.ProvisioningState2Failed
+	ProvisioningState2Migrating ProvisioningState2 = original.ProvisioningState2Migrating
+	ProvisioningState2Succeeded ProvisioningState2 = original.ProvisioningState2Succeeded
+	ProvisioningState2Updating  ProvisioningState2 = original.ProvisioningState2Updating
+)
+
+type ReplicationState = original.ReplicationState
+
+const (
+	ReplicationStateCompleted   ReplicationState = original.ReplicationStateCompleted
+	ReplicationStateFailed      ReplicationState = original.ReplicationStateFailed
+	ReplicationStateReplicating ReplicationState = original.ReplicationStateReplicating
+	ReplicationStateUnknown     ReplicationState = original.ReplicationStateUnknown
+)
+
+type ReplicationStatusTypes = original.ReplicationStatusTypes
+
+const (
+	ReplicationStatusTypesReplicationStatus ReplicationStatusTypes = original.ReplicationStatusTypesReplicationStatus
+)
+
 type ResourceIdentityType = original.ResourceIdentityType
 
 const (
@@ -278,10 +300,17 @@ const (
 type RollingUpgradeStatusCode = original.RollingUpgradeStatusCode
 
 const (
-	Cancelled      RollingUpgradeStatusCode = original.Cancelled
-	Completed      RollingUpgradeStatusCode = original.Completed
-	Faulted        RollingUpgradeStatusCode = original.Faulted
-	RollingForward RollingUpgradeStatusCode = original.RollingForward
+	RollingUpgradeStatusCodeCancelled      RollingUpgradeStatusCode = original.RollingUpgradeStatusCodeCancelled
+	RollingUpgradeStatusCodeCompleted      RollingUpgradeStatusCode = original.RollingUpgradeStatusCodeCompleted
+	RollingUpgradeStatusCodeFaulted        RollingUpgradeStatusCode = original.RollingUpgradeStatusCodeFaulted
+	RollingUpgradeStatusCodeRollingForward RollingUpgradeStatusCode = original.RollingUpgradeStatusCodeRollingForward
+)
+
+type ScaleTier = original.ScaleTier
+
+const (
+	S100 ScaleTier = original.S100
+	S30  ScaleTier = original.S30
 )
 
 type SettingNames = original.SettingNames
@@ -289,6 +318,14 @@ type SettingNames = original.SettingNames
 const (
 	AutoLogon          SettingNames = original.AutoLogon
 	FirstLogonCommands SettingNames = original.FirstLogonCommands
+)
+
+type SnapshotStorageAccountTypes = original.SnapshotStorageAccountTypes
+
+const (
+	PremiumLRS  SnapshotStorageAccountTypes = original.PremiumLRS
+	StandardLRS SnapshotStorageAccountTypes = original.StandardLRS
+	StandardZRS SnapshotStorageAccountTypes = original.StandardZRS
 )
 
 type StatusLevelTypes = original.StatusLevelTypes
@@ -302,8 +339,9 @@ const (
 type StorageAccountTypes = original.StorageAccountTypes
 
 const (
-	PremiumLRS  StorageAccountTypes = original.PremiumLRS
-	StandardLRS StorageAccountTypes = original.StandardLRS
+	StorageAccountTypesPremiumLRS     StorageAccountTypes = original.StorageAccountTypesPremiumLRS
+	StorageAccountTypesStandardLRS    StorageAccountTypes = original.StorageAccountTypesStandardLRS
+	StorageAccountTypesStandardSSDLRS StorageAccountTypes = original.StorageAccountTypesStandardSSDLRS
 )
 
 type UpgradeMode = original.UpgradeMode
@@ -312,6 +350,30 @@ const (
 	Automatic UpgradeMode = original.Automatic
 	Manual    UpgradeMode = original.Manual
 	Rolling   UpgradeMode = original.Rolling
+)
+
+type UpgradeOperationInvoker = original.UpgradeOperationInvoker
+
+const (
+	UpgradeOperationInvokerPlatform UpgradeOperationInvoker = original.UpgradeOperationInvokerPlatform
+	UpgradeOperationInvokerUnknown  UpgradeOperationInvoker = original.UpgradeOperationInvokerUnknown
+	UpgradeOperationInvokerUser     UpgradeOperationInvoker = original.UpgradeOperationInvokerUser
+)
+
+type UpgradeState = original.UpgradeState
+
+const (
+	UpgradeStateCancelled      UpgradeState = original.UpgradeStateCancelled
+	UpgradeStateCompleted      UpgradeState = original.UpgradeStateCompleted
+	UpgradeStateFaulted        UpgradeState = original.UpgradeStateFaulted
+	UpgradeStateRollingForward UpgradeState = original.UpgradeStateRollingForward
+)
+
+type VirtualMachineEvictionPolicyTypes = original.VirtualMachineEvictionPolicyTypes
+
+const (
+	Deallocate VirtualMachineEvictionPolicyTypes = original.Deallocate
+	Delete     VirtualMachineEvictionPolicyTypes = original.Delete
 )
 
 type VirtualMachinePriorityTypes = original.VirtualMachinePriorityTypes
@@ -500,17 +562,20 @@ const (
 )
 
 type AccessURI = original.AccessURI
-type AccessURIOutput = original.AccessURIOutput
-type AccessURIRaw = original.AccessURIRaw
 type AdditionalUnattendContent = original.AdditionalUnattendContent
 type APIEntityReference = original.APIEntityReference
 type APIError = original.APIError
 type APIErrorBase = original.APIErrorBase
+type AutoOSUpgradePolicy = original.AutoOSUpgradePolicy
 type AvailabilitySet = original.AvailabilitySet
 type AvailabilitySetListResult = original.AvailabilitySetListResult
+type AvailabilitySetListResultIterator = original.AvailabilitySetListResultIterator
+type AvailabilitySetListResultPage = original.AvailabilitySetListResultPage
 type AvailabilitySetProperties = original.AvailabilitySetProperties
+type AvailabilitySetUpdate = original.AvailabilitySetUpdate
 type BootDiagnostics = original.BootDiagnostics
 type BootDiagnosticsInstanceView = original.BootDiagnosticsInstanceView
+type CloudError = original.CloudError
 type ContainerService = original.ContainerService
 type ContainerServiceAgentPoolProfile = original.ContainerServiceAgentPoolProfile
 type ContainerServiceCustomProfile = original.ContainerServiceCustomProfile
@@ -533,6 +598,7 @@ type CreationData = original.CreationData
 type DataDisk = original.DataDisk
 type DataDiskImage = original.DataDiskImage
 type DiagnosticsProfile = original.DiagnosticsProfile
+type Disallowed = original.Disallowed
 type Disk = original.Disk
 type DiskEncryptionSettings = original.DiskEncryptionSettings
 type DiskInstanceView = original.DiskInstanceView
@@ -549,6 +615,36 @@ type DisksUpdateFuture = original.DisksUpdateFuture
 type DiskUpdate = original.DiskUpdate
 type DiskUpdateProperties = original.DiskUpdateProperties
 type EncryptionSettings = original.EncryptionSettings
+type GalleriesCreateOrUpdateFuture = original.GalleriesCreateOrUpdateFuture
+type GalleriesDeleteFuture = original.GalleriesDeleteFuture
+type Gallery = original.Gallery
+type GalleryArtifactPublishingProfileBase = original.GalleryArtifactPublishingProfileBase
+type GalleryArtifactSource = original.GalleryArtifactSource
+type GalleryDataDiskImage = original.GalleryDataDiskImage
+type GalleryDiskImage = original.GalleryDiskImage
+type GalleryIdentifier = original.GalleryIdentifier
+type GalleryImage = original.GalleryImage
+type GalleryImageIdentifier = original.GalleryImageIdentifier
+type GalleryImageList = original.GalleryImageList
+type GalleryImageListIterator = original.GalleryImageListIterator
+type GalleryImageListPage = original.GalleryImageListPage
+type GalleryImageProperties = original.GalleryImageProperties
+type GalleryImagesCreateOrUpdateFuture = original.GalleryImagesCreateOrUpdateFuture
+type GalleryImagesDeleteFuture = original.GalleryImagesDeleteFuture
+type GalleryImageVersion = original.GalleryImageVersion
+type GalleryImageVersionList = original.GalleryImageVersionList
+type GalleryImageVersionListIterator = original.GalleryImageVersionListIterator
+type GalleryImageVersionListPage = original.GalleryImageVersionListPage
+type GalleryImageVersionProperties = original.GalleryImageVersionProperties
+type GalleryImageVersionPublishingProfile = original.GalleryImageVersionPublishingProfile
+type GalleryImageVersionsCreateOrUpdateFuture = original.GalleryImageVersionsCreateOrUpdateFuture
+type GalleryImageVersionsDeleteFuture = original.GalleryImageVersionsDeleteFuture
+type GalleryImageVersionStorageProfile = original.GalleryImageVersionStorageProfile
+type GalleryList = original.GalleryList
+type GalleryListIterator = original.GalleryListIterator
+type GalleryListPage = original.GalleryListPage
+type GalleryOSDiskImage = original.GalleryOSDiskImage
+type GalleryProperties = original.GalleryProperties
 type GrantAccessData = original.GrantAccessData
 type HardwareProfile = original.HardwareProfile
 type Image = original.Image
@@ -559,10 +655,13 @@ type ImageListResultIterator = original.ImageListResultIterator
 type ImageListResultPage = original.ImageListResultPage
 type ImageOSDisk = original.ImageOSDisk
 type ImageProperties = original.ImageProperties
+type ImagePurchasePlan = original.ImagePurchasePlan
 type ImageReference = original.ImageReference
 type ImagesCreateOrUpdateFuture = original.ImagesCreateOrUpdateFuture
 type ImagesDeleteFuture = original.ImagesDeleteFuture
 type ImageStorageProfile = original.ImageStorageProfile
+type ImagesUpdateFuture = original.ImagesUpdateFuture
+type ImageUpdate = original.ImageUpdate
 type InnerError = original.InnerError
 type InstanceViewStatus = original.InstanceViewStatus
 type KeyVaultAndKeyReference = original.KeyVaultAndKeyReference
@@ -580,21 +679,27 @@ type LogAnalyticsExportThrottledRequestsFuture = original.LogAnalyticsExportThro
 type LogAnalyticsInputBase = original.LogAnalyticsInputBase
 type LogAnalyticsOperationResult = original.LogAnalyticsOperationResult
 type LogAnalyticsOutput = original.LogAnalyticsOutput
-type LongRunningOperationProperties = original.LongRunningOperationProperties
 type MaintenanceRedeployStatus = original.MaintenanceRedeployStatus
+type ManagedArtifact = original.ManagedArtifact
 type ManagedDiskParameters = original.ManagedDiskParameters
 type NetworkInterfaceReference = original.NetworkInterfaceReference
 type NetworkInterfaceReferenceProperties = original.NetworkInterfaceReferenceProperties
 type NetworkProfile = original.NetworkProfile
-type OperationStatusResponse = original.OperationStatusResponse
+type OperationListResult = original.OperationListResult
+type OperationValue = original.OperationValue
+type OperationValueDisplay = original.OperationValueDisplay
 type OSDisk = original.OSDisk
 type OSDiskImage = original.OSDiskImage
 type OSProfile = original.OSProfile
 type Plan = original.Plan
 type PurchasePlan = original.PurchasePlan
+type RecommendedMachineConfiguration = original.RecommendedMachineConfiguration
 type RecoveryWalkResponse = original.RecoveryWalkResponse
+type RegionalReplicationStatus = original.RegionalReplicationStatus
+type ReplicationStatus = original.ReplicationStatus
 type RequestRateByIntervalInput = original.RequestRateByIntervalInput
 type Resource = original.Resource
+type ResourceRange = original.ResourceRange
 type ResourceSku = original.ResourceSku
 type ResourceSkuCapabilities = original.ResourceSkuCapabilities
 type ResourceSkuCapacity = original.ResourceSkuCapacity
@@ -605,7 +710,7 @@ type ResourceSkuRestrictions = original.ResourceSkuRestrictions
 type ResourceSkusResult = original.ResourceSkusResult
 type ResourceSkusResultIterator = original.ResourceSkusResultIterator
 type ResourceSkusResultPage = original.ResourceSkusResultPage
-type ResourceUpdate = original.ResourceUpdate
+type RollbackStatusInfo = original.RollbackStatusInfo
 type RollingUpgradePolicy = original.RollingUpgradePolicy
 type RollingUpgradeProgressInfo = original.RollingUpgradeProgressInfo
 type RollingUpgradeRunningStatus = original.RollingUpgradeRunningStatus
@@ -620,7 +725,6 @@ type RunCommandListResultIterator = original.RunCommandListResultIterator
 type RunCommandListResultPage = original.RunCommandListResultPage
 type RunCommandParameterDefinition = original.RunCommandParameterDefinition
 type RunCommandResult = original.RunCommandResult
-type RunCommandResultProperties = original.RunCommandResultProperties
 type Sku = original.Sku
 type Snapshot = original.Snapshot
 type SnapshotList = original.SnapshotList
@@ -629,6 +733,7 @@ type SnapshotListPage = original.SnapshotListPage
 type SnapshotsCreateOrUpdateFuture = original.SnapshotsCreateOrUpdateFuture
 type SnapshotsDeleteFuture = original.SnapshotsDeleteFuture
 type SnapshotsGrantAccessFuture = original.SnapshotsGrantAccessFuture
+type SnapshotSku = original.SnapshotSku
 type SnapshotsRevokeAccessFuture = original.SnapshotsRevokeAccessFuture
 type SnapshotsUpdateFuture = original.SnapshotsUpdateFuture
 type SnapshotUpdate = original.SnapshotUpdate
@@ -640,6 +745,9 @@ type SubResource = original.SubResource
 type SubResourceReadOnly = original.SubResourceReadOnly
 type ThrottledRequestsInput = original.ThrottledRequestsInput
 type UpdateResource = original.UpdateResource
+type UpgradeOperationHistoricalStatusInfo = original.UpgradeOperationHistoricalStatusInfo
+type UpgradeOperationHistoricalStatusInfoProperties = original.UpgradeOperationHistoricalStatusInfoProperties
+type UpgradeOperationHistoryStatus = original.UpgradeOperationHistoryStatus
 type UpgradePolicy = original.UpgradePolicy
 type Usage = original.Usage
 type UsageName = original.UsageName
@@ -650,7 +758,6 @@ type VirtualMachine = original.VirtualMachine
 type VirtualMachineAgentInstanceView = original.VirtualMachineAgentInstanceView
 type VirtualMachineCaptureParameters = original.VirtualMachineCaptureParameters
 type VirtualMachineCaptureResult = original.VirtualMachineCaptureResult
-type VirtualMachineCaptureResultProperties = original.VirtualMachineCaptureResultProperties
 type VirtualMachineExtension = original.VirtualMachineExtension
 type VirtualMachineExtensionHandlerInstanceView = original.VirtualMachineExtensionHandlerInstanceView
 type VirtualMachineExtensionImage = original.VirtualMachineExtensionImage
@@ -659,8 +766,13 @@ type VirtualMachineExtensionInstanceView = original.VirtualMachineExtensionInsta
 type VirtualMachineExtensionProperties = original.VirtualMachineExtensionProperties
 type VirtualMachineExtensionsCreateOrUpdateFuture = original.VirtualMachineExtensionsCreateOrUpdateFuture
 type VirtualMachineExtensionsDeleteFuture = original.VirtualMachineExtensionsDeleteFuture
+type VirtualMachineExtensionsListResult = original.VirtualMachineExtensionsListResult
+type VirtualMachineExtensionsUpdateFuture = original.VirtualMachineExtensionsUpdateFuture
+type VirtualMachineExtensionUpdate = original.VirtualMachineExtensionUpdate
+type VirtualMachineExtensionUpdateProperties = original.VirtualMachineExtensionUpdateProperties
 type VirtualMachineHealthStatus = original.VirtualMachineHealthStatus
 type VirtualMachineIdentity = original.VirtualMachineIdentity
+type VirtualMachineIdentityUserAssignedIdentitiesValue = original.VirtualMachineIdentityUserAssignedIdentitiesValue
 type VirtualMachineImage = original.VirtualMachineImage
 type VirtualMachineImageProperties = original.VirtualMachineImageProperties
 type VirtualMachineImageResource = original.VirtualMachineImageResource
@@ -680,10 +792,15 @@ type VirtualMachineScaleSetExtensionProperties = original.VirtualMachineScaleSet
 type VirtualMachineScaleSetExtensionsCreateOrUpdateFuture = original.VirtualMachineScaleSetExtensionsCreateOrUpdateFuture
 type VirtualMachineScaleSetExtensionsDeleteFuture = original.VirtualMachineScaleSetExtensionsDeleteFuture
 type VirtualMachineScaleSetIdentity = original.VirtualMachineScaleSetIdentity
+type VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue = original.VirtualMachineScaleSetIdentityUserAssignedIdentitiesValue
 type VirtualMachineScaleSetInstanceView = original.VirtualMachineScaleSetInstanceView
 type VirtualMachineScaleSetInstanceViewStatusesSummary = original.VirtualMachineScaleSetInstanceViewStatusesSummary
 type VirtualMachineScaleSetIPConfiguration = original.VirtualMachineScaleSetIPConfiguration
 type VirtualMachineScaleSetIPConfigurationProperties = original.VirtualMachineScaleSetIPConfigurationProperties
+type VirtualMachineScaleSetIPTag = original.VirtualMachineScaleSetIPTag
+type VirtualMachineScaleSetListOSUpgradeHistory = original.VirtualMachineScaleSetListOSUpgradeHistory
+type VirtualMachineScaleSetListOSUpgradeHistoryIterator = original.VirtualMachineScaleSetListOSUpgradeHistoryIterator
+type VirtualMachineScaleSetListOSUpgradeHistoryPage = original.VirtualMachineScaleSetListOSUpgradeHistoryPage
 type VirtualMachineScaleSetListResult = original.VirtualMachineScaleSetListResult
 type VirtualMachineScaleSetListResultIterator = original.VirtualMachineScaleSetListResultIterator
 type VirtualMachineScaleSetListResultPage = original.VirtualMachineScaleSetListResultPage
@@ -705,6 +822,7 @@ type VirtualMachineScaleSetPublicIPAddressConfiguration = original.VirtualMachin
 type VirtualMachineScaleSetPublicIPAddressConfigurationDNSSettings = original.VirtualMachineScaleSetPublicIPAddressConfigurationDNSSettings
 type VirtualMachineScaleSetPublicIPAddressConfigurationProperties = original.VirtualMachineScaleSetPublicIPAddressConfigurationProperties
 type VirtualMachineScaleSetRollingUpgradesCancelFuture = original.VirtualMachineScaleSetRollingUpgradesCancelFuture
+type VirtualMachineScaleSetRollingUpgradesStartExtensionUpgradeFuture = original.VirtualMachineScaleSetRollingUpgradesStartExtensionUpgradeFuture
 type VirtualMachineScaleSetRollingUpgradesStartOSUpgradeFuture = original.VirtualMachineScaleSetRollingUpgradesStartOSUpgradeFuture
 type VirtualMachineScaleSetsCreateOrUpdateFuture = original.VirtualMachineScaleSetsCreateOrUpdateFuture
 type VirtualMachineScaleSetsDeallocateFuture = original.VirtualMachineScaleSetsDeallocateFuture
@@ -712,7 +830,9 @@ type VirtualMachineScaleSetsDeleteFuture = original.VirtualMachineScaleSetsDelet
 type VirtualMachineScaleSetsDeleteInstancesFuture = original.VirtualMachineScaleSetsDeleteInstancesFuture
 type VirtualMachineScaleSetSku = original.VirtualMachineScaleSetSku
 type VirtualMachineScaleSetSkuCapacity = original.VirtualMachineScaleSetSkuCapacity
+type VirtualMachineScaleSetsPerformMaintenanceFuture = original.VirtualMachineScaleSetsPerformMaintenanceFuture
 type VirtualMachineScaleSetsPowerOffFuture = original.VirtualMachineScaleSetsPowerOffFuture
+type VirtualMachineScaleSetsRedeployFuture = original.VirtualMachineScaleSetsRedeployFuture
 type VirtualMachineScaleSetsReimageAllFuture = original.VirtualMachineScaleSetsReimageAllFuture
 type VirtualMachineScaleSetsReimageFuture = original.VirtualMachineScaleSetsReimageFuture
 type VirtualMachineScaleSetsRestartFuture = original.VirtualMachineScaleSetsRestartFuture
@@ -745,10 +865,13 @@ type VirtualMachineScaleSetVMProfile = original.VirtualMachineScaleSetVMProfile
 type VirtualMachineScaleSetVMProperties = original.VirtualMachineScaleSetVMProperties
 type VirtualMachineScaleSetVMsDeallocateFuture = original.VirtualMachineScaleSetVMsDeallocateFuture
 type VirtualMachineScaleSetVMsDeleteFuture = original.VirtualMachineScaleSetVMsDeleteFuture
+type VirtualMachineScaleSetVMsPerformMaintenanceFuture = original.VirtualMachineScaleSetVMsPerformMaintenanceFuture
 type VirtualMachineScaleSetVMsPowerOffFuture = original.VirtualMachineScaleSetVMsPowerOffFuture
+type VirtualMachineScaleSetVMsRedeployFuture = original.VirtualMachineScaleSetVMsRedeployFuture
 type VirtualMachineScaleSetVMsReimageAllFuture = original.VirtualMachineScaleSetVMsReimageAllFuture
 type VirtualMachineScaleSetVMsReimageFuture = original.VirtualMachineScaleSetVMsReimageFuture
 type VirtualMachineScaleSetVMsRestartFuture = original.VirtualMachineScaleSetVMsRestartFuture
+type VirtualMachineScaleSetVMsRunCommandFuture = original.VirtualMachineScaleSetVMsRunCommandFuture
 type VirtualMachineScaleSetVMsStartFuture = original.VirtualMachineScaleSetVMsStartFuture
 type VirtualMachineScaleSetVMsUpdateFuture = original.VirtualMachineScaleSetVMsUpdateFuture
 type VirtualMachinesCaptureFuture = original.VirtualMachinesCaptureFuture
@@ -765,29 +888,218 @@ type VirtualMachinesRestartFuture = original.VirtualMachinesRestartFuture
 type VirtualMachinesRunCommandFuture = original.VirtualMachinesRunCommandFuture
 type VirtualMachinesStartFuture = original.VirtualMachinesStartFuture
 type VirtualMachineStatusCodeCount = original.VirtualMachineStatusCodeCount
+type VirtualMachinesUpdateFuture = original.VirtualMachinesUpdateFuture
+type VirtualMachineUpdate = original.VirtualMachineUpdate
 type WindowsConfiguration = original.WindowsConfiguration
 type WinRMConfiguration = original.WinRMConfiguration
 type WinRMListener = original.WinRMListener
+type OperationsClient = original.OperationsClient
 type ResourceSkusClient = original.ResourceSkusClient
+type SnapshotsClient = original.SnapshotsClient
+type UsageClient = original.UsageClient
+type VirtualMachineExtensionImagesClient = original.VirtualMachineExtensionImagesClient
+type VirtualMachineExtensionsClient = original.VirtualMachineExtensionsClient
+type VirtualMachineImagesClient = original.VirtualMachineImagesClient
+type VirtualMachineRunCommandsClient = original.VirtualMachineRunCommandsClient
+type VirtualMachinesClient = original.VirtualMachinesClient
+type VirtualMachineScaleSetExtensionsClient = original.VirtualMachineScaleSetExtensionsClient
+type VirtualMachineScaleSetRollingUpgradesClient = original.VirtualMachineScaleSetRollingUpgradesClient
+type VirtualMachineScaleSetsClient = original.VirtualMachineScaleSetsClient
+type VirtualMachineScaleSetVMsClient = original.VirtualMachineScaleSetVMsClient
+type VirtualMachineSizesClient = original.VirtualMachineSizesClient
 
+func NewAvailabilitySetsClient(subscriptionID string) AvailabilitySetsClient {
+	return original.NewAvailabilitySetsClient(subscriptionID)
+}
+func NewAvailabilitySetsClientWithBaseURI(baseURI string, subscriptionID string) AvailabilitySetsClient {
+	return original.NewAvailabilitySetsClientWithBaseURI(baseURI, subscriptionID)
+}
+func New(subscriptionID string) BaseClient {
+	return original.New(subscriptionID)
+}
+func NewWithBaseURI(baseURI string, subscriptionID string) BaseClient {
+	return original.NewWithBaseURI(baseURI, subscriptionID)
+}
+func NewContainerServicesClient(subscriptionID string) ContainerServicesClient {
+	return original.NewContainerServicesClient(subscriptionID)
+}
+func NewContainerServicesClientWithBaseURI(baseURI string, subscriptionID string) ContainerServicesClient {
+	return original.NewContainerServicesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewDisksClient(subscriptionID string) DisksClient {
+	return original.NewDisksClient(subscriptionID)
+}
+func NewDisksClientWithBaseURI(baseURI string, subscriptionID string) DisksClient {
+	return original.NewDisksClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewGalleriesClient(subscriptionID string) GalleriesClient {
+	return original.NewGalleriesClient(subscriptionID)
+}
+func NewGalleriesClientWithBaseURI(baseURI string, subscriptionID string) GalleriesClient {
+	return original.NewGalleriesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewGalleryImagesClient(subscriptionID string) GalleryImagesClient {
+	return original.NewGalleryImagesClient(subscriptionID)
+}
+func NewGalleryImagesClientWithBaseURI(baseURI string, subscriptionID string) GalleryImagesClient {
+	return original.NewGalleryImagesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewGalleryImageVersionsClient(subscriptionID string) GalleryImageVersionsClient {
+	return original.NewGalleryImageVersionsClient(subscriptionID)
+}
+func NewGalleryImageVersionsClientWithBaseURI(baseURI string, subscriptionID string) GalleryImageVersionsClient {
+	return original.NewGalleryImageVersionsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewImagesClient(subscriptionID string) ImagesClient {
+	return original.NewImagesClient(subscriptionID)
+}
+func NewImagesClientWithBaseURI(baseURI string, subscriptionID string) ImagesClient {
+	return original.NewImagesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewLogAnalyticsClient(subscriptionID string) LogAnalyticsClient {
+	return original.NewLogAnalyticsClient(subscriptionID)
+}
+func NewLogAnalyticsClientWithBaseURI(baseURI string, subscriptionID string) LogAnalyticsClient {
+	return original.NewLogAnalyticsClientWithBaseURI(baseURI, subscriptionID)
+}
+func PossibleAccessLevelValues() []AccessLevel {
+	return original.PossibleAccessLevelValues()
+}
+func PossibleAggregatedReplicationStateValues() []AggregatedReplicationState {
+	return original.PossibleAggregatedReplicationStateValues()
+}
+func PossibleCachingTypesValues() []CachingTypes {
+	return original.PossibleCachingTypesValues()
+}
+func PossibleComponentNamesValues() []ComponentNames {
+	return original.PossibleComponentNamesValues()
+}
+func PossibleContainerServiceOrchestratorTypesValues() []ContainerServiceOrchestratorTypes {
+	return original.PossibleContainerServiceOrchestratorTypesValues()
+}
+func PossibleContainerServiceVMSizeTypesValues() []ContainerServiceVMSizeTypes {
+	return original.PossibleContainerServiceVMSizeTypesValues()
+}
+func PossibleDiskCreateOptionValues() []DiskCreateOption {
+	return original.PossibleDiskCreateOptionValues()
+}
+func PossibleDiskCreateOptionTypesValues() []DiskCreateOptionTypes {
+	return original.PossibleDiskCreateOptionTypesValues()
+}
+func PossibleHostCachingValues() []HostCaching {
+	return original.PossibleHostCachingValues()
+}
+func PossibleInstanceViewTypesValues() []InstanceViewTypes {
+	return original.PossibleInstanceViewTypesValues()
+}
+func PossibleIntervalInMinsValues() []IntervalInMins {
+	return original.PossibleIntervalInMinsValues()
+}
+func PossibleIPVersionValues() []IPVersion {
+	return original.PossibleIPVersionValues()
+}
+func PossibleMaintenanceOperationResultCodeTypesValues() []MaintenanceOperationResultCodeTypes {
+	return original.PossibleMaintenanceOperationResultCodeTypesValues()
+}
+func PossibleOperatingSystemStateTypesValues() []OperatingSystemStateTypes {
+	return original.PossibleOperatingSystemStateTypesValues()
+}
+func PossibleOperatingSystemTypesValues() []OperatingSystemTypes {
+	return original.PossibleOperatingSystemTypesValues()
+}
+func PossiblePassNamesValues() []PassNames {
+	return original.PossiblePassNamesValues()
+}
+func PossibleProtocolTypesValues() []ProtocolTypes {
+	return original.PossibleProtocolTypesValues()
+}
+func PossibleProvisioningStateValues() []ProvisioningState {
+	return original.PossibleProvisioningStateValues()
+}
+func PossibleProvisioningState1Values() []ProvisioningState1 {
+	return original.PossibleProvisioningState1Values()
+}
+func PossibleProvisioningState2Values() []ProvisioningState2 {
+	return original.PossibleProvisioningState2Values()
+}
+func PossibleReplicationStateValues() []ReplicationState {
+	return original.PossibleReplicationStateValues()
+}
+func PossibleReplicationStatusTypesValues() []ReplicationStatusTypes {
+	return original.PossibleReplicationStatusTypesValues()
+}
+func PossibleResourceIdentityTypeValues() []ResourceIdentityType {
+	return original.PossibleResourceIdentityTypeValues()
+}
+func PossibleResourceSkuCapacityScaleTypeValues() []ResourceSkuCapacityScaleType {
+	return original.PossibleResourceSkuCapacityScaleTypeValues()
+}
+func PossibleResourceSkuRestrictionsReasonCodeValues() []ResourceSkuRestrictionsReasonCode {
+	return original.PossibleResourceSkuRestrictionsReasonCodeValues()
+}
+func PossibleResourceSkuRestrictionsTypeValues() []ResourceSkuRestrictionsType {
+	return original.PossibleResourceSkuRestrictionsTypeValues()
+}
+func PossibleRollingUpgradeActionTypeValues() []RollingUpgradeActionType {
+	return original.PossibleRollingUpgradeActionTypeValues()
+}
+func PossibleRollingUpgradeStatusCodeValues() []RollingUpgradeStatusCode {
+	return original.PossibleRollingUpgradeStatusCodeValues()
+}
+func PossibleScaleTierValues() []ScaleTier {
+	return original.PossibleScaleTierValues()
+}
+func PossibleSettingNamesValues() []SettingNames {
+	return original.PossibleSettingNamesValues()
+}
+func PossibleSnapshotStorageAccountTypesValues() []SnapshotStorageAccountTypes {
+	return original.PossibleSnapshotStorageAccountTypesValues()
+}
+func PossibleStatusLevelTypesValues() []StatusLevelTypes {
+	return original.PossibleStatusLevelTypesValues()
+}
+func PossibleStorageAccountTypesValues() []StorageAccountTypes {
+	return original.PossibleStorageAccountTypesValues()
+}
+func PossibleUpgradeModeValues() []UpgradeMode {
+	return original.PossibleUpgradeModeValues()
+}
+func PossibleUpgradeOperationInvokerValues() []UpgradeOperationInvoker {
+	return original.PossibleUpgradeOperationInvokerValues()
+}
+func PossibleUpgradeStateValues() []UpgradeState {
+	return original.PossibleUpgradeStateValues()
+}
+func PossibleVirtualMachineEvictionPolicyTypesValues() []VirtualMachineEvictionPolicyTypes {
+	return original.PossibleVirtualMachineEvictionPolicyTypesValues()
+}
+func PossibleVirtualMachinePriorityTypesValues() []VirtualMachinePriorityTypes {
+	return original.PossibleVirtualMachinePriorityTypesValues()
+}
+func PossibleVirtualMachineScaleSetSkuScaleTypeValues() []VirtualMachineScaleSetSkuScaleType {
+	return original.PossibleVirtualMachineScaleSetSkuScaleTypeValues()
+}
+func PossibleVirtualMachineSizeTypesValues() []VirtualMachineSizeTypes {
+	return original.PossibleVirtualMachineSizeTypesValues()
+}
+func NewOperationsClient(subscriptionID string) OperationsClient {
+	return original.NewOperationsClient(subscriptionID)
+}
+func NewOperationsClientWithBaseURI(baseURI string, subscriptionID string) OperationsClient {
+	return original.NewOperationsClientWithBaseURI(baseURI, subscriptionID)
+}
 func NewResourceSkusClient(subscriptionID string) ResourceSkusClient {
 	return original.NewResourceSkusClient(subscriptionID)
 }
 func NewResourceSkusClientWithBaseURI(baseURI string, subscriptionID string) ResourceSkusClient {
 	return original.NewResourceSkusClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type SnapshotsClient = original.SnapshotsClient
-
 func NewSnapshotsClient(subscriptionID string) SnapshotsClient {
 	return original.NewSnapshotsClient(subscriptionID)
 }
 func NewSnapshotsClientWithBaseURI(baseURI string, subscriptionID string) SnapshotsClient {
 	return original.NewSnapshotsClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type UsageClient = original.UsageClient
-
 func NewUsageClient(subscriptionID string) UsageClient {
 	return original.NewUsageClient(subscriptionID)
 }
@@ -800,90 +1112,60 @@ func UserAgent() string {
 func Version() string {
 	return original.Version()
 }
-
-type VirtualMachineExtensionImagesClient = original.VirtualMachineExtensionImagesClient
-
 func NewVirtualMachineExtensionImagesClient(subscriptionID string) VirtualMachineExtensionImagesClient {
 	return original.NewVirtualMachineExtensionImagesClient(subscriptionID)
 }
 func NewVirtualMachineExtensionImagesClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachineExtensionImagesClient {
 	return original.NewVirtualMachineExtensionImagesClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachineExtensionsClient = original.VirtualMachineExtensionsClient
-
 func NewVirtualMachineExtensionsClient(subscriptionID string) VirtualMachineExtensionsClient {
 	return original.NewVirtualMachineExtensionsClient(subscriptionID)
 }
 func NewVirtualMachineExtensionsClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachineExtensionsClient {
 	return original.NewVirtualMachineExtensionsClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachineImagesClient = original.VirtualMachineImagesClient
-
 func NewVirtualMachineImagesClient(subscriptionID string) VirtualMachineImagesClient {
 	return original.NewVirtualMachineImagesClient(subscriptionID)
 }
 func NewVirtualMachineImagesClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachineImagesClient {
 	return original.NewVirtualMachineImagesClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachineRunCommandsClient = original.VirtualMachineRunCommandsClient
-
 func NewVirtualMachineRunCommandsClient(subscriptionID string) VirtualMachineRunCommandsClient {
 	return original.NewVirtualMachineRunCommandsClient(subscriptionID)
 }
 func NewVirtualMachineRunCommandsClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachineRunCommandsClient {
 	return original.NewVirtualMachineRunCommandsClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachinesClient = original.VirtualMachinesClient
-
 func NewVirtualMachinesClient(subscriptionID string) VirtualMachinesClient {
 	return original.NewVirtualMachinesClient(subscriptionID)
 }
 func NewVirtualMachinesClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachinesClient {
 	return original.NewVirtualMachinesClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachineScaleSetExtensionsClient = original.VirtualMachineScaleSetExtensionsClient
-
 func NewVirtualMachineScaleSetExtensionsClient(subscriptionID string) VirtualMachineScaleSetExtensionsClient {
 	return original.NewVirtualMachineScaleSetExtensionsClient(subscriptionID)
 }
 func NewVirtualMachineScaleSetExtensionsClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachineScaleSetExtensionsClient {
 	return original.NewVirtualMachineScaleSetExtensionsClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachineScaleSetRollingUpgradesClient = original.VirtualMachineScaleSetRollingUpgradesClient
-
 func NewVirtualMachineScaleSetRollingUpgradesClient(subscriptionID string) VirtualMachineScaleSetRollingUpgradesClient {
 	return original.NewVirtualMachineScaleSetRollingUpgradesClient(subscriptionID)
 }
 func NewVirtualMachineScaleSetRollingUpgradesClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachineScaleSetRollingUpgradesClient {
 	return original.NewVirtualMachineScaleSetRollingUpgradesClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachineScaleSetsClient = original.VirtualMachineScaleSetsClient
-
 func NewVirtualMachineScaleSetsClient(subscriptionID string) VirtualMachineScaleSetsClient {
 	return original.NewVirtualMachineScaleSetsClient(subscriptionID)
 }
 func NewVirtualMachineScaleSetsClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachineScaleSetsClient {
 	return original.NewVirtualMachineScaleSetsClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachineScaleSetVMsClient = original.VirtualMachineScaleSetVMsClient
-
 func NewVirtualMachineScaleSetVMsClient(subscriptionID string) VirtualMachineScaleSetVMsClient {
 	return original.NewVirtualMachineScaleSetVMsClient(subscriptionID)
 }
 func NewVirtualMachineScaleSetVMsClientWithBaseURI(baseURI string, subscriptionID string) VirtualMachineScaleSetVMsClient {
 	return original.NewVirtualMachineScaleSetVMsClientWithBaseURI(baseURI, subscriptionID)
 }
-
-type VirtualMachineSizesClient = original.VirtualMachineSizesClient
-
 func NewVirtualMachineSizesClient(subscriptionID string) VirtualMachineSizesClient {
 	return original.NewVirtualMachineSizesClient(subscriptionID)
 }

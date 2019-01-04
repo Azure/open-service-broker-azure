@@ -16,19 +16,19 @@
     "services/eventhub/mgmt/2017-04-01/eventhub",
     "services/iothub/mgmt/2017-07-01/devices",
     "services/keyvault/mgmt/2016-10-01/keyvault",
-    "services/mysql/mgmt/2017-04-30-preview/mysql",
+    "services/mysql/mgmt/2017-12-01/mysql",
     "services/network/mgmt/2018-01-01/network",
-    "services/postgresql/mgmt/2017-04-30-preview/postgresql",
+    "services/postgresql/mgmt/2017-12-01/postgresql",
+    "services/preview/sql/mgmt/2017-03-01-preview/sql",
     "services/redis/mgmt/2017-10-01/redis",
     "services/resources/mgmt/2017-05-10/resources",
     "services/servicebus/mgmt/2017-04-01/servicebus",
-    "services/sql/mgmt/2017-03-01-preview/sql",
     "services/storage/mgmt/2017-10-01/storage",
     "storage",
     "version"
   ]
-  revision = "5bf28521f7a6f72f2dde3e5a5fb0d27d7a8aeee9"
-  version = "v14.0.0"
+  revision = "f912cddf81bffc1569ccd89719a36acb64ca3035"
+  version = "v20.2.0"
 
 [[projects]]
   name = "github.com/Azure/go-autorest"
@@ -38,10 +38,12 @@
     "autorest/azure",
     "autorest/date",
     "autorest/to",
-    "autorest/validation"
+    "autorest/validation",
+    "logger",
+    "version"
   ]
-  revision = "5a06e9ddbe3c22262059b8e061777b9934f982bd"
-  version = "v10.1.0"
+  revision = "9bc4033dd347c7f416fca46b2f42a043dc1fbdf6"
+  version = "v10.15.5"
 
 [[projects]]
   name = "github.com/Masterminds/semver"
@@ -230,6 +232,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5e8a4b712c1faed494e9ba15035a24aafca93e95a9d36a34fd28f6a0e2dd1e6c"
+  inputs-digest = "eb5217f5bc44fb817899f394c3605c844a81df32ebde4715ed15b36b778ae653"
   solver-name = "gps-cdcl"
   solver-version = 1

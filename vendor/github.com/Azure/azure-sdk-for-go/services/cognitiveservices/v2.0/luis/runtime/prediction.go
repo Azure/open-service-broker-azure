@@ -31,18 +31,21 @@ type PredictionClient struct {
 }
 
 // NewPredictionClient creates an instance of the PredictionClient client.
-func NewPredictionClient(azureRegion AzureRegions) PredictionClient {
-	return PredictionClient{New(azureRegion)}
+func NewPredictionClient(endpoint string) PredictionClient {
+	return PredictionClient{New(endpoint)}
 }
 
 // Resolve gets predictions for a given utterance, in the form of intents and entities. The current maximum query size
 // is 500 characters.
-//
-// appID is the LUIS application ID (Guid). query is the utterance to predict. timezoneOffset is the timezone
-// offset for the location of the request. verbose is if true, return all intents instead of just the top scoring
-// intent. staging is use the staging endpoint slot. spellCheck is enable spell checking.
-// bingSpellCheckSubscriptionKey is the subscription key to use when enabling bing spell check logParameter is log
-// query (default is true)
+// Parameters:
+// appID - the LUIS application ID (Guid).
+// query - the utterance to predict.
+// timezoneOffset - the timezone offset for the location of the request.
+// verbose - if true, return all intents instead of just the top scoring intent.
+// staging - use the staging endpoint slot.
+// spellCheck - enable spell checking.
+// bingSpellCheckSubscriptionKey - the subscription key to use when enabling bing spell check
+// logParameter - log query (default is true)
 func (client PredictionClient) Resolve(ctx context.Context, appID string, query string, timezoneOffset *float64, verbose *bool, staging *bool, spellCheck *bool, bingSpellCheckSubscriptionKey string, logParameter *bool) (result LuisResult, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: query,
@@ -74,7 +77,7 @@ func (client PredictionClient) Resolve(ctx context.Context, appID string, query 
 // ResolvePreparer prepares the Resolve request.
 func (client PredictionClient) ResolvePreparer(ctx context.Context, appID string, query string, timezoneOffset *float64, verbose *bool, staging *bool, spellCheck *bool, bingSpellCheckSubscriptionKey string, logParameter *bool) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -102,10 +105,10 @@ func (client PredictionClient) ResolvePreparer(ctx context.Context, appID string
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/luis/v2.0/apps", urlParameters),
-		autorest.WithPathParameters("/{appId}", pathParameters),
+		autorest.WithCustomBaseURL("{Endpoint}/luis/v2.0", urlParameters),
+		autorest.WithPathParameters("/apps/{appId}", pathParameters),
 		autorest.WithJSON(query),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))

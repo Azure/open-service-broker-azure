@@ -19,92 +19,37 @@
 
 package insights
 
-import original "github.com/Azure/azure-sdk-for-go/services/monitor/mgmt/2017-05-01-preview/insights"
+import original "github.com/Azure/azure-sdk-for-go/services/monitor/mgmt/2018-03-01/insights"
 
 type ActionGroupsClient = original.ActionGroupsClient
-
-func NewActionGroupsClient(subscriptionID string) ActionGroupsClient {
-	return original.NewActionGroupsClient(subscriptionID)
-}
-func NewActionGroupsClientWithBaseURI(baseURI string, subscriptionID string) ActionGroupsClient {
-	return original.NewActionGroupsClientWithBaseURI(baseURI, subscriptionID)
-}
-
 type ActivityLogAlertsClient = original.ActivityLogAlertsClient
-
-func NewActivityLogAlertsClient(subscriptionID string) ActivityLogAlertsClient {
-	return original.NewActivityLogAlertsClient(subscriptionID)
-}
-func NewActivityLogAlertsClientWithBaseURI(baseURI string, subscriptionID string) ActivityLogAlertsClient {
-	return original.NewActivityLogAlertsClientWithBaseURI(baseURI, subscriptionID)
-}
-
+type ActivityLogsClient = original.ActivityLogsClient
 type AlertRuleIncidentsClient = original.AlertRuleIncidentsClient
-
-func NewAlertRuleIncidentsClient(subscriptionID string) AlertRuleIncidentsClient {
-	return original.NewAlertRuleIncidentsClient(subscriptionID)
-}
-func NewAlertRuleIncidentsClientWithBaseURI(baseURI string, subscriptionID string) AlertRuleIncidentsClient {
-	return original.NewAlertRuleIncidentsClientWithBaseURI(baseURI, subscriptionID)
-}
-
 type AlertRulesClient = original.AlertRulesClient
-
-func NewAlertRulesClient(subscriptionID string) AlertRulesClient {
-	return original.NewAlertRulesClient(subscriptionID)
-}
-func NewAlertRulesClientWithBaseURI(baseURI string, subscriptionID string) AlertRulesClient {
-	return original.NewAlertRulesClientWithBaseURI(baseURI, subscriptionID)
-}
-
 type AutoscaleSettingsClient = original.AutoscaleSettingsClient
-
-func NewAutoscaleSettingsClient(subscriptionID string) AutoscaleSettingsClient {
-	return original.NewAutoscaleSettingsClient(subscriptionID)
-}
-func NewAutoscaleSettingsClientWithBaseURI(baseURI string, subscriptionID string) AutoscaleSettingsClient {
-	return original.NewAutoscaleSettingsClientWithBaseURI(baseURI, subscriptionID)
-}
 
 const (
 	DefaultBaseURI = original.DefaultBaseURI
 )
 
 type BaseClient = original.BaseClient
-
-func New(subscriptionID string) BaseClient {
-	return original.New(subscriptionID)
-}
-func NewWithBaseURI(baseURI string, subscriptionID string) BaseClient {
-	return original.NewWithBaseURI(baseURI, subscriptionID)
-}
-
 type DiagnosticSettingsClient = original.DiagnosticSettingsClient
-
-func NewDiagnosticSettingsClient(subscriptionID string) DiagnosticSettingsClient {
-	return original.NewDiagnosticSettingsClient(subscriptionID)
-}
-func NewDiagnosticSettingsClientWithBaseURI(baseURI string, subscriptionID string) DiagnosticSettingsClient {
-	return original.NewDiagnosticSettingsClientWithBaseURI(baseURI, subscriptionID)
-}
-
 type DiagnosticSettingsCategoryClient = original.DiagnosticSettingsCategoryClient
-
-func NewDiagnosticSettingsCategoryClient(subscriptionID string) DiagnosticSettingsCategoryClient {
-	return original.NewDiagnosticSettingsCategoryClient(subscriptionID)
-}
-func NewDiagnosticSettingsCategoryClientWithBaseURI(baseURI string, subscriptionID string) DiagnosticSettingsCategoryClient {
-	return original.NewDiagnosticSettingsCategoryClientWithBaseURI(baseURI, subscriptionID)
-}
-
+type EventCategoriesClient = original.EventCategoriesClient
 type LogProfilesClient = original.LogProfilesClient
+type MetricBaselineClient = original.MetricBaselineClient
+type MetricDefinitionsClient = original.MetricDefinitionsClient
+type MetricsClient = original.MetricsClient
+type AggregationType = original.AggregationType
 
-func NewLogProfilesClient(subscriptionID string) LogProfilesClient {
-	return original.NewLogProfilesClient(subscriptionID)
-}
-func NewLogProfilesClientWithBaseURI(baseURI string, subscriptionID string) LogProfilesClient {
-	return original.NewLogProfilesClientWithBaseURI(baseURI, subscriptionID)
-}
+const (
+	Average AggregationType = original.Average
+	Count   AggregationType = original.Count
+	Maximum AggregationType = original.Maximum
+	Minimum AggregationType = original.Minimum
+	None    AggregationType = original.None
+	Total   AggregationType = original.Total
+)
 
 type CategoryType = original.CategoryType
 
@@ -133,13 +78,23 @@ const (
 	ConditionOperatorLessThanOrEqual    ConditionOperator = original.ConditionOperatorLessThanOrEqual
 )
 
+type EventLevel = original.EventLevel
+
+const (
+	Critical      EventLevel = original.Critical
+	Error         EventLevel = original.Error
+	Informational EventLevel = original.Informational
+	Verbose       EventLevel = original.Verbose
+	Warning       EventLevel = original.Warning
+)
+
 type MetricStatisticType = original.MetricStatisticType
 
 const (
-	Average MetricStatisticType = original.Average
-	Max     MetricStatisticType = original.Max
-	Min     MetricStatisticType = original.Min
-	Sum     MetricStatisticType = original.Sum
+	MetricStatisticTypeAverage MetricStatisticType = original.MetricStatisticTypeAverage
+	MetricStatisticTypeMax     MetricStatisticType = original.MetricStatisticTypeMax
+	MetricStatisticTypeMin     MetricStatisticType = original.MetricStatisticTypeMin
+	MetricStatisticTypeSum     MetricStatisticType = original.MetricStatisticTypeSum
 )
 
 type OdataType = original.OdataType
@@ -178,14 +133,21 @@ const (
 type RecurrenceFrequency = original.RecurrenceFrequency
 
 const (
-	Day    RecurrenceFrequency = original.Day
-	Hour   RecurrenceFrequency = original.Hour
-	Minute RecurrenceFrequency = original.Minute
-	Month  RecurrenceFrequency = original.Month
-	None   RecurrenceFrequency = original.None
-	Second RecurrenceFrequency = original.Second
-	Week   RecurrenceFrequency = original.Week
-	Year   RecurrenceFrequency = original.Year
+	RecurrenceFrequencyDay    RecurrenceFrequency = original.RecurrenceFrequencyDay
+	RecurrenceFrequencyHour   RecurrenceFrequency = original.RecurrenceFrequencyHour
+	RecurrenceFrequencyMinute RecurrenceFrequency = original.RecurrenceFrequencyMinute
+	RecurrenceFrequencyMonth  RecurrenceFrequency = original.RecurrenceFrequencyMonth
+	RecurrenceFrequencyNone   RecurrenceFrequency = original.RecurrenceFrequencyNone
+	RecurrenceFrequencySecond RecurrenceFrequency = original.RecurrenceFrequencySecond
+	RecurrenceFrequencyWeek   RecurrenceFrequency = original.RecurrenceFrequencyWeek
+	RecurrenceFrequencyYear   RecurrenceFrequency = original.RecurrenceFrequencyYear
+)
+
+type ResultType = original.ResultType
+
+const (
+	Data     ResultType = original.Data
+	Metadata ResultType = original.Metadata
 )
 
 type ScaleDirection = original.ScaleDirection
@@ -202,6 +164,14 @@ const (
 	ChangeCount        ScaleType = original.ChangeCount
 	ExactCount         ScaleType = original.ExactCount
 	PercentChangeCount ScaleType = original.PercentChangeCount
+)
+
+type Sensitivity = original.Sensitivity
+
+const (
+	High   Sensitivity = original.High
+	Low    Sensitivity = original.Low
+	Medium Sensitivity = original.Medium
 )
 
 type TimeAggregationOperator = original.TimeAggregationOperator
@@ -222,6 +192,20 @@ const (
 	TimeAggregationTypeMaximum TimeAggregationType = original.TimeAggregationTypeMaximum
 	TimeAggregationTypeMinimum TimeAggregationType = original.TimeAggregationTypeMinimum
 	TimeAggregationTypeTotal   TimeAggregationType = original.TimeAggregationTypeTotal
+)
+
+type Unit = original.Unit
+
+const (
+	UnitBytes          Unit = original.UnitBytes
+	UnitByteSeconds    Unit = original.UnitByteSeconds
+	UnitBytesPerSecond Unit = original.UnitBytesPerSecond
+	UnitCount          Unit = original.UnitCount
+	UnitCountPerSecond Unit = original.UnitCountPerSecond
+	UnitMilliSeconds   Unit = original.UnitMilliSeconds
+	UnitPercent        Unit = original.UnitPercent
+	UnitSeconds        Unit = original.UnitSeconds
+	UnitUnspecified    Unit = original.UnitUnspecified
 )
 
 type ActionGroup = original.ActionGroup
@@ -252,6 +236,12 @@ type AutoscaleSettingResourceCollectionIterator = original.AutoscaleSettingResou
 type AutoscaleSettingResourceCollectionPage = original.AutoscaleSettingResourceCollectionPage
 type AutoscaleSettingResourcePatch = original.AutoscaleSettingResourcePatch
 type AzureAppPushReceiver = original.AzureAppPushReceiver
+type AzureFunctionReceiver = original.AzureFunctionReceiver
+type Baseline = original.Baseline
+type BaselineMetadataValue = original.BaselineMetadataValue
+type BaselineProperties = original.BaselineProperties
+type BaselineResponse = original.BaselineResponse
+type CalculateBaselineResponse = original.CalculateBaselineResponse
 type DiagnosticSettings = original.DiagnosticSettings
 type DiagnosticSettingsCategory = original.DiagnosticSettingsCategory
 type DiagnosticSettingsCategoryResource = original.DiagnosticSettingsCategoryResource
@@ -262,10 +252,18 @@ type EmailNotification = original.EmailNotification
 type EmailReceiver = original.EmailReceiver
 type EnableRequest = original.EnableRequest
 type ErrorResponse = original.ErrorResponse
+type EventCategoryCollection = original.EventCategoryCollection
+type EventData = original.EventData
+type EventDataCollection = original.EventDataCollection
+type EventDataCollectionIterator = original.EventDataCollectionIterator
+type EventDataCollectionPage = original.EventDataCollectionPage
+type HTTPRequestInfo = original.HTTPRequestInfo
 type Incident = original.Incident
 type IncidentListResult = original.IncidentListResult
 type ItsmReceiver = original.ItsmReceiver
+type LocalizableString = original.LocalizableString
 type LocationThresholdRuleCondition = original.LocationThresholdRuleCondition
+type LogicAppReceiver = original.LogicAppReceiver
 type LogProfileCollection = original.LogProfileCollection
 type LogProfileProperties = original.LogProfileProperties
 type LogProfileResource = original.LogProfileResource
@@ -273,8 +271,14 @@ type LogProfileResourcePatch = original.LogProfileResourcePatch
 type LogSettings = original.LogSettings
 type ManagementEventAggregationCondition = original.ManagementEventAggregationCondition
 type ManagementEventRuleCondition = original.ManagementEventRuleCondition
+type MetadataValue = original.MetadataValue
+type Metric = original.Metric
+type MetricAvailability = original.MetricAvailability
+type MetricDefinition = original.MetricDefinition
+type MetricDefinitionCollection = original.MetricDefinitionCollection
 type MetricSettings = original.MetricSettings
 type MetricTrigger = original.MetricTrigger
+type MetricValue = original.MetricValue
 type Operation = original.Operation
 type OperationDisplay = original.OperationDisplay
 type OperationListResult = original.OperationListResult
@@ -282,6 +286,7 @@ type ProxyOnlyResource = original.ProxyOnlyResource
 type Recurrence = original.Recurrence
 type RecurrentSchedule = original.RecurrentSchedule
 type Resource = original.Resource
+type Response = original.Response
 type RetentionPolicy = original.RetentionPolicy
 type BasicRuleAction = original.BasicRuleAction
 type RuleAction = original.RuleAction
@@ -297,18 +302,167 @@ type RuleWebhookAction = original.RuleWebhookAction
 type ScaleAction = original.ScaleAction
 type ScaleCapacity = original.ScaleCapacity
 type ScaleRule = original.ScaleRule
+type SenderAuthorization = original.SenderAuthorization
 type SmsReceiver = original.SmsReceiver
 type ThresholdRuleCondition = original.ThresholdRuleCondition
+type TimeSeriesElement = original.TimeSeriesElement
+type TimeSeriesInformation = original.TimeSeriesInformation
 type TimeWindow = original.TimeWindow
+type VoiceReceiver = original.VoiceReceiver
 type WebhookNotification = original.WebhookNotification
 type WebhookReceiver = original.WebhookReceiver
 type OperationsClient = original.OperationsClient
+type TenantActivityLogsClient = original.TenantActivityLogsClient
 
+func NewActionGroupsClient(subscriptionID string) ActionGroupsClient {
+	return original.NewActionGroupsClient(subscriptionID)
+}
+func NewActionGroupsClientWithBaseURI(baseURI string, subscriptionID string) ActionGroupsClient {
+	return original.NewActionGroupsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewActivityLogAlertsClient(subscriptionID string) ActivityLogAlertsClient {
+	return original.NewActivityLogAlertsClient(subscriptionID)
+}
+func NewActivityLogAlertsClientWithBaseURI(baseURI string, subscriptionID string) ActivityLogAlertsClient {
+	return original.NewActivityLogAlertsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewActivityLogsClient(subscriptionID string) ActivityLogsClient {
+	return original.NewActivityLogsClient(subscriptionID)
+}
+func NewActivityLogsClientWithBaseURI(baseURI string, subscriptionID string) ActivityLogsClient {
+	return original.NewActivityLogsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewAlertRuleIncidentsClient(subscriptionID string) AlertRuleIncidentsClient {
+	return original.NewAlertRuleIncidentsClient(subscriptionID)
+}
+func NewAlertRuleIncidentsClientWithBaseURI(baseURI string, subscriptionID string) AlertRuleIncidentsClient {
+	return original.NewAlertRuleIncidentsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewAlertRulesClient(subscriptionID string) AlertRulesClient {
+	return original.NewAlertRulesClient(subscriptionID)
+}
+func NewAlertRulesClientWithBaseURI(baseURI string, subscriptionID string) AlertRulesClient {
+	return original.NewAlertRulesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewAutoscaleSettingsClient(subscriptionID string) AutoscaleSettingsClient {
+	return original.NewAutoscaleSettingsClient(subscriptionID)
+}
+func NewAutoscaleSettingsClientWithBaseURI(baseURI string, subscriptionID string) AutoscaleSettingsClient {
+	return original.NewAutoscaleSettingsClientWithBaseURI(baseURI, subscriptionID)
+}
+func New(subscriptionID string) BaseClient {
+	return original.New(subscriptionID)
+}
+func NewWithBaseURI(baseURI string, subscriptionID string) BaseClient {
+	return original.NewWithBaseURI(baseURI, subscriptionID)
+}
+func NewDiagnosticSettingsClient(subscriptionID string) DiagnosticSettingsClient {
+	return original.NewDiagnosticSettingsClient(subscriptionID)
+}
+func NewDiagnosticSettingsClientWithBaseURI(baseURI string, subscriptionID string) DiagnosticSettingsClient {
+	return original.NewDiagnosticSettingsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewDiagnosticSettingsCategoryClient(subscriptionID string) DiagnosticSettingsCategoryClient {
+	return original.NewDiagnosticSettingsCategoryClient(subscriptionID)
+}
+func NewDiagnosticSettingsCategoryClientWithBaseURI(baseURI string, subscriptionID string) DiagnosticSettingsCategoryClient {
+	return original.NewDiagnosticSettingsCategoryClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewEventCategoriesClient(subscriptionID string) EventCategoriesClient {
+	return original.NewEventCategoriesClient(subscriptionID)
+}
+func NewEventCategoriesClientWithBaseURI(baseURI string, subscriptionID string) EventCategoriesClient {
+	return original.NewEventCategoriesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewLogProfilesClient(subscriptionID string) LogProfilesClient {
+	return original.NewLogProfilesClient(subscriptionID)
+}
+func NewLogProfilesClientWithBaseURI(baseURI string, subscriptionID string) LogProfilesClient {
+	return original.NewLogProfilesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewMetricBaselineClient(subscriptionID string) MetricBaselineClient {
+	return original.NewMetricBaselineClient(subscriptionID)
+}
+func NewMetricBaselineClientWithBaseURI(baseURI string, subscriptionID string) MetricBaselineClient {
+	return original.NewMetricBaselineClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewMetricDefinitionsClient(subscriptionID string) MetricDefinitionsClient {
+	return original.NewMetricDefinitionsClient(subscriptionID)
+}
+func NewMetricDefinitionsClientWithBaseURI(baseURI string, subscriptionID string) MetricDefinitionsClient {
+	return original.NewMetricDefinitionsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewMetricsClient(subscriptionID string) MetricsClient {
+	return original.NewMetricsClient(subscriptionID)
+}
+func NewMetricsClientWithBaseURI(baseURI string, subscriptionID string) MetricsClient {
+	return original.NewMetricsClientWithBaseURI(baseURI, subscriptionID)
+}
+func PossibleAggregationTypeValues() []AggregationType {
+	return original.PossibleAggregationTypeValues()
+}
+func PossibleCategoryTypeValues() []CategoryType {
+	return original.PossibleCategoryTypeValues()
+}
+func PossibleComparisonOperationTypeValues() []ComparisonOperationType {
+	return original.PossibleComparisonOperationTypeValues()
+}
+func PossibleConditionOperatorValues() []ConditionOperator {
+	return original.PossibleConditionOperatorValues()
+}
+func PossibleEventLevelValues() []EventLevel {
+	return original.PossibleEventLevelValues()
+}
+func PossibleMetricStatisticTypeValues() []MetricStatisticType {
+	return original.PossibleMetricStatisticTypeValues()
+}
+func PossibleOdataTypeValues() []OdataType {
+	return original.PossibleOdataTypeValues()
+}
+func PossibleOdataTypeBasicRuleActionValues() []OdataTypeBasicRuleAction {
+	return original.PossibleOdataTypeBasicRuleActionValues()
+}
+func PossibleOdataTypeBasicRuleConditionValues() []OdataTypeBasicRuleCondition {
+	return original.PossibleOdataTypeBasicRuleConditionValues()
+}
+func PossibleReceiverStatusValues() []ReceiverStatus {
+	return original.PossibleReceiverStatusValues()
+}
+func PossibleRecurrenceFrequencyValues() []RecurrenceFrequency {
+	return original.PossibleRecurrenceFrequencyValues()
+}
+func PossibleResultTypeValues() []ResultType {
+	return original.PossibleResultTypeValues()
+}
+func PossibleScaleDirectionValues() []ScaleDirection {
+	return original.PossibleScaleDirectionValues()
+}
+func PossibleScaleTypeValues() []ScaleType {
+	return original.PossibleScaleTypeValues()
+}
+func PossibleSensitivityValues() []Sensitivity {
+	return original.PossibleSensitivityValues()
+}
+func PossibleTimeAggregationOperatorValues() []TimeAggregationOperator {
+	return original.PossibleTimeAggregationOperatorValues()
+}
+func PossibleTimeAggregationTypeValues() []TimeAggregationType {
+	return original.PossibleTimeAggregationTypeValues()
+}
+func PossibleUnitValues() []Unit {
+	return original.PossibleUnitValues()
+}
 func NewOperationsClient(subscriptionID string) OperationsClient {
 	return original.NewOperationsClient(subscriptionID)
 }
 func NewOperationsClientWithBaseURI(baseURI string, subscriptionID string) OperationsClient {
 	return original.NewOperationsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewTenantActivityLogsClient(subscriptionID string) TenantActivityLogsClient {
+	return original.NewTenantActivityLogsClient(subscriptionID)
+}
+func NewTenantActivityLogsClientWithBaseURI(baseURI string, subscriptionID string) TenantActivityLogsClient {
+	return original.NewTenantActivityLogsClientWithBaseURI(baseURI, subscriptionID)
 }
 func UserAgent() string {
 	return original.UserAgent() + " profiles/preview"
