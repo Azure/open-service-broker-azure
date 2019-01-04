@@ -21,6 +21,7 @@ import (
 	"context"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
+	"github.com/Azure/go-autorest/autorest/validation"
 	"net/http"
 )
 
@@ -43,14 +44,24 @@ func NewRoleAssignmentsClientWithBaseURI(baseURI string, subscriptionID string) 
 }
 
 // Create creates a role assignment.
-//
-// scope is the scope of the role assignment to create. The scope can be any REST resource instance. For example,
-// use '/subscriptions/{subscription-id}/' for a subscription,
+// Parameters:
+// scope - the scope of the role assignment to create. The scope can be any REST resource instance. For
+// example, use '/subscriptions/{subscription-id}/' for a subscription,
 // '/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}' for a resource group, and
 // '/subscriptions/{subscription-id}/resourceGroups/{resource-group-name}/providers/{resource-provider}/{resource-type}/{resource-name}'
-// for a resource. roleAssignmentName is the name of the role assignment to create. It can be any valid GUID.
-// parameters is parameters for the role assignment.
+// for a resource.
+// roleAssignmentName - the name of the role assignment to create. It can be any valid GUID.
+// parameters - parameters for the role assignment.
 func (client RoleAssignmentsClient) Create(ctx context.Context, scope string, roleAssignmentName string, parameters RoleAssignmentCreateParameters) (result RoleAssignment, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: parameters,
+			Constraints: []validation.Constraint{{Target: "parameters.Properties", Name: validation.Null, Rule: true,
+				Chain: []validation.Constraint{{Target: "parameters.Properties.RoleDefinitionID", Name: validation.Null, Rule: true, Chain: nil},
+					{Target: "parameters.Properties.PrincipalID", Name: validation.Null, Rule: true, Chain: nil},
+				}}}}}); err != nil {
+		return result, validation.NewError("authorization.RoleAssignmentsClient", "Create", err.Error())
+	}
+
 	req, err := client.CreatePreparer(ctx, scope, roleAssignmentName, parameters)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "authorization.RoleAssignmentsClient", "Create", nil, "Failure preparing request")
@@ -85,7 +96,7 @@ func (client RoleAssignmentsClient) CreatePreparer(ctx context.Context, scope st
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPut(),
 		autorest.WithBaseURL(client.BaseURI),
 		autorest.WithPathParameters("/{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}", pathParameters),
@@ -115,13 +126,22 @@ func (client RoleAssignmentsClient) CreateResponder(resp *http.Response) (result
 }
 
 // CreateByID creates a role assignment by ID.
-//
-// roleAssignmentID is the fully qualified ID of the role assignment, including the scope, resource name and
-// resource type. Use the format, /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}.
-// Example:
+// Parameters:
+// roleAssignmentID - the fully qualified ID of the role assignment, including the scope, resource name and
+// resource type. Use the format,
+// /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}. Example:
 // /subscriptions/{subId}/resourcegroups/{rgname}//providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}.
-// parameters is parameters for the role assignment.
+// parameters - parameters for the role assignment.
 func (client RoleAssignmentsClient) CreateByID(ctx context.Context, roleAssignmentID string, parameters RoleAssignmentCreateParameters) (result RoleAssignment, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: parameters,
+			Constraints: []validation.Constraint{{Target: "parameters.Properties", Name: validation.Null, Rule: true,
+				Chain: []validation.Constraint{{Target: "parameters.Properties.RoleDefinitionID", Name: validation.Null, Rule: true, Chain: nil},
+					{Target: "parameters.Properties.PrincipalID", Name: validation.Null, Rule: true, Chain: nil},
+				}}}}}); err != nil {
+		return result, validation.NewError("authorization.RoleAssignmentsClient", "CreateByID", err.Error())
+	}
+
 	req, err := client.CreateByIDPreparer(ctx, roleAssignmentID, parameters)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "authorization.RoleAssignmentsClient", "CreateByID", nil, "Failure preparing request")
@@ -155,7 +175,7 @@ func (client RoleAssignmentsClient) CreateByIDPreparer(ctx context.Context, role
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPut(),
 		autorest.WithBaseURL(client.BaseURI),
 		autorest.WithPathParameters("/{roleAssignmentId}", pathParameters),
@@ -185,9 +205,9 @@ func (client RoleAssignmentsClient) CreateByIDResponder(resp *http.Response) (re
 }
 
 // Delete deletes a role assignment.
-//
-// scope is the scope of the role assignment to delete. roleAssignmentName is the name of the role assignment to
-// delete.
+// Parameters:
+// scope - the scope of the role assignment to delete.
+// roleAssignmentName - the name of the role assignment to delete.
 func (client RoleAssignmentsClient) Delete(ctx context.Context, scope string, roleAssignmentName string) (result RoleAssignment, err error) {
 	req, err := client.DeletePreparer(ctx, scope, roleAssignmentName)
 	if err != nil {
@@ -251,10 +271,10 @@ func (client RoleAssignmentsClient) DeleteResponder(resp *http.Response) (result
 }
 
 // DeleteByID deletes a role assignment.
-//
-// roleAssignmentID is the fully qualified ID of the role assignment, including the scope, resource name and
-// resource type. Use the format, /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}.
-// Example:
+// Parameters:
+// roleAssignmentID - the fully qualified ID of the role assignment, including the scope, resource name and
+// resource type. Use the format,
+// /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}. Example:
 // /subscriptions/{subId}/resourcegroups/{rgname}//providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}.
 func (client RoleAssignmentsClient) DeleteByID(ctx context.Context, roleAssignmentID string) (result RoleAssignment, err error) {
 	req, err := client.DeleteByIDPreparer(ctx, roleAssignmentID)
@@ -318,8 +338,9 @@ func (client RoleAssignmentsClient) DeleteByIDResponder(resp *http.Response) (re
 }
 
 // Get get the specified role assignment.
-//
-// scope is the scope of the role assignment. roleAssignmentName is the name of the role assignment to get.
+// Parameters:
+// scope - the scope of the role assignment.
+// roleAssignmentName - the name of the role assignment to get.
 func (client RoleAssignmentsClient) Get(ctx context.Context, scope string, roleAssignmentName string) (result RoleAssignment, err error) {
 	req, err := client.GetPreparer(ctx, scope, roleAssignmentName)
 	if err != nil {
@@ -383,10 +404,10 @@ func (client RoleAssignmentsClient) GetResponder(resp *http.Response) (result Ro
 }
 
 // GetByID gets a role assignment by ID.
-//
-// roleAssignmentID is the fully qualified ID of the role assignment, including the scope, resource name and
-// resource type. Use the format, /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}.
-// Example:
+// Parameters:
+// roleAssignmentID - the fully qualified ID of the role assignment, including the scope, resource name and
+// resource type. Use the format,
+// /{scope}/providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}. Example:
 // /subscriptions/{subId}/resourcegroups/{rgname}//providers/Microsoft.Authorization/roleAssignments/{roleAssignmentName}.
 func (client RoleAssignmentsClient) GetByID(ctx context.Context, roleAssignmentID string) (result RoleAssignment, err error) {
 	req, err := client.GetByIDPreparer(ctx, roleAssignmentID)
@@ -450,10 +471,10 @@ func (client RoleAssignmentsClient) GetByIDResponder(resp *http.Response) (resul
 }
 
 // List gets all role assignments for the subscription.
-//
-// filter is the filter to apply on the operation. Use $filter=atScope() to return all role assignments at or above
-// the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope for the
-// specified principal.
+// Parameters:
+// filter - the filter to apply on the operation. Use $filter=atScope() to return all role assignments at or
+// above the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope
+// for the specified principal.
 func (client RoleAssignmentsClient) List(ctx context.Context, filter string) (result RoleAssignmentListResultPage, err error) {
 	result.fn = client.listNextResults
 	req, err := client.ListPreparer(ctx, filter)
@@ -547,12 +568,15 @@ func (client RoleAssignmentsClient) ListComplete(ctx context.Context, filter str
 }
 
 // ListForResource gets role assignments for a resource.
-//
-// resourceGroupName is the name of the resource group. resourceProviderNamespace is the namespace of the resource
-// provider. parentResourcePath is the parent resource identity. resourceType is the resource type of the resource.
-// resourceName is the name of the resource to get role assignments for. filter is the filter to apply on the
-// operation. Use $filter=atScope() to return all role assignments at or above the scope. Use $filter=principalId
-// eq {id} to return all role assignments at, above or below the scope for the specified principal.
+// Parameters:
+// resourceGroupName - the name of the resource group.
+// resourceProviderNamespace - the namespace of the resource provider.
+// parentResourcePath - the parent resource identity.
+// resourceType - the resource type of the resource.
+// resourceName - the name of the resource to get role assignments for.
+// filter - the filter to apply on the operation. Use $filter=atScope() to return all role assignments at or
+// above the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope
+// for the specified principal.
 func (client RoleAssignmentsClient) ListForResource(ctx context.Context, resourceGroupName string, resourceProviderNamespace string, parentResourcePath string, resourceType string, resourceName string, filter string) (result RoleAssignmentListResultPage, err error) {
 	result.fn = client.listForResourceNextResults
 	req, err := client.ListForResourcePreparer(ctx, resourceGroupName, resourceProviderNamespace, parentResourcePath, resourceType, resourceName, filter)
@@ -651,10 +675,11 @@ func (client RoleAssignmentsClient) ListForResourceComplete(ctx context.Context,
 }
 
 // ListForResourceGroup gets role assignments for a resource group.
-//
-// resourceGroupName is the name of the resource group. filter is the filter to apply on the operation. Use
-// $filter=atScope() to return all role assignments at or above the scope. Use $filter=principalId eq {id} to
-// return all role assignments at, above or below the scope for the specified principal.
+// Parameters:
+// resourceGroupName - the name of the resource group.
+// filter - the filter to apply on the operation. Use $filter=atScope() to return all role assignments at or
+// above the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope
+// for the specified principal.
 func (client RoleAssignmentsClient) ListForResourceGroup(ctx context.Context, resourceGroupName string, filter string) (result RoleAssignmentListResultPage, err error) {
 	result.fn = client.listForResourceGroupNextResults
 	req, err := client.ListForResourceGroupPreparer(ctx, resourceGroupName, filter)
@@ -749,10 +774,11 @@ func (client RoleAssignmentsClient) ListForResourceGroupComplete(ctx context.Con
 }
 
 // ListForScope gets role assignments for a scope.
-//
-// scope is the scope of the role assignments. filter is the filter to apply on the operation. Use
-// $filter=atScope() to return all role assignments at or above the scope. Use $filter=principalId eq {id} to
-// return all role assignments at, above or below the scope for the specified principal.
+// Parameters:
+// scope - the scope of the role assignments.
+// filter - the filter to apply on the operation. Use $filter=atScope() to return all role assignments at or
+// above the scope. Use $filter=principalId eq {id} to return all role assignments at, above or below the scope
+// for the specified principal.
 func (client RoleAssignmentsClient) ListForScope(ctx context.Context, scope string, filter string) (result RoleAssignmentListResultPage, err error) {
 	result.fn = client.listForScopeNextResults
 	req, err := client.ListForScopePreparer(ctx, scope, filter)

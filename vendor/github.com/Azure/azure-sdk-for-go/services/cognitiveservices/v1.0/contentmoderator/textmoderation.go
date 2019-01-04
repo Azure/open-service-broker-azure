@@ -21,6 +21,7 @@ import (
 	"context"
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
+	"io"
 	"net/http"
 )
 
@@ -32,29 +33,22 @@ import (
 // Text can be at most 1024 characters long.
 // If the content passed to the text API or the image API exceeds the size limits, the API will return an error code
 // that informs about the issue.
-//
-// This API is currently available in:
-//
-// * West US - westus.api.cognitive.microsoft.com
-// * East US 2 - eastus2.api.cognitive.microsoft.com
-// * West Central US - westcentralus.api.cognitive.microsoft.com
-// * West Europe - westeurope.api.cognitive.microsoft.com
-// * Southeast Asia - southeastasia.api.cognitive.microsoft.com .
 type TextModerationClient struct {
 	BaseClient
 }
 
 // NewTextModerationClient creates an instance of the TextModerationClient client.
-func NewTextModerationClient(baseURL AzureRegionBaseURL) TextModerationClient {
-	return TextModerationClient{New(baseURL)}
+func NewTextModerationClient(endpoint string) TextModerationClient {
+	return TextModerationClient{New(endpoint)}
 }
 
 // DetectLanguage this operation will detect the language of given input content. Returns the <a
 // href="http://www-01.sil.org/iso639-3/codes.asp">ISO 639-3 code</a> for the predominant language comprising the
 // submitted text. Over 110 languages supported.
-//
-// textContentType is the content type. textContent is content to screen.
-func (client TextModerationClient) DetectLanguage(ctx context.Context, textContentType string, textContent string) (result DetectedLanguage, err error) {
+// Parameters:
+// textContentType - the content type.
+// textContent - content to screen.
+func (client TextModerationClient) DetectLanguage(ctx context.Context, textContentType string, textContent io.ReadCloser) (result DetectedLanguage, err error) {
 	req, err := client.DetectLanguagePreparer(ctx, textContentType, textContent)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "contentmoderator.TextModerationClient", "DetectLanguage", nil, "Failure preparing request")
@@ -77,17 +71,17 @@ func (client TextModerationClient) DetectLanguage(ctx context.Context, textConte
 }
 
 // DetectLanguagePreparer prepares the DetectLanguage request.
-func (client TextModerationClient) DetectLanguagePreparer(ctx context.Context, textContentType string, textContent string) (*http.Request, error) {
+func (client TextModerationClient) DetectLanguagePreparer(ctx context.Context, textContentType string, textContent io.ReadCloser) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("text/plain"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPath("/contentmoderator/moderate/v1.0/ProcessText/DetectLanguage"),
-		autorest.WithJSON(textContent),
+		autorest.WithFile(textContent),
 		autorest.WithHeader("Content-Type", autorest.String(textContentType)))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -113,12 +107,16 @@ func (client TextModerationClient) DetectLanguageResponder(resp *http.Response) 
 }
 
 // ScreenText detects profanity in more than 100 languages and match against custom and shared blacklists.
-//
-// language is language of the terms. textContentType is the content type. textContent is content to screen.
-// autocorrect is autocorrect text. pii is detect personal identifiable information. listID is the list Id.
-// classify is classify input.
-func (client TextModerationClient) ScreenText(ctx context.Context, language string, textContentType string, textContent string, autocorrect *bool, pii *bool, listID string, classify *bool) (result Screen, err error) {
-	req, err := client.ScreenTextPreparer(ctx, language, textContentType, textContent, autocorrect, pii, listID, classify)
+// Parameters:
+// textContentType - the content type.
+// textContent - content to screen.
+// language - language of the text.
+// autocorrect - autocorrect text.
+// pii - detect personal identifiable information.
+// listID - the list Id.
+// classify - classify input.
+func (client TextModerationClient) ScreenText(ctx context.Context, textContentType string, textContent io.ReadCloser, language string, autocorrect *bool, pii *bool, listID string, classify *bool) (result Screen, err error) {
+	req, err := client.ScreenTextPreparer(ctx, textContentType, textContent, language, autocorrect, pii, listID, classify)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "contentmoderator.TextModerationClient", "ScreenText", nil, "Failure preparing request")
 		return
@@ -140,13 +138,14 @@ func (client TextModerationClient) ScreenText(ctx context.Context, language stri
 }
 
 // ScreenTextPreparer prepares the ScreenText request.
-func (client TextModerationClient) ScreenTextPreparer(ctx context.Context, language string, textContentType string, textContent string, autocorrect *bool, pii *bool, listID string, classify *bool) (*http.Request, error) {
+func (client TextModerationClient) ScreenTextPreparer(ctx context.Context, textContentType string, textContent io.ReadCloser, language string, autocorrect *bool, pii *bool, listID string, classify *bool) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
-	queryParameters := map[string]interface{}{
-		"language": autorest.Encode("query", language),
+	queryParameters := map[string]interface{}{}
+	if len(language) > 0 {
+		queryParameters["language"] = autorest.Encode("query", language)
 	}
 	if autocorrect != nil {
 		queryParameters["autocorrect"] = autorest.Encode("query", *autocorrect)
@@ -168,11 +167,11 @@ func (client TextModerationClient) ScreenTextPreparer(ctx context.Context, langu
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("text/plain"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPath("/contentmoderator/moderate/v1.0/ProcessText/Screen/"),
-		autorest.WithJSON(textContent),
+		autorest.WithFile(textContent),
 		autorest.WithQueryParameters(queryParameters),
 		autorest.WithHeader("Content-Type", autorest.String(textContentType)))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))

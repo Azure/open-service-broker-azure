@@ -33,19 +33,20 @@ type ListClient struct {
 }
 
 // NewListClient creates an instance of the ListClient client.
-func NewListClient(azureRegion AzureRegions) ListClient {
-	return ListClient{New(azureRegion)}
+func NewListClient(endpoint string) ListClient {
+	return ListClient{New(endpoint)}
 }
 
 // AddFaceFromStream add a face to a face list. The input face is specified as an image with a targetFace rectangle. It
 // returns a persistedFaceId representing the added face, and persistedFaceId will not expire.
-//
-// faceListID is id referencing a particular face list. imageParameter is an image stream. imageParameter will be
-// closed upon successful return. Callers should ensure closure when receiving an error.userData is user-specified
-// data about the face for any purpose. The maximum length is 1KB. targetFace is a face rectangle to specify the
-// target face to be added to a person in the format of "targetFace=left,top,width,height". E.g.
-// "targetFace=10,10,100,100". If there is more than one face in the image, targetFace is required to specify which
-// face to add. No targetFace means there is only one face detected in the entire image.
+// Parameters:
+// faceListID - id referencing a particular face list.
+// imageParameter - an image stream.
+// userData - user-specified data about the face for any purpose. The maximum length is 1KB.
+// targetFace - a face rectangle to specify the target face to be added to a person in the format of
+// "targetFace=left,top,width,height". E.g. "targetFace=10,10,100,100". If there is more than one face in the
+// image, targetFace is required to specify which face to add. No targetFace means there is only one face
+// detected in the entire image.
 func (client ListClient) AddFaceFromStream(ctx context.Context, faceListID string, imageParameter io.ReadCloser, userData string, targetFace []int32) (result PersistedFace, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: faceListID,
@@ -80,7 +81,7 @@ func (client ListClient) AddFaceFromStream(ctx context.Context, faceListID strin
 // AddFaceFromStreamPreparer prepares the AddFaceFromStream request.
 func (client ListClient) AddFaceFromStreamPreparer(ctx context.Context, faceListID string, imageParameter io.ReadCloser, userData string, targetFace []int32) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -96,10 +97,10 @@ func (client ListClient) AddFaceFromStreamPreparer(ctx context.Context, faceList
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsOctetStream(),
+		autorest.AsContentType("application/octet-stream"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/face/v1.0", urlParameters),
-		autorest.WithPathParameters("/facelists/{faceListId}/persistedFaces", pathParameters),
+		autorest.WithCustomBaseURL("{Endpoint}/face/v1.0", urlParameters),
+		autorest.WithPathParameters("/facelists/{faceListId}/persistedfaces", pathParameters),
 		autorest.WithFile(imageParameter),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
@@ -127,13 +128,14 @@ func (client ListClient) AddFaceFromStreamResponder(resp *http.Response) (result
 
 // AddFaceFromURL add a face to a face list. The input face is specified as an image with a targetFace rectangle. It
 // returns a persistedFaceId representing the added face, and persistedFaceId will not expire.
-//
-// faceListID is id referencing a particular face list. imageURL is a JSON document with a URL pointing to the
-// image that is to be analyzed. userData is user-specified data about the face for any purpose. The maximum length
-// is 1KB. targetFace is a face rectangle to specify the target face to be added to a person in the format of
+// Parameters:
+// faceListID - id referencing a particular face list.
+// imageURL - a JSON document with a URL pointing to the image that is to be analyzed.
+// userData - user-specified data about the face for any purpose. The maximum length is 1KB.
+// targetFace - a face rectangle to specify the target face to be added to a person in the format of
 // "targetFace=left,top,width,height". E.g. "targetFace=10,10,100,100". If there is more than one face in the
-// image, targetFace is required to specify which face to add. No targetFace means there is only one face detected
-// in the entire image.
+// image, targetFace is required to specify which face to add. No targetFace means there is only one face
+// detected in the entire image.
 func (client ListClient) AddFaceFromURL(ctx context.Context, faceListID string, imageURL ImageURL, userData string, targetFace []int32) (result PersistedFace, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: faceListID,
@@ -170,7 +172,7 @@ func (client ListClient) AddFaceFromURL(ctx context.Context, faceListID string, 
 // AddFaceFromURLPreparer prepares the AddFaceFromURL request.
 func (client ListClient) AddFaceFromURLPreparer(ctx context.Context, faceListID string, imageURL ImageURL, userData string, targetFace []int32) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -186,10 +188,10 @@ func (client ListClient) AddFaceFromURLPreparer(ctx context.Context, faceListID 
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/face/v1.0", urlParameters),
-		autorest.WithPathParameters("/facelists/{faceListId}/persistedFaces", pathParameters),
+		autorest.WithCustomBaseURL("{Endpoint}/face/v1.0", urlParameters),
+		autorest.WithPathParameters("/facelists/{faceListId}/persistedfaces", pathParameters),
 		autorest.WithJSON(imageURL),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
@@ -216,8 +218,9 @@ func (client ListClient) AddFaceFromURLResponder(resp *http.Response) (result Pe
 }
 
 // Create create an empty face list. Up to 64 face lists are allowed to exist in one subscription.
-//
-// faceListID is id referencing a particular face list. body is request body for creating a face list.
+// Parameters:
+// faceListID - id referencing a particular face list.
+// body - request body for creating a face list.
 func (client ListClient) Create(ctx context.Context, faceListID string, body NameAndUserDataContract) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: faceListID,
@@ -255,7 +258,7 @@ func (client ListClient) Create(ctx context.Context, faceListID string, body Nam
 // CreatePreparer prepares the Create request.
 func (client ListClient) CreatePreparer(ctx context.Context, faceListID string, body NameAndUserDataContract) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -263,9 +266,9 @@ func (client ListClient) CreatePreparer(ctx context.Context, faceListID string, 
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPut(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/face/v1.0", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}/face/v1.0", urlParameters),
 		autorest.WithPathParameters("/facelists/{faceListId}", pathParameters),
 		autorest.WithJSON(body))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
@@ -292,8 +295,8 @@ func (client ListClient) CreateResponder(resp *http.Response) (result autorest.R
 
 // Delete delete an existing face list according to faceListId. Persisted face images in the face list will also be
 // deleted.
-//
-// faceListID is id referencing a particular face list.
+// Parameters:
+// faceListID - id referencing a particular face list.
 func (client ListClient) Delete(ctx context.Context, faceListID string) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: faceListID,
@@ -326,7 +329,7 @@ func (client ListClient) Delete(ctx context.Context, faceListID string) (result 
 // DeletePreparer prepares the Delete request.
 func (client ListClient) DeletePreparer(ctx context.Context, faceListID string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -335,7 +338,7 @@ func (client ListClient) DeletePreparer(ctx context.Context, faceListID string) 
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsDelete(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/face/v1.0", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}/face/v1.0", urlParameters),
 		autorest.WithPathParameters("/facelists/{faceListId}", pathParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -361,9 +364,9 @@ func (client ListClient) DeleteResponder(resp *http.Response) (result autorest.R
 
 // DeleteFace delete an existing face from a face list (given by a persisitedFaceId and a faceListId). Persisted image
 // related to the face will also be deleted.
-//
-// faceListID is id referencing a particular face list. persistedFaceID is id referencing a particular
-// persistedFaceId of an existing face.
+// Parameters:
+// faceListID - id referencing a particular face list.
+// persistedFaceID - id referencing a particular persistedFaceId of an existing face.
 func (client ListClient) DeleteFace(ctx context.Context, faceListID string, persistedFaceID uuid.UUID) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: faceListID,
@@ -396,7 +399,7 @@ func (client ListClient) DeleteFace(ctx context.Context, faceListID string, pers
 // DeleteFacePreparer prepares the DeleteFace request.
 func (client ListClient) DeleteFacePreparer(ctx context.Context, faceListID string, persistedFaceID uuid.UUID) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -406,8 +409,8 @@ func (client ListClient) DeleteFacePreparer(ctx context.Context, faceListID stri
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsDelete(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/face/v1.0", urlParameters),
-		autorest.WithPathParameters("/facelists/{faceListId}/persistedFaces/{persistedFaceId}", pathParameters))
+		autorest.WithCustomBaseURL("{Endpoint}/face/v1.0", urlParameters),
+		autorest.WithPathParameters("/facelists/{faceListId}/persistedfaces/{persistedFaceId}", pathParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
 
@@ -431,8 +434,8 @@ func (client ListClient) DeleteFaceResponder(resp *http.Response) (result autore
 }
 
 // Get retrieve a face list's information.
-//
-// faceListID is id referencing a particular face list.
+// Parameters:
+// faceListID - id referencing a particular face list.
 func (client ListClient) Get(ctx context.Context, faceListID string) (result List, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: faceListID,
@@ -465,7 +468,7 @@ func (client ListClient) Get(ctx context.Context, faceListID string) (result Lis
 // GetPreparer prepares the Get request.
 func (client ListClient) GetPreparer(ctx context.Context, faceListID string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -474,7 +477,7 @@ func (client ListClient) GetPreparer(ctx context.Context, faceListID string) (*h
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/face/v1.0", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}/face/v1.0", urlParameters),
 		autorest.WithPathParameters("/facelists/{faceListId}", pathParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -525,12 +528,12 @@ func (client ListClient) List(ctx context.Context) (result ListList, err error) 
 // ListPreparer prepares the List request.
 func (client ListClient) ListPreparer(ctx context.Context) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/face/v1.0", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}/face/v1.0", urlParameters),
 		autorest.WithPath("/facelists"))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -556,8 +559,9 @@ func (client ListClient) ListResponder(resp *http.Response) (result ListList, er
 }
 
 // Update update information of a face list.
-//
-// faceListID is id referencing a particular face list. body is request body for updating a face list.
+// Parameters:
+// faceListID - id referencing a particular face list.
+// body - request body for updating a face list.
 func (client ListClient) Update(ctx context.Context, faceListID string, body NameAndUserDataContract) (result autorest.Response, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: faceListID,
@@ -590,7 +594,7 @@ func (client ListClient) Update(ctx context.Context, faceListID string, body Nam
 // UpdatePreparer prepares the Update request.
 func (client ListClient) UpdatePreparer(ctx context.Context, faceListID string, body NameAndUserDataContract) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"AzureRegion": client.AzureRegion,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -598,9 +602,9 @@ func (client ListClient) UpdatePreparer(ctx context.Context, faceListID string, 
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPatch(),
-		autorest.WithCustomBaseURL("https://{AzureRegion}.api.cognitive.microsoft.com/face/v1.0", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}/face/v1.0", urlParameters),
 		autorest.WithPathParameters("/facelists/{faceListId}", pathParameters),
 		autorest.WithJSON(body))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))

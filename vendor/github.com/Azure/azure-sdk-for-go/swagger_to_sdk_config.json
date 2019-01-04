@@ -1,20 +1,25 @@
 {
   "meta": {
     "after_scripts": [
-      "gofmt -w ./services/",
-      "go get -u github.com/Azure/azure-sdk-for-go/tools/profileBuilder",
-      "profileBuilder -s list -l ./profiles/2017-03-09/defintion.txt -name 2017-03-09",
-      "profileBuilder -s preview -name preview",
-      "profileBuilder -s latest -name latest"
+      "dep ensure",
+      "go generate ./profiles/...",
+      "gofmt -w ./profiles/",
+      "gofmt -w ./services/"
     ],
     "autorest_options": {
-      "use": "@microsoft.azure/autorest.go@preview",
+      "use": "@microsoft.azure/autorest.go@~2.1.113",
       "go": "",
       "verbose": "",
       "sdkrel:go-sdk-folder": ".",
       "multiapi": "",
-      "package-version": "nightly",
-      "user-agent": "Azure-SDK-For-Go/nightly services"
+      "use-onever": ""
+    },
+    "repotag": "azure-sdk-for-go",
+    "envs": {
+      "sdkrel:GOPATH": "../../../.."
+    },
+    "advanced_options": {
+      "clone_dir": "./src/github.com/Azure/azure-sdk-for-go"
     },
     "version": "0.2.0"
   }

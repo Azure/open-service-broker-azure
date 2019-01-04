@@ -41,12 +41,91 @@ func NewCapacitiesClientWithBaseURI(baseURI string, subscriptionID string) Capac
 	return CapacitiesClient{NewWithBaseURI(baseURI, subscriptionID)}
 }
 
+// CheckNameAvailability check the name availability in the target location.
+// Parameters:
+// location - the region name which the operation will lookup into.
+// capacityParameters - the name of the capacity.
+func (client CapacitiesClient) CheckNameAvailability(ctx context.Context, location string, capacityParameters CheckCapacityNameAvailabilityParameters) (result CheckCapacityNameAvailabilityResult, err error) {
+	if err := validation.Validate([]validation.Validation{
+		{TargetValue: capacityParameters,
+			Constraints: []validation.Constraint{{Target: "capacityParameters.Name", Name: validation.Null, Rule: false,
+				Chain: []validation.Constraint{{Target: "capacityParameters.Name", Name: validation.MaxLength, Rule: 63, Chain: nil},
+					{Target: "capacityParameters.Name", Name: validation.MinLength, Rule: 3, Chain: nil},
+					{Target: "capacityParameters.Name", Name: validation.Pattern, Rule: `^[a-z][a-z0-9]*$`, Chain: nil},
+				}}}}}); err != nil {
+		return result, validation.NewError("powerbidedicated.CapacitiesClient", "CheckNameAvailability", err.Error())
+	}
+
+	req, err := client.CheckNameAvailabilityPreparer(ctx, location, capacityParameters)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "powerbidedicated.CapacitiesClient", "CheckNameAvailability", nil, "Failure preparing request")
+		return
+	}
+
+	resp, err := client.CheckNameAvailabilitySender(req)
+	if err != nil {
+		result.Response = autorest.Response{Response: resp}
+		err = autorest.NewErrorWithError(err, "powerbidedicated.CapacitiesClient", "CheckNameAvailability", resp, "Failure sending request")
+		return
+	}
+
+	result, err = client.CheckNameAvailabilityResponder(resp)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "powerbidedicated.CapacitiesClient", "CheckNameAvailability", resp, "Failure responding to request")
+	}
+
+	return
+}
+
+// CheckNameAvailabilityPreparer prepares the CheckNameAvailability request.
+func (client CapacitiesClient) CheckNameAvailabilityPreparer(ctx context.Context, location string, capacityParameters CheckCapacityNameAvailabilityParameters) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"location":       autorest.Encode("path", location),
+		"subscriptionId": autorest.Encode("path", client.SubscriptionID),
+	}
+
+	const APIVersion = "2017-10-01"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsContentType("application/json; charset=utf-8"),
+		autorest.AsPost(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/providers/Microsoft.PowerBIDedicated/locations/{location}/checkNameAvailability", pathParameters),
+		autorest.WithJSON(capacityParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+}
+
+// CheckNameAvailabilitySender sends the CheckNameAvailability request. The method will close the
+// http.Response Body if it receives an error.
+func (client CapacitiesClient) CheckNameAvailabilitySender(req *http.Request) (*http.Response, error) {
+	return autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+}
+
+// CheckNameAvailabilityResponder handles the response to the CheckNameAvailability request. The method always
+// closes the http.Response Body.
+func (client CapacitiesClient) CheckNameAvailabilityResponder(resp *http.Response) (result CheckCapacityNameAvailabilityResult, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
 // Create provisions the specified Dedicated capacity based on the configuration specified in the request.
-//
-// resourceGroupName is the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
-// This name must be at least 1 character in length, and no more than 90. dedicatedCapacityName is the name of the
-// Dedicated capacity. It must be a minimum of 3 characters, and a maximum of 63. capacityParameters is contains
-// the information used to provision the Dedicated capacity.
+// Parameters:
+// resourceGroupName - the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
+// This name must be at least 1 character in length, and no more than 90.
+// dedicatedCapacityName - the name of the Dedicated capacity. It must be a minimum of 3 characters, and a
+// maximum of 63.
+// capacityParameters - contains the information used to provision the Dedicated capacity.
 func (client CapacitiesClient) Create(ctx context.Context, resourceGroupName string, dedicatedCapacityName string, capacityParameters DedicatedCapacity) (result CapacitiesCreateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -89,7 +168,7 @@ func (client CapacitiesClient) CreatePreparer(ctx context.Context, resourceGroup
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPut(),
 		autorest.WithBaseURL(client.BaseURI),
 		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/{dedicatedCapacityName}", pathParameters),
@@ -101,15 +180,17 @@ func (client CapacitiesClient) CreatePreparer(ctx context.Context, resourceGroup
 // CreateSender sends the Create request. The method will close the
 // http.Response Body if it receives an error.
 func (client CapacitiesClient) CreateSender(req *http.Request) (future CapacitiesCreateFuture, err error) {
-	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
-	future.Future = azure.NewFuture(req)
-	future.req = req
-	_, err = future.Done(sender)
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
 	if err != nil {
 		return
 	}
-	err = autorest.Respond(future.Response(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated))
+	err = autorest.Respond(resp, azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
 	return
 }
 
@@ -127,10 +208,11 @@ func (client CapacitiesClient) CreateResponder(resp *http.Response) (result Dedi
 }
 
 // Delete deletes the specified Dedicated capacity.
-//
-// resourceGroupName is the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
-// This name must be at least 1 character in length, and no more than 90. dedicatedCapacityName is the name of the
-// Dedicated capacity. It must be at least 3 characters in length, and no more than 63.
+// Parameters:
+// resourceGroupName - the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
+// This name must be at least 1 character in length, and no more than 90.
+// dedicatedCapacityName - the name of the Dedicated capacity. It must be at least 3 characters in length, and
+// no more than 63.
 func (client CapacitiesClient) Delete(ctx context.Context, resourceGroupName string, dedicatedCapacityName string) (result CapacitiesDeleteFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -183,15 +265,17 @@ func (client CapacitiesClient) DeletePreparer(ctx context.Context, resourceGroup
 // DeleteSender sends the Delete request. The method will close the
 // http.Response Body if it receives an error.
 func (client CapacitiesClient) DeleteSender(req *http.Request) (future CapacitiesDeleteFuture, err error) {
-	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
-	future.Future = azure.NewFuture(req)
-	future.req = req
-	_, err = future.Done(sender)
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
 	if err != nil {
 		return
 	}
-	err = autorest.Respond(future.Response(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted, http.StatusNoContent))
+	err = autorest.Respond(resp, azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted, http.StatusNoContent))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
 	return
 }
 
@@ -208,10 +292,11 @@ func (client CapacitiesClient) DeleteResponder(resp *http.Response) (result auto
 }
 
 // GetDetails gets details about the specified dedicated capacity.
-//
-// resourceGroupName is the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
-// This name must be at least 1 character in length, and no more than 90. dedicatedCapacityName is the name of the
-// dedicated capacity. It must be a minimum of 3 characters, and a maximum of 63.
+// Parameters:
+// resourceGroupName - the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
+// This name must be at least 1 character in length, and no more than 90.
+// dedicatedCapacityName - the name of the dedicated capacity. It must be a minimum of 3 characters, and a
+// maximum of 63.
 func (client CapacitiesClient) GetDetails(ctx context.Context, resourceGroupName string, dedicatedCapacityName string) (result DedicatedCapacity, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -350,8 +435,8 @@ func (client CapacitiesClient) ListResponder(resp *http.Response) (result Dedica
 }
 
 // ListByResourceGroup gets all the Dedicated capacities for the given resource group.
-//
-// resourceGroupName is the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
+// Parameters:
+// resourceGroupName - the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
 // This name must be at least 1 character in length, and no more than 90.
 func (client CapacitiesClient) ListByResourceGroup(ctx context.Context, resourceGroupName string) (result DedicatedCapacities, err error) {
 	if err := validation.Validate([]validation.Validation{
@@ -486,10 +571,11 @@ func (client CapacitiesClient) ListSkusResponder(resp *http.Response) (result Sk
 }
 
 // ListSkusForCapacity lists eligible SKUs for a PowerBI Dedicated resource.
-//
-// resourceGroupName is the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
-// This name must be at least 1 character in length, and no more than 90. dedicatedCapacityName is the name of the
-// Dedicated capacity. It must be at least 3 characters in length, and no more than 63.
+// Parameters:
+// resourceGroupName - the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
+// This name must be at least 1 character in length, and no more than 90.
+// dedicatedCapacityName - the name of the Dedicated capacity. It must be at least 3 characters in length, and
+// no more than 63.
 func (client CapacitiesClient) ListSkusForCapacity(ctx context.Context, resourceGroupName string, dedicatedCapacityName string) (result SkuEnumerationForExistingResourceResult, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -566,10 +652,11 @@ func (client CapacitiesClient) ListSkusForCapacityResponder(resp *http.Response)
 }
 
 // Resume resumes operation of the specified Dedicated capacity instance.
-//
-// resourceGroupName is the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
-// This name must be at least 1 character in length, and no more than 90. dedicatedCapacityName is the name of the
-// Dedicated capacity. It must be at least 3 characters in length, and no more than 63.
+// Parameters:
+// resourceGroupName - the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
+// This name must be at least 1 character in length, and no more than 90.
+// dedicatedCapacityName - the name of the Dedicated capacity. It must be at least 3 characters in length, and
+// no more than 63.
 func (client CapacitiesClient) Resume(ctx context.Context, resourceGroupName string, dedicatedCapacityName string) (result CapacitiesResumeFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -622,15 +709,17 @@ func (client CapacitiesClient) ResumePreparer(ctx context.Context, resourceGroup
 // ResumeSender sends the Resume request. The method will close the
 // http.Response Body if it receives an error.
 func (client CapacitiesClient) ResumeSender(req *http.Request) (future CapacitiesResumeFuture, err error) {
-	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
-	future.Future = azure.NewFuture(req)
-	future.req = req
-	_, err = future.Done(sender)
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
 	if err != nil {
 		return
 	}
-	err = autorest.Respond(future.Response(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted))
+	err = autorest.Respond(resp, azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
 	return
 }
 
@@ -647,10 +736,11 @@ func (client CapacitiesClient) ResumeResponder(resp *http.Response) (result auto
 }
 
 // Suspend suspends operation of the specified dedicated capacity instance.
-//
-// resourceGroupName is the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
-// This name must be at least 1 character in length, and no more than 90. dedicatedCapacityName is the name of the
-// Dedicated capacity. It must be at least 3 characters in length, and no more than 63.
+// Parameters:
+// resourceGroupName - the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
+// This name must be at least 1 character in length, and no more than 90.
+// dedicatedCapacityName - the name of the Dedicated capacity. It must be at least 3 characters in length, and
+// no more than 63.
 func (client CapacitiesClient) Suspend(ctx context.Context, resourceGroupName string, dedicatedCapacityName string) (result CapacitiesSuspendFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -703,15 +793,17 @@ func (client CapacitiesClient) SuspendPreparer(ctx context.Context, resourceGrou
 // SuspendSender sends the Suspend request. The method will close the
 // http.Response Body if it receives an error.
 func (client CapacitiesClient) SuspendSender(req *http.Request) (future CapacitiesSuspendFuture, err error) {
-	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
-	future.Future = azure.NewFuture(req)
-	future.req = req
-	_, err = future.Done(sender)
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
 	if err != nil {
 		return
 	}
-	err = autorest.Respond(future.Response(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted))
+	err = autorest.Respond(resp, azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
 	return
 }
 
@@ -728,11 +820,12 @@ func (client CapacitiesClient) SuspendResponder(resp *http.Response) (result aut
 }
 
 // Update updates the current state of the specified Dedicated capacity.
-//
-// resourceGroupName is the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
-// This name must be at least 1 character in length, and no more than 90. dedicatedCapacityName is the name of the
-// Dedicated capacity. It must be at least 3 characters in length, and no more than 63. capacityUpdateParameters is
-// request object that contains the updated information for the capacity.
+// Parameters:
+// resourceGroupName - the name of the Azure Resource group of which a given PowerBIDedicated capacity is part.
+// This name must be at least 1 character in length, and no more than 90.
+// dedicatedCapacityName - the name of the Dedicated capacity. It must be at least 3 characters in length, and
+// no more than 63.
+// capacityUpdateParameters - request object that contains the updated information for the capacity.
 func (client CapacitiesClient) Update(ctx context.Context, resourceGroupName string, dedicatedCapacityName string, capacityUpdateParameters DedicatedCapacityUpdateParameters) (result CapacitiesUpdateFuture, err error) {
 	if err := validation.Validate([]validation.Validation{
 		{TargetValue: resourceGroupName,
@@ -775,7 +868,7 @@ func (client CapacitiesClient) UpdatePreparer(ctx context.Context, resourceGroup
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPatch(),
 		autorest.WithBaseURL(client.BaseURI),
 		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.PowerBIDedicated/capacities/{dedicatedCapacityName}", pathParameters),
@@ -787,15 +880,17 @@ func (client CapacitiesClient) UpdatePreparer(ctx context.Context, resourceGroup
 // UpdateSender sends the Update request. The method will close the
 // http.Response Body if it receives an error.
 func (client CapacitiesClient) UpdateSender(req *http.Request) (future CapacitiesUpdateFuture, err error) {
-	sender := autorest.DecorateSender(client, azure.DoRetryWithRegistration(client.Client))
-	future.Future = azure.NewFuture(req)
-	future.req = req
-	_, err = future.Done(sender)
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
 	if err != nil {
 		return
 	}
-	err = autorest.Respond(future.Response(),
-		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted))
+	err = autorest.Respond(resp, azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
 	return
 }
 

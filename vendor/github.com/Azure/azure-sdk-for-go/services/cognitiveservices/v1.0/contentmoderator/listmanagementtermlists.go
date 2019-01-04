@@ -32,26 +32,19 @@ import (
 // Text can be at most 1024 characters long.
 // If the content passed to the text API or the image API exceeds the size limits, the API will return an error code
 // that informs about the issue.
-//
-// This API is currently available in:
-//
-// * West US - westus.api.cognitive.microsoft.com
-// * East US 2 - eastus2.api.cognitive.microsoft.com
-// * West Central US - westcentralus.api.cognitive.microsoft.com
-// * West Europe - westeurope.api.cognitive.microsoft.com
-// * Southeast Asia - southeastasia.api.cognitive.microsoft.com .
 type ListManagementTermListsClient struct {
 	BaseClient
 }
 
 // NewListManagementTermListsClient creates an instance of the ListManagementTermListsClient client.
-func NewListManagementTermListsClient(baseURL AzureRegionBaseURL) ListManagementTermListsClient {
-	return ListManagementTermListsClient{New(baseURL)}
+func NewListManagementTermListsClient(endpoint string) ListManagementTermListsClient {
+	return ListManagementTermListsClient{New(endpoint)}
 }
 
 // Create creates a Term List
-//
-// contentType is the content type. body is schema of the body.
+// Parameters:
+// contentType - the content type.
+// body - schema of the body.
 func (client ListManagementTermListsClient) Create(ctx context.Context, contentType string, body Body) (result TermList, err error) {
 	req, err := client.CreatePreparer(ctx, contentType, body)
 	if err != nil {
@@ -77,13 +70,13 @@ func (client ListManagementTermListsClient) Create(ctx context.Context, contentT
 // CreatePreparer prepares the Create request.
 func (client ListManagementTermListsClient) CreatePreparer(ctx context.Context, contentType string, body Body) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPath("/contentmoderator/lists/v1.0/termlists"),
 		autorest.WithJSON(body),
 		autorest.WithHeader("Content-Type", autorest.String(contentType)))
@@ -111,8 +104,8 @@ func (client ListManagementTermListsClient) CreateResponder(resp *http.Response)
 }
 
 // Delete deletes term list with the list Id equal to list Id passed.
-//
-// listID is list Id of the image list.
+// Parameters:
+// listID - list Id of the image list.
 func (client ListManagementTermListsClient) Delete(ctx context.Context, listID string) (result String, err error) {
 	req, err := client.DeletePreparer(ctx, listID)
 	if err != nil {
@@ -138,7 +131,7 @@ func (client ListManagementTermListsClient) Delete(ctx context.Context, listID s
 // DeletePreparer prepares the Delete request.
 func (client ListManagementTermListsClient) DeletePreparer(ctx context.Context, listID string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -147,7 +140,7 @@ func (client ListManagementTermListsClient) DeletePreparer(ctx context.Context, 
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsDelete(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/termlists/{listId}", pathParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -198,12 +191,12 @@ func (client ListManagementTermListsClient) GetAllTermLists(ctx context.Context)
 // GetAllTermListsPreparer prepares the GetAllTermLists request.
 func (client ListManagementTermListsClient) GetAllTermListsPreparer(ctx context.Context) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPath("/contentmoderator/lists/v1.0/termlists"))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -229,8 +222,8 @@ func (client ListManagementTermListsClient) GetAllTermListsResponder(resp *http.
 }
 
 // GetDetails returns list Id details of the term list with list Id equal to list Id passed.
-//
-// listID is list Id of the image list.
+// Parameters:
+// listID - list Id of the image list.
 func (client ListManagementTermListsClient) GetDetails(ctx context.Context, listID string) (result TermList, err error) {
 	req, err := client.GetDetailsPreparer(ctx, listID)
 	if err != nil {
@@ -256,7 +249,7 @@ func (client ListManagementTermListsClient) GetDetails(ctx context.Context, list
 // GetDetailsPreparer prepares the GetDetails request.
 func (client ListManagementTermListsClient) GetDetailsPreparer(ctx context.Context, listID string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -265,7 +258,7 @@ func (client ListManagementTermListsClient) GetDetailsPreparer(ctx context.Conte
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsGet(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/termlists/{listId}", pathParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
 }
@@ -291,8 +284,9 @@ func (client ListManagementTermListsClient) GetDetailsResponder(resp *http.Respo
 }
 
 // RefreshIndexMethod refreshes the index of the list with list Id equal to list ID passed.
-//
-// listID is list Id of the image list. language is language of the terms.
+// Parameters:
+// listID - list Id of the image list.
+// language - language of the terms.
 func (client ListManagementTermListsClient) RefreshIndexMethod(ctx context.Context, listID string, language string) (result RefreshIndex, err error) {
 	req, err := client.RefreshIndexMethodPreparer(ctx, listID, language)
 	if err != nil {
@@ -318,7 +312,7 @@ func (client ListManagementTermListsClient) RefreshIndexMethod(ctx context.Conte
 // RefreshIndexMethodPreparer prepares the RefreshIndexMethod request.
 func (client ListManagementTermListsClient) RefreshIndexMethodPreparer(ctx context.Context, listID string, language string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -331,7 +325,7 @@ func (client ListManagementTermListsClient) RefreshIndexMethodPreparer(ctx conte
 
 	preparer := autorest.CreatePreparer(
 		autorest.AsPost(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/termlists/{listId}/RefreshIndex", pathParameters),
 		autorest.WithQueryParameters(queryParameters))
 	return preparer.Prepare((&http.Request{}).WithContext(ctx))
@@ -358,8 +352,10 @@ func (client ListManagementTermListsClient) RefreshIndexMethodResponder(resp *ht
 }
 
 // Update updates an Term List.
-//
-// listID is list Id of the image list. contentType is the content type. body is schema of the body.
+// Parameters:
+// listID - list Id of the image list.
+// contentType - the content type.
+// body - schema of the body.
 func (client ListManagementTermListsClient) Update(ctx context.Context, listID string, contentType string, body Body) (result TermList, err error) {
 	req, err := client.UpdatePreparer(ctx, listID, contentType, body)
 	if err != nil {
@@ -385,7 +381,7 @@ func (client ListManagementTermListsClient) Update(ctx context.Context, listID s
 // UpdatePreparer prepares the Update request.
 func (client ListManagementTermListsClient) UpdatePreparer(ctx context.Context, listID string, contentType string, body Body) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
-		"baseUrl": client.BaseURL,
+		"Endpoint": client.Endpoint,
 	}
 
 	pathParameters := map[string]interface{}{
@@ -393,9 +389,9 @@ func (client ListManagementTermListsClient) UpdatePreparer(ctx context.Context, 
 	}
 
 	preparer := autorest.CreatePreparer(
-		autorest.AsJSON(),
+		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPut(),
-		autorest.WithCustomBaseURL("https://{baseUrl}", urlParameters),
+		autorest.WithCustomBaseURL("{Endpoint}", urlParameters),
 		autorest.WithPathParameters("/contentmoderator/lists/v1.0/termlists/{listId}", pathParameters),
 		autorest.WithJSON(body),
 		autorest.WithHeader("Content-Type", autorest.String(contentType)))
