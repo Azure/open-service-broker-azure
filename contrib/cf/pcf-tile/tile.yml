@@ -125,7 +125,7 @@ forms:
     type: string
     label: Storage Redis Host
   - name: storage_redis_password
-    type: string
+    type: secret
     label: Storage Redis Password
   - name: storage_redis_port
     type: port
@@ -150,7 +150,7 @@ forms:
     type: string
     label: Async Redis Host
   - name: async_redis_password
-    type: string
+    type: secret
     label: Async Redis Password
   - name: async_redis_port
     type: port
