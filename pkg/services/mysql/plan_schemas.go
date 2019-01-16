@@ -16,7 +16,7 @@ type tierDetails struct {
 	allowedCores            []int64
 	defaultCores            int64
 	maxStorage              int64
-	allowedBackupRedundancy []string
+	allowedBackupRedundancy []service.EnumValue
 }
 
 func (t *tierDetails) getSku(pp service.ProvisioningParameters) string {
@@ -39,10 +39,10 @@ func generateProvisioningParamsSchema(
 	ips.RequiredProperties = append(ips.RequiredProperties, "resourceGroup")
 	ips.PropertySchemas["resourceGroup"] = schemas.GetResourceGroupSchema()
 	ips.PropertySchemas["backupRedundancy"] = &service.StringPropertySchema{
-		Title:         "Backup redundancy",
-		Description:   "Specifies the backup redundancy",
-		AllowedValues: td.allowedBackupRedundancy,
-		DefaultValue:  "local",
+		Title:        "Backup redundancy",
+		Description:  "Specifies the backup redundancy",
+		OneOf:        td.allowedBackupRedundancy,
+		DefaultValue: "local",
 	}
 	ips.PropertySchemas["tags"] = &service.ObjectPropertySchema{
 		Title: "Tags",
@@ -83,8 +83,8 @@ func generateUpdatingParamsSchema(
 				Title: "SSL enforcement",
 				Description: "Specifies whether the server requires the use of TLS" +
 					" when connecting. Left unspecified, SSL will be enforced",
-				AllowedValues: []string{enabledParamString, disabledParamString},
-				DefaultValue:  enabledParamString,
+				OneOf:        schemas.EnabledDisabledValues(),
+				DefaultValue: schemas.EnabledParamString,
 			},
 			"firewallRules": &service.ArrayPropertySchema{
 				Title: "Firewall rules",
@@ -133,7 +133,7 @@ func isGeoRedundentBackup(pp service.ProvisioningParameters) bool {
 }
 
 func isSSLRequired(pp service.ProvisioningParameters) bool {
-	return pp.GetString("sslEnforcement") != disabledParamString
+	return pp.GetString("sslEnforcement") != schemas.DisabledParamString
 }
 
 func ipValidator(context, value string) error {

@@ -7,10 +7,8 @@ import (
 )
 
 const (
-	enabled  = "enabled"
-	disabled = "disabled"
-	hot      = "Hot"
-	cool     = "Cool"
+	hot  = "Hot"
+	cool = "Cool"
 )
 
 // nolint: lll
@@ -30,10 +28,10 @@ func generateProvisioningParamsSchema(serviceName string) service.InputParameter
 			"resourceGroup": schemas.GetResourceGroupSchema(),
 			"location":      schemas.GetLocationSchema(),
 			"enableNonHttpsTraffic": &service.StringPropertySchema{
-				Title:         "Enable non-https traffic",
-				Description:   "Specify whether non-https traffic is enabled",
-				DefaultValue:  disabled,
-				AllowedValues: []string{enabled, disabled},
+				Title:        "Enable non-https traffic",
+				Description:  "Specify whether non-https traffic is enabled",
+				DefaultValue: schemas.DisabledParamString,
+				OneOf:        schemas.EnabledDisabledValues(),
 			},
 			"tags": &service.ObjectPropertySchema{
 				Title: "Tags",
@@ -80,9 +78,9 @@ func generateUpdatingParamsSchema(serviceName string) service.InputParametersSch
 	ips := service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"enableNonHttpsTraffic": &service.StringPropertySchema{
-				Title:         "Enable non-https traffic",
-				Description:   "Specify whether non-https traffic is enabled",
-				AllowedValues: []string{enabled, disabled},
+				Title:       "Enable non-https traffic",
+				Description: "Specify whether non-https traffic is enabled",
+				OneOf:       schemas.EnabledDisabledValues(),
 			},
 			"tags": &service.ObjectPropertySchema{
 				Title: "Tags",

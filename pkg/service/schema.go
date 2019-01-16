@@ -112,6 +112,7 @@ type StringPropertySchema struct {
 	AllowedPattern          string                        `json:"pattern,omitempty"` // nolint: lll
 	CustomPropertyValidator CustomStringPropertyValidator `json:"-"`
 	DefaultValue            string                        `json:"default,omitempty"` // nolint: lll
+	OneOf                   []EnumValue                   `json:"oneOf,omitempty"`   // nolint: lll
 }
 
 // MarshalJSON provides functionality to marshal a StringPropertySchema to JSON
@@ -163,6 +164,18 @@ func (s StringPropertySchema) validate(
 			return NewValidationError(context, "field value is invalid")
 		}
 	}
+	if len(s.OneOf) > 0 {
+		var found bool
+		for _, allowedValue := range s.OneOf {
+			if val == allowedValue.Value {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return NewValidationError(context, "field value is invalid")
+		}
+	}
 	if s.AllowedPattern != "" {
 		pattern := regexp.MustCompile(s.AllowedPattern)
 		if !pattern.MatchString(val) {
@@ -173,6 +186,26 @@ func (s StringPropertySchema) validate(
 		return s.CustomPropertyValidator(context, val)
 	}
 	return nil
+}
+
+// EnumValue represents an enum item in the oneOf JSON schema collection
+type EnumValue struct {
+	Value string
+	Title string
+}
+
+// MarshalJSON provides functionality to marshal an EnumValue to JSON
+// according to JSON schema definition.
+func (v EnumValue) MarshalJSON() ([]byte, error) {
+	return json.Marshal(
+		struct {
+			Enum  []string `json:"enum"`
+			Title string   `json:"title"`
+		}{
+			Title: v.Title,
+			Enum:  []string{v.Value},
+		},
+	)
 }
 
 // CustomIntPropertyValidator is a function type that describes the signature

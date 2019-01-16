@@ -2,6 +2,7 @@ package storage
 
 import (
 	"github.com/Azure/azure-sdk-for-go/storage"
+	"github.com/Azure/open-service-broker-azure/pkg/schemas"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -16,7 +17,7 @@ func buildGoTemplate(
 	goTemplateParams := map[string]interface{}{
 		"name":                    dt.StorageAccountName,
 		"location":                location,
-		"supportHttpsTrafficOnly": nonHTTPSEnabled == disabled,
+		"supportHttpsTrafficOnly": nonHTTPSEnabled == schemas.DisabledParamString,
 		"accountType":             parameter.GetString("accountType"),
 	}
 
