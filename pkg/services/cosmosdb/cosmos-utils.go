@@ -250,10 +250,14 @@ func validateReadLocations(
 	context string,
 	regions []string,
 ) error {
+	allowedLocations := make(map[string]bool)
+	for _, item := range allowedReadLocations() {
+		allowedLocations[item.Value] = true
+	}
 	occurred := make(map[string]bool)
 	for i := range regions {
 		region := regions[i]
-		if !allowedReadLocations[region] {
+		if !allowedLocations[region] {
 			return service.NewValidationError(
 				fmt.Sprintf("%s.readRegions", context),
 				fmt.Sprintf("given read region %s is not allowed", region),
@@ -274,34 +278,35 @@ func validateReadLocations(
 }
 
 // Allowed CosmosDB read locations, it is different from Azure regions.
-// We use a map here to record all allowed regions.
-var allowedReadLocations = map[string]bool{
-	"westus2":            true,
-	"westus":             true,
-	"southcentralus":     true,
-	"centralus":          true,
-	"northcentralus":     true,
-	"canadacentral":      true,
-	"eastus":             true,
-	"eastus2":            true,
-	"canadaeast":         true,
-	"brazilsouth":        true,
-	"northeurope":        true,
-	"ukwest":             true,
-	"uksouth":            true,
-	"francecentral":      true,
-	"westeurope":         true,
-	"westindia":          true,
-	"centralindia":       true,
-	"southindia":         true,
-	"southeastasia":      true,
-	"eastasia":           true,
-	"koreacentral":       true,
-	"koreasouth":         true,
-	"japaneast":          true,
-	"japanwest":          true,
-	"australiasoutheast": true,
-	"australiaeast":      true,
+func allowedReadLocations() []service.EnumValue {
+	return []service.EnumValue{
+		{Value: "westus2", Title: "West US 2"},
+		{Value: "westus", Title: "West US"},
+		{Value: "southcentralus", Title: "South Central US"},
+		{Value: "centralus", Title: "Central US"},
+		{Value: "northcentralus", Title: "North Central US"},
+		{Value: "canadacentral", Title: "Canada Central"},
+		{Value: "eastus", Title: "East US"},
+		{Value: "eastus2", Title: "East US 2"},
+		{Value: "canadaeast", Title: "Canada East"},
+		{Value: "brazilsouth", Title: "Brazil South"},
+		{Value: "northeurope", Title: "North Europe"},
+		{Value: "ukwest", Title: "UK West"},
+		{Value: "uksouth", Title: "UK South"},
+		{Value: "francecentral", Title: "France Central"},
+		{Value: "westeurope", Title: "West Europe"},
+		{Value: "westindia", Title: "West India"},
+		{Value: "centralindia", Title: "Central India"},
+		{Value: "southindia", Title: "South India"},
+		{Value: "southeastasia", Title: "Southeast Asia"},
+		{Value: "eastasia", Title: "East Asia"},
+		{Value: "koreacentral", Title: "Korea Central"},
+		{Value: "koreasouth", Title: "Korea South"},
+		{Value: "japaneast", Title: "Japan East"},
+		{Value: "japanwest", Title: "Japan West"},
+		{Value: "australiasoutheast", Title: "Australia Southeast"},
+		{Value: "australiaeast", Title: "Australia East"},
+	}
 }
 
 func (c *cosmosAccountManager) buildGoTemplateParamsCore(

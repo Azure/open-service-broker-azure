@@ -78,11 +78,13 @@ func generateTopicBindingParamsSchema() service.InputParametersSchema {
 	return service.InputParametersSchema{
 		PropertySchemas: map[string]service.PropertySchema{
 			"subscriptionNeeded": &service.StringPropertySchema{
-				Title: "Subscription Needed",
-				Description: "Specifies whether to create a subscription in the topic." +
-					" Valid values are [\"yes\", \"no\"]. ",
-				AllowedValues: []string{"yes", "no"},
-				DefaultValue:  "yes",
+				Title:       "Subscription Needed",
+				Description: "Specifies whether to create a subscription in the topic.",
+				OneOf: []service.EnumValue{
+					{Value: "yes", Title: "Yes"},
+					{Value: "no", Title: "No"},
+				},
+				DefaultValue: "yes",
 			},
 		},
 	}

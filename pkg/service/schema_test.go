@@ -100,6 +100,23 @@ func TestValidateInputParametersSchema(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestValidateInputParameterSchemaWithOneOfField(t *testing.T) {
+	ips := InputParametersSchema{
+		PropertySchemas: map[string]PropertySchema{
+			"foo": StringPropertySchema{
+				OneOf: []EnumValue{{Value: "bar", Title: ""}, {Value: "bat", Title: ""}},
+			},
+		},
+	}
+
+	assert.NotNil(t, ips.Validate(map[string]interface{}{
+		"foo": "wrong",
+	}))
+	assert.Nil(t, ips.Validate(map[string]interface{}{
+		"foo": "bar",
+	}))
+}
+
 func TestStringPropertySchemaToJSON(t *testing.T) {
 	fooSps := StringPropertySchema{
 		Title:         "bar",

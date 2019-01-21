@@ -11,10 +11,8 @@ import (
 )
 
 const (
-	enabledParamString  = "enabled"
-	disabledParamString = "disabled"
-	enabledARMString    = "Enabled"
-	disabledARMString   = "Disabled"
+	enabledARMString  = "Enabled"
+	disabledARMString = "Disabled"
 )
 
 func getAvailableServerName(

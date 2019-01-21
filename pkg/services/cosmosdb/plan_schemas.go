@@ -28,14 +28,17 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 					" will be synchronized across these regions.",
 				DefaultValue:            []interface{}{},
 				CustomPropertyValidator: readLocationsValidator,
+				ItemsSchema: &service.StringPropertySchema{
+					OneOf: allowedReadLocations(),
+				},
 			},
 			"autoFailoverEnabled": &service.StringPropertySchema{
 				Title: "Auto failover enabled",
 				Description: "Specifies if you want Cosmos DB to perform" +
 					" automatic failover of the write region to one of" +
 					" the read regions in the rare event of a data center outage.",
-				DefaultValue:  "disabled",
-				AllowedValues: []string{"enabled", "disabled"},
+				DefaultValue: "disabled",
+				OneOf:        schemas.EnabledDisabledValues(),
 			},
 			"ipFilters": &service.ObjectPropertySchema{
 				Title:       "IP filters",
@@ -45,16 +48,16 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 						Title: "Allow access from Azure",
 						Description: "Specifies if Azure Services should be able to access" +
 							" the CosmosDB account.",
-						AllowedValues: []string{"enabled", "disabled"},
-						DefaultValue:  "enabled",
+						OneOf:        schemas.EnabledDisabledValues(),
+						DefaultValue: schemas.EnabledParamString,
 					},
 					"allowAccessFromPortal": &service.StringPropertySchema{
 						Title: "Allow access From Portal",
 						Description: "Specifies if the Azure Portal should be able to" +
 							" access the CosmosDB account. If `allowAccessFromAzure` is" +
 							" set to enabled, this value is ignored.",
-						AllowedValues: []string{"enabled", "disabled"},
-						DefaultValue:  "enabled",
+						OneOf:        schemas.EnabledDisabledValues(),
+						DefaultValue: schemas.EnabledParamString,
 					},
 					"allowedIPRanges": &service.ArrayPropertySchema{
 						Title: "Allowed IP ranges",
@@ -67,7 +70,7 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 					},
 				},
 				DefaultValue: map[string]interface{}{
-					"allowAccessFromAzure": "enabled",
+					"allowAccessFromAzure": schemas.EnabledParamString,
 				},
 			},
 			"consistencyPolicy": &service.ObjectPropertySchema{
@@ -81,12 +84,12 @@ func generateUpdatingParamsSchema() service.InputParametersSchema {
 						Title: "Default consistency level",
 						Description: "The default consistency level and" +
 							" configuration settings of the Cosmos DB account.",
-						AllowedValues: []string{
-							"Eventual",
-							"Session",
-							"BoundedStaleness",
-							"Strong",
-							"ConsistentPrefix",
+						OneOf: []service.EnumValue{
+							{Value: "Eventual", Title: "Eventual"},
+							{Value: "Session", Title: "Session"},
+							{Value: "BoundedStaleness", Title: "Bounded staleness"},
+							{Value: "Strong", Title: "Strong"},
+							{Value: "ConsistentPrefix", Title: "Consistent prefix"},
 						},
 					},
 					"boundedStaleness": &service.ObjectPropertySchema{
@@ -136,8 +139,8 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 			Title: "Multiple write regions enabled",
 			Description: "Specifies if you want  the account to write " +
 				"in multiple regions.",
-			AllowedValues: []string{"enabled", "disabled"},
-			DefaultValue:  "disabled",
+			OneOf:        schemas.EnabledDisabledValues(),
+			DefaultValue: schemas.DisabledParamString,
 		},
 	}
 	sharedSchema := generateUpdatingParamsSchema()

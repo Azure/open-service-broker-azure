@@ -1,6 +1,9 @@
 package postgresql
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import (
+	"github.com/Azure/open-service-broker-azure/pkg/schemas"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+)
 
 func createBasicPlan(
 	planID string,
@@ -13,7 +16,7 @@ func createBasicPlan(
 		allowedCores:            []int64{1, 2},
 		defaultCores:            1,
 		maxStorage:              1024,
-		allowedBackupRedundancy: []string{"local"},
+		allowedBackupRedundancy: schemas.LocalRedundancy(),
 	}
 
 	return service.PlanProperties{
@@ -54,7 +57,7 @@ func createGPPlan(
 		allowedCores:            []int64{2, 4, 8, 16, 32},
 		defaultCores:            2,
 		maxStorage:              2048,
-		allowedBackupRedundancy: []string{"local", "geo"},
+		allowedBackupRedundancy: schemas.LocalAndGeoRedundancy(),
 	}
 
 	extendedPlanData := map[string]interface{}{
@@ -101,7 +104,7 @@ func createMemoryOptimizedPlan(
 		allowedCores:            []int64{2, 4, 8, 16},
 		defaultCores:            2,
 		maxStorage:              2048,
-		allowedBackupRedundancy: []string{"local", "geo"},
+		allowedBackupRedundancy: schemas.LocalAndGeoRedundancy(),
 	}
 
 	extendedPlanData := map[string]interface{}{
