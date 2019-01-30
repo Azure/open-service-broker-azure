@@ -132,8 +132,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-mysql-5-7",
 				Description: "Azure Database for MySQL 5.7-- DBMS and single database",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL 5.7",
-					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
+					DisplayName: "Azure Database for MySQL 5.7",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/MySQL.SVG",
 					LongDescription:  "Azure Database for MySQL 5.7-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -157,8 +159,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:    "Azure Database for MySQL 5.7-- DBMS only",
 				ChildServiceID: "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL 5.7-- DBMS Only",
-					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
+					DisplayName: "Azure Database for MySQL 5.7-- DBMS Only",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/MySQL.SVG",
 					LongDescription:  "Azure Database for MySQL 5.7-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -182,8 +186,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:     "Azure Database for MySQL 5.7-- database only",
 				ParentServiceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for MySQL 5.7-- Database Only",
-					ImageURL:         "https://azure.microsoft.com/svghandler/mysql/?width=200",
+					DisplayName: "Azure Database for MySQL 5.7-- Database Only",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/MySQL.SVG",
 					LongDescription:  "Azure Database for MySQL 5.7-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",

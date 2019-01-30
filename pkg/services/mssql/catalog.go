@@ -266,8 +266,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-sql-12-0",
 				Description: "Azure SQL Database 12.0-- DBMS and single database",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL Database 12.0",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL Database 12.0",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg",
 					LongDescription:  "Azure SQL Database 12.0-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -323,8 +325,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:    "Azure SQL 12.0-- DBMS only",
 				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- DBMS Only",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- DBMS Only",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg",
 					LongDescription:  "Azure SQL 12.0-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -362,8 +366,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:        true,
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525", // more parents in fact
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- Database Only",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- Database Only",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg",
 					LongDescription:  "Azure SQL 12.0-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -418,8 +424,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:    "Azure SQL 12.0-- DBMS only registered",
 				ChildServiceID: "2bbc160c-e279-4757-a6b6-4c0a4822d0aa", // database-from-existing is also a valid child
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- DBMS Only registered",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- DBMS Only registered",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg",
 					LongDescription:  "Azure SQL 12.0-- DBMS only registered",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -457,8 +465,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:        true,
 				ParentServiceID: "a7454e0e-be2c-46ac-b55f-8c4278117525", // dbms-registered is also a valid parent
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- Database Only from existing",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- Database Only from existing",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg",
 					LongDescription:  "Azure SQL 12.0-- database only from existing",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",

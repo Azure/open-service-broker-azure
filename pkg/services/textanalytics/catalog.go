@@ -11,8 +11,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure Text Analytics (Experimental)",
 				Metadata: service.ServiceMetadata{
 					DisplayName: "Azure Text Analytics",
-					ImageURL: "https://azure.microsoft.com/svghandler/text-analytics/" +
-						"?width=200",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/TextAnalyticsAPI.svg",
 					LongDescription: "Infuse your apps, websites and bots with " +
 						"intelligent algorithms to see, hear, speak, understand and " +
 						"interpret your user needs through natural methods of communication." +

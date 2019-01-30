@@ -11,8 +11,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-appinsights",
 				Description: "Azure Application Insights (Experimental)",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Application Insights",
-					ImageURL:         "https://azure.microsoft.com/svghandler/application-insights/?width=200",
+					DisplayName: "Azure Application Insights",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/ApplicationInsights.svg",
 					LongDescription:  "Extensible Application Performance Management (APM) service for web developers on multiple platforms (Experimental)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-overview",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
