@@ -269,7 +269,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL Database 12.0",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL Database 12.0-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -328,7 +328,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- DBMS Only",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -369,7 +369,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- Database Only",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -427,7 +427,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- DBMS Only registered",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- DBMS only registered",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -468,7 +468,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- Database Only from existing",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- database only from existing",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",

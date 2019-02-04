@@ -135,7 +135,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Database for MySQL 5.7",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/MySQL.SVG",
+						"/index/MySQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for MySQL 5.7-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -162,7 +162,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Database for MySQL 5.7-- DBMS Only",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/MySQL.SVG",
+						"/index/MySQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for MySQL 5.7-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -189,7 +189,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Database for MySQL 5.7-- Database Only",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/MySQL.SVG",
+						"/index/MySQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for MySQL 5.7-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/mysql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",

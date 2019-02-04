@@ -23,7 +23,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure IoT Hub",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/IoTHub.svg",
+						"/index/IoTHub.svg?sanitize=true",
 					LongDescription: "Securely connect, monitor, and manage billions of " +
 						"devices to develop Internet of Things (IoT) applications. " +
 						"IoT Hub is an open and flexible cloud platform as a service " +

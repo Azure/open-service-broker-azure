@@ -14,7 +14,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Application Insights",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/ApplicationInsights.svg",
+						"/index/ApplicationInsights.svg?sanitize=true",
 					LongDescription:  "Extensible Application Performance Management (APM) service for web developers on multiple platforms (Experimental)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/application-insights/app-insights-overview",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",

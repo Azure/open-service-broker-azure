@@ -13,7 +13,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Event Hubs",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/EventHubs.svg",
+						"/index/EventHubs.svg?sanitize=true",
 					LongDescription: "Cloud-scale telemetry ingestion from websites, apps, " +
 						"and any streams of data (Experimental)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/event-hubs/",

@@ -16,7 +16,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Service Bus Namespace",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/ServiceBus.svg",
+						"/index/ServiceBus.svg?sanitize=true",
 					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
 						"simple hybrid integration. Create an Azure Service Bus" +
 						"Namespace. (Experimental)",
@@ -106,7 +106,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Service Bus Queue",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/ServiceBus.svg",
+						"/index/ServiceBus.svg?sanitize=true",
 					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
 						"simple hybrid integration. Create an Azure Service Bus" +
 						"Queue in an existing namespace. (Experimental)",
@@ -144,7 +144,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Service Bus Topic",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/ServiceBus.svg",
+						"/index/ServiceBus.svg?sanitize=true",
 					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
 						"simple hybrid integration. Create an Azure Service Bus" +
 						"Topic in an existing namespace. (Experimental)",

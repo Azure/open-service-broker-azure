@@ -235,7 +235,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- disaster recovery DBMS Pair registered",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- disaster recovery DBMS pair registered, as the primary server and the secondary server of failover groups",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -283,7 +283,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- disaster recovery Database Pair",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0--disaster recovery database pair, create the primary database, the secondary database, and the failover group",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -338,7 +338,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- disaster recovery Database Pair registered",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair registered, the primary database, the secondary database, and the failover group are existing",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -383,7 +383,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- disaster recovery Database Pair from existing primary",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair from existing primary database, create the secondary database and the failover group",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -439,7 +439,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure SQL 12.0-- disaster recovery Database Pair from existing",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/SQLDatabase.svg",
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair from existing",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",

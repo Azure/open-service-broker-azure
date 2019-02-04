@@ -13,7 +13,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Text Analytics",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/TextAnalyticsAPI.svg",
+						"/index/TextAnalyticsAPI.svg?sanitize=true",
 					LongDescription: "Infuse your apps, websites and bots with " +
 						"intelligent algorithms to see, hear, speak, understand and " +
 						"interpret your user needs through natural methods of communication." +

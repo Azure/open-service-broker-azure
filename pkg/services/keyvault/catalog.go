@@ -13,7 +13,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Key Vault",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/KeyVault.svg",
+						"/index/KeyVault.svg?sanitize=true",
 					LongDescription: "Safeguard cryptographic keys and other secrets " +
 						"used by cloud apps and services (Experimental)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/key-vault/",

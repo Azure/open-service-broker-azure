@@ -23,7 +23,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Storage General Purpose V2 Storage Account",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/Storage.svg",
+						"/index/Storage.svg?sanitize=true",
 					LongDescription: "Azure general purpose v2 storage account; create your " +
 						"own containers, files, and tables within this account (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
@@ -64,7 +64,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Storage General Purpose V1 Storage Account",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/Storage.svg",
+						"/index/Storage.svg?sanitize=true",
 					LongDescription: "Azure general purpose v1 storage account; create your " +
 						"own containers, files, and tables within this account (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
@@ -107,7 +107,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Storage Blob Storage Account",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/Storage.svg",
+						"/index/Storage.svg?sanitize=true",
 					LongDescription: "Specialized Azure storage account for storing block " +
 						"blobs and append blobs (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",
@@ -151,7 +151,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Storage Blob Storage Account And Container",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/Storage.svg",
+						"/index/Storage.svg?sanitize=true",
 					LongDescription: "A specialized Azure storage account for storing block " +
 						"blobs and append blobs; automatically provisions a blob container " +
 						"within the account (Preview)",
@@ -195,7 +195,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 					DisplayName: "Azure Storage Blob Container",
 					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-						"/index/Storage.svg",
+						"/index/Storage.svg?sanitize=true",
 					LongDescription: "A blob container inside an existing blob storage account" +
 						" (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/storage/",

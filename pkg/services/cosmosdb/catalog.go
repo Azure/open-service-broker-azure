@@ -13,7 +13,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						DisplayName: "Azure Cosmos DB (SQL API Database Account and Database)",
 						ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 							"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-							"/index/cosmosdb.svg",
+							"/index/cosmosdb.svg?sanitize=true",
 						LongDescription: "Globally distributed, multi-model database service" +
 							" (Experimental).",
 						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
@@ -54,7 +54,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						DisplayName: "Azure Cosmos DB (SQL API - Database Account Only)",
 						ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 							"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-							"/index/cosmosdb.svg",
+							"/index/cosmosdb.svg?sanitize=true",
 						LongDescription: "Globally distributed, multi-model database service" +
 							" (Experimental).",
 						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
@@ -94,7 +94,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						DisplayName: "Azure Cosmos DB (SQL API - Database Only)",
 						ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 							"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-							"/index/cosmosdb.svg",
+							"/index/cosmosdb.svg?sanitize=true",
 						LongDescription: "Globally distributed, multi-model database service" +
 							" (Experimental).",
 						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
@@ -129,7 +129,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						DisplayName: "Azure Cosmos DB (MongoDB API)",
 						ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 							"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-							"/index/cosmosdb.svg",
+							"/index/cosmosdb.svg?sanitize=true",
 						LongDescription: "Globally distributed, multi-model database service" +
 							" (Experimental)",
 						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
@@ -169,7 +169,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						DisplayName: "Azure Cosmos DB (Graph API)",
 						ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 							"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-							"/index/cosmosdb.svg",
+							"/index/cosmosdb.svg?sanitize=true",
 						LongDescription: "Globally distributed, multi-model database service" +
 							" (Experimental)",
 						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
@@ -210,7 +210,7 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 						DisplayName: "Azure Cosmos DB (Table API)",
 						ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
 							"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
-							"/index/cosmosdb.svg",
+							"/index/cosmosdb.svg?sanitize=true",
 						LongDescription: "Globally distributed, multi-model database service" +
 							" (Experimental)",
 						DocumentationURL: "https://docs.microsoft.com/en-us/azure/cosmos-db/",
