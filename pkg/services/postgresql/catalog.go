@@ -150,8 +150,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-postgresql-9-6",
 				Description: "Azure Database for PostgreSQL 9.6-- DBMS and single database",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 9.6",
-					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					DisplayName: "Azure Database for PostgreSQL 9.6",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/PostgreSQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for PostgreSQL-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -175,8 +177,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:    "Azure Database for PostgreSQL 9.6-- DBMS only",
 				ChildServiceID: "25434f16-d762-41c7-bbdd-8045d7f74ca",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 9.6-- DBMS Only",
-					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					DisplayName: "Azure Database for PostgreSQL 9.6-- DBMS Only",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/PostgreSQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for PostgreSQL-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -200,8 +204,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:     "Azure Database for PostgreSQL 9.6-- database only",
 				ParentServiceID: "d3f74b44-79bc-4d1e-bf7d-c247c2b851f9",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 9.6-- Database Only",
-					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					DisplayName: "Azure Database for PostgreSQL 9.6-- Database Only",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/PostgreSQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for PostgreSQL-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -236,8 +242,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Name:        "azure-postgresql-10",
 				Description: "Azure Database for PostgreSQL 10-- DBMS and single database",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 10",
-					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					DisplayName: "Azure Database for PostgreSQL 10",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/PostgreSQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for PostgreSQL-- DBMS and single database",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -261,8 +269,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:    "Azure Database for PostgreSQL 10-- DBMS only",
 				ChildServiceID: "1fd01042-3b70-4612-ac19-9ced0b2a1525",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 10-- DBMS Only",
-					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					DisplayName: "Azure Database for PostgreSQL 10-- DBMS Only",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/PostgreSQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for PostgreSQL-- DBMS only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -286,8 +296,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:     "Azure Database for PostgreSQL 10-- database only",
 				ParentServiceID: "cabd3125-5a13-46ea-afad-a69582af9578",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure Database for PostgreSQL 10-- Database Only",
-					ImageURL:         "https://azure.microsoft.com/svghandler/postgresql/?width=200",
+					DisplayName: "Azure Database for PostgreSQL 10-- Database Only",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/PostgreSQL.svg?sanitize=true",
 					LongDescription:  "Azure Database for PostgreSQL-- database only",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/postgresql/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",

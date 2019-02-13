@@ -29,8 +29,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description: "Azure Redis Cache (Preview)",
 				Metadata: service.ServiceMetadata{
 					DisplayName: "Azure Redis Cache",
-					ImageURL: "https://azure.microsoft.com/svghandler/redis-cache/" +
-						"?width=200",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/RedisCache.svg?sanitize=true",
 					LongDescription: "High throughput and consistent low-latency data " +
 						"access to power fast, scalable Azure applications (Preview)",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/redis-cache/",

@@ -232,8 +232,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Description:    "Azure SQL 12.0-- disaster recovery DBMS pair registered",
 				ChildServiceID: "2eb94a7e-5a7c-46f9-b9d2-ff769f215845", // More children in fact
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- disaster recovery DBMS Pair registered",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- disaster recovery DBMS Pair registered",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- disaster recovery DBMS pair registered, as the primary server and the secondary server of failover groups",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -278,8 +280,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:        true,
 				ParentServiceID: "00ce53a3-d6c3-4c24-8cb2-3f48d3b161d8",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- disaster recovery Database Pair",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- disaster recovery Database Pair",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0--disaster recovery database pair, create the primary database, the secondary database, and the failover group",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -331,8 +335,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:        true,
 				ParentServiceID: "00ce53a3-d6c3-4c24-8cb2-3f48d3b161d8",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- disaster recovery Database Pair registered",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- disaster recovery Database Pair registered",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair registered, the primary database, the secondary database, and the failover group are existing",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -374,8 +380,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:        true,
 				ParentServiceID: "00ce53a3-d6c3-4c24-8cb2-3f48d3b161d8",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- disaster recovery Database Pair from existing primary",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- disaster recovery Database Pair from existing primary",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair from existing primary database, create the secondary database and the failover group",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",
@@ -428,8 +436,10 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				Bindable:        true,
 				ParentServiceID: "00ce53a3-d6c3-4c24-8cb2-3f48d3b161d8",
 				Metadata: service.ServiceMetadata{
-					DisplayName:      "Azure SQL 12.0-- disaster recovery Database Pair from existing",
-					ImageURL:         "https://azure.microsoft.com/svghandler/sql-database/?width=200",
+					DisplayName: "Azure SQL 12.0-- disaster recovery Database Pair from existing",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/SQLDatabase.svg?sanitize=true",
 					LongDescription:  "Azure SQL 12.0-- disaster recovery database pair from existing",
 					DocumentationURL: "https://docs.microsoft.com/en-us/azure/sql-database/",
 					SupportURL:       "https://azure.microsoft.com/en-us/support/",

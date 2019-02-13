@@ -14,8 +14,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ChildServiceID: "0e93fbb8-7904-43a5-82db-81c7d3886a24",
 				Metadata: service.ServiceMetadata{
 					DisplayName: "Azure Service Bus Namespace",
-					ImageURL: "https://azure.microsoft.com/svghandler/service-bus/" +
-						"?width=200",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/ServiceBus.svg?sanitize=true",
 					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
 						"simple hybrid integration. Create an Azure Service Bus" +
 						"Namespace. (Experimental)",
@@ -103,8 +104,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ParentServiceID: "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",
 				Metadata: service.ServiceMetadata{
 					DisplayName: "Azure Service Bus Queue",
-					ImageURL: "https://azure.microsoft.com/svghandler/service-bus/" +
-						"?width=200",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/ServiceBus.svg?sanitize=true",
 					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
 						"simple hybrid integration. Create an Azure Service Bus" +
 						"Queue in an existing namespace. (Experimental)",
@@ -140,8 +142,9 @@ func (m *module) GetCatalog() (service.Catalog, error) {
 				ParentServiceID: "6dc44338-2f13-4bc5-9247-5b1b3c5462d3",
 				Metadata: service.ServiceMetadata{
 					DisplayName: "Azure Service Bus Topic",
-					ImageURL: "https://azure.microsoft.com/svghandler/service-bus/" +
-						"?width=200",
+					ImageURL: "https://raw.githubusercontent.com/MicrosoftDocs/" +
+						"azure-docs/9eb1f875f3823af85e41ebc97e31c5b7202bf419/articles/media" +
+						"/index/ServiceBus.svg?sanitize=true",
 					LongDescription: "Reliable cloud messaging as a service (MaaS) and " +
 						"simple hybrid integration. Create an Azure Service Bus" +
 						"Topic in an existing namespace. (Experimental)",
