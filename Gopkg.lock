@@ -8,6 +8,12 @@
   revision = "02e53af36e6c978af692887ed449b74026d76fec"
 
 [[projects]]
+  name = "contrib.go.opencensus.io/exporter/ocagent"
+  packages = ["."]
+  revision = "00af367e65149ff1f2f4b93bbfbb84fd9297170d"
+  version = "v0.2.0"
+
+[[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
   packages = [
     "services/appinsights/mgmt/2015-05-01/insights",
@@ -27,8 +33,8 @@
     "storage",
     "version"
   ]
-  revision = "f912cddf81bffc1569ccd89719a36acb64ca3035"
-  version = "v20.2.0"
+  revision = "2ea98fc438b9d78aa2ab32bab44c7f68e506385e"
+  version = "v25.1.0"
 
 [[projects]]
   name = "github.com/Azure/go-autorest"
@@ -40,10 +46,10 @@
     "autorest/to",
     "autorest/validation",
     "logger",
-    "version"
+    "tracing"
   ]
-  revision = "9bc4033dd347c7f416fca46b2f42a043dc1fbdf6"
-  version = "v10.15.5"
+  revision = "71d02b67e17a3d80abf8db171f1ca80c39eb2e90"
+  version = "v11.4.0"
 
 [[projects]]
   name = "github.com/Masterminds/semver"
@@ -78,6 +84,17 @@
   packages = ["."]
   revision = "3391d3790d23d03408670993e957e8f408993c34"
   version = "v1.0.1"
+
+[[projects]]
+  name = "github.com/census-instrumentation/opencensus-proto"
+  packages = [
+    "gen-go/agent/common/v1",
+    "gen-go/agent/trace/v1",
+    "gen-go/resource/v1",
+    "gen-go/trace/v1"
+  ]
+  revision = "7f2434bc10da710debe5c4315ed6d4df454b4024"
+  version = "v0.1.0"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -122,6 +139,19 @@
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
   revision = "c775fbc0c7ce5256db87cc1645d60147dbb7ca1c"
+
+[[projects]]
+  name = "github.com/golang/protobuf"
+  packages = [
+    "proto",
+    "ptypes",
+    "ptypes/any",
+    "ptypes/duration",
+    "ptypes/timestamp",
+    "ptypes/wrappers"
+  ]
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -195,6 +225,28 @@
   revision = "f017f86fccc5a039a98f23311f34fdf78b014f78"
 
 [[projects]]
+  name = "go.opencensus.io"
+  packages = [
+    ".",
+    "exemplar",
+    "internal",
+    "internal/tagencoding",
+    "plugin/ochttp",
+    "plugin/ochttp/propagation/b3",
+    "plugin/ochttp/propagation/tracecontext",
+    "stats",
+    "stats/internal",
+    "stats/view",
+    "tag",
+    "trace",
+    "trace/internal",
+    "trace/propagation",
+    "trace/tracestate"
+  ]
+  revision = "b7bf3cdb64150a8c8c53b769fdeb2ba581bd4d4b"
+  version = "v0.18.0"
+
+[[projects]]
   name = "golang.org/x/crypto"
   packages = [
     "md4",
@@ -206,8 +258,22 @@
 
 [[projects]]
   name = "golang.org/x/net"
-  packages = ["context"]
+  packages = [
+    "context",
+    "http2",
+    "http2/hpack",
+    "idna",
+    "internal/timeseries",
+    "lex/httplex",
+    "trace"
+  ]
   revision = "859d1a86bb617c0c20d154590c3c5d3fcb670b07"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sync"
+  packages = ["semaphore"]
+  revision = "37e7f081c4d4c64e13b10787722085407fe5d15f"
 
 [[projects]]
   name = "golang.org/x/sys"
@@ -216,6 +282,77 @@
     "windows"
   ]
   revision = "9aade4d3a3b7e6d876cd3823ad20ec45fc035402"
+
+[[projects]]
+  name = "golang.org/x/text"
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable"
+  ]
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
+
+[[projects]]
+  name = "google.golang.org/api"
+  packages = ["support/bundler"]
+  revision = "19e022d8cf43ce81f046bae8cc18c5397cc7732f"
+  version = "v0.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "google.golang.org/genproto"
+  packages = ["googleapis/rpc/status"]
+  revision = "4b09977fb92221987e99d190c8f88f2c92727a29"
+
+[[projects]]
+  name = "google.golang.org/grpc"
+  packages = [
+    ".",
+    "balancer",
+    "balancer/base",
+    "balancer/roundrobin",
+    "binarylog/grpc_binarylog_v1",
+    "codes",
+    "connectivity",
+    "credentials",
+    "credentials/internal",
+    "encoding",
+    "encoding/proto",
+    "grpclog",
+    "internal",
+    "internal/backoff",
+    "internal/binarylog",
+    "internal/channelz",
+    "internal/envconfig",
+    "internal/grpcrand",
+    "internal/grpcsync",
+    "internal/syscall",
+    "internal/transport",
+    "keepalive",
+    "metadata",
+    "naming",
+    "peer",
+    "resolver",
+    "resolver/dns",
+    "resolver/passthrough",
+    "stats",
+    "status",
+    "tap"
+  ]
+  revision = "a02b0774206b209466313a0b525d2c738fe407eb"
+  version = "v1.18.0"
 
 [[projects]]
   branch = "v2"
@@ -232,6 +369,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "eb5217f5bc44fb817899f394c3605c844a81df32ebde4715ed15b36b778ae653"
+  inputs-digest = "2a711027e01b45d13272451377d4563f9abf3fada4866b64ab7f9dae097469dd"
   solver-name = "gps-cdcl"
   solver-version = 1
