@@ -1,6 +1,6 @@
 // +build go1.9
 
-// Copyright 2018 Microsoft Corporation
+// Copyright 2019 Microsoft Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,20 +19,16 @@
 
 package mariadb
 
-import original "github.com/Azure/azure-sdk-for-go/services/preview/mariadb/mgmt/2018-06-01-preview/mariadb"
+import (
+	"context"
 
-type CheckNameAvailabilityClient = original.CheckNameAvailabilityClient
+	original "github.com/Azure/azure-sdk-for-go/services/preview/mariadb/mgmt/2018-06-01-preview/mariadb"
+)
 
 const (
 	DefaultBaseURI = original.DefaultBaseURI
 )
 
-type BaseClient = original.BaseClient
-type ConfigurationsClient = original.ConfigurationsClient
-type DatabasesClient = original.DatabasesClient
-type FirewallRulesClient = original.FirewallRulesClient
-type LocationBasedPerformanceTierClient = original.LocationBasedPerformanceTierClient
-type LogFilesClient = original.LogFilesClient
 type CreateMode = original.CreateMode
 
 const (
@@ -94,28 +90,47 @@ const (
 	SslEnforcementEnumEnabled  SslEnforcementEnum = original.SslEnforcementEnumEnabled
 )
 
+type VirtualNetworkRuleState = original.VirtualNetworkRuleState
+
+const (
+	Deleting     VirtualNetworkRuleState = original.Deleting
+	Initializing VirtualNetworkRuleState = original.Initializing
+	InProgress   VirtualNetworkRuleState = original.InProgress
+	Ready        VirtualNetworkRuleState = original.Ready
+	Unknown      VirtualNetworkRuleState = original.Unknown
+)
+
+type BaseClient = original.BaseClient
+type BasicServerPropertiesForCreate = original.BasicServerPropertiesForCreate
+type CheckNameAvailabilityClient = original.CheckNameAvailabilityClient
 type Configuration = original.Configuration
 type ConfigurationListResult = original.ConfigurationListResult
 type ConfigurationProperties = original.ConfigurationProperties
+type ConfigurationsClient = original.ConfigurationsClient
 type ConfigurationsCreateOrUpdateFuture = original.ConfigurationsCreateOrUpdateFuture
 type Database = original.Database
 type DatabaseListResult = original.DatabaseListResult
 type DatabaseProperties = original.DatabaseProperties
+type DatabasesClient = original.DatabasesClient
 type DatabasesCreateOrUpdateFuture = original.DatabasesCreateOrUpdateFuture
 type DatabasesDeleteFuture = original.DatabasesDeleteFuture
 type FirewallRule = original.FirewallRule
 type FirewallRuleListResult = original.FirewallRuleListResult
 type FirewallRuleProperties = original.FirewallRuleProperties
+type FirewallRulesClient = original.FirewallRulesClient
 type FirewallRulesCreateOrUpdateFuture = original.FirewallRulesCreateOrUpdateFuture
 type FirewallRulesDeleteFuture = original.FirewallRulesDeleteFuture
+type LocationBasedPerformanceTierClient = original.LocationBasedPerformanceTierClient
 type LogFile = original.LogFile
 type LogFileListResult = original.LogFileListResult
 type LogFileProperties = original.LogFileProperties
+type LogFilesClient = original.LogFilesClient
 type NameAvailability = original.NameAvailability
 type NameAvailabilityRequest = original.NameAvailabilityRequest
 type Operation = original.Operation
 type OperationDisplay = original.OperationDisplay
 type OperationListResult = original.OperationListResult
+type OperationsClient = original.OperationsClient
 type PerformanceTierListResult = original.PerformanceTierListResult
 type PerformanceTierProperties = original.PerformanceTierProperties
 type PerformanceTierServiceLevelObjectives = original.PerformanceTierServiceLevelObjectives
@@ -125,36 +140,39 @@ type Server = original.Server
 type ServerForCreate = original.ServerForCreate
 type ServerListResult = original.ServerListResult
 type ServerProperties = original.ServerProperties
-type BasicServerPropertiesForCreate = original.BasicServerPropertiesForCreate
 type ServerPropertiesForCreate = original.ServerPropertiesForCreate
 type ServerPropertiesForDefaultCreate = original.ServerPropertiesForDefaultCreate
 type ServerPropertiesForGeoRestore = original.ServerPropertiesForGeoRestore
 type ServerPropertiesForRestore = original.ServerPropertiesForRestore
-type ServersCreateFuture = original.ServersCreateFuture
-type ServersDeleteFuture = original.ServersDeleteFuture
+type ServerSecurityAlertPoliciesClient = original.ServerSecurityAlertPoliciesClient
 type ServerSecurityAlertPoliciesCreateOrUpdateFuture = original.ServerSecurityAlertPoliciesCreateOrUpdateFuture
 type ServerSecurityAlertPolicy = original.ServerSecurityAlertPolicy
-type ServersUpdateFuture = original.ServersUpdateFuture
 type ServerUpdateParameters = original.ServerUpdateParameters
 type ServerUpdateParametersProperties = original.ServerUpdateParametersProperties
+type ServersClient = original.ServersClient
+type ServersCreateFuture = original.ServersCreateFuture
+type ServersDeleteFuture = original.ServersDeleteFuture
+type ServersUpdateFuture = original.ServersUpdateFuture
 type Sku = original.Sku
 type StorageProfile = original.StorageProfile
 type TrackedResource = original.TrackedResource
-type OperationsClient = original.OperationsClient
-type ServersClient = original.ServersClient
-type ServerSecurityAlertPoliciesClient = original.ServerSecurityAlertPoliciesClient
+type VirtualNetworkRule = original.VirtualNetworkRule
+type VirtualNetworkRuleListResult = original.VirtualNetworkRuleListResult
+type VirtualNetworkRuleListResultIterator = original.VirtualNetworkRuleListResultIterator
+type VirtualNetworkRuleListResultPage = original.VirtualNetworkRuleListResultPage
+type VirtualNetworkRuleProperties = original.VirtualNetworkRuleProperties
+type VirtualNetworkRulesClient = original.VirtualNetworkRulesClient
+type VirtualNetworkRulesCreateOrUpdateFuture = original.VirtualNetworkRulesCreateOrUpdateFuture
+type VirtualNetworkRulesDeleteFuture = original.VirtualNetworkRulesDeleteFuture
 
+func New(subscriptionID string) BaseClient {
+	return original.New(subscriptionID)
+}
 func NewCheckNameAvailabilityClient(subscriptionID string) CheckNameAvailabilityClient {
 	return original.NewCheckNameAvailabilityClient(subscriptionID)
 }
 func NewCheckNameAvailabilityClientWithBaseURI(baseURI string, subscriptionID string) CheckNameAvailabilityClient {
 	return original.NewCheckNameAvailabilityClientWithBaseURI(baseURI, subscriptionID)
-}
-func New(subscriptionID string) BaseClient {
-	return original.New(subscriptionID)
-}
-func NewWithBaseURI(baseURI string, subscriptionID string) BaseClient {
-	return original.NewWithBaseURI(baseURI, subscriptionID)
 }
 func NewConfigurationsClient(subscriptionID string) ConfigurationsClient {
 	return original.NewConfigurationsClient(subscriptionID)
@@ -186,6 +204,39 @@ func NewLogFilesClient(subscriptionID string) LogFilesClient {
 func NewLogFilesClientWithBaseURI(baseURI string, subscriptionID string) LogFilesClient {
 	return original.NewLogFilesClientWithBaseURI(baseURI, subscriptionID)
 }
+func NewOperationsClient(subscriptionID string) OperationsClient {
+	return original.NewOperationsClient(subscriptionID)
+}
+func NewOperationsClientWithBaseURI(baseURI string, subscriptionID string) OperationsClient {
+	return original.NewOperationsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewServerSecurityAlertPoliciesClient(subscriptionID string) ServerSecurityAlertPoliciesClient {
+	return original.NewServerSecurityAlertPoliciesClient(subscriptionID)
+}
+func NewServerSecurityAlertPoliciesClientWithBaseURI(baseURI string, subscriptionID string) ServerSecurityAlertPoliciesClient {
+	return original.NewServerSecurityAlertPoliciesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewServersClient(subscriptionID string) ServersClient {
+	return original.NewServersClient(subscriptionID)
+}
+func NewServersClientWithBaseURI(baseURI string, subscriptionID string) ServersClient {
+	return original.NewServersClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewVirtualNetworkRuleListResultIterator(page VirtualNetworkRuleListResultPage) VirtualNetworkRuleListResultIterator {
+	return original.NewVirtualNetworkRuleListResultIterator(page)
+}
+func NewVirtualNetworkRuleListResultPage(getNextPage func(context.Context, VirtualNetworkRuleListResult) (VirtualNetworkRuleListResult, error)) VirtualNetworkRuleListResultPage {
+	return original.NewVirtualNetworkRuleListResultPage(getNextPage)
+}
+func NewVirtualNetworkRulesClient(subscriptionID string) VirtualNetworkRulesClient {
+	return original.NewVirtualNetworkRulesClient(subscriptionID)
+}
+func NewVirtualNetworkRulesClientWithBaseURI(baseURI string, subscriptionID string) VirtualNetworkRulesClient {
+	return original.NewVirtualNetworkRulesClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewWithBaseURI(baseURI string, subscriptionID string) BaseClient {
+	return original.NewWithBaseURI(baseURI, subscriptionID)
+}
 func PossibleCreateModeValues() []CreateMode {
 	return original.PossibleCreateModeValues()
 }
@@ -210,23 +261,8 @@ func PossibleSkuTierValues() []SkuTier {
 func PossibleSslEnforcementEnumValues() []SslEnforcementEnum {
 	return original.PossibleSslEnforcementEnumValues()
 }
-func NewOperationsClient(subscriptionID string) OperationsClient {
-	return original.NewOperationsClient(subscriptionID)
-}
-func NewOperationsClientWithBaseURI(baseURI string, subscriptionID string) OperationsClient {
-	return original.NewOperationsClientWithBaseURI(baseURI, subscriptionID)
-}
-func NewServersClient(subscriptionID string) ServersClient {
-	return original.NewServersClient(subscriptionID)
-}
-func NewServersClientWithBaseURI(baseURI string, subscriptionID string) ServersClient {
-	return original.NewServersClientWithBaseURI(baseURI, subscriptionID)
-}
-func NewServerSecurityAlertPoliciesClient(subscriptionID string) ServerSecurityAlertPoliciesClient {
-	return original.NewServerSecurityAlertPoliciesClient(subscriptionID)
-}
-func NewServerSecurityAlertPoliciesClientWithBaseURI(baseURI string, subscriptionID string) ServerSecurityAlertPoliciesClient {
-	return original.NewServerSecurityAlertPoliciesClientWithBaseURI(baseURI, subscriptionID)
+func PossibleVirtualNetworkRuleStateValues() []VirtualNetworkRuleState {
+	return original.PossibleVirtualNetworkRuleStateValues()
 }
 func UserAgent() string {
 	return original.UserAgent() + " profiles/preview"
