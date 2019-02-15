@@ -95,12 +95,7 @@ First, obtain your Azure subscription ID and export it as an environment
 variable:
 
 ```console
-$ export AZURE_SUBSCRIPTION_ID=$( \
-    az account show \
-    | grep '"id":' \
-    | awk '{print $2}' \
-    | awk '{gsub(/\"|,/,"")}1' \
-  )
+$ export AZURE_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 ```
 
 Next create a service principal (service account) in your Azure Active Directory
