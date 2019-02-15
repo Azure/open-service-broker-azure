@@ -23,11 +23,11 @@
 
 [[constraint]]
   name = "github.com/Azure/azure-sdk-for-go"
-  version = "v20.2.0"
+  version = "v25.1.0"
 
 [[constraint]]
   name = "github.com/Azure/go-autorest"
-  version = "v10.1.0"
+  version = "v11.2.7"
 
 [[constraint]]
   name = "github.com/Sirupsen/logrus"
@@ -75,3 +75,7 @@
 [[constraint]]
   name = "github.com/deis/async"
   version = "v1.1.0"
+
+[[override]]
+  name = "golang.org/x/sys"
+  branch = "master"
