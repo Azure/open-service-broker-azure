@@ -58,6 +58,21 @@ var allInOneARMTemplateBytes = []byte(`
 					}
 				},
 				{{end}}
+				{{range .virtualNetworkRules}}
+				{
+					"type": "virtualNetworkRules",
+					"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
+					"dependsOn": [
+						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}"
+					],
+					"location": "{{$root.location}}",
+					"name": "{{.name}}",
+					"properties": {
+						"ignoreMissingVnetServiceEndpoint": true,
+        				"virtualNetworkSubnetId": "{{.subnetId}}"
+					}
+				},
+				{{end}}
 				{
 					"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
 					"name": "{{ .databaseName }}",

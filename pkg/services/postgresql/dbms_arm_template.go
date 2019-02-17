@@ -43,7 +43,8 @@ var dbmsARMTemplateBytes = []byte(`
 			"tags": "[parameters('tags')]",
 			"resources": [
 				{{ $root := . }}
-				{{$count := sub (len .firewallRules)  1}}
+				{{$firewallRulesCount := sub (len .firewallRules)  1}}
+				{{$virtualNetworkRulesCount := sub (len .virtualNetworkRules) 1 }}
 				{{range $i, $rule := .firewallRules}}
 				{
 					"type": "firewallrules",
@@ -57,7 +58,22 @@ var dbmsARMTemplateBytes = []byte(`
 						"startIpAddress": "{{$rule.startIPAddress}}",
 						"endIpAddress": "{{$rule.endIPAddress}}"
 					}
-				}{{if lt $i $count}},{{end}}
+				}{{ if or (lt $i $firewallRulesCount) (gt $virtualNetworkRulesCount -1) }},{{end}}
+				{{end}}	
+				{{range $i, $rule := .virtualNetworkRules}}
+				{
+					"type": "virtualNetworkRules",
+					"apiVersion": "[variables('DBforPostgreSQLapiVersion')]",
+					"dependsOn": [
+						"Microsoft.DBforPostgreSQL/servers/{{ $.serverName }}"
+					],
+					"location": "{{$root.location}}",
+					"name": "{{$rule.name}}",
+					"properties": {
+						"ignoreMissingVnetServiceEndpoint": true,
+        				"virtualNetworkSubnetId": "{{$rule.subnetId}}"
+					}
+				}{{if lt $i $virtualNetworkRulesCount}},{{end}}
 				{{end}}
 			]
 		}
