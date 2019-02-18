@@ -71,7 +71,7 @@ var dbmsARMTemplateBytes = []byte(`
 					"name": "{{$rule.name}}",
 					"properties": {
 						"ignoreMissingVnetServiceEndpoint": true,
-        				"virtualNetworkSubnetId": "{{$rule.subnetId}}"
+        		"virtualNetworkSubnetId": "{{$rule.subnetId}}"
 					}
 				}{{if lt $i $virtualNetworkRulesCount}},{{end}}
 				{{end}}

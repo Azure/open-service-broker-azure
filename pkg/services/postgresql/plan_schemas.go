@@ -133,7 +133,7 @@ func generateUpdatingParamsSchema(
 				Description: "Virtual network rules to apply to instance. ",
 				ItemsSchema: &service.ObjectPropertySchema{
 					Title:       "Virtual network rule",
-					Description: "Individual virtual network rules",
+					Description: "Individual virtual network rule",
 					RequiredProperties: []string{
 						"name",
 						"subnetId",
