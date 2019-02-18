@@ -128,6 +128,28 @@ func generateUpdatingParamsSchema(
 					},
 				},
 			},
+			"virtualNetworkRules": &service.ArrayPropertySchema{
+				Title:       "Virtual network rules",
+				Description: "Virtual network rules to apply to instance. ",
+				ItemsSchema: &service.ObjectPropertySchema{
+					Title:       "Virtual network rule",
+					Description: "Individual virtual network rule",
+					RequiredProperties: []string{
+						"name",
+						"subnetId",
+					},
+					PropertySchemas: map[string]service.PropertySchema{
+						"name": &service.StringPropertySchema{
+							Title:       "Name",
+							Description: "Name of virtual network rule",
+						},
+						"subnetId": &service.StringPropertySchema{
+							Title:       "Subnet ID",
+							Description: "Subnet ID to add",
+						},
+					},
+				},
+			},
 		},
 	}
 }

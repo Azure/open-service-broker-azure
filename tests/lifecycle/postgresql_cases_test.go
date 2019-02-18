@@ -3,9 +3,13 @@
 package lifecycle
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
+	networkSDK "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-01-01/network" // nolint: lll
+	"github.com/Azure/go-autorest/autorest/to"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
 )
@@ -107,6 +111,9 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 			},
 			"backupRedundancy": "geo",
 		},
+		preProvisionFns: []preProvisionFn{
+			createVirtualNetworkForPostgres,
+		},
 		updatingParameters: map[string]interface{}{
 			"cores":           2,
 			"storage":         25,
@@ -117,7 +124,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 		group:     "postgresql",
 		name:      "dbms-only-v10",
 		serviceID: "cabd3125-5a13-46ea-afad-a69582af9578",
-		planID:    "5cc758d2-b530-479e-8af7-e66f2906463a",
+		planID:    "f5218659-72ba-4fd3-9567-afd52d871fee",
 		provisioningParameters: map[string]interface{}{
 			"location": "southcentralus",
 			"alias":    postgresqlV10DBMSAlias,
@@ -128,6 +135,9 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 					"endIPAddress":   "255.255.255.255",
 				},
 			},
+		},
+		preProvisionFns: []preProvisionFn{
+			createVirtualNetworkForPostgres,
 		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // database only scenario
@@ -188,5 +198,77 @@ func testPostgreSQLCreds(credentials map[string]interface{}) error {
 			`error iterating rows`,
 		)
 	}
+	return nil
+}
+
+// nolint: lll
+func createVirtualNetworkForPostgres(
+	ctx context.Context,
+	resourceGroup string,
+	parent *service.Instance,
+	pp *map[string]interface{},
+) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	azureConfig, err := getAzureConfig()
+	if err != nil {
+		return fmt.Errorf("error getting azure config %s", err)
+	}
+	authorizer, err := getBearerTokenAuthorizer(azureConfig)
+	if err != nil {
+		return fmt.Errorf("error getting authorizer %s", err)
+	}
+	virtualNetworksClient := networkSDK.NewVirtualNetworksClientWithBaseURI(
+		azureConfig.Environment.ResourceManagerEndpoint,
+		azureConfig.SubscriptionID,
+	)
+	virtualNetworksClient.Authorizer = authorizer
+	virtualNetworkName := uuid.NewV4().String()
+	subnetName := "default"
+	vnResult, err := virtualNetworksClient.CreateOrUpdate(
+		ctx,
+		resourceGroup,
+		virtualNetworkName,
+		networkSDK.VirtualNetwork{
+			Location: to.StringPtr("southcentralus"),
+			VirtualNetworkPropertiesFormat: &networkSDK.VirtualNetworkPropertiesFormat{
+				AddressSpace: &networkSDK.AddressSpace{
+					AddressPrefixes: &[]string{"172.19.0.0/16"},
+				},
+				Subnets: &[]networkSDK.Subnet{
+					{
+						Name: &subnetName,
+						SubnetPropertiesFormat: &networkSDK.SubnetPropertiesFormat{
+							AddressPrefix: to.StringPtr("172.19.0.0/24"),
+						},
+					},
+				},
+			},
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("error creating virtual network %s", err)
+	}
+	if err = vnResult.WaitForCompletion(
+		ctx,
+		virtualNetworksClient.Client,
+	); err != nil {
+		return fmt.Errorf("error waiting for virtual network creation complete %s", err)
+	}
+	subnetID := fmt.Sprintf(
+		"/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/virtualNetworks/%s/subnets/%s",
+		azureConfig.SubscriptionID,
+		resourceGroup,
+		virtualNetworkName,
+		subnetName,
+	)
+
+	(*pp)["virtualNetworkRules"] = []interface{}{
+		map[string]interface{}{
+			"name":     "test-subnet",
+			"subnetId": subnetID,
+		},
+	}
+
 	return nil
 }

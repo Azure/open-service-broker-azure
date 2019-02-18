@@ -185,5 +185,13 @@ func buildGoTemplateParameters(
 	}
 	p["firewallRules"] = firewallRules
 
+	virtualNetworkRulesParams := pp.GetObjectArray("virtualNetworkRules")
+	virtualNetworkRules := make([]map[string]interface{},
+		len(virtualNetworkRulesParams))
+	for i, virtualNetworkRulesParams := range virtualNetworkRulesParams {
+		virtualNetworkRules[i] = virtualNetworkRulesParams.Data
+	}
+	p["virtualNetworkRules"] = virtualNetworkRules
+
 	return p, nil
 }
