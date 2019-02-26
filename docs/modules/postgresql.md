@@ -157,7 +157,7 @@ Updates a previously provisioned PostgreSQL DBMS. Currently updating the databas
 
 ##### Bind
 
-Creates a new role (user) on the PostgreSQL DBNS. The new role will be named
+Creates a new role (user) on the PostgreSQL DBMS. The new role will be named
 randomly and added to the  role (group) that owns the database.
 
 ###### Binding Parameters
