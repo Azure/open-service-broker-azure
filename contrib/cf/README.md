@@ -1,6 +1,6 @@
 # Installing Open Service Broker for Azure on Cloud Foundry
 
-Open Service Broker for Azure is an [Open Service Broker](https://wwww.openservicebrokerapi.org)-compatible application for provisioning and managing services in Microsoft Azure. This document describes how to deploy it on [Cloud Foundry](https://cloudfoundry.org).
+Open Service Broker for Azure is an [Open Service Broker](https://www.openservicebrokerapi.org)-compatible application for provisioning and managing services in Microsoft Azure. This document describes how to deploy it on [Cloud Foundry](https://cloudfoundry.org).
 
 ## Prerequisites
 
