@@ -148,7 +148,7 @@ objects:
       spec:
         containers:
           - name: open-service-broker-azure
-            image: "microsoft/azure-service-broker:${{OSBA_VERSION}}"
+            image: "microsoft/azure-service-broker:${OSBA_VERSION}"
             imagePullPolicy: IfNotPresent
             env:
             - name: ENVIRONMENT
