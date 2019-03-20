@@ -148,7 +148,7 @@ objects:
       spec:
         containers:
           - name: open-service-broker-azure
-            image: microsoft/azure-service-broker:v1.0.1
+            image: "microsoft/azure-service-broker:${OSBA_VERSION}"
             imagePullPolicy: IfNotPresent
             env:
             - name: ENVIRONMENT
@@ -221,6 +221,8 @@ parameters:
 - name: ENVIRONMENT
   value: AzurePublicCloud
   required: true
+- name: OSBA_VERSION
+  value: v1.5.0
 - name: AZURE_SUBSCRIPTION_ID
   value: 
   required: true
