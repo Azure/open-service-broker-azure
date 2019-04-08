@@ -19,8 +19,8 @@ func (s *serviceManager) GetEmptyBindingDetails() service.BindingDetails {
 }
 
 type credentials struct {
-	ConnectionString  string               `json:"connectionString"`
-	PrimaryKey        string               `json:"primaryKey"`
-	EventHubNamespace string               `json:"eventHubNamespace"`
-	EventHubName      string               `json:"eventHubName"`
+	ConnectionString  string `json:"connectionString"`
+	PrimaryKey        string `json:"primaryKey"`
+	EventHubNamespace string `json:"eventHubNamespace"`
+	EventHubName      string `json:"eventHubName"`
 }

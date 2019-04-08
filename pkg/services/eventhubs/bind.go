@@ -19,7 +19,7 @@ func (s *serviceManager) GetCredentials(
 	return credentials{
 		ConnectionString:  string(dt.ConnectionString),
 		PrimaryKey:        string(dt.PrimaryKey),
-		EventHubNamespace: string(dt.EventHubNamespace),
-		EventHubName:      string(dt.EventHubName),
+		EventHubNamespace: dt.EventHubNamespace,
+		EventHubName:      dt.EventHubName,
 	}, nil
 }
