@@ -17,7 +17,9 @@ func (s *serviceManager) GetCredentials(
 ) (service.Credentials, error) {
 	dt := instance.Details.(*instanceDetails)
 	return credentials{
-		ConnectionString: string(dt.ConnectionString),
-		PrimaryKey:       string(dt.PrimaryKey),
+		ConnectionString:  string(dt.ConnectionString),
+		PrimaryKey:        string(dt.PrimaryKey),
+		EventHubNamespace: dt.EventHubNamespace,
+		EventHubName:      dt.EventHubName,
 	}, nil
 }
