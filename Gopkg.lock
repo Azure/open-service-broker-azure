@@ -14,6 +14,34 @@
   version = "v0.2.0"
 
 [[projects]]
+  name = "github.com/Azure/azure-amqp-common-go"
+  packages = [
+    ".",
+    "aad",
+    "auth",
+    "cbs",
+    "conn",
+    "internal",
+    "internal/tracing",
+    "log",
+    "persist",
+    "rpc",
+    "sas",
+    "uuid"
+  ]
+  revision = "b5ea4829bce0d96bc7b4d11bfc8ccd2afdf0ec4a"
+  version = "v1.1.4"
+
+[[projects]]
+  name = "github.com/Azure/azure-event-hubs-go"
+  packages = [
+    ".",
+    "atom"
+  ]
+  revision = "783ca54fd1cdf63a7374ee8a788c977740d77b0c"
+  version = "v1.1.3"
+
+[[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
   packages = [
     "services/appinsights/mgmt/2015-05-01/insights",
@@ -178,6 +206,12 @@
   version = "0.2.4"
 
 [[projects]]
+  name = "github.com/jpillora/backoff"
+  packages = ["."]
+  revision = "8eab2debe79d12b7bd3d10653910df25fa9552ba"
+  version = "1.0.0"
+
+[[projects]]
   name = "github.com/kelseyhightower/envconfig"
   packages = ["."]
   revision = "70f0258d44cbaa3b6a2581d82f58da01a38e4de4"
@@ -201,6 +235,12 @@
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   revision = "06020f85339e21b2478f756a78e295255ffa4d6a"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -251,6 +291,8 @@
   packages = [
     "md4",
     "pbkdf2",
+    "pkcs12",
+    "pkcs12/internal/rc2",
     "scrypt",
     "ssh/terminal"
   ]
@@ -367,9 +409,18 @@
   ]
   revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
 
+[[projects]]
+  name = "pack.ag/amqp"
+  packages = [
+    ".",
+    "internal/testconn"
+  ]
+  revision = "a69a1d51f8e7b55567f8d190a8fab04503a97735"
+  version = "v0.11.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "15455aef16dde98f4d6d57bae88fb2718c51bfa1b54f6fe147209fb5cf07b294"
+  inputs-digest = "475841a80a6ceed477fb496f91d10da27f9765c833eff91a6c95b6729cc29cad"
   solver-name = "gps-cdcl"
   solver-version = 1
