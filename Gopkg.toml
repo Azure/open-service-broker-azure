@@ -76,6 +76,9 @@
   name = "github.com/deis/async"
   version = "v1.1.0"
 
+[[constraint]]
+  name = "github.com/Azure/azure-event-hubs-go"	
+
 [[override]]
   name = "golang.org/x/sys"
   branch = "master"
