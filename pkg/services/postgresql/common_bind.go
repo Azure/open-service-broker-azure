@@ -110,6 +110,24 @@ func createCredential(
 		port,
 		databaseName,
 	)
+
+	var jdbcTemplate string
+	if sslRequired {
+		jdbcTemplate = 
+			"jdbc:postgresql://%s:%d/%s?user=%s&password=%s&sslmode=require"
+	} else {
+		jdbcTemplate = "jdbc:postgresql://%s:%d/%s?user=%s&password=%s"
+	}
+
+	jdbc := fmt.Sprintf(
+		jdbcTemplate,
+		fqdn,
+		port,
+		databaseName,
+		url.QueryEscape(username),
+		string(bindDetails.Password),
+	)
+
 	return credentials{
 		Host:        fqdn,
 		Port:        port,
@@ -118,6 +136,7 @@ func createCredential(
 		Password:    string(bindDetails.Password),
 		SSLRequired: sslRequired,
 		URI:         connectionString,
+		JDBC:        jdbc,
 		Tags:        []string{"postgresql"},
 	}
 }

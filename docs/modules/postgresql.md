@@ -175,8 +175,9 @@ Binding returns the following connection details and credentials:
 | `database` | `string` | The name of the database. |
 | `username` | `string` | The name of the database user (in the form username@host). |
 | `password` | `string` | The password for the database user. |
-| `sslRequired` | `boolean` | Flag indicating if SSL is required to connect the MySQL DBMS. |
+| `sslRequired` | `boolean` | Flag indicating if SSL is required to connect the PostgreSQL DBMS. |
 | `uri` | `string` | A URI string containing all necessary connection information. |
+| `jdbcUrl` | `string` | A fully formed JDBC url. |
 | `tags` | `string[]` | A list of tags consumers can use to identify the credential. |
 
 ##### Unbind
@@ -465,8 +466,9 @@ Binding returns the following connection details and credentials:
 | `database` | `string` | The name of the database. |
 | `username` | `string` | The name of the database user (in the form username@host). |
 | `password` | `string` | The password for the database user. |
-| `sslRequired` | `boolean` | Flag indicating if SSL is required to connect the MySQL DBMS. |
+| `sslRequired` | `boolean` | Flag indicating if SSL is required to connect the PostgreSQL DBMS. |
 | `uri` | `string` | A URI string containing all necessary connection information. |
+| `jdbcUrl` | `string` | A fully formed JDBC url. |
 | `tags` | `string[]` | A list of tags consumers can use to identify the credential. |
 
 ##### Unbind
