@@ -154,6 +154,7 @@ jobs:
   publish-rc-images:
     <<: *base-docker-job
     environment:
+      DOCKER_REGISTRY: osbapublicacr.azurecr.io/
       DOCKER_REPO: microsoft/
     steps:
       - checkout
@@ -168,6 +169,7 @@ jobs:
   publish-release-images:
     <<: *base-docker-job
     environment:
+      DOCKER_REGISTRY: osbapublicacr.azurecr.io/
       DOCKER_REPO: microsoft/
     steps:
       - checkout
