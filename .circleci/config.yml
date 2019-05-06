@@ -154,8 +154,8 @@ jobs:
   publish-rc-images:
     <<: *base-docker-job
     environment:
-      DOCKER_REGISTRY: osbapublicacr.azurecr.io/
-      DOCKER_REPO: microsoft/
+      DOCKER_REGISTRY: osbapublicacr.azurecr.io
+      DOCKER_REGISTRY_NAMESPACE: microsoft
     steps:
       - checkout
       - setup_remote_docker
@@ -169,8 +169,8 @@ jobs:
   publish-release-images:
     <<: *base-docker-job
     environment:
-      DOCKER_REGISTRY: osbapublicacr.azurecr.io/
-      DOCKER_REPO: microsoft/
+      DOCKER_REGISTRY: osbapublicacr.azurecr.io
+      DOCKER_REGISTRY_NAMESPACE: microsoft
     steps:
       - checkout
       - setup_remote_docker
