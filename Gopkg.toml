@@ -78,6 +78,7 @@
 
 [[constraint]]
   name = "github.com/Azure/azure-event-hubs-go"	
+  version = "v1.3.0"
 
 [[override]]
   name = "golang.org/x/sys"

@@ -194,7 +194,11 @@ func (ts *testSuite) newTestContainerByName(containerName string) func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if res, err := containerURL.Delete(ctx, azblob.ContainerAccessConditions{}); err != nil {
-			ts.NoError(err, res)
+			msg := "error deleting container url"
+			if res != nil {
+				msg = fmt.Sprintf("status code: %q; error code: %q", res.StatusCode(), res.ErrorCode())
+			}
+			ts.NoError(err, msg)
 		}
 	}
 }

@@ -38,8 +38,8 @@
     ".",
     "atom"
   ]
-  revision = "783ca54fd1cdf63a7374ee8a788c977740d77b0c"
-  version = "v1.1.3"
+  revision = "95f9bc025a9462337f8087aa883bc9b35a1e693e"
+  version = "v1.3.0"
 
 [[projects]]
   name = "github.com/Azure/azure-sdk-for-go"
@@ -307,7 +307,8 @@
     "idna",
     "internal/timeseries",
     "lex/httplex",
-    "trace"
+    "trace",
+    "websocket"
   ]
   revision = "859d1a86bb617c0c20d154590c3c5d3fcb670b07"
 
@@ -421,6 +422,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "475841a80a6ceed477fb496f91d10da27f9765c833eff91a6c95b6729cc29cad"
+  inputs-digest = "18d69f99123a5b395444fd3b0ec47855ad905c4af608e3b2be45f55fd097d19b"
   solver-name = "gps-cdcl"
   solver-version = 1
