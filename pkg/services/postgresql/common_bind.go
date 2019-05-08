@@ -105,7 +105,7 @@ func createCredential(
 	connectionString := fmt.Sprintf(
 		connectionTemplate,
 		url.QueryEscape(username),
-		string(bindDetails.Password),
+		url.QueryEscape(string(bindDetails.Password)),
 		fqdn,
 		port,
 		databaseName,
@@ -125,7 +125,7 @@ func createCredential(
 		port,
 		databaseName,
 		url.QueryEscape(username),
-		string(bindDetails.Password),
+		url.QueryEscape(string(bindDetails.Password)),
 	)
 
 	return credentials{
