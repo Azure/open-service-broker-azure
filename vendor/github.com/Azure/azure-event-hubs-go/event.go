@@ -23,9 +23,13 @@ package eventhub
 //	SOFTWARE
 
 import (
+	"fmt"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/Azure/azure-amqp-common-go/persist"
+	"github.com/mitchellh/mapstructure"
 	"pack.ag/amqp"
 )
 
@@ -39,11 +43,12 @@ const (
 type (
 	// Event is an Event Hubs message to be sent or received
 	Event struct {
-		Data         []byte
-		PartitionKey *string
-		Properties   map[string]interface{}
-		ID           string
-		message      *amqp.Message
+		Data             []byte
+		PartitionKey     *string
+		Properties       map[string]interface{}
+		ID               string
+		message          *amqp.Message
+		SystemProperties *SystemProperties
 	}
 
 	// EventBatch is a batch of Event Hubs messages to be sent
@@ -52,6 +57,20 @@ type (
 		PartitionKey *string
 		Properties   map[string]interface{}
 		ID           string
+	}
+
+	// SystemProperties are used to store properties that are set by the system.
+	SystemProperties struct {
+		SequenceNumber *int64     `mapstructure:"x-opt-sequence-number"` // unique sequence number of the message
+		EnqueuedTime   *time.Time `mapstructure:"x-opt-enqueued-time"`   // time the message landed in the message queue
+		Offset         *int64     `mapstructure:"x-opt-offset"`
+		PartitionID    *int16     `mapstructure:"x-opt-partition-id"`
+		PartitionKey   *string    `mapstructure:"x-opt-partition-key"`
+	}
+
+	mapStructureTag struct {
+		Name         string
+		PersistEmpty bool
 	}
 )
 
@@ -114,7 +133,7 @@ func (e *Event) Get(key string) (interface{}, bool) {
 	return nil, false
 }
 
-func (e *Event) toMsg() *amqp.Message {
+func (e *Event) toMsg() (*amqp.Message, error) {
 	msg := e.message
 	if msg == nil {
 		msg = amqp.NewMessage(e.Data)
@@ -131,11 +150,20 @@ func (e *Event) toMsg() *amqp.Message {
 		}
 	}
 
+	if e.SystemProperties != nil {
+		sysPropMap, err := encodeStructureToMap(e.SystemProperties)
+		if err != nil {
+			return nil, err
+		}
+		msg.Annotations = annotationsFromMap(sysPropMap)
+	}
+
 	if e.PartitionKey != nil {
 		msg.Annotations = make(amqp.Annotations)
 		msg.Annotations[partitionKeyAnnotationName] = e.PartitionKey
 	}
-	return msg
+
+	return msg, nil
 }
 
 func (b *EventBatch) toEvent() (*Event, error) {
@@ -153,7 +181,11 @@ func (b *EventBatch) toEvent() (*Event, error) {
 	}
 
 	for idx, event := range b.Events {
-		innerMsg := event.toMsg()
+		innerMsg, err := event.toMsg()
+		if err != nil {
+			return nil, err
+		}
+
 		bin, err := innerMsg.MarshalBinary()
 		if err != nil {
 			return nil, err
@@ -161,14 +193,14 @@ func (b *EventBatch) toEvent() (*Event, error) {
 		msg.Data[idx] = bin
 	}
 
-	return eventFromMsg(msg), nil
+	return eventFromMsg(msg)
 }
 
-func eventFromMsg(msg *amqp.Message) *Event {
+func eventFromMsg(msg *amqp.Message) (*Event, error) {
 	return newEvent(msg.Data[0], msg)
 }
 
-func newEvent(data []byte, msg *amqp.Message) *Event {
+func newEvent(data []byte, msg *amqp.Message) (*Event, error) {
 	event := &Event{
 		Data:    data,
 		message: msg,
@@ -188,8 +220,86 @@ func newEvent(data []byte, msg *amqp.Message) *Event {
 		}
 	}
 
+	if msg.Annotations != nil {
+		if err := mapstructure.WeakDecode(msg.Annotations, &event.SystemProperties); err != nil {
+			fmt.Println("error decoding...", err)
+			return event, err
+		}
+	}
+
 	if msg != nil {
 		event.Properties = msg.ApplicationProperties
 	}
-	return event
+
+	return event, nil
+}
+
+func encodeStructureToMap(structPointer interface{}) (map[string]interface{}, error) {
+	valueOfStruct := reflect.ValueOf(structPointer)
+	s := valueOfStruct.Elem()
+	if s.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("must provide a struct")
+	}
+
+	encoded := make(map[string]interface{})
+	for i := 0; i < s.NumField(); i++ {
+		f := s.Field(i)
+		if f.IsValid() && f.CanSet() {
+			tf := s.Type().Field(i)
+			tag, err := parseMapStructureTag(tf.Tag)
+			if err != nil {
+				return nil, err
+			}
+
+			if tag != nil {
+				switch f.Kind() {
+				case reflect.Ptr:
+					if !f.IsNil() || tag.PersistEmpty {
+						if f.IsNil() {
+							encoded[tag.Name] = nil
+						} else {
+							encoded[tag.Name] = f.Elem().Interface()
+						}
+					}
+				default:
+					if f.Interface() != reflect.Zero(f.Type()).Interface() || tag.PersistEmpty {
+						encoded[tag.Name] = f.Interface()
+					}
+				}
+			}
+		}
+	}
+
+	return encoded, nil
+}
+
+func parseMapStructureTag(tag reflect.StructTag) (*mapStructureTag, error) {
+	str, ok := tag.Lookup("mapstructure")
+	if !ok {
+		return nil, nil
+	}
+
+	mapTag := new(mapStructureTag)
+	split := strings.Split(str, ",")
+	mapTag.Name = strings.TrimSpace(split[0])
+
+	if len(split) > 1 {
+		for _, tagKey := range split[1:] {
+			switch tagKey {
+			case "persistempty":
+				mapTag.PersistEmpty = true
+			default:
+				return nil, fmt.Errorf("key %q is not understood", tagKey)
+			}
+		}
+	}
+	return mapTag, nil
+}
+
+func annotationsFromMap(m map[string]interface{}) amqp.Annotations {
+	a := make(amqp.Annotations)
+	for key, val := range m {
+		a[key] = val
+	}
+	return a
 }

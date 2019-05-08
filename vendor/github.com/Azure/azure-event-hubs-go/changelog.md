@@ -1,6 +1,17 @@
 # Change Log
 
-## `head`
+## `v1.3.0`
+- add `SystemProperties` to `Event` which contains immutable broker provided metadata (squence number, offset, 
+  enqueued time)
+
+## `v1.2.0`
+- add websocket support
+
+## `v1.1.5`
+- add sender recovery handling for `amqp.ErrLinkClose`, `amqp.ErrConnClosed` and `amqp.ErrSessionClosed`
+
+## `v1.1.4`
+- update to amqp 0.11.0 and change sender to use unsettled rather than receiver second mode
 
 ## `v1.1.3`
 - fix leak in partition persistence 
