@@ -23,7 +23,7 @@ install-make-and-git-step: &install-make-and-git-step
     apk add make git
 log-into-docker-hub-step: &log-into-docker-hub-step
   name: Log into Docker Hub
-  command: docker login -u "${DOCKER_HUB_USERNAME}" -p "${DOCKER_HUB_PASSWORD}"
+  command: docker login "${DOCKER_REGISTRY}" -u "${DOCKER_USERNAME}" -p "${DOCKER_PASSWORD}"
 
 jobs:
   lint:
@@ -154,7 +154,8 @@ jobs:
   publish-rc-images:
     <<: *base-docker-job
     environment:
-      DOCKER_REPO: microsoft/
+      DOCKER_REGISTRY: osbapublicacr.azurecr.io
+      DOCKER_REGISTRY_NAMESPACE: microsoft
     steps:
       - checkout
       - setup_remote_docker
@@ -168,7 +169,8 @@ jobs:
   publish-release-images:
     <<: *base-docker-job
     environment:
-      DOCKER_REPO: microsoft/
+      DOCKER_REGISTRY: osbapublicacr.azurecr.io
+      DOCKER_REGISTRY_NAMESPACE: microsoft
     steps:
       - checkout
       - setup_remote_docker
