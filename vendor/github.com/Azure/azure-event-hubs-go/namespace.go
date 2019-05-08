@@ -32,6 +32,7 @@ import (
 	"github.com/Azure/azure-amqp-common-go/conn"
 	"github.com/Azure/azure-amqp-common-go/sas"
 	"github.com/Azure/go-autorest/autorest/azure"
+	"golang.org/x/net/websocket"
 	"pack.ag/amqp"
 )
 
@@ -40,6 +41,7 @@ type (
 		name          string
 		tokenProvider auth.TokenProvider
 		host          string
+		useWebSocket  bool
 	}
 
 	// namespaceOption provides structure for configuring a new Event Hub namespace
@@ -89,14 +91,28 @@ func newNamespace(opts ...namespaceOption) (*namespace, error) {
 
 func (ns *namespace) newConnection() (*amqp.Client, error) {
 	host := ns.getAmqpsHostURI()
-	return amqp.Dial(host,
+
+	defaultConnOptions := []amqp.ConnOption{
 		amqp.ConnSASLAnonymous(),
 		amqp.ConnProperty("product", "MSGolangClient"),
 		amqp.ConnProperty("version", Version),
 		amqp.ConnProperty("platform", runtime.GOOS),
 		amqp.ConnProperty("framework", runtime.Version()),
 		amqp.ConnProperty("user-agent", rootUserAgent),
-	)
+	}
+
+	if ns.useWebSocket {
+		trimmedHost := strings.TrimPrefix(ns.host, "amqps://")
+		wssConn, err := websocket.Dial("wss://"+trimmedHost+"/$servicebus/websocket", "amqp", "http://localhost/")
+		if err != nil {
+			return nil, err
+		}
+
+		wssConn.PayloadType = websocket.BinaryFrame
+		return amqp.New(wssConn, append(defaultConnOptions, amqp.ConnServerHostname(trimmedHost))...)
+	}
+
+	return amqp.Dial(host, defaultConnOptions...)
 }
 
 func (ns *namespace) negotiateClaim(ctx context.Context, conn *amqp.Client, entityPath string) error {

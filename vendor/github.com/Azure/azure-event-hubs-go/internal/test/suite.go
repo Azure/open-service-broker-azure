@@ -133,6 +133,7 @@ func (suite *BaseSuite) RandomHub(opts ...HubMgmtOption) (*mgmt.Model, func()) {
 	suite.Require().NotNil(model)
 	suite.Require().NotNil(model.PartitionIds)
 	suite.Require().Len(*model.PartitionIds, 4)
+	time.Sleep(250 * time.Millisecond) // introduce a bit of a delay before using the hub
 	return model, func() {
 		if model != nil {
 			suite.DeleteEventHub(*model.Name)
@@ -219,8 +220,8 @@ func (suite *BaseSuite) deleteAllTaggedEventHubs(ctx context.Context) {
 						break
 					}
 				}
-			} else {
-				suite.T().Logf("%q does not contain %q", *val.Name, suite.TagID)
+			} else if !strings.HasPrefix(*val.Name, "examplehub_") {
+				suite.T().Logf("%q does not contain %q, so it won't be deleted.", *val.Name, suite.TagID)
 			}
 		}
 		suite.NoError(res.Next())

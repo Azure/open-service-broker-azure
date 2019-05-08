@@ -109,7 +109,7 @@ There are two sets of environment variables which can produce a SAS TokenProvide
     - `EVENTHUB_KEY_VALUE` the secret for the Event Hub key named in `EVENTHUB_KEY_NAME`
 
 2) Expected Environment Variable:
-    - `EVENTHUB_CONNECTION_STRING` connection string from the Azure portal like: `Endpoint=sb://foo.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=fluffypuppy`
+    - `EVENTHUB_CONNECTION_STRING` connection string from the Azure portal like: `Endpoint=sb://foo.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=fluffypuppy;EntityPath=hubName`
 
 #### AAD TokenProvider environment variables:
 1) Client Credentials: attempt to authenticate with a [Service Principal](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-create-service-principal-portal) via
