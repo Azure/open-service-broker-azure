@@ -14,6 +14,7 @@ type credentials struct {
 	Username    string   `json:"username"`
 	Password    string   `json:"password"`
 	URI         string   `json:"uri"`
+	JDBC        string   `json:"jdbcUrl"`
 	SSLRequired bool     `json:"sslRequired"`
 	Tags        []string `json:"tags"`
 }
