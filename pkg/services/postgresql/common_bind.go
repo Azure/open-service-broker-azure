@@ -113,7 +113,7 @@ func createCredential(
 
 	var jdbcTemplate string
 	if sslRequired {
-		jdbcTemplate = 
+		jdbcTemplate =
 			"jdbc:postgresql://%s:%d/%s?user=%s&password=%s&sslmode=require"
 	} else {
 		jdbcTemplate = "jdbc:postgresql://%s:%d/%s?user=%s&password=%s"
