@@ -11,8 +11,9 @@ type module struct {
 }
 
 type serviceManager struct {
-	armDeployer       arm.Deployer
-	appInsightsClient appInsightsSDK.ComponentsClient
+	armDeployer             arm.Deployer
+	appInsightsClient       appInsightsSDK.ComponentsClient
+	appInsightsAPIKeyClient appInsightsSDK.APIKeysClient
 }
 
 // New returns a new instance of a type that fulfills the service.Module
@@ -20,11 +21,13 @@ type serviceManager struct {
 func New(
 	armDeployer arm.Deployer,
 	appInsightsClient appInsightsSDK.ComponentsClient,
+	appInsightsAPIKeyClient appInsightsSDK.APIKeysClient,
 ) service.Module {
 	return &module{
 		serviceManager: &serviceManager{
-			armDeployer:       armDeployer,
-			appInsightsClient: appInsightsClient,
+			armDeployer:             armDeployer,
+			appInsightsClient:       appInsightsClient,
+			appInsightsAPIKeyClient: appInsightsAPIKeyClient,
 		},
 	}
 }
