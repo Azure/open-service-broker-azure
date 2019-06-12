@@ -1,7 +1,7 @@
 .glide/
 .vscode/
-!/vendor/**
 bin/
+!/vendor/**
 _vendor-*/
 vendor.orig/
 contrib/k8s/charts/repo/
