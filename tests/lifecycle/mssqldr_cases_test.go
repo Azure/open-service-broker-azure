@@ -390,7 +390,10 @@ func createPrimarySQLDatabase(
 	if err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
-	if err := result.WaitForCompletionRef(ctx, databasesClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(
+		ctx,
+		databasesClient.Client,
+	); err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
 	return nil

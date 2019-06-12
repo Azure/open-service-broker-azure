@@ -45,7 +45,10 @@ func (d *dbmsManager) deleteMySQLServer(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
-	if err := result.WaitForCompletionRef(ctx, d.serversClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(
+		ctx,
+		d.serversClient.Client,
+	); err != nil {
 		return nil, fmt.Errorf("error deleting mysql server: %s", err)
 	}
 	return instance.Details, nil

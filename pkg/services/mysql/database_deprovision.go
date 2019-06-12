@@ -47,7 +47,10 @@ func (d *databaseManager) deleteMySQLDatabase(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
-	if err := result.WaitForCompletionRef(ctx, d.databasesClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(
+		ctx,
+		d.databasesClient.Client,
+	); err != nil {
 		return nil, fmt.Errorf("error deleting mysql database: %s", err)
 	}
 	return instance.Details, nil
