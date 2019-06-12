@@ -140,7 +140,7 @@ VERIFY_CMD := bash -c ' \
 	&& cd /tmp$$PRJ_DIR \
 	&& GOPATH=/tmp$$GOPATH dep ensure -v \
 	&& diff $$PRJ_DIR/Gopkg.lock Gopkg.lock \
-	&& diff -r $$PRJ_DIR/vendor vendor'
+	&& diff --strip-trailing-cr -r $$PRJ_DIR/vendor vendor'
 
 # Verifies there are no disrepancies between desired dependencies and the
 # tracked, vendored dependencies
