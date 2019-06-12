@@ -179,10 +179,16 @@ func createSQLServerPair(
 	if err != nil {
 		return fmt.Errorf("error creating sql server: %s", err)
 	}
-	if err := priResult.WaitForCompletionRef(ctx, serversClient.Client); err != nil {
+	if err := priResult.WaitForCompletionRef(
+		ctx,
+		serversClient.Client,
+	); err != nil {
 		return fmt.Errorf("error creating sql server: %s", err)
 	}
-	if err := secResult.WaitForCompletionRef(ctx, serversClient.Client); err != nil {
+	if err := secResult.WaitForCompletionRef(
+		ctx,
+		serversClient.Client,
+	); err != nil {
 		return fmt.Errorf("error creating sql server: %s", err)
 	}
 	startIPAddress := "0.0.0.0"
