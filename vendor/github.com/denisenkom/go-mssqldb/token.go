@@ -1,16 +1,14 @@
 package mssql
 
 import (
+	"context"
 	"encoding/binary"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"strconv"
 	"strings"
-
-	"database/sql/driver"
-
-	"golang.org/x/net/context"
 )
 
 //go:generate stringer -type token
@@ -24,6 +22,7 @@ const (
 	tokenOrder        token = 169 // 0xA9
 	tokenError        token = 170 // 0xAA
 	tokenInfo         token = 171 // 0xAB
+	tokenReturnValue  token = 0xAC
 	tokenLoginAck     token = 173 // 0xad
 	tokenRow          token = 209 // 0xd1
 	tokenNbcRow       token = 210 // 0xd2
@@ -214,7 +213,7 @@ func processEnvChg(sess *tdsSession) {
 
 			// SQL Collation data should contain 5 bytes in length
 			if collationSize != 5 {
-				badStreamPanicf("Invalid SQL Collation size value returned from server: %s", collationSize)
+				badStreamPanicf("Invalid SQL Collation size value returned from server: %d", collationSize)
 			}
 
 			// 4 bytes, contains: LCID ColFlags Version
@@ -386,11 +385,9 @@ func processEnvChg(sess *tdsSession) {
 	}
 }
 
-type returnStatus int32
-
 // http://msdn.microsoft.com/en-us/library/dd358180.aspx
-func parseReturnStatus(r *tdsBuffer) returnStatus {
-	return returnStatus(r.int32())
+func parseReturnStatus(r *tdsBuffer) ReturnStatus {
+	return ReturnStatus(r.int32())
 }
 
 func parseOrder(r *tdsBuffer) (res orderStruct) {
@@ -519,7 +516,29 @@ func parseInfo(r *tdsBuffer) (res Error) {
 	return
 }
 
-func processSingleResponse(sess *tdsSession, ch chan tokenStruct) {
+// https://msdn.microsoft.com/en-us/library/dd303881.aspx
+func parseReturnValue(r *tdsBuffer) (nv namedValue) {
+	/*
+		ParamOrdinal
+		ParamName
+		Status
+		UserType
+		Flags
+		TypeInfo
+		CryptoMetadata
+		Value
+	*/
+	r.uint16()
+	nv.Name = r.BVarChar()
+	r.byte()
+	r.uint32() // UserType (uint16 prior to 7.2)
+	r.uint16()
+	ti := readTypeInfo(r)
+	nv.Value = ti.Reader(&ti, r)
+	return
+}
+
+func processSingleResponse(sess *tdsSession, ch chan tokenStruct, outs map[string]interface{}) {
 	defer func() {
 		if err := recover(); err != nil {
 			if sess.logFlags&logErrors != 0 {
@@ -539,7 +558,7 @@ func processSingleResponse(sess *tdsSession, ch chan tokenStruct) {
 		return
 	}
 	if packet_type != packReply {
-		badStreamPanic(driver.ErrBadConn)
+		badStreamPanic(fmt.Errorf("unexpected packet type in reply: got %v, expected %v", packet_type, packReply))
 	}
 	var columns []columnStruct
 	errs := make([]Error, 0, 5)
@@ -614,8 +633,20 @@ func processSingleResponse(sess *tdsSession, ch chan tokenStruct) {
 			if sess.logFlags&logMessages != 0 {
 				sess.log.Println(info.Message)
 			}
+		case tokenReturnValue:
+			nv := parseReturnValue(sess.buf)
+			if len(nv.Name) > 0 {
+				name := nv.Name[1:] // Remove the leading "@".
+				if ov, has := outs[name]; has {
+					err = scanIntoOut(name, nv.Value, ov)
+					if err != nil {
+						fmt.Println("scan error", err)
+						ch <- err
+					}
+				}
+			}
 		default:
-			badStreamPanic(driver.ErrBadConn)
+			badStreamPanic(fmt.Errorf("unknown token type returned: %v", token))
 		}
 	}
 }
@@ -735,7 +766,7 @@ func (ts *parseResp) iter(ctx context.Context, ch chan tokenStruct, tokChan chan
 	}
 }
 
-func processResponse(ctx context.Context, sess *tdsSession, ch chan tokenStruct) {
+func processResponse(ctx context.Context, sess *tdsSession, ch chan tokenStruct, outs map[string]interface{}) {
 	ts := &parseResp{
 		sess:    sess,
 		ctxDone: ctx.Done(),
@@ -755,7 +786,7 @@ func processResponse(ctx context.Context, sess *tdsSession, ch chan tokenStruct)
 		ts.dlog("initiating response reading")
 
 		tokChan := make(chan tokenStruct)
-		go processSingleResponse(sess, tokChan)
+		go processSingleResponse(sess, tokChan, outs)
 
 		// Loop over multiple tokens in response.
 	tokensLoop:

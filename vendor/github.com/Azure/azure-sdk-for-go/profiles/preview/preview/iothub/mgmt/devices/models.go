@@ -22,7 +22,7 @@ package devices
 import (
 	"context"
 
-	original "github.com/Azure/azure-sdk-for-go/services/preview/iothub/mgmt/2018-12-01-preview/devices"
+	original "github.com/Azure/azure-sdk-for-go/services/preview/iothub/mgmt/2019-03-22-preview/devices"
 )
 
 const (
@@ -141,15 +141,6 @@ const (
 	JobTypeWriteDeviceProperties     JobType = original.JobTypeWriteDeviceProperties
 )
 
-type OperationMonitoringLevel = original.OperationMonitoringLevel
-
-const (
-	OperationMonitoringLevelError            OperationMonitoringLevel = original.OperationMonitoringLevelError
-	OperationMonitoringLevelErrorInformation OperationMonitoringLevel = original.OperationMonitoringLevelErrorInformation
-	OperationMonitoringLevelInformation      OperationMonitoringLevel = original.OperationMonitoringLevelInformation
-	OperationMonitoringLevelNone             OperationMonitoringLevel = original.OperationMonitoringLevelNone
-)
-
 type RouteErrorSeverity = original.RouteErrorSeverity
 
 const (
@@ -189,6 +180,7 @@ type EndpointHealthData = original.EndpointHealthData
 type EndpointHealthDataListResult = original.EndpointHealthDataListResult
 type EndpointHealthDataListResultIterator = original.EndpointHealthDataListResultIterator
 type EndpointHealthDataListResultPage = original.EndpointHealthDataListResultPage
+type EnrichmentProperties = original.EnrichmentProperties
 type ErrorDetails = original.ErrorDetails
 type EventHubConsumerGroupInfo = original.EventHubConsumerGroupInfo
 type EventHubConsumerGroupsListResult = original.EventHubConsumerGroupsListResult
@@ -196,15 +188,18 @@ type EventHubConsumerGroupsListResultIterator = original.EventHubConsumerGroupsL
 type EventHubConsumerGroupsListResultPage = original.EventHubConsumerGroupsListResultPage
 type EventHubProperties = original.EventHubProperties
 type ExportDevicesRequest = original.ExportDevicesRequest
+type FailoverInput = original.FailoverInput
 type FallbackRouteProperties = original.FallbackRouteProperties
 type FeedbackProperties = original.FeedbackProperties
 type IPFilterRule = original.IPFilterRule
 type ImportDevicesRequest = original.ImportDevicesRequest
 type IotHubCapacity = original.IotHubCapacity
+type IotHubClient = original.IotHubClient
 type IotHubDescription = original.IotHubDescription
 type IotHubDescriptionListResult = original.IotHubDescriptionListResult
 type IotHubDescriptionListResultIterator = original.IotHubDescriptionListResultIterator
 type IotHubDescriptionListResultPage = original.IotHubDescriptionListResultPage
+type IotHubManualFailoverFuture = original.IotHubManualFailoverFuture
 type IotHubNameAvailabilityInfo = original.IotHubNameAvailabilityInfo
 type IotHubProperties = original.IotHubProperties
 type IotHubPropertiesDeviceStreams = original.IotHubPropertiesDeviceStreams
@@ -235,7 +230,6 @@ type OperationListResult = original.OperationListResult
 type OperationListResultIterator = original.OperationListResultIterator
 type OperationListResultPage = original.OperationListResultPage
 type OperationsClient = original.OperationsClient
-type OperationsMonitoringProperties = original.OperationsMonitoringProperties
 type RegistryStatistics = original.RegistryStatistics
 type Resource = original.Resource
 type ResourceProviderCommonClient = original.ResourceProviderCommonClient
@@ -287,6 +281,12 @@ func NewEventHubConsumerGroupsListResultIterator(page EventHubConsumerGroupsList
 }
 func NewEventHubConsumerGroupsListResultPage(getNextPage func(context.Context, EventHubConsumerGroupsListResult) (EventHubConsumerGroupsListResult, error)) EventHubConsumerGroupsListResultPage {
 	return original.NewEventHubConsumerGroupsListResultPage(getNextPage)
+}
+func NewIotHubClient(subscriptionID string) IotHubClient {
+	return original.NewIotHubClient(subscriptionID)
+}
+func NewIotHubClientWithBaseURI(baseURI string, subscriptionID string) IotHubClient {
+	return original.NewIotHubClientWithBaseURI(baseURI, subscriptionID)
 }
 func NewIotHubDescriptionListResultIterator(page IotHubDescriptionListResultPage) IotHubDescriptionListResultIterator {
 	return original.NewIotHubDescriptionListResultIterator(page)
@@ -377,9 +377,6 @@ func PossibleJobStatusValues() []JobStatus {
 }
 func PossibleJobTypeValues() []JobType {
 	return original.PossibleJobTypeValues()
-}
-func PossibleOperationMonitoringLevelValues() []OperationMonitoringLevel {
-	return original.PossibleOperationMonitoringLevelValues()
 }
 func PossibleRouteErrorSeverityValues() []RouteErrorSeverity {
 	return original.PossibleRouteErrorSeverityValues()

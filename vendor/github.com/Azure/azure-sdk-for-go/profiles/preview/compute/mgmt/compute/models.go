@@ -22,7 +22,7 @@ package compute
 import (
 	"context"
 
-	original "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2018-10-01/compute"
+	original "github.com/Azure/azure-sdk-for-go/services/compute/mgmt/2019-03-01/compute"
 )
 
 const (
@@ -32,8 +32,9 @@ const (
 type AccessLevel = original.AccessLevel
 
 const (
-	None AccessLevel = original.None
-	Read AccessLevel = original.Read
+	None  AccessLevel = original.None
+	Read  AccessLevel = original.Read
+	Write AccessLevel = original.Write
 )
 
 type AggregatedReplicationState = original.AggregatedReplicationState
@@ -142,6 +143,7 @@ const (
 	FromImage DiskCreateOption = original.FromImage
 	Import    DiskCreateOption = original.Import
 	Restore   DiskCreateOption = original.Restore
+	Upload    DiskCreateOption = original.Upload
 )
 
 type DiskCreateOptionTypes = original.DiskCreateOptionTypes
@@ -150,6 +152,17 @@ const (
 	DiskCreateOptionTypesAttach    DiskCreateOptionTypes = original.DiskCreateOptionTypesAttach
 	DiskCreateOptionTypesEmpty     DiskCreateOptionTypes = original.DiskCreateOptionTypesEmpty
 	DiskCreateOptionTypesFromImage DiskCreateOptionTypes = original.DiskCreateOptionTypesFromImage
+)
+
+type DiskState = original.DiskState
+
+const (
+	ActiveSAS     DiskState = original.ActiveSAS
+	ActiveUpload  DiskState = original.ActiveUpload
+	Attached      DiskState = original.Attached
+	ReadyToUpload DiskState = original.ReadyToUpload
+	Reserved      DiskState = original.Reserved
+	Unattached    DiskState = original.Unattached
 )
 
 type DiskStorageAccountTypes = original.DiskStorageAccountTypes
@@ -167,6 +180,20 @@ const (
 	HostCachingNone      HostCaching = original.HostCachingNone
 	HostCachingReadOnly  HostCaching = original.HostCachingReadOnly
 	HostCachingReadWrite HostCaching = original.HostCachingReadWrite
+)
+
+type HyperVGeneration = original.HyperVGeneration
+
+const (
+	V1 HyperVGeneration = original.V1
+	V2 HyperVGeneration = original.V2
+)
+
+type HyperVGenerationTypes = original.HyperVGenerationTypes
+
+const (
+	HyperVGenerationTypesV1 HyperVGenerationTypes = original.HyperVGenerationTypesV1
+	HyperVGenerationTypesV2 HyperVGenerationTypes = original.HyperVGenerationTypesV2
 )
 
 type IPVersion = original.IPVersion
@@ -260,6 +287,13 @@ const (
 	ProvisioningState2Updating  ProvisioningState2 = original.ProvisioningState2Updating
 )
 
+type ProximityPlacementGroupType = original.ProximityPlacementGroupType
+
+const (
+	Standard ProximityPlacementGroupType = original.Standard
+	Ultra    ProximityPlacementGroupType = original.Ultra
+)
+
 type ReplicationState = original.ReplicationState
 
 const (
@@ -343,6 +377,13 @@ const (
 	Error   StatusLevelTypes = original.Error
 	Info    StatusLevelTypes = original.Info
 	Warning StatusLevelTypes = original.Warning
+)
+
+type StorageAccountType = original.StorageAccountType
+
+const (
+	StorageAccountTypeStandardLRS StorageAccountType = original.StorageAccountTypeStandardLRS
+	StorageAccountTypeStandardZRS StorageAccountType = original.StorageAccountTypeStandardZRS
 )
 
 type StorageAccountTypes = original.StorageAccountTypes
@@ -631,7 +672,8 @@ type DisksDeleteFuture = original.DisksDeleteFuture
 type DisksGrantAccessFuture = original.DisksGrantAccessFuture
 type DisksRevokeAccessFuture = original.DisksRevokeAccessFuture
 type DisksUpdateFuture = original.DisksUpdateFuture
-type EncryptionSettings = original.EncryptionSettings
+type EncryptionSettingsCollection = original.EncryptionSettingsCollection
+type EncryptionSettingsElement = original.EncryptionSettingsElement
 type GalleriesClient = original.GalleriesClient
 type GalleriesCreateOrUpdateFuture = original.GalleriesCreateOrUpdateFuture
 type GalleriesDeleteFuture = original.GalleriesDeleteFuture
@@ -715,6 +757,13 @@ type OperationValue = original.OperationValue
 type OperationValueDisplay = original.OperationValueDisplay
 type OperationsClient = original.OperationsClient
 type Plan = original.Plan
+type ProximityPlacementGroup = original.ProximityPlacementGroup
+type ProximityPlacementGroupListResult = original.ProximityPlacementGroupListResult
+type ProximityPlacementGroupListResultIterator = original.ProximityPlacementGroupListResultIterator
+type ProximityPlacementGroupListResultPage = original.ProximityPlacementGroupListResultPage
+type ProximityPlacementGroupProperties = original.ProximityPlacementGroupProperties
+type ProximityPlacementGroupUpdate = original.ProximityPlacementGroupUpdate
+type ProximityPlacementGroupsClient = original.ProximityPlacementGroupsClient
 type PurchasePlan = original.PurchasePlan
 type RecommendedMachineConfiguration = original.RecommendedMachineConfiguration
 type RecoveryWalkResponse = original.RecoveryWalkResponse
@@ -730,6 +779,7 @@ type ResourceSkuCosts = original.ResourceSkuCosts
 type ResourceSkuLocationInfo = original.ResourceSkuLocationInfo
 type ResourceSkuRestrictionInfo = original.ResourceSkuRestrictionInfo
 type ResourceSkuRestrictions = original.ResourceSkuRestrictions
+type ResourceSkuZoneDetails = original.ResourceSkuZoneDetails
 type ResourceSkusClient = original.ResourceSkusClient
 type ResourceSkusResult = original.ResourceSkusResult
 type ResourceSkusResultIterator = original.ResourceSkusResultIterator
@@ -780,6 +830,7 @@ type UpgradePolicy = original.UpgradePolicy
 type Usage = original.Usage
 type UsageClient = original.UsageClient
 type UsageName = original.UsageName
+type VMScaleSetConvertToSinglePlacementGroupInput = original.VMScaleSetConvertToSinglePlacementGroupInput
 type VaultCertificate = original.VaultCertificate
 type VaultSecretGroup = original.VaultSecretGroup
 type VirtualHardDisk = original.VirtualHardDisk
@@ -885,8 +936,10 @@ type VirtualMachineScaleSetVMInstanceView = original.VirtualMachineScaleSetVMIns
 type VirtualMachineScaleSetVMListResult = original.VirtualMachineScaleSetVMListResult
 type VirtualMachineScaleSetVMListResultIterator = original.VirtualMachineScaleSetVMListResultIterator
 type VirtualMachineScaleSetVMListResultPage = original.VirtualMachineScaleSetVMListResultPage
+type VirtualMachineScaleSetVMNetworkProfileConfiguration = original.VirtualMachineScaleSetVMNetworkProfileConfiguration
 type VirtualMachineScaleSetVMProfile = original.VirtualMachineScaleSetVMProfile
 type VirtualMachineScaleSetVMProperties = original.VirtualMachineScaleSetVMProperties
+type VirtualMachineScaleSetVMProtectionPolicy = original.VirtualMachineScaleSetVMProtectionPolicy
 type VirtualMachineScaleSetVMReimageParameters = original.VirtualMachineScaleSetVMReimageParameters
 type VirtualMachineScaleSetVMsClient = original.VirtualMachineScaleSetVMsClient
 type VirtualMachineScaleSetVMsDeallocateFuture = original.VirtualMachineScaleSetVMsDeallocateFuture
@@ -1041,6 +1094,18 @@ func NewOperationsClient(subscriptionID string) OperationsClient {
 }
 func NewOperationsClientWithBaseURI(baseURI string, subscriptionID string) OperationsClient {
 	return original.NewOperationsClientWithBaseURI(baseURI, subscriptionID)
+}
+func NewProximityPlacementGroupListResultIterator(page ProximityPlacementGroupListResultPage) ProximityPlacementGroupListResultIterator {
+	return original.NewProximityPlacementGroupListResultIterator(page)
+}
+func NewProximityPlacementGroupListResultPage(getNextPage func(context.Context, ProximityPlacementGroupListResult) (ProximityPlacementGroupListResult, error)) ProximityPlacementGroupListResultPage {
+	return original.NewProximityPlacementGroupListResultPage(getNextPage)
+}
+func NewProximityPlacementGroupsClient(subscriptionID string) ProximityPlacementGroupsClient {
+	return original.NewProximityPlacementGroupsClient(subscriptionID)
+}
+func NewProximityPlacementGroupsClientWithBaseURI(baseURI string, subscriptionID string) ProximityPlacementGroupsClient {
+	return original.NewProximityPlacementGroupsClientWithBaseURI(baseURI, subscriptionID)
 }
 func NewResourceSkusClient(subscriptionID string) ResourceSkusClient {
 	return original.NewResourceSkusClient(subscriptionID)
@@ -1213,11 +1278,20 @@ func PossibleDiskCreateOptionTypesValues() []DiskCreateOptionTypes {
 func PossibleDiskCreateOptionValues() []DiskCreateOption {
 	return original.PossibleDiskCreateOptionValues()
 }
+func PossibleDiskStateValues() []DiskState {
+	return original.PossibleDiskStateValues()
+}
 func PossibleDiskStorageAccountTypesValues() []DiskStorageAccountTypes {
 	return original.PossibleDiskStorageAccountTypesValues()
 }
 func PossibleHostCachingValues() []HostCaching {
 	return original.PossibleHostCachingValues()
+}
+func PossibleHyperVGenerationTypesValues() []HyperVGenerationTypes {
+	return original.PossibleHyperVGenerationTypesValues()
+}
+func PossibleHyperVGenerationValues() []HyperVGeneration {
+	return original.PossibleHyperVGenerationValues()
 }
 func PossibleIPVersionValues() []IPVersion {
 	return original.PossibleIPVersionValues()
@@ -1252,6 +1326,9 @@ func PossibleProvisioningState2Values() []ProvisioningState2 {
 func PossibleProvisioningStateValues() []ProvisioningState {
 	return original.PossibleProvisioningStateValues()
 }
+func PossibleProximityPlacementGroupTypeValues() []ProximityPlacementGroupType {
+	return original.PossibleProximityPlacementGroupTypeValues()
+}
 func PossibleReplicationStateValues() []ReplicationState {
 	return original.PossibleReplicationStateValues()
 }
@@ -1284,6 +1361,9 @@ func PossibleSnapshotStorageAccountTypesValues() []SnapshotStorageAccountTypes {
 }
 func PossibleStatusLevelTypesValues() []StatusLevelTypes {
 	return original.PossibleStatusLevelTypesValues()
+}
+func PossibleStorageAccountTypeValues() []StorageAccountType {
+	return original.PossibleStorageAccountTypeValues()
 }
 func PossibleStorageAccountTypesValues() []StorageAccountTypes {
 	return original.PossibleStorageAccountTypesValues()

@@ -9,8 +9,8 @@ type instanceDetails struct {
 }
 
 type bindingDetails struct {
-	APIKeyName string               `json:"APIKeyName"`
-	APIKey     service.SecureString `json:"APIKey"`
+	APIKeyID string               `json:"APIKeyID"`
+	APIKey   service.SecureString `json:"APIKey"`
 }
 
 func (s *serviceManager) GetEmptyInstanceDetails() service.InstanceDetails {

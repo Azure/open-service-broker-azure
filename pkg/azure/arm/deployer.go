@@ -301,7 +301,7 @@ func (d *deployer) Delete(
 			err,
 		)
 	}
-	if err := result.WaitForCompletion(
+	if err := result.WaitForCompletionRef(
 		ctx,
 		d.deploymentsClient.Client,
 	); err != nil {
@@ -444,7 +444,7 @@ func (d *deployer) doDeployment(
 		return nil, fmt.Errorf("error submitting ARM template: %s", err)
 	}
 
-	if err = result.WaitForCompletion(
+	if err = result.WaitForCompletionRef(
 		ctx,
 		d.deploymentsClient.Client,
 	); err != nil {

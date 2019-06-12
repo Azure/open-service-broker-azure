@@ -37,6 +37,13 @@ const (
 	Send   AccessRights = original.Send
 )
 
+type DefaultAction = original.DefaultAction
+
+const (
+	Allow DefaultAction = original.Allow
+	Deny  DefaultAction = original.Deny
+)
+
 type EncodingCaptureDescription = original.EncodingCaptureDescription
 
 const (
@@ -65,6 +72,13 @@ const (
 	FilterTypeSQLFilter         FilterType = original.FilterTypeSQLFilter
 )
 
+type IPAction = original.IPAction
+
+const (
+	Accept IPAction = original.Accept
+	Reject IPAction = original.Reject
+)
+
 type KeyType = original.KeyType
 
 const (
@@ -80,6 +94,12 @@ const (
 	Mixed           NameSpaceType = original.Mixed
 	NotificationHub NameSpaceType = original.NotificationHub
 	Relay           NameSpaceType = original.Relay
+)
+
+type NetworkRuleIPAction = original.NetworkRuleIPAction
+
+const (
+	NetworkRuleIPActionAllow NetworkRuleIPAction = original.NetworkRuleIPActionAllow
 )
 
 type ProvisioningStateDR = original.ProvisioningStateDR
@@ -148,6 +168,11 @@ type EventHubListResultPage = original.EventHubListResultPage
 type EventHubsClient = original.EventHubsClient
 type Eventhub = original.Eventhub
 type EventhubProperties = original.EventhubProperties
+type IPFilterRule = original.IPFilterRule
+type IPFilterRuleListResult = original.IPFilterRuleListResult
+type IPFilterRuleListResultIterator = original.IPFilterRuleListResultIterator
+type IPFilterRuleListResultPage = original.IPFilterRuleListResultPage
+type IPFilterRuleProperties = original.IPFilterRuleProperties
 type MessageCountDetails = original.MessageCountDetails
 type MigrationConfigListResult = original.MigrationConfigListResult
 type MigrationConfigListResultIterator = original.MigrationConfigListResultIterator
@@ -156,9 +181,13 @@ type MigrationConfigProperties = original.MigrationConfigProperties
 type MigrationConfigPropertiesProperties = original.MigrationConfigPropertiesProperties
 type MigrationConfigsClient = original.MigrationConfigsClient
 type MigrationConfigsCreateAndStartMigrationFuture = original.MigrationConfigsCreateAndStartMigrationFuture
+type NWRuleSetIPRules = original.NWRuleSetIPRules
+type NWRuleSetVirtualNetworkRules = original.NWRuleSetVirtualNetworkRules
 type NamespacesClient = original.NamespacesClient
 type NamespacesCreateOrUpdateFuture = original.NamespacesCreateOrUpdateFuture
 type NamespacesDeleteFuture = original.NamespacesDeleteFuture
+type NetworkRuleSet = original.NetworkRuleSet
+type NetworkRuleSetProperties = original.NetworkRuleSetProperties
 type Operation = original.Operation
 type OperationDisplay = original.OperationDisplay
 type OperationListResult = original.OperationListResult
@@ -212,9 +241,15 @@ type SBTopicListResultPage = original.SBTopicListResultPage
 type SBTopicProperties = original.SBTopicProperties
 type SQLFilter = original.SQLFilter
 type SQLRuleAction = original.SQLRuleAction
+type Subnet = original.Subnet
 type SubscriptionsClient = original.SubscriptionsClient
 type TopicsClient = original.TopicsClient
 type TrackedResource = original.TrackedResource
+type VirtualNetworkRule = original.VirtualNetworkRule
+type VirtualNetworkRuleListResult = original.VirtualNetworkRuleListResult
+type VirtualNetworkRuleListResultIterator = original.VirtualNetworkRuleListResultIterator
+type VirtualNetworkRuleListResultPage = original.VirtualNetworkRuleListResultPage
+type VirtualNetworkRuleProperties = original.VirtualNetworkRuleProperties
 
 func New(subscriptionID string) BaseClient {
 	return original.New(subscriptionID)
@@ -357,6 +392,9 @@ func NewWithBaseURI(baseURI string, subscriptionID string) BaseClient {
 func PossibleAccessRightsValues() []AccessRights {
 	return original.PossibleAccessRightsValues()
 }
+func PossibleDefaultActionValues() []DefaultAction {
+	return original.PossibleDefaultActionValues()
+}
 func PossibleEncodingCaptureDescriptionValues() []EncodingCaptureDescription {
 	return original.PossibleEncodingCaptureDescriptionValues()
 }
@@ -366,11 +404,17 @@ func PossibleEntityStatusValues() []EntityStatus {
 func PossibleFilterTypeValues() []FilterType {
 	return original.PossibleFilterTypeValues()
 }
+func PossibleIPActionValues() []IPAction {
+	return original.PossibleIPActionValues()
+}
 func PossibleKeyTypeValues() []KeyType {
 	return original.PossibleKeyTypeValues()
 }
 func PossibleNameSpaceTypeValues() []NameSpaceType {
 	return original.PossibleNameSpaceTypeValues()
+}
+func PossibleNetworkRuleIPActionValues() []NetworkRuleIPAction {
+	return original.PossibleNetworkRuleIPActionValues()
 }
 func PossibleProvisioningStateDRValues() []ProvisioningStateDR {
 	return original.PossibleProvisioningStateDRValues()

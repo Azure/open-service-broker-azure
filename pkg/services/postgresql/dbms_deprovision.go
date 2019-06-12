@@ -48,7 +48,7 @@ func (d *dbmsManager) deletePostgreSQLServer(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(ctx, d.serversClient.Client); err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
 	return instance.Details, nil

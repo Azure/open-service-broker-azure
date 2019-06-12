@@ -48,6 +48,7 @@ var _ FactoriesClientAPI = (*datafactory.FactoriesClient)(nil)
 // ExposureControlClientAPI contains the set of methods on the ExposureControlClient type.
 type ExposureControlClientAPI interface {
 	GetFeatureValue(ctx context.Context, locationID string, exposureControlRequest datafactory.ExposureControlRequest) (result datafactory.ExposureControlResponse, err error)
+	GetFeatureValueByFactory(ctx context.Context, resourceGroupName string, factoryName string, exposureControlRequest datafactory.ExposureControlRequest) (result datafactory.ExposureControlResponse, err error)
 }
 
 var _ ExposureControlClientAPI = (*datafactory.ExposureControlClient)(nil)
@@ -115,7 +116,7 @@ var _ DatasetsClientAPI = (*datafactory.DatasetsClient)(nil)
 // PipelinesClientAPI contains the set of methods on the PipelinesClient type.
 type PipelinesClientAPI interface {
 	CreateOrUpdate(ctx context.Context, resourceGroupName string, factoryName string, pipelineName string, pipeline datafactory.PipelineResource, ifMatch string) (result datafactory.PipelineResource, err error)
-	CreateRun(ctx context.Context, resourceGroupName string, factoryName string, pipelineName string, referencePipelineRunID string, parameters map[string]interface{}) (result datafactory.CreateRunResponse, err error)
+	CreateRun(ctx context.Context, resourceGroupName string, factoryName string, pipelineName string, referencePipelineRunID string, isRecovery *bool, startActivityName string, parameters map[string]interface{}) (result datafactory.CreateRunResponse, err error)
 	Delete(ctx context.Context, resourceGroupName string, factoryName string, pipelineName string) (result autorest.Response, err error)
 	Get(ctx context.Context, resourceGroupName string, factoryName string, pipelineName string, ifNoneMatch string) (result datafactory.PipelineResource, err error)
 	ListByFactory(ctx context.Context, resourceGroupName string, factoryName string) (result datafactory.PipelineListResponsePage, err error)

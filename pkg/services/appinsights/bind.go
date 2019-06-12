@@ -2,10 +2,13 @@ package appinsights
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	appInsightsSDK "github.com/Azure/azure-sdk-for-go/services/appinsights/mgmt/2015-05-01/insights" // nolint: lll
 	"github.com/Azure/open-service-broker-azure/pkg/azure"
-	"github.com/Azure/open-service-broker-azure/pkg/service"	
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
 func (s *serviceManager) Bind(
@@ -21,28 +24,56 @@ func (s *serviceManager) Bind(
 	subID := azureConfig.SubscriptionID
 	resourceGroup := pp.GetString("resourceGroup")
 	appInsightsName := dt.AppInsightsName
-	apiKeyName := uuid.NewV4().String()
+	apiKeyName := generate.NewIdentifier()
 	appInsightsResourceID := fmt.Sprintf(
-		"/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Insights/components/%s",
+		"/subscriptions/%s/"+
+			"resourceGroups/%s/"+
+			"providers/Microsoft.Insights/components/%s",
 		subID,
 		resourceGroup,
 		appInsightsName,
 	)
 	apiKeyProperties := appInsightsSDK.APIKeyRequest{
-		Name:                  &apiKeyName,
-		LinkedReadProperties:  string[]{appInsightsResourceID + "/api", appInsightsResourceID + "/agentconfig"},
-		LinkedWriteProperties: string[]{appInsightsResourceID + "/annotations"},
-	}		
-	result, err := client.Create(context.Background(), resourceGroup, appInsightsName, apiKeyProperties)
+		Name: &apiKeyName,
+		LinkedReadProperties: &[]string{
+			appInsightsResourceID + "/api",
+			appInsightsResourceID + "/agentconfig",
+		},
+		LinkedWriteProperties: &[]string{
+			appInsightsResourceID + "/annotations",
+		},
+	}
+	result, err := s.appInsightsAPIKeyClient.Create(
+		context.Background(),
+		resourceGroup,
+		appInsightsName,
+		apiKeyProperties,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("Error creating Application Insights API key %s: %+v", apiKeyName, err)
+		return nil, fmt.Errorf(
+			"Error creating Application Insights API key %s: %+v",
+			apiKeyName,
+			err,
+		)
 	}
 	if result.APIKey == nil {
-		return nil, fmt.Errorf("Error creating Application Insights API key %s: got empty API key", apiKeyName)
+		return nil, fmt.Errorf(
+			"Error creating Application Insights API key %s: got empty API key",
+			apiKeyName,
+		)
 	}
+	if result.ID == nil {
+		return nil, fmt.Errorf(
+			"Error creating Application Insights API key %s: got empty API key ID",
+			apiKeyName,
+		)
+	}
+
+	apiKeyID := (*result.ID)[strings.LastIndex(*result.ID, "/")+1:]
+
 	return &bindingDetails{
-		APIKeyName: apiKeyName,
-		APIKey: result.APIKey,
+		APIKeyID: apiKeyID,
+		APIKey:   service.SecureString(*result.APIKey),
 	}, nil
 }
 
@@ -54,7 +85,7 @@ func (s *serviceManager) GetCredentials(
 	bd := binding.Details.(*bindingDetails)
 	return credentials{
 		InstrumentationKey: string(dt.InstrumentationKey),
-		AppInsightsName: dt.AppInsightsName,
-		APIKey: string(bd.APIKey),
+		AppInsightsName:    dt.AppInsightsName,
+		APIKey:             string(bd.APIKey),
 	}, nil
 }

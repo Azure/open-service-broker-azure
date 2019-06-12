@@ -166,11 +166,11 @@ type DomainService struct {
 	autorest.Response `json:"-"`
 	// DomainServiceProperties - Domain service properties
 	*DomainServiceProperties `json:"properties,omitempty"`
-	// ID - Resource Id
+	// ID - READ-ONLY; Resource Id
 	ID *string `json:"id,omitempty"`
-	// Name - Resource name
+	// Name - READ-ONLY; Resource name
 	Name *string `json:"name,omitempty"`
-	// Type - Resource type
+	// Type - READ-ONLY; Resource type
 	Type *string `json:"type,omitempty"`
 	// Location - Resource location
 	Location *string `json:"location,omitempty"`
@@ -185,15 +185,6 @@ func (ds DomainService) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]interface{})
 	if ds.DomainServiceProperties != nil {
 		objectMap["properties"] = ds.DomainServiceProperties
-	}
-	if ds.ID != nil {
-		objectMap["id"] = ds.ID
-	}
-	if ds.Name != nil {
-		objectMap["name"] = ds.Name
-	}
-	if ds.Type != nil {
-		objectMap["type"] = ds.Type
 	}
 	if ds.Location != nil {
 		objectMap["location"] = ds.Location
@@ -290,7 +281,7 @@ type DomainServiceListResult struct {
 	autorest.Response `json:"-"`
 	// Value - the list of domain services.
 	Value *[]DomainService `json:"value,omitempty"`
-	// NextLink - The continuation token for the next page of results.
+	// NextLink - READ-ONLY; The continuation token for the next page of results.
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
@@ -433,21 +424,21 @@ func NewDomainServiceListResultPage(getNextPage func(context.Context, DomainServ
 
 // DomainServiceProperties properties of the Domain Service.
 type DomainServiceProperties struct {
-	// TenantID - Azure Active Directory tenant id
+	// TenantID - READ-ONLY; Azure Active Directory tenant id
 	TenantID *string `json:"tenantId,omitempty"`
 	// DomainName - The name of the Azure domain that the user would like to deploy Domain Services to.
 	DomainName *string `json:"domainName,omitempty"`
-	// VnetSiteID - Virtual network site id
+	// VnetSiteID - READ-ONLY; Virtual network site id
 	VnetSiteID *string `json:"vnetSiteId,omitempty"`
 	// SubnetID - The name of the virtual network that Domain Services will be deployed on. The id of the subnet that Domain Services will be deployed on. /virtualNetwork/vnetName/subnets/subnetName.
 	SubnetID *string `json:"subnetId,omitempty"`
 	// LdapsSettings - Secure LDAP Settings
 	LdapsSettings *LdapsSettings `json:"ldapsSettings,omitempty"`
-	// HealthLastEvaluated - Last domain evaluation run DateTime
+	// HealthLastEvaluated - READ-ONLY; Last domain evaluation run DateTime
 	HealthLastEvaluated *date.Time `json:"healthLastEvaluated,omitempty"`
-	// HealthMonitors - List of Domain Health Monitors
+	// HealthMonitors - READ-ONLY; List of Domain Health Monitors
 	HealthMonitors *[]HealthMonitor `json:"healthMonitors,omitempty"`
-	// HealthAlerts - List of Domain Health Alerts
+	// HealthAlerts - READ-ONLY; List of Domain Health Alerts
 	HealthAlerts *[]HealthAlert `json:"healthAlerts,omitempty"`
 	// NotificationSettings - Notification Settings
 	NotificationSettings *NotificationSettings `json:"notificationSettings,omitempty"`
@@ -455,11 +446,11 @@ type DomainServiceProperties struct {
 	DomainSecuritySettings *DomainSecuritySettings `json:"domainSecuritySettings,omitempty"`
 	// FilteredSync - Enabled or Disabled flag to turn on Group-based filtered sync. Possible values include: 'FilteredSyncEnabled', 'FilteredSyncDisabled'
 	FilteredSync FilteredSync `json:"filteredSync,omitempty"`
-	// DomainControllerIPAddress - List of Domain Controller IP Address
+	// DomainControllerIPAddress - READ-ONLY; List of Domain Controller IP Address
 	DomainControllerIPAddress *[]string `json:"domainControllerIpAddress,omitempty"`
-	// ServiceStatus - Status of Domain Service instance
+	// ServiceStatus - READ-ONLY; Status of Domain Service instance
 	ServiceStatus *string `json:"serviceStatus,omitempty"`
-	// ProvisioningState - the current deployment or provisioning state, which only appears in the response.
+	// ProvisioningState - READ-ONLY; the current deployment or provisioning state, which only appears in the response.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 }
 
@@ -473,7 +464,7 @@ type DomainServicesCreateOrUpdateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DomainServicesCreateOrUpdateFuture) Result(client DomainServicesClient) (ds DomainService, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "aad.DomainServicesCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -502,7 +493,7 @@ type DomainServicesDeleteFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DomainServicesDeleteFuture) Result(client DomainServicesClient) (ds DomainService, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "aad.DomainServicesDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -531,7 +522,7 @@ type DomainServicesUpdateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DomainServicesUpdateFuture) Result(client DomainServicesClient) (ds DomainService, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "aad.DomainServicesUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -552,29 +543,29 @@ func (future *DomainServicesUpdateFuture) Result(client DomainServicesClient) (d
 
 // HealthAlert health Alert Description
 type HealthAlert struct {
-	// ID - Health Alert Id
+	// ID - READ-ONLY; Health Alert Id
 	ID *string `json:"id,omitempty"`
-	// Name - Health Alert Name
+	// Name - READ-ONLY; Health Alert Name
 	Name *string `json:"name,omitempty"`
-	// Issue - Health Alert Issue
+	// Issue - READ-ONLY; Health Alert Issue
 	Issue *string `json:"issue,omitempty"`
-	// Severity - Health Alert Severity
+	// Severity - READ-ONLY; Health Alert Severity
 	Severity *string `json:"severity,omitempty"`
-	// Raised - Health Alert Raised DateTime
+	// Raised - READ-ONLY; Health Alert Raised DateTime
 	Raised *date.Time `json:"raised,omitempty"`
-	// LastDetected - Health Alert Last Detected DateTime
+	// LastDetected - READ-ONLY; Health Alert Last Detected DateTime
 	LastDetected *date.Time `json:"lastDetected,omitempty"`
-	// ResolutionURI - Health Alert TSG Link
+	// ResolutionURI - READ-ONLY; Health Alert TSG Link
 	ResolutionURI *string `json:"resolutionUri,omitempty"`
 }
 
 // HealthMonitor health Monitor Description
 type HealthMonitor struct {
-	// ID - Health Monitor Id
+	// ID - READ-ONLY; Health Monitor Id
 	ID *string `json:"id,omitempty"`
-	// Name - Health Monitor Name
+	// Name - READ-ONLY; Health Monitor Name
 	Name *string `json:"name,omitempty"`
-	// Details - Health Monitor Details
+	// Details - READ-ONLY; Health Monitor Details
 	Details *string `json:"details,omitempty"`
 }
 
@@ -586,15 +577,15 @@ type LdapsSettings struct {
 	PfxCertificate *string `json:"pfxCertificate,omitempty"`
 	// PfxCertificatePassword - The password to decrypt the provided Secure LDAP certificate pfx file.
 	PfxCertificatePassword *string `json:"pfxCertificatePassword,omitempty"`
-	// PublicCertificate - Public certificate used to configure secure ldap.
+	// PublicCertificate - READ-ONLY; Public certificate used to configure secure ldap.
 	PublicCertificate *string `json:"publicCertificate,omitempty"`
-	// CertificateThumbprint - Thumbprint of configure ldaps certificate.
+	// CertificateThumbprint - READ-ONLY; Thumbprint of configure ldaps certificate.
 	CertificateThumbprint *string `json:"certificateThumbprint,omitempty"`
-	// CertificateNotAfter - NotAfter DateTime of configure ldaps certificate.
+	// CertificateNotAfter - READ-ONLY; NotAfter DateTime of configure ldaps certificate.
 	CertificateNotAfter *date.Time `json:"certificateNotAfter,omitempty"`
 	// ExternalAccess - A flag to determine whether or not Secure LDAP access over the internet is enabled or disabled. Possible values include: 'Enabled', 'Disabled'
 	ExternalAccess ExternalAccess `json:"externalAccess,omitempty"`
-	// ExternalAccessIPAddress - External access ip address.
+	// ExternalAccessIPAddress - READ-ONLY; External access ip address.
 	ExternalAccessIPAddress *string `json:"externalAccessIpAddress,omitempty"`
 }
 
@@ -635,7 +626,7 @@ type OperationEntityListResult struct {
 	autorest.Response `json:"-"`
 	// Value - The list of operations.
 	Value *[]OperationEntity `json:"value,omitempty"`
-	// NextLink - The continuation token for the next page of results.
+	// NextLink - READ-ONLY; The continuation token for the next page of results.
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
@@ -776,13 +767,383 @@ func NewOperationEntityListResultPage(getNextPage func(context.Context, Operatio
 	return OperationEntityListResultPage{fn: getNextPage}
 }
 
+// ReplicaSet replica Set.
+type ReplicaSet struct {
+	autorest.Response `json:"-"`
+	// ReplicaSetProperties - ReplicaSet properties
+	*ReplicaSetProperties `json:"properties,omitempty"`
+	// ID - READ-ONLY; Resource Id
+	ID *string `json:"id,omitempty"`
+	// Name - READ-ONLY; Resource name
+	Name *string `json:"name,omitempty"`
+	// Type - READ-ONLY; Resource type
+	Type *string `json:"type,omitempty"`
+	// Location - Resource location
+	Location *string `json:"location,omitempty"`
+	// Tags - Resource tags
+	Tags map[string]*string `json:"tags"`
+	// Etag - Resource etag
+	Etag *string `json:"etag,omitempty"`
+}
+
+// MarshalJSON is the custom marshaler for ReplicaSet.
+func (rs ReplicaSet) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]interface{})
+	if rs.ReplicaSetProperties != nil {
+		objectMap["properties"] = rs.ReplicaSetProperties
+	}
+	if rs.Location != nil {
+		objectMap["location"] = rs.Location
+	}
+	if rs.Tags != nil {
+		objectMap["tags"] = rs.Tags
+	}
+	if rs.Etag != nil {
+		objectMap["etag"] = rs.Etag
+	}
+	return json.Marshal(objectMap)
+}
+
+// UnmarshalJSON is the custom unmarshaler for ReplicaSet struct.
+func (rs *ReplicaSet) UnmarshalJSON(body []byte) error {
+	var m map[string]*json.RawMessage
+	err := json.Unmarshal(body, &m)
+	if err != nil {
+		return err
+	}
+	for k, v := range m {
+		switch k {
+		case "properties":
+			if v != nil {
+				var replicaSetProperties ReplicaSetProperties
+				err = json.Unmarshal(*v, &replicaSetProperties)
+				if err != nil {
+					return err
+				}
+				rs.ReplicaSetProperties = &replicaSetProperties
+			}
+		case "id":
+			if v != nil {
+				var ID string
+				err = json.Unmarshal(*v, &ID)
+				if err != nil {
+					return err
+				}
+				rs.ID = &ID
+			}
+		case "name":
+			if v != nil {
+				var name string
+				err = json.Unmarshal(*v, &name)
+				if err != nil {
+					return err
+				}
+				rs.Name = &name
+			}
+		case "type":
+			if v != nil {
+				var typeVar string
+				err = json.Unmarshal(*v, &typeVar)
+				if err != nil {
+					return err
+				}
+				rs.Type = &typeVar
+			}
+		case "location":
+			if v != nil {
+				var location string
+				err = json.Unmarshal(*v, &location)
+				if err != nil {
+					return err
+				}
+				rs.Location = &location
+			}
+		case "tags":
+			if v != nil {
+				var tags map[string]*string
+				err = json.Unmarshal(*v, &tags)
+				if err != nil {
+					return err
+				}
+				rs.Tags = tags
+			}
+		case "etag":
+			if v != nil {
+				var etag string
+				err = json.Unmarshal(*v, &etag)
+				if err != nil {
+					return err
+				}
+				rs.Etag = &etag
+			}
+		}
+	}
+
+	return nil
+}
+
+// ReplicaSetListResult the response from the List ReplicaSets operation.
+type ReplicaSetListResult struct {
+	autorest.Response `json:"-"`
+	// Value - the list of ReplicaSet.
+	Value *[]ReplicaSet `json:"value,omitempty"`
+	// NextLink - READ-ONLY; The continuation token for the next page of results.
+	NextLink *string `json:"nextLink,omitempty"`
+}
+
+// ReplicaSetListResultIterator provides access to a complete listing of ReplicaSet values.
+type ReplicaSetListResultIterator struct {
+	i    int
+	page ReplicaSetListResultPage
+}
+
+// NextWithContext advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+func (iter *ReplicaSetListResultIterator) NextWithContext(ctx context.Context) (err error) {
+	if tracing.IsEnabled() {
+		ctx = tracing.StartSpan(ctx, fqdn+"/ReplicaSetListResultIterator.NextWithContext")
+		defer func() {
+			sc := -1
+			if iter.Response().Response.Response != nil {
+				sc = iter.Response().Response.Response.StatusCode
+			}
+			tracing.EndSpan(ctx, sc, err)
+		}()
+	}
+	iter.i++
+	if iter.i < len(iter.page.Values()) {
+		return nil
+	}
+	err = iter.page.NextWithContext(ctx)
+	if err != nil {
+		iter.i--
+		return err
+	}
+	iter.i = 0
+	return nil
+}
+
+// Next advances to the next value.  If there was an error making
+// the request the iterator does not advance and the error is returned.
+// Deprecated: Use NextWithContext() instead.
+func (iter *ReplicaSetListResultIterator) Next() error {
+	return iter.NextWithContext(context.Background())
+}
+
+// NotDone returns true if the enumeration should be started or is not yet complete.
+func (iter ReplicaSetListResultIterator) NotDone() bool {
+	return iter.page.NotDone() && iter.i < len(iter.page.Values())
+}
+
+// Response returns the raw server response from the last page request.
+func (iter ReplicaSetListResultIterator) Response() ReplicaSetListResult {
+	return iter.page.Response()
+}
+
+// Value returns the current value or a zero-initialized value if the
+// iterator has advanced beyond the end of the collection.
+func (iter ReplicaSetListResultIterator) Value() ReplicaSet {
+	if !iter.page.NotDone() {
+		return ReplicaSet{}
+	}
+	return iter.page.Values()[iter.i]
+}
+
+// Creates a new instance of the ReplicaSetListResultIterator type.
+func NewReplicaSetListResultIterator(page ReplicaSetListResultPage) ReplicaSetListResultIterator {
+	return ReplicaSetListResultIterator{page: page}
+}
+
+// IsEmpty returns true if the ListResult contains no values.
+func (rslr ReplicaSetListResult) IsEmpty() bool {
+	return rslr.Value == nil || len(*rslr.Value) == 0
+}
+
+// replicaSetListResultPreparer prepares a request to retrieve the next set of results.
+// It returns nil if no more results exist.
+func (rslr ReplicaSetListResult) replicaSetListResultPreparer(ctx context.Context) (*http.Request, error) {
+	if rslr.NextLink == nil || len(to.String(rslr.NextLink)) < 1 {
+		return nil, nil
+	}
+	return autorest.Prepare((&http.Request{}).WithContext(ctx),
+		autorest.AsJSON(),
+		autorest.AsGet(),
+		autorest.WithBaseURL(to.String(rslr.NextLink)))
+}
+
+// ReplicaSetListResultPage contains a page of ReplicaSet values.
+type ReplicaSetListResultPage struct {
+	fn   func(context.Context, ReplicaSetListResult) (ReplicaSetListResult, error)
+	rslr ReplicaSetListResult
+}
+
+// NextWithContext advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+func (page *ReplicaSetListResultPage) NextWithContext(ctx context.Context) (err error) {
+	if tracing.IsEnabled() {
+		ctx = tracing.StartSpan(ctx, fqdn+"/ReplicaSetListResultPage.NextWithContext")
+		defer func() {
+			sc := -1
+			if page.Response().Response.Response != nil {
+				sc = page.Response().Response.Response.StatusCode
+			}
+			tracing.EndSpan(ctx, sc, err)
+		}()
+	}
+	next, err := page.fn(ctx, page.rslr)
+	if err != nil {
+		return err
+	}
+	page.rslr = next
+	return nil
+}
+
+// Next advances to the next page of values.  If there was an error making
+// the request the page does not advance and the error is returned.
+// Deprecated: Use NextWithContext() instead.
+func (page *ReplicaSetListResultPage) Next() error {
+	return page.NextWithContext(context.Background())
+}
+
+// NotDone returns true if the page enumeration should be started or is not yet complete.
+func (page ReplicaSetListResultPage) NotDone() bool {
+	return !page.rslr.IsEmpty()
+}
+
+// Response returns the raw server response from the last page request.
+func (page ReplicaSetListResultPage) Response() ReplicaSetListResult {
+	return page.rslr
+}
+
+// Values returns the slice of values for the current page or nil if there are no values.
+func (page ReplicaSetListResultPage) Values() []ReplicaSet {
+	if page.rslr.IsEmpty() {
+		return nil
+	}
+	return *page.rslr.Value
+}
+
+// Creates a new instance of the ReplicaSetListResultPage type.
+func NewReplicaSetListResultPage(getNextPage func(context.Context, ReplicaSetListResult) (ReplicaSetListResult, error)) ReplicaSetListResultPage {
+	return ReplicaSetListResultPage{fn: getNextPage}
+}
+
+// ReplicaSetProperties properties of the ReplicaSet.
+type ReplicaSetProperties struct {
+	// ReplicaSetID - READ-ONLY; ReplicaSet Id
+	ReplicaSetID *string `json:"replicaSetId,omitempty"`
+	// SubnetID - The name of the virtual network that ReplicaSets will be deployed on. /virtualNetwork/vnetName/subnets/subnetName.
+	SubnetID *string `json:"subnetId,omitempty"`
+	// HealthLastEvaluated - READ-ONLY; Last domain evaluation run DateTime
+	HealthLastEvaluated *date.Time `json:"healthLastEvaluated,omitempty"`
+	// HealthMonitors - READ-ONLY; List of Domain Health Monitors
+	HealthMonitors *[]HealthMonitor `json:"healthMonitors,omitempty"`
+	// HealthAlerts - READ-ONLY; List of Domain Health Alerts
+	HealthAlerts *[]HealthAlert `json:"healthAlerts,omitempty"`
+	// DomainControllerIPAddress - READ-ONLY; List of Domain Controller IP Address
+	DomainControllerIPAddress *[]string `json:"domainControllerIpAddress,omitempty"`
+	// ServiceStatus - READ-ONLY; Status of Domain Service instance
+	ServiceStatus *string `json:"serviceStatus,omitempty"`
+	// ProvisioningState - READ-ONLY; the current deployment or provisioning state, which only appears in the response.
+	ProvisioningState *string `json:"provisioningState,omitempty"`
+	// ExternalAccessIPAddress - READ-ONLY; External access ip address.
+	ExternalAccessIPAddress *string `json:"externalAccessIpAddress,omitempty"`
+}
+
+// ReplicaSetsCreateOrUpdateFuture an abstraction for monitoring and retrieving the results of a
+// long-running operation.
+type ReplicaSetsCreateOrUpdateFuture struct {
+	azure.Future
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future *ReplicaSetsCreateOrUpdateFuture) Result(client ReplicaSetsClient) (rs ReplicaSet, err error) {
+	var done bool
+	done, err = future.DoneWithContext(context.Background(), client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "aad.ReplicaSetsCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		err = azure.NewAsyncOpIncompleteError("aad.ReplicaSetsCreateOrUpdateFuture")
+		return
+	}
+	sender := autorest.DecorateSender(client, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if rs.Response.Response, err = future.GetResult(sender); err == nil && rs.Response.Response.StatusCode != http.StatusNoContent {
+		rs, err = client.CreateOrUpdateResponder(rs.Response.Response)
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "aad.ReplicaSetsCreateOrUpdateFuture", "Result", rs.Response.Response, "Failure responding to request")
+		}
+	}
+	return
+}
+
+// ReplicaSetsDeleteFuture an abstraction for monitoring and retrieving the results of a long-running
+// operation.
+type ReplicaSetsDeleteFuture struct {
+	azure.Future
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future *ReplicaSetsDeleteFuture) Result(client ReplicaSetsClient) (rs ReplicaSet, err error) {
+	var done bool
+	done, err = future.DoneWithContext(context.Background(), client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "aad.ReplicaSetsDeleteFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		err = azure.NewAsyncOpIncompleteError("aad.ReplicaSetsDeleteFuture")
+		return
+	}
+	sender := autorest.DecorateSender(client, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if rs.Response.Response, err = future.GetResult(sender); err == nil && rs.Response.Response.StatusCode != http.StatusNoContent {
+		rs, err = client.DeleteResponder(rs.Response.Response)
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "aad.ReplicaSetsDeleteFuture", "Result", rs.Response.Response, "Failure responding to request")
+		}
+	}
+	return
+}
+
+// ReplicaSetsUpdateFuture an abstraction for monitoring and retrieving the results of a long-running
+// operation.
+type ReplicaSetsUpdateFuture struct {
+	azure.Future
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future *ReplicaSetsUpdateFuture) Result(client ReplicaSetsClient) (rs ReplicaSet, err error) {
+	var done bool
+	done, err = future.DoneWithContext(context.Background(), client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "aad.ReplicaSetsUpdateFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		err = azure.NewAsyncOpIncompleteError("aad.ReplicaSetsUpdateFuture")
+		return
+	}
+	sender := autorest.DecorateSender(client, autorest.DoRetryForStatusCodes(client.RetryAttempts, client.RetryDuration, autorest.StatusCodesForRetry...))
+	if rs.Response.Response, err = future.GetResult(sender); err == nil && rs.Response.Response.StatusCode != http.StatusNoContent {
+		rs, err = client.UpdateResponder(rs.Response.Response)
+		if err != nil {
+			err = autorest.NewErrorWithError(err, "aad.ReplicaSetsUpdateFuture", "Result", rs.Response.Response, "Failure responding to request")
+		}
+	}
+	return
+}
+
 // Resource the Resource model definition.
 type Resource struct {
-	// ID - Resource Id
+	// ID - READ-ONLY; Resource Id
 	ID *string `json:"id,omitempty"`
-	// Name - Resource name
+	// Name - READ-ONLY; Resource name
 	Name *string `json:"name,omitempty"`
-	// Type - Resource type
+	// Type - READ-ONLY; Resource type
 	Type *string `json:"type,omitempty"`
 	// Location - Resource location
 	Location *string `json:"location,omitempty"`
@@ -795,15 +1156,6 @@ type Resource struct {
 // MarshalJSON is the custom marshaler for Resource.
 func (r Resource) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]interface{})
-	if r.ID != nil {
-		objectMap["id"] = r.ID
-	}
-	if r.Name != nil {
-		objectMap["name"] = r.Name
-	}
-	if r.Type != nil {
-		objectMap["type"] = r.Type
-	}
 	if r.Location != nil {
 		objectMap["location"] = r.Location
 	}

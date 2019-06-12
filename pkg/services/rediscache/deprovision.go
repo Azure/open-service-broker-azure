@@ -46,7 +46,7 @@ func (s *serviceManager) deleteRedisServer(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting redis server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, s.client.Client); err != nil {
+	if err := result.WaitForCompletionRef(ctx, s.client.Client); err != nil {
 		return nil, fmt.Errorf("error deleting redis server: %s", err)
 	}
 	return instance.Details, nil

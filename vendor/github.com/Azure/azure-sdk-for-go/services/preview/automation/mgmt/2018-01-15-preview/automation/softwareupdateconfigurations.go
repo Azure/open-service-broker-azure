@@ -32,14 +32,14 @@ type SoftwareUpdateConfigurationsClient struct {
 }
 
 // NewSoftwareUpdateConfigurationsClient creates an instance of the SoftwareUpdateConfigurationsClient client.
-func NewSoftwareUpdateConfigurationsClient(subscriptionID string, countType1 CountType) SoftwareUpdateConfigurationsClient {
-	return NewSoftwareUpdateConfigurationsClientWithBaseURI(DefaultBaseURI, subscriptionID, countType1)
+func NewSoftwareUpdateConfigurationsClient(subscriptionID string) SoftwareUpdateConfigurationsClient {
+	return NewSoftwareUpdateConfigurationsClientWithBaseURI(DefaultBaseURI, subscriptionID)
 }
 
 // NewSoftwareUpdateConfigurationsClientWithBaseURI creates an instance of the SoftwareUpdateConfigurationsClient
 // client.
-func NewSoftwareUpdateConfigurationsClientWithBaseURI(baseURI string, subscriptionID string, countType1 CountType) SoftwareUpdateConfigurationsClient {
-	return SoftwareUpdateConfigurationsClient{NewWithBaseURI(baseURI, subscriptionID, countType1)}
+func NewSoftwareUpdateConfigurationsClientWithBaseURI(baseURI string, subscriptionID string) SoftwareUpdateConfigurationsClient {
+	return SoftwareUpdateConfigurationsClient{NewWithBaseURI(baseURI, subscriptionID)}
 }
 
 // Create create a new software update configuration with the name given in the URI.
@@ -108,6 +108,9 @@ func (client SoftwareUpdateConfigurationsClient) CreatePreparer(ctx context.Cont
 		"api-version": APIVersion,
 	}
 
+	parameters.Name = nil
+	parameters.ID = nil
+	parameters.Type = nil
 	preparer := autorest.CreatePreparer(
 		autorest.AsContentType("application/json; charset=utf-8"),
 		autorest.AsPut(),

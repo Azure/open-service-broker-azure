@@ -59,14 +59,6 @@ const (
 	D13V2 AzureSkuName = "D13_v2"
 	// D14V2 ...
 	D14V2 AzureSkuName = "D14_v2"
-	// KC16 ...
-	KC16 AzureSkuName = "KC16"
-	// KC8 ...
-	KC8 AzureSkuName = "KC8"
-	// KS16 ...
-	KS16 AzureSkuName = "KS16"
-	// KS8 ...
-	KS8 AzureSkuName = "KS8"
 	// L16 ...
 	L16 AzureSkuName = "L16"
 	// L4 ...
@@ -77,7 +69,7 @@ const (
 
 // PossibleAzureSkuNameValues returns an array of possible values for the AzureSkuName const type.
 func PossibleAzureSkuNameValues() []AzureSkuName {
-	return []AzureSkuName{D11V2, D12V2, D13V2, D14V2, KC16, KC8, KS16, KS8, L16, L4, L8}
+	return []AzureSkuName{D11V2, D12V2, D13V2, D14V2, L16, L4, L8}
 }
 
 // DatabasePrincipalRole enumerates the values for database principal role.
@@ -191,6 +183,21 @@ func PossibleProvisioningStateValues() []ProvisioningState {
 	return []ProvisioningState{Creating, Deleting, Failed, Running, Succeeded}
 }
 
+// Reason enumerates the values for reason.
+type Reason string
+
+const (
+	// AlreadyExists ...
+	AlreadyExists Reason = "AlreadyExists"
+	// Invalid ...
+	Invalid Reason = "Invalid"
+)
+
+// PossibleReasonValues returns an array of possible values for the Reason const type.
+func PossibleReasonValues() []Reason {
+	return []Reason{AlreadyExists, Invalid}
+}
+
 // State enumerates the values for state.
 type State string
 
@@ -234,13 +241,13 @@ type AzureCapacity struct {
 
 // AzureEntityResource the resource model definition for a Azure Resource Manager resource with an etag.
 type AzureEntityResource struct {
-	// Etag - Resource Etag.
+	// Etag - READ-ONLY; Resource Etag.
 	Etag *string `json:"etag,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -256,7 +263,7 @@ type AzureResourceSku struct {
 
 // AzureSku azure SKU definition.
 type AzureSku struct {
-	// Name - SKU name. Possible values include: 'KC8', 'KC16', 'KS8', 'KS16', 'D13V2', 'D14V2', 'L8', 'L16', 'D11V2', 'D12V2', 'L4'
+	// Name - SKU name. Possible values include: 'D13V2', 'D14V2', 'L8', 'L16', 'D11V2', 'D12V2', 'L4'
 	Name AzureSkuName `json:"name,omitempty"`
 	// Capacity - SKU capacity.
 	Capacity *int32 `json:"capacity,omitempty"`
@@ -273,6 +280,8 @@ type CheckNameResult struct {
 	Name *string `json:"name,omitempty"`
 	// Message - Message indicating an unavailable name due to a conflict, or a description of the naming rules that are violated.
 	Message *string `json:"message,omitempty"`
+	// Reason - Message providing the reason why the given name is invalid. Possible values include: 'Invalid', 'AlreadyExists'
+	Reason Reason `json:"reason,omitempty"`
 }
 
 // CloudError an error response from Kusto.
@@ -304,11 +313,11 @@ type Cluster struct {
 	Tags map[string]*string `json:"tags"`
 	// Location - The geo-location where the resource lives
 	Location *string `json:"location,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -326,15 +335,6 @@ func (c Cluster) MarshalJSON() ([]byte, error) {
 	}
 	if c.Location != nil {
 		objectMap["location"] = c.Location
-	}
-	if c.ID != nil {
-		objectMap["id"] = c.ID
-	}
-	if c.Name != nil {
-		objectMap["name"] = c.Name
-	}
-	if c.Type != nil {
-		objectMap["type"] = c.Type
 	}
 	return json.Marshal(objectMap)
 }
@@ -434,13 +434,13 @@ type ClusterListResult struct {
 
 // ClusterProperties class representing the Kusto cluster properties.
 type ClusterProperties struct {
-	// State - The state of the resource. Possible values include: 'StateCreating', 'StateUnavailable', 'StateRunning', 'StateDeleting', 'StateDeleted', 'StateStopping', 'StateStopped', 'StateStarting', 'StateUpdating'
+	// State - READ-ONLY; The state of the resource. Possible values include: 'StateCreating', 'StateUnavailable', 'StateRunning', 'StateDeleting', 'StateDeleted', 'StateStopping', 'StateStopped', 'StateStarting', 'StateUpdating'
 	State State `json:"state,omitempty"`
-	// ProvisioningState - The provisioned state of the resource. Possible values include: 'Running', 'Creating', 'Deleting', 'Succeeded', 'Failed'
+	// ProvisioningState - READ-ONLY; The provisioned state of the resource. Possible values include: 'Running', 'Creating', 'Deleting', 'Succeeded', 'Failed'
 	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
-	// URI - The cluster URI.
+	// URI - READ-ONLY; The cluster URI.
 	URI *string `json:"uri,omitempty"`
-	// DataIngestionURI - The cluster data ingestion URI.
+	// DataIngestionURI - READ-ONLY; The cluster data ingestion URI.
 	DataIngestionURI *string `json:"dataIngestionUri,omitempty"`
 	// TrustedExternalTenants - The cluster's external tenants.
 	TrustedExternalTenants *[]TrustedExternalTenant `json:"trustedExternalTenants,omitempty"`
@@ -456,7 +456,7 @@ type ClustersCreateOrUpdateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersCreateOrUpdateFuture) Result(client ClustersClient) (c Cluster, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.ClustersCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -485,7 +485,7 @@ type ClustersDeleteFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersDeleteFuture) Result(client ClustersClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.ClustersDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -508,7 +508,7 @@ type ClustersStartFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersStartFuture) Result(client ClustersClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.ClustersStartFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -530,7 +530,7 @@ type ClustersStopFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersStopFuture) Result(client ClustersClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.ClustersStopFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -553,7 +553,7 @@ type ClustersUpdateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersUpdateFuture) Result(client ClustersClient) (c Cluster, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.ClustersUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -582,11 +582,11 @@ type ClusterUpdate struct {
 	Sku *AzureSku `json:"sku,omitempty"`
 	// ClusterProperties - The cluster properties.
 	*ClusterProperties `json:"properties,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -604,15 +604,6 @@ func (cu ClusterUpdate) MarshalJSON() ([]byte, error) {
 	}
 	if cu.ClusterProperties != nil {
 		objectMap["properties"] = cu.ClusterProperties
-	}
-	if cu.ID != nil {
-		objectMap["id"] = cu.ID
-	}
-	if cu.Name != nil {
-		objectMap["name"] = cu.Name
-	}
-	if cu.Type != nil {
-		objectMap["type"] = cu.Type
 	}
 	return json.Marshal(objectMap)
 }
@@ -702,11 +693,11 @@ type Database struct {
 	Location *string `json:"location,omitempty"`
 	// DatabaseProperties - The database properties.
 	*DatabaseProperties `json:"properties,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -718,15 +709,6 @@ func (d Database) MarshalJSON() ([]byte, error) {
 	}
 	if d.DatabaseProperties != nil {
 		objectMap["properties"] = d.DatabaseProperties
-	}
-	if d.ID != nil {
-		objectMap["id"] = d.ID
-	}
-	if d.Name != nil {
-		objectMap["name"] = d.Name
-	}
-	if d.Type != nil {
-		objectMap["type"] = d.Type
 	}
 	return json.Marshal(objectMap)
 }
@@ -837,7 +819,7 @@ type DatabasePrincipalListResult struct {
 
 // DatabaseProperties class representing the Kusto database properties.
 type DatabaseProperties struct {
-	// ProvisioningState - The provisioned state of the resource. Possible values include: 'Running', 'Creating', 'Deleting', 'Succeeded', 'Failed'
+	// ProvisioningState - READ-ONLY; The provisioned state of the resource. Possible values include: 'Running', 'Creating', 'Deleting', 'Succeeded', 'Failed'
 	ProvisioningState ProvisioningState `json:"provisioningState,omitempty"`
 	// SoftDeletePeriod - The time the data should be kept before it stops being accessible to queries in TimeSpan.
 	SoftDeletePeriod *string `json:"softDeletePeriod,omitempty"`
@@ -857,7 +839,7 @@ type DatabasesCreateOrUpdateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DatabasesCreateOrUpdateFuture) Result(client DatabasesClient) (d Database, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.DatabasesCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -886,7 +868,7 @@ type DatabasesDeleteFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DatabasesDeleteFuture) Result(client DatabasesClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.DatabasesDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -915,7 +897,7 @@ type DatabasesUpdateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DatabasesUpdateFuture) Result(client DatabasesClient) (d Database, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.DatabasesUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -940,11 +922,11 @@ type DatabaseUpdate struct {
 	Location *string `json:"location,omitempty"`
 	// DatabaseProperties - The properties of the updated database.
 	*DatabaseProperties `json:"properties,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -956,15 +938,6 @@ func (du DatabaseUpdate) MarshalJSON() ([]byte, error) {
 	}
 	if du.DatabaseProperties != nil {
 		objectMap["properties"] = du.DatabaseProperties
-	}
-	if du.ID != nil {
-		objectMap["id"] = du.ID
-	}
-	if du.Name != nil {
-		objectMap["name"] = du.Name
-	}
-	if du.Type != nil {
-		objectMap["type"] = du.Type
 	}
 	return json.Marshal(objectMap)
 }
@@ -1043,11 +1016,11 @@ type DataConnection struct {
 	Location *string `json:"location,omitempty"`
 	// Kind - Possible values include: 'KindDataConnection', 'KindEventHub', 'KindEventGrid'
 	Kind Kind `json:"kind,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -1102,15 +1075,6 @@ func (dc DataConnection) MarshalJSON() ([]byte, error) {
 	if dc.Kind != "" {
 		objectMap["kind"] = dc.Kind
 	}
-	if dc.ID != nil {
-		objectMap["id"] = dc.ID
-	}
-	if dc.Name != nil {
-		objectMap["name"] = dc.Name
-	}
-	if dc.Type != nil {
-		objectMap["type"] = dc.Type
-	}
 	return json.Marshal(objectMap)
 }
 
@@ -1132,6 +1096,15 @@ func (dc DataConnection) AsDataConnection() (*DataConnection, bool) {
 // AsBasicDataConnection is the BasicDataConnection implementation for DataConnection.
 func (dc DataConnection) AsBasicDataConnection() (BasicDataConnection, bool) {
 	return &dc, true
+}
+
+// DataConnectionCheckNameRequest the result returned from a data connections check name availability
+// request.
+type DataConnectionCheckNameRequest struct {
+	// Name - Data Connection name.
+	Name *string `json:"name,omitempty"`
+	// Type - The type of resource, Microsoft.Kusto/clusters/databases/dataConnections.
+	Type *string `json:"type,omitempty"`
 }
 
 // DataConnectionListResult the list Kusto data connections operation response.
@@ -1191,7 +1164,7 @@ type DataConnectionsCreateOrUpdateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DataConnectionsCreateOrUpdateFuture) Result(client DataConnectionsClient) (dcm DataConnectionModel, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.DataConnectionsCreateOrUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -1220,7 +1193,7 @@ type DataConnectionsDeleteFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DataConnectionsDeleteFuture) Result(client DataConnectionsClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.DataConnectionsDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -1243,7 +1216,7 @@ type DataConnectionsUpdateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *DataConnectionsUpdateFuture) Result(client DataConnectionsClient) (dcm DataConnectionModel, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "kusto.DataConnectionsUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -1339,11 +1312,11 @@ type EventGridDataConnection struct {
 	Location *string `json:"location,omitempty"`
 	// Kind - Possible values include: 'KindDataConnection', 'KindEventHub', 'KindEventGrid'
 	Kind Kind `json:"kind,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -1359,15 +1332,6 @@ func (egdc EventGridDataConnection) MarshalJSON() ([]byte, error) {
 	}
 	if egdc.Kind != "" {
 		objectMap["kind"] = egdc.Kind
-	}
-	if egdc.ID != nil {
-		objectMap["id"] = egdc.ID
-	}
-	if egdc.Name != nil {
-		objectMap["name"] = egdc.Name
-	}
-	if egdc.Type != nil {
-		objectMap["type"] = egdc.Type
 	}
 	return json.Marshal(objectMap)
 }
@@ -1483,11 +1447,11 @@ type EventHubDataConnection struct {
 	Location *string `json:"location,omitempty"`
 	// Kind - Possible values include: 'KindDataConnection', 'KindEventHub', 'KindEventGrid'
 	Kind Kind `json:"kind,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -1503,15 +1467,6 @@ func (ehdc EventHubDataConnection) MarshalJSON() ([]byte, error) {
 	}
 	if ehdc.Kind != "" {
 		objectMap["kind"] = ehdc.Kind
-	}
-	if ehdc.ID != nil {
-		objectMap["id"] = ehdc.ID
-	}
-	if ehdc.Name != nil {
-		objectMap["name"] = ehdc.Name
-	}
-	if ehdc.Type != nil {
-		objectMap["type"] = ehdc.Type
 	}
 	return json.Marshal(objectMap)
 }
@@ -1784,21 +1739,21 @@ func NewOperationListResultPage(getNextPage func(context.Context, OperationListR
 // ProxyResource the resource model definition for a ARM proxy resource. It will have everything other than
 // required location and tags
 type ProxyResource struct {
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
 // Resource ...
 type Resource struct {
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -1808,11 +1763,11 @@ type TrackedResource struct {
 	Tags map[string]*string `json:"tags"`
 	// Location - The geo-location where the resource lives
 	Location *string `json:"location,omitempty"`
-	// ID - Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+	// ID - READ-ONLY; Fully qualified resource Id for the resource. Ex - /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
+	// Type - READ-ONLY; The type of the resource. Ex- Microsoft.Compute/virtualMachines or Microsoft.Storage/storageAccounts.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -1824,15 +1779,6 @@ func (tr TrackedResource) MarshalJSON() ([]byte, error) {
 	}
 	if tr.Location != nil {
 		objectMap["location"] = tr.Location
-	}
-	if tr.ID != nil {
-		objectMap["id"] = tr.ID
-	}
-	if tr.Name != nil {
-		objectMap["name"] = tr.Name
-	}
-	if tr.Type != nil {
-		objectMap["type"] = tr.Type
 	}
 	return json.Marshal(objectMap)
 }

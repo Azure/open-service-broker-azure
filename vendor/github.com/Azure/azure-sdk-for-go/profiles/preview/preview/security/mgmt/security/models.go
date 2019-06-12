@@ -22,7 +22,7 @@ package security
 import (
 	"context"
 
-	original "github.com/Azure/azure-sdk-for-go/services/preview/security/mgmt/2017-08-01-preview/security"
+	original "github.com/Azure/azure-sdk-for-go/services/preview/security/mgmt/v3.0/security"
 )
 
 const (
@@ -106,11 +106,38 @@ const (
 	UDP Protocol = original.UDP
 )
 
+type ReportedSeverity = original.ReportedSeverity
+
+const (
+	High          ReportedSeverity = original.High
+	Informational ReportedSeverity = original.Informational
+	Low           ReportedSeverity = original.Low
+	Medium        ReportedSeverity = original.Medium
+)
+
+type ResourceStatus = original.ResourceStatus
+
+const (
+	Healthy       ResourceStatus = original.Healthy
+	NotApplicable ResourceStatus = original.NotApplicable
+	NotHealthy    ResourceStatus = original.NotHealthy
+	OffByPolicy   ResourceStatus = original.OffByPolicy
+)
+
 type SettingKind = original.SettingKind
 
 const (
 	SettingKindAlertSuppressionSetting SettingKind = original.SettingKindAlertSuppressionSetting
 	SettingKindDataExportSetting       SettingKind = original.SettingKindDataExportSetting
+)
+
+type State = original.State
+
+const (
+	Failed      State = original.Failed
+	Passed      State = original.Passed
+	Skipped     State = original.Skipped
+	Unsupported State = original.Unsupported
 )
 
 type Status = original.Status
@@ -171,6 +198,12 @@ type ComplianceList = original.ComplianceList
 type ComplianceListIterator = original.ComplianceListIterator
 type ComplianceListPage = original.ComplianceListPage
 type ComplianceProperties = original.ComplianceProperties
+type ComplianceResult = original.ComplianceResult
+type ComplianceResultList = original.ComplianceResultList
+type ComplianceResultListIterator = original.ComplianceResultListIterator
+type ComplianceResultListPage = original.ComplianceResultListPage
+type ComplianceResultProperties = original.ComplianceResultProperties
+type ComplianceResultsClient = original.ComplianceResultsClient
 type ComplianceSegment = original.ComplianceSegment
 type CompliancesClient = original.CompliancesClient
 type ConnectableResource = original.ConnectableResource
@@ -231,10 +264,26 @@ type OperationListPage = original.OperationListPage
 type OperationsClient = original.OperationsClient
 type Pricing = original.Pricing
 type PricingList = original.PricingList
-type PricingListIterator = original.PricingListIterator
-type PricingListPage = original.PricingListPage
 type PricingProperties = original.PricingProperties
 type PricingsClient = original.PricingsClient
+type RegulatoryComplianceAssessment = original.RegulatoryComplianceAssessment
+type RegulatoryComplianceAssessmentList = original.RegulatoryComplianceAssessmentList
+type RegulatoryComplianceAssessmentListIterator = original.RegulatoryComplianceAssessmentListIterator
+type RegulatoryComplianceAssessmentListPage = original.RegulatoryComplianceAssessmentListPage
+type RegulatoryComplianceAssessmentProperties = original.RegulatoryComplianceAssessmentProperties
+type RegulatoryComplianceAssessmentsClient = original.RegulatoryComplianceAssessmentsClient
+type RegulatoryComplianceControl = original.RegulatoryComplianceControl
+type RegulatoryComplianceControlList = original.RegulatoryComplianceControlList
+type RegulatoryComplianceControlListIterator = original.RegulatoryComplianceControlListIterator
+type RegulatoryComplianceControlListPage = original.RegulatoryComplianceControlListPage
+type RegulatoryComplianceControlProperties = original.RegulatoryComplianceControlProperties
+type RegulatoryComplianceControlsClient = original.RegulatoryComplianceControlsClient
+type RegulatoryComplianceStandard = original.RegulatoryComplianceStandard
+type RegulatoryComplianceStandardList = original.RegulatoryComplianceStandardList
+type RegulatoryComplianceStandardListIterator = original.RegulatoryComplianceStandardListIterator
+type RegulatoryComplianceStandardListPage = original.RegulatoryComplianceStandardListPage
+type RegulatoryComplianceStandardProperties = original.RegulatoryComplianceStandardProperties
+type RegulatoryComplianceStandardsClient = original.RegulatoryComplianceStandardsClient
 type Resource = original.Resource
 type SensitivityLabel = original.SensitivityLabel
 type Setting = original.Setting
@@ -323,6 +372,18 @@ func NewComplianceListIterator(page ComplianceListPage) ComplianceListIterator {
 func NewComplianceListPage(getNextPage func(context.Context, ComplianceList) (ComplianceList, error)) ComplianceListPage {
 	return original.NewComplianceListPage(getNextPage)
 }
+func NewComplianceResultListIterator(page ComplianceResultListPage) ComplianceResultListIterator {
+	return original.NewComplianceResultListIterator(page)
+}
+func NewComplianceResultListPage(getNextPage func(context.Context, ComplianceResultList) (ComplianceResultList, error)) ComplianceResultListPage {
+	return original.NewComplianceResultListPage(getNextPage)
+}
+func NewComplianceResultsClient(subscriptionID string, ascLocation string) ComplianceResultsClient {
+	return original.NewComplianceResultsClient(subscriptionID, ascLocation)
+}
+func NewComplianceResultsClientWithBaseURI(baseURI string, subscriptionID string, ascLocation string) ComplianceResultsClient {
+	return original.NewComplianceResultsClientWithBaseURI(baseURI, subscriptionID, ascLocation)
+}
 func NewCompliancesClient(subscriptionID string, ascLocation string) CompliancesClient {
 	return original.NewCompliancesClient(subscriptionID, ascLocation)
 }
@@ -407,17 +468,47 @@ func NewOperationsClient(subscriptionID string, ascLocation string) OperationsCl
 func NewOperationsClientWithBaseURI(baseURI string, subscriptionID string, ascLocation string) OperationsClient {
 	return original.NewOperationsClientWithBaseURI(baseURI, subscriptionID, ascLocation)
 }
-func NewPricingListIterator(page PricingListPage) PricingListIterator {
-	return original.NewPricingListIterator(page)
-}
-func NewPricingListPage(getNextPage func(context.Context, PricingList) (PricingList, error)) PricingListPage {
-	return original.NewPricingListPage(getNextPage)
-}
 func NewPricingsClient(subscriptionID string, ascLocation string) PricingsClient {
 	return original.NewPricingsClient(subscriptionID, ascLocation)
 }
 func NewPricingsClientWithBaseURI(baseURI string, subscriptionID string, ascLocation string) PricingsClient {
 	return original.NewPricingsClientWithBaseURI(baseURI, subscriptionID, ascLocation)
+}
+func NewRegulatoryComplianceAssessmentListIterator(page RegulatoryComplianceAssessmentListPage) RegulatoryComplianceAssessmentListIterator {
+	return original.NewRegulatoryComplianceAssessmentListIterator(page)
+}
+func NewRegulatoryComplianceAssessmentListPage(getNextPage func(context.Context, RegulatoryComplianceAssessmentList) (RegulatoryComplianceAssessmentList, error)) RegulatoryComplianceAssessmentListPage {
+	return original.NewRegulatoryComplianceAssessmentListPage(getNextPage)
+}
+func NewRegulatoryComplianceAssessmentsClient(subscriptionID string, ascLocation string) RegulatoryComplianceAssessmentsClient {
+	return original.NewRegulatoryComplianceAssessmentsClient(subscriptionID, ascLocation)
+}
+func NewRegulatoryComplianceAssessmentsClientWithBaseURI(baseURI string, subscriptionID string, ascLocation string) RegulatoryComplianceAssessmentsClient {
+	return original.NewRegulatoryComplianceAssessmentsClientWithBaseURI(baseURI, subscriptionID, ascLocation)
+}
+func NewRegulatoryComplianceControlListIterator(page RegulatoryComplianceControlListPage) RegulatoryComplianceControlListIterator {
+	return original.NewRegulatoryComplianceControlListIterator(page)
+}
+func NewRegulatoryComplianceControlListPage(getNextPage func(context.Context, RegulatoryComplianceControlList) (RegulatoryComplianceControlList, error)) RegulatoryComplianceControlListPage {
+	return original.NewRegulatoryComplianceControlListPage(getNextPage)
+}
+func NewRegulatoryComplianceControlsClient(subscriptionID string, ascLocation string) RegulatoryComplianceControlsClient {
+	return original.NewRegulatoryComplianceControlsClient(subscriptionID, ascLocation)
+}
+func NewRegulatoryComplianceControlsClientWithBaseURI(baseURI string, subscriptionID string, ascLocation string) RegulatoryComplianceControlsClient {
+	return original.NewRegulatoryComplianceControlsClientWithBaseURI(baseURI, subscriptionID, ascLocation)
+}
+func NewRegulatoryComplianceStandardListIterator(page RegulatoryComplianceStandardListPage) RegulatoryComplianceStandardListIterator {
+	return original.NewRegulatoryComplianceStandardListIterator(page)
+}
+func NewRegulatoryComplianceStandardListPage(getNextPage func(context.Context, RegulatoryComplianceStandardList) (RegulatoryComplianceStandardList, error)) RegulatoryComplianceStandardListPage {
+	return original.NewRegulatoryComplianceStandardListPage(getNextPage)
+}
+func NewRegulatoryComplianceStandardsClient(subscriptionID string, ascLocation string) RegulatoryComplianceStandardsClient {
+	return original.NewRegulatoryComplianceStandardsClient(subscriptionID, ascLocation)
+}
+func NewRegulatoryComplianceStandardsClientWithBaseURI(baseURI string, subscriptionID string, ascLocation string) RegulatoryComplianceStandardsClient {
+	return original.NewRegulatoryComplianceStandardsClientWithBaseURI(baseURI, subscriptionID, ascLocation)
 }
 func NewSettingsClient(subscriptionID string, ascLocation string) SettingsClient {
 	return original.NewSettingsClient(subscriptionID, ascLocation)
@@ -500,8 +591,17 @@ func PossiblePricingTierValues() []PricingTier {
 func PossibleProtocolValues() []Protocol {
 	return original.PossibleProtocolValues()
 }
+func PossibleReportedSeverityValues() []ReportedSeverity {
+	return original.PossibleReportedSeverityValues()
+}
+func PossibleResourceStatusValues() []ResourceStatus {
+	return original.PossibleResourceStatusValues()
+}
 func PossibleSettingKindValues() []SettingKind {
 	return original.PossibleSettingKindValues()
+}
+func PossibleStateValues() []State {
+	return original.PossibleStateValues()
 }
 func PossibleStatusReasonValues() []StatusReason {
 	return original.PossibleStatusReasonValues()

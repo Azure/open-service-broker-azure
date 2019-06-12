@@ -50,7 +50,7 @@ func (d *databaseManager) deletePostgreSQLDatabase(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting postgresql database: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, d.databasesClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(ctx, d.databasesClient.Client); err != nil {
 		return nil, fmt.Errorf("error deleting postgresql database: %s", err)
 	}
 	return instance.Details, nil

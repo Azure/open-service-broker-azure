@@ -19,7 +19,7 @@
 
 package insightsapi
 
-import original "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-11-01-preview/insights/insightsapi"
+import original "github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2019-03-01/insights/insightsapi"
 
 type ActionGroupsClientAPI = original.ActionGroupsClientAPI
 type ActivityLogAlertsClientAPI = original.ActivityLogAlertsClientAPI
@@ -27,6 +27,7 @@ type ActivityLogsClientAPI = original.ActivityLogsClientAPI
 type AlertRuleIncidentsClientAPI = original.AlertRuleIncidentsClientAPI
 type AlertRulesClientAPI = original.AlertRulesClientAPI
 type AutoscaleSettingsClientAPI = original.AutoscaleSettingsClientAPI
+type BaselinesClientAPI = original.BaselinesClientAPI
 type DiagnosticSettingsCategoryClientAPI = original.DiagnosticSettingsCategoryClientAPI
 type DiagnosticSettingsClientAPI = original.DiagnosticSettingsClientAPI
 type EventCategoriesClientAPI = original.EventCategoriesClientAPI

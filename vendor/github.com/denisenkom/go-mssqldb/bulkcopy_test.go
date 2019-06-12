@@ -1,9 +1,11 @@
+// +build go1.9
+
 package mssql
 
 import (
+	"context"
 	"database/sql"
 	"encoding/hex"
-	"log"
 	"math"
 	"reflect"
 	"strings"
@@ -20,8 +22,10 @@ func TestBulkcopy(t *testing.T) {
 		colname string
 		val     interface{}
 	}
+
 	tableName := "#table_test"
 	geom, _ := hex.DecodeString("E6100000010C00000000000034400000000000004440")
+	bin, _ := hex.DecodeString("ba8b7782168d4033a299333aec17bd33")
 	testValues := []testValue{
 
 		{"test_nvarchar", "ab©ĎéⒻghïjklmnopqЯ☀tuvwxyz"},
@@ -40,6 +44,7 @@ func TestBulkcopy(t *testing.T) {
 		{"test_smalldatetimen", time.Date(2010, 11, 12, 13, 14, 0, 0, time.UTC)},
 		{"test_datetime", time.Date(2010, 11, 12, 13, 14, 15, 120000000, time.UTC)},
 		{"test_datetimen", time.Date(2010, 11, 12, 13, 14, 15, 120000000, time.UTC)},
+		{"test_datetimen_1", time.Date(4010, 11, 12, 13, 14, 15, 120000000, time.UTC)},
 		{"test_datetime2_1", time.Date(2010, 11, 12, 13, 14, 15, 0, time.UTC)},
 		{"test_datetime2_3", time.Date(2010, 11, 12, 13, 14, 15, 123000000, time.UTC)},
 		{"test_datetime2_7", time.Date(2010, 11, 12, 13, 14, 15, 123000000, time.UTC)},
@@ -51,12 +56,18 @@ func TestBulkcopy(t *testing.T) {
 		{"test_bigint", 9223372036854775807},
 		{"test_bigintn", nil},
 		{"test_geom", geom},
+		{"test_uniqueidentifier", []byte{0x6F, 0x96, 0x19, 0xFF, 0x8B, 0x86, 0xD0, 0x11, 0xB4, 0x2D, 0x00, 0xC0, 0x4F, 0xC9, 0x64, 0xFF}},
 		// {"test_smallmoney", 1234.56},
 		// {"test_money", 1234.56},
 		{"test_decimal_18_0", 1234.0001},
 		{"test_decimal_9_2", 1234.560001},
 		{"test_decimal_20_0", 1234.0001},
 		{"test_numeric_30_10", 1234567.1234567},
+		{"test_varbinary", []byte("1")},
+		{"test_varbinary_16", bin},
+		{"test_varbinary_max", bin},
+		{"test_binary", []byte("1")},
+		{"test_binary_16", bin},
 	}
 
 	columns := make([]string, len(testValues))
@@ -69,21 +80,33 @@ func TestBulkcopy(t *testing.T) {
 		values[i] = val.val
 	}
 
-	conn := open(t)
+	pool := open(t)
+	defer pool.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Now that session resetting is supported, the use of the per session
+	// temp table requires the use of a dedicated connection from the connection
+	// pool.
+	conn, err := pool.Conn(ctx)
+	if err != nil {
+		t.Fatal("failed to pull connection from pool", err)
+	}
 	defer conn.Close()
 
-	err := setupTable(conn, tableName)
-	if (err != nil) {
-		t.Error("Setup table failed: ", err.Error())
+	err = setupTable(ctx, t, conn, tableName)
+	if err != nil {
+		t.Error("Setup table failed: ", err)
 		return
 	}
 
-	log.Println("Preparing copyin statement")
+	t.Log("Preparing copy in statement")
 
-	stmt, err := conn.Prepare(CopyIn(tableName, MssqlBulkOptions{}, columns...))
+	stmt, err := conn.PrepareContext(ctx, CopyIn(tableName, BulkOptions{}, columns...))
 
 	for i := 0; i < 10; i++ {
-		log.Printf("Executing copy in statement %d time with %d values", i+1, len(values))
+		t.Logf("Executing copy in statement %d time with %d values", i+1, len(values))
 		_, err = stmt.Exec(values...)
 		if err != nil {
 			t.Error("AddRow failed: ", err.Error())
@@ -103,16 +126,16 @@ func TestBulkcopy(t *testing.T) {
 
 	//check that all rows are present
 	var rowCount int
-	err = conn.QueryRow("select count(*) c from " + tableName).Scan(&rowCount)
+	err = conn.QueryRowContext(ctx, "select count(*) c from "+tableName).Scan(&rowCount)
 
 	if rowCount != 10 {
 		t.Errorf("unexpected row count %d", rowCount)
 	}
 
 	//data verification
-	rows, err := conn.Query("select " + strings.Join(columns, ",") + " from " + tableName)
+	rows, err := conn.QueryContext(ctx, "select "+strings.Join(columns, ",")+" from "+tableName)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -127,7 +150,7 @@ func TestBulkcopy(t *testing.T) {
 		}
 		for i, c := range testValues {
 			if !compareValue(container[i], c.val) {
-				t.Errorf("columns %s : %s != %v\n", c.colname, container[i], c.val)
+				t.Errorf("columns %s : expected: %v, got: %v\n", c.colname, c.val, container[i])
 			}
 		}
 	}
@@ -156,7 +179,7 @@ func compareValue(a interface{}, expected interface{}) bool {
 	}
 }
 
-func setupTable(conn *sql.DB, tableName string) (err error) {
+func setupTable(ctx context.Context, t *testing.T, conn *sql.Conn, tableName string) (err error) {
 	tablesql := `CREATE TABLE ` + tableName + ` (
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[test_nvarchar] [nvarchar](50) NULL,
@@ -175,6 +198,7 @@ func setupTable(conn *sql.DB, tableName string) (err error) {
 	[test_smalldatetimen] [smalldatetime] NULL,
 	[test_datetime] [datetime] NOT NULL,
 	[test_datetimen] [datetime] NULL,
+	[test_datetimen_1] [datetime] NULL,
 	[test_datetime2_1] [datetime2](1) NULL,
 	[test_datetime2_3] [datetime2](3) NULL,
 	[test_datetime2_7] [datetime2](7) NULL,
@@ -195,14 +219,19 @@ func setupTable(conn *sql.DB, tableName string) (err error) {
 	[test_decimal_9_2] [decimal](9, 2) NULL,
 	[test_decimal_20_0] [decimal](20, 0) NULL,
 	[test_numeric_30_10] [decimal](30, 10) NULL,
+	[test_varbinary] VARBINARY NOT NULL,
+	[test_varbinary_16] VARBINARY(16) NOT NULL,
+	[test_varbinary_max] VARBINARY(max) NOT NULL,
+	[test_binary] BINARY NOT NULL,
+	[test_binary_16] BINARY(16) NOT NULL,
  CONSTRAINT [PK_` + tableName + `_id] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY];`
-	_, err = conn.Exec(tablesql)
+	_, err = conn.ExecContext(ctx, tablesql)
 	if err != nil {
-		log.Fatal("tablesql failed:", err)
+		t.Fatal("tablesql failed:", err)
 	}
 	return
 }

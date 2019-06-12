@@ -2,6 +2,7 @@ package appinsights
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
@@ -16,15 +17,19 @@ func (s *serviceManager) Unbind(
 
 	resourceGroup := pp.GetString("resourceGroup")
 	appInsightsName := dt.AppInsightsName
-	apiKeyName := bd.APIKeyName
+	apiKeyID := bd.APIKeyID
 
-	if _, err := client.Delete(
+	if _, err := s.appInsightsAPIKeyClient.Delete(
 		context.Background(),
 		resourceGroup,
 		appInsightsName,
-		apiKeyName,
+		apiKeyID,
 	); err != nil {
-		return fmt.Errorf("Error deleting Application Insights API key %s: %+v", apiKeyName, err)
+		return fmt.Errorf(
+			"Error deleting Application Insights API key %s: %+v",
+			apiKeyID,
+			err,
+		)
 	}
 
 	return nil

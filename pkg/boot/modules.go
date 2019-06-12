@@ -83,7 +83,9 @@ func getModules(
 		azureSubscriptionID,
 	)
 	appInsightsAPIKeyClient.Authorizer = authorizer
-	appInsightsAPIKeyClient.UserAgent = getUserAgent(appInsightsAPIKeyClient.Client)
+	appInsightsAPIKeyClient.UserAgent = getUserAgent(
+		appInsightsAPIKeyClient.Client,
+	)
 
 	cognitiveClient := cognitiveSDK.NewAccountsClientWithBaseURI(
 		azureConfig.Environment.ResourceManagerEndpoint,

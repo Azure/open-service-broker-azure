@@ -46,7 +46,7 @@ func (nm *namespaceManager) deleteNamespace(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting service bus namespace: %s", err)
 	}
-	if err := result.WaitForCompletion(
+	if err := result.WaitForCompletionRef(
 		ctx,
 		nm.namespacesClient.Client,
 	); err != nil {

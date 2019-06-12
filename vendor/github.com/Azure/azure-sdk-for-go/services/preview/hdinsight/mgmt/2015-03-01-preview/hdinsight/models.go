@@ -156,11 +156,11 @@ type Application struct {
 	Tags map[string]*string `json:"tags"`
 	// Properties - The properties of the application.
 	Properties *ApplicationProperties `json:"properties,omitempty"`
-	// ID - Fully qualified resource Id for the resource.
+	// ID - READ-ONLY; Fully qualified resource Id for the resource.
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource.
+	// Type - READ-ONLY; The type of the resource.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -175,15 +175,6 @@ func (a Application) MarshalJSON() ([]byte, error) {
 	}
 	if a.Properties != nil {
 		objectMap["properties"] = a.Properties
-	}
-	if a.ID != nil {
-		objectMap["id"] = a.ID
-	}
-	if a.Name != nil {
-		objectMap["name"] = a.Name
-	}
-	if a.Type != nil {
-		objectMap["type"] = a.Type
 	}
 	return json.Marshal(objectMap)
 }
@@ -216,7 +207,7 @@ type ApplicationListResult struct {
 	autorest.Response `json:"-"`
 	// Value - The list of HDInsight applications installed on HDInsight cluster.
 	Value *[]Application `json:"value,omitempty"`
-	// NextLink - The URL to get the next set of operation list results if there are any.
+	// NextLink - READ-ONLY; The URL to get the next set of operation list results if there are any.
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
@@ -369,17 +360,17 @@ type ApplicationProperties struct {
 	HTTPSEndpoints *[]ApplicationGetHTTPSEndpoint `json:"httpsEndpoints,omitempty"`
 	// SSHEndpoints - The list of application SSH endpoints.
 	SSHEndpoints *[]ApplicationGetEndpoint `json:"sshEndpoints,omitempty"`
-	// ProvisioningState - The provisioning state of the application.
+	// ProvisioningState - READ-ONLY; The provisioning state of the application.
 	ProvisioningState *string `json:"provisioningState,omitempty"`
 	// ApplicationType - The application type.
 	ApplicationType *string `json:"applicationType,omitempty"`
-	// ApplicationState - The application state.
+	// ApplicationState - READ-ONLY; The application state.
 	ApplicationState *string `json:"applicationState,omitempty"`
 	// Errors - The list of errors.
 	Errors *[]Errors `json:"errors,omitempty"`
-	// CreatedDate - The application create date time.
+	// CreatedDate - READ-ONLY; The application create date time.
 	CreatedDate *string `json:"createdDate,omitempty"`
-	// MarketplaceIdentifier - The marketplace identifier.
+	// MarketplaceIdentifier - READ-ONLY; The marketplace identifier.
 	MarketplaceIdentifier *string `json:"marketplaceIdentifier,omitempty"`
 }
 
@@ -393,7 +384,7 @@ type ApplicationsCreateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ApplicationsCreateFuture) Result(client ApplicationsClient) (a Application, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ApplicationsCreateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -422,7 +413,7 @@ type ApplicationsDeleteFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ApplicationsDeleteFuture) Result(client ApplicationsClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ApplicationsDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -489,11 +480,11 @@ type Cluster struct {
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
 	Tags map[string]*string `json:"tags"`
-	// ID - Fully qualified resource Id for the resource.
+	// ID - READ-ONLY; Fully qualified resource Id for the resource.
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource.
+	// Type - READ-ONLY; The type of the resource.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -515,14 +506,21 @@ func (c Cluster) MarshalJSON() ([]byte, error) {
 	if c.Tags != nil {
 		objectMap["tags"] = c.Tags
 	}
-	if c.ID != nil {
-		objectMap["id"] = c.ID
-	}
-	if c.Name != nil {
-		objectMap["name"] = c.Name
-	}
-	if c.Type != nil {
-		objectMap["type"] = c.Type
+	return json.Marshal(objectMap)
+}
+
+// ClusterConfigurations the configuration object for the specified cluster.
+type ClusterConfigurations struct {
+	autorest.Response `json:"-"`
+	// Configurations - The configuration object for the specified configuration for the specified cluster.
+	Configurations map[string]map[string]*string `json:"configurations"`
+}
+
+// MarshalJSON is the custom marshaler for ClusterConfigurations.
+func (cc ClusterConfigurations) MarshalJSON() ([]byte, error) {
+	objectMap := make(map[string]interface{})
+	if cc.Configurations != nil {
+		objectMap["configurations"] = cc.Configurations
 	}
 	return json.Marshal(objectMap)
 }
@@ -649,9 +647,9 @@ type ClusterGetProperties struct {
 
 // ClusterIdentity identity for the cluster.
 type ClusterIdentity struct {
-	// PrincipalID - The principal id of cluster identity. This property will only be provided for a system assigned identity.
+	// PrincipalID - READ-ONLY; The principal id of cluster identity. This property will only be provided for a system assigned identity.
 	PrincipalID *string `json:"principalId,omitempty"`
-	// TenantID - The tenant id associated with the cluster. This property will only be provided for a system assigned identity.
+	// TenantID - READ-ONLY; The tenant id associated with the cluster. This property will only be provided for a system assigned identity.
 	TenantID *string `json:"tenantId,omitempty"`
 	// Type - The type of identity used for the cluster. The type 'SystemAssigned, UserAssigned' includes both an implicitly created identity and a set of user assigned identities. Possible values include: 'SystemAssigned', 'UserAssigned', 'SystemAssignedUserAssigned', 'None'
 	Type ResourceIdentityType `json:"type,omitempty"`
@@ -662,12 +660,6 @@ type ClusterIdentity struct {
 // MarshalJSON is the custom marshaler for ClusterIdentity.
 func (ci ClusterIdentity) MarshalJSON() ([]byte, error) {
 	objectMap := make(map[string]interface{})
-	if ci.PrincipalID != nil {
-		objectMap["principalId"] = ci.PrincipalID
-	}
-	if ci.TenantID != nil {
-		objectMap["tenantId"] = ci.TenantID
-	}
 	if ci.Type != "" {
 		objectMap["type"] = ci.Type
 	}
@@ -679,9 +671,9 @@ func (ci ClusterIdentity) MarshalJSON() ([]byte, error) {
 
 // ClusterIdentityUserAssignedIdentitiesValue ...
 type ClusterIdentityUserAssignedIdentitiesValue struct {
-	// PrincipalID - The principal id of user assigned identity.
+	// PrincipalID - READ-ONLY; The principal id of user assigned identity.
 	PrincipalID *string `json:"principalId,omitempty"`
-	// ClientID - The client id of user assigned identity.
+	// ClientID - READ-ONLY; The client id of user assigned identity.
 	ClientID *string `json:"clientId,omitempty"`
 }
 
@@ -689,7 +681,7 @@ type ClusterIdentityUserAssignedIdentitiesValue struct {
 type ClusterListPersistedScriptActionsResult struct {
 	// Value - The list of Persisted Script Actions.
 	Value *[]RuntimeScriptAction `json:"value,omitempty"`
-	// NextLink - The link (url) to the next page of results.
+	// NextLink - READ-ONLY; The link (url) to the next page of results.
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
@@ -698,7 +690,7 @@ type ClusterListResult struct {
 	autorest.Response `json:"-"`
 	// Value - The list of Clusters.
 	Value *[]Cluster `json:"value,omitempty"`
-	// NextLink - The link (url) to the next page of results.
+	// NextLink - READ-ONLY; The link (url) to the next page of results.
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
@@ -841,9 +833,9 @@ func NewClusterListResultPage(getNextPage func(context.Context, ClusterListResul
 
 // ClusterListRuntimeScriptActionDetailResult the list runtime script action detail response.
 type ClusterListRuntimeScriptActionDetailResult struct {
-	// Value - The list of persisted script action details for the cluster.
+	// Value - READ-ONLY; The list of persisted script action details for the cluster.
 	Value *[]RuntimeScriptActionDetail `json:"value,omitempty"`
-	// NextLink - The link (url) to the next page of results.
+	// NextLink - READ-ONLY; The link (url) to the next page of results.
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
@@ -895,7 +887,7 @@ type ClustersCreateFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersCreateFuture) Result(client ClustersClient) (c Cluster, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ClustersCreateFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -924,7 +916,7 @@ type ClustersDeleteFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersDeleteFuture) Result(client ClustersClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ClustersDeleteFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -947,7 +939,7 @@ type ClustersExecuteScriptActionsFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersExecuteScriptActionsFuture) Result(client ClustersClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ClustersExecuteScriptActionsFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -970,7 +962,7 @@ type ClustersResizeFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersResizeFuture) Result(client ClustersClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ClustersResizeFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -993,7 +985,7 @@ type ClustersRotateDiskEncryptionKeyFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ClustersRotateDiskEncryptionKeyFuture) Result(client ClustersClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ClustersRotateDiskEncryptionKeyFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -1006,29 +998,52 @@ func (future *ClustersRotateDiskEncryptionKeyFuture) Result(client ClustersClien
 	return
 }
 
+// ClustersUpdateGatewaySettingsFuture an abstraction for monitoring and retrieving the results of a
+// long-running operation.
+type ClustersUpdateGatewaySettingsFuture struct {
+	azure.Future
+}
+
+// Result returns the result of the asynchronous operation.
+// If the operation has not completed it will return an error.
+func (future *ClustersUpdateGatewaySettingsFuture) Result(client ClustersClient) (ar autorest.Response, err error) {
+	var done bool
+	done, err = future.DoneWithContext(context.Background(), client)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "hdinsight.ClustersUpdateGatewaySettingsFuture", "Result", future.Response(), "Polling failure")
+		return
+	}
+	if !done {
+		err = azure.NewAsyncOpIncompleteError("hdinsight.ClustersUpdateGatewaySettingsFuture")
+		return
+	}
+	ar.Response = future.Response()
+	return
+}
+
 // ComputeProfile describes the compute profile.
 type ComputeProfile struct {
 	// Roles - The list of roles in the cluster.
 	Roles *[]Role `json:"roles,omitempty"`
 }
 
-// ConfigurationsUpdateHTTPSettingsFuture an abstraction for monitoring and retrieving the results of a
-// long-running operation.
-type ConfigurationsUpdateHTTPSettingsFuture struct {
+// ConfigurationsUpdateFuture an abstraction for monitoring and retrieving the results of a long-running
+// operation.
+type ConfigurationsUpdateFuture struct {
 	azure.Future
 }
 
 // Result returns the result of the asynchronous operation.
 // If the operation has not completed it will return an error.
-func (future *ConfigurationsUpdateHTTPSettingsFuture) Result(client ConfigurationsClient) (ar autorest.Response, err error) {
+func (future *ConfigurationsUpdateFuture) Result(client ConfigurationsClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
-		err = autorest.NewErrorWithError(err, "hdinsight.ConfigurationsUpdateHTTPSettingsFuture", "Result", future.Response(), "Polling failure")
+		err = autorest.NewErrorWithError(err, "hdinsight.ConfigurationsUpdateFuture", "Result", future.Response(), "Polling failure")
 		return
 	}
 	if !done {
-		err = azure.NewAsyncOpIncompleteError("hdinsight.ConfigurationsUpdateHTTPSettingsFuture")
+		err = azure.NewAsyncOpIncompleteError("hdinsight.ConfigurationsUpdateFuture")
 		return
 	}
 	ar.Response = future.Response()
@@ -1051,9 +1066,9 @@ type ConnectivityEndpoint struct {
 type DataDisksGroups struct {
 	// DisksPerNode - The number of disks per node.
 	DisksPerNode *int32 `json:"disksPerNode,omitempty"`
-	// StorageAccountType - ReadOnly. The storage account type. Do not set this value.
+	// StorageAccountType - READ-ONLY; ReadOnly. The storage account type. Do not set this value.
 	StorageAccountType *string `json:"storageAccountType,omitempty"`
-	// DiskSizeGB - ReadOnly. The DiskSize in GB. Do not set this value.
+	// DiskSizeGB - READ-ONLY; ReadOnly. The DiskSize in GB. Do not set this value.
 	DiskSizeGB *int32 `json:"diskSizeGB,omitempty"`
 }
 
@@ -1114,7 +1129,7 @@ type ExtensionDisableMonitoringFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ExtensionDisableMonitoringFuture) Result(client ExtensionClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ExtensionDisableMonitoringFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -1137,7 +1152,7 @@ type ExtensionEnableMonitoringFuture struct {
 // If the operation has not completed it will return an error.
 func (future *ExtensionEnableMonitoringFuture) Result(client ExtensionClient) (ar autorest.Response, err error) {
 	var done bool
-	done, err = future.Done(client)
+	done, err = future.DoneWithContext(context.Background(), client)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "hdinsight.ExtensionEnableMonitoringFuture", "Result", future.Response(), "Polling failure")
 		return
@@ -1148,6 +1163,17 @@ func (future *ExtensionEnableMonitoringFuture) Result(client ExtensionClient) (a
 	}
 	ar.Response = future.Response()
 	return
+}
+
+// GatewaySettings gateway settings.
+type GatewaySettings struct {
+	autorest.Response `json:"-"`
+	// IsCredentialEnabled - READ-ONLY; Indicates whether or not the gateway settings based authorization is enabled.
+	IsCredentialEnabled *string `json:"restAuthCredential.isEnabled,omitempty"`
+	// UserName - READ-ONLY; The gateway settings user name.
+	UserName *string `json:"restAuthCredential.username,omitempty"`
+	// Password - READ-ONLY; The gateway settings user password.
+	Password *string `json:"restAuthCredential.password,omitempty"`
 }
 
 // HardwareProfile the hardware profile.
@@ -1356,11 +1382,11 @@ type OsProfile struct {
 // ProxyResource the resource model definition for a ARM proxy resource. It will have everything other than
 // required location and tags
 type ProxyResource struct {
-	// ID - Fully qualified resource Id for the resource.
+	// ID - READ-ONLY; Fully qualified resource Id for the resource.
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource.
+	// Type - READ-ONLY; The type of the resource.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -1394,11 +1420,11 @@ type RegionsCapability struct {
 
 // Resource the core properties of ARM resources
 type Resource struct {
-	// ID - Fully qualified resource Id for the resource.
+	// ID - READ-ONLY; Fully qualified resource Id for the resource.
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource.
+	// Type - READ-ONLY; The type of the resource.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -1432,26 +1458,26 @@ type RuntimeScriptAction struct {
 	Parameters *string `json:"parameters,omitempty"`
 	// Roles - The list of roles where script will be executed.
 	Roles *[]string `json:"roles,omitempty"`
-	// ApplicationName - The application name of the script action, if any.
+	// ApplicationName - READ-ONLY; The application name of the script action, if any.
 	ApplicationName *string `json:"applicationName,omitempty"`
 }
 
 // RuntimeScriptActionDetail the execution details of a script action.
 type RuntimeScriptActionDetail struct {
 	autorest.Response `json:"-"`
-	// ScriptExecutionID - The execution id of the script action.
+	// ScriptExecutionID - READ-ONLY; The execution id of the script action.
 	ScriptExecutionID *int64 `json:"scriptExecutionId,omitempty"`
-	// StartTime - The start time of script action execution.
+	// StartTime - READ-ONLY; The start time of script action execution.
 	StartTime *string `json:"startTime,omitempty"`
-	// EndTime - The end time of script action execution.
+	// EndTime - READ-ONLY; The end time of script action execution.
 	EndTime *string `json:"endTime,omitempty"`
-	// Status - The current execution status of the script action.
+	// Status - READ-ONLY; The current execution status of the script action.
 	Status *string `json:"status,omitempty"`
-	// Operation - The reason why the script action was executed.
+	// Operation - READ-ONLY; The reason why the script action was executed.
 	Operation *string `json:"operation,omitempty"`
-	// ExecutionSummary - The summary of script action execution result.
+	// ExecutionSummary - READ-ONLY; The summary of script action execution result.
 	ExecutionSummary *[]ScriptActionExecutionSummary `json:"executionSummary,omitempty"`
-	// DebugInformation - The script action execution debug information.
+	// DebugInformation - READ-ONLY; The script action execution debug information.
 	DebugInformation *string `json:"debugInformation,omitempty"`
 	// Name - The name of the script action.
 	Name *string `json:"name,omitempty"`
@@ -1461,7 +1487,7 @@ type RuntimeScriptActionDetail struct {
 	Parameters *string `json:"parameters,omitempty"`
 	// Roles - The list of roles where script will be executed.
 	Roles *[]string `json:"roles,omitempty"`
-	// ApplicationName - The application name of the script action, if any.
+	// ApplicationName - READ-ONLY; The application name of the script action, if any.
 	ApplicationName *string `json:"applicationName,omitempty"`
 }
 
@@ -1478,9 +1504,9 @@ type ScriptAction struct {
 // ScriptActionExecutionHistoryList the list script execution history response.
 type ScriptActionExecutionHistoryList struct {
 	autorest.Response `json:"-"`
-	// Value - The list of persisted script action details for the cluster.
+	// Value - READ-ONLY; The list of persisted script action details for the cluster.
 	Value *[]RuntimeScriptActionDetail `json:"value,omitempty"`
-	// NextLink - The link (url) to the next page of results.
+	// NextLink - READ-ONLY; The link (url) to the next page of results.
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
@@ -1624,9 +1650,9 @@ func NewScriptActionExecutionHistoryListPage(getNextPage func(context.Context, S
 
 // ScriptActionExecutionSummary the execution summary of a script action.
 type ScriptActionExecutionSummary struct {
-	// Status - The status of script action execution.
+	// Status - READ-ONLY; The status of script action execution.
 	Status *string `json:"status,omitempty"`
-	// InstanceCount - The instance count for a given script action execution status.
+	// InstanceCount - READ-ONLY; The instance count for a given script action execution status.
 	InstanceCount *int32 `json:"instanceCount,omitempty"`
 }
 
@@ -1649,7 +1675,7 @@ type ScriptActionsList struct {
 	autorest.Response `json:"-"`
 	// Value - The list of persisted script action details for the cluster.
 	Value *[]RuntimeScriptActionDetail `json:"value,omitempty"`
-	// NextLink - The link (url) to the next page of results.
+	// NextLink - READ-ONLY; The link (url) to the next page of results.
 	NextLink *string `json:"nextLink,omitempty"`
 }
 
@@ -1869,11 +1895,11 @@ type TrackedResource struct {
 	Location *string `json:"location,omitempty"`
 	// Tags - Resource tags.
 	Tags map[string]*string `json:"tags"`
-	// ID - Fully qualified resource Id for the resource.
+	// ID - READ-ONLY; Fully qualified resource Id for the resource.
 	ID *string `json:"id,omitempty"`
-	// Name - The name of the resource
+	// Name - READ-ONLY; The name of the resource
 	Name *string `json:"name,omitempty"`
-	// Type - The type of the resource.
+	// Type - READ-ONLY; The type of the resource.
 	Type *string `json:"type,omitempty"`
 }
 
@@ -1886,16 +1912,17 @@ func (tr TrackedResource) MarshalJSON() ([]byte, error) {
 	if tr.Tags != nil {
 		objectMap["tags"] = tr.Tags
 	}
-	if tr.ID != nil {
-		objectMap["id"] = tr.ID
-	}
-	if tr.Name != nil {
-		objectMap["name"] = tr.Name
-	}
-	if tr.Type != nil {
-		objectMap["type"] = tr.Type
-	}
 	return json.Marshal(objectMap)
+}
+
+// UpdateGatewaySettingsParameters the update gateway settings request parameters.
+type UpdateGatewaySettingsParameters struct {
+	// IsCredentialEnabled - Indicates whether or not the gateway settings based authorization is enabled.
+	IsCredentialEnabled *bool `json:"restAuthCredential.isEnabled,omitempty"`
+	// UserName - The gateway settings user name.
+	UserName *string `json:"restAuthCredential.username,omitempty"`
+	// Password - The gateway settings user password.
+	Password *string `json:"restAuthCredential.password,omitempty"`
 }
 
 // Usage the details about the usage of a particular limited resource.
