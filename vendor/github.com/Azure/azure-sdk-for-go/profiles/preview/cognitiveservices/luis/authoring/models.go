@@ -38,6 +38,7 @@ const (
 	ReadableTypeHierarchicalChildEntityExtractor ReadableType = original.ReadableTypeHierarchicalChildEntityExtractor
 	ReadableTypeHierarchicalEntityExtractor      ReadableType = original.ReadableTypeHierarchicalEntityExtractor
 	ReadableTypeIntentClassifier                 ReadableType = original.ReadableTypeIntentClassifier
+	ReadableTypeListEntityExtractor              ReadableType = original.ReadableTypeListEntityExtractor
 	ReadableTypePatternAnyEntityExtractor        ReadableType = original.ReadableTypePatternAnyEntityExtractor
 	ReadableTypePrebuiltEntityExtractor          ReadableType = original.ReadableTypePrebuiltEntityExtractor
 	ReadableTypeRegexEntityExtractor             ReadableType = original.ReadableTypeRegexEntityExtractor
@@ -52,6 +53,7 @@ const (
 	ReadableType1HierarchicalChildEntityExtractor ReadableType1 = original.ReadableType1HierarchicalChildEntityExtractor
 	ReadableType1HierarchicalEntityExtractor      ReadableType1 = original.ReadableType1HierarchicalEntityExtractor
 	ReadableType1IntentClassifier                 ReadableType1 = original.ReadableType1IntentClassifier
+	ReadableType1ListEntityExtractor              ReadableType1 = original.ReadableType1ListEntityExtractor
 	ReadableType1PatternAnyEntityExtractor        ReadableType1 = original.ReadableType1PatternAnyEntityExtractor
 	ReadableType1PrebuiltEntityExtractor          ReadableType1 = original.ReadableType1PrebuiltEntityExtractor
 	ReadableType1RegexEntityExtractor             ReadableType1 = original.ReadableType1RegexEntityExtractor
@@ -66,6 +68,7 @@ const (
 	ReadableType10HierarchicalChildEntityExtractor ReadableType10 = original.ReadableType10HierarchicalChildEntityExtractor
 	ReadableType10HierarchicalEntityExtractor      ReadableType10 = original.ReadableType10HierarchicalEntityExtractor
 	ReadableType10IntentClassifier                 ReadableType10 = original.ReadableType10IntentClassifier
+	ReadableType10ListEntityExtractor              ReadableType10 = original.ReadableType10ListEntityExtractor
 	ReadableType10PatternAnyEntityExtractor        ReadableType10 = original.ReadableType10PatternAnyEntityExtractor
 	ReadableType10PrebuiltEntityExtractor          ReadableType10 = original.ReadableType10PrebuiltEntityExtractor
 	ReadableType10RegexEntityExtractor             ReadableType10 = original.ReadableType10RegexEntityExtractor
@@ -80,6 +83,7 @@ const (
 	ReadableType2HierarchicalChildEntityExtractor ReadableType2 = original.ReadableType2HierarchicalChildEntityExtractor
 	ReadableType2HierarchicalEntityExtractor      ReadableType2 = original.ReadableType2HierarchicalEntityExtractor
 	ReadableType2IntentClassifier                 ReadableType2 = original.ReadableType2IntentClassifier
+	ReadableType2ListEntityExtractor              ReadableType2 = original.ReadableType2ListEntityExtractor
 	ReadableType2PatternAnyEntityExtractor        ReadableType2 = original.ReadableType2PatternAnyEntityExtractor
 	ReadableType2PrebuiltEntityExtractor          ReadableType2 = original.ReadableType2PrebuiltEntityExtractor
 	ReadableType2RegexEntityExtractor             ReadableType2 = original.ReadableType2RegexEntityExtractor
@@ -94,6 +98,7 @@ const (
 	ReadableType3HierarchicalChildEntityExtractor ReadableType3 = original.ReadableType3HierarchicalChildEntityExtractor
 	ReadableType3HierarchicalEntityExtractor      ReadableType3 = original.ReadableType3HierarchicalEntityExtractor
 	ReadableType3IntentClassifier                 ReadableType3 = original.ReadableType3IntentClassifier
+	ReadableType3ListEntityExtractor              ReadableType3 = original.ReadableType3ListEntityExtractor
 	ReadableType3PatternAnyEntityExtractor        ReadableType3 = original.ReadableType3PatternAnyEntityExtractor
 	ReadableType3PrebuiltEntityExtractor          ReadableType3 = original.ReadableType3PrebuiltEntityExtractor
 	ReadableType3RegexEntityExtractor             ReadableType3 = original.ReadableType3RegexEntityExtractor
@@ -108,6 +113,7 @@ const (
 	ReadableType4HierarchicalChildEntityExtractor ReadableType4 = original.ReadableType4HierarchicalChildEntityExtractor
 	ReadableType4HierarchicalEntityExtractor      ReadableType4 = original.ReadableType4HierarchicalEntityExtractor
 	ReadableType4IntentClassifier                 ReadableType4 = original.ReadableType4IntentClassifier
+	ReadableType4ListEntityExtractor              ReadableType4 = original.ReadableType4ListEntityExtractor
 	ReadableType4PatternAnyEntityExtractor        ReadableType4 = original.ReadableType4PatternAnyEntityExtractor
 	ReadableType4PrebuiltEntityExtractor          ReadableType4 = original.ReadableType4PrebuiltEntityExtractor
 	ReadableType4RegexEntityExtractor             ReadableType4 = original.ReadableType4RegexEntityExtractor
@@ -122,6 +128,7 @@ const (
 	ReadableType5HierarchicalChildEntityExtractor ReadableType5 = original.ReadableType5HierarchicalChildEntityExtractor
 	ReadableType5HierarchicalEntityExtractor      ReadableType5 = original.ReadableType5HierarchicalEntityExtractor
 	ReadableType5IntentClassifier                 ReadableType5 = original.ReadableType5IntentClassifier
+	ReadableType5ListEntityExtractor              ReadableType5 = original.ReadableType5ListEntityExtractor
 	ReadableType5PatternAnyEntityExtractor        ReadableType5 = original.ReadableType5PatternAnyEntityExtractor
 	ReadableType5PrebuiltEntityExtractor          ReadableType5 = original.ReadableType5PrebuiltEntityExtractor
 	ReadableType5RegexEntityExtractor             ReadableType5 = original.ReadableType5RegexEntityExtractor
@@ -136,6 +143,7 @@ const (
 	ReadableType6HierarchicalChildEntityExtractor ReadableType6 = original.ReadableType6HierarchicalChildEntityExtractor
 	ReadableType6HierarchicalEntityExtractor      ReadableType6 = original.ReadableType6HierarchicalEntityExtractor
 	ReadableType6IntentClassifier                 ReadableType6 = original.ReadableType6IntentClassifier
+	ReadableType6ListEntityExtractor              ReadableType6 = original.ReadableType6ListEntityExtractor
 	ReadableType6PatternAnyEntityExtractor        ReadableType6 = original.ReadableType6PatternAnyEntityExtractor
 	ReadableType6PrebuiltEntityExtractor          ReadableType6 = original.ReadableType6PrebuiltEntityExtractor
 	ReadableType6RegexEntityExtractor             ReadableType6 = original.ReadableType6RegexEntityExtractor
@@ -150,6 +158,7 @@ const (
 	ReadableType7HierarchicalChildEntityExtractor ReadableType7 = original.ReadableType7HierarchicalChildEntityExtractor
 	ReadableType7HierarchicalEntityExtractor      ReadableType7 = original.ReadableType7HierarchicalEntityExtractor
 	ReadableType7IntentClassifier                 ReadableType7 = original.ReadableType7IntentClassifier
+	ReadableType7ListEntityExtractor              ReadableType7 = original.ReadableType7ListEntityExtractor
 	ReadableType7PatternAnyEntityExtractor        ReadableType7 = original.ReadableType7PatternAnyEntityExtractor
 	ReadableType7PrebuiltEntityExtractor          ReadableType7 = original.ReadableType7PrebuiltEntityExtractor
 	ReadableType7RegexEntityExtractor             ReadableType7 = original.ReadableType7RegexEntityExtractor
@@ -164,6 +173,7 @@ const (
 	ReadableType8HierarchicalChildEntityExtractor ReadableType8 = original.ReadableType8HierarchicalChildEntityExtractor
 	ReadableType8HierarchicalEntityExtractor      ReadableType8 = original.ReadableType8HierarchicalEntityExtractor
 	ReadableType8IntentClassifier                 ReadableType8 = original.ReadableType8IntentClassifier
+	ReadableType8ListEntityExtractor              ReadableType8 = original.ReadableType8ListEntityExtractor
 	ReadableType8PatternAnyEntityExtractor        ReadableType8 = original.ReadableType8PatternAnyEntityExtractor
 	ReadableType8PrebuiltEntityExtractor          ReadableType8 = original.ReadableType8PrebuiltEntityExtractor
 	ReadableType8RegexEntityExtractor             ReadableType8 = original.ReadableType8RegexEntityExtractor
@@ -178,6 +188,7 @@ const (
 	ReadableType9HierarchicalChildEntityExtractor ReadableType9 = original.ReadableType9HierarchicalChildEntityExtractor
 	ReadableType9HierarchicalEntityExtractor      ReadableType9 = original.ReadableType9HierarchicalEntityExtractor
 	ReadableType9IntentClassifier                 ReadableType9 = original.ReadableType9IntentClassifier
+	ReadableType9ListEntityExtractor              ReadableType9 = original.ReadableType9ListEntityExtractor
 	ReadableType9PatternAnyEntityExtractor        ReadableType9 = original.ReadableType9PatternAnyEntityExtractor
 	ReadableType9PrebuiltEntityExtractor          ReadableType9 = original.ReadableType9PrebuiltEntityExtractor
 	ReadableType9RegexEntityExtractor             ReadableType9 = original.ReadableType9RegexEntityExtractor
@@ -263,6 +274,7 @@ type HierarchicalEntityExtractor = original.HierarchicalEntityExtractor
 type HierarchicalEntityModel = original.HierarchicalEntityModel
 type HierarchicalModel = original.HierarchicalModel
 type Int32 = original.Int32
+type Int64 = original.Int64
 type IntentClassifier = original.IntentClassifier
 type IntentPrediction = original.IntentPrediction
 type IntentsSuggestionExample = original.IntentsSuggestionExample
@@ -294,6 +306,7 @@ type ListLabeledUtterance = original.ListLabeledUtterance
 type ListModelInfoResponse = original.ListModelInfoResponse
 type ListModelTrainingInfo = original.ListModelTrainingInfo
 type ListPatternAnyEntityExtractor = original.ListPatternAnyEntityExtractor
+type ListPatternFeatureInfo = original.ListPatternFeatureInfo
 type ListPatternRuleInfo = original.ListPatternRuleInfo
 type ListPhraseListFeatureInfo = original.ListPhraseListFeatureInfo
 type ListPrebuiltDomain = original.ListPrebuiltDomain

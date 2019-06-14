@@ -49,7 +49,10 @@ func (d *dbmsManager) deleteMsSQLServer(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, d.serversClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(
+		ctx,
+		d.serversClient.Client,
+	); err != nil {
 		return nil, fmt.Errorf("error deleting sql server: %s", err)
 	}
 	return instance.Details, nil

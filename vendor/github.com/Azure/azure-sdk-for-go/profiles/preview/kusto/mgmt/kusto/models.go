@@ -44,10 +44,6 @@ const (
 	D12V2 AzureSkuName = original.D12V2
 	D13V2 AzureSkuName = original.D13V2
 	D14V2 AzureSkuName = original.D14V2
-	KC16  AzureSkuName = original.KC16
-	KC8   AzureSkuName = original.KC8
-	KS16  AzureSkuName = original.KS16
-	KS8   AzureSkuName = original.KS8
 	L16   AzureSkuName = original.L16
 	L4    AzureSkuName = original.L4
 	L8    AzureSkuName = original.L8
@@ -106,6 +102,13 @@ const (
 	Succeeded ProvisioningState = original.Succeeded
 )
 
+type Reason = original.Reason
+
+const (
+	AlreadyExists Reason = original.AlreadyExists
+	Invalid       Reason = original.Invalid
+)
+
 type State = original.State
 
 const (
@@ -141,6 +144,7 @@ type ClustersStartFuture = original.ClustersStartFuture
 type ClustersStopFuture = original.ClustersStopFuture
 type ClustersUpdateFuture = original.ClustersUpdateFuture
 type DataConnection = original.DataConnection
+type DataConnectionCheckNameRequest = original.DataConnectionCheckNameRequest
 type DataConnectionListResult = original.DataConnectionListResult
 type DataConnectionModel = original.DataConnectionModel
 type DataConnectionValidation = original.DataConnectionValidation
@@ -236,6 +240,9 @@ func PossibleKindValues() []Kind {
 }
 func PossibleProvisioningStateValues() []ProvisioningState {
 	return original.PossibleProvisioningStateValues()
+}
+func PossibleReasonValues() []Reason {
+	return original.PossibleReasonValues()
 }
 func PossibleStateValues() []State {
 	return original.PossibleStateValues()

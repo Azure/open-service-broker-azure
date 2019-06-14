@@ -46,7 +46,7 @@ func (s *serviceManager) deleteNamespace(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting event hub namespace: %s", err)
 	}
-	if err := result.WaitForCompletion(
+	if err := result.WaitForCompletionRef(
 		ctx,
 		s.namespacesClient.Client,
 	); err != nil {

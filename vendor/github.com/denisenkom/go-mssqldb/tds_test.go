@@ -2,6 +2,7 @@ package mssql
 
 import (
 	"bytes"
+	"context"
 	"database/sql"
 	"encoding/hex"
 	"fmt"
@@ -9,8 +10,6 @@ import (
 	"os"
 	"testing"
 	"time"
-
-	"golang.org/x/net/context"
 )
 
 type MockTransport struct {
@@ -79,7 +78,7 @@ func TestSendSqlBatch(t *testing.T) {
 		return
 	}
 
-	conn, err := connect(optionalLogger{testLogger{t}}, p)
+	conn, err := connect(context.Background(), nil, optionalLogger{testLogger{t}}, p)
 	if err != nil {
 		t.Error("Open connection failed:", err.Error())
 		return
@@ -90,14 +89,14 @@ func TestSendSqlBatch(t *testing.T) {
 		{hdrtype: dataStmHdrTransDescr,
 			data: transDescrHdr{0, 1}.pack()},
 	}
-	err = sendSqlBatch72(conn.buf, "select 1", headers)
+	err = sendSqlBatch72(conn.buf, "select 1", headers, true)
 	if err != nil {
 		t.Error("Sending sql batch failed", err.Error())
 		return
 	}
 
 	ch := make(chan tokenStruct, 5)
-	go processResponse(context.Background(), conn, ch)
+	go processResponse(context.Background(), conn, ch, nil)
 
 	var lastRow []interface{}
 loop:
@@ -147,7 +146,9 @@ func makeConnStr(t *testing.T) *url.URL {
 			t.Fatal("unable to parse SQLSERVER_DSN as URL", err)
 		}
 		values := parsed.Query()
-		values.Set("log", "127")
+		if values.Get("log") == "" {
+			values.Set("log", "127")
+		}
 		parsed.RawQuery = values.Encode()
 		return parsed
 	}
@@ -498,5 +499,24 @@ func TestValidConnectionString(t *testing.T) {
 		if !ts.check(p) {
 			t.Errorf("Check failed on conn str %s", ts.connStr)
 		}
+	}
+}
+
+func TestBadConnect(t *testing.T) {
+	checkConnStr(t)
+	SetLogger(testLogger{t})
+	connURL := makeConnStr(t)
+	connURL.User = url.UserPassword("baduser", "badpwd")
+	badDSN := connURL.String()
+
+	conn, err := sql.Open("mssql", badDSN)
+	if err != nil {
+		t.Error("Open connection failed:", err.Error())
+	}
+	defer conn.Close()
+
+	err = conn.Ping()
+	if err == nil {
+		t.Error("Ping should fail for connection: ", badDSN)
 	}
 }

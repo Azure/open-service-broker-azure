@@ -22,7 +22,7 @@ package containerregistry
 import (
 	"context"
 
-	original "github.com/Azure/azure-sdk-for-go/services/containerregistry/mgmt/2018-09-01/containerregistry"
+	original "github.com/Azure/azure-sdk-for-go/services/containerregistry/mgmt/2019-05-01/containerregistry"
 )
 
 const (
@@ -110,6 +110,15 @@ const (
 	Count RegistryUsageUnit = original.Count
 )
 
+type ResourceIdentityType = original.ResourceIdentityType
+
+const (
+	None                       ResourceIdentityType = original.None
+	SystemAssigned             ResourceIdentityType = original.SystemAssigned
+	SystemAssignedUserAssigned ResourceIdentityType = original.SystemAssignedUserAssigned
+	UserAssigned               ResourceIdentityType = original.UserAssigned
+)
+
 type RunStatus = original.RunStatus
 
 const (
@@ -135,7 +144,8 @@ const (
 type SecretObjectType = original.SecretObjectType
 
 const (
-	Opaque SecretObjectType = original.Opaque
+	Opaque      SecretObjectType = original.Opaque
+	Vaultsecret SecretObjectType = original.Vaultsecret
 )
 
 type SkuName = original.SkuName
@@ -166,8 +176,8 @@ const (
 type SourceRegistryLoginMode = original.SourceRegistryLoginMode
 
 const (
-	Default SourceRegistryLoginMode = original.Default
-	None    SourceRegistryLoginMode = original.None
+	SourceRegistryLoginModeDefault SourceRegistryLoginMode = original.SourceRegistryLoginModeDefault
+	SourceRegistryLoginModeNone    SourceRegistryLoginMode = original.SourceRegistryLoginModeNone
 )
 
 type SourceTriggerEvent = original.SourceTriggerEvent
@@ -290,6 +300,7 @@ type FileTaskRunRequest = original.FileTaskRunRequest
 type FileTaskStep = original.FileTaskStep
 type FileTaskStepUpdateParameters = original.FileTaskStepUpdateParameters
 type IPRule = original.IPRule
+type IdentityProperties = original.IdentityProperties
 type ImageDescriptor = original.ImageDescriptor
 type ImageUpdateTrigger = original.ImageUpdateTrigger
 type ImportImageParameters = original.ImportImageParameters
@@ -307,6 +318,7 @@ type OperationServiceSpecificationDefinition = original.OperationServiceSpecific
 type OperationsClient = original.OperationsClient
 type PlatformProperties = original.PlatformProperties
 type PlatformUpdateParameters = original.PlatformUpdateParameters
+type Policies = original.Policies
 type ProxyResource = original.ProxyResource
 type QuarantinePolicy = original.QuarantinePolicy
 type RegenerateCredentialParameters = original.RegenerateCredentialParameters
@@ -316,9 +328,7 @@ type RegistriesDeleteFuture = original.RegistriesDeleteFuture
 type RegistriesImportImageFuture = original.RegistriesImportImageFuture
 type RegistriesScheduleRunFuture = original.RegistriesScheduleRunFuture
 type RegistriesUpdateFuture = original.RegistriesUpdateFuture
-type RegistriesUpdatePoliciesFuture = original.RegistriesUpdatePoliciesFuture
 type Registry = original.Registry
-type RegistryIdentity = original.RegistryIdentity
 type RegistryListCredentialsResult = original.RegistryListCredentialsResult
 type RegistryListResult = original.RegistryListResult
 type RegistryListResultIterator = original.RegistryListResultIterator
@@ -326,7 +336,6 @@ type RegistryListResultPage = original.RegistryListResultPage
 type RegistryNameCheckRequest = original.RegistryNameCheckRequest
 type RegistryNameStatus = original.RegistryNameStatus
 type RegistryPassword = original.RegistryPassword
-type RegistryPolicies = original.RegistryPolicies
 type RegistryProperties = original.RegistryProperties
 type RegistryPropertiesUpdateParameters = original.RegistryPropertiesUpdateParameters
 type RegistryUpdateParameters = original.RegistryUpdateParameters
@@ -344,6 +353,7 @@ type ReplicationsDeleteFuture = original.ReplicationsDeleteFuture
 type ReplicationsUpdateFuture = original.ReplicationsUpdateFuture
 type Request = original.Request
 type Resource = original.Resource
+type RetentionPolicy = original.RetentionPolicy
 type Run = original.Run
 type RunFilter = original.RunFilter
 type RunGetLogResult = original.RunGetLogResult
@@ -384,9 +394,12 @@ type TasksClient = original.TasksClient
 type TasksCreateFuture = original.TasksCreateFuture
 type TasksDeleteFuture = original.TasksDeleteFuture
 type TasksUpdateFuture = original.TasksUpdateFuture
+type TimerTrigger = original.TimerTrigger
+type TimerTriggerUpdateParameters = original.TimerTriggerUpdateParameters
 type TriggerProperties = original.TriggerProperties
 type TriggerUpdateParameters = original.TriggerUpdateParameters
 type TrustPolicy = original.TrustPolicy
+type UserIdentityProperties = original.UserIdentityProperties
 type VirtualNetworkRule = original.VirtualNetworkRule
 type Webhook = original.Webhook
 type WebhookCreateParameters = original.WebhookCreateParameters
@@ -518,6 +531,9 @@ func PossibleProvisioningStateValues() []ProvisioningState {
 }
 func PossibleRegistryUsageUnitValues() []RegistryUsageUnit {
 	return original.PossibleRegistryUsageUnitValues()
+}
+func PossibleResourceIdentityTypeValues() []ResourceIdentityType {
+	return original.PossibleResourceIdentityTypeValues()
 }
 func PossibleRunStatusValues() []RunStatus {
 	return original.PossibleRunStatusValues()

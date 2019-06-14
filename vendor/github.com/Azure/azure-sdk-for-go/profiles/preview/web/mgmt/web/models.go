@@ -416,8 +416,10 @@ const (
 type ManagedServiceIdentityType = original.ManagedServiceIdentityType
 
 const (
-	SystemAssigned ManagedServiceIdentityType = original.SystemAssigned
-	UserAssigned   ManagedServiceIdentityType = original.UserAssigned
+	ManagedServiceIdentityTypeNone                       ManagedServiceIdentityType = original.ManagedServiceIdentityTypeNone
+	ManagedServiceIdentityTypeSystemAssigned             ManagedServiceIdentityType = original.ManagedServiceIdentityTypeSystemAssigned
+	ManagedServiceIdentityTypeSystemAssignedUserAssigned ManagedServiceIdentityType = original.ManagedServiceIdentityTypeSystemAssignedUserAssigned
+	ManagedServiceIdentityTypeUserAssigned               ManagedServiceIdentityType = original.ManagedServiceIdentityTypeUserAssigned
 )
 
 type MySQLMigrationType = original.MySQLMigrationType
@@ -470,6 +472,16 @@ const (
 	FileZilla3 PublishingProfileFormat = original.FileZilla3
 	Ftp        PublishingProfileFormat = original.Ftp
 	WebDeploy  PublishingProfileFormat = original.WebDeploy
+)
+
+type RedundancyMode = original.RedundancyMode
+
+const (
+	RedundancyModeActiveActive RedundancyMode = original.RedundancyModeActiveActive
+	RedundancyModeFailover     RedundancyMode = original.RedundancyModeFailover
+	RedundancyModeGeoRedundant RedundancyMode = original.RedundancyModeGeoRedundant
+	RedundancyModeManual       RedundancyMode = original.RedundancyModeManual
+	RedundancyModeNone         RedundancyMode = original.RedundancyModeNone
 )
 
 type RenderingType = original.RenderingType
@@ -853,6 +865,8 @@ type DomainRegistrationProviderClient = original.DomainRegistrationProviderClien
 type DomainsClient = original.DomainsClient
 type DomainsCreateOrUpdateFuture = original.DomainsCreateOrUpdateFuture
 type EnabledConfig = original.EnabledConfig
+type EndpointDependency = original.EndpointDependency
+type EndpointDetail = original.EndpointDetail
 type ErrorEntity = original.ErrorEntity
 type Experiments = original.Experiments
 type FileSystemApplicationLogsConfig = original.FileSystemApplicationLogsConfig
@@ -864,6 +878,7 @@ type FunctionEnvelopeCollectionPage = original.FunctionEnvelopeCollectionPage
 type FunctionEnvelopeProperties = original.FunctionEnvelopeProperties
 type FunctionSecrets = original.FunctionSecrets
 type FunctionSecretsProperties = original.FunctionSecretsProperties
+type GeoDistribution = original.GeoDistribution
 type GeoRegion = original.GeoRegion
 type GeoRegionCollection = original.GeoRegionCollection
 type GeoRegionCollectionIterator = original.GeoRegionCollectionIterator
@@ -897,6 +912,10 @@ type IdentifierCollection = original.IdentifierCollection
 type IdentifierCollectionIterator = original.IdentifierCollectionIterator
 type IdentifierCollectionPage = original.IdentifierCollectionPage
 type IdentifierProperties = original.IdentifierProperties
+type InboundEnvironmentEndpoint = original.InboundEnvironmentEndpoint
+type InboundEnvironmentEndpointCollection = original.InboundEnvironmentEndpointCollection
+type InboundEnvironmentEndpointCollectionIterator = original.InboundEnvironmentEndpointCollectionIterator
+type InboundEnvironmentEndpointCollectionPage = original.InboundEnvironmentEndpointCollectionPage
 type Job = original.Job
 type JobCollection = original.JobCollection
 type JobCollectionIterator = original.JobCollectionIterator
@@ -920,6 +939,7 @@ type MSDeployLogProperties = original.MSDeployLogProperties
 type MSDeployStatus = original.MSDeployStatus
 type MSDeployStatusProperties = original.MSDeployStatusProperties
 type ManagedServiceIdentity = original.ManagedServiceIdentity
+type ManagedServiceIdentityUserAssignedIdentitiesValue = original.ManagedServiceIdentityUserAssignedIdentitiesValue
 type MetricAvailabilily = original.MetricAvailabilily
 type MetricAvailability = original.MetricAvailability
 type MetricDefinition = original.MetricDefinition
@@ -939,6 +959,10 @@ type NetworkFeatures = original.NetworkFeatures
 type NetworkFeaturesProperties = original.NetworkFeaturesProperties
 type NetworkTrace = original.NetworkTrace
 type Operation = original.Operation
+type OutboundEnvironmentEndpoint = original.OutboundEnvironmentEndpoint
+type OutboundEnvironmentEndpointCollection = original.OutboundEnvironmentEndpointCollection
+type OutboundEnvironmentEndpointCollectionIterator = original.OutboundEnvironmentEndpointCollectionIterator
+type OutboundEnvironmentEndpointCollectionPage = original.OutboundEnvironmentEndpointCollectionPage
 type PerfMonCounterCollection = original.PerfMonCounterCollection
 type PerfMonCounterCollectionIterator = original.PerfMonCounterCollectionIterator
 type PerfMonCounterCollectionPage = original.PerfMonCounterCollectionPage
@@ -1140,6 +1164,7 @@ type UsageCollectionPage = original.UsageCollectionPage
 type UsageProperties = original.UsageProperties
 type User = original.User
 type UserProperties = original.UserProperties
+type ValidateContainerSettingsRequest = original.ValidateContainerSettingsRequest
 type ValidateProperties = original.ValidateProperties
 type ValidateRequest = original.ValidateRequest
 type ValidateResponse = original.ValidateResponse
@@ -1385,6 +1410,12 @@ func NewIdentifierCollectionIterator(page IdentifierCollectionPage) IdentifierCo
 func NewIdentifierCollectionPage(getNextPage func(context.Context, IdentifierCollection) (IdentifierCollection, error)) IdentifierCollectionPage {
 	return original.NewIdentifierCollectionPage(getNextPage)
 }
+func NewInboundEnvironmentEndpointCollectionIterator(page InboundEnvironmentEndpointCollectionPage) InboundEnvironmentEndpointCollectionIterator {
+	return original.NewInboundEnvironmentEndpointCollectionIterator(page)
+}
+func NewInboundEnvironmentEndpointCollectionPage(getNextPage func(context.Context, InboundEnvironmentEndpointCollection) (InboundEnvironmentEndpointCollection, error)) InboundEnvironmentEndpointCollectionPage {
+	return original.NewInboundEnvironmentEndpointCollectionPage(getNextPage)
+}
 func NewJobCollectionIterator(page JobCollectionPage) JobCollectionIterator {
 	return original.NewJobCollectionIterator(page)
 }
@@ -1396,6 +1427,12 @@ func NewNameIdentifierCollectionIterator(page NameIdentifierCollectionPage) Name
 }
 func NewNameIdentifierCollectionPage(getNextPage func(context.Context, NameIdentifierCollection) (NameIdentifierCollection, error)) NameIdentifierCollectionPage {
 	return original.NewNameIdentifierCollectionPage(getNextPage)
+}
+func NewOutboundEnvironmentEndpointCollectionIterator(page OutboundEnvironmentEndpointCollectionPage) OutboundEnvironmentEndpointCollectionIterator {
+	return original.NewOutboundEnvironmentEndpointCollectionIterator(page)
+}
+func NewOutboundEnvironmentEndpointCollectionPage(getNextPage func(context.Context, OutboundEnvironmentEndpointCollection) (OutboundEnvironmentEndpointCollection, error)) OutboundEnvironmentEndpointCollectionPage {
+	return original.NewOutboundEnvironmentEndpointCollectionPage(getNextPage)
 }
 func NewPerfMonCounterCollectionIterator(page PerfMonCounterCollectionPage) PerfMonCounterCollectionIterator {
 	return original.NewPerfMonCounterCollectionIterator(page)
@@ -1711,6 +1748,9 @@ func PossiblePublicCertificateLocationValues() []PublicCertificateLocation {
 }
 func PossiblePublishingProfileFormatValues() []PublishingProfileFormat {
 	return original.PossiblePublishingProfileFormatValues()
+}
+func PossibleRedundancyModeValues() []RedundancyMode {
+	return original.PossibleRedundancyModeValues()
 }
 func PossibleRenderingTypeValues() []RenderingType {
 	return original.PossibleRenderingTypeValues()

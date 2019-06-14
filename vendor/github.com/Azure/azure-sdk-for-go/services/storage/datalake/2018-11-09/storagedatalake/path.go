@@ -71,13 +71,15 @@ func NewPathClient(xMsVersion string, accountName string) PathClient {
 // "Content-Disposition" response header for "Read File" operations.
 // xMsRenameSource - an optional file or directory to be renamed.  The value must have the following format:
 // "/{filesystem}/{path}".  If "x-ms-properties" is specified, the properties will overwrite the existing
-// properties; otherwise, the existing properties will be preserved.
+// properties; otherwise, the existing properties will be preserved. This value must be a URL percent-encoded
+// string. Note that the string may only contain ASCII characters in the ISO-8859-1 character set.
 // xMsLeaseID - optional.  A lease ID for the path specified in the URI.  The path to be overwritten must have
 // an active lease and the lease ID must match.
 // xMsSourceLeaseID - optional for rename operations.  A lease ID for the source path.  The source path must
 // have an active lease and the lease ID must match.
 // xMsProperties - optional.  User-defined properties to be stored with the file or directory, in the format of
-// a comma-separated list of name and value pairs "n1=v1, n2=v2, ...", where each value is base64 encoded.
+// a comma-separated list of name and value pairs "n1=v1, n2=v2, ...", where each value is a base64 encoded
+// string. Note that the string may only contain ASCII characters in the ISO-8859-1 character set.
 // xMsPermissions - optional and only valid if Hierarchical Namespace is enabled for the account. Sets POSIX
 // access permissions for the file owner, the file owning group, and others. Each class may be granted read,
 // write, or execute permission.  The sticky bit is also supported.  Both symbolic (rwxrw-rw-) and 4-digit
@@ -482,10 +484,11 @@ func (client PathClient) DeleteResponder(resp *http.Response) (result autorest.R
 // action - optional. If the value is "getStatus" only the system defined properties for the path are returned.
 // If the value is "getAccessControl" the access control list is returned in the response headers (Hierarchical
 // Namespace must be enabled for the account), otherwise the properties are returned.
-// upn - optional. Valid only when Hierarchical Namespace is enabled for the account. If "true", the identity
-// values returned in the x-ms-owner, x-ms-group, and x-ms-acl response headers will be transformed from Azure
-// Active Directory Object IDs to User Principal Names.  If "false", the values will be returned as Azure
-// Active Directory Object IDs. The default value is false.
+// upn - optional. Valid only when Hierarchical Namespace is enabled for the account. If "true", the user
+// identity values returned in the x-ms-owner, x-ms-group, and x-ms-acl response headers will be transformed
+// from Azure Active Directory Object IDs to User Principal Names.  If "false", the values will be returned as
+// Azure Active Directory Object IDs. The default value is false. Note that group and application Object IDs
+// are not translated because they do not have unique friendly names.
 // xMsLeaseID - optional. If this header is specified, the operation will be performed only if both of the
 // following conditions are met: i) the path's lease is currently active and ii) the lease ID specified in the
 // request matches that of the path.
@@ -820,10 +823,11 @@ func (client PathClient) LeaseResponder(resp *http.Response) (result autorest.Re
 // list operation to continue listing the paths.
 // maxResults - an optional value that specifies the maximum number of items to return. If omitted or greater
 // than 5,000, the response will include up to 5,000 items.
-// upn - optional. Valid only when Hierarchical Namespace is enabled for the account. If "true", the identity
-// values returned in the owner and group fields of each list entry will be transformed from Azure Active
-// Directory Object IDs to User Principal Names.  If "false", the values will be returned as Azure Active
-// Directory Object IDs. The default value is false.
+// upn - optional. Valid only when Hierarchical Namespace is enabled for the account. If "true", the user
+// identity values returned in the owner and group fields of each list entry will be transformed from Azure
+// Active Directory Object IDs to User Principal Names.  If "false", the values will be returned as Azure
+// Active Directory Object IDs. The default value is false. Note that group and application Object IDs are not
+// translated because they do not have unique friendly names.
 // xMsClientRequestID - a UUID recorded in the analytics logs for troubleshooting and correlation.
 // timeout - an optional operation timeout value in seconds. The period begins when the request is received by
 // the service. If the timeout value elapses before the operation completes, the operation fails.
@@ -958,6 +962,11 @@ func (client PathClient) ListResponder(resp *http.Response) (result PathList, er
 // xMsLeaseID - optional. If this header is specified, the operation will be performed only if both of the
 // following conditions are met: i) the path's lease is currently active and ii) the lease ID specified in the
 // request matches that of the path.
+// xMsRangeGetContentMd5 - optional. When this header is set to "true" and specified together with the Range
+// header, the service returns the MD5 hash for the range, as long as the range is less than or equal to 4MB in
+// size. If this header is specified without the Range header, the service returns status code 400 (Bad
+// Request). If this header is set to true when the range exceeds 4 MB in size, the service returns status code
+// 400 (Bad Request).
 // ifMatch - optional.  An ETag value. Specify this header to perform the operation only if the resource's ETag
 // matches the value specified. The ETag must be specified in quotes.
 // ifNoneMatch - optional.  An ETag value or the special wildcard ("*") value. Specify this header to perform
@@ -972,7 +981,7 @@ func (client PathClient) ListResponder(resp *http.Response) (result PathList, er
 // the service. If the timeout value elapses before the operation completes, the operation fails.
 // xMsDate - specifies the Coordinated Universal Time (UTC) for the request.  This is required when using
 // shared key authorization.
-func (client PathClient) Read(ctx context.Context, filesystem string, pathParameter string, rangeParameter string, xMsLeaseID string, ifMatch string, ifNoneMatch string, ifModifiedSince string, ifUnmodifiedSince string, xMsClientRequestID string, timeout *int32, xMsDate string) (result ReadCloser, err error) {
+func (client PathClient) Read(ctx context.Context, filesystem string, pathParameter string, rangeParameter string, xMsLeaseID string, xMsRangeGetContentMd5 *bool, ifMatch string, ifNoneMatch string, ifModifiedSince string, ifUnmodifiedSince string, xMsClientRequestID string, timeout *int32, xMsDate string) (result ReadCloser, err error) {
 	if tracing.IsEnabled() {
 		ctx = tracing.StartSpan(ctx, fqdn+"/PathClient.Read")
 		defer func() {
@@ -997,7 +1006,7 @@ func (client PathClient) Read(ctx context.Context, filesystem string, pathParame
 		return result, validation.NewError("storagedatalake.PathClient", "Read", err.Error())
 	}
 
-	req, err := client.ReadPreparer(ctx, filesystem, pathParameter, rangeParameter, xMsLeaseID, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestID, timeout, xMsDate)
+	req, err := client.ReadPreparer(ctx, filesystem, pathParameter, rangeParameter, xMsLeaseID, xMsRangeGetContentMd5, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, xMsClientRequestID, timeout, xMsDate)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "storagedatalake.PathClient", "Read", nil, "Failure preparing request")
 		return
@@ -1019,7 +1028,7 @@ func (client PathClient) Read(ctx context.Context, filesystem string, pathParame
 }
 
 // ReadPreparer prepares the Read request.
-func (client PathClient) ReadPreparer(ctx context.Context, filesystem string, pathParameter string, rangeParameter string, xMsLeaseID string, ifMatch string, ifNoneMatch string, ifModifiedSince string, ifUnmodifiedSince string, xMsClientRequestID string, timeout *int32, xMsDate string) (*http.Request, error) {
+func (client PathClient) ReadPreparer(ctx context.Context, filesystem string, pathParameter string, rangeParameter string, xMsLeaseID string, xMsRangeGetContentMd5 *bool, ifMatch string, ifNoneMatch string, ifModifiedSince string, ifUnmodifiedSince string, xMsClientRequestID string, timeout *int32, xMsDate string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
 		"accountName": client.AccountName,
 		"dnsSuffix":   client.DNSSuffix,
@@ -1047,6 +1056,10 @@ func (client PathClient) ReadPreparer(ctx context.Context, filesystem string, pa
 	if len(xMsLeaseID) > 0 {
 		preparer = autorest.DecoratePreparer(preparer,
 			autorest.WithHeader("x-ms-lease-id", autorest.String(xMsLeaseID)))
+	}
+	if xMsRangeGetContentMd5 != nil {
+		preparer = autorest.DecoratePreparer(preparer,
+			autorest.WithHeader("x-ms-range-get-content-md5", autorest.String(xMsRangeGetContentMd5)))
 	}
 	if len(ifMatch) > 0 {
 		preparer = autorest.DecoratePreparer(preparer,
@@ -1123,8 +1136,23 @@ func (client PathClient) ReadResponder(resp *http.Response) (result ReadCloser, 
 // default is false.  Data at offsets less than the specified position are written to the file when flush
 // succeeds, but this optional parameter allows data after the flush position to be retained for a future flush
 // operation.
+// closeParameter - azure Storage Events allow applications to receive notifications when files change. When
+// Azure Storage Events are enabled, a file changed event is raised. This event has a property indicating
+// whether this is the final change to distinguish the difference between an intermediate flush to a file
+// stream and the final close of a file stream. The close query parameter is valid only when the action is
+// "flush" and change notifications are enabled. If the value of close is "true" and the flush operation
+// completes successfully, the service raises a file change notification with a property indicating that this
+// is the final update (the file stream has been closed). If "false" a change notification is raised indicating
+// the file has changed. The default is false. This query parameter is set to true by the Hadoop ABFS driver to
+// indicate that the file stream has been closed."
 // contentLength - required for "Append Data" and "Flush Data".  Must be 0 for "Flush Data".  Must be the
 // length of the request content in bytes for "Append Data".
+// contentMD5 - optional. An MD5 hash of the request content. This header is valid on "Append" and "Flush"
+// operations. This hash is used to verify the integrity of the request content during transport. When this
+// header is specified, the storage service compares the hash of the content that has arrived with this header
+// value. If the two hashes do not match, the operation will fail with error code 400 (Bad Request). Note that
+// this MD5 hash is not stored with the file. This header is associated with the request content, and not with
+// the stored content of the file itself.
 // xMsLeaseID - the lease ID must be specified if there is an active lease.
 // xMsCacheControl - optional and only valid for flush and set properties operations.  The service stores this
 // value and includes it in the "Cache-Control" response header for "Read File" operations.
@@ -1136,10 +1164,15 @@ func (client PathClient) ReadResponder(resp *http.Response) (result ReadCloser, 
 // this value and includes it in the "Content-Encoding" response header for "Read File" operations.
 // xMsContentLanguage - optional and only valid for flush and set properties operations.  The service stores
 // this value and includes it in the "Content-Language" response header for "Read File" operations.
+// xMsContentMd5 - optional and only valid for "Flush & Set Properties" operations.  The service stores this
+// value and includes it in the "Content-Md5" response header for "Read & Get Properties" operations. If this
+// property is not specified on the request, then the property will be cleared for the file. Subsequent calls
+// to "Read & Get Properties" will not return this property unless it is explicitly set on that file again.
 // xMsProperties - optional.  User-defined properties to be stored with the file or directory, in the format of
-// a comma-separated list of name and value pairs "n1=v1, n2=v2, ...", where each value is base64 encoded.
-// Valid only for the setProperties operation.  If the file or directory exists, any properties not included in
-// the list will be removed.  All properties are removed if the header is omitted.  To merge new and existing
+// a comma-separated list of name and value pairs "n1=v1, n2=v2, ...", where each value is a base64 encoded
+// string. Note that the string may only contain ASCII characters in the ISO-8859-1 character set. Valid only
+// for the setProperties operation. If the file or directory exists, any properties not included in the list
+// will be removed.  All properties are removed if the header is omitted.  To merge new and existing
 // properties, first get all existing properties and the current E-Tag, then make a conditional request with
 // the E-Tag and include values for all properties.
 // xMsOwner - optional and valid only for the setAccessControl operation. Sets the owner of the file or
@@ -1184,7 +1217,7 @@ func (client PathClient) ReadResponder(resp *http.Response) (result ReadCloser, 
 // the service. If the timeout value elapses before the operation completes, the operation fails.
 // xMsDate - specifies the Coordinated Universal Time (UTC) for the request.  This is required when using
 // shared key authorization.
-func (client PathClient) Update(ctx context.Context, action PathUpdateAction, filesystem string, pathParameter string, position *int64, retainUncommittedData *bool, contentLength *int64, xMsLeaseID string, xMsCacheControl string, xMsContentType string, xMsContentDisposition string, xMsContentEncoding string, xMsContentLanguage string, xMsProperties string, xMsOwner string, xMsGroup string, xMsPermissions string, xMsACL string, ifMatch string, ifNoneMatch string, ifModifiedSince string, ifUnmodifiedSince string, requestBody io.ReadCloser, xMsClientRequestID string, timeout *int32, xMsDate string) (result autorest.Response, err error) {
+func (client PathClient) Update(ctx context.Context, action PathUpdateAction, filesystem string, pathParameter string, position *int64, retainUncommittedData *bool, closeParameter *bool, contentLength *int64, contentMD5 string, xMsLeaseID string, xMsCacheControl string, xMsContentType string, xMsContentDisposition string, xMsContentEncoding string, xMsContentLanguage string, xMsContentMd5 string, xMsProperties string, xMsOwner string, xMsGroup string, xMsPermissions string, xMsACL string, ifMatch string, ifNoneMatch string, ifModifiedSince string, ifUnmodifiedSince string, requestBody io.ReadCloser, xMsClientRequestID string, timeout *int32, xMsDate string) (result autorest.Response, err error) {
 	if tracing.IsEnabled() {
 		ctx = tracing.StartSpan(ctx, fqdn+"/PathClient.Update")
 		defer func() {
@@ -1212,7 +1245,7 @@ func (client PathClient) Update(ctx context.Context, action PathUpdateAction, fi
 		return result, validation.NewError("storagedatalake.PathClient", "Update", err.Error())
 	}
 
-	req, err := client.UpdatePreparer(ctx, action, filesystem, pathParameter, position, retainUncommittedData, contentLength, xMsLeaseID, xMsCacheControl, xMsContentType, xMsContentDisposition, xMsContentEncoding, xMsContentLanguage, xMsProperties, xMsOwner, xMsGroup, xMsPermissions, xMsACL, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, requestBody, xMsClientRequestID, timeout, xMsDate)
+	req, err := client.UpdatePreparer(ctx, action, filesystem, pathParameter, position, retainUncommittedData, closeParameter, contentLength, contentMD5, xMsLeaseID, xMsCacheControl, xMsContentType, xMsContentDisposition, xMsContentEncoding, xMsContentLanguage, xMsContentMd5, xMsProperties, xMsOwner, xMsGroup, xMsPermissions, xMsACL, ifMatch, ifNoneMatch, ifModifiedSince, ifUnmodifiedSince, requestBody, xMsClientRequestID, timeout, xMsDate)
 	if err != nil {
 		err = autorest.NewErrorWithError(err, "storagedatalake.PathClient", "Update", nil, "Failure preparing request")
 		return
@@ -1234,7 +1267,7 @@ func (client PathClient) Update(ctx context.Context, action PathUpdateAction, fi
 }
 
 // UpdatePreparer prepares the Update request.
-func (client PathClient) UpdatePreparer(ctx context.Context, action PathUpdateAction, filesystem string, pathParameter string, position *int64, retainUncommittedData *bool, contentLength *int64, xMsLeaseID string, xMsCacheControl string, xMsContentType string, xMsContentDisposition string, xMsContentEncoding string, xMsContentLanguage string, xMsProperties string, xMsOwner string, xMsGroup string, xMsPermissions string, xMsACL string, ifMatch string, ifNoneMatch string, ifModifiedSince string, ifUnmodifiedSince string, requestBody io.ReadCloser, xMsClientRequestID string, timeout *int32, xMsDate string) (*http.Request, error) {
+func (client PathClient) UpdatePreparer(ctx context.Context, action PathUpdateAction, filesystem string, pathParameter string, position *int64, retainUncommittedData *bool, closeParameter *bool, contentLength *int64, contentMD5 string, xMsLeaseID string, xMsCacheControl string, xMsContentType string, xMsContentDisposition string, xMsContentEncoding string, xMsContentLanguage string, xMsContentMd5 string, xMsProperties string, xMsOwner string, xMsGroup string, xMsPermissions string, xMsACL string, ifMatch string, ifNoneMatch string, ifModifiedSince string, ifUnmodifiedSince string, requestBody io.ReadCloser, xMsClientRequestID string, timeout *int32, xMsDate string) (*http.Request, error) {
 	urlParameters := map[string]interface{}{
 		"accountName": client.AccountName,
 		"dnsSuffix":   client.DNSSuffix,
@@ -1254,6 +1287,9 @@ func (client PathClient) UpdatePreparer(ctx context.Context, action PathUpdateAc
 	if retainUncommittedData != nil {
 		queryParameters["retainUncommittedData"] = autorest.Encode("query", *retainUncommittedData)
 	}
+	if closeParameter != nil {
+		queryParameters["close"] = autorest.Encode("query", *closeParameter)
+	}
 	if timeout != nil {
 		queryParameters["timeout"] = autorest.Encode("query", *timeout)
 	}
@@ -1271,6 +1307,10 @@ func (client PathClient) UpdatePreparer(ctx context.Context, action PathUpdateAc
 	if contentLength != nil {
 		preparer = autorest.DecoratePreparer(preparer,
 			autorest.WithHeader("Content-Length", autorest.String(contentLength)))
+	}
+	if len(contentMD5) > 0 {
+		preparer = autorest.DecoratePreparer(preparer,
+			autorest.WithHeader("Content-MD5", autorest.String(contentMD5)))
 	}
 	if len(xMsLeaseID) > 0 {
 		preparer = autorest.DecoratePreparer(preparer,
@@ -1295,6 +1335,10 @@ func (client PathClient) UpdatePreparer(ctx context.Context, action PathUpdateAc
 	if len(xMsContentLanguage) > 0 {
 		preparer = autorest.DecoratePreparer(preparer,
 			autorest.WithHeader("x-ms-content-language", autorest.String(xMsContentLanguage)))
+	}
+	if len(xMsContentMd5) > 0 {
+		preparer = autorest.DecoratePreparer(preparer,
+			autorest.WithHeader("x-ms-content-md5", autorest.String(xMsContentMd5)))
 	}
 	if len(xMsProperties) > 0 {
 		preparer = autorest.DecoratePreparer(preparer,

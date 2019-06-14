@@ -40,6 +40,241 @@ func NewHanaInstancesClientWithBaseURI(baseURI string, subscriptionID string) Ha
 	return HanaInstancesClient{NewWithBaseURI(baseURI, subscriptionID)}
 }
 
+// Create creates a SAP HANA instance for the specified subscription, resource group, and instance name.
+// Parameters:
+// resourceGroupName - name of the resource group.
+// hanaInstanceName - name of the SAP HANA on Azure instance.
+// hanaInstanceParameter - request body representing a HanaInstance
+func (client HanaInstancesClient) Create(ctx context.Context, resourceGroupName string, hanaInstanceName string, hanaInstanceParameter HanaInstance) (result HanaInstancesCreateFuture, err error) {
+	if tracing.IsEnabled() {
+		ctx = tracing.StartSpan(ctx, fqdn+"/HanaInstancesClient.Create")
+		defer func() {
+			sc := -1
+			if result.Response() != nil {
+				sc = result.Response().StatusCode
+			}
+			tracing.EndSpan(ctx, sc, err)
+		}()
+	}
+	req, err := client.CreatePreparer(ctx, resourceGroupName, hanaInstanceName, hanaInstanceParameter)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "hanaonazure.HanaInstancesClient", "Create", nil, "Failure preparing request")
+		return
+	}
+
+	result, err = client.CreateSender(req)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "hanaonazure.HanaInstancesClient", "Create", result.Response(), "Failure sending request")
+		return
+	}
+
+	return
+}
+
+// CreatePreparer prepares the Create request.
+func (client HanaInstancesClient) CreatePreparer(ctx context.Context, resourceGroupName string, hanaInstanceName string, hanaInstanceParameter HanaInstance) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"hanaInstanceName":  autorest.Encode("path", hanaInstanceName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
+	}
+
+	const APIVersion = "2017-11-03-preview"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsContentType("application/json; charset=utf-8"),
+		autorest.AsPut(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HanaOnAzure/hanaInstances/{hanaInstanceName}", pathParameters),
+		autorest.WithJSON(hanaInstanceParameter),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+}
+
+// CreateSender sends the Create request. The method will close the
+// http.Response Body if it receives an error.
+func (client HanaInstancesClient) CreateSender(req *http.Request) (future HanaInstancesCreateFuture, err error) {
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
+	return
+}
+
+// CreateResponder handles the response to the Create request. The method always
+// closes the http.Response Body.
+func (client HanaInstancesClient) CreateResponder(resp *http.Response) (result HanaInstance, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusCreated),
+		autorest.ByUnmarshallingJSON(&result),
+		autorest.ByClosing())
+	result.Response = autorest.Response{Response: resp}
+	return
+}
+
+// Delete deletes a SAP HANA instance with the specified subscription, resource group, and instance name.
+// Parameters:
+// resourceGroupName - name of the resource group.
+// hanaInstanceName - name of the SAP HANA on Azure instance.
+func (client HanaInstancesClient) Delete(ctx context.Context, resourceGroupName string, hanaInstanceName string) (result HanaInstancesDeleteFuture, err error) {
+	if tracing.IsEnabled() {
+		ctx = tracing.StartSpan(ctx, fqdn+"/HanaInstancesClient.Delete")
+		defer func() {
+			sc := -1
+			if result.Response() != nil {
+				sc = result.Response().StatusCode
+			}
+			tracing.EndSpan(ctx, sc, err)
+		}()
+	}
+	req, err := client.DeletePreparer(ctx, resourceGroupName, hanaInstanceName)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "hanaonazure.HanaInstancesClient", "Delete", nil, "Failure preparing request")
+		return
+	}
+
+	result, err = client.DeleteSender(req)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "hanaonazure.HanaInstancesClient", "Delete", result.Response(), "Failure sending request")
+		return
+	}
+
+	return
+}
+
+// DeletePreparer prepares the Delete request.
+func (client HanaInstancesClient) DeletePreparer(ctx context.Context, resourceGroupName string, hanaInstanceName string) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"hanaInstanceName":  autorest.Encode("path", hanaInstanceName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
+	}
+
+	const APIVersion = "2017-11-03-preview"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsDelete(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HanaOnAzure/hanaInstances/{hanaInstanceName}", pathParameters),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+}
+
+// DeleteSender sends the Delete request. The method will close the
+// http.Response Body if it receives an error.
+func (client HanaInstancesClient) DeleteSender(req *http.Request) (future HanaInstancesDeleteFuture, err error) {
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
+	return
+}
+
+// DeleteResponder handles the response to the Delete request. The method always
+// closes the http.Response Body.
+func (client HanaInstancesClient) DeleteResponder(resp *http.Response) (result autorest.Response, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted, http.StatusNoContent),
+		autorest.ByClosing())
+	result.Response = resp
+	return
+}
+
+// EnableMonitoring the operation to add a monitor to an SAP HANA instance.
+// Parameters:
+// resourceGroupName - name of the resource group.
+// hanaInstanceName - name of the SAP HANA on Azure instance.
+// monitoringParameter - request body that only contains monitoring attributes
+func (client HanaInstancesClient) EnableMonitoring(ctx context.Context, resourceGroupName string, hanaInstanceName string, monitoringParameter MonitoringDetails) (result HanaInstancesEnableMonitoringFuture, err error) {
+	if tracing.IsEnabled() {
+		ctx = tracing.StartSpan(ctx, fqdn+"/HanaInstancesClient.EnableMonitoring")
+		defer func() {
+			sc := -1
+			if result.Response() != nil {
+				sc = result.Response().StatusCode
+			}
+			tracing.EndSpan(ctx, sc, err)
+		}()
+	}
+	req, err := client.EnableMonitoringPreparer(ctx, resourceGroupName, hanaInstanceName, monitoringParameter)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "hanaonazure.HanaInstancesClient", "EnableMonitoring", nil, "Failure preparing request")
+		return
+	}
+
+	result, err = client.EnableMonitoringSender(req)
+	if err != nil {
+		err = autorest.NewErrorWithError(err, "hanaonazure.HanaInstancesClient", "EnableMonitoring", result.Response(), "Failure sending request")
+		return
+	}
+
+	return
+}
+
+// EnableMonitoringPreparer prepares the EnableMonitoring request.
+func (client HanaInstancesClient) EnableMonitoringPreparer(ctx context.Context, resourceGroupName string, hanaInstanceName string, monitoringParameter MonitoringDetails) (*http.Request, error) {
+	pathParameters := map[string]interface{}{
+		"hanaInstanceName":  autorest.Encode("path", hanaInstanceName),
+		"resourceGroupName": autorest.Encode("path", resourceGroupName),
+		"subscriptionId":    autorest.Encode("path", client.SubscriptionID),
+	}
+
+	const APIVersion = "2017-11-03-preview"
+	queryParameters := map[string]interface{}{
+		"api-version": APIVersion,
+	}
+
+	preparer := autorest.CreatePreparer(
+		autorest.AsContentType("application/json; charset=utf-8"),
+		autorest.AsPost(),
+		autorest.WithBaseURL(client.BaseURI),
+		autorest.WithPathParameters("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.HanaOnAzure/hanaInstances/{hanaInstanceName}/monitoring", pathParameters),
+		autorest.WithJSON(monitoringParameter),
+		autorest.WithQueryParameters(queryParameters))
+	return preparer.Prepare((&http.Request{}).WithContext(ctx))
+}
+
+// EnableMonitoringSender sends the EnableMonitoring request. The method will close the
+// http.Response Body if it receives an error.
+func (client HanaInstancesClient) EnableMonitoringSender(req *http.Request) (future HanaInstancesEnableMonitoringFuture, err error) {
+	var resp *http.Response
+	resp, err = autorest.SendWithSender(client, req,
+		azure.DoRetryWithRegistration(client.Client))
+	if err != nil {
+		return
+	}
+	future.Future, err = azure.NewFutureFromResponse(resp)
+	return
+}
+
+// EnableMonitoringResponder handles the response to the EnableMonitoring request. The method always
+// closes the http.Response Body.
+func (client HanaInstancesClient) EnableMonitoringResponder(resp *http.Response) (result autorest.Response, err error) {
+	err = autorest.Respond(
+		resp,
+		client.ByInspecting(),
+		azure.WithErrorUnlessStatusCode(http.StatusOK, http.StatusAccepted),
+		autorest.ByClosing())
+	result.Response = resp
+	return
+}
+
 // Get gets properties of a SAP HANA instance for the specified subscription, resource group, and instance name.
 // Parameters:
 // resourceGroupName - name of the resource group.

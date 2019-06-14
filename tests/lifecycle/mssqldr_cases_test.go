@@ -179,10 +179,16 @@ func createSQLServerPair(
 	if err != nil {
 		return fmt.Errorf("error creating sql server: %s", err)
 	}
-	if err := priResult.WaitForCompletion(ctx, serversClient.Client); err != nil {
+	if err := priResult.WaitForCompletionRef(
+		ctx,
+		serversClient.Client,
+	); err != nil {
 		return fmt.Errorf("error creating sql server: %s", err)
 	}
-	if err := secResult.WaitForCompletion(ctx, serversClient.Client); err != nil {
+	if err := secResult.WaitForCompletionRef(
+		ctx,
+		serversClient.Client,
+	); err != nil {
 		return fmt.Errorf("error creating sql server: %s", err)
 	}
 	startIPAddress := "0.0.0.0"
@@ -299,7 +305,7 @@ func createSQLDatabasePair(
 	if err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
-	if err = priResult.WaitForCompletion(
+	if err = priResult.WaitForCompletionRef(
 		ctx,
 		databasesClient.Client,
 	); err != nil {
@@ -315,7 +321,7 @@ func createSQLDatabasePair(
 	if err != nil {
 		return fmt.Errorf("error creating sql failover group: %s", err)
 	}
-	if err = fgResult.WaitForCompletion(
+	if err = fgResult.WaitForCompletionRef(
 		ctx,
 		failoverGroupsClient.Client,
 	); err != nil {
@@ -339,7 +345,7 @@ func createSQLDatabasePair(
 	if err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
-	if err := secResult.WaitForCompletion(
+	if err := secResult.WaitForCompletionRef(
 		ctx,
 		databasesClient.Client,
 	); err != nil {
@@ -390,7 +396,10 @@ func createPrimarySQLDatabase(
 	if err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, databasesClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(
+		ctx,
+		databasesClient.Client,
+	); err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
 	return nil

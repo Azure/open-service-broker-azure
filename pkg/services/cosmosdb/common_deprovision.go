@@ -41,7 +41,7 @@ func deleteCosmosDBAccount(
 	if err != nil {
 		return fmt.Errorf("error deleting cosmosdb server: %s", err)
 	}
-	if err := result.WaitForCompletion(
+	if err := result.WaitForCompletionRef(
 		ctx,
 		databaseAccountsClient.Client,
 	); err != nil {

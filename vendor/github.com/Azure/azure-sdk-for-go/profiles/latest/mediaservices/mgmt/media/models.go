@@ -37,6 +37,13 @@ const (
 	HeAacV2 AacAudioProfile = original.HeAacV2
 )
 
+type AnalysisResolution = original.AnalysisResolution
+
+const (
+	SourceResolution   AnalysisResolution = original.SourceResolution
+	StandardDefinition AnalysisResolution = original.StandardDefinition
+)
+
 type AssetContainerPermission = original.AssetContainerPermission
 
 const (
@@ -113,14 +120,15 @@ const (
 type EncoderNamedPreset = original.EncoderNamedPreset
 
 const (
-	AACGoodQualityAudio      EncoderNamedPreset = original.AACGoodQualityAudio
-	AdaptiveStreaming        EncoderNamedPreset = original.AdaptiveStreaming
-	H264MultipleBitrate1080p EncoderNamedPreset = original.H264MultipleBitrate1080p
-	H264MultipleBitrate720p  EncoderNamedPreset = original.H264MultipleBitrate720p
-	H264MultipleBitrateSD    EncoderNamedPreset = original.H264MultipleBitrateSD
-	H264SingleBitrate1080p   EncoderNamedPreset = original.H264SingleBitrate1080p
-	H264SingleBitrate720p    EncoderNamedPreset = original.H264SingleBitrate720p
-	H264SingleBitrateSD      EncoderNamedPreset = original.H264SingleBitrateSD
+	AACGoodQualityAudio              EncoderNamedPreset = original.AACGoodQualityAudio
+	AdaptiveStreaming                EncoderNamedPreset = original.AdaptiveStreaming
+	ContentAwareEncodingExperimental EncoderNamedPreset = original.ContentAwareEncodingExperimental
+	H264MultipleBitrate1080p         EncoderNamedPreset = original.H264MultipleBitrate1080p
+	H264MultipleBitrate720p          EncoderNamedPreset = original.H264MultipleBitrate720p
+	H264MultipleBitrateSD            EncoderNamedPreset = original.H264MultipleBitrateSD
+	H264SingleBitrate1080p           EncoderNamedPreset = original.H264SingleBitrate1080p
+	H264SingleBitrate720p            EncoderNamedPreset = original.H264SingleBitrate720p
+	H264SingleBitrateSD              EncoderNamedPreset = original.H264SingleBitrateSD
 )
 
 type EncryptionScheme = original.EncryptionScheme
@@ -380,6 +388,7 @@ type OdataTypeBasicPreset = original.OdataTypeBasicPreset
 const (
 	OdataTypeMicrosoftMediaAudioAnalyzerPreset          OdataTypeBasicPreset = original.OdataTypeMicrosoftMediaAudioAnalyzerPreset
 	OdataTypeMicrosoftMediaBuiltInStandardEncoderPreset OdataTypeBasicPreset = original.OdataTypeMicrosoftMediaBuiltInStandardEncoderPreset
+	OdataTypeMicrosoftMediaFaceDetectorPreset           OdataTypeBasicPreset = original.OdataTypeMicrosoftMediaFaceDetectorPreset
 	OdataTypeMicrosoftMediaStandardEncoderPreset        OdataTypeBasicPreset = original.OdataTypeMicrosoftMediaStandardEncoderPreset
 	OdataTypeMicrosoftMediaVideoAnalyzerPreset          OdataTypeBasicPreset = original.OdataTypeMicrosoftMediaVideoAnalyzerPreset
 	OdataTypePreset                                     OdataTypeBasicPreset = original.OdataTypePreset
@@ -564,6 +573,7 @@ type Deinterlace = original.Deinterlace
 type EnabledProtocols = original.EnabledProtocols
 type EntityNameAvailabilityCheckOutput = original.EntityNameAvailabilityCheckOutput
 type EnvelopeEncryption = original.EnvelopeEncryption
+type FaceDetectorPreset = original.FaceDetectorPreset
 type FilterProperties = original.FilterProperties
 type FilterTrackPropertyCondition = original.FilterTrackPropertyCondition
 type FilterTrackSelection = original.FilterTrackSelection
@@ -893,6 +903,9 @@ func NewWithBaseURI(baseURI string, subscriptionID string) BaseClient {
 }
 func PossibleAacAudioProfileValues() []AacAudioProfile {
 	return original.PossibleAacAudioProfileValues()
+}
+func PossibleAnalysisResolutionValues() []AnalysisResolution {
+	return original.PossibleAnalysisResolutionValues()
 }
 func PossibleAssetContainerPermissionValues() []AssetContainerPermission {
 	return original.PossibleAssetContainerPermissionValues()

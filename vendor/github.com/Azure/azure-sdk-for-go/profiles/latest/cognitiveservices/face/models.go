@@ -74,9 +74,8 @@ const (
 type Gender = original.Gender
 
 const (
-	Female     Gender = original.Female
-	Genderless Gender = original.Genderless
-	Male       Gender = original.Male
+	Female Gender = original.Female
+	Male   Gender = original.Male
 )
 
 type GlassesType = original.GlassesType
@@ -116,6 +115,13 @@ const (
 	Notstarted OperationStatusType = original.Notstarted
 	Running    OperationStatusType = original.Running
 	Succeeded  OperationStatusType = original.Succeeded
+)
+
+type RecognitionModel = original.RecognitionModel
+
+const (
+	Recognition01 RecognitionModel = original.Recognition01
+	Recognition02 RecognitionModel = original.Recognition02
 )
 
 type SnapshotApplyMode = original.SnapshotApplyMode
@@ -184,6 +190,7 @@ type ListPersonGroup = original.ListPersonGroup
 type ListSimilarFace = original.ListSimilarFace
 type ListSnapshot = original.ListSnapshot
 type Makeup = original.Makeup
+type MetaDataContract = original.MetaDataContract
 type NameAndUserDataContract = original.NameAndUserDataContract
 type Noise = original.Noise
 type Occlusion = original.Occlusion
@@ -264,6 +271,9 @@ func PossibleNoiseLevelValues() []NoiseLevel {
 }
 func PossibleOperationStatusTypeValues() []OperationStatusType {
 	return original.PossibleOperationStatusTypeValues()
+}
+func PossibleRecognitionModelValues() []RecognitionModel {
+	return original.PossibleRecognitionModelValues()
 }
 func PossibleSnapshotApplyModeValues() []SnapshotApplyMode {
 	return original.PossibleSnapshotApplyModeValues()

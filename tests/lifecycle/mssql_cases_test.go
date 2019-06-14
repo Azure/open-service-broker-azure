@@ -248,7 +248,10 @@ func createSQLServer(
 	if err != nil {
 		return fmt.Errorf("error creating sql server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, serversClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(
+		ctx,
+		serversClient.Client,
+	); err != nil {
 		return fmt.Errorf("error creating sql server: %s", err)
 	}
 
@@ -314,7 +317,10 @@ func createSQLDatabase(
 	if err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, databasesClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(
+		ctx,
+		databasesClient.Client,
+	); err != nil {
 		return fmt.Errorf("error creating sql database: %s", err)
 	}
 	return nil

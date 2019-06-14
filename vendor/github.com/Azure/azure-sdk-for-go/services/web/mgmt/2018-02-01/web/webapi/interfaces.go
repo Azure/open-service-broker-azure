@@ -40,6 +40,7 @@ type BaseClientAPI interface {
 	UpdatePublishingUser(ctx context.Context, userDetails web.User) (result web.User, err error)
 	UpdateSourceControl(ctx context.Context, sourceControlType string, requestMessage web.SourceControl) (result web.SourceControl, err error)
 	Validate(ctx context.Context, resourceGroupName string, validateRequest web.ValidateRequest) (result web.ValidateResponse, err error)
+	ValidateContainerSettings(ctx context.Context, validateContainerSettingsRequest web.ValidateContainerSettingsRequest, resourceGroupName string) (result web.SetObject, err error)
 	ValidateMove(ctx context.Context, resourceGroupName string, moveResourceEnvelope web.CsmMoveResourceEnvelope) (result autorest.Response, err error)
 	VerifyHostingEnvironmentVnet(ctx context.Context, parameters web.VnetParameters) (result web.VnetValidationFailureDetails, err error)
 }
@@ -130,7 +131,9 @@ var _ CertificatesClientAPI = (*web.CertificatesClient)(nil)
 
 // DeletedWebAppsClientAPI contains the set of methods on the DeletedWebAppsClient type.
 type DeletedWebAppsClientAPI interface {
+	GetDeletedWebAppByLocation(ctx context.Context, location string, deletedSiteID string) (result web.DeletedSite, err error)
 	List(ctx context.Context) (result web.DeletedWebAppCollectionPage, err error)
+	ListByLocation(ctx context.Context, location string) (result web.DeletedWebAppCollectionPage, err error)
 }
 
 var _ DeletedWebAppsClientAPI = (*web.DeletedWebAppsClient)(nil)
@@ -174,14 +177,20 @@ var _ ProviderClientAPI = (*web.ProviderClient)(nil)
 
 // RecommendationsClientAPI contains the set of methods on the RecommendationsClient type.
 type RecommendationsClientAPI interface {
+	DisableAllForHostingEnvironment(ctx context.Context, resourceGroupName string, environmentName string, hostingEnvironmentName string) (result autorest.Response, err error)
 	DisableAllForWebApp(ctx context.Context, resourceGroupName string, siteName string) (result autorest.Response, err error)
+	DisableRecommendationForHostingEnvironment(ctx context.Context, resourceGroupName string, environmentName string, name string, hostingEnvironmentName string) (result autorest.Response, err error)
 	DisableRecommendationForSite(ctx context.Context, resourceGroupName string, siteName string, name string) (result autorest.Response, err error)
 	DisableRecommendationForSubscription(ctx context.Context, name string) (result autorest.Response, err error)
+	GetRuleDetailsByHostingEnvironment(ctx context.Context, resourceGroupName string, hostingEnvironmentName string, name string, updateSeen *bool, recommendationID string) (result web.RecommendationRule, err error)
 	GetRuleDetailsByWebApp(ctx context.Context, resourceGroupName string, siteName string, name string, updateSeen *bool, recommendationID string) (result web.RecommendationRule, err error)
 	List(ctx context.Context, featured *bool, filter string) (result web.RecommendationCollectionPage, err error)
+	ListHistoryForHostingEnvironment(ctx context.Context, resourceGroupName string, hostingEnvironmentName string, expiredOnly *bool, filter string) (result web.RecommendationCollectionPage, err error)
 	ListHistoryForWebApp(ctx context.Context, resourceGroupName string, siteName string, expiredOnly *bool, filter string) (result web.RecommendationCollectionPage, err error)
+	ListRecommendedRulesForHostingEnvironment(ctx context.Context, resourceGroupName string, hostingEnvironmentName string, featured *bool, filter string) (result web.RecommendationCollectionPage, err error)
 	ListRecommendedRulesForWebApp(ctx context.Context, resourceGroupName string, siteName string, featured *bool, filter string) (result web.RecommendationCollectionPage, err error)
 	ResetAllFilters(ctx context.Context) (result autorest.Response, err error)
+	ResetAllFiltersForHostingEnvironment(ctx context.Context, resourceGroupName string, environmentName string, hostingEnvironmentName string) (result autorest.Response, err error)
 	ResetAllFiltersForWebApp(ctx context.Context, resourceGroupName string, siteName string) (result autorest.Response, err error)
 }
 
@@ -551,7 +560,9 @@ type AppServiceEnvironmentsClientAPI interface {
 	Delete(ctx context.Context, resourceGroupName string, name string, forceDelete *bool) (result web.AppServiceEnvironmentsDeleteFuture, err error)
 	Get(ctx context.Context, resourceGroupName string, name string) (result web.AppServiceEnvironmentResource, err error)
 	GetDiagnosticsItem(ctx context.Context, resourceGroupName string, name string, diagnosticsName string) (result web.HostingEnvironmentDiagnostics, err error)
+	GetInboundNetworkDependenciesEndpoints(ctx context.Context, resourceGroupName string, name string) (result web.InboundEnvironmentEndpointCollectionPage, err error)
 	GetMultiRolePool(ctx context.Context, resourceGroupName string, name string) (result web.WorkerPoolResource, err error)
+	GetOutboundNetworkDependenciesEndpoints(ctx context.Context, resourceGroupName string, name string) (result web.OutboundEnvironmentEndpointCollectionPage, err error)
 	GetWorkerPool(ctx context.Context, resourceGroupName string, name string, workerPoolName string) (result web.WorkerPoolResource, err error)
 	List(ctx context.Context) (result web.AppServiceEnvironmentCollectionPage, err error)
 	ListAppServicePlans(ctx context.Context, resourceGroupName string, name string) (result web.AppServicePlanCollectionPage, err error)

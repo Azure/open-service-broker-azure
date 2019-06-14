@@ -249,7 +249,7 @@ func createVirtualNetworkForPostgres(
 	if err != nil {
 		return fmt.Errorf("error creating virtual network %s", err)
 	}
-	if err = vnResult.WaitForCompletion(
+	if err = vnResult.WaitForCompletionRef(
 		ctx,
 		virtualNetworksClient.Client,
 	); err != nil {

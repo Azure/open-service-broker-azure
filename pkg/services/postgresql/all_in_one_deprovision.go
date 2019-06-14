@@ -49,7 +49,10 @@ func (a *allInOneManager) deletePostgreSQLServer(
 	if err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
-	if err := result.WaitForCompletion(ctx, a.serversClient.Client); err != nil {
+	if err := result.WaitForCompletionRef(
+		ctx,
+		a.serversClient.Client,
+	); err != nil {
 		return nil, fmt.Errorf("error deleting postgresql server: %s", err)
 	}
 	return instance.Details, nil

@@ -296,6 +296,7 @@ type ManagedInstancesClientAPI interface {
 	Delete(ctx context.Context, resourceGroupName string, managedInstanceName string) (result sql.ManagedInstancesDeleteFuture, err error)
 	Get(ctx context.Context, resourceGroupName string, managedInstanceName string) (result sql.ManagedInstance, err error)
 	List(ctx context.Context) (result sql.ManagedInstanceListResultPage, err error)
+	ListByInstancePool(ctx context.Context, resourceGroupName string, instancePoolName string) (result sql.ManagedInstanceListResultPage, err error)
 	ListByResourceGroup(ctx context.Context, resourceGroupName string) (result sql.ManagedInstanceListResultPage, err error)
 	Update(ctx context.Context, resourceGroupName string, managedInstanceName string, parameters sql.ManagedInstanceUpdate) (result sql.ManagedInstancesUpdateFuture, err error)
 }
@@ -368,6 +369,17 @@ type SubscriptionUsagesClientAPI interface {
 }
 
 var _ SubscriptionUsagesClientAPI = (*sql.SubscriptionUsagesClient)(nil)
+
+// VirtualClustersClientAPI contains the set of methods on the VirtualClustersClient type.
+type VirtualClustersClientAPI interface {
+	Delete(ctx context.Context, resourceGroupName string, virtualClusterName string) (result sql.VirtualClustersDeleteFuture, err error)
+	Get(ctx context.Context, resourceGroupName string, virtualClusterName string) (result sql.VirtualCluster, err error)
+	List(ctx context.Context) (result sql.VirtualClusterListResultPage, err error)
+	ListByResourceGroup(ctx context.Context, resourceGroupName string) (result sql.VirtualClusterListResultPage, err error)
+	Update(ctx context.Context, resourceGroupName string, virtualClusterName string, parameters sql.VirtualClusterUpdate) (result sql.VirtualClustersUpdateFuture, err error)
+}
+
+var _ VirtualClustersClientAPI = (*sql.VirtualClustersClient)(nil)
 
 // VirtualNetworkRulesClientAPI contains the set of methods on the VirtualNetworkRulesClient type.
 type VirtualNetworkRulesClientAPI interface {

@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Azure/azure-sdk-for-go/tools/internal/dirs"
 	"github.com/Azure/azure-sdk-for-go/tools/profileBuilder/model"
 	"github.com/spf13/cobra"
 )
@@ -74,7 +75,7 @@ By default, this command ignores API versions that are in preview.`,
 		}
 
 		if clearOutputFlag {
-			if err := model.DeleteChildDirs(outputRootDir); err != nil {
+			if err := dirs.DeleteChildDirs(outputRootDir); err != nil {
 				errLog.Fatalf("Unable to clear output-folder: %v", err)
 			}
 		}
@@ -83,7 +84,8 @@ By default, this command ignores API versions that are in preview.`,
 			errLog.Fatalf("failed to get root dir: %v", err)
 		}
 		listDef, err := model.GetLatestPackages(rootDir, includePreview, outputLog)
-		model.BuildProfile(listDef, profileName, outputRootDir, outputLog, errLog)
+		// don't recursively build profiles as we already built the list of packages recursively
+		model.BuildProfile(listDef, profileName, outputRootDir, outputLog, errLog, false, modulesFlag)
 	},
 }
 
