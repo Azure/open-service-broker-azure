@@ -4,6 +4,7 @@ package lifecycle
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/Microsoft/ApplicationInsights-Go/appinsights"
 )
@@ -85,5 +86,54 @@ func testAppinsightsCreds(credentials map[string]interface{}) error {
 	}
 	client := appinsights.NewTelemetryClient(ik)
 	client.TrackEvent("Client connected")
+
+	// API Key test
+	appInsightsName, ok := credentials["appInsightsName"].(string)
+	if !ok {
+		return fmt.Errorf(
+			"can't find app insights name in the credentials",
+		)
+	}
+	APIKey, ok := credentials["APIKey"].(string)
+	if !ok {
+		return fmt.Errorf(
+			"can't find API Key in the credentials",
+		)
+	}
+
+	requestsCountMetricsAPIUrl := fmt.Sprintf(
+		"https://api.applicationinsights.io/v1/apps/%s"+
+			"/metrics/requests/count",
+		appInsightsName,
+	)
+	req, err := http.NewRequest(
+		"GET",
+		requestsCountMetricsAPIUrl,
+	)
+	if err != nil {
+		return fmt.Errorf("error validating the API Key usage: %s", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(
+		"X-Api-Key",
+		APIKey,
+	)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("error validating the API Key usage: %s", err)
+	}
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf(
+			"error validating the API Key usage: response code not = 200",
+		)
+	}
+
+	err = resp.Body.Close()
+	if err != nil {
+		return fmt.Errorf("error validating the API Key usage: %s", err)
+	}
 	return nil
 }
