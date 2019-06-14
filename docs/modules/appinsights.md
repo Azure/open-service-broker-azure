@@ -44,6 +44,8 @@ Binding returns the following connection details and shared credentials:
 | Field Name | Type | Description |
 |------------|------|-------------|
 | `instrumentationKey` | `string` | Instrumentation key. |
+| `appID` | `string` | APP ID. |
+| `APIKey` | `string` | App Insights API key. Guidance: https://dev.applicationinsights.io/quickstart |
 
 ##### Unbind
 
