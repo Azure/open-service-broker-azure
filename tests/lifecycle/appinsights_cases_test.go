@@ -109,6 +109,7 @@ func testAppinsightsCreds(credentials map[string]interface{}) error {
 	req, err := http.NewRequest(
 		"GET",
 		requestsCountMetricsAPIUrl,
+		nil,
 	)
 	if err != nil {
 		return fmt.Errorf("error validating the API Key usage: %s", err)
