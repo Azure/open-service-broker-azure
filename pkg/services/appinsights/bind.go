@@ -69,7 +69,8 @@ func (s *serviceManager) Bind(
 		)
 	}
 	// Note that, AppID is different from ApplicationID by design ...
-	if properties := result.ApplicationInsightsComponentProperties; properties == nil {
+	properties := result.ApplicationInsightsComponentProperties
+	if properties == nil {
 		return nil, fmt.Errorf(
 			"Error creating Application Insights API key %s: got empty properties ID",
 			apiKeyName,

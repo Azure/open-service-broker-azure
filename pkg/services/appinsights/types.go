@@ -4,6 +4,7 @@ import "github.com/Azure/open-service-broker-azure/pkg/service"
 
 type instanceDetails struct {
 	ARMDeploymentName  string               `json:"armDeployment"`
+	AppInsightsName    string               `json:"appInsightsName"`
 	InstrumentationKey service.SecureString `json:"instrumentationKey"`
 }
 
