@@ -116,10 +116,7 @@ func testAppinsightsCreds(credentials map[string]interface{}) error {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set(
-		"X-Api-Key",
-		APIKey,
-	)
+	req.Header.Set("X-Api-Key", APIKey)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -128,7 +125,8 @@ func testAppinsightsCreds(credentials map[string]interface{}) error {
 
 	if resp.StatusCode != 200 {
 		return fmt.Errorf(
-			"error validating the API Key usage: response code not = 200",
+			"error validating the API Key usage: response code not = 200: %+v",
+			resp,
 		)
 	}
 
