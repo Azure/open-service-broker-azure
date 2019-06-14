@@ -94,5 +94,15 @@ func (s *serviceManager) deployARMTemplate(
 	}
 	dt.InstrumentationKey = service.SecureString(instrumentationKey)
 
+	// Note that, AppID is different from ApplicationID by design ...
+	appID, ok := outputs["appID"].(string)
+	if !ok {
+		return nil, fmt.Errorf(
+			"error retrieving app ID from deployment: %s",
+			err,
+		)
+	}
+	dt.AppID = appID
+
 	return dt, err
 }

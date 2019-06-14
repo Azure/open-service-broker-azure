@@ -68,25 +68,10 @@ func (s *serviceManager) Bind(
 			apiKeyName,
 		)
 	}
-	// Note that, AppID is different from ApplicationID by design ...
-	properties := result.ApplicationInsightsComponentProperties
-	if properties == nil {
-		return nil, fmt.Errorf(
-			"Error creating Application Insights API key %s: got empty properties ID",
-			apiKeyName,
-		)
-		if (*properties).AppID == nil {
-			return nil, fmt.Errorf(
-				"Error creating Application Insights API key %s: got empty App ID",
-				apiKeyName,
-			)
-		}
-	}
 
 	apiKeyID := (*result.ID)[strings.LastIndex(*result.ID, "/")+1:]
 
 	return &bindingDetails{
-		AppID:    *(*properties).AppID,
 		APIKeyID: apiKeyID,
 		APIKey:   service.SecureString(*result.APIKey),
 	}, nil
@@ -100,7 +85,7 @@ func (s *serviceManager) GetCredentials(
 	bd := binding.Details.(*bindingDetails)
 	return credentials{
 		InstrumentationKey: string(dt.InstrumentationKey),
-		AppID:              bd.AppID,
+		AppID:              dt.AppID,
 		APIKey:             string(bd.APIKey),
 	}, nil
 }

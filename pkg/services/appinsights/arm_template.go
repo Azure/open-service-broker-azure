@@ -29,6 +29,10 @@ var armTemplateBytes = []byte(`
 		"instrumentationKey": {
 			"type": "string",
 			"value": "[reference('{{.appInsightsName}}').InstrumentationKey]"
+		},
+		"appID": {
+			"type": "string",
+			"value": "[reference('{{.appInsightsName}}').AppID]"
 		}
 	}
 }
