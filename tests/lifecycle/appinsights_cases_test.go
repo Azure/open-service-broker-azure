@@ -88,10 +88,10 @@ func testAppinsightsCreds(credentials map[string]interface{}) error {
 	client.TrackEvent("Client connected")
 
 	// API Key test
-	appInsightsName, ok := credentials["appInsightsName"].(string)
+	appID, ok := credentials["appID"].(string)
 	if !ok {
 		return fmt.Errorf(
-			"can't find app insights name in the credentials",
+			"can't find app ID in the credentials",
 		)
 	}
 	APIKey, ok := credentials["APIKey"].(string)
@@ -104,7 +104,7 @@ func testAppinsightsCreds(credentials map[string]interface{}) error {
 	requestsCountMetricsAPIUrl := fmt.Sprintf(
 		"https://api.applicationinsights.io/v1/apps/%s"+
 			"/metrics/requests/count",
-		appInsightsName,
+		appID,
 	)
 	req, err := http.NewRequest(
 		"GET",
