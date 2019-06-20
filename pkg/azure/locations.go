@@ -45,13 +45,9 @@ var azureChinaCloudLocations = []string{
 // IsValidLocation returns a bool indicating whether the provided location is a
 // valid one
 func IsValidLocation(location string) bool {
-	// We can directly ignore returned err here,
-	// because this function is invoked at the start of
-	// OSBA initiating. If there is an error to
-	// invoke this function, OSBA will fail earlier.
-	config, _ := GetConfigFromEnvironment()
+	envrionmentName := GetEnvrionmentName()
 	var locations []string
-	switch config.Environment.Name {
+	switch envrionmentName {
 	case "AzureChinaCloud":
 		locations = azureChinaCloudLocations
 	case "AzurePublicCloud":

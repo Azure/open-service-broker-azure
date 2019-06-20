@@ -42,3 +42,14 @@ func GetConfigFromEnvironment() (Config, error) {
 	c.Environment, err = azure.EnvironmentFromName(c.EnvironmentStr)
 	return c.Config, err
 }
+
+// GetEnvrionmentName returns the name of cloud envrionment.
+// Expected return vaules are: ["AzurePublicCloud", "AzureChinaCloud"]
+func GetEnvrionmentName() string {
+	// We can directly ignore returned err here,
+	// because this function is invoked at the start of
+	// OSBA initiating. If there is an error to
+	// invoke this function, OSBA will fail earlier.
+	config, _ := GetConfigFromEnvironment()
+	return config.Environment.Name
+}

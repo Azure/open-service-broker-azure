@@ -55,12 +55,8 @@ var (
 // GetLocationSchema returns pointer to general StringPropertySchema
 // of "location"
 func GetLocationSchema() *service.StringPropertySchema {
-	// We can directly ignore returned err here,
-	// because this function is invoked at the start of
-	// OSBA initiating. If there is an error to
-	// invoke this function, OSBA will fail earlier.
-	config, _ := azure.GetConfigFromEnvironment()
-	switch config.Environment.Name {
+	envrionmentName := azure.GetEnvrionmentName()
+	switch envrionmentName {
 	case "AzureChinaCloud":
 		return &azureChinaCloudLocationSchema
 	case "AzurePublicCloud":

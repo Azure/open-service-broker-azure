@@ -15,6 +15,7 @@ import (
 	"time"
 
 	cosmosSDK "github.com/Azure/azure-sdk-for-go/services/cosmos-db/mgmt/2015-04-08/documentdb" //nolint: lll
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
@@ -279,7 +280,7 @@ func validateReadLocations(
 
 // Allowed CosmosDB read locations, it is different from Azure regions.
 func allowedReadLocations() []service.EnumValue {
-	return []service.EnumValue{
+	azurePublicCloudCosmosDBLocations := []service.EnumValue{
 		{Value: "westus2", Title: "West US 2"},
 		{Value: "westus", Title: "West US"},
 		{Value: "southcentralus", Title: "South Central US"},
@@ -307,6 +308,20 @@ func allowedReadLocations() []service.EnumValue {
 		{Value: "australiasoutheast", Title: "Australia Southeast"},
 		{Value: "australiaeast", Title: "Australia East"},
 	}
+
+	azureChinaCloudCosmosDBLocations := []service.EnumValue{
+		{Value: "chinanorth2", Title: "China North 2"},
+		{Value: "chinaeast2", Title: "China East 2"},
+	}
+
+	envrionmentName := azure.GetEnvrionmentName()
+	switch envrionmentName {
+	case "AzurePublicCloud":
+		return azurePublicCloudCosmosDBLocations
+	case "AzureChinaCloud":
+		return azureChinaCloudCosmosDBLocations
+	}
+	return azurePublicCloudCosmosDBLocations
 }
 
 func (c *cosmosAccountManager) buildGoTemplateParamsCore(
