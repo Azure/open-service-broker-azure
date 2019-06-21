@@ -24,7 +24,14 @@ func buildGoTemplateParameters(
 	td := plan.GetProperties().Extended["tierDetails"].(tierDetails)
 
 	p := map[string]interface{}{}
-	p["location"] = pp.GetString("location")
+	location := pp.GetString("location")
+	p["location"] = location
+	// Temporary workaround for Mooncake
+	if location == "chinanorth" || location == "chinaeast" {
+		p["family"] = "Gen4"
+	} else {
+		p["family"] = "Gen5"
+	}
 	p["sku"] = td.getSku(pp)
 	p["tier"] = td.tierName
 	p["cores"] = pp.GetInt64("cores")

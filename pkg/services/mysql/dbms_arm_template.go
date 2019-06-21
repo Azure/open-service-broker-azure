@@ -37,7 +37,7 @@ var dbmsARMTemplateBytes = []byte(`
 					"tier": "{{.tier}}",
 					"capacity": "{{.cores}}",
 					"size": "{{.storage}}",
-					"family": "Gen5"
+					"family": "{{.family}}"
 				},
 				"type": "Microsoft.DBforMySQL/servers",
 				"tags": "[parameters('tags')]",
