@@ -200,8 +200,8 @@ func (v vCorePlanDetails) getTierProvisionParameters(
 func (v vCorePlanDetails) getSKU(pp service.ProvisioningParameters) string {
 	var familyName string
 
-	envrionmentName := azure.GetEnvrionmentName()
-	if envrionmentName == "AzureChinaCloud" {
+	environmentName := azure.GetEnvironmentName()
+	if environmentName == "AzureChinaCloud" {
 		familyName = "Gen4"
 	} else {
 		familyName = "Gen5"

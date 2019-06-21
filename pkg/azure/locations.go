@@ -45,9 +45,9 @@ var azureChinaCloudLocations = []string{
 // IsValidLocation returns a bool indicating whether the provided location is a
 // valid one
 func IsValidLocation(location string) bool {
-	envrionmentName := GetEnvrionmentName()
+	environmentName := GetEnvironmentName()
 	var locations []string
-	switch envrionmentName {
+	switch environmentName {
 	case "AzureChinaCloud":
 		locations = azureChinaCloudLocations
 	case "AzurePublicCloud":

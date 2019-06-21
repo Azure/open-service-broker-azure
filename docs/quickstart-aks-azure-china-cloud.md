@@ -208,7 +208,7 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
       --set azure.tenantId=$AZURE_TENANT_ID \
       --set azure.clientId=$AZURE_CLIENT_ID \
       --set azure.clientSecret=$AZURE_CLIENT_SECRET \
-      --set azure.envrionment="AzureChinaCloud"
+      --set azure.environment="AzureChinaCloud"
     ```
 
     **PowerShell**
@@ -219,7 +219,7 @@ You should also ensure that the `Microsoft.Compute` and `Microsoft.Network` prov
       --set azure.tenantId=$env:AZURE_TENANT_ID `
       --set azure.clientId=$env:AZURE_CLIENT_ID `
       --set azure.clientSecret=$env:AZURE_CLIENT_SECRET
-      --set azure.envrionment="AzureChinaCloud"
+      --set azure.environment="AzureChinaCloud"
     ```
 
     Note: to install OSBA with experimental modules enabled, use the `--set modules.minStability=EXPERIMENTAL` argument.

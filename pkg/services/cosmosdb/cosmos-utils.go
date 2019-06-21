@@ -314,8 +314,8 @@ func allowedReadLocations() []service.EnumValue {
 		{Value: "chinaeast2", Title: "China East 2"},
 	}
 
-	envrionmentName := azure.GetEnvrionmentName()
-	switch envrionmentName {
+	environmentName := azure.GetEnvironmentName()
+	switch environmentName {
 	case "AzurePublicCloud":
 		return azurePublicCloudCosmosDBLocations
 	case "AzureChinaCloud":

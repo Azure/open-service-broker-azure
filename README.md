@@ -37,7 +37,7 @@ server that provisions managed services in the Microsoft Azure public cloud.
 * [Azure Service Bus](docs/modules/servicebus.md)
 * [Azure Text Analytics (Cognitive Services)](docs/modules/textanalytics.md)
 
-**Note for AzureChinaCloud**: Currently OSBA supports managing resources in AzurePublicCloud and AzureChinaCloud. However, cloud envrionment between AzureChinaCloud and AzurePublicCloud is different. [Here](docs/differences-of-china-cloud) are some known differences, before you create a resource in AzureChinaCloud, please first check the document and make sure your resource meet the requirement. And there may exist unknown differences which can cause the creation of resource in AzureChinaCloud fail. Please [raise an issue](<https://github.com/Azure/open-service-broker-azure/issues/new>) if you find you can't create a resource in AzureChinaCloud.
+**Note for AzureChinaCloud**: Currently OSBA supports managing resources in AzurePublicCloud and AzureChinaCloud. However, cloud environment between AzureChinaCloud and AzurePublicCloud is different. [Here](docs/differences-of-china-cloud) are some known differences, before you create a resource in AzureChinaCloud, please first check the document and make sure your resource meet the requirement. And there may exist unknown differences which can cause the creation of resource in AzureChinaCloud fail. Please [raise an issue](<https://github.com/Azure/open-service-broker-azure/issues/new>) if you find you can't create a resource in AzureChinaCloud.
 
 ## Quickstarts
 

@@ -55,8 +55,8 @@ var (
 // GetLocationSchema returns pointer to general StringPropertySchema
 // of "location"
 func GetLocationSchema() *service.StringPropertySchema {
-	envrionmentName := azure.GetEnvrionmentName()
-	switch envrionmentName {
+	environmentName := azure.GetEnvironmentName()
+	switch environmentName {
 	case "AzureChinaCloud":
 		return &azureChinaCloudLocationSchema
 	case "AzurePublicCloud":
