@@ -54,6 +54,7 @@ func (a *allInOneManager) deployARMTemplate(
 		dt.DatabaseName,
 		*pp,
 		pd,
+		pp.GetString("location"),
 	)
 	if err != nil {
 		return nil, err

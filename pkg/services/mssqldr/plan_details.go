@@ -12,6 +12,7 @@ type planDetails interface {
 	getProvisionSchema() service.InputParametersSchema
 	getTierProvisionParameters(
 		pp service.ProvisioningParameters,
+		location string,
 	) (map[string]interface{}, error)
 	getUpdateSchema() service.InputParametersSchema
 	validateUpdateParameters(service.Instance) error
@@ -80,6 +81,7 @@ func (d dtuPlanDetails) getProvisionSchema() service.InputParametersSchema {
 
 func (d dtuPlanDetails) getTierProvisionParameters(
 	pp service.ProvisioningParameters,
+	_ string,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
 	p["sku"] = d.getSKU(pp)
@@ -168,19 +170,31 @@ func (v vCorePlanDetails) getProvisionSchema() service.InputParametersSchema {
 
 func (v vCorePlanDetails) getTierProvisionParameters(
 	pp service.ProvisioningParameters,
+	location string,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
-	p["sku"] = v.getSKU(pp)
+	p["sku"] = v.getSKU(pp, location)
 	p["tier"] = v.tierName
 	// ARM template needs bytes
 	p["maxSizeBytes"] = pp.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
-func (v vCorePlanDetails) getSKU(pp service.ProvisioningParameters) string {
+func (v vCorePlanDetails) getSKU(
+	pp service.ProvisioningParameters,
+	location string,
+) string {
+	// Temporary workaround for Mooncake
+	var familyName string
+	if location == "chinanorth" || location == "chinaeast" {
+		familyName = "Gen4"
+	} else {
+		familyName = "Gen5"
+	}
 	return fmt.Sprintf(
-		"%s_Gen5_%d",
+		"%s_%s_%d",
 		v.tierShortName,
+		familyName,
 		pp.GetInt64("cores"),
 	)
 }

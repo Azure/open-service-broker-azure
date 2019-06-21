@@ -44,6 +44,7 @@ func (a *allInOneManager) updateARMTemplate(
 		dt.DatabaseName,
 		*up,
 		pd,
+		pp.GetString("location"),
 	)
 	if err != nil {
 		return nil, err

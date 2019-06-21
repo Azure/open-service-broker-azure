@@ -8,7 +8,7 @@ Below are known differences between Azure China Cloud and Azure Public Cloud(the
 
 - MSSQL
 
-  Gen5 hardware is not supported for vCore based database in Azure China Cloud. (OSBA will auto-switch to Gen4)
+  - For sql server created in chinanorth and chinaeast, vCore-based databases created upon it do not support Gen5 hardware.(OSBA will auto-switch to Gen4)
 
 - MySQL
 

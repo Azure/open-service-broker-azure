@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/schemas"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -16,6 +15,7 @@ type planDetails interface {
 	getProvisionSchemaForExistingIntance() service.InputParametersSchema
 	getTierProvisionParameters(
 		pp service.ProvisioningParameters,
+		location string,
 	) (map[string]interface{}, error)
 	getUpdateSchema() service.InputParametersSchema
 	validateUpdateParameters(service.Instance) error
@@ -92,6 +92,7 @@ func (d dtuPlanDetails) getProvisionSchemaForExistingIntance() service.InputPara
 
 func (d dtuPlanDetails) getTierProvisionParameters(
 	pp service.ProvisioningParameters,
+	_ string,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
 	p["sku"] = d.getSKU(pp)
@@ -188,20 +189,23 @@ func (v vCorePlanDetails) getProvisionSchemaForExistingIntance() service.InputPa
 
 func (v vCorePlanDetails) getTierProvisionParameters(
 	pp service.ProvisioningParameters,
+	location string,
 ) (map[string]interface{}, error) {
 	p := map[string]interface{}{}
-	p["sku"] = v.getSKU(pp)
+	p["sku"] = v.getSKU(pp, location)
 	p["tier"] = v.tierName
 	// ARM template needs bytes
 	p["maxSizeBytes"] = pp.GetInt64("storage") * 1024 * 1024 * 1024
 	return p, nil
 }
 
-func (v vCorePlanDetails) getSKU(pp service.ProvisioningParameters) string {
+func (v vCorePlanDetails) getSKU(
+	pp service.ProvisioningParameters,
+	location string,
+) string {
+	// Temporary workaround for Mooncake
 	var familyName string
-
-	environmentName := azure.GetEnvironmentName()
-	if environmentName == "AzureChinaCloud" {
+	if location == "chinanorth" || location == "chinaeast" {
 		familyName = "Gen4"
 	} else {
 		familyName = "Gen5"
