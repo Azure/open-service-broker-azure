@@ -22,9 +22,20 @@ type tierDetails struct {
 func (t *tierDetails) getSku(pp service.ProvisioningParameters) string {
 	// The name of the sku, typically:
 	// tier + family + cores, e.g. B_Gen4_1, GP_Gen5_8.
+
+	// Temporary workaround for Mooncake
+	var skuFamily string
+	location := pp.GetString("location")
+	if location == "chinanorth" || location == "chinaeast" {
+		skuFamily = "Gen4"
+	} else {
+		skuFamily = "Gen5"
+	}
+
 	sku := fmt.Sprintf(
-		"%s_Gen5_%d",
+		"%s_%s_%d",
 		t.tierShortName,
+		skuFamily,
 		pp.GetInt64("cores"),
 	)
 	return sku

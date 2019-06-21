@@ -20,6 +20,7 @@ func updateDatabaseARMTemplate(
 		databaseName,
 		up,
 		pd,
+		location,
 	)
 	if err != nil {
 		return err

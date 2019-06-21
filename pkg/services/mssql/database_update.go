@@ -33,6 +33,7 @@ func (d *databaseManager) updateARMTemplate(
 		dt.DatabaseName,
 		*instance.UpdatingParameters,
 		pd,
+		instance.Parent.ProvisioningParameters.GetString("location"),
 	)
 	if err != nil {
 		return nil, err

@@ -1,11 +1,12 @@
 package schemas
 
-import "github.com/Azure/open-service-broker-azure/pkg/service"
+import (
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
+	"github.com/Azure/open-service-broker-azure/pkg/service"
+)
 
-// GetLocationSchema returns pointer to general StringPropertySchema
-// of "location"
-func GetLocationSchema() *service.StringPropertySchema {
-	return &service.StringPropertySchema{
+var (
+	azurePublicCloudLocationSchema = service.StringPropertySchema{
 		Title: "Location",
 		Description: "The Azure region in which to provision" +
 			" applicable resources.",
@@ -38,4 +39,32 @@ func GetLocationSchema() *service.StringPropertySchema {
 			{Value: "westus2", Title: "West US 2"},
 		},
 	}
+	azureChinaCloudLocationSchema = service.StringPropertySchema{
+		Title: "Location",
+		Description: "The Azure region in which to provision" +
+			" applicable resources.",
+		OneOf: []service.EnumValue{
+			{Value: "chinanorth2", Title: "China North 2"},
+			{Value: "chinanorth", Title: "China North"},
+			{Value: "chinaeast2", Title: "China East 2"},
+			{Value: "chinaeast", Title: "China East"},
+		},
+	}
+)
+
+// GetLocationSchema returns pointer to general StringPropertySchema
+// of "location"
+func GetLocationSchema() *service.StringPropertySchema {
+	environmentName := azure.GetEnvironmentName()
+	switch environmentName {
+	case "AzureChinaCloud":
+		return &azureChinaCloudLocationSchema
+	case "AzurePublicCloud":
+		return &azurePublicCloudLocationSchema
+	}
+	// We shouldn't run into here, this function is supposed
+	// to return at the `switch` statement. We return
+	// public location schema here so that the error can be
+	// reported when provisioning the resource.
+	return &azurePublicCloudLocationSchema
 }

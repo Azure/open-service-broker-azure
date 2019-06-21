@@ -6,7 +6,7 @@ import (
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 )
 
-var locations = []string{
+var azurePublicCloudLocations = []string{
 	"australiaeast",
 	"australiasoutheast",
 	"brazilsouth",
@@ -35,9 +35,29 @@ var locations = []string{
 	"westus2",
 }
 
+var azureChinaCloudLocations = []string{
+	"chinanorth2",
+	"chinanorth",
+	"chinaeast2",
+	"chinaeast",
+}
+
 // IsValidLocation returns a bool indicating whether the provided location is a
 // valid one
 func IsValidLocation(location string) bool {
+	environmentName := GetEnvironmentName()
+	var locations []string
+	switch environmentName {
+	case "AzureChinaCloud":
+		locations = azureChinaCloudLocations
+	case "AzurePublicCloud":
+		locations = azurePublicCloudLocations
+	// We shouldn't run into default case, but instead
+	// of raising a panic, we use public cloud locations
+	// and the error can be reported when provisioning the resource.
+	default:
+		locations = azurePublicCloudLocations
+	}
 	for _, l := range locations {
 		if location == l {
 			return true

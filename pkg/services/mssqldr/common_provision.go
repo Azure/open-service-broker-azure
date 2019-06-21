@@ -153,8 +153,9 @@ func buildDatabaseGoTemplateParameters(
 	databaseName string,
 	pp service.ProvisioningParameters,
 	pd planDetails,
+	location string,
 ) (map[string]interface{}, error) {
-	td, err := pd.getTierProvisionParameters(pp)
+	td, err := pd.getTierProvisionParameters(pp, location)
 	if err != nil {
 		return nil, err
 	}
@@ -181,6 +182,7 @@ func deployDatabaseARMTemplate(
 		databaseName,
 		pp,
 		pd,
+		location,
 	)
 	if err != nil {
 		return err
