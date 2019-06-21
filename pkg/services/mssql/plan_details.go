@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/Azure/open-service-broker-azure/pkg/azure"
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/schemas"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
@@ -197,9 +198,18 @@ func (v vCorePlanDetails) getTierProvisionParameters(
 }
 
 func (v vCorePlanDetails) getSKU(pp service.ProvisioningParameters) string {
+	var familyName string
+
+	envrionmentName := azure.GetEnvrionmentName()
+	if envrionmentName == "AzureChinaCloud" {
+		familyName = "Gen4"
+	} else {
+		familyName = "Gen5"
+	}
 	return fmt.Sprintf(
-		"%s_Gen5_%d",
+		"%s_%s_%d",
 		v.tierShortName,
+		familyName,
 		pp.GetInt64("cores"),
 	)
 }
