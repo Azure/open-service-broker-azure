@@ -18,8 +18,8 @@ Below are known differences between Azure China Cloud and Azure Public Cloud(the
 
 - PostgreSQL
 
-  - Memory optimized plan is not supported in Azure China Cloud.
-  - For chinanorth and chinaeast, Gen5 hardware is not supported. (OBSA will auto-switch to Gen4)
+  - Memory optimized plan is not supported in chinanorth and chinaeast.
+  - Gen5 hardware is not supported in chinanorth and chinaeast. (OBSA will auto-switch to Gen4)
 
 - Storage
 
