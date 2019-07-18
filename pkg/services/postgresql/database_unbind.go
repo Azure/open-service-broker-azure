@@ -12,6 +12,7 @@ func (d *databaseManager) Unbind(
 	bd := binding.Details.(*bindingDetails)
 	return unbind(
 		isSSLRequired(*instance.Parent.ProvisioningParameters),
+		pdt.AdministratorLogin,
 		pdt.ServerName,
 		string(pdt.AdministratorLoginPassword),
 		pdt.FullyQualifiedDomainName,

@@ -95,6 +95,7 @@ func (a *allInOneManager) setupDatabase(
 	dt := instance.Details.(*allInOneInstanceDetails)
 	err := setupDatabase(
 		isSSLRequired(*instance.ProvisioningParameters),
+		dt.AdministratorLogin,
 		dt.ServerName,
 		string(dt.AdministratorLoginPassword),
 		dt.FullyQualifiedDomainName,
@@ -115,6 +116,7 @@ func (a *allInOneManager) createExtensions(
 	if len(extensions) > 0 {
 		err := createExtensions(
 			isSSLRequired(*instance.ProvisioningParameters),
+			dt.AdministratorLogin,
 			dt.ServerName,
 			string(dt.AdministratorLoginPassword),
 			dt.FullyQualifiedDomainName,

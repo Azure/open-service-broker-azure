@@ -6,6 +6,7 @@ import (
 
 func unbind(
 	enforceSSL bool,
+	administratorLogin string,
 	serverName string,
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
@@ -13,6 +14,7 @@ func unbind(
 ) error {
 	db, err := getDBConnection(
 		enforceSSL,
+		administratorLogin,
 		serverName,
 		administratorLoginPassword,
 		fullyQualifiedDomainName,

@@ -11,6 +11,7 @@ func (a *allInOneManager) Bind(
 	dt := instance.Details.(*allInOneInstanceDetails)
 	bd, err := createBinding(
 		isSSLRequired(*instance.ProvisioningParameters),
+		dt.AdministratorLogin,
 		dt.ServerName,
 		string(dt.AdministratorLoginPassword),
 		dt.FullyQualifiedDomainName,

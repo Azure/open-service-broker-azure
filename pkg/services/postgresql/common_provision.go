@@ -122,6 +122,7 @@ func generateDBMSInstanceDetails(
 
 func setupDatabase(
 	enforceSSL bool,
+	administratorLogin string,
 	serverName string,
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
@@ -129,6 +130,7 @@ func setupDatabase(
 ) error {
 	db, err := getDBConnection(
 		enforceSSL,
+		administratorLogin,
 		serverName,
 		administratorLoginPassword,
 		fullyQualifiedDomainName,
@@ -186,6 +188,7 @@ func setupDatabase(
 
 func createExtensions(
 	enforceSSL bool,
+	administratorLogin string,
 	serverName string,
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
@@ -194,6 +197,7 @@ func createExtensions(
 ) error {
 	db, err := getDBConnection(
 		enforceSSL,
+		administratorLogin,
 		serverName,
 		administratorLoginPassword,
 		fullyQualifiedDomainName,

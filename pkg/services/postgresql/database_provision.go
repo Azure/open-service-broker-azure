@@ -68,6 +68,7 @@ func (d *databaseManager) setupDatabase(
 	dt := instance.Details.(*databaseInstanceDetails)
 	err := setupDatabase(
 		isSSLRequired(*instance.Parent.ProvisioningParameters),
+		pdt.AdministratorLogin,
 		pdt.ServerName,
 		string(pdt.AdministratorLoginPassword),
 		pdt.FullyQualifiedDomainName,
@@ -89,6 +90,7 @@ func (d *databaseManager) createExtensions(
 	if len(extensions) > 0 {
 		err := createExtensions(
 			isSSLRequired(*instance.Parent.ProvisioningParameters),
+			pdt.AdministratorLogin,
 			pdt.ServerName,
 			string(pdt.AdministratorLoginPassword),
 			pdt.FullyQualifiedDomainName,
