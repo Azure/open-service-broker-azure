@@ -10,7 +10,7 @@ Open Service Broker for Azure contains three types of Azure Database for Postgre
 | `azure-postgresql-*-dbms`     | Provision only an Azure Database for PostgreSQL DBMS. This can be used to provision multiple databases at a later time. |
 | `azure-postgresql-*-database` | Provision a new database only upon a previously provisioned DBMS. |
 
-The `azure-postgresql-*` services allow you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance provisioned through these two services. The `azure-postgresql-*-dbms` and `azure-postgresql-*-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS. Currently, OSBA supports two versions of Azure Database for PostgreSQL services:
+The `azure-postgresql-*` services allow you to provision both a DBMS and a database. When the provision operation is successful, the database will be ready to use. You can not provision additional databases onto an instance of `azure-postgresql-*`. The `azure-postgresql-*-dbms` and `azure-postgresql-*-database` services, on the other hand, can be combined to provision multiple databases on a single DBMS. Currently, OSBA supports two versions of Azure Database for PostgreSQL services:
 <table>
 	<thead>
 		<tr>
@@ -78,6 +78,10 @@ name.
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Y | |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y | |
+| `serverName` | `string` | Name of the PostgreSQL server. | N | A random generated string. |
+| `adminAccountSettings` | `object` | Settings of administrator account of PostgreSQL server. Typically you do not need to specify this. | N | Default admin username is "postgres" and password is a randomly generated string. |
+| `adminAccountSettings.adminUsername` | `string` | The administrator username for the server. | N | "postgres" |
+| `adminAccountSettings.adminPassword` | `string` | The administrator password for the server. **Warning**: you may leak your password if you specify this property, others can see this password in your request body and `ServiceInstance` definition. DO NOT use this property unless you know what you are doing. | N | A random generated password. |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
 | `firewallRules[n].name` | `string` | Specifies the name of the generated firewall rule |Y | |
@@ -275,6 +279,9 @@ Provisions an Azure Database for PostgreSQL DBMS instance containing no database
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Y | |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y | |
+| `serverName` | `string` | Name of the PostgreSQL server. | N | A random generated string. |
+| `adminUsername` | `string` | The administrator username for the server. | N | "postgresql" |
+| `adminPassword` | `string` | The administrator password for the server. **Warning**: you may leak your password if you specify this property, others can see this password in your request body and `ServiceInstance` definition. DO NOT use this property unless you know what you are doing. | N | A random generated password. |
 | `alias` | `string` | Specifies an alias that can be used by later provision actions to create databases on this DBMS. | Y | |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |

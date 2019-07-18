@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"net"
+	"strings"
+	"unicode"
 
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/schemas"
@@ -61,6 +63,34 @@ func generateProvisioningParamsSchema(
 		Description: "Tags to be applied to new resources," +
 			" specified as key/value pairs.",
 		Additional: &service.StringPropertySchema{},
+	}
+	ips.PropertySchemas["serverName"] = &service.StringPropertySchema{
+		Title:          "Server Name",
+		Description:    "Name of the postgreSQL server",
+		MinLength:      ptr.ToInt(3),
+		MaxLength:      ptr.ToInt(63),
+		AllowedPattern: `^[a-z0-9]+[-a-z0-9]*[a-z0-9]+$`,
+	}
+	ips.PropertySchemas["adminAccountSettings"] = &service.ObjectPropertySchema{
+		Title:       "Admin Account Setttings",
+		Description: "Settings of administrator account of PostgreSQL server. Typically you do not need to specify this.",
+		PropertySchemas: map[string]service.PropertySchema{
+			"adminUsername": &service.StringPropertySchema{
+				Title:          "Admin Username",
+				Description:    "The administrator username for the server.",
+				MinLength:      ptr.ToInt(1),
+				MaxLength:      ptr.ToInt(63),
+				AllowedPattern: `^(?!azure_superuser$)(?!azure_pg_admin$)(?!admin$)(?!administrator$)(?!root$)(?!guest$)(?!public$)(?!pg_)[_a-z0-9]+`,
+			},
+			"adminPassword": &service.StringPropertySchema{
+				Title:                   "Admin Password",
+				Description:             "The administrator password for the server. **Warning**: you may leak your password if you specify this property, others can see this password in your request body and `ServiceInstance` definition. DO NOT use this property unless you know what you are doing.",
+				MinLength:               ptr.ToInt(8),
+				MaxLength:               ptr.ToInt(128),
+				CustomPropertyValidator: passwordValidator,
+			},
+		},
+		CustomPropertyValidator: adminAccountSettingValidator,
 	}
 	if includeDBParams {
 		ips.PropertySchemas["extensions"] = dbExtensionsSchema
@@ -204,6 +234,106 @@ func firewallRuleValidator(
 				endIP,
 				startIP,
 			),
+		)
+	}
+	return nil
+}
+
+// passwordValidator validates postgreSQL password,
+// the password should:
+// 1. Have at least 8 characters and at most 128 characters.
+// 2. Contain characters from three of the following categories:
+//    – English uppercase letters
+//    - English lowercase letters
+//    - numbers (0-9),
+//    - non-alphanumeric characters (!, $, #, %, etc.).
+func passwordValidator(context, value string) error {
+	if len(value) < 8 || len(value) > 128 {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf("the passsword should have at least 8 characters and at most 128 characters, given password's length is %d", len(value)), // nolint: lll
+		)
+	}
+	runes := []rune(value)
+	var (
+		digitOccurred              int
+		lowercaseCharacterOccurred int
+		uppercaseCharacterOccurred int
+		specialCharacterOccurred   int
+	)
+	for _, r := range runes {
+		if unicode.IsDigit(r) {
+			digitOccurred = 1
+		} else if unicode.IsLower(r) {
+			lowercaseCharacterOccurred = 1
+		} else if unicode.IsUpper(r) {
+			uppercaseCharacterOccurred = 1
+		} else {
+			specialCharacterOccurred = 1
+		}
+	}
+
+	if digitOccurred+lowercaseCharacterOccurred+uppercaseCharacterOccurred+specialCharacterOccurred < 3 {
+		return service.NewValidationError(
+			context,
+			"the password must contain characters from three of the following categories – English uppercase letters, English lowercase letters, numbers (0-9), and non-alphanumeric characters.", // nolint: lll
+		)
+	}
+	return nil
+}
+
+// adminAccountSettingValidator, in fact, validates
+// the admin password does not contain all or part of
+// the admin username. Part of a login name is defined as
+// three or more consecutive alphanumeric characters.
+// The reason we need this function is we can't get the
+// admin username in password's custom validator, so we
+// have to wrap them into an object and validate it
+// in this addtional validator.
+func adminAccountSettingValidator(
+	context string,
+	valMap map[string]interface{},
+) error {
+	var username, password string
+
+	usernameInterface := valMap["adminUsername"]
+	passwordInterface := valMap["password"]
+	// If user does not specify password, OSBA will
+	// generate one for user, it has very little
+	// possibility to conflict, we directly return nil here.
+	if passwordInterface == nil {
+		return nil
+	}
+
+	if usernameInterface == nil {
+		username = "postgres"
+	} else {
+		username = usernameInterface.(string)
+	}
+	password = passwordInterface.(string)
+
+	// Find whether password contains part of the username.
+	// We only need to detect whether password contains username's
+	// substring of length 3.
+	// That's OK to interate over all username's substrings
+	// of length 3 here as the stirng is really short. Though
+	// AC automation can save some time, but code complexity
+	// is too high, and I think we do not really need it here.
+	found := false
+	containedSubstr := ""
+	usernameLen := len(username)
+	for startIdx := 0; startIdx <= usernameLen-3; startIdx++ {
+		subStr := username[startIdx : startIdx+3]
+		found = strings.Contains(password, subStr)
+		if found {
+			containedSubstr = subStr
+			break
+		}
+	}
+	if found {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf("the password should not contain part of username, username is %s, contained part is %s", username, containedSubstr), // nolint: lll
 		)
 	}
 	return nil

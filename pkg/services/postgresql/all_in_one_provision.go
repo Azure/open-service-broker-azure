@@ -6,7 +6,6 @@ import (
 
 	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
-	uuid "github.com/satori/go.uuid"
 )
 
 func (a *allInOneManager) GetProvisioner(
@@ -22,24 +21,23 @@ func (a *allInOneManager) GetProvisioner(
 
 func (a *allInOneManager) preProvision(
 	ctx context.Context,
-	_ service.Instance,
+	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	serverName, err := getAvailableServerName(
+
+	dbmsInstanceDetails, err := generateDBMSInstanceDetails(
 		ctx,
+		instance,
 		a.checkNameAvailabilityClient,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error generating instance detail: %v", err)
 	}
+
 	return &allInOneInstanceDetails{
-		dbmsInstanceDetails: dbmsInstanceDetails{
-			ARMDeploymentName:          uuid.NewV4().String(),
-			ServerName:                 serverName,
-			AdministratorLoginPassword: service.SecureString(generate.NewPassword()),
-		},
-		DatabaseName: generate.NewIdentifier(),
+		dbmsInstanceDetails: *dbmsInstanceDetails,
+		DatabaseName:        generate.NewIdentifier(),
 	}, nil
 }
 
