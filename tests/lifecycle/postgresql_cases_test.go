@@ -160,7 +160,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 	// Test case for specifying server name, admin username and admin password
 	{
 		group:           "postgresql",
-		name:            "all-in-one-v10",
+		name:            "all-in-one-v10-specified-server-info",
 		serviceID:       "32d3b4e0-e68f-4e96-93d4-35fd380f0874",
 		planID:          "6caf83ec-5cc1-42a0-9b34-0d163d73064c",
 		testCredentials: testPostgreSQLCreds,
@@ -201,7 +201,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 	},
 	{
 		group:     "postgresql",
-		name:      "dbms-only-v10",
+		name:      "dbms-only-v10-specified-server-info",
 		serviceID: "cabd3125-5a13-46ea-afad-a69582af9578",
 		planID:    "f5218659-72ba-4fd3-9567-afd52d871fee",
 		provisioningParameters: map[string]interface{}{

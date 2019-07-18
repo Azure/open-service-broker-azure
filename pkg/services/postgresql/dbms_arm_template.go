@@ -21,7 +21,7 @@ var dbmsARMTemplateBytes = []byte(`
 			"name": "{{ .serverName }}",
 			"properties": {
 				"version": "{{.version}}",
-				"administratorLogin": "postgres",
+				"administratorLogin": "{{ .administratorLogin }}",
 				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
 				"storageProfile": {
 					"storageMB": {{.storage}},

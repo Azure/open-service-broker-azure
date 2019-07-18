@@ -157,12 +157,18 @@ func setupDatabase(
 	); err != nil {
 		return fmt.Errorf(`error creating role "%s": %s`, dbName, err)
 	}
+	// Azure will automatically create a role having name of
+	// postgreSQL server admin user.
+	// Here the purpose of granting one role to another role is
+	// to make admin role to be a member of created db role.
+	// Please see: https://www.postgresql.org/docs/10/role-membership.html
 	if _, err = tx.Exec(
-		fmt.Sprintf("grant %s to postgres", dbName),
+		fmt.Sprintf("grant %s to %s", dbName, administratorLogin),
 	); err != nil {
 		return fmt.Errorf(
-			`error adding role "%s" to role "postgres": %s`,
+			`error adding role "%s" to role "%s": %s`,
 			dbName,
+			administratorLogin,
 			err,
 		)
 	}
