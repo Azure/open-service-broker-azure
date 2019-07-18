@@ -12,6 +12,7 @@ func (d *databaseManager) Bind(
 	dt := instance.Details.(*databaseInstanceDetails)
 	bd, err := createBinding(
 		isSSLRequired(*instance.Parent.ProvisioningParameters),
+		pdt.AdministratorLogin,
 		pdt.ServerName,
 		string(pdt.AdministratorLoginPassword),
 		pdt.FullyQualifiedDomainName,

@@ -21,6 +21,7 @@ var dbExtensionsSchema = &service.ArrayPropertySchema{
 
 func getDBConnection(
 	enforceSSL bool,
+	administratorLogin string,
 	serverName string,
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
@@ -29,12 +30,13 @@ func getDBConnection(
 	var connectionStrTemplate string
 	if enforceSSL {
 		connectionStrTemplate =
-			"postgres://postgres@%s:%s@%s/%s?sslmode=require"
+			"postgres://%s@%s:%s@%s/%s?sslmode=require"
 	} else {
-		connectionStrTemplate = "postgres://postgres@%s:%s@%s/%s"
+		connectionStrTemplate = "postgres://%s@%s:%s@%s/%s"
 	}
 	db, err := sql.Open("postgres", fmt.Sprintf(
 		connectionStrTemplate,
+		administratorLogin,
 		serverName,
 		administratorLoginPassword,
 		fullyQualifiedDomainName,

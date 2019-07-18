@@ -12,6 +12,7 @@ func (a *allInOneManager) Unbind(
 	bd := binding.Details.(*bindingDetails)
 	return unbind(
 		isSSLRequired(*instance.ProvisioningParameters),
+		dt.AdministratorLogin,
 		dt.ServerName,
 		string(dt.AdministratorLoginPassword),
 		dt.FullyQualifiedDomainName,

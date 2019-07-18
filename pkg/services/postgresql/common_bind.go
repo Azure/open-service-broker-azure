@@ -12,6 +12,7 @@ import (
 
 func createBinding(
 	enforceSSL bool,
+	administratorLogin string,
 	serverName string,
 	administratorLoginPassword string,
 	fullyQualifiedDomainName string,
@@ -22,6 +23,7 @@ func createBinding(
 
 	db, err := getDBConnection(
 		enforceSSL,
+		administratorLogin,
 		serverName,
 		administratorLoginPassword,
 		fullyQualifiedDomainName,
