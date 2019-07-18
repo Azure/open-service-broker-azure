@@ -20,7 +20,9 @@ func (d *commonDatabasePairManager) GetUpdater(
 ) (service.Updater, error) {
 	return service.NewUpdater(
 		service.NewUpdatingStep("updatePriARMTemplate", d.updatePriARMTemplate),
-		service.NewUpdatingStep("updateSecARMTemplate", d.updateSecARMTemplate),
+		// Please refer to the comment above function `updateSecARMTemplate`
+		// to see why this function is commented.
+		// service.NewUpdatingStep("updateSecARMTemplate", d.updateSecARMTemplate),
 	)
 }
 
@@ -54,6 +56,16 @@ func (d *commonDatabasePairManager) updatePriARMTemplate(
 	return instance.Details, nil
 }
 
+// This function is not used currently. Because using current
+// ARM template to update the secondary database will result
+// in error "InvalidOperationForDatabaseInReplicationRelationship",
+// which indicates a replication seeding operation was performed
+// on a database that is already in a replication relationship.
+// It should be caused by cross-sku updating, for example, updating
+// from "GeneralPurposeV5 2vcores" to "Standard S2". I think
+// we do have method to update the secondary database, we need
+// further communication with SQL team.
+// nolint: megacheck
 func (d *commonDatabasePairManager) updateSecARMTemplate(
 	_ context.Context,
 	instance service.Instance,
