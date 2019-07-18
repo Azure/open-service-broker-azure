@@ -328,7 +328,7 @@ func adminAccountSettingValidator(
 	var username, password string
 
 	usernameInterface := valMap["adminUsername"]
-	passwordInterface := valMap["password"]
+	passwordInterface := valMap["adminPassword"]
 	// If user does not specify password, OSBA will
 	// generate one for user, it has very little
 	// possibility to conflict, we directly return nil here.
