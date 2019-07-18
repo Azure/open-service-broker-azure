@@ -77,11 +77,11 @@ func generateProvisioningParamsSchema(
 		Description: "Settings of administrator account of PostgreSQL server. Typically you do not need to specify this.",
 		PropertySchemas: map[string]service.PropertySchema{
 			"adminUsername": &service.StringPropertySchema{
-				Title:          "Admin Username",
-				Description:    "The administrator username for the server.",
-				MinLength:      ptr.ToInt(1),
-				MaxLength:      ptr.ToInt(63),
-				AllowedPattern: `^(?!azure_superuser$)(?!azure_pg_admin$)(?!admin$)(?!administrator$)(?!root$)(?!guest$)(?!public$)(?!pg_)[_a-z0-9]+`,
+				Title:                   "Admin Username",
+				Description:             "The administrator username for the server.",
+				MinLength:               ptr.ToInt(1),
+				MaxLength:               ptr.ToInt(63),
+				CustomPropertyValidator: usernameValidator,
 			},
 			"adminPassword": &service.StringPropertySchema{
 				Title:                   "Admin Password",
@@ -235,6 +235,30 @@ func firewallRuleValidator(
 				endIP,
 				startIP,
 			),
+		)
+	}
+	return nil
+}
+
+// usernameValidator validates postgreSQL username.
+// Username can't be specific strings or start with "pg_"
+func usernameValidator(context, value string) error {
+	if value == "azure_superuser" ||
+		value == "azure_pg_admin" ||
+		value == "admin" ||
+		value == "administrator" ||
+		value == "root" ||
+		value == "guest" ||
+		value == "public" {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf("admin username can't be %s", value),
+		)
+	}
+	if strings.HasPrefix(value, "pg_") {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf("admin username can't start with pg_, input username: %s", value), // nolint: lll
 		)
 	}
 	return nil
