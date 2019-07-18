@@ -74,7 +74,7 @@ func generateDBMSInstanceDetails(
 	defer cancel()
 
 	// Determine server name. If specified,
-	// check availablity; else, generate one.
+	// check availability; else, generate one.
 	pp := instance.ProvisioningParameters
 	serverName := pp.GetString("serverName")
 	if serverName != "" {

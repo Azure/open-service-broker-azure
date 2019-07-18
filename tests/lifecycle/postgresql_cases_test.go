@@ -9,6 +9,7 @@ import (
 
 	networkSDK "github.com/Azure/azure-sdk-for-go/services/network/mgmt/2018-01-01/network" // nolint: lll
 	"github.com/Azure/go-autorest/autorest/to"
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/lib/pq" // Postgres SQL driver
 	uuid "github.com/satori/go.uuid"
@@ -148,6 +149,89 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 				testCredentials: testPostgreSQLCreds,
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": postgresqlV10DBMSAlias,
+					"extensions": []interface{}{
+						"uuid-ossp",
+						"postgis",
+					},
+				},
+			},
+		},
+	},
+	// Test case for specifying server name, admin username and admin password
+	{
+		group:           "postgresql",
+		name:            "all-in-one-v10",
+		serviceID:       "32d3b4e0-e68f-4e96-93d4-35fd380f0874",
+		planID:          "6caf83ec-5cc1-42a0-9b34-0d163d73064c",
+		testCredentials: testPostgreSQLCreds,
+		provisioningParameters: map[string]interface{}{
+			"location": "southcentralus",
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowSome",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "35.0.0.0",
+				},
+				map[string]interface{}{
+					"name":           "AllowMore",
+					"startIPAddress": "35.0.0.1",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+			"sslEnforcement": "disabled",
+			"extensions": []interface{}{
+				"uuid-ossp",
+				"postgis",
+			},
+			"backupRedundancy": "geo",
+			"adminAccountSettings": map[string]interface{}{
+				"adminUsername": uuid.NewV4().String(),
+				"adminPassword": generate.NewPassword(),
+			},
+			"serverName": uuid.NewV4().String(),
+		},
+		preProvisionFns: []preProvisionFn{
+			createVirtualNetworkForPostgres,
+		},
+		updatingParameters: map[string]interface{}{
+			"cores":           2,
+			"storage":         25,
+			"backupRetention": 35,
+		},
+	},
+	{
+		group:     "postgresql",
+		name:      "dbms-only-v10",
+		serviceID: "cabd3125-5a13-46ea-afad-a69582af9578",
+		planID:    "f5218659-72ba-4fd3-9567-afd52d871fee",
+		provisioningParameters: map[string]interface{}{
+			"location": "southcentralus",
+			"alias":    postgresqlV10DBMSAlias + "-2",
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowAll",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+			"adminAccountSettings": map[string]interface{}{
+				"adminUsername": uuid.NewV4().String(),
+				"adminPassword": generate.NewPassword(),
+			},
+			"serverName": uuid.NewV4().String(),
+		},
+		preProvisionFns: []preProvisionFn{
+			createVirtualNetworkForPostgres,
+		},
+		childTestCases: []*serviceLifecycleTestCase{
+			{ // database only scenario
+				group:           "postgresql",
+				name:            "database-only-v10",
+				serviceID:       "1fd01042-3b70-4612-ac19-9ced0b2a1525",
+				planID:          "672f80d5-8c9e-488f-b9ce-41142c205e99",
+				testCredentials: testPostgreSQLCreds,
+				provisioningParameters: map[string]interface{}{
+					"parentAlias": postgresqlV10DBMSAlias + "-2",
 					"extensions": []interface{}{
 						"uuid-ossp",
 						"postgis",

@@ -43,6 +43,7 @@ func (t *tierDetails) getSku(pp service.ProvisioningParameters) string {
 	return sku
 }
 
+// nolint: lll
 func generateProvisioningParamsSchema(
 	td tierDetails,
 	includeDBParams bool,
@@ -247,6 +248,7 @@ func firewallRuleValidator(
 //    - English lowercase letters
 //    - numbers (0-9),
 //    - non-alphanumeric characters (!, $, #, %, etc.).
+// nolint: lll
 func passwordValidator(context, value string) error {
 	if len(value) < 8 || len(value) > 128 {
 		return service.NewValidationError(
@@ -261,7 +263,12 @@ func passwordValidator(context, value string) error {
 		uppercaseCharacterOccurred int
 		specialCharacterOccurred   int
 	)
-	for _, r := range runes {
+	// Note: here if we don't add nolint, linter
+	// will report error "should range over string, not []rune(string)"
+	// The difference can be found here:
+	// https://stackoverflow.com/questions/49062100/is-there-any-difference-between-range-str-and-range-runestr-in-golang
+	// In our senario, that's OK to range over rune slice.
+	for _, r := range runes { // nolint: megacheck
 		if unicode.IsDigit(r) {
 			digitOccurred = 1
 		} else if unicode.IsLower(r) {
@@ -289,7 +296,7 @@ func passwordValidator(context, value string) error {
 // The reason we need this function is we can't get the
 // admin username in password's custom validator, so we
 // have to wrap them into an object and validate it
-// in this addtional validator.
+// in this additional validator.
 func adminAccountSettingValidator(
 	context string,
 	valMap map[string]interface{},
