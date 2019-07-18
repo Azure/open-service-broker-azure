@@ -185,10 +185,10 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 			},
 			"backupRedundancy": "geo",
 			"adminAccountSettings": map[string]interface{}{
-				"adminUsername": uuid.NewV4().String(),
+				"adminUsername": "postgresqladmin",
 				"adminPassword": generate.NewPassword(),
 			},
-			"serverName": uuid.NewV4().String(),
+			"serverName": uuid.NewV4().String() + "-specified",
 		},
 		preProvisionFns: []preProvisionFn{
 			createVirtualNetworkForPostgres,
@@ -215,10 +215,10 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 				},
 			},
 			"adminAccountSettings": map[string]interface{}{
-				"adminUsername": uuid.NewV4().String(),
+				"adminUsername": "postgresqladmin",
 				"adminPassword": generate.NewPassword(),
 			},
-			"serverName": uuid.NewV4().String(),
+			"serverName": uuid.NewV4().String() + "-specified",
 		},
 		preProvisionFns: []preProvisionFn{
 			createVirtualNetworkForPostgres,
