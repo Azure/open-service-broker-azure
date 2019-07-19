@@ -153,7 +153,7 @@ func setupDatabase(
 		}
 	}()
 	if _, err = tx.Exec(
-		fmt.Sprintf("create role %s", dbName),
+		fmt.Sprintf(`create role "%s"`, dbName),
 	); err != nil {
 		return fmt.Errorf(`error creating role "%s": %s`, dbName, err)
 	}
@@ -163,7 +163,7 @@ func setupDatabase(
 	// to make admin role to be a member of created db role.
 	// Please see: https://www.postgresql.org/docs/10/role-membership.html
 	if _, err = tx.Exec(
-		fmt.Sprintf("grant %s to %s", dbName, administratorLogin),
+		fmt.Sprintf(`grant "%s" to "%s"`, dbName, administratorLogin),
 	); err != nil {
 		return fmt.Errorf(
 			`error adding role "%s" to role "%s": %s`,
@@ -174,7 +174,7 @@ func setupDatabase(
 	}
 	if _, err = tx.Exec(
 		fmt.Sprintf(
-			"alter database %s owner to %s",
+			`alter database "%s" owner to "%s"`,
 			dbName,
 			dbName,
 		),

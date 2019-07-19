@@ -185,7 +185,7 @@ var postgresqlTestCases = []serviceLifecycleTestCase{
 			},
 			"backupRedundancy": "geo",
 			"adminAccountSettings": map[string]interface{}{
-				"adminUsername": "postgresqladmin",
+				"adminUsername": "postgresqlAdmin",
 				"adminPassword": generate.NewPassword(),
 			},
 			"serverName": uuid.NewV4().String() + "-specified",
