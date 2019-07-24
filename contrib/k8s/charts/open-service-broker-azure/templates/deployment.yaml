@@ -19,6 +19,8 @@ spec:
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/broker.yaml") . | sha256sum }}
     spec:
       containers:
         - name: open-service-broker-azure
