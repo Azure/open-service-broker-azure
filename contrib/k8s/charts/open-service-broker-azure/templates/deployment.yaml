@@ -19,6 +19,7 @@ spec:
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
+        releaseRevision: "{{ .Release.Revision }}"
     spec:
       containers:
         - name: open-service-broker-azure
