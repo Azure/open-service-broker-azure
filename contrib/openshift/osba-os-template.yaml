@@ -222,7 +222,7 @@ parameters:
   value: AzurePublicCloud
   required: true
 - name: OSBA_VERSION
-  value: v1.5.0
+  value: v1.8.2
 - name: AZURE_SUBSCRIPTION_ID
   value: 
   required: true
