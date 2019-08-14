@@ -35,6 +35,10 @@ spec:
   authInfo:
     basic:
       secretRef:
+        {{- if .Values.basicAuth.secretName }}
+        name: "{{ .Values.basicAuth.secretName }}"
+        {{- else }}
         name: "{{ template "fullname" . }}-auth"
+        {{- end }}
         namespace: {{ .Release.Namespace | quote }}
 {{- end }}

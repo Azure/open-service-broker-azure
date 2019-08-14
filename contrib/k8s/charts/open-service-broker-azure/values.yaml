@@ -49,6 +49,8 @@ tls:
 
 ## Basic auth credentials that can later be used to access this broker
 basicAuth:
+  ##K8's secret name that contains username and password for basic auth
+  secretName: ""
   ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
   username: username
   ## DO NOT USE THIS DEFAULT VALUE IN PRODUCTION
