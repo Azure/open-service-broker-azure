@@ -232,8 +232,10 @@ func firewallRuleValidator(
 // the username should:
 // 1. It's a SQL Identifier, and not a typical system name
 // (like admin, administrator, sa, root, dbmanager, loginmanager, etc.)
-// 2. It shouldn't be a built-in database user or role (like dbo, guest, public, etc.)
-// 3. It shouldn't contain whitespaces, unicode characters, or nonalphabetic characters,
+// 2. It shouldn't be a built-in database user or role
+// (like dbo, guest, public, etc.)
+// 3. It shouldn't contain whitespaces, unicode characters,
+// or nonalphabetic characters,
 // and that it doesn't begin with numbers or symbols.
 func usernameValidator(context, value string) error {
 	if value == "admin" ||

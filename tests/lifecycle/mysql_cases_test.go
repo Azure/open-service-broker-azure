@@ -72,7 +72,8 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 			},
 		},
 	},
-	// Test case for specifying server name, admin username, admin password and database username.
+	// Test case for specifying server name, admin username,
+	// admin password and database username.
 	{
 		group:     "mysql",
 		name:      "all-in-one-specified-info",
