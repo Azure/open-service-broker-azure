@@ -6,6 +6,7 @@ type dbmsInstanceDetails struct {
 	ARMDeploymentName          string               `json:"armDeployment"`
 	ServerName                 string               `json:"server"`
 	FullyQualifiedDomainName   string               `json:"fullyQualifiedDomainName"`   // nolint: lll
+	AdministratorLogin         string               `json:"administratorLogin"`         // nolint: lll
 	AdministratorLoginPassword service.SecureString `json:"administratorLoginPassword"` // nolint: lll
 }
 

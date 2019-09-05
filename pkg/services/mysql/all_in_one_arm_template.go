@@ -21,7 +21,7 @@ var allInOneARMTemplateBytes = []byte(`
 			"name": "{{ .serverName }}",
 			"properties": {
 				"version": "{{.version}}",
-				"administratorLogin": "azureuser",
+				"administratorLogin": "{{ .administratorLogin }}",
 				"administratorLoginPassword": "{{ .administratorLoginPassword }}",
 				"storageProfile": {
 					"storageMB": {{.storage}},

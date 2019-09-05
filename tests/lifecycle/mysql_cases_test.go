@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	_ "github.com/go-sql-driver/mysql" // MySQL SQL driver
 	uuid "github.com/satori/go.uuid"
 )
@@ -67,6 +68,75 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 				testCredentials: testMySQLCreds,
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": mysqlDBMSAlias,
+				},
+			},
+		},
+	},
+	// Test case for specifying server name, admin username and admin password,
+	{
+		group:     "mysql",
+		name:      "all-in-one-specified-info",
+		serviceID: "997b8372-8dac-40ac-ae65-758b4a5075a5",
+		planID:    "eae202c3-521c-46d1-a047-872dacf781fd",
+		provisioningParameters: map[string]interface{}{
+			"location":       "southcentralus",
+			"sslEnforcement": "disabled",
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowSome",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "35.0.0.0",
+				},
+				map[string]interface{}{
+					"name":           "AllowMore",
+					"startIPAddress": "35.0.0.1",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+			"backupRedundancy": "geo",
+			"adminAccountSettings": map[string]interface{}{
+				"adminUsername": "osbaciadmin",
+				"adminPassword": generate.NewPassword(),
+			},
+			"serverName": "osbaciservername",
+		},
+		updatingParameters: map[string]interface{}{
+			"cores":           2,
+			"storage":         25,
+			"backupRetention": 35,
+		},
+		testCredentials: testMySQLCreds,
+	},
+	{
+		group:     "mysql",
+		name:      "dbms-only-specified-info",
+		serviceID: "30e7b836-199d-4335-b83d-adc7d23a95c2",
+		planID:    "b242a78f-9946-406a-af67-813c56341960",
+		provisioningParameters: map[string]interface{}{
+			"location": "southcentralus",
+			"alias":    mysqlDBMSAlias + "-2",
+			"firewallRules": []interface{}{
+				map[string]interface{}{
+					"name":           "AllowAll",
+					"startIPAddress": "0.0.0.0",
+					"endIPAddress":   "255.255.255.255",
+				},
+			},
+			"adminAccountSettings": map[string]interface{}{
+				"adminUsername": "osbaciadmin",
+				"adminPassword": generate.NewPassword(),
+			},
+			"serverName": "osbaciservername",
+		},
+		childTestCases: []*serviceLifecycleTestCase{
+			{ // database only scenario
+				group:           "mysql",
+				name:            "database-only",
+				serviceID:       "6704ae59-3eae-49e9-82b4-4cbcc00edf08",
+				planID:          "ec77bd04-2107-408e-8fde-8100c1ce1f46",
+				testCredentials: testMySQLCreds,
+				provisioningParameters: map[string]interface{}{
+					"parentAlias": mysqlDBMSAlias + "-2",
 				},
 			},
 		},

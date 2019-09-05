@@ -14,6 +14,7 @@ func (d *databaseManager) Bind(
 		isSSLRequired(*instance.Parent.ProvisioningParameters),
 		d.sqlDatabaseDNSSuffix,
 		pdt.ServerName,
+		pdt.AdministratorLogin,
 		string(pdt.AdministratorLoginPassword),
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,
