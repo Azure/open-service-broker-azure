@@ -36,6 +36,9 @@ func createBasicPlan(
 				ProvisioningParametersSchema: generateProvisioningParamsSchema(td),
 				UpdatingParametersSchema:     generateUpdatingParamsSchema(td),
 			},
+			ServiceBindings: service.BindingSchemas{
+				BindingParametersSchema: getBindingParamsSchema(),
+			},
 		},
 	}
 }
@@ -76,6 +79,9 @@ func createGPPlan(
 			ServiceInstances: service.InstanceSchemas{
 				ProvisioningParametersSchema: generateProvisioningParamsSchema(td),
 				UpdatingParametersSchema:     generateUpdatingParamsSchema(td),
+			},
+			ServiceBindings: service.BindingSchemas{
+				BindingParametersSchema: getBindingParamsSchema(),
 			},
 		},
 	}
@@ -118,6 +124,9 @@ func createMemoryOptimizedPlan(
 			ServiceInstances: service.InstanceSchemas{
 				ProvisioningParametersSchema: generateProvisioningParamsSchema(td),
 				UpdatingParametersSchema:     generateUpdatingParamsSchema(td),
+			},
+			ServiceBindings: service.BindingSchemas{
+				BindingParametersSchema: getBindingParamsSchema(),
 			},
 		},
 	}

@@ -169,6 +169,21 @@ func generateUpdatingParamsSchema(
 	}
 }
 
+// nolint: lll
+func getBindingParamsSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"username": &service.StringPropertySchema{
+				Title:                   "Username",
+				Description:             "The username to access created database.",
+				MinLength:               ptr.ToInt(1),
+				MaxLength:               ptr.ToInt(63),
+				CustomPropertyValidator: usernameValidator,
+			},
+		},
+	}
+}
+
 func isGeoRedundentBackup(pp service.ProvisioningParameters) bool {
 	return pp.GetString("backupRedundancy") == "geo"
 }

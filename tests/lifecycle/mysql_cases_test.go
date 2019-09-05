@@ -72,7 +72,7 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 			},
 		},
 	},
-	// Test case for specifying server name, admin username and admin password,
+	// Test case for specifying server name, admin username, admin password and database username.
 	{
 		group:     "mysql",
 		name:      "all-in-one-specified-info",
@@ -100,6 +100,9 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 			},
 			"serverName": "osbaciservername",
 		},
+		bindingParameters: map[string]interface{}{
+			"username": "OSBACIDBUser",
+		},
 		updatingParameters: map[string]interface{}{
 			"cores":           2,
 			"storage":         25,
@@ -126,7 +129,7 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 				"adminUsername": "osbaciadmin",
 				"adminPassword": generate.NewPassword(),
 			},
-			"serverName": "osbaciservername",
+			"serverName": "osbaciservername2",
 		},
 		childTestCases: []*serviceLifecycleTestCase{
 			{ // database only scenario
@@ -137,6 +140,9 @@ var mysqlTestCases = []serviceLifecycleTestCase{
 				testCredentials: testMySQLCreds,
 				provisioningParameters: map[string]interface{}{
 					"parentAlias": mysqlDBMSAlias + "-2",
+				},
+				bindingParameters: map[string]interface{}{
+					"username": "OSBACIDBUser",
 				},
 			},
 		},

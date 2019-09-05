@@ -75,12 +75,15 @@ Provisioning Parameters: memory-optimized
 
 ##### Bind
 
-Creates a new user on the MySQL DBMS. The new user will be named randomly and
-will be granted a wide array of permissions on the database.
+Creates a new user on the MySQL DBMS. The new user will be 
+granted a wide array of permissions on the database.
 
 ###### Binding Parameters
 
-This binding operation does not support any parameters.
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `username` | `string` | Name of created user.  | N | A random generated string. It is recommended not to specify this property and let OSBA generate a random one for you. |
+
 
 ###### Credentials
 
@@ -327,12 +330,14 @@ Provisions a new database upon a previously provisioned DBMS. The new database w
 
 ##### Bind
 
-Creates a new user on the MySQL DBMS. The new user will be named randomly and
+Creates a new user on the MySQL DBMS. The new user 
 will be granted a wide array of permissions on the database.
 
 ###### Binding Parameters
 
-This binding operation does not support any parameters.
+| Parameter Name | Type | Description | Required | Default Value |
+|----------------|------|-------------|----------|---------------|
+| `username` | `string` | Name of created user.  | N | A random generated string. It is recommended not to specify this property and let OSBA generate a random one for you. |
 
 ###### Credentials
 
