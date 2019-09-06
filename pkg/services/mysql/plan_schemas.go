@@ -266,7 +266,7 @@ func usernameValidator(context, value string) error {
 	return nil
 }
 
-// passwordValidator validates postgreSQL password,
+// passwordValidator validates MySQL password,
 // the password should:
 // 1. Have at least 8 characters and at most 128 characters.
 // 2. Contain characters from three of the following categories:
