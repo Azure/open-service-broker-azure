@@ -34,9 +34,9 @@ Provisions a new MySQL DBMS and a new database upon it. The new database will be
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Y | |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y | |
-| `serverName` | `string` | Name of the PostgreSQL server. | N | A random generated string. |
-| `adminAccountSettings` | `object` | Settings of administrator account of PostgreSQL server. Typically you do not need to specify this. | N | Default admin username is "postgres" and password is a randomly generated string. |
-| `adminAccountSettings.adminUsername` | `string` | The administrator username for the server. | N | "postgres" |
+| `serverName` | `string` | Name of the MySQL server. | N | A random generated string. |
+| `adminAccountSettings` | `object` | Settings of administrator account of MySQL server. Typically you do not need to specify this. | N | Default admin username is "azureuser" and password is a randomly generated string. |
+| `adminAccountSettings.adminUsername` | `string` | The administrator username for the server. | N | "azureuser" |
 | `adminAccountSettings.adminPassword` | `string` | The administrator password for the server. **Warning**: you may leak your password if you specify this property, others can see this password in your request body and `ServiceInstance` definition. DO NOT use this property unless you know what you are doing. | N | A random generated password. |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
 | `firewallRules`  | `array` | Specifies the firewall rules to apply to the server. Definition follows. | N | `[]` Left unspecified, Firewall will default to only Azure IPs. If rules are provided, they must have valid values. |
@@ -195,9 +195,9 @@ Provisions an Azure Database for MySQL DBMS instance containing no databases. Da
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Y | |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y | |
-| `serverName` | `string` | Name of the PostgreSQL server. | N | A random generated string. |
-| `adminAccountSettings` | `object` | Settings of administrator account of PostgreSQL server. Typically you do not need to specify this. | N | Default admin username is "postgres" and password is a randomly generated string. |
-| `adminAccountSettings.adminUsername` | `string` | The administrator username for the server. | N | "postgres" |
+| `serverName` | `string` | Name of the MySQL server. | N | A random generated string. |
+| `adminAccountSettings` | `object` | Settings of administrator account of MySQL server. Typically you do not need to specify this. | N | Default admin username is "azureuser" and password is a randomly generated string. |
+| `adminAccountSettings.adminUsername` | `string` | The administrator username for the server. | N | "azureuser" |
 | `adminAccountSettings.adminPassword` | `string` | The administrator password for the server. **Warning**: you may leak your password if you specify this property, others can see this password in your request body and `ServiceInstance` definition. DO NOT use this property unless you know what you are doing. | N | A random generated password. |
 | `alias` | `string` | Specifies an alias that can be used by later provision actions to create databases on this DBMS. | Y | |
 | `sslEnforcement` | `string` | Specifies whether the server requires the use of TLS when connecting. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | `""`. Left unspecified, SSL _will_ be enforced. |
