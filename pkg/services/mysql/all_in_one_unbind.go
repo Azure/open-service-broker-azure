@@ -14,6 +14,7 @@ func (a *allInOneManager) Unbind(
 		isSSLRequired(*instance.ProvisioningParameters),
 		a.sqlDatabaseDNSSuffix,
 		dt.ServerName,
+		dt.AdministratorLogin,
 		string(dt.AdministratorLoginPassword),
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,

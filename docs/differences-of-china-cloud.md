@@ -12,9 +12,7 @@ Below are known differences between Azure China Cloud and Azure Public Cloud(the
 
 - MySQL
 
-  - Only chinanorth and chinaeast is available. DO NOT use chinanorth2/chinaeast2.
   - Memory optimized plan is not supported in Azure China Cloud.
-  - Gen5 hardware is not supported. (OSBA will auto-switch to Gen4)
 
 - PostgreSQL
 

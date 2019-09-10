@@ -9,21 +9,27 @@ import (
 )
 
 func createBinding(
+	bp service.BindingParameters,
 	enforceSSL bool,
 	dnsSuffix string,
 	serverName string,
+	adminUsername string,
 	adminPassword string,
 	fqdn string,
 	databaseName string,
 ) (service.BindingDetails, error) {
 
-	userName := generate.NewIdentifier()
+	userName := bp.GetString("username")
+	if userName == "" {
+		userName = generate.NewIdentifier()
+	}
 	password := generate.NewPassword()
 
 	db, err := createDBConnection(
 		enforceSSL,
 		dnsSuffix,
 		serverName,
+		adminUsername,
 		adminPassword,
 		fqdn,
 		databaseName,

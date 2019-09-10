@@ -6,14 +6,16 @@ import (
 
 func (d *databaseManager) Bind(
 	instance service.Instance,
-	_ service.BindingParameters,
+	bp service.BindingParameters,
 ) (service.BindingDetails, error) {
 	pdt := instance.Parent.Details.(*dbmsInstanceDetails)
 	dt := instance.Details.(*databaseInstanceDetails)
 	return createBinding(
+		bp,
 		isSSLRequired(*instance.Parent.ProvisioningParameters),
 		d.sqlDatabaseDNSSuffix,
 		pdt.ServerName,
+		pdt.AdministratorLogin,
 		string(pdt.AdministratorLoginPassword),
 		pdt.FullyQualifiedDomainName,
 		dt.DatabaseName,

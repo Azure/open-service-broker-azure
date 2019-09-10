@@ -6,13 +6,15 @@ import (
 
 func (a *allInOneManager) Bind(
 	instance service.Instance,
-	_ service.BindingParameters,
+	bp service.BindingParameters,
 ) (service.BindingDetails, error) {
 	dt := instance.Details.(*allInOneInstanceDetails)
 	return createBinding(
+		bp,
 		isSSLRequired(*instance.ProvisioningParameters),
 		a.sqlDatabaseDNSSuffix,
 		dt.ServerName,
+		dt.AdministratorLogin,
 		string(dt.AdministratorLoginPassword),
 		dt.FullyQualifiedDomainName,
 		dt.DatabaseName,

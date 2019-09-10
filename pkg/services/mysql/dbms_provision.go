@@ -4,10 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Azure/open-service-broker-azure/pkg/generate"
 	"github.com/Azure/open-service-broker-azure/pkg/service"
 	_ "github.com/go-sql-driver/mysql" // MySQL driver
-	uuid "github.com/satori/go.uuid"
 )
 
 func (d *dbmsManager) GetProvisioner(
@@ -21,22 +19,19 @@ func (d *dbmsManager) GetProvisioner(
 
 func (d *dbmsManager) preProvision(
 	ctx context.Context,
-	_ service.Instance,
+	instance service.Instance,
 ) (service.InstanceDetails, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-	serverName, err := getAvailableServerName(
+	dbmsInstanceDetails, err := generateDBMSInstanceDetails(
 		ctx,
+		instance,
 		d.checkNameAvailabilityClient,
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error generating instance detail: %v", err)
 	}
-	return &dbmsInstanceDetails{
-		ARMDeploymentName:          uuid.NewV4().String(),
-		ServerName:                 serverName,
-		AdministratorLoginPassword: service.SecureString(generate.NewPassword()),
-	}, nil
+	return dbmsInstanceDetails, nil
 }
 
 func (d *dbmsManager) deployARMTemplate(

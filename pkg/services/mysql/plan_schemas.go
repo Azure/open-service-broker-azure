@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net"
+	"unicode"
 
 	"github.com/Azure/open-service-broker-azure/pkg/ptr"
 	"github.com/Azure/open-service-broker-azure/pkg/schemas"
@@ -41,6 +42,7 @@ func (t *tierDetails) getSku(pp service.ProvisioningParameters) string {
 	return sku
 }
 
+// nolint: lll
 func generateProvisioningParamsSchema(
 	td tierDetails,
 ) service.InputParametersSchema {
@@ -54,6 +56,34 @@ func generateProvisioningParamsSchema(
 		Description:  "Specifies the backup redundancy",
 		OneOf:        td.allowedBackupRedundancy,
 		DefaultValue: "local",
+	}
+	ips.PropertySchemas["serverName"] = &service.StringPropertySchema{
+		Title:       "Server Name",
+		Description: "Name of the MySQL server",
+		MinLength:   ptr.ToInt(3),
+		MaxLength:   ptr.ToInt(63),
+		// The server name can only contain lower case characters and numbers.
+		AllowedPattern: `^[a-z0-9]+$`,
+	}
+	ips.PropertySchemas["adminAccountSettings"] = &service.ObjectPropertySchema{
+		Title:       "Admin Account Setttings",
+		Description: "Settings of administrator account of MySQL server. Typically you do not need to specify this.",
+		PropertySchemas: map[string]service.PropertySchema{
+			"adminUsername": &service.StringPropertySchema{
+				Title:                   "Admin Username",
+				Description:             "The administrator username for the server.",
+				MinLength:               ptr.ToInt(1),
+				MaxLength:               ptr.ToInt(63),
+				CustomPropertyValidator: usernameValidator,
+			},
+			"adminPassword": &service.StringPropertySchema{
+				Title:                   "Admin Password",
+				Description:             "The administrator password for the server. **Warning**: you may leak your password if you specify this property, others can see this password in your request body and `ServiceInstance` definition. DO NOT use this property unless you know what you are doing.",
+				MinLength:               ptr.ToInt(8),
+				MaxLength:               ptr.ToInt(128),
+				CustomPropertyValidator: passwordValidator,
+			},
+		},
 	}
 	ips.PropertySchemas["tags"] = &service.ObjectPropertySchema{
 		Title: "Tags",
@@ -139,6 +169,21 @@ func generateUpdatingParamsSchema(
 	}
 }
 
+// nolint: lll
+func getBindingParamsSchema() service.InputParametersSchema {
+	return service.InputParametersSchema{
+		PropertySchemas: map[string]service.PropertySchema{
+			"username": &service.StringPropertySchema{
+				Title:                   "Username",
+				Description:             "The username to access created database.",
+				MinLength:               ptr.ToInt(1),
+				MaxLength:               ptr.ToInt(63),
+				CustomPropertyValidator: usernameValidator,
+			},
+		},
+	}
+}
+
 func isGeoRedundentBackup(pp service.ProvisioningParameters) bool {
 	return pp.GetString("backupRedundancy") == "geo"
 }
@@ -178,6 +223,93 @@ func firewallRuleValidator(
 				endIP,
 				startIP,
 			),
+		)
+	}
+	return nil
+}
+
+// usernameValidator validates MySQL username,
+// the username should:
+// 1. It's a SQL Identifier, and not a typical system name
+// (like admin, administrator, sa, root, dbmanager, loginmanager, etc.)
+// 2. It shouldn't be a built-in database user or role
+// (like dbo, guest, public, etc.)
+// 3. It shouldn't contain whitespaces, unicode characters,
+// or nonalphabetic characters,
+// and that it doesn't begin with numbers or symbols.
+func usernameValidator(context, value string) error {
+	if value == "admin" ||
+		value == "administrator" ||
+		value == "sa" ||
+		value == "root" ||
+		value == "dbmanager" ||
+		value == "loginmanager" ||
+		value == "dbo" ||
+		value == "guest" ||
+		value == "public" {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf("admin username can't be %s", value),
+		)
+	}
+	runes := []rune(value)
+	if !unicode.IsLetter(runes[0]) {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf("admin username must begin with a character"),
+		)
+	}
+	// For constraint3, it's really ambiguious which character is allowed.
+	// When tested on Azure Portal, character `!@$` is allowed,
+	// but character `#` is not allowed. I directly skip validating here
+	// and let MySQL RP return the error.
+	return nil
+}
+
+// passwordValidator validates MySQL password,
+// the password should:
+// 1. Have at least 8 characters and at most 128 characters.
+// 2. Contain characters from three of the following categories:
+//    – English uppercase letters
+//    - English lowercase letters
+//    - numbers (0-9),
+//    - non-alphanumeric characters (!, $, #, %, etc.).
+// nolint: lll
+func passwordValidator(context, value string) error {
+	if len(value) < 8 || len(value) > 128 {
+		return service.NewValidationError(
+			context,
+			fmt.Sprintf("the passsword should have at least 8 characters and at most 128 characters, given password's length is %d", len(value)), // nolint: lll
+		)
+	}
+	runes := []rune(value)
+	var (
+		digitOccurred              int
+		lowercaseCharacterOccurred int
+		uppercaseCharacterOccurred int
+		specialCharacterOccurred   int
+	)
+	// Note: here if we don't add nolint, linter
+	// will report error "should range over string, not []rune(string)"
+	// The difference can be found here:
+	// https://stackoverflow.com/questions/49062100/is-there-any-difference-between-range-str-and-range-runestr-in-golang
+	// In our senario, that's OK to range over rune slice.
+	for _, r := range runes { // nolint: megacheck
+		if unicode.IsDigit(r) {
+			digitOccurred = 1
+		} else if unicode.IsLower(r) {
+			lowercaseCharacterOccurred = 1
+		} else if unicode.IsUpper(r) {
+			uppercaseCharacterOccurred = 1
+		} else {
+			specialCharacterOccurred = 1
+		}
+	}
+
+	if digitOccurred+lowercaseCharacterOccurred+uppercaseCharacterOccurred+specialCharacterOccurred < 3 {
+		return service.NewValidationError(
+			context,
+			"the password must contain characters from three of the following categories – English uppercase letters, English lowercase letters, numbers (0-9), and non-alphanumeric characters.", // nolint: lll
 		)
 	}
 	return nil

@@ -13,6 +13,7 @@ func createDBConnection(
 	enforceSSL bool,
 	sqlDatabaseDNSSuffix string,
 	server string,
+	username string,
 	password string,
 	fqdn string,
 	dbname string,
@@ -33,14 +34,15 @@ func createDBConnection(
 				" for the database: %s", err)
 		}
 		connectionStrTemplate =
-			"azureuser@%s:%s@tcp(%s:3306)/%s?allowNativePasswords=true&tls=custom"
+			"%s@%s:%s@tcp(%s:3306)/%s?allowNativePasswords=true&tls=custom"
 	} else {
 		connectionStrTemplate =
-			"azureuser@%s:%s@tcp(%s:3306)/%s?allowNativePasswords=true"
+			"%s@%s:%s@tcp(%s:3306)/%s?allowNativePasswords=true"
 	}
 
 	db, err := sql.Open("mysql", fmt.Sprintf(
 		connectionStrTemplate,
+		username,
 		server,
 		password,
 		fqdn,
