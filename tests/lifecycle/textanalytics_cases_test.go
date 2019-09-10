@@ -33,7 +33,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 				"latest-operation": "provision",
 			},
 		},
-		testCredentials: testTextAnalyticsCreds,
+		//testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s0 tier
 		group:     "textanalytics",
@@ -43,7 +43,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
-		testCredentials: testTextAnalyticsCreds,
+		//testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s1 tier
 		group:     "textanalytics",
@@ -53,7 +53,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
-		testCredentials: testTextAnalyticsCreds,
+		//testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s2 tier
 		group:     "textanalytics",
@@ -63,7 +63,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
-		testCredentials: testTextAnalyticsCreds,
+		//testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s3 tier
 		group:     "textanalytics",
@@ -73,7 +73,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
-		testCredentials: testTextAnalyticsCreds,
+		//testCredentials: testTextAnalyticsCreds,
 	},
 	{ // Text analytics standard-s4 tier
 		group:     "textanalytics",
@@ -83,7 +83,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 		provisioningParameters: map[string]interface{}{
 			"location": "eastus",
 		},
-		testCredentials: testTextAnalyticsCreds,
+		//testCredentials: testTextAnalyticsCreds,
 	},
 }
 
