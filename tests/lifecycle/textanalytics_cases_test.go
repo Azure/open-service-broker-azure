@@ -9,11 +9,13 @@ import (
 	"net/http"
 )
 
+// nolint: megacheck
 // Sentiment struct for credentials test
 type Sentiment struct {
 	Documents []Documents `json:"documents"`
 }
 
+// nolint: megacheck
 // Documents struct for credentials test
 type Documents struct {
 	Language string `json:"language"`
@@ -87,6 +89,7 @@ var textanalyticsTestCases = []serviceLifecycleTestCase{
 	},
 }
 
+// nolint: megacheck
 func testTextAnalyticsCreds(credentials map[string]interface{}) error {
 
 	// Test data
