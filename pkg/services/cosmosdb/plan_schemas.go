@@ -155,7 +155,7 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 
 func generateMongoDBProvisionParamsSchema() service.InputParametersSchema {
 	sharedProvisioningSchema := generateProvisioningParamsSchema()
-	sharedProvisioningSchema.PropertySchemas["version"] = &service.StringPropertySchema{
+	sharedProvisioningSchema.PropertySchemas["version"] = &service.StringPropertySchema{ // nolint: lll
 		Title: "The version of MongoDB api",
 		Description: "Specifies the version you want to use " +
 			"in created MongoDB acccount.",
