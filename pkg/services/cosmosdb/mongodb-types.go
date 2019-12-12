@@ -26,3 +26,8 @@ func (
 func (m *mongoAccountManager) GetEmptyBindingDetails() service.BindingDetails {
 	return nil
 }
+
+const (
+	mongoDBVersion36 = "3.6"
+	mongoDBVersion32 = "3.2"
+)

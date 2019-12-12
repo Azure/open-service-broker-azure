@@ -218,6 +218,7 @@ Provisions a new CosmosDB database account that can be accessed through the Mong
 |----------------|------|-------------|----------|---------------|
 | `location` | `string` | The Azure region in which to provision applicable resources. | Y |  |
 | `resourceGroup` | `string` | The (new or existing) resource group with which to associate new resources. | Y |  |
+| `version` | `string` | The version of MongoDB api. Allowed values are: ["3.2", "3.6"] | Y | If not specified, 3.2 will be used. |
 | `tags` | `map[string]string` | Tags to be applied to new resources, specified as key/value pairs. | N | Tags (even if none are specified) are automatically supplemented with `heritage: open-service-broker-azure`. |
 | `ipFilters` | `object` | IP Range Filter to be applied to new CosmosDB account | N | A default filter is created that allows only Azure service access |
 | `ipFilters.allowAccessFromAzure` | `string` | Specifies if Azure Services should be able to access the CosmosDB account. Valid valued are `""` (unspecified), `enabled`, or `disabled`. | N | If left unspecified, defaults to enabled. |
