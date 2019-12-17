@@ -34,6 +34,11 @@ func (m *mongoAccountManager) deployARMTemplate(
 	if err != nil {
 		return nil, err
 	}
+
+	mongoDBVersion := pp.GetString("version")
+	if mongoDBVersion == mongoDBVersion36 {
+		p["capability"] = "EnableMongo"
+	}
 	tags := getTags(pp)
 	fqdn, pk, err := m.cosmosAccountManager.deployARMTemplate(
 		pp,

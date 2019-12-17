@@ -153,6 +153,18 @@ func generateProvisioningParamsSchema() service.InputParametersSchema {
 	}
 }
 
+func generateMongoDBProvisionParamsSchema() service.InputParametersSchema {
+	sharedProvisioningSchema := generateProvisioningParamsSchema()
+	sharedProvisioningSchema.PropertySchemas["version"] = &service.StringPropertySchema{ // nolint: lll
+		Title: "The version of MongoDB api",
+		Description: "Specifies the version you want to use " +
+			"in created MongoDB acccount.",
+		AllowedValues: []string{mongoDBVersion32, mongoDBVersion36},
+		DefaultValue:  mongoDBVersion32,
+	}
+	return sharedProvisioningSchema
+}
+
 func ipRangeValidator(context, value string) error {
 	ip := net.ParseIP(value)
 	if ip == nil {

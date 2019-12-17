@@ -109,6 +109,25 @@ var cosmosdbTestCases = []serviceLifecycleTestCase{
 			"readRegions": []interface{}{},
 		},
 	},
+	{ // MongoDB v3.6
+		group:     "cosmosdb",
+		name:      "mongo-api-account-only-v3.6",
+		serviceID: "8797a079-5346-4e84-8018-b7d5ea5c0e3a",
+		planID:    "86fdda05-78d7-4026-a443-1325928e7b02",
+
+		testCredentials: testMongoDBCreds,
+		provisioningParameters: map[string]interface{}{
+			"location": "eastus",
+			"version":  "3.6",
+			"ipFilters": map[string]interface{}{
+				"allowedIPRanges": []interface{}{"0.0.0.0/0"},
+			},
+			"consistencyPolicy": map[string]interface{}{
+				"defaultConsistencyLevel": "Session",
+			},
+			"readRegions": []interface{}{"westus"},
+		},
+	},
 	{ // SQL API All In One
 		group:     "cosmosdb",
 		name:      "sql-api-all-in-one",
