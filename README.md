@@ -3,6 +3,8 @@
 [![CircleCI](https://circleci.com/gh/Azure/open-service-broker-azure.svg?style=svg&circle-token=aa5b73cd7dbb09923f96d9c250b85df671693260)](https://circleci.com/gh/Azure/open-service-broker-azure)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Azure/open-service-broker-azure)](https://goreportcard.com/report/github.com/Azure/open-service-broker-azure)
 
+**This project is no longer being maintained by Microsoft. Please refer to https://github.com/Azure/azure-service-operator for an alternate implementation.**
+
 **Open Service Broker for Azure** is the open source,
 [Open Service Broker](https://www.openservicebrokerapi.org/)-compatible API
 server that provisions managed services in the Microsoft Azure public cloud.
