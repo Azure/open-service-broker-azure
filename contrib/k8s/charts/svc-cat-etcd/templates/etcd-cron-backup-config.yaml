@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-backup-config
+data:
+  backup_cr.yaml: |
+    apiVersion: "etcd.database.coreos.com/v1beta2"
+    kind: "EtcdBackup"
+    metadata:
+      generateName: {{ .Values.cluster.name}}-backup-
+    spec:
+      etcdEndpoints: ["http://{{ .Values.cluster.name}}-client:2379"]
+      storageType: ABS 
+      abs:
+        path: {{ .Values.azure.storage.container}}/{{ .Values.cluster.name }}-backup.<NOW>
+        absSecret: {{ template "fullname" . }}

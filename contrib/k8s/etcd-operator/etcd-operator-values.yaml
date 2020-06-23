@@ -1,0 +1,17 @@
+rbac:
+  create: false
+
+# etcdOperator
+etcdOperator:
+  image:
+    tag: v0.9.2
+
+# backup spec
+backupOperator:
+  image:
+    tag: v0.9.2
+
+# restore spec
+restoreOperator:
+  image:
+    tag: v0.9.2

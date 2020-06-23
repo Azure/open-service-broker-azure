@@ -1,0 +1,11 @@
+apiVersion: etcd.database.coreos.com/v1beta2
+kind: EtcdRestore
+metadata:
+  name: svc-cat-etcd-restore
+spec:
+  etcdCluster:
+    name: svc-cat-etcd
+  backupStorageType: ABS
+  abs:
+    path: <BACKUP-FILE> 
+    absSecret: abs-credentials 

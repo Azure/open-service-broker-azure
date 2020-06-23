@@ -1,0 +1,5 @@
+An etcd cluster will be created named {{ .Values.cluster.name }}. This may take some time to complete. You can check the status of this with:
+
+$ kubectl get pods
+
+To use the new cluster, connect to the client service at "http://{{ .Values.cluster.name}}-client:2379". Please not, this is a Cluster IP service, so it will only be exposed within the cluster. 

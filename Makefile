@@ -337,18 +337,21 @@ DOCKER_HELM_CMD := docker run \
 	-w /go/src/$(BASE_PACKAGE_NAME) \
 	$(HELM_IMAGE)
 
-LINT_CHART_CMD := helm lint contrib/k8s/charts/open-service-broker-azure \
+LINT_OSBA_CHART_CMD := helm lint contrib/k8s/charts/open-service-broker-azure \
 	--set azure.tenantId=foo \
 	--set azure.subscriptionId=foo \
 	--set azure.clientId=foo \
 	--set azure.clientSecret=foo
 
+LINT_SVC_CAT_ETC_CHART_CMD := helm lint contrib/k8s/charts/svc-cat-etcd
+
 .PHONY: lint-chart
 lint-chart:
 ifdef SKIP_DOCKER
-	$(LINT_CHART_CMD)
+	$(LINT_OSBA_CHART_CMD) $(LINT_SVC_CAT_ETC_CHART_CMD)
+	
 else
-	$(DOCKER_HELM_CMD) $(LINT_CHART_CMD)
+	$(DOCKER_HELM_CMD) $(LINT_OSBA_CHART_CMD) $(LINT_SVC_CAT_ETC_CHART_CMD)
 endif
 
 PUBLISH_RC_CHART_CMD := bash -c ' \
@@ -365,6 +368,11 @@ PUBLISH_RC_CHART_CMD := bash -c ' \
 		-c azure-rc \
 		--file open-service-broker-azure-0.0.1-$(GIT_VERSION).tgz \
 		--name open-service-broker-azure-0.0.1-$(GIT_VERSION).tgz \
+	&& helm package ../svc-cat-etcd \
+	&& az storage blob upload \
+		-c azure-rc \
+		--file svc-cat-etcd-0.0.1-$(GIT_VERSION).tgz \
+		--name svc-cat-etcd-0.0.1-$(GIT_VERSION).tgz \
 	&& az storage container lease acquire -c azure-rc --lease-duration 60 \
 	&& helm repo index --url https://kubernetescharts.blob.core.windows.net/azure-rc . \
 	&& az storage blob upload \
@@ -381,12 +389,18 @@ PUBLISH_RELEASE_CHART_CMD := bash -c ' \
 	&& sed -i "s/^version:.*/version: $${SIMPLE_REL_VERSION}/g" ../open-service-broker-azure/Chart.yaml \
 	&& sed -i "s/^appVersion:.*/appVersion: $${SIMPLE_REL_VERSION}/g" ../open-service-broker-azure/Chart.yaml \
 	&& sed -i "s/^  tag:.*/  tag: $(REL_VERSION)/g" ../open-service-broker-azure/values.yaml \
+	&& sed -i "s/^version:.*/version: $${SIMPLE_REL_VERSION}/g" ../svc-cat-etcd/Chart.yaml \
 	&& helm dep build ../open-service-broker-azure \
 	&& helm package ../open-service-broker-azure \
 	&& az storage blob upload \
 		-c azure \
 		--file open-service-broker-azure-$${SIMPLE_REL_VERSION}.tgz \
 		--name open-service-broker-azure-$${SIMPLE_REL_VERSION}.tgz \
+	&& helm package ../svc-cat-etcd \
+	&& az storage blob upload \
+		-c azure \
+		--file svc-cat-etcd-$${SIMPLE_REL_VERSION}.tgz \
+		--name svc-cat-etcd-$${SIMPLE_REL_VERSION}.tgz \
 	&& az storage container lease acquire -c azure --lease-duration 60 \
 	&& az storage blob download \
 		-c azure \

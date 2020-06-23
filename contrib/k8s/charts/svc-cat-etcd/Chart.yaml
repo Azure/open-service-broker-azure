@@ -1,0 +1,4 @@
+apiVersion: v1
+description: A Helm chart for Creating an etcd Cluster For Service Catalog
+name: svc-cat-etcd
+version: 0.1.0
