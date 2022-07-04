@@ -1,4 +1,4 @@
-# [Azure CosmosDB](https://azure.microsoft.com/en-us/services/cosmos-db/)
+# [Azure Cosmos DB](https://azure.microsoft.com/en-us/services/cosmos-db/)
 
 _Note: This module is PREVIEW._
 
@@ -17,7 +17,7 @@ _This module involves the Parent-Child Model concept in OSBA, please refer to th
 ##### Provision
 
 Provisions a new CosmosDB database account that can be accessed through any of the SQL API. The new database account is named using a new UUID. Additionally
-provisions an empty Database. Ready to use with existing Azure CosmosDB libraries.
+provisions an empty Database. Ready to use with existing Azure Cosmos DB libraries.
 
 ###### Provisioning Parameters
 
